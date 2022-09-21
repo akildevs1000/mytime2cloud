@@ -72,7 +72,7 @@ export default {
     snackbar: false,
     response: "",
 
-    url: "ws://localhost:2222/WebSocket",
+    // url: "ws://localhost:2222/WebSocket",
     Hash: "$2y$10$RQ0d7Yo1ad/aTm2pEx3QvuGatA6t0qqH76m7VXYGkNjzVYqNGAQ.K",
     logs: [],
     socket: null,
@@ -85,7 +85,7 @@ export default {
   },
   methods: {
     socketConnection() {
-      this.socket = new WebSocket(this.url);
+      this.socket = new WebSocket(process.env.SOCKET_ENDPOINT);
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data);
         if (json.Status == 200) {
