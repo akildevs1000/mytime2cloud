@@ -1,51 +1,36 @@
 <template>
+
   <v-app>
-    <v-row class="pa-5">
-      <v-col>
-        <v-toolbar dark flat class="primary">
-          <h3 class="pt-5 pb-5">Logs</h3>
-        </v-toolbar>
-        <v-data-table
-          :headers="headers"
-          :items="logs"
-          :items-per-page="5"
-          class="elevation-3"
-          dense
-        ></v-data-table>
-        <!-- <v-simple-table dense>
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th><h3 class="pb-5">Logs</h3></th>
-              </tr>
-              <tr>
-                <th class="text-left">
-                  UserID
-                </th>
-                <th class="text-left">
-                  DeviceID
-                </th>
-                <th class="text-left">
-                  LogTime
-                </th>
-                <th class="text-left">
-                  SerialNumber
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in logs" :key="index">
-                <td>{{ item.UserID }}</td>
-                <td>{{ item.DeviceID }}</td>
-                <td>{{ item.LogTime }}</td>
-                <td>{{ item.SerialNumber }}</td>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table> -->
+
+    <v-row>
+
+      <v-col cols="12" md="4">
+
+        <v-card class="ma-5 pa-2">
+
+          <div class="text-center">
+
+            <img width="35%" src="ideaHRMS-final-green.svg" />
+
+          </div>
+
+          <v-text-field outlined dense v-model="url"></v-text-field>
+
+          <v-data-table
+            :headers="headers"
+            :items="logs"
+            :items-per-page="5"
+            dense
+          ></v-data-table>
+
+        </v-card>
+
       </v-col>
+
     </v-row>
+
   </v-app>
+
 </template>
 
 <script>
@@ -59,12 +44,12 @@ export default {
     headers: [
       {
         text: "UserID",
-        align: "start",
+        align: "center",
         sortable: false,
         value: "UserID"
       },
-      { text: "DeviceID", value: "DeviceID" },
-      { text: "LogTime", value: "LogTime" }
+      { text: "DeviceID", align: "center", value: "DeviceID" },
+      { text: "LogTime", align: "center", value: "LogTime" }
       //   { text: "SerialNumber", value: "SerialNumber" }
     ],
 
@@ -72,8 +57,8 @@ export default {
     snackbar: false,
     response: "",
 
-    // url: "ws://localhost:2222/WebSocket",
-    Hash: "$2y$10$RQ0d7Yo1ad/aTm2pEx3QvuGatA6t0qqH76m7VXYGkNjzVYqNGAQ.K",
+    url: process.env.SOCKET_ENDPOINT,
+    Hash: process.env.Hash,
     logs: [],
     socket: null,
 
@@ -83,11 +68,10 @@ export default {
   mounted() {
     this.socketConnection();
   },
- 
+
   methods: {
     socketConnection() {
-      console.log(process.env.SOCKET_ENDPOINT);
-      this.socket = new WebSocket(process.env.SOCKET_ENDPOINT);
+      this.socket = new WebSocket(this.url);
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data);
         if (json.Status == 200) {
@@ -97,7 +81,7 @@ export default {
             LogTime: json.Data.RecordDate,
             Hash: this.Hash
           };
-          this.logs.push(payload);  
+          this.logs.push(payload);
           this.store(payload);
         }
       };
@@ -116,6 +100,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 @media (min-width: 768px) {
   .gradient-form {
@@ -129,3 +114,4 @@ export default {
   }
 }
 </style>
+
