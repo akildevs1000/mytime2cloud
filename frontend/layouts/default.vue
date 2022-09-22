@@ -1,57 +1,31 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      v-model="drawer"
-      dark
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
-      class="no_print"
-      color="background"
-    >
+    <v-navigation-drawer v-model="drawer" dark :mini-variant="miniVariant" :clipped="clipped" fixed app class="no_print"
+      :color="sideBarcolor">
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
-        <v-list-item
-          :to="i.to"
-          router
-          v-if="!i.hasChildren"
-          :class="!miniVariant || 'pl-2'"
-        >
+        <v-list-item :to="i.to" router v-if="!i.hasChildren" :class="!miniVariant || 'pl-2'">
           <v-list-item-icon v-if="i.permission" class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-title v-if="i.permission">
             {{ i.title }}&nbsp;
-            <v-badge
-              v-if="i.title == 'Orders' && order_count > 0"
-              color="primary"
-              :content="order_count"
-              small
-            />
+            <v-badge v-if="i.title == 'Orders' && order_count > 0" color="primary" :content="order_count" small />
           </v-list-item-title>
         </v-list-item>
 
-        <v-list-item
-          v-else
-          :class="!miniVariant || 'pl-2'"
-          @click="i.open_menu = !i.open_menu"
-        >
+        <v-list-item v-else :class="!miniVariant || 'pl-2'" @click="i.open_menu = !i.open_menu">
           <v-list-item-icon v-if="i.permission" class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-title v-if="i.permission">{{
-            i.title
+          i.title
           }}</v-list-item-title>
           <v-icon v-if="i.permission" small>{{
-            !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up"
+          !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up"
           }}</v-icon>
         </v-list-item>
         <div v-if="i.open_menu && i.title == `Modules`">
-          <div
-            style="margin-left: 50px"
-            v-for="(j, jdx) in modules.module_names"
-            :key="jdx"
-          >
+          <div style="margin-left: 50px" v-for="(j, jdx) in modules.module_names" :key="jdx">
             <v-list-item v-if="j.permission" style="min-height: 0" :to="j.to">
               <v-list-item-title>{{ j.title }}</v-list-item-title>
 
@@ -63,11 +37,7 @@
         </div>
 
         <div v-else-if="i.open_menu && i.title != `Modules`">
-          <div
-            style="margin-left: 50px"
-            v-for="(j, jdx) in i.hasChildren"
-            :key="jdx"
-          >
+          <div style="margin-left: 50px" v-for="(j, jdx) in i.hasChildren" :key="jdx">
             <v-list-item v-if="j.permission" style="min-height: 0" :to="j.to">
               <v-list-item-title>{{ j.title }}</v-list-item-title>
 
@@ -90,18 +60,14 @@
       </v-btn>
       {{ title }}
       <v-spacer></v-spacer>
-      <!-- <v-btn icon @click.stop="rightDrawer = !rightDrawer">
+
+
+      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>mdi-menu</v-icon>
-      </v-btn> -->
-      <v-menu
-        nudge-bottom="50"
-        transition="scale-transition"
-        origin="center center"
-        bottom
-        left
-        min-width="200"
-        nudge-left="20"
-      >
+      </v-btn>
+
+      <v-menu nudge-bottom="50" transition="scale-transition" origin="center center" bottom left min-width="200"
+        nudge-left="20">
         <template v-slot:activator="{ on, attrs }">
           <label class="px-2" v-bind="attrs" v-on="on">
             {{ getUser }}
@@ -121,9 +87,7 @@
                 <v-icon>mdi-account-multiple-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text"
-                  >Profile</v-list-item-title
-                >
+                <v-list-item-title class="black--text">Profile</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -132,9 +96,7 @@
                 <v-icon>mdi-cog</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text"
-                  >Setting</v-list-item-title
-                >
+                <v-list-item-title class="black--text">Setting</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -143,30 +105,51 @@
                 <v-icon>mdi-logout</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text"
-                  >Logout</v-list-item-title
-                >
+                <v-list-item-title class="black--text">Logout</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
         </v-list>
       </v-menu>
     </v-app-bar>
-
-    <v-main>
+    <v-main :style=" $nuxt.$route.path == '/index2' ? 'background-color: #ECF0F4' : '' ">
       <v-container>
         <nuxt />
       </v-container>
     </v-main>
-    <v-navigation-drawer v-model="rightDrawer" :right="right" temporary fixed>
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light> mdi-repeat </v-icon>
-          </v-list-item-action>
-          <v-list-item-title>Switch drawer (click me)</v-list-item-title>
-        </v-list-item>
-      </v-list>
+    <v-btn height="55" dark :color="changeColor" class="fixed-setting"
+      :class="rightDrawer ? 'setting-drawer-open ': 'setting-drawer-close'" @click.stop="rightDrawer = !rightDrawer">
+      <v-icon class="spin" dark size="25">mdi-cog</v-icon>
+    </v-btn>
+    <v-navigation-drawer v-model="rightDrawer" :right="right" temporsary fixed>
+      <v-row>
+        <v-col>
+          <v-card class="pa-2" elevation="0">
+            <v-col cols="12">
+              <div class="mb-5">
+                <Strong>Top Bar</Strong>
+              </div>
+              <div class="d-flex">
+                <v-btn class="mx-2" fab dark x-small color="primary" @click="changeTopBarColor('primary')"></v-btn>
+                <v-btn class="mx-2" fab dark x-small color="error" @click="changeTopBarColor('error')"></v-btn>
+                <v-btn class="mx-2" fab dark x-small color="indigo" @click="changeTopBarColor('indigo')"></v-btn>
+              </div>
+            </v-col>
+            <v-col cols="12">
+              <div class="mb-5">
+                <Strong>Side Bar</Strong>
+              </div>
+              <div class="d-flex">
+                <v-btn class="mx-2" fab dark x-small color="primary" @click="changeSideBarColor('primary')"></v-btn>
+                <v-btn class="mx-2" fab dark x-small color="error" @click="changeSideBarColor('error')"></v-btn>
+                <v-btn class="mx-2" fab dark x-small color="indigo" @click="changeSideBarColor('indigo')"></v-btn>
+                <v-btn class="mx-2" fab dark x-small color="background" @click="changeSideBarColor('background')">
+                </v-btn>
+              </div>
+            </v-col>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-navigation-drawer>
   </v-app>
 </template>
@@ -174,13 +157,14 @@
 
 <script>
 export default {
-  mounted() {},
+  mounted() { },
   data() {
     return {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-
+      color: '',
+      sideBarcolor: 'background',
       year: new Date().getFullYear(),
       dropdown_menus: [{ title: "setting" }, { title: "logout" }],
       clipped: false,
@@ -380,6 +364,9 @@ export default {
     this.getCompanyDetails();
   },
   computed: {
+
+
+
     changeColor() {
       return this.$store.state.color;
     },
@@ -393,6 +380,17 @@ export default {
     },
   },
   methods: {
+
+    changeTopBarColor(color) {
+      this.color = color;
+      this.$store.commit("change_color", color);
+    },
+
+    changeSideBarColor(color) {
+      this.sideBarcolor = color;
+
+    },
+
     caps(str) {
       return str.replace(/\b\w/g, (c) => c.toUpperCase());
     },
@@ -492,4 +490,52 @@ export default {
     transform: scale(0);
   }
 } */
+
+.fixed-setting {
+  position: fixed !important;
+  top: 500px;
+  z-index: 100000;
+  background-color: red !important;
+  transition: right 1000ms !important;
+}
+
+.v-btn__content {
+  margin: 0 12px 0 0px !important;
+  padding: 0 !important;
+}
+
+
+.setting-drawer-open {
+  right: 250px !important;
+}
+
+.setting-drawer-close {
+  right: -15px !important;
+}
+
+
+.spin {
+  -webkit-animation: spin 4s linear infinite;
+  -moz-animation: spin 4s linear infinite;
+  animation: spin 4s linear infinite;
+}
+
+@-moz-keyframes spin {
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
 </style>
