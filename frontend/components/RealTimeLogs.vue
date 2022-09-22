@@ -83,8 +83,10 @@ export default {
   mounted() {
     this.socketConnection();
   },
+ 
   methods: {
     socketConnection() {
+      console.log(process.env.SOCKET_ENDPOINT);
       this.socket = new WebSocket(process.env.SOCKET_ENDPOINT);
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data);

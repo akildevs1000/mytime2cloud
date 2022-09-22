@@ -1,5 +1,7 @@
 php artisan serve --host 192.168.2.174
 
+sqlite3 extension for ubunut
+  - sudo apt-get install php-sqlite3
 
 function getDatesInRange(startDate, endDate) {
     const date = new Date(startDate.getTime());

@@ -8,9 +8,10 @@
               <div class="row g-0">
                 <div class="col-lg-6">
                   <div class="card-body p-md-5 mx-md-4">
-                    <div class="text-center mb-5">
-                      <img width="15%" :src="logo" alt="logo" />
-                      <h5 class="mt-2">Please login to your account</h5>
+                    <div class="text-center">
+                      <!-- <img width="15%" :src="logo" alt="logo" /> -->
+                      <img  width="35%" src="ideaHRMS-final-green.svg" />
+
                     </div>
 
                     <v-form
@@ -159,6 +160,9 @@ export default {
 
     passwordRules: [(v) => !!v || "Password is required"],
   }),
+  created() {
+    console.log(process.env.SOCKET_ENDPOINT)
+  },
   methods: {
     // mxVerify(res) {
     //   this.reCaptcha = res;
