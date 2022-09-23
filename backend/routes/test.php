@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/test', function (Request $request) {
+Route::get('/test/{email}', function (Request $request,$email) {
 
     $data = [
         'title' => 'for test mail',
@@ -16,7 +16,7 @@ Route::get('/test', function (Request $request) {
        return "mail not allowed";
     }
 
-    Mail::to(env('MAIL_FROM_ADDRESS'))->send(new TestMail($data));
+    Mail::to($email)->send(new TestMail($data));
 
 });
 
