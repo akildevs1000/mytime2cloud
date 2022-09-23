@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Leave;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Leave\StoreRequest;
 use App\Http\Requests\Leave\UpdateRequest;
+use App\Models\Leave;
+use Illuminate\Http\Request;
 
 class LeaveController extends Controller
 {
@@ -33,7 +32,7 @@ class LeaveController extends Controller
             } else {
                 return $this->response('Leave cannot create.', null, false);
             }
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             throw $th;
         }
     }
@@ -48,7 +47,7 @@ class LeaveController extends Controller
             } else {
                 return $this->response('Leave cannot update.', null, false);
             }
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             throw $th;
         }
     }
@@ -82,12 +81,14 @@ class LeaveController extends Controller
 
     public function geLeaveNotification($id, Request $request)
     {
+
+        return $result = Leave::whereRaw('JSON_CONTAINS(supervisor, \'"' . (int) $id . '"\')')->get();
+
         return Leave::with('employee', 'approvedBy')
             ->orWhere('company_id', $request->company_id)
-            ->whereJsonContains('supervisor', (int)$id)
+            ->whereJsonContains('supervisor', (int) $id)
             ->paginate($request->per_page ?? 5);
     }
-
 
     public function status(Request $request)
     {
@@ -108,7 +109,7 @@ class LeaveController extends Controller
     {
         return $model->where('title', 'LIKE', "%$key%")
             ->orWhere('employee_id', $key)
-            ->whereJsonContains('supervisor', (int)$id)
+            ->whereJsonContains('supervisor', (int) $id)
             ->paginate($request->per_page ?? 10);
     }
 }

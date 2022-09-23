@@ -62,9 +62,7 @@
       <v-spacer></v-spacer>
 
 
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
+
 
       <v-menu nudge-bottom="50" transition="scale-transition" origin="center center" bottom left min-width="200"
         nudge-left="20">
@@ -117,8 +115,8 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-btn height="55" dark :color="changeColor" class="fixed-setting"
-      :class="rightDrawer ? 'setting-drawer-open ': 'setting-drawer-close'" @click.stop="rightDrawer = !rightDrawer">
+    <v-btn height="50" width="20" dark :color="changeColor" class="fixed-setting"
+      @click.stop="rightDrawer = !rightDrawer">
       <v-icon class="spin" dark size="25">mdi-cog</v-icon>
     </v-btn>
     <v-navigation-drawer v-model="rightDrawer" :right="right" temporsary fixed>
@@ -432,7 +430,7 @@ export default {
   },
 };
 </script>
-<style>
+<style  scoped>
 /* .page-enter-active,
 .page-leave-active {
   transition: opacity 0.5s;
@@ -495,8 +493,8 @@ export default {
   position: fixed !important;
   top: 500px;
   z-index: 100000;
-  background-color: red !important;
   transition: right 1000ms !important;
+  right: -15px !important;
 }
 
 .v-btn__content {
@@ -514,10 +512,15 @@ export default {
 }
 
 
+
+
 .spin {
   -webkit-animation: spin 4s linear infinite;
   -moz-animation: spin 4s linear infinite;
   animation: spin 4s linear infinite;
+
+  margin: 0 12px 0 0px !important;
+  padding: 0 !important;
 }
 
 @-moz-keyframes spin {

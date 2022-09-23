@@ -12,11 +12,7 @@
       </v-col>
       <v-col cols="6">
         <div class="text-left">
-          <v-btn
-            small
-            class="primary--text pt-4 pb-4"
-            to="/employees/employee_list"
-          >
+          <v-btn small class="primary pt-4 pb-4" to="/employees/employee_list">
             <v-icon class="pa-0">mdi-menu</v-icon>
           </v-btn>
           <v-btn x-small class="primary--text pt-4 pb-4" to="/employees">
@@ -24,71 +20,35 @@
           </v-btn>
         </div>
         <div class="text-right">
-          <v-btn
-            v-if="can(`employee_create`)"
-            small
-            color="primary"
-            class="mb-2"
-            to="/employees/create"
-            >{{ Model }} +</v-btn
-          >
+          <v-btn v-if="can(`employee_create`)" small color="primary" class="mb-2" to="/employees/create">{{ Model }} +
+          </v-btn>
         </div>
       </v-col>
     </v-row>
-    <v-data-table
-      v-if="can(`employee_view`)"
-      v-model="ids"
-      show-select
-      item-key="id"
-      :headers="headers"
-      :items="data"
-      :server-items-length="total"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
+    <v-data-table v-if="can(`employee_view`)" v-model="ids" show-select item-key="id" :headers="headers" :items="data"
+      :server-items-length="total" :loading="loading" :options.sync="options" :footer-props="{
         itemsPerPageOptions: [5, 10, 15],
-      }"
-      class="elevation-1"
-    >
+      }" class="elevation-1">
       <template v-slot:top>
         <v-toolbar flat color="">
           <v-toolbar-title>List</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
 
-          <v-text-field
-            @input="searchIt"
-            v-model="search"
-            label="Search"
-            single-line
-            hide-details
-          ></v-text-field>
+          <v-text-field @input="searchIt" v-model="search" label="Search" single-line hide-details></v-text-field>
         </v-toolbar>
       </template>
       <template v-slot:item.action="{ item }">
-        <v-icon
-          v-if="can(`employee_edit`)"
-          color="secondary"
-          small
-          class="mr-2"
-          @click="editItem(item)"
-        >
+        <v-icon v-if="can(`employee_edit`)" color="secondary" small class="mr-2" @click="editItem(item)">
           mdi-pencil
         </v-icon>
-        <v-icon
-          v-if="can(`employee_delete`)"
-          color="error"
-          small
-          @click="deleteItem(item)"
-        >
+        <v-icon v-if="can(`employee_delete`)" color="error" small @click="deleteItem(item)">
           mdi-delete
         </v-icon>
       </template>
       <template v-slot:item.profile_picture="{ item }">
         <div class="pa-1">
-          <v-img
-            style="border-radius: 50%; height: auto; width: 75px"
-            :src="item.profile_picture || '/no-profile-image.jpg'"
-          >
+          <v-img style="border-radius: 50%; height: auto; width: 75px"
+            :src="item.profile_picture || '/no-profile-image.jpg'">
           </v-img>
         </div>
       </template>

@@ -98,7 +98,7 @@ class EmployeeController extends Controller
             $employee->profile_picture = asset('media/employee/profile_picture' . $employee->profile_picture);
             DB::commit();
             return $this->response('Employee successfully created.', null, true);
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             DB::rollBack();
             throw $th;
         }
@@ -179,7 +179,7 @@ class EmployeeController extends Controller
             }
             User::find($record->user_id)->update($user);
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             DB::rollBack();
             throw $th;
         }
@@ -197,7 +197,7 @@ class EmployeeController extends Controller
                 'message' => 'Contact Successfully updated.',
                 'status' => true,
             ], 200);
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             DB::rollBack();
             throw $th;
         }
@@ -255,9 +255,11 @@ class EmployeeController extends Controller
     public function updateEmployee(EmployeeUpdateRequest $request, $id)
     {
         $data = $request->except(['user_name', 'email', 'password', 'password_confirmation']);
+        $data['employee_role_id'] = $request->role_id;
         $employee = Employee::find($id);
         $user_arr = [
             'email' => $request->email,
+            'employee_role_id' => $request->role_id,
         ];
         if ($request->password) {
             $user_arr['password'] = Hash::make($request->password);
@@ -302,9 +304,12 @@ class EmployeeController extends Controller
     {
         $file = $request->file('employees');
         $rowCount = file($request->file('employees'));
-        $maxEmployee = Company::find($request->company_id);
-        if (!$maxEmployee->max_employee <= count($rowCount) - 1) {
-            return ["status" => false, "errors" => ["you cannot upload " . count($rowCount) - 1 . " number of employees"]];
+        $totoalEmployee = Employee::where('company_id', $request->company_id)->count();
+        $maxEmployee = Company::find($request->company_id)->max_employee;
+        $reminingEmployee = (int) $maxEmployee - (int) $totoalEmployee;
+
+        if (!(count($rowCount) - 1 <= $reminingEmployee)) {
+            return ["status" => false, "errors" => ["You cannot upload limit number of employee only can add maximum employee limit is " . $maxEmployee]];
         }
         $data = $this->saveFile($file);
         if (is_array($data) && !$data["status"]) {
@@ -325,24 +330,23 @@ class EmployeeController extends Controller
                         "errors" => $validator->errors()->all(),
                     ];
                 }
+
                 $iteration = [
-                    'name' => $data['user_name'],
+                    'name' => 'null',
                     'email' => $data['email'],
                     'password' => Hash::make('secret'),
                 ];
+
                 $record = User::create($iteration);
                 $arr = [
                     'first_name' => trim($data['first_name']),
-                    'last_name' => trim($data['last_name']),
                     'phone_number' => trim($data['phone_number']),
                     'whatsapp_number' => trim($data['whatsapp_number']),
-                    'phone_relative_number' => trim($data['phone_relative_number']),
-                    'whatsapp_relative_number' => trim($data['whatsapp_relative_number']),
                     'employee_id' => trim($data['employee_id']),
-                    'joining_date' => trim($data['joining_date']),
+                    'joining_date' => trim(date('Y-m-d', strtotime($data['joining_date']))),
                     'user_id' => $record->id,
                     'company_id' => $request->company_id,
-                    'system_user_id' => $record->employee_device_id,
+                    'system_user_id' => trim($data['employee_device_id']),
                 ];
                 $success = Employee::create($arr) ? true : false;
             }
@@ -357,7 +361,7 @@ class EmployeeController extends Controller
                 'message' => 'Employee cannot import.',
                 'status' => true,
             ], 200);
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             DB::rollback();
             throw $th;
         }
@@ -368,15 +372,15 @@ class EmployeeController extends Controller
             'employee_id' => ['required'],
             'employee_device_id' => ['required', 'min:4', 'max:100'],
             'first_name' => ['required', 'min:3', 'max:100'],
-            'last_name' => ['required', 'min:3', 'max:100'],
             'email' => 'required|min:3|max:191|unique:users',
             'phone_number' => ['required', 'min:8', 'max:15'],
             'whatsapp_number' => ['required', 'min:8', 'max:15'],
-            'joining_date' => ['required', 'date', 'date_format:Y-m-d'],
+            'joining_date' => ['required', 'date'],
         ]);
     }
     public function saveFile($file)
     {
+
         $filename = $file->getClientOriginalName();
         if ($filename != "employees.csv") {
             return [
@@ -387,9 +391,11 @@ class EmployeeController extends Controller
         $extension = $file->getClientOriginalExtension();
         $tempPath = $file->getRealPath();
         $fileSize = $file->getSize();
-        $location = 'media/employee/imports';
-        $file->move($location, $filename);
+        $location = 'uploads';
+        // $file->move($location, $filename);
+        $file->storePubliclyAs($location, 'employee', "do");
         return public_path($location . "/" . $filename);
+
     }
     public function csvParser($filepath)
     {
@@ -397,12 +403,9 @@ class EmployeeController extends Controller
             "employee_id",
             "employee_device_id",
             "first_name",
-            "last_name",
             "email",
             "phone_number",
             "whatsapp_number",
-            "phone_relative_number",
-            "whatsapp_relative_number",
             "joining_date",
         ];
         $header = null;
@@ -411,6 +414,7 @@ class EmployeeController extends Controller
             while (($row = fgetcsv($filedata, 1000, ',')) !== false) {
                 if (!$header) {
                     $header = $row;
+                    // dd($row);
                     if ($header != $columns) {
                         return [
                             "status" => false,
@@ -461,9 +465,9 @@ class EmployeeController extends Controller
     public function employeeRemoveReporter(Request $request, $id)
     {
         DB::table('employee_report')
-        ->where('employee_id', $id)
-        ->where('report_id', $request->report_id)
-        ->delete();
+            ->where('employee_id', $id)
+            ->where('report_id', $request->report_id)
+            ->delete();
         return response()->json(['status' => true, 'message' => 'Reporter successfully Deleted']);
     }
 

@@ -11,19 +11,13 @@
             <v-container>
               <v-row>
                 <v-col cols="12" v-if="employee_grade">
-                  <v-autocomplete
-                    label="Report"
-                    v-model="editedItem.to_report"
-                    :items="employees_list"
-                    item-text="first_name"
-                    item-value="id"
-                    :multiple="
+                  <v-autocomplete label="Report" v-model="editedItem.to_report" :items="employees_list"
+                    item-text="first_name" item-value="id" :multiple="
                       employee_grade && employee_grade == 'C' ? true : false
-                    "
-                  >
+                    ">
                   </v-autocomplete>
                   <span v-if="errors && errors.to_report" class="error--text">{{
-                    errors.to_report[0]
+                  errors.to_report[0]
                   }}</span>
                 </v-col>
               </v-row>
@@ -40,49 +34,26 @@
       <v-row>
         <v-col md="12" cols="12">
           <div class="text-right">
-            <v-icon
-              v-if="can('employee_edit')"
-              @click="addItem()"
-              small
-              class="grey"
-              style="border-radius: 50%; padding: 5px"
-              color="secondary"
-              >mdi-plus</v-icon
-            >
+            <v-icon v-if="can('employee_edit')" @click="addItem()" small class="grey"
+              style="border-radius: 50%; padding: 5px" color="secondary">mdi-plus</v-icon>
           </div>
         </v-col>
       </v-row>
       <v-row v-if="can('employee_view')">
-        <v-col
-          xs="12"
-          sm="12"
-          md="2"
-          cols="12"
-          v-for="(item, index) in reporters"
-          :key="index"
-        >
+        <v-col xs="12" sm="12" md="2" cols="12" v-for="(item, index) in reporters" :key="index">
           <v-card style="min-height: 209px">
             <v-card-title>
               <v-spacer></v-spacer>
-              <v-icon
-                v-if="can(`employee_delete`)"
-                @click="deleteItem(item)"
-                color="red"
-                small
-                >mdi-delete</v-icon
-              >
+              <v-icon v-if="can(`employee_delete`)" @click="deleteItem(item)" color="red" small>mdi-delete</v-icon>
             </v-card-title>
             <v-card-text class="text-center">
               <div>
-                <v-img
-                  style="
+                <v-img style="
                     border-radius: 50%;
                     height: 125px;
                     width: 50%;
                     margin: 0 auto;
-                  "
-                  :src="item.profile_picture || '/no-profile-image.jpg'"
-                >
+                  " :src="item.profile_picture || '/no-profile-image.jpg'">
                 </v-img>
               </div>
 
@@ -297,10 +268,8 @@ export default {
     },
 
     save() {
-      if (this.editedItem.to_report.length < 2) {
-      }
-
-      return;
+      // if (this.editedItem.to_report.length < 2) {
+      // }
 
       let payload = {
         report_id: this.editedItem.to_report,
@@ -350,8 +319,8 @@ export default {
       if (this.singleEmployee && this.singleEmployee.grade == "A") {
         alert(
           "You cannot assign reporter " +
-            this.singleEmployee.first_name +
-            " employee grade A "
+          this.singleEmployee.first_name +
+          " employee grade A "
         );
         return true;
       }
