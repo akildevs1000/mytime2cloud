@@ -15,7 +15,7 @@ Route::post('/log_payload', function (Request $request) {
 Route::get('/php_mail', function (Request $request) {
     ini_set('smtp_port', "465");
 
-    return mail("akildevs1000@gmail.com","My subject","francis");
+    return mail("akildevs1000@gmail.com","My subject","francis") ?? "no";
     // ini_set('SMTP', "server.com");
     // ini_set('smtp_port', "25");
     // ini_set('sendmail_from', "email@domain.com");
