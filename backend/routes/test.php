@@ -14,7 +14,13 @@ Route::post('/log_payload', function (Request $request) {
 
 Route::get('/php_mail', function (Request $request) {
 
-    $mail = mail("akildevs1000@gmail.com", "My subject", "my message", "From:" . "francisgill1000@gmail.com");
+    $to = "akildevs1000@gmail.com";
+    $subject = "My subject";
+    $txt = "Hello world!";
+    $headers = "From: francisgill1000@gmail.com";
+
+
+    $mail = mail($to, $subject, $txt, $headers);
     if ($mail) {
         return "mail sent";
     }
