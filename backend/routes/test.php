@@ -1,8 +1,24 @@
 <?php
 
+use App\Mail\TestMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
+
+Route::get('/test', function (Request $request) {
+
+    $data = [
+        'title' => 'for test mail',
+        'body' => 'this is from akil security system',
+    ];
+
+    if (!env('IS_MAIL')) {
+       return "mail not allowed";
+    }
+
+    Mail::to(env('MAIL_FROM_ADDRESS'))->send(new TestMail($data));
+
+});
 
 Route::post('/do_spaces', function (Request $request) {
     return $request->file("file")->storePublicly("upload", "do") ? 1 : "0";

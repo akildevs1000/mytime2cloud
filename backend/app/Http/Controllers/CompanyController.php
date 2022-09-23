@@ -16,6 +16,7 @@ use App\Models\CompanyContact;
 use App\Models\Device;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\CompanyCreationNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -132,9 +133,9 @@ class CompanyController extends Controller
 
             $user['randPass'] = $randPass;
 
-            // if (($company && $user) && env('IS_MAIL')) {
-            //     NotificationsController::toSend($user, new CompanyCreationNotification, $company);
-            // }
+            if (($company && $user) && env('IS_MAIL')) {
+                NotificationsController::toSend($user, new CompanyCreationNotification, $company);
+            }
 
             if (!$company) {
                 return $this->response('Company cannot add.', null, false);
