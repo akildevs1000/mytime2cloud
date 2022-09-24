@@ -500,10 +500,3 @@ export default {
   },
 };
 </script>
-
-
-
-<style scoped src="@/assets/dashtem.css">
-
-</style>
-
