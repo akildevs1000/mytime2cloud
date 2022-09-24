@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Cards class="mt-2" :cards="cards" :columns="6" />
+    Coming soon...
   </div>
 </template>
 <script>
