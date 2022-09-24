@@ -302,6 +302,7 @@ class EmployeeController extends Controller
     }
     public function import(EmployeeImportRequest $request)
     {
+
         $file = $request->file('employees');
         $rowCount = file($request->file('employees'));
         $totoalEmployee = Employee::where('company_id', $request->company_id)->count();
@@ -311,6 +312,7 @@ class EmployeeController extends Controller
         if (!(count($rowCount) - 1 <= $reminingEmployee)) {
             return ["status" => false, "errors" => ["You cannot upload limit number of employee only can add maximum employee limit is " . $maxEmployee]];
         }
+
         $data = $this->saveFile($file);
         if (is_array($data) && !$data["status"]) {
             return ["status" => false, "errors" => $data["errors"]];
@@ -330,7 +332,6 @@ class EmployeeController extends Controller
                         "errors" => $validator->errors()->all(),
                     ];
                 }
-
                 $iteration = [
                     'name' => 'null',
                     'email' => $data['email'],
@@ -341,7 +342,6 @@ class EmployeeController extends Controller
                 $arr = [
                     'first_name' => trim($data['first_name']),
                     'phone_number' => trim($data['phone_number']),
-                    'whatsapp_number' => trim($data['whatsapp_number']),
                     'employee_id' => trim($data['employee_id']),
                     'joining_date' => trim(date('Y-m-d', strtotime($data['joining_date']))),
                     'user_id' => $record->id,
@@ -370,11 +370,10 @@ class EmployeeController extends Controller
     {
         return Validator::make($data, [
             'employee_id' => ['required'],
-            'employee_device_id' => ['required', 'min:4', 'max:100'],
+            'employee_device_id' => ['required', 'min:1', 'max:100'],
             'first_name' => ['required', 'min:3', 'max:100'],
             'email' => 'required|min:3|max:191|unique:users',
-            'phone_number' => ['required', 'min:8', 'max:15'],
-            'whatsapp_number' => ['required', 'min:8', 'max:15'],
+            'phone_number' => ['required', 'min:1', 'max:15'],
             'joining_date' => ['required', 'date'],
         ]);
     }
@@ -405,7 +404,6 @@ class EmployeeController extends Controller
             "first_name",
             "email",
             "phone_number",
-            "whatsapp_number",
             "joining_date",
         ];
         $header = null;
@@ -414,7 +412,7 @@ class EmployeeController extends Controller
             while (($row = fgetcsv($filedata, 1000, ',')) !== false) {
                 if (!$header) {
                     $header = $row;
-                    // dd($row);
+                    // dd($columns);
                     if ($header != $columns) {
                         return [
                             "status" => false,

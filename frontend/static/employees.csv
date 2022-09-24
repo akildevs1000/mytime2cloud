@@ -1,4 +1,4 @@
-"employee_id","employee_device_id","first_name","last_name", "user_name","email","phone_number","whatsapp_number","phone_relative_number","whatsapp_relative_number","joining_date"
-"1","1111","employee first_name 1","employee last_name 1","employee last_name 1","employee1@dgmail.com","03108559858","03108559858","03108559858","03108559858","2012-08-11"
-"2","2222","employee first_name 2","employee last_name 2","employee last_name 2","employee2@gmail.com","03108559858","03108559858","03108559858","03108559858","2012-08-11"
-"3","3333","employee first_name 3","employee last_name 3","employee last_name 3","employee3@gmail.com","03108559858","03108559858","03108559858","03108559858","2012-08-11"
+employee_id,employee_device_id,first_name,email,phone_number,joining_date
+1,1,MUHAMED ANSARI THENDATH,employee1@company.com,690397,23-Mar-10
+3,3,HANEEFA MOHAMMAD POTTAMMAL,employee2@company.com,690397,23-Mar-10
+

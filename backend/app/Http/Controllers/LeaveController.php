@@ -81,11 +81,8 @@ class LeaveController extends Controller
 
     public function geLeaveNotification($id, Request $request)
     {
-
-        return $result = Leave::whereRaw('JSON_CONTAINS(supervisor, \'"' . (int) $id . '"\')')->get();
-
         return Leave::with('employee', 'approvedBy')
-            ->orWhere('company_id', $request->company_id)
+            ->where('company_id', $request->company_id)
             ->whereJsonContains('supervisor', (int) $id)
             ->paginate($request->per_page ?? 5);
     }
@@ -108,7 +105,7 @@ class LeaveController extends Controller
     public function searchNotification(Leave $model, Request $request, $key, $id)
     {
         return $model->where('title', 'LIKE', "%$key%")
-            ->orWhere('employee_id', $key)
+            ->where('employee_id', $key)
             ->whereJsonContains('supervisor', (int) $id)
             ->paginate($request->per_page ?? 10);
     }
