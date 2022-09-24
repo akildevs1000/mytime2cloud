@@ -22,14 +22,8 @@
                 </div>
               </v-col>
               <v-col cols="12">
-                <v-select
-                  :rules="Rules"
-                  v-model="role_id"
-                  :items="roles"
-                  item-value="id"
-                  item-text="name"
-                  label="Role*"
-                ></v-select>
+                <v-select :rules="Rules" v-model="role_id" :items="roles" item-value="id" item-text="name"
+                  label="Role*"></v-select>
                 <span v-if="errors && errors.role_id" class="red--text">
                   {{ errors.role_id[0] }}
                 </span>
@@ -42,19 +36,10 @@
                   hide-details
                 ></v-text-field> -->
 
-                <v-checkbox
-                  @change="setAllIds"
-                  :label="`Select All`"
-                  v-model="just_ids"
-                >
+                <v-checkbox @change="setAllIds" :label="`Select All`" v-model="just_ids">
                 </v-checkbox>
-                <v-checkbox
-                  v-for="(pa, idx) in permissions"
-                  :key="idx"
-                  :value="pa.id"
-                  v-model="permission_ids"
-                  :label="`${pa.name}`"
-                >
+                <v-checkbox v-for="(pa, idx) in permissions" :key="idx" :value="pa.id" v-model="permission_ids"
+                  :label="`${pa.name}`">
                 </v-checkbox>
               </v-col>
               <v-col cols="12">
@@ -64,14 +49,7 @@
               </v-col>
 
               <v-col>
-                <v-btn
-                  v-if="can(`assign_permission_create`)"
-                  dark
-                  small
-                  color="primary"
-                  class="mr-4"
-                  @click="save"
-                >
+                <v-btn v-if="can(`assign_permission_create`)" dark small color="primary" class="mr-4" @click="save">
                   Submit
                 </v-btn>
               </v-col>
@@ -131,7 +109,8 @@ export default {
       this.$axios
         .get(url)
         .then(({ data }) => {
-          this.permissions = data;
+          this.permissions = data.data;
+          console.log(this.permissions);
         })
         .catch(err => console.log(err));
     },
@@ -155,7 +134,7 @@ export default {
         permission_ids: this.permission_ids,
         company_id: this.$auth.user.company.id
       };
-      console.log("🚀 ~ file: create.vue ~ line 107 ~ save ~ payload", payload);
+
       this.$axios.post("assign-permission", payload).then(({ data }) => {
         if (!data.status) {
           this.errors = data.errors;

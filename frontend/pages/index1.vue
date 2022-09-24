@@ -17,12 +17,8 @@
               <div class="heading display-3 overline text-center">
                 <b>Attendance Report</b>
               </div>
-              <GChart
-                type="BarChart"
-                :data="chartData"
-                :options="BublechartOptions"
-                style="width: 800px; height: 350px"
-              />
+              <GChart type="BarChart" :data="chartData" :options="BublechartOptions"
+                style="width: 800px; height: 350px" />
             </v-card>
           </v-col>
           <v-col>
@@ -30,12 +26,8 @@
               <div class="heading display-3 overline text-center">
                 <b>Attendance Report</b>
               </div>
-              <GChart
-                type="LineChart"
-                :data="chartData"
-                :options="BublechartOptions"
-                style="width: 800px; height: 350px"
-              />
+              <GChart type="LineChart" :data="chartData" :options="BublechartOptions"
+                style="width: 800px; height: 350px" />
             </v-card>
           </v-col>
           <v-col>
@@ -43,12 +35,8 @@
               <div class="heading display-3 overline text-center">
                 <b>Attendance Report</b>
               </div>
-              <GChart
-                type="BubbleChart"
-                :data="chartData"
-                :options="BublechartOptions"
-                style="width: 800px; height: 350px"
-              />
+              <GChart type="BubbleChart" :data="chartData" :options="BublechartOptions"
+                style="width: 800px; height: 350px" />
             </v-card>
           </v-col>
         </v-row>
@@ -72,11 +60,7 @@
                       <b>Employee Arrival Timing</b>
                     </div>
 
-                    <v-col
-                      v-for="(i, idx) in items_by_cities"
-                      :key="idx"
-                      cols="12"
-                    >
+                    <v-col v-for="(i, idx) in items_by_cities" :key="idx" cols="12">
                       {{ i.title }}
 
                       <div style="margin-top: -10%" class="text-right">

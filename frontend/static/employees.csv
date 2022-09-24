@@ -1,2 +1,3 @@
-employee_id,employee_device_id,first_name,email,phone_number,whatsapp_number,joining_date
-1,1111,employee first_name 1,employee last_name 1,3108559858,3108559858,8/11/2012
+employee_id,employee_device_id,first_name,email,phone_number,joining_date
+1,1,MUHAMED ANSARI THENDATH,employee1@company.com,690397,23-Mar-10
+3,3,HANEEFA MOHAMMAD POTTAMMAL,employee2@company.com,690397,23-Mar-10

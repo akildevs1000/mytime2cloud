@@ -14,35 +14,19 @@
         </v-col>
         <v-col cols="6">
           <div class="text-left">
-            <v-btn
-              small
-              class="primary--text pt-4 pb-4"
-              to="/employees/employee_list"
-            >
+            <v-btn small class="primary--text pt-4 pb-4" to="/employees/employee_list">
               <v-icon class="pa-0">mdi-menu</v-icon>
             </v-btn>
-            <v-btn x-small class="primary--text pt-4 pb-4" to="/employees">
+            <v-btn x-small class="primary pt-4 pb-4" to="/employees">
               <v-icon class="pa-0">mdi-grid</v-icon>
             </v-btn>
           </div>
           <div class="text-right">
-            <v-btn
-              v-if="can('employee_import_access')"
-              small
-              dark
-              class="mb-2 primary"
-              @click="dialog = true"
-            >
+            <v-btn v-if="can('employee_import_access')" small dark class="mb-2 primary" @click="dialog = true">
               Import <v-icon right dark>mdi-cloud-upload</v-icon>
             </v-btn>
 
-            <v-btn
-              v-if="can('employee_export_access')"
-              small
-              dark
-              class="mb-2 primary"
-              @click="export_submit"
-            >
+            <v-btn v-if="can('employee_export_access')" small dark class="mb-2 primary" @click="export_submit">
               Export <v-icon right dark>mdi-cloud-download</v-icon>
             </v-btn>
 
@@ -55,13 +39,8 @@
                         <span class="headline">Import Employee</span>
                       </v-col>
                       <v-col cols="12">
-                        <v-file-input
-                          accept="text/csv"
-                          v-model="files"
-                          placeholder="Upload your file"
-                          label="File"
-                          prepend-icon="mdi-paperclip"
-                        >
+                        <v-file-input accept="text/csv" v-model="files" placeholder="Upload your file" label="File"
+                          prepend-icon="mdi-paperclip">
                           <template v-slot:selection="{ text }">
                             <v-chip v-if="text" small label color="primary">
                               {{ text }}
@@ -71,11 +50,7 @@
                         <br />
                         <a href="/employees.csv" download> Download Sample</a>
                         <br />
-                        <span
-                          v-if="errors && errors.length > 0"
-                          class="error--text"
-                          >{{ errors[0] }}</span
-                        >
+                        <span v-if="errors && errors.length > 0" class="error--text">{{ errors[0] }}</span>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -89,79 +64,39 @@
               </v-card>
             </v-dialog>
 
-            <v-btn
-              v-if="can('employee_create')"
-              @click="createEmployee"
-              small
-              dark
-              class="mb-2 primary"
-              >{{ Model }} +</v-btn
-            >
+            <v-btn v-if="can('employee_create')" @click="createEmployee" small dark class="mb-2 primary">{{ Model }} +
+            </v-btn>
           </div>
         </v-col>
       </v-row>
       <v-row>
         <v-col xs="12" sm="12" md="3" cols="12">
-          <v-select
-            @change="getDataFromApi(`employee`)"
-            outlined
-            v-model="per_page"
-            :items="[5, 10, 15]"
-            dense
-            placeholder="Per Page Records"
-          ></v-select>
+          <v-select @change="getDataFromApi(`employee`)" outlined v-model="per_page" :items="[5, 10, 15]" dense
+            placeholder="Per Page Records"></v-select>
         </v-col>
 
         <v-col xs="12" sm="12" md="3" offset-md="6" cols="12">
-          <v-text-field
-            outlined
-            @input="searchIt"
-            v-model="search"
-            dense
-            placeholder="Search..."
-          ></v-text-field>
+          <v-text-field outlined @input="searchIt" v-model="search" dense placeholder="Search..."></v-text-field>
         </v-col>
       </v-row>
       <v-row v-if="can('employee_view')">
-        <v-col
-          xs="12"
-          sm="12"
-          md="3"
-          cols="12"
-          v-for="(item, index) in data"
-          :key="index"
-        >
+        <v-col xs="12" sm="12" md="3" cols="12" v-for="(item, index) in data" :key="index">
           <v-card style="min-height: 209px">
             <v-card-title>
               <v-spacer></v-spacer>
-              <v-icon
-                v-if="can(`employee_edit`)"
-                @click="editItem(item)"
-                color="secondary"
-                small
-                >mdi-pencil</v-icon
-              >
+              <v-icon v-if="can(`employee_edit`)" @click="editItem(item)" color="secondary" small>mdi-pencil</v-icon>
 
-              <v-icon
-                v-if="can(`employee_delete`)"
-                @click="deleteItem(item)"
-                color="red"
-                small
-                >mdi-delete</v-icon
-              >
+              <v-icon v-if="can(`employee_delete`)" @click="deleteItem(item)" color="red" small>mdi-delete</v-icon>
             </v-card-title>
 
             <v-card-text class="text-center" @click="res(item.id)">
               <div>
-                <v-img
-                  style="
+                <v-img style="
                     border-radius: 50%;
                     height: 125px;
                     width: 50%;
                     margin: 0 auto;
-                  "
-                  :src="item.profile_picture || '/no-profile-image.jpg'"
-                >
+                  " :src="item.profile_picture || '/no-profile-image.jpg'">
                 </v-img>
               </div>
 
@@ -180,22 +115,12 @@
       <v-row>
         <v-col>
           <div color="pt-2" class="text-center">
-            <v-btn
-              @click="getDataFromApi(prev_page_url)"
-              :disabled="prev_page_url ? false : true"
-              color="primary"
-              small
-              elevation="11"
-            >
+            <v-btn @click="getDataFromApi(prev_page_url)" :disabled="prev_page_url ? false : true" color="primary" small
+              elevation="11">
               <v-icon dark>mdi-chevron-double-left </v-icon>
             </v-btn>
-            <v-btn
-              @click="getDataFromApi(next_page_url)"
-              :disabled="next_page_url ? false : true"
-              color="primary"
-              small
-              elevation="11"
-            >
+            <v-btn @click="getDataFromApi(next_page_url)" :disabled="next_page_url ? false : true" color="primary" small
+              elevation="11">
               <v-icon dark>mdi-chevron-double-right </v-icon>
             </v-btn>
           </div>
@@ -248,7 +173,7 @@ export default {
     close() {
       this.dialog = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
 
     json_to_csv(json) {

@@ -21,6 +21,11 @@ Route::get('/test/{email}', function (Request $request,$email) {
 });
 
 Route::post('/do_spaces', function (Request $request) {
+Route::post('/do_spaces', function (Request $request) {
+    return $request->file("file")->storePublicly("upload", "do") ? 1 : "0";
+});
+
+Route::get('/do_spaces', function (Request $request) {
     return $request->file("file")->storePublicly("upload", "do") ? 1 : "0";
 });
 

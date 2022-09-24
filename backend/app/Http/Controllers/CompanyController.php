@@ -16,7 +16,6 @@ use App\Models\CompanyContact;
 use App\Models\Device;
 use App\Models\Role;
 use App\Models\User;
-use App\Notifications\CompanyCreationNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,8 +45,7 @@ class CompanyController extends Controller
         return ["status" => true];
     }
 
-    function list(Company $Company)
-    {
+    function list(Company $Company) {
         return $Company->select('id', 'name')->get();
     }
     public function index(Company $model, Request $request)
@@ -117,11 +115,9 @@ class CompanyController extends Controller
 
             $user["role_id"] = $role->id;
 
-
             if (!$user) {
                 return $this->response('User cannot add.', null, false);
             }
-
 
             $company = Company::create($company);
 
@@ -133,9 +129,9 @@ class CompanyController extends Controller
 
             $user['randPass'] = $randPass;
 
-            if (($company && $user) && env('IS_MAIL')) {
-                NotificationsController::toSend($user, new CompanyCreationNotification, $company);
-            }
+            // if (($company && $user) && env('IS_MAIL')) {
+            //     NotificationsController::toSend($user, new CompanyCreationNotification, $company);
+            // }
 
             if (!$company) {
                 return $this->response('Company cannot add.', null, false);
@@ -157,7 +153,7 @@ class CompanyController extends Controller
             $record->pass = $randPass;
 
             return $this->response('Company Successfully created.', $record, true);
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             DB::rollBack();
             throw $th;
         }
@@ -224,10 +220,14 @@ class CompanyController extends Controller
 
     public function updateCompany(CompanyUpdateRequest $request, $id)
     {
+
         $data = $request->validated();
 
         if ($request->logo_only == 1) {
-            return $this->update_log($request, $id);
+            $file = $request->file('logo');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
         }
 
         $data["no_branch"] = $request->no_branch ? 1 : 0;
@@ -236,7 +236,12 @@ class CompanyController extends Controller
         $data["lon"] = $request->lon;
 
         if (isset($request->logo)) {
-            $data['logo'] = saveFile($request, 'media/company/logo', 'logo', $request->name, 'logo');
+            // $data['logo'] =  $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
+            $file = $request->file('logo');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
+            $data['logo'] = $fileName;
         }
 
         $company = Company::find($id)->update($data);

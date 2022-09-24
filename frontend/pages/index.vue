@@ -2,22 +2,12 @@
   <div>
     <v-row>
       <v-col md="12">
-        <v-alert
-          v-if="first_login && first_login_auth"
-          outlined
-          class="error lighten-1"
-          dark
-          dense
-          prominent
-          border="left"
-        >
+        <v-alert v-if="first_login && first_login_auth" outlined class="error lighten-1" dark dense prominent
+          border="left">
           <v-icon style="margin-top: -3px" size="22">
-            mdi-alert-circle-outline</v-icon
-          >
-          <label
-            >For security reasons you need to change your password after first
-            login.</label
-          >
+            mdi-alert-circle-outline</v-icon>
+          <label>For security reasons you need to change your password after first
+            login.</label>
           <nuxt-link class="white--text" to="/setting">
             <u>click here</u>
           </nuxt-link>
@@ -26,13 +16,7 @@
 
       <v-col cols="12" sm="12" md="12">
         <v-row>
-          <v-col
-            cols="12"
-            sm="6"
-            md="4"
-            v-for="(i, index) in items"
-            :key="index"
-          >
+          <v-col cols="12" sm="6" md="4" v-for="(i, index) in items" :key="index">
             <v-card :style="`border-left: 5px solid #${i.border_color}`">
               <v-list-item three-line>
                 <v-list-item-content>
@@ -69,11 +53,7 @@
               <div class="heading display-3 overline text-center">
                 <b>Monthly Attendance Report</b>
               </div>
-              <GChart
-                type="BarChart"
-                :data="barChartData"
-                style="height: 500px; max-width: 1200px"
-              />
+              <GChart type="BarChart" :data="barChartData" style="height: 500px; max-width: 1200px" />
             </v-card>
           </v-col>
         </v-row>
@@ -99,7 +79,6 @@
 </template>
 
 <script>
-import { buildEntryKey } from "../static/vendor/fullcalendar-5.7/main";
 
 export default {
   data() {

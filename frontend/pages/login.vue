@@ -191,8 +191,7 @@ export default {
   },
 };
 </script>
-<!-- <style scoped src="@/assets/all.css"> -->
-<style scoped >
+<style scoped>
 @media (min-width: 768px) {
   .gradient-form {
     height: 100vh !important;
@@ -208,5 +207,3 @@ export default {
   }
 }
 </style>
-
-
