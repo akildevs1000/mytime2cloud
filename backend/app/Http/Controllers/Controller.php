@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Jobs\PDFJob;
 use App\Models\Attendance;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\App;
 
 class Controller extends BaseController
@@ -63,7 +63,7 @@ class Controller extends BaseController
                     'message' => $model . ' cannot ' . $action,
                 ], 200);
             }
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             throw $th;
         }
     }
@@ -112,7 +112,7 @@ class Controller extends BaseController
                 'Absent' => 17,
                 'Late In' => 2,
                 'Early Out' => 5,
-                'record' => $row
+                'record' => $row,
 
             ];
         }
@@ -209,7 +209,7 @@ class Controller extends BaseController
                             <td style="text-align: left;"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
                             <td style="text-align: left;"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2</td>
                             <td style="text-align: right;">
-                                Date : '.date("d/M/Y H:i:s").'
+                                Date : ' . date("d/M/Y H:i:s") . '
                             </td>
                         </tr>
                 </table>' . $this->renderTable($arr) .
@@ -224,6 +224,7 @@ class Controller extends BaseController
 
         foreach ($arr as $key => $row) {
             $records = $this->getData($row['record']);
+
             $str_arr[] = '<div class="page-breaks"><table  style="margin-top: 5px !important;">' .
                 '<tr style="text-align: left; border :1px solid black; width:120px;">' .
                 '<td style="text-align:left;"><b>Name</b>:' . $row["Name"] . $key . '</td>' .
@@ -243,17 +244,17 @@ class Controller extends BaseController
                     <tr style="background-color:none;"><td><b>Days</b></td>'
                 . $records[1] .
                 '</tr>
-                    <tr><td><b>In</b></td>' .  $records[2] . '</tr>
-                    <tr><td><b>Out</b></td>' . $records[3]. '</tr>
-                    <tr><td><b>Work</b></td>' . $records[4]. '</tr>
-                    <tr><td><b>OT</b></td>' . $records[5]. '</tr>
-                    <tr><td><b>Late Coming</b></td>' . $records[6]. '</tr>
-                    <tr><td><b>Early Going</b></td>' . $records[7]. '</tr>
-                    <tr><td><b>Shift</b></td>' . $records[8]. '</tr>
-                    <tr><td><b>Shift Type</b> </td>' . $records[9]. '</tr>
-                    <tr><td><b>Device In</b></td>' . $records[10]. '</tr>
-                    <tr><td><b>Device Out</b></td>' . $records[11]. '</tr>
-                    <tr><td><b>Status</b></td>' . $records[12]. '</tr>
+                    <tr><td><b>In</b></td>' . $records[2] . '</tr>
+                    <tr><td><b>Out</b></td>' . $records[3] . '</tr>
+                    <tr><td><b>Work</b></td>' . $records[4] . '</tr>
+                    <tr><td><b>OT</b></td>' . $records[5] . '</tr>
+                    <tr><td><b>Late Coming</b></td>' . $records[6] . '</tr>
+                    <tr><td><b>Early Going</b></td>' . $records[7] . '</tr>
+                    <tr><td><b>Shift</b></td>' . $records[8] . '</tr>
+                    <tr><td><b>Shift Type</b> </td>' . $records[9] . '</tr>
+                    <tr><td><b>Device In</b></td>' . $records[10] . '</tr>
+                    <tr><td><b>Device Out</b></td>' . $records[11] . '</tr>
+                    <tr><td><b>Status</b></td>' . $records[12] . '</tr>
                 </table></div>';
         }
         return join("", $str_arr);
@@ -264,19 +265,21 @@ class Controller extends BaseController
         $str_arr = [];
 
         foreach ($records as $key => $record) {
-            $str_arr["dates"][] = '<td style="text-align: center;"> ' . substr($key, 0, 2) . '</td>' ;
-            $str_arr["days"][] = '<td style="text-align: center;"> ' . $record[0]['day'] . '</td>' ;
-            $str_arr["in"][] = '<td style="text-align: center;"> ' . $record[0]['in'] . '</td>' ;
-            $str_arr["out"][] = '<td style="text-align: center;"> ' . $record[0]['out'] . '</td>' ;
-            $str_arr["total_hrs"][] = '<td style="text-align: center;"> ' . $record[0]['total_hrs'] . '</td>' ;
-            $str_arr["ot"][] = '<td style="text-align: center;"> ' . $record[0]['ot'] . '</td>' ;
-            $str_arr["late_coming"][] = '<td style="text-align: center;"> ' . $record[0]['late_coming'] . '</td>' ;
-            $str_arr["early_going"][] = '<td style="text-align: center;"> ' . $record[0]['early_going'] . '</td>' ;
-            $str_arr["shift_id"][] = '<td style="text-align: center;"> ' . $record[0]['shift_id'] . '</td>' ;
-            $str_arr["shift_type_id"][] = '<td style="text-align: center;"> ' . $record[0]['shift_type_id'] . '</td>' ;
-            $str_arr["device_id_in"][] = '<td style="text-align: center;"> ' . $record[0]['device_id_in'] . '</td>' ;
-            $str_arr["device_id_out"][] = '<td style="text-align: center;"> ' . $record[0]['device_id_out'] . '</td>' ;
-            $str_arr["status"][] = '<td style="text-align: center;"> ' . $record[0]['status'] . '</td>' ;
+            $status = $record[0]['status'] == 'A' ? 'color:red' : 'color:green';
+
+            $str_arr["dates"][] = '<td style="text-align: center;"> ' . substr($key, 0, 2) . '</td>';
+            $str_arr["days"][] = '<td style="text-align: center;"> ' . $record[0]['day'] . '</td>';
+            $str_arr["in"][] = '<td style="text-align: center;"> ' . $record[0]['in'] . '</td>';
+            $str_arr["out"][] = '<td style="text-align: center;"> ' . $record[0]['out'] . '</td>';
+            $str_arr["total_hrs"][] = '<td style="text-align: center;"> ' . $record[0]['total_hrs'] . '</td>';
+            $str_arr["ot"][] = '<td style="text-align: center;"> ' . $record[0]['ot'] . '</td>';
+            $str_arr["late_coming"][] = '<td style="text-align: center;"> ' . $record[0]['late_coming'] . '</td>';
+            $str_arr["early_going"][] = '<td style="text-align: center;"> ' . $record[0]['early_going'] . '</td>';
+            $str_arr["shift_id"][] = '<td style="text-align: center;"> ' . $record[0]['shift_id'] . '</td>';
+            $str_arr["shift_type_id"][] = '<td style="text-align: center;"> ' . $record[0]['shift_type_id'] . '</td>';
+            $str_arr["device_id_in"][] = '<td style="text-align: center;"> ' . $record[0]['device_id_in'] . '</td>';
+            $str_arr["device_id_out"][] = '<td style="text-align: center;"> ' . $record[0]['device_id_out'] . '</td>';
+            $str_arr["status"][] = '<td style="text-align: center;' . $status . '"> ' . $record[0]['status'] . '</td>';
         }
 
         return [
@@ -293,9 +296,8 @@ class Controller extends BaseController
             join("", $str_arr["device_id_in"]),
             join("", $str_arr["device_id_out"]),
             join("", $str_arr["status"]),
-    ];
+        ];
     }
-
 
     public function TotalOtHours()
     {
