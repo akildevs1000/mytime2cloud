@@ -332,7 +332,7 @@
       <v-btn
         small
         class="primary darken-2"
-        @click="generateReport('http://localhost:8000/api/monthly_details')"
+        @click="generateReport('https://backend.ideahrms.com/api/monthly_details')"
       >
         Monthly Details
       </v-btn>
@@ -341,7 +341,7 @@
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
-        @click="generateReport('http://localhost:8000/api/monthly_summary')"
+        @click="generateReport('https://backend.ideahrms.com/api/monthly_summary')"
       >
         Summary
       </v-btn>
@@ -349,7 +349,7 @@
       <v-btn
         small
         class="primary darken-2"
-        @click="generateReport('http://localhost:8000/api/monthly_present')"
+        @click="generateReport('https://backend.ideahrms.com/api/monthly_present')"
       >
         Present
       </v-btn>
@@ -358,7 +358,7 @@
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
-        @click="generateReport('http://localhost:8000/api/monthly_absent')"
+        @click="generateReport('https://backend.ideahrms.com/api/monthly_absent')"
       >
         Absent
       </v-btn>
@@ -366,7 +366,7 @@
       <v-btn
         small
         class="primary darken-2"
-        @click="generateReport('http://localhost:8000/api/monthly_late_in')"
+        @click="generateReport('https://backend.ideahrms.com/api/monthly_late_in')"
       >
         Late In
       </v-btn>
@@ -375,7 +375,7 @@
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
-        @click="generateReport('http://localhost:8000/api/monthly_early_out')"
+        @click="generateReport('https://backend.ideahrms.com/api/monthly_early_out')"
       >
         Early Out
       </v-btn>

@@ -30,7 +30,7 @@ class AttendanceSeeder extends Seeder
         }
 
         foreach (range(1, $daysInMonth) as $day) {
-            foreach (range(1, 50) as $emp_id) {
+            foreach (range(1, 2) as $emp_id) {
                 $data =  Attendance::factory(1)->create([
                     "date" => date("Y-m-") . ($day < 10 ? '0' . $day : $day),
                     "employee_id" => $emp_id,
