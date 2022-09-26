@@ -110,6 +110,7 @@
         </v-list>
       </v-menu>
     </v-app-bar>
+
     <v-main :style=" $nuxt.$route.path == '/index2' ? 'background-color: #ECF0F4' : '' ">
       <v-container>
         <nuxt />
@@ -211,6 +212,12 @@ export default {
               title: "Sub Department",
               to: "/sub-department",
               permission: this.can("department_access"),
+            },
+            {
+              icon: "mdi-door",
+              title: "Devices",
+              to: "/device",
+              permission: this.can("device_access"),
             },
             {
               icon: "mdi-door",

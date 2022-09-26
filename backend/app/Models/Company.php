@@ -60,7 +60,8 @@ class Company extends Model
         if (!$value) {
             return null;
         }
-        return asset('media/company/logo/' . $value);
+        return asset($value);
+        // return asset('media/company/logo/' . $value);
     }
 
     public function getCreatedAtAttribute($value): string

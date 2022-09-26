@@ -26,8 +26,6 @@ class EmployeeOtherRequest extends FormRequest
     public function rules()
     {
         return [
-            'employee_id' => ['required'],
-            'system_user_id' => ['required'],
             'joining_date' => ['required', 'date'],
             'department_id' => ['required'],
             'sub_department_id' => ['nullable'],

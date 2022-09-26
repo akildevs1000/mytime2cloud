@@ -23,7 +23,7 @@
                   {{ company_payload.name }}
                 </v-list-item-title>
                 <v-list-item-subtitle>{{
-                  login_payload.email
+                login_payload.email
                 }}</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -91,15 +91,8 @@
               </v-col>
 
               <v-col cols="4" class="text-right" style="margin: -8px">
-                <v-icon
-                  v-if="can(`company_edit`)"
-                  @click="editItem(`/master/companies/${$route.params.id}`)"
-                  small
-                  class="grey"
-                  style="border-radius: 50%; padding: 5px"
-                  color="secondary"
-                  >mdi-pencil</v-icon
-                >
+                <v-icon v-if="can(`company_edit`)" @click="editItem(`/master/companies/${$route.params.id}`)" small
+                  class="grey" style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
               </v-col>
 
               <v-col cols="4">
@@ -197,14 +190,8 @@
 
             <v-col cols="6">
               <div class="text-right">
-                <v-btn
-                  v-if="can(`branch_create`)"
-                  small
-                  color="primary"
-                  class="mb-2"
-                  @click="createBranch"
-                  >+ Add Branch</v-btn
-                >
+                <v-btn v-if="can(`branch_create`)" small color="primary" class="mb-2" @click="createBranch">+ Add Branch
+                </v-btn>
               </div>
             </v-col>
           </v-row>
@@ -213,34 +200,21 @@
             <v-col cols="3" v-for="(item, index) in data" :key="index">
               <v-card>
                 <v-toolbar flat dense small class="primary" dark>{{
-                  item.name
+                item.name
                 }}</v-toolbar>
 
                 <v-card-title>
                   <v-spacer></v-spacer>
-                  <v-icon
-                    v-if="can(`branch_edit`)"
-                    @click="editItem(`/branch/edit/${item.id}`)"
-                    color="secondary"
-                    small
-                    >mdi-pencil</v-icon
-                  >
+                  <v-icon v-if="can(`branch_edit`)" @click="editItem(`/branch/edit/${item.id}`)" color="secondary"
+                    small>mdi-pencil</v-icon>
 
-                  <v-icon
-                    v-if="can(`branch_delete`)"
-                    @click="deleteItem(item)"
-                    color="red"
-                    small
-                    >mdi-delete</v-icon
-                  >
+                  <v-icon v-if="can(`branch_delete`)" @click="deleteItem(item)" color="red" small>mdi-delete</v-icon>
                 </v-card-title>
 
                 <v-card-text class="text-center" @click="goDetails(item.id)">
                   <div>
-                    <v-img
-                      style="height: 125px; width: 50%; margin: 0 auto"
-                      :src="item.logo ? item.logo : '/no-image.png'"
-                    >
+                    <v-img style="height: 125px; width: 50%; margin: 0 auto"
+                      :src="item.logo ? item.logo : '/no-image.png'">
                     </v-img>
                   </div>
 
@@ -265,14 +239,8 @@
 
             <v-col cols="6">
               <div class="text-right">
-                <v-btn
-                  v-if="can(`device_create`)"
-                  small
-                  color="primary"
-                  class="mb-2"
-                  @click="createDevice"
-                  >+ Add Device</v-btn
-                >
+                <v-btn v-if="can(`device_create`)" small color="primary" class="mb-2" @click="createDevice">+ Add Device
+                </v-btn>
               </div>
             </v-col>
           </v-row>
@@ -281,34 +249,20 @@
             <v-col cols="3" v-for="(item, index) in devices" :key="index">
               <v-card>
                 <v-toolbar flat dense small class="primary" dark>{{
-                  item.device_id
+                item.device_id
                 }}</v-toolbar>
                 <v-card-title>
-                  <span
-                    ><v-chip
-                      small
-                      :class="
-                        item.status.name == 'active' ? 'success' : 'error'
-                      "
-                      >{{ item.status.name }}</v-chip
-                    ></span
-                  >
+                  <span>
+                    <v-chip small :class="
+                      item.status.name == 'active' ? 'success' : 'error'
+                    ">{{ item.status.name }}</v-chip>
+                  </span>
                   <v-spacer></v-spacer>
-                  <v-icon
-                    v-if="can(`device_edit`)"
-                    @click="editItem(`/master/device/${item.id}`)"
-                    color="secondary"
-                    small
-                    >mdi-pencil</v-icon
-                  >
+                  <v-icon v-if="can(`device_edit`)" @click="editItem(`/master/device/${item.id}`)" color="secondary"
+                    small>mdi-pencil</v-icon>
 
-                  <v-icon
-                    v-if="can(`device_delete`)"
-                    @click="deleteDeviceItem(item)"
-                    color="red"
-                    small
-                    >mdi-delete</v-icon
-                  >
+                  <v-icon v-if="can(`device_delete`)" @click="deleteDeviceItem(item)" color="red" small>mdi-delete
+                  </v-icon>
                 </v-card-title>
 
                 <v-card-text class="text-center">

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Role;
 
 use App\Traits\failedValidationWithName;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRequest extends FormRequest
 {
@@ -25,8 +26,18 @@ class StoreRequest extends FormRequest
      */
     public function rules()
     {
+        $name = $this->name;
+        $companyId = $this->company_id;
         return [
-            'name'=>'required|min:4|max:100',
+            'name' => [
+                'required', 'min:4', 'max:100',
+                Rule::unique('roles')->where(function ($query) use ($name, $companyId) {
+                    return $query->where('name', $name)
+                        ->where('company_id', $companyId);
+                }),
+            ],
+            'company_id' => 'required',
         ];
+
     }
 }

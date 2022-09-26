@@ -12,11 +12,12 @@ class DeviceController extends Controller
 {
     public function index(Device $model, Request $request)
     {
-        return $model->with(['status', 'company'])->paginate($request->per_page);
+        return $model->with(['status', 'company'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 5);
     }
 
     public function store(Device $model, StoreRequest $request)
     {
+
         $record = false;
 
         try {

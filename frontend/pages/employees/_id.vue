@@ -65,7 +65,7 @@
                       </v-col>
                       <v-col md="6" cols="12" sm="12" dense>
                         <label class="col-form-label">Last Name <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="text" v-model="payload.last_name"
+                        <v-text-field dense outlined type="text" autocomplete="off" v-model="payload.last_name"
                           :hide-details="!errors.last_name" :error="errors.last_name" :error-messages="
                             errors && errors.last_name
                               ? errors.last_name[0]

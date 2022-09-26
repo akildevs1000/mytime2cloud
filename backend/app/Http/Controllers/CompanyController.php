@@ -16,6 +16,7 @@ use App\Models\CompanyContact;
 use App\Models\Device;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\CompanyCreationNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -129,9 +130,9 @@ class CompanyController extends Controller
 
             $user['randPass'] = $randPass;
 
-            // if (($company && $user) && env('IS_MAIL')) {
-            //     NotificationsController::toSend($user, new CompanyCreationNotification, $company);
-            // }
+            if (($company && $user) && env('IS_MAIL')) {
+                NotificationsController::toSend($user, new CompanyCreationNotification, $company);
+            }
 
             if (!$company) {
                 return $this->response('Company cannot add.', null, false);
@@ -207,14 +208,15 @@ class CompanyController extends Controller
 
     public function update_log($request, $id)
     {
-        $company = Company::find($id)->update([
-            "logo" => saveFile($request, 'media/company/logo', 'logo', $request->name, 'logo'),
-        ]);
+        $file = $request->file('logo');
+        $ext = $file->getClientOriginalExtension();
+        $fileName = time() . '.' . $ext;
+        $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
 
+        $company = Company::find($id)->update(["logo" => $path]);
         if (!$company) {
             return $this->response('Company cannot updated.', null, false);
         }
-
         return $this->response('Logo successfully updated.', $company, true);
     }
 
@@ -222,30 +224,23 @@ class CompanyController extends Controller
     {
 
         $data = $request->validated();
-
         if ($request->logo_only == 1) {
-            $file = $request->file('logo');
-            $ext = $file->getClientOriginalExtension();
-            $fileName = time() . '.' . $ext;
-            $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
+            return $this->update_log($request, $id);
         }
-
         $data["no_branch"] = $request->no_branch ? 1 : 0;
         $data["max_branches"] = $request->max_branches;
         $data["lat"] = $request->lat;
         $data["lon"] = $request->lon;
 
         if (isset($request->logo)) {
-            // $data['logo'] =  $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
             $file = $request->file('logo');
             $ext = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
-            $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
-            $data['logo'] = $fileName;
+            $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
+            $data['logo'] = $path;
         }
 
         $company = Company::find($id)->update($data);
-
         if (!$company) {
             return $this->response('Company cannot updated.', null, false);
         }

@@ -1,129 +1,30 @@
 <template>
   <div>
+
     <v-row>
-      <div class="col-xl-3 col-lg-6">
-        <div class="card l-bg-green-dark">
+
+      <v-col md="12">
+        <!-- <v-alert v-if="first_login && first_login_auth" outlined class="error lighten-1" dark dense prominent -->
+        <v-alert outlined class="error  lighten-1" dark dense prominent border="left">
+          <v-icon style="margin-top: -3px" size="22">
+            mdi-alert-circle-outline</v-icon>
+          <label class="text-white">For security reasons you need to change your password after first
+            login.</label>
+          <nuxt-link class="white--text" to="/setting">
+            <u>click here</u>
+          </nuxt-link>
+        </v-alert>
+      </v-col>
+
+
+
+      <div class="col-xl-3 col-lg-6 text-uppercase" v-for="(i, index) in items" :key="index">
+        <div class="card p-2" :class="i.color">
           <div class="card-statistic-3">
             <div class="card-icon card-icon-large"><i class="fa fa-briefcase"></i></div>
             <div class="card-content">
-              <h4 class="card-title">New Projects</h4><span class="data-1">102</span>
-              <mat-progress-bar role="progressbar" aria-valuemin="0" aria-valuemax="100" tabindex="-1"
-                mode="determinate" value="40"
-                class="mat-progress-bar progress-m progress-round progress-shadow l-orange-progress mt-2 mb-2 mat-primary"
-                ng-reflect-mode="determinate" ng-reflect-value="40" aria-valuenow="40">
-                <div aria-hidden="true"><svg width="100%" height="4" focusable="false"
-                    class="mat-progress-bar-background mat-progress-bar-element">
-                    <defs>
-                      <pattern x="4" y="0" width="8" height="4" patternUnits="userSpaceOnUse" id="mat-progress-bar-12">
-                        <circle cx="2" cy="2" r="2"></circle>
-                      </pattern>
-                    </defs>
-                    <rect width="100%" height="100%"
-                      fill="url('/templates/admin/kuber/source/light/#mat-progress-bar-12')"></rect>
-                  </svg>
-                  <div class="mat-progress-bar-buffer mat-progress-bar-element"></div>
-                  <div class="mat-progress-bar-primary mat-progress-bar-fill mat-progress-bar-element"
-                    ng-reflect-ng-style="[object Object]" style="transform: scale3d(0.4, 1, 1);"></div>
-                  <div class="mat-progress-bar-secondary mat-progress-bar-fill mat-progress-bar-element"></div>
-                </div>
-              </mat-progress-bar>
+              <h4 class="card-title">{{ i.title }}</h4><span class="data-1"> {{ i.value }}</span>
               <p class="mb-0 text-sm"><span class="mr-2"><i class="fa fa-arrow-up"></i> 10%</span><span
-                  class="text-nowrap"> Since last month</span></p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-3 col-lg-6">
-        <div class="card l-bg-cyan-dark">
-          <div class="card-statistic-3">
-            <div class="card-icon card-icon-large"><i class="fas fa-users"></i></div>
-            <div class="card-content">
-              <h4 class="card-title">New Customers</h4><span class="data-1">154</span>
-              <mat-progress-bar role="progressbar" aria-valuemin="0" aria-valuemax="100" tabindex="-1"
-                mode="determinate" value="40"
-                class="mat-progress-bar progress-m progress-round progress-shadow l-purple-progress mt-2 mb-2 mat-primary"
-                ng-reflect-mode="determinate" ng-reflect-value="40" aria-valuenow="40">
-                <div aria-hidden="true"><svg width="100%" height="4" focusable="false"
-                    class="mat-progress-bar-background mat-progress-bar-element">
-                    <defs>
-                      <pattern x="4" y="0" width="8" height="4" patternUnits="userSpaceOnUse" id="mat-progress-bar-13">
-                        <circle cx="2" cy="2" r="2"></circle>
-                      </pattern>
-                    </defs>
-                    <rect width="100%" height="100%"
-                      fill="url('/templates/admin/kuber/source/light/#mat-progress-bar-13')"></rect>
-                  </svg>
-                  <div class="mat-progress-bar-buffer mat-progress-bar-element"></div>
-                  <div class="mat-progress-bar-primary mat-progress-bar-fill mat-progress-bar-element"
-                    ng-reflect-ng-style="[object Object]" style="transform: scale3d(0.4, 1, 1);"></div>
-                  <div class="mat-progress-bar-secondary mat-progress-bar-fill mat-progress-bar-element"></div>
-                </div>
-              </mat-progress-bar>
-              <p class="mb-0 text-sm"><span class="mr-2"><i class="fa fa-arrow-up"></i> 04%</span><span
-                  class="text-nowrap"> Since last month</span></p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-3 col-lg-6">
-        <div class="card l-bg-purple-dark">
-          <div class="card-statistic-3">
-            <div class="card-icon card-icon-large"><i class="fa fa-globe"></i></div>
-            <div class="card-content">
-              <h4 class="card-title">Inquiry</h4><span class="data-1">524</span>
-              <mat-progress-bar role="progressbar" aria-valuemin="0" aria-valuemax="100" tabindex="-1"
-                mode="determinate" value="40"
-                class="mat-progress-bar progress-m progress-round progress-shadow l-green-progress mt-2 mb-2 mat-primary"
-                ng-reflect-mode="determinate" ng-reflect-value="40" aria-valuenow="40">
-                <div aria-hidden="true"><svg width="100%" height="4" focusable="false"
-                    class="mat-progress-bar-background mat-progress-bar-element">
-                    <defs>
-                      <pattern x="4" y="0" width="8" height="4" patternUnits="userSpaceOnUse" id="mat-progress-bar-14">
-                        <circle cx="2" cy="2" r="2"></circle>
-                      </pattern>
-                    </defs>
-                    <rect width="100%" height="100%"
-                      fill="url('/templates/admin/kuber/source/light/#mat-progress-bar-14')"></rect>
-                  </svg>
-                  <div class="mat-progress-bar-buffer mat-progress-bar-element"></div>
-                  <div class="mat-progress-bar-primary mat-progress-bar-fill mat-progress-bar-element"
-                    ng-reflect-ng-style="[object Object]" style="transform: scale3d(0.4, 1, 1);"></div>
-                  <div class="mat-progress-bar-secondary mat-progress-bar-fill mat-progress-bar-element"></div>
-                </div>
-              </mat-progress-bar>
-              <p class="mb-0 text-sm"><span class="mr-2"><i class="fa fa-arrow-up"></i> 23%</span><span
-                  class="text-nowrap"> Since last month</span></p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-3 col-lg-6">
-        <div class="card l-bg-orange-dark">
-          <div class="card-statistic-3">
-            <div class="card-icon card-icon-large"><i class="fa fa-money-bill-alt"></i></div>
-            <div class="card-content">
-              <h4 class="card-title">Earning</h4><span class="data-1">$2,453</span>
-              <mat-progress-bar role="progressbar" aria-valuemin="0" aria-valuemax="100" tabindex="-1"
-                mode="determinate" value="40"
-                class="mat-progress-bar progress-m progress-round progress-shadow l-sky-progress mt-2 mb-2 mat-primary"
-                ng-reflect-mode="determinate" ng-reflect-value="40" aria-valuenow="40">
-                <div aria-hidden="true"><svg width="100%" height="4" focusable="false"
-                    class="mat-progress-bar-background mat-progress-bar-element">
-                    <defs>
-                      <pattern x="4" y="0" width="8" height="4" patternUnits="userSpaceOnUse" id="mat-progress-bar-15">
-                        <circle cx="2" cy="2" r="2"></circle>
-                      </pattern>
-                    </defs>
-                    <rect width="100%" height="100%"
-                      fill="url('/templates/admin/kuber/source/light/#mat-progress-bar-15')"></rect>
-                  </svg>
-                  <div class="mat-progress-bar-buffer mat-progress-bar-element"></div>
-                  <div class="mat-progress-bar-primary mat-progress-bar-fill mat-progress-bar-element"
-                    ng-reflect-ng-style="[object Object]" style="transform: scale3d(0.4, 1, 1);"></div>
-                  <div class="mat-progress-bar-secondary mat-progress-bar-fill mat-progress-bar-element"></div>
-                </div>
-              </mat-progress-bar>
-              <p class="mb-0 text-sm"><span class="mr-2"><i class="fa fa-arrow-down"></i> 06%</span><span
                   class="text-nowrap"> Since last month</span></p>
             </div>
           </div>
@@ -148,7 +49,30 @@
       <v-col md="4" cols="12" sm="12">
         <v-card elevation="0">
           <v-list three-line>
-            <template v-for="(item, index) in items">
+            <template v-for="(item, index) in items1">
+              <v-subheader v-if="item.header" :key="item.header" v-text="item.header"></v-subheader>
+
+              <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
+
+              <v-list-item v-else :key="item.title">
+                <v-list-item-avatar>
+                  <v-img :src="item.avatar"></v-img>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                  <v-list-item-title v-html="item.title"></v-list-item-title>
+                  <v-list-item-subtitle v-html="item.subtitle"></v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-card>
+      </v-col>
+
+      <v-col md="4" cols="12" sm="12">
+        <v-card elevation="0">
+          <v-list three-line>
+            <template v-for="(item, index) in items1">
               <v-subheader v-if="item.header" :key="item.header" v-text="item.header"></v-subheader>
 
               <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
@@ -170,29 +94,7 @@
       <v-col md="4" cols="12" sm="12">
         <v-card elevation="0">
           <v-list three-line>
-            <template v-for="(item, index) in items">
-              <v-subheader v-if="item.header" :key="item.header" v-text="item.header"></v-subheader>
-
-              <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
-
-              <v-list-item v-else :key="item.title">
-                <v-list-item-avatar>
-                  <v-img :src="item.avatar"></v-img>
-                </v-list-item-avatar>
-
-                <v-list-item-content>
-                  <v-list-item-title v-html="item.title"></v-list-item-title>
-                  <v-list-item-subtitle v-html="item.subtitle"></v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-          </v-list>
-        </v-card>
-      </v-col>
-      <v-col md="4" cols="12" sm="12">
-        <v-card elevation="0">
-          <v-list three-line>
-            <template v-for="(item, index) in items">
+            <template v-for="(item, index) in items1">
               <v-subheader v-if="item.header" :key="item.header" v-text="item.header"></v-subheader>
 
               <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
@@ -233,7 +135,9 @@
 export default {
   data() {
     return {
-      items: [
+      first_login_auth: 1,
+
+      items1: [
         { header: 'Today' },
         {
           avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
@@ -385,6 +289,7 @@ export default {
       daily_orders: "",
       weekly_orders: "",
       monthly_orders: "",
+      items: [],
 
       chartData: [
         ["Month", "On Time", "Absence", "Lates"],
@@ -405,7 +310,12 @@ export default {
   },
   created() {
     this.initialize();
-    console.log(process.env.BASE_URL);
+    this.first_login_auth = this.$auth.user.first_login;
+  },
+  computed: {
+    first_login() {
+      return this.$store.state.first_login;
+    },
   },
   filters: {
     get_decimal_value: function (value) {
@@ -424,79 +334,89 @@ export default {
       else return 'green'
     },
 
-    async initialize() {
-      this.total_items = [
-        {
-          title: "TOTAL Employees",
-          value: "723",
-        },
-        {
-          title: "Payroll For Current Month",
-          value: "5.2k",
-        },
-        {
-          title: "Today Abense",
-          value: "4",
-        },
-      ],
-        this.items_by_cities = [
-          {
-            title: "Gamosaj",
-            value: "3pm",
-          },
-          {
-            title: "Vekorot",
-            value: "9am",
-          },
-          {
-            title: "Pinih",
-            value: "12pm",
-          },
-          {
-            title: "Cixobele",
-            value: "10:30am",
-          },
-        ],
-        this.payment_modes = [
-          {
-            title: "CASH ON DELIVER",
-            value: 9.5,
-            color: "success",
-          },
-          {
-            title: "EASY PAISA",
-            value: 3.2,
-            color: "warning",
-          },
-          {
-            title: "JAZZ CASH",
-            value: 7.2,
-            color: "info",
-          },
-          {
-            title: "DEBIT CARD",
-            value: 1.2,
-            color: "error",
-          },
-        ];
-      this.order_by_devices = [
-        {
-          title: "DESKTOP",
-          value: 3.2,
-          color: "success",
-        },
-        {
-          title: "MOBILE",
-          value: 7.2,
-          color: "warning",
-        },
-        {
-          title: "POS",
-          value: 1.2,
-          color: "error",
-        },
-      ];
+    // async initialize() {
+    //   this.total_items = [
+    //     {
+    //       title: "TOTAL Employees",
+    //       value: "723",
+    //     },
+    //     {
+    //       title: "Payroll For Current Month",
+    //       value: "5.2k",
+    //     },
+    //     {
+    //       title: "Today Abense",
+    //       value: "4",
+    //     },
+    //   ],
+    //     this.items_by_cities = [
+    //       {
+    //         title: "Gamosaj",
+    //         value: "3pm",
+    //       },
+    //       {
+    //         title: "Vekorot",
+    //         value: "9am",
+    //       },
+    //       {
+    //         title: "Pinih",
+    //         value: "12pm",
+    //       },
+    //       {
+    //         title: "Cixobele",
+    //         value: "10:30am",
+    //       },
+    //     ],
+    //     this.payment_modes = [
+    //       {
+    //         title: "CASH ON DELIVER",
+    //         value: 9.5,
+    //         color: "success",
+    //       },
+    //       {
+    //         title: "EASY PAISA",
+    //         value: 3.2,
+    //         color: "warning",
+    //       },
+    //       {
+    //         title: "JAZZ CASH",
+    //         value: 7.2,
+    //         color: "info",
+    //       },
+    //       {
+    //         title: "DEBIT CARD",
+    //         value: 1.2,
+    //         color: "error",
+    //       },
+    //     ];
+    //   this.order_by_devices = [
+    //     {
+    //       title: "DESKTOP",
+    //       value: 3.2,
+    //       color: "success",
+    //     },
+    //     {
+    //       title: "MOBILE",
+    //       value: 7.2,
+    //       color: "warning",
+    //     },
+    //     {
+    //       title: "POS",
+    //       value: 1.2,
+    //       color: "error",
+    //     },
+    //   ];
+    // },
+
+    initialize() {
+      let options = {
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios.get(`count`, { params: options }).then(({ data }) => {
+        this.items = data;
+      });
     },
+
   },
 };
 </script>
