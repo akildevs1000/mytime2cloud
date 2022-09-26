@@ -79,8 +79,7 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseURL: "http://192.168.2.174:8000/api",
-    // baseURL: "https://starfish-app-nmpn7.ondigitalocean.app/api"
+    baseURL: process.env.BASE_URL,
   },
 
     auth: {
