@@ -13,7 +13,6 @@ class Attendance extends Model
 
     protected $appends = ["edit_date", "day"];
 
-
     public function getDateAttribute($value)
     {
         return date("d-M-y", strtotime($value));

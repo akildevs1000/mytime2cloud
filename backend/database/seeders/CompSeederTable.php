@@ -20,6 +20,13 @@ class CompSeederTable extends Seeder
     {
         $role = Role::firstOrCreate(['name' => 'company']);
 
+        $user = User::create([
+            'name' => "company",
+            'password' => Hash::make("Abc@123"),
+            'email' => "company1@hrms.com",
+            'role_id' => $role->id,
+            'is_master' => 1,
+        ]);
 
         $company = Company::create([
             'name' => "akil security & alarm systems",
@@ -32,17 +39,11 @@ class CompSeederTable extends Seeder
             'lat' => "11111",
             'lon' => "11111",
             'company_code' => "AE0001",
+            'user_id' => $user->id,
         ]);
 
-        $user = User::create([
-            'name' => "company",
-            'password' => Hash::make("Abc@123"),
-            'email' => "company1@hrms.com",
-            'role_id' => $role->id,
-            'is_master' => 1,
-            'company_id' => $company->id,
-
-        ]);
+        $user->company_id = $company->id;
+        $user->save();
 
         $companyContact = CompanyContact::create([
             'company_id' => $company->id,

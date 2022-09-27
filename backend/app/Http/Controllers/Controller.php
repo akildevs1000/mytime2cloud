@@ -93,10 +93,19 @@ class Controller extends BaseController
 
     public function monthly_details()
     {
-        $model = Attendance::query();
-        $model = $model->whereMonth("date", date("m"));
+
+        // $model = Employee::query();
+        // return $model->whereRaw('extract(month from joining_date) = ?', 8)->get();
+
+        return $model = Attendance::query()->get();
+
+        if (env('DB_CONNECTION') == 'pgsql') {
+            $model->whereRaw('extract(month from date) = ?', date("m"));
+        } else if (env('DB_CONNECTION') == 'mysql') {
+            $model = $model->whereMonth("date", date("m"));
+        }
         // $model = $model->where("employee_id", "<", 5);
-        $data = $model->get();
+        return $data = $model->get();
         $data = $data->groupBy(['employee_id', 'date']);
         $arr = [];
 

@@ -79,10 +79,11 @@ class EmployeeController extends Controller
             $employee['sub_department_id'] = $request->sub_department_id;
         }
         if ($request->hasFile('profile_picture')) {
-            $profile_picture = $request->profile_picture->getClientOriginalName();
-            $request->profile_picture->move(public_path('media/employee/profile_picture/'), $profile_picture);
-            $product_image = url('media/employee/profile_picture/' . $profile_picture);
-            $employee['profile_picture'] = $profile_picture;
+            $file = $request->file('profile_picture');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $path = $request->file('profile_picture')->storePubliclyAs('upload', $fileName, "do");
+            $employee['profile_picture'] = $path;
         }
         DB::beginTransaction();
         try {

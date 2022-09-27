@@ -11,13 +11,19 @@
             <v-container>
               <v-row>
                 <v-col cols="12" v-if="employee_grade">
-                  <v-autocomplete label="Report" v-model="editedItem.to_report" :items="employees_list"
-                    item-text="first_name" item-value="id" :multiple="
+                  <v-autocomplete
+                    label="Report"
+                    v-model="editedItem.to_report"
+                    :items="employees_list"
+                    item-text="first_name"
+                    item-value="id"
+                    :multiple="
                       employee_grade && employee_grade == 'C' ? true : false
-                    ">
+                    "
+                  >
                   </v-autocomplete>
                   <span v-if="errors && errors.to_report" class="error--text">{{
-                  errors.to_report[0]
+                    errors.to_report[0]
                   }}</span>
                 </v-col>
               </v-row>
@@ -34,26 +40,49 @@
       <v-row>
         <v-col md="12" cols="12">
           <div class="text-right">
-            <v-icon v-if="can('employee_edit')" @click="addItem()" small class="grey"
-              style="border-radius: 50%; padding: 5px" color="secondary">mdi-plus</v-icon>
+            <v-icon
+              v-if="can('employee_edit')"
+              @click="addItem()"
+              small
+              class="grey"
+              style="border-radius: 50%; padding: 5px"
+              color="secondary"
+              >mdi-plus</v-icon
+            >
           </div>
         </v-col>
       </v-row>
       <v-row v-if="can('employee_view')">
-        <v-col xs="12" sm="12" md="2" cols="12" v-for="(item, index) in reporters" :key="index">
+        <v-col
+          xs="12"
+          sm="12"
+          md="2"
+          cols="12"
+          v-for="(item, index) in reporters"
+          :key="index"
+        >
           <v-card style="min-height: 209px">
             <v-card-title>
               <v-spacer></v-spacer>
-              <v-icon v-if="can(`employee_delete`)" @click="deleteItem(item)" color="red" small>mdi-delete</v-icon>
+              <v-icon
+                v-if="can(`employee_delete`)"
+                @click="deleteItem(item)"
+                color="red"
+                small
+                >mdi-delete</v-icon
+              >
             </v-card-title>
             <v-card-text class="text-center">
               <div>
-                <v-img style="
+                <v-img
+                  style="
                     border-radius: 50%;
                     height: 125px;
                     width: 50%;
                     margin: 0 auto;
-                  " :src="item.profile_picture || '/no-profile-image.jpg'">
+                  "
+                  :src="item.profile_picture || '/no-profile-image.jpg'"
+                >
                 </v-img>
               </div>
 
@@ -94,7 +123,7 @@ export default {
     editedIndex: -1,
     editedItem: {
       employee_id: "",
-      to_report: "",
+      to_report: ""
     },
 
     reporters: "",
@@ -102,13 +131,13 @@ export default {
     singleEmployee: {},
     response: "",
     data: [],
-    errors: [],
+    errors: []
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
+    }
   },
 
   watch: {
@@ -121,8 +150,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
 
   created() {
@@ -130,8 +159,8 @@ export default {
     let options = {
       params: {
         per_page: this.options.itemsPerPage,
-        company_id: this.$auth.user.company.id,
-      },
+        company_id: this.$auth.user.company.id
+      }
     };
 
     this.getEmployeeDetails();
@@ -143,7 +172,7 @@ export default {
 
   methods: {
     caps(str) {
-      return str.replace(/\b\w/g, (c) => c.toUpperCase());
+      return str.replace(/\b\w/g, c => c.toUpperCase());
     },
 
     getEmployeeDetails() {
@@ -167,12 +196,12 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
       this.$axios.get(`employee`, options).then(({ data }) => {
         this.all_employees = data.data;
-        this.employees = data.data.filter((e) =>
+        this.employees = data.data.filter(e =>
           e.report_to.length == 0 ? e : null
         );
       });
@@ -183,7 +212,7 @@ export default {
       let id = this.currentUser;
       this.$axios.get(`employee/${id}`).then(({ data }) => {
         this.employee_grade = data.grade;
-        this.employees_list = this.all_employees.filter((e) =>
+        this.employees_list = this.all_employees.filter(e =>
           e.id != this.currentUser ? e : null
         );
       });
@@ -192,7 +221,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -205,8 +234,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -217,15 +246,15 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
+      let just_ids = this.ids.map(e => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
+            ids: just_ids
           })
-          .then((res) => {
+          .then(res => {
             if (!res.data.status) {
               this.errors = res.data.errors;
             } else {
@@ -235,14 +264,14 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
       let payload = {
         params: {
-          report_id: item.id,
-        },
+          report_id: item.id
+        }
       };
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
@@ -256,7 +285,7 @@ export default {
             this.response = data.message;
             this.getReloadMethods();
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     close() {
@@ -272,7 +301,7 @@ export default {
       // }
 
       let payload = {
-        report_id: this.editedItem.to_report,
+        report_id: this.editedItem.to_report
       };
       let id = this.currentUser;
 
@@ -291,7 +320,7 @@ export default {
             this.getReloadMethods();
           }
         })
-        .catch((res) => console.log(res));
+        .catch(res => console.log(res));
     },
     getReloadMethods() {
       this.getEmployees();
@@ -319,12 +348,12 @@ export default {
       if (this.singleEmployee && this.singleEmployee.grade == "A") {
         alert(
           "You cannot assign reporter " +
-          this.singleEmployee.first_name +
-          " employee grade A "
+            this.singleEmployee.first_name +
+            " employee grade A "
         );
         return true;
       }
-    },
-  },
+    }
+  }
 };
 </script>

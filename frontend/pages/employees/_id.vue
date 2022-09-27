@@ -119,8 +119,8 @@
 
                         <v-img style="
                             border-radius: 50%;
-                            height: 125px;
-                            width: 50%;
+                            height: 120px;
+                            width: 35%;
                             margin: 0 auto;
                           " :src="
                             previewImage ||
@@ -348,6 +348,12 @@
 
 <script>
 export default {
+  layout({ $auth }) {
+    let { is_master } = $auth.user;
+    console.log(is_master ? "default" : "employee");
+    return is_master ? "default" : "employee";
+  },
+
   data: () => ({
     Model: "Employee",
     id: "",
@@ -407,11 +413,7 @@ export default {
     snackbar: false,
   }),
 
-  layout({ $auth }) {
-    let { is_master } = $auth.user;
-    console.log(is_master ? "default" : "employee");
-    return is_master ? "default" : "employee";
-  },
+
 
   async created() {
     this.getDataFromApi();

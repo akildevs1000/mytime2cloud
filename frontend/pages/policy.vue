@@ -18,7 +18,8 @@
             color="error"
             class="mr-2 mb-2"
             @click="delteteSelectedRecords"
-            >Delete Selected Records</v-btn
+          >
+            Delete Selected Records</v-btn
           >
 
           <v-btn
@@ -27,8 +28,8 @@
             color="primary"
             @click="dialog = true"
             class="mb-2"
-            >{{ Model }} +</v-btn
-          >
+            >{{ Model }} +
+          </v-btn>
         </div>
       </v-col>
     </v-row>
@@ -60,7 +61,7 @@
                     v-scroll.self="onScroll"
                     max-height="400"
                     :toolbar-attributes="{
-                      color: 'primary lighten-2 red--text text--lighten-1',
+                      color: 'primary lighten-2 red--text text--lighten-1'
                     }"
                   />
                   <template #placeholder> Loading... </template>
@@ -83,8 +84,30 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="view_notification" max-width="60%">
+      <v-card>
+        <v-toolbar class="pb-0 primary" dark flat>
+          <div class="w-50">
+            <span class="pb-0"><small>Policy Details</small></span>
+          </div>
+          <div class="w-50 text-right">
+            <span class="pb-0"
+              ><small>Created : {{ desDate }}</small></span
+            >
+          </div>
+        </v-toolbar>
+        <v-card-text>
+          <v-container>
+            <h3>{{ title }}</h3>
+            <v-divider></v-divider>
+            <div v-html="des"></div>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <v-row>
-      <v-col md="5">
+      <v-col md="12">
         <v-data-table
           v-if="can(`policy_view`)"
           v-model="ids"
@@ -96,7 +119,7 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [5, 10, 15],
+            itemsPerPageOptions: [5, 10, 15]
           }"
           class="elevation-1"
         >
@@ -144,27 +167,6 @@
           </template>
         </v-data-table>
       </v-col>
-      <v-col md="7">
-        <v-card>
-          <v-toolbar class="pb-0 primary" dark flat>
-            <div class="w-50">
-              <span class="pb-0"><small>Policy Details</small></span>
-            </div>
-            <div class="w-50 text-right">
-              <span class="pb-0"
-                ><small>Created : {{ desDate }}</small></span
-              >
-            </div>
-          </v-toolbar>
-          <v-card-text>
-            <v-container>
-              <h3>{{ title }}</h3>
-              <v-divider></v-divider>
-              <div v-html="des"></div>
-            </v-container>
-          </v-card-text>
-        </v-card>
-      </v-col>
     </v-row>
   </div>
 
@@ -188,7 +190,7 @@ import {
   Blockquote,
   HardBreak,
   HorizontalRule,
-  History,
+  History
 } from "tiptap-vuetify";
 
 export default {
@@ -210,16 +212,16 @@ export default {
         Heading,
         {
           options: {
-            levels: [1, 2, 3],
-          },
-        },
+            levels: [1, 2, 3]
+          }
+        }
       ],
       Bold,
       Link,
       Code,
       HorizontalRule,
       Paragraph,
-      HardBreak,
+      HardBreak
     ],
     // starting editor's content
     content: `
@@ -239,7 +241,7 @@ export default {
     total: 0,
     headers: [
       { text: "Title", align: "left", sortable: false, value: "title" },
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
     editedItem: { title: "", description: "" },
@@ -248,14 +250,15 @@ export default {
     des: "",
     desDate: "",
     response: "",
+    view_notification: false,
     data: [],
-    errors: [],
+    errors: []
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
+    }
   },
 
   watch: {
@@ -268,8 +271,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
@@ -279,7 +282,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -294,8 +297,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -319,19 +322,20 @@ export default {
     },
 
     viewItem(item) {
+      this.view_notification = true;
       this.des = item.description;
       this.title = item.title;
       this.desDate = item.created_at;
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
+      let just_ids = this.ids.map(e => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
+            ids: just_ids
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -343,7 +347,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
@@ -361,7 +365,7 @@ export default {
               this.response = data.message;
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     close() {
@@ -376,7 +380,7 @@ export default {
       let payload = {
         title: this.editedItem.title.toLowerCase(),
         description: this.editedItem.description.toLowerCase(),
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company.id
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -386,11 +390,11 @@ export default {
               this.errors = data.errors;
             } else {
               const index = this.data.findIndex(
-                (item) => item.id == this.editedItem.id
+                item => item.id == this.editedItem.id
               );
               this.data.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name,
+                name: this.editedItem.name
               });
               this.getDataFromApi();
               this.snackbar = data.status;
@@ -398,7 +402,7 @@ export default {
               this.close();
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, payload)
@@ -414,14 +418,14 @@ export default {
               this.search = "";
             }
           })
-          .catch((res) => console.log(res));
+          .catch(res => console.log(res));
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
-<style >
+<style>
 .tiptap-vuetify-editor__content {
   min-height: 400px !important;
 }

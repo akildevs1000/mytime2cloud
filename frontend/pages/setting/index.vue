@@ -14,7 +14,6 @@
       </v-row>
 
       <v-row>
-
         <v-col md="12">
           <v-stepper>
             <v-stepper-items>
@@ -204,7 +203,8 @@ export default {
     },
 
     getImage() {
-      this.$axios.get(`company/${this.id}`).then(({ data }) => {
+      let id = this.$route.params.id;
+      this.$axios.get(`company/${id}`).then(({ data }) => {
         this.imgPath = data.record.logo;
       });
     },

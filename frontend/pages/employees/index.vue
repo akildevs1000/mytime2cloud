@@ -85,16 +85,14 @@
             <v-card-title>
               <v-spacer></v-spacer>
               <v-icon v-if="can(`employee_edit`)" @click="editItem(item)" color="secondary" small>mdi-pencil</v-icon>
-
               <v-icon v-if="can(`employee_delete`)" @click="deleteItem(item)" color="red" small>mdi-delete</v-icon>
             </v-card-title>
-
             <v-card-text class="text-center" @click="res(item.id)">
               <div>
                 <v-img style="
                     border-radius: 50%;
-                    height: 125px;
-                    width: 50%;
+                    height: 120px;
+                    width: 35%;
                     margin: 0 auto;
                   " :src="item.profile_picture || '/no-profile-image.jpg'">
                 </v-img>
