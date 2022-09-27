@@ -5,9 +5,9 @@ const axios = require("axios").default;
 const fs = require("fs");
 let socket = new WebSocket(process.env.SOCKET_ENDPOINT);
 socket.onopen = () => console.log("connected\n");
+socket.onerror = () => console.log("error\n");
 
 socket.onmessage = ({ data }) => {
-  console.log("francis")
   let {
     UserCode: UserID,
     DeviceID,
@@ -28,7 +28,7 @@ socket.onmessage = ({ data }) => {
     };
     console.log(str);
 
-    axios.post(process.env.APP_URL, payload).then(({ data }) => {
+    axios.post("/log_payload", payload).then(({ data }) => {
       console.table([data]);
     });
   }
