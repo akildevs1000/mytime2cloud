@@ -5,7 +5,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/test/{email}', function (Request $request,$email) {
+Route::post('/fahath', function (Request $request) {
+    // upload/1664210353.png
+    // return Storage::disk('do')->path('upload/1664210353.png');
+
+    // echo '<img src="' . Storage::disk('do')->path('upload/1664210353.png') . '" alt="">';
+    // return Storage::disk('do')->get('upload/1664210353.png');
+    $request->file('logo');
+    $file = $request->file('logo');
+    $ext = $file->getClientOriginalExtension();
+    $fileName = time() . '.' . $ext;
+    $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
+
+    return isset($path);
+
+});
+
+Route::get('/test/{email}', function (Request $request, $email) {
 
     $data = [
         'title' => 'for test mail',
@@ -13,7 +29,7 @@ Route::get('/test/{email}', function (Request $request,$email) {
     ];
 
     if (!env('IS_MAIL')) {
-       return "mail not allowed";
+        return "mail not allowed";
     }
 
     Mail::to($email)->send(new TestMail($data));
@@ -39,7 +55,6 @@ Route::get('/php_mail', function (Request $request) {
     $txt = "Hello world!";
     $headers = "From: francisgill1000@gmail.com";
 
-
     $mail = mail($to, $subject, $txt, $headers);
     if ($mail) {
         return "mail sent";
@@ -48,7 +63,6 @@ Route::get('/php_mail', function (Request $request) {
     // ini_set('SMTP', "server.com");
     // ini_set('smtp_port', "25");
     // ini_set('sendmail_from', "email@domain.com");
-
 
     $to = env("RECIPIENT_LIST");
     $subject = "HTML email";

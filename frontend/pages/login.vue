@@ -10,15 +10,28 @@
                   <div class="card-body p-md-5 mx-md-4">
                     <div class="text-center">
                       <!-- <img width="15%" :src="logo" alt="logo" /> -->
-                      <img width="35%" src="ideaHRMS-final-green.svg" />
-
+                      <img width="35%" src="ideaHRMS-final-blue.svg" />
                     </div>
 
-                    <v-form ref="form" method="post" v-model="valid" lazy-validation>
+                    <v-form
+                      ref="form"
+                      method="post"
+                      v-model="valid"
+                      lazy-validation
+                    >
                       <label for="">Email</label>
                       <div class="form-outline mb-4">
-                        <v-text-field v-model="email" :rules="emailRules" :hide-details="false" id="form2Example11"
-                          placeholder="master@erp.com" required dense outlined type="email"></v-text-field>
+                        <v-text-field
+                          v-model="email"
+                          :rules="emailRules"
+                          :hide-details="false"
+                          id="form2Example11"
+                          placeholder="master@erp.com"
+                          required
+                          dense
+                          outlined
+                          type="email"
+                        ></v-text-field>
                       </div>
 
                       <label for="">Password</label>
@@ -33,10 +46,18 @@
                           placeholder="secret"
                         /> -->
 
-                        <v-text-field dense outlined :rules="passwordRules" :append-icon="
-                          show_password ? 'mdi-eye' : 'mdi-eye-off'
-                        " :type="show_password ? 'text' : 'password'" v-model="password" class="input-group--focused"
-                          @click:append="show_password = !show_password"></v-text-field>
+                        <v-text-field
+                          dense
+                          outlined
+                          :rules="passwordRules"
+                          :append-icon="
+                            show_password ? 'mdi-eye' : 'mdi-eye-off'
+                          "
+                          :type="show_password ? 'text' : 'password'"
+                          v-model="password"
+                          class="input-group--focused"
+                          @click:append="show_password = !show_password"
+                        ></v-text-field>
                       </div>
                       <!-- <vue-recaptcha
                         class="g-recaptcha"
@@ -54,30 +75,40 @@
                         <span v-if="msg" class="error--text">
                           {{ msg }}
                         </span>
-                        <v-btn :loading="loading" @click="login" class="
+                        <v-btn
+                          :loading="loading"
+                          @click="login"
+                          class="
                             btn btn-primary btn-block
                             text-white
                             fa-lg
                             primary
                             mt-1
                             mb-3
-                          ">
+                          "
+                        >
                           Log in
                         </v-btn>
                       </div>
 
-                      <div class="
+                      <div
+                        class="
                           d-flex
                           align-items-center
                           justify-content-center
                           pb-4
-                        ">
+                        "
+                      >
                         <!-- <p class="mb-0 me-2">Don't have an account?</p> -->
                         <!-- <button type="button" class="btn btn-outline-danger">Create new</button> -->
                       </div>
                     </v-form>
                     <div class="text-right">
-                      <nuxt-link class="text-muted text-right" to="/reset-password">Forgot password?</nuxt-link>
+                      <nuxt-link
+                        class="text-muted text-right"
+                        to="/reset-password"
+                        >Forgot password?</nuxt-link
+                      >
                     </div>
                   </div>
                 </div>
@@ -122,14 +153,14 @@ export default {
     show_password: false,
     msg: "",
     emailRules: [
-      (v) => !!v || "E-mail is required",
-      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
+      v => !!v || "E-mail is required",
+      v => /.+@.+\..+/.test(v) || "E-mail must be valid"
     ],
 
-    passwordRules: [(v) => !!v || "Password is required"],
+    passwordRules: [v => !!v || "Password is required"]
   }),
   created() {
-    console.log(process.env.SOCKET_ENDPOINT)
+    console.log(process.env.SOCKET_ENDPOINT);
   },
   methods: {
     // mxVerify(res) {
@@ -148,7 +179,7 @@ export default {
         // console.log("ReCaptcha token:", token);
         let credentials = {
           email: this.email,
-          password: this.password,
+          password: this.password
         };
         this.$auth
           .loginWith("local", { data: credentials })
@@ -175,7 +206,7 @@ export default {
               type: "Login",
               model_id: id,
               model_type: "User",
-              description: `${name} logged In`,
+              description: `${name} logged In`
             });
           })
           .catch(({ response }) => {
@@ -187,8 +218,8 @@ export default {
             setTimeout(() => (this.loading = false), 2000);
           });
       }
-    },
-  },
+    }
+  }
 };
 </script>
 <style scoped>

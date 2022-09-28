@@ -47,9 +47,11 @@ class CompanyController extends Controller
         return ["status" => true];
     }
 
-    function list(Company $Company) {
+    public function CompanyList(Company $Company)
+    {
         return $Company->select('id', 'name')->get();
     }
+
     public function index(Company $model, Request $request)
     {
         return $model->with(['user', 'contact', 'modules', 'trade_license'])->paginate($request->per_page);
