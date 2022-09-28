@@ -166,6 +166,7 @@
                   <div class="col-sm-3">
                     <div class="form-group">
                       <v-card class="ml-1 mr-1">
+                        {{ company_payload.logo }}
                         <div class="pa-5">
                           <v-img
                             @click="onpick_attachment"
@@ -177,8 +178,8 @@
                             "
                             :src="
                               previewImage ||
-                              company_payload.logo ||
-                              '/no-image.png'
+                                company_payload.logo ||
+                                '/no-image.png'
                             "
                           ></v-img>
                         </div>
@@ -392,7 +393,7 @@ export default {
     preloader: false,
     loading: false,
     upload: {
-      name: "",
+      name: ""
     },
     company_payload: {
       name: "",
@@ -403,23 +404,23 @@ export default {
       no_branch: "",
       max_branches: "",
       max_employee: "",
-      max_devices: "",
+      max_devices: ""
     },
     contact_payload: {
       name: "",
       number: "",
       position: "",
-      whatsapp: "",
+      whatsapp: ""
     },
     // location: "",
     geographic_payload: {
       location: "",
       lat: "",
-      lon: "",
+      lon: ""
     },
     e1: 1,
     errors: [],
-    previewImage: null,
+    previewImage: null
   }),
   created() {
     this.preloader = false;
@@ -428,7 +429,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -443,7 +444,7 @@ export default {
       let file = input.files;
       if (file && file[0]) {
         let reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = e => {
           this.previewImage = e.target.result;
         };
         reader.readAsDataURL(file[0]);
@@ -475,7 +476,7 @@ export default {
             this.e1 = 2;
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
     validate_contact() {
       this.loading = true;
@@ -492,7 +493,7 @@ export default {
             this.e1 = 3;
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
     validate_geographic_info() {
       this.loading = true;
@@ -509,7 +510,7 @@ export default {
             this.store_data();
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     store_data() {
@@ -550,8 +551,8 @@ export default {
             this.$router.push("/master/companies");
           }
         })
-        .catch((e) => console.log(e));
-    },
-  },
+        .catch(e => console.log(e));
+    }
+  }
 };
 </script>

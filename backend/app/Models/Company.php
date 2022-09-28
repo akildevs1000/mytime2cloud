@@ -60,8 +60,8 @@ class Company extends Model
         if (!$value) {
             return null;
         }
-        return env('BUCKET_URL') . '/' . $value;
-        // return asset(env('BUCKET_URL') . '/' . $value);
+        // return env('BUCKET_URL') . '/' . $value;
+        return asset('upload/' . $value);
         // return asset('media/company/logo/' . $value);
     }
 
