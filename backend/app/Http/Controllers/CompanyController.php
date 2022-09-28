@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use TechTailor\RPG\Facade\RPG;
 
 class CompanyController extends Controller
@@ -100,9 +101,9 @@ class CompanyController extends Controller
             $ext = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
             $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
-
             // $company['logo'] = saveFile($request, 'media/company/logo', 'logo', $request->company_name, 'logo');
             $company['logo'] = $path;
+            Storage::put('logo.txt', $company['logo']);
         }
 
         $contact = [
