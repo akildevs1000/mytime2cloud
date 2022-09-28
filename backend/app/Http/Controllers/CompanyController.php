@@ -95,7 +95,14 @@ class CompanyController extends Controller
         ];
 
         if (isset($request->logo)) {
-            $company['logo'] = saveFile($request, 'media/company/logo', 'logo', $request->company_name, 'logo');
+
+            $file = $request->file('logo');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
+
+            // $company['logo'] = saveFile($request, 'media/company/logo', 'logo', $request->company_name, 'logo');
+            $company['logo'] = $path;
         }
 
         $contact = [
