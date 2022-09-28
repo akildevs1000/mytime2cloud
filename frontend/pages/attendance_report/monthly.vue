@@ -332,7 +332,7 @@
       <v-btn
         small
         class="primary darken-2"
-        @click="generateReport('https://backend.ideahrms.com/api/monthly_details')"
+        @click="generateReport('/monthly_details')"
       >
         Monthly Details
       </v-btn>
@@ -341,7 +341,7 @@
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
-        @click="generateReport('https://backend.ideahrms.com/api/monthly_summary')"
+        @click="generateReport('/monthly_summary')"
       >
         Summary
       </v-btn>
@@ -349,7 +349,7 @@
       <v-btn
         small
         class="primary darken-2"
-        @click="generateReport('https://backend.ideahrms.com/api/monthly_present')"
+        @click="generateReport('/monthly_present')"
       >
         Present
       </v-btn>
@@ -358,7 +358,7 @@
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
-        @click="generateReport('https://backend.ideahrms.com/api/monthly_absent')"
+        @click="generateReport('/monthly_absent')"
       >
         Absent
       </v-btn>
@@ -366,7 +366,7 @@
       <v-btn
         small
         class="primary darken-2"
-        @click="generateReport('https://backend.ideahrms.com/api/monthly_late_in')"
+        @click="generateReport('/monthly_late_in')"
       >
         Late In
       </v-btn>
@@ -375,7 +375,7 @@
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
-        @click="generateReport('https://backend.ideahrms.com/api/monthly_early_out')"
+        @click="generateReport('/monthly_early_out')"
       >
         Early Out
       </v-btn>
@@ -431,7 +431,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [5, 10, 15],
+        itemsPerPageOptions: [5, 10, 15]
       }"
       class="elevation-1"
     >
@@ -543,25 +543,25 @@ export default {
         text: "First Name",
         align: "left",
         sortable: false,
-        value: "employee.first_name",
+        value: "employee.first_name"
       },
       {
         text: "Dept",
         align: "left",
         sortable: false,
-        value: "employee.department.name",
+        value: "employee.department.name"
       },
       {
         text: "Shift Type",
         align: "left",
         sortable: false,
-        value: "shift_type.name",
+        value: "shift_type.name"
       },
       {
         text: "Shift",
         align: "left",
         sortable: false,
-        value: "shift",
+        value: "shift"
       },
       { text: "Status", align: "left", sortable: false, value: "status" },
       { text: "In", align: "left", sortable: false, value: "in" },
@@ -570,33 +570,33 @@ export default {
         text: "Total Hrs",
         align: "left",
         sortable: false,
-        value: "total_hrs",
+        value: "total_hrs"
       },
       { text: "OT", align: "left", sortable: false, value: "ot" },
       {
         text: "Late coming",
         align: "left",
         sortable: false,
-        value: "late_coming",
+        value: "late_coming"
       },
       {
         text: "Early Going",
         align: "left",
         sortable: false,
-        value: "early_going",
+        value: "early_going"
       },
       {
         text: "D.In",
         align: "left",
         sortable: false,
-        value: "device_in",
+        value: "device_in"
       },
       {
         text: "D.Out",
         align: "left",
         sortable: false,
-        value: "device_out",
-      },
+        value: "device_out"
+      }
     ],
     payload: {
       from_date: null,
@@ -604,13 +604,13 @@ export default {
       employee_id: null,
       department_id: -1,
       status: "Select All",
-      late_early: "Select All",
+      late_early: "Select All"
     },
     log_payload: {
       user_id: null,
       device_id: "OX-8862021010011",
       date: null,
-      time: null,
+      time: null
     },
 
     snackbar: false,
@@ -621,14 +621,14 @@ export default {
     data: [],
     csvData: [],
     shifts: [],
-    errors: [],
+    errors: []
   }),
   custom_options: {},
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
+    }
   },
 
   watch: {
@@ -641,8 +641,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
@@ -657,8 +657,8 @@ export default {
     this.custom_options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
-      },
+        company_id: this.$auth.user.company.id
+      }
     };
     this.getDepartments(this.custom_options);
   },
@@ -670,7 +670,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time + ":00",
         DeviceID: device_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company.id
       };
       this.loading = true;
 
@@ -694,10 +694,10 @@ export default {
     },
     getShift(options) {
       this.$axios.get(`/shift`, options).then(({ data }) => {
-        this.shifts = data.data.map((e) => ({
+        this.shifts = data.data.map(e => ({
           name: e.name,
           on_duty_time: (e.time_table && e.time_table.on_duty_time) || "",
-          off_duty_time: (e.time_table && e.time_table.off_duty_time) || "",
+          off_duty_time: (e.time_table && e.time_table.off_duty_time) || ""
         }));
         this.time_table_dialog = true;
       });
@@ -735,15 +735,15 @@ export default {
         .then(({ data }) => {
           this.departments = [{ id: -1, name: "Select All" }].concat(data.data);
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     caps(str) {
-      return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      return str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -792,13 +792,13 @@ export default {
           ...this.payload,
           status,
           late_early,
-          ot: this.overtime ? 1 : 0,
-        },
+          ot: this.overtime ? 1 : 0
+        }
       };
 
       this.$axios.get(url, options).then(({ data }) => {
         this.data = data.data;
-        this.csvData = data.data.map((e) => ({
+        this.csvData = data.data.map(e => ({
           Date: e.date,
           "E.ID": e.employee_id,
           "First Name": e.employee.first_name,
@@ -814,7 +814,7 @@ export default {
           "Late Coming": e.late_coming,
           "Early Going": e.early_going,
           "D.In": (e.device_in && e.device_in.name) || "---",
-          "D.Out": (e.device_out && e.device_out.name) || "---",
+          "D.Out": (e.device_out && e.device_out.name) || "---"
         }));
         this.total = data.total;
         this.loading = false;
@@ -830,7 +830,7 @@ export default {
         name: item.shift.name,
         days: item.shift.days,
         ot_interval: item.shift.overtime,
-        working_hours: item.shift.working_hours || "---",
+        working_hours: item.shift.working_hours || "---"
       };
 
       if (item && !item.time_table) {
@@ -854,18 +854,20 @@ export default {
       }, 300);
     },
     pdfDownload() {
+      let path = process.env.BACKEND_URL + "/pdf";
       let pdf = document.createElement("a");
-      pdf.setAttribute("href", "http://192.168.2.174:8000/api/pdf");
+      pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
       pdf.click();
     },
 
     generateReport(url) {
+      let path = process.env.BACKEND_URL + url;
       let report = document.createElement("a");
-      report.setAttribute("href", url);
+      report.setAttribute("href", path);
       report.setAttribute("target", "_blank");
       report.click();
-    },
-  },
+    }
+  }
 };
 </script>

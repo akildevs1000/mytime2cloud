@@ -65,7 +65,7 @@
                       </v-col>
                       <v-col md="6" cols="12" sm="12" dense>
                         <label class="col-form-label">Last Name <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="text" v-model="payload.last_name"
+                        <v-text-field dense outlined type="text" autocomplete="off" v-model="payload.last_name"
                           :hide-details="!errors.last_name" :error="errors.last_name" :error-messages="
                             errors && errors.last_name
                               ? errors.last_name[0]
@@ -119,8 +119,8 @@
 
                         <v-img style="
                             border-radius: 50%;
-                            height: 125px;
-                            width: 50%;
+                            height: 120px;
+                            width: 35%;
                             margin: 0 auto;
                           " :src="
                             previewImage ||
@@ -348,6 +348,12 @@
 
 <script>
 export default {
+  layout({ $auth }) {
+    let { is_master } = $auth.user;
+    console.log(is_master ? "default" : "employee");
+    return is_master ? "default" : "employee";
+  },
+
   data: () => ({
     Model: "Employee",
     id: "",
@@ -407,11 +413,7 @@ export default {
     snackbar: false,
   }),
 
-  layout({ $auth }) {
-    let { is_master } = $auth.user;
-    console.log(is_master ? "default" : "employee");
-    return is_master ? "default" : "employee";
-  },
+
 
   async created() {
     this.getDataFromApi();

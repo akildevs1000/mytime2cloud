@@ -22,27 +22,46 @@ class CountController extends Controller
     public function __invoke(Request $request)
     {
         $id = $request->company_id ?? 0;
+        $attendanceModel = Attendance::query();
+        $attendanceModel->whereCompanyId($id);
+        $model = $attendanceModel->whereDate('date', date('Y-m-d'))->get();
 
         return [
             [
                 "title" => "TOTAL MODULES",
                 "value" => count(AssignModule::whereCompanyId($id)->pluck("module_ids")[0]),
                 "icon" => "mdi-apps",
+                "color" => "l-bg-green-dark",
             ],
             [
                 "title" => "TOTAL Department",
                 "value" => Department::whereCompanyId($id)->count(),
                 "icon" => "mdi-door",
+                "color" => "l-bg-cyan-dark",
             ],
             [
                 "title" => "TOTAL Employee",
                 "value" => Employee::whereCompanyId($id)->count(),
                 "icon" => "mdi-account",
+                "color" => "l-bg-purple-dark",
             ],
             [
                 "title" => "TOTAL Device",
                 "value" => Device::whereCompanyId($id)->count(),
                 "icon" => "mdi-laptop",
+                "color" => "l-bg-orange-dark",
+            ],
+            [
+                "title" => "Today Presents",
+                "value" => $model->where('status', 'P')->count(),
+                "icon" => "mdi-check",
+                "color" => "l-bg-purple-dark",
+            ],
+            [
+                "title" => "Today Absence",
+                "value" => $model->where('status', 'A')->count(),
+                "icon" => "mdi-check",
+                "color" => "l-bg-orange-dark",
             ],
         ];
     }
@@ -60,7 +79,7 @@ class CountController extends Controller
                 "title" => "Total Presents",
                 "value" => $query->where('status', 'p')->count(),
                 "icon" => "mdi-check",
-                "color" => "primary",
+                "color" => "l-bg-green-dark",
                 "border_color" => "4B7BEC",
             ],
             [

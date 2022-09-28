@@ -2,12 +2,9 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\BranchTableSeeder;
-use Database\Seeders\CompanySeeder;
 use Database\Seeders\CompSeederTable;
 use Database\Seeders\DepartmentTableSeeder;
 use Database\Seeders\DesignationsTableSeeder;
-use Database\Seeders\DeviceStatusSeeder;
 use Database\Seeders\EmployeeSeederTable;
 use Database\Seeders\MasterSeeder;
 use Database\Seeders\ModuleSeeder;
@@ -25,6 +22,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+
         // Production
         $this->call([MasterSeeder::class]);
         $this->call([PermissionSeeder::class]);

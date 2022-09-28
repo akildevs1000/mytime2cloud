@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Models\Leave;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
@@ -57,7 +57,9 @@ class Employee extends Model
         if (!$value) {
             return null;
         }
-        return asset('media/employee/profile_picture/' . $value);
+        // return asset('media/employee/profile_picture/' . $value);
+        return asset(env('BUCKET_URL') . '/' . $value);
+
     }
 
     public function getCreatedAtAttribute($value): string

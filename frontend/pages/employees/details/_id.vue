@@ -1528,7 +1528,7 @@
                   <v-col cols="8">
                     {{
                       (payload.sub_department && payload.sub_department.name) ||
-                      "---"
+                        "---"
                     }}</v-col
                   >
 
@@ -2509,7 +2509,7 @@ export default {
       no_of_spouse: "",
       no_of_children: "",
       company_id: "",
-      employee_id: "",
+      employee_id: ""
     },
 
     BankInfo: {
@@ -2519,7 +2519,7 @@ export default {
       iban: "",
       address: "",
       company_id: "",
-      employee_id: "",
+      employee_id: ""
     },
 
     personalItem: {
@@ -2538,7 +2538,7 @@ export default {
       date_of_birth: "",
 
       company_id: "",
-      employee_id: "",
+      employee_id: ""
     },
 
     contactItem: {
@@ -2568,13 +2568,13 @@ export default {
       other_text: "",
 
       company_id: "",
-      employee_id: "",
+      employee_id: ""
     },
 
     setting: {
       status: "",
       overtime: "",
-      mobile_application: "",
+      mobile_application: ""
     },
 
     emirateItems: {
@@ -2587,7 +2587,7 @@ export default {
       expiry: "",
 
       company_id: "",
-      employee_id: "",
+      employee_id: ""
     },
 
     visaItem: {
@@ -2605,7 +2605,7 @@ export default {
       note: "",
 
       company_id: "",
-      employee_id: "",
+      employee_id: ""
     },
 
     // passport_list: {
@@ -2621,11 +2621,11 @@ export default {
     // },
 
     Document: {
-      items: [{ title: "", file: "" }],
+      items: [{ title: "", file: "" }]
     },
     document_list: [],
     qualification_list: [],
-    passport_list: [],
+    passport_list: []
   }),
   async created() {
     this.getEmployeeDetails();
@@ -2680,13 +2680,13 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   computed: {
     getEmployeeId() {
       return this.$route.params.id;
-    },
+    }
   },
   methods: {
     mapper(obj) {
@@ -2702,12 +2702,12 @@ export default {
       return n > 10 ? n : "0" + n;
     },
     caps(str) {
-      return str.replace(/\b\w/g, (c) => c.toUpperCase());
+      return str.replace(/\b\w/g, c => c.toUpperCase());
     },
     addDocumentInfo() {
       this.Document.items.push({
         title: "",
-        file: "",
+        file: ""
       });
     },
     removeItem(index) {
@@ -2718,7 +2718,7 @@ export default {
       let payload = {
         ...this.personalItem,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id),
+        employee_id: parseInt(this.$route.params.id)
       };
 
       this.$axios
@@ -2735,14 +2735,14 @@ export default {
             this.close_personal_info();
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     save_contact_info() {
       let payload = {
         ...this.contactItem,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id),
+        employee_id: parseInt(this.$route.params.id)
       };
 
       this.$axios
@@ -2759,14 +2759,14 @@ export default {
             this.close_contact_info();
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     save_passport_info() {
       let payload = {
         ...this.passport_list,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id),
+        employee_id: parseInt(this.$route.params.id)
       };
 
       this.$axios
@@ -2783,14 +2783,14 @@ export default {
             this.close_passport_info();
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     save_emirate_info() {
       let payload = {
         ...this.emirateItems,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id),
+        employee_id: parseInt(this.$route.params.id)
       };
 
       this.$axios
@@ -2807,14 +2807,14 @@ export default {
             this.close_emirate_info();
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     save_visa_info() {
       let payload = {
         ...this.visaItem,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id),
+        employee_id: parseInt(this.$route.params.id)
       };
 
       this.$axios
@@ -2831,13 +2831,13 @@ export default {
             this.close_visa_info();
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
     save_qualification_info() {
       let payload = {
         ...this.qualification_list,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id),
+        employee_id: parseInt(this.$route.params.id)
       };
 
       this.$axios
@@ -2854,14 +2854,14 @@ export default {
             this.close_qualification_info();
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     save_bank_info() {
       let payload = {
         ...this.BankInfo,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id),
+        employee_id: parseInt(this.$route.params.id)
       };
 
       this.$axios
@@ -2878,14 +2878,14 @@ export default {
             this.close_bank_info();
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     update_setting() {
       let payload = {
         company_id: this.$auth?.user?.company?.id,
         employee_id: parseInt(this.$route.params.id),
-        status: this.payload.status,
+        status: this.payload.status
       };
       // console.log(payload);
       // return;
@@ -2905,7 +2905,7 @@ export default {
             console.log("success");
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     // update_setting() {
@@ -2941,12 +2941,12 @@ export default {
     save_document_info() {
       let options = {
         headers: {
-          "Content-Type": "multipart/form-data",
-        },
+          "Content-Type": "multipart/form-data"
+        }
       };
       let payload = new FormData();
 
-      this.Document.items.forEach((e) => {
+      this.Document.items.forEach(e => {
         payload.append(`items[][title]`, e.title);
         payload.append(`items[][file]`, e.file || {});
       });
@@ -2970,7 +2970,7 @@ export default {
             this.close_document_info();
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
     close_personal_info() {
       this.personal_info = false;
@@ -3015,7 +3015,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -3023,7 +3023,7 @@ export default {
     getBankInfo() {
       this.$axios.get(`bankinfo/${this.$route.params.id}`).then(({ data }) => {
         this.BankInfo = {
-          ...data,
+          ...data
         };
         this.loading = false;
       });
@@ -3032,7 +3032,7 @@ export default {
       this.$axios.get(`passport/${this.$route.params.id}`).then(({ data }) => {
         // this.passport_list = data;
         this.passport_list = {
-          ...data,
+          ...data
         };
         this.loading = false;
       });
@@ -3043,7 +3043,7 @@ export default {
         .get(`personalinfo/${this.$route.params.id}`)
         .then(({ data }) => {
           this.personalItem = {
-            ...data,
+            ...data
           };
           // this.personalItem = data;
           this.loading = false;
@@ -3054,7 +3054,7 @@ export default {
       this.$axios.get(`visa/${this.$route.params.id}`).then(({ data }) => {
         // this.visaItem = data;
         this.visaItem = {
-          ...data,
+          ...data
         };
         this.loading = false;
       });
@@ -3064,7 +3064,7 @@ export default {
       this.$axios.get(`emirate/${this.$route.params.id}`).then(({ data }) => {
         // this.visaItem = data;
         this.emirateItems = {
-          ...data,
+          ...data
         };
         this.loading = false;
       });
@@ -3084,7 +3084,7 @@ export default {
         .get(`qualification/${this.$route.params.id}`)
         .then(({ data }) => {
           this.qualification_list = {
-            ...data,
+            ...data
           };
           // this.qualification_list = data;
           this.loading = false;
@@ -3123,13 +3123,12 @@ export default {
             this.close_document_info();
           }
         })
-        .catch((e) => console.log(e));
-    },
+        .catch(e => console.log(e));
+    }
   },
-  components: { NoAccess, Preloader },
+  components: { NoAccess, Preloader }
 };
 </script>
-
 
 <style scoped>
 .text-bold {

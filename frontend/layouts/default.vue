@@ -110,6 +110,7 @@
         </v-list>
       </v-menu>
     </v-app-bar>
+
     <v-main :style=" $nuxt.$route.path == '/index2' ? 'background-color: #ECF0F4' : '' ">
       <v-container>
         <nuxt />
@@ -188,6 +189,10 @@ export default {
           to: "/",
           permission: this.can("/"),
         },
+
+
+
+
         {
           icon: "mdi-domain",
           title: `My Company`,
@@ -212,34 +217,72 @@ export default {
               to: "/sub-department",
               permission: this.can("department_access"),
             },
+
             {
               icon: "mdi-door",
               title: "Designation",
               to: "/designation",
               permission: this.can("designation_access"),
             },
-
             {
               icon: "mdi-account",
-              title: "Employees",
-              to: "/employees",
-              permission: this.can("employee_access"),
+              title: "Roles",
+              to: "/role",
+              permission: this.can("role_access"),
             },
             {
-              icon: "mdi-bullhorn-variant-outline",
-              title: "Announcement",
-              to: "/announcement",
-              permission: this.can("employee_access"),
+              icon: "mdi-lock",
+              title: "Assign Permissions",
+              to: "/assign_permission",
+              permission: this.can("assign_permission_access"),
             },
-            {
-              icon: "mdi-clipboard-edit-outline",
-              title: "Policy",
-              to: "/policy",
-              permission: this.can("employee_access"),
-            },
+            // {
+            //   icon: "mdi-account",
+            //   title: "Employees",
+            //   to: "/employees",
+            //   permission: this.can("employee_access"),
+            // },
+            // {
+            //   icon: "mdi-bullhorn-variant-outline",
+            //   title: "Announcement",
+            //   to: "/announcement",
+            //   permission: this.can("employee_access"),
+            // },
+            // {
+            //   icon: "mdi-clipboard-edit-outline",
+            //   title: "Policy",
+            //   to: "/policy",
+            //   permission: this.can("employee_access"),
+            // },
             // employees
           ],
         },
+        {
+          icon: "mdi-door",
+          title: "Devices",
+          to: "/device",
+          permission: this.can("device_access"),
+        },
+        {
+          icon: "mdi-account",
+          title: "Employees",
+          to: "/employees",
+          permission: this.can("employee_access"),
+        },
+
+        {
+          icon: "mdi-bullhorn-variant-outline",
+          title: "Announcement",
+          to: "/announcement",
+          permission: this.can("employee_access"),
+        },
+        {
+          icon: "mdi-clipboard-edit-outline",
+          title: "Policy",
+          to: "/policy",
+          permission: this.can("employee_access"),
+        },
+
         {
           icon: "mdi-apps",
           title: "Modules",
@@ -299,38 +342,38 @@ export default {
             },
           ],
         },
-        {
-          icon: "mdi-account",
-          title: "User Management",
-          open_menu: false,
-          permission: this.can("user_access"),
-          hasChildren: [
-            // {
-            //   icon: "mdi-account",
-            //   title: "Users",
-            //   to: "/user",
-            //   permission: this.can("user_access"),
-            // },
-            {
-              icon: "mdi-account",
-              title: "Roles",
-              to: "/role",
-              permission: this.can("role_access"),
-            },
-            {
-              icon: "mdi-lock",
-              title: "Assign Permissions",
-              to: "/assign_permission",
-              permission: this.can("assign_permission_access"),
-            },
-            // {
-            //   icon: "mdi-account",
-            //   title: "Employee To Report",
-            //   to: "/employee_to_report",
-            //   permission: this.can("assign_permission_access"),
-            // },
-          ],
-        },
+        // {
+        //   icon: "mdi-account",
+        //   title: "User Management",
+        //   open_menu: false,
+        //   permission: this.can("user_access"),
+        //   hasChildren: [
+        //     // {
+        //     //   icon: "mdi-account",
+        //     //   title: "Users",
+        //     //   to: "/user",
+        //     //   permission: this.can("user_access"),
+        //     // },
+        //     {
+        //       icon: "mdi-account",
+        //       title: "Roles",
+        //       to: "/role",
+        //       permission: this.can("role_access"),
+        //     },
+        //     {
+        //       icon: "mdi-lock",
+        //       title: "Assign Permissions",
+        //       to: "/assign_permission",
+        //       permission: this.can("assign_permission_access"),
+        //     },
+        //     // {
+        //     //   icon: "mdi-account",
+        //     //   title: "Employee To Report",
+        //     //   to: "/employee_to_report",
+        //     //   permission: this.can("assign_permission_access"),
+        //     // },
+        //   ],
+        // },
         {
           icon: "mdi-cog",
           title: "Setting",
