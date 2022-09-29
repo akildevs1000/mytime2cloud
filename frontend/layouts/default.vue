@@ -166,17 +166,56 @@
     >
       <v-icon class="spin" dark size="25">mdi-cog</v-icon>
     </v-btn>
-    <v-navigation-drawer v-model="rightDrawer" :right="right" temporsary fixed>
-      <v-row>
+    <!-- setting -->
+    <v-navigation-drawer
+      v-model="rightDrawer"
+      :clipped="true"
+      :right="right"
+      fixed
+    >
+      <v-row style="margin-top: 50px;">
         <v-col>
           <v-card class="pa-2" elevation="0">
             <v-col cols="12">
-              <div class="mb-5">
+              <div class="mb-3">
+                <Strong>Theme</Strong>
+              </div>
+              <div
+                class="btn-group"
+                role="group"
+                aria-label="Basic radio toggle button group"
+              >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="theme"
+                  id="light"
+                  autocomplete="off"
+                  @click="changeTheme('light')"
+                />
+                <label class="btn" :class="'btn-outline-dark'" for="light"
+                  >Light</label
+                >
+
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="theme"
+                  id="dark"
+                  autocomplete="off"
+                  @click="changeTheme('dark')"
+                />
+                <label class="btn btn-outline-dark" for="dark">Dark</label>
+              </div>
+            </v-col>
+            <v-divider></v-divider>
+            <v-col cols="12">
+              <div class="mb-3">
                 <Strong>Top Bar</Strong>
               </div>
               <div class="d-flex">
                 <v-btn
-                  class="mx-2"
+                  class="mx-2 stg-color-icon"
                   fab
                   dark
                   x-small
@@ -184,7 +223,7 @@
                   @click="changeTopBarColor('primary')"
                 ></v-btn>
                 <v-btn
-                  class="mx-2"
+                  class="mx-2 stg-color-icon"
                   fab
                   dark
                   x-small
@@ -192,22 +231,31 @@
                   @click="changeTopBarColor('error')"
                 ></v-btn>
                 <v-btn
-                  class="mx-2"
+                  class="mx-2 stg-color-icon"
                   fab
                   dark
                   x-small
                   color="indigo"
                   @click="changeTopBarColor('indigo')"
                 ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="background"
+                  @click="changeTopBarColor('background')"
+                ></v-btn>
               </div>
             </v-col>
+            <v-divider></v-divider>
             <v-col cols="12">
-              <div class="mb-5">
+              <div class="mb-3">
                 <Strong>Side Bar</Strong>
               </div>
               <div class="d-flex">
                 <v-btn
-                  class="mx-2"
+                  class="mx-2 stg-color-icon"
                   fab
                   dark
                   x-small
@@ -215,7 +263,7 @@
                   @click="changeSideBarColor('primary')"
                 ></v-btn>
                 <v-btn
-                  class="mx-2"
+                  class="mx-2 stg-color-icon"
                   fab
                   dark
                   x-small
@@ -223,7 +271,7 @@
                   @click="changeSideBarColor('error')"
                 ></v-btn>
                 <v-btn
-                  class="mx-2"
+                  class="mx-2 stg-color-icon"
                   fab
                   dark
                   x-small
@@ -231,7 +279,7 @@
                   @click="changeSideBarColor('indigo')"
                 ></v-btn>
                 <v-btn
-                  class="mx-2"
+                  class="mx-2 stg-color-icon"
                   fab
                   dark
                   x-small
@@ -515,6 +563,10 @@ export default {
       this.$store.commit("change_color", color);
     },
 
+    changeTheme(color) {
+      // alert(color);
+    },
+
     changeSideBarColor(color) {
       this.sideBarcolor = color;
     },
@@ -666,5 +718,10 @@ export default {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
+}
+
+.stg-color-icon {
+  width: 30px !important;
+  height: 30px !important;
 }
 </style>

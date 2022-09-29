@@ -68,7 +68,6 @@ class CompanyController extends Controller
 
     public function store(StoreRequest $request)
     {
-
         $randPass = RPG::Generate("luds", 8, 0, 0);
 
         $data = $request->validated();

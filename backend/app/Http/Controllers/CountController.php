@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AssignModule;
 use App\Models\Attendance;
-use App\Models\Department;
 use App\Models\Device;
-use App\Models\Employee;
 use App\Models\Leave;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,52 +24,56 @@ class CountController extends Controller
         $model = $attendanceModel->whereDate('date', date('Y-m-d'))->get();
 
         return [
-            [
-                "title" => "TOTAL MODULES",
-                "value" => count(AssignModule::whereCompanyId($id)->pluck("module_ids")[0]),
-                "icon" => "mdi-apps",
-                "color" => "l-bg-green-dark",
-            ],
-            [
-                "title" => "TOTAL Department",
-                "value" => Department::whereCompanyId($id)->count(),
-                "icon" => "mdi-door",
-                "color" => "l-bg-cyan-dark",
-            ],
-            [
-                "title" => "TOTAL Employee",
-                "value" => Employee::whereCompanyId($id)->count(),
-                "icon" => "mdi-account",
-                "color" => "l-bg-purple-dark",
-            ],
-            [
-                "title" => "TOTAL Device",
-                "value" => Device::whereCompanyId($id)->count(),
-                "icon" => "mdi-laptop",
-                "color" => "l-bg-orange-dark",
-            ],
+            // [
+            //     "title" => "TOTAL MODULES",
+            //     "value" => count(AssignModule::whereCompanyId($id)->pluck("module_ids")[0]),
+            //     "icon" => "mdi-apps",
+            //     "color" => "l-bg-green-dark",
+            // ],
+            // [
+            //     "title" => "TOTAL Department",
+            //     "value" => Department::whereCompanyId($id)->count(),
+            //     "icon" => "mdi-door",
+            //     "color" => "l-bg-cyan-dark",
+            // ],
+            // [
+            //     "title" => "TOTAL Employee",
+            //     "value" => Employee::whereCompanyId($id)->count(),
+            //     "icon" => "mdi-account",
+            //     "color" => "l-bg-purple-dark",
+            // ],
+            // [
+            //     "title" => "TOTAL Device",
+            //     "value" => Device::whereCompanyId($id)->count(),
+            //     "icon" => "mdi-laptop",
+            //     "color" => "l-bg-orange-dark",
+            // ],
             [
                 "title" => "Today Presents",
-                "value" => $model->where('status', 'P')->count(),
-                "icon" => "mdi-check",
+                "value" => 25,
+                // "value" => $model->where('status', 'P')->count(),
+                "icon" => "fas fa-calendar-check",
                 "color" => "l-bg-orange-dark",
             ],
             [
-                "title" => "Today Absence",
-                "value" => $model->where('status', 'A')->count(),
-                "icon" => "mdi-check",
+                "title" => "Today Absent",
+                "value" => 14,
+                // "value" => $model->where('status', 'A')->count(),
+                "icon" => "fas fa-calendar-times",
                 "color" => "l-bg-purple-dark",
             ],
             [
-                "title" => "Today Absence",
-                "value" => $model->where('status', 'A')->count(),
-                "icon" => "mdi-check",
+                "title" => "Late Coming",
+                "value" => 20,
+                // "value" => $model->where('status', 'A')->count(),
+                "icon" => "	fas fa-clock",
                 "color" => "l-bg-cyan-dark",
             ],
             [
-                "title" => "Today Absence",
-                "value" => $model->where('status', 'A')->count(),
-                "icon" => "mdi-check",
+                "title" => "Online Devices",
+                "value" => 10,
+                // "value" => $model->where('status', 'A')->count(),
+                "icon" => "fas fa-clock",
                 "color" => "l-bg-green-dark",
             ],
         ];
