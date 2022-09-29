@@ -19,9 +19,8 @@ class DeviceController extends Controller
     {
 
         $record = false;
-
         try {
-            $response = Http::post('http://139.59.69.241:5000/Register', [
+            $response = Http::post(env("LOCAL_IP") .':'. env("LOCAL_PORT") . '/Register', [
                 'sn' => $request->device_id, //OX-8862021010010
                 'ip' => $request->ip,
                 'port' => $request->port,
@@ -36,7 +35,7 @@ class DeviceController extends Controller
             } else {
                 return $this->response('Device cannot add.', null, 'device_api_error');
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -46,27 +45,22 @@ class DeviceController extends Controller
         return $model->with(['status', 'company'])->find($id);
     }
 
+    public function getDeviceCompany($id)
+    {
+        return Device::where("device_id",$id)->select("company_id")->first();
+    }
+
     public function update(Device $Device, UpdateRequest $request)
     {
         try {
-
-            $record = false;
-            $response = Http::post('http://139.59.69.241:5000/Register', [
-                'sn' => $request->device_id, //OX-8862021010010
-                'ip' => $request->ip,
-                'port' => $request->port,
-            ]);
-
-            if ($response->status() == 200) {
-                $record = $Device->update($request->validated());
-            }
+            $record = $Device->update($request->validated());
 
             if ($record) {
                 return $this->response('Device successfully updated.', $record, true);
             } else {
                 return $this->response('Device cannot update.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -81,7 +75,7 @@ class DeviceController extends Controller
             } else {
                 return $this->response('Device cannot delete.', null, 'device_api_error');
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -112,7 +106,7 @@ class DeviceController extends Controller
             } else {
                 return $this->response('Device cannot delete.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
