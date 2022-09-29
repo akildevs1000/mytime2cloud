@@ -271,7 +271,7 @@ export default {
       this.loading = true;
 
       this.$axios
-        .post(`${LOCAL_IP}:5000/Register`, payload)
+        .post(`${process.env.LOCAL_IP}:5000/Register`, payload)
         .then(({ data }) => {
           this.store_device();
         })
