@@ -201,7 +201,7 @@
                   small
                   :loading="loading"
                   color="primary"
-                  @click="register_device"
+                  @click="store_device"
                 >
                   Submit
                 </v-btn>
@@ -271,7 +271,7 @@ export default {
       this.loading = true;
 
       this.$axios
-        .post(`${process.env.LOCAL_IP}:5000/Register`, payload)
+        .post(`http://${process.env.LOCAL_IP}:5000/Register`, payload)
         .then(({ data }) => {
           this.store_device();
         })
