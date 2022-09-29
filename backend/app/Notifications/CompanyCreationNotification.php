@@ -39,12 +39,13 @@ class CompanyCreationNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        // dd($notifiable->password);
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->line($notifiable->email)
-            ->line($notifiable->randPass)
-            ->line('Thank you for using our application!');
+            ->greeting('Congratulations')
+            ->line('Your account has been created. Use following details to use the application.')
+            ->line('Link: ' . env('APP_LINK'))
+            ->line('Your Email: ' . $notifiable->email)
+            ->line('Your Password: ' . $notifiable->randPass)
+            ->line('Thank you for joining with us!');
     }
 
     /**
