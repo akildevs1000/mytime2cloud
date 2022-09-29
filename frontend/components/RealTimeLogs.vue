@@ -1,37 +1,6 @@
 <template>
-  <v-app>
-    <v-row>
-      <v-col cols="12" md="12">
-        <!-- <v-btn class="primary mb-2" @click="socketConnection">Connect</v-btn> -->
-        <v-card>
-          <v-toolbar flat dark class="primary">Live Logs </v-toolbar>
-
-          <!-- <div class="text-center">
-
-            <img width="35%" src="ideaHRMS-final-green.svg" />
-
-          </div>
-
-          <v-text-field outlined dense v-model="url"></v-text-field> -->
-
-          <v-data-table
-            :headers="headers"
-            :items="logs"
-            :items-per-page="5"
-            dense
-          >
-            <!-- <template v-slot:item.RecordImage="{ item }">
-              <v-img
-                :src="`data:image/png;base64,${item.RecordImage}`"
-                height="150px"
-                width="150px"
-              ></v-img>
-            </template> -->
-          </v-data-table>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-app>
+  <v-data-table :headers="headers" :items="logs" :items-per-page="5" dense>
+  </v-data-table>
 </template>
 
 <script>
@@ -116,6 +85,7 @@ export default {
     height: 100vh !important;
   }
 }
+
 @media (min-width: 769px) {
   .primary {
     border-top-right-radius: 0.3rem;
