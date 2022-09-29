@@ -65,7 +65,7 @@
               </div>
             </div>
 
-            <div class="col-sm-6">
+            <!-- <div class="col-sm-6">
               <div class="form-group">
                 <label class="col-form-label">Device IP </label>
                 <span class="text-danger">*</span>
@@ -84,7 +84,7 @@
                 errors.port[0]
                 }}</span>
               </div>
-            </div>
+            </div> -->
 
             <div class="col-sm-6">
               <div class="form-group">
@@ -154,8 +154,8 @@ export default {
       company_id: "",
       location: "",
       short_name: "",
-      ip: "",
-      port: ""
+      ip: "0.0.0.0",
+      port: "8101"
     },
 
     errors: [],

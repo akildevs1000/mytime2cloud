@@ -20,13 +20,13 @@
             :items-per-page="5"
             dense
           >
-            <template v-slot:item.RecordImage="{ item }">
+            <!-- <template v-slot:item.RecordImage="{ item }">
               <v-img
                 :src="`data:image/png;base64,${item.RecordImage}`"
                 height="150px"
                 width="150px"
               ></v-img>
-            </template>
+            </template> -->
           </v-data-table>
         </v-card>
       </v-col>
@@ -43,12 +43,12 @@ export default {
     // logo: "https://smarthr.dreamguystech.com/orange/assets/img/logo2.png",
 
     headers: [
-      {
-        text: "Image",
-        align: "center",
-        sortable: false,
-        value: "RecordImage"
-      },
+      // {
+      //   text: "Image",
+      //   align: "center",
+      //   sortable: false,
+      //   value: "RecordImage"
+      // },
       {
         text: "UserID",
         align: "center",
