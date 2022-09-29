@@ -105,11 +105,7 @@
               <div class="form-group">
                 <label class="col-form-label">Device IP </label>
                 <span class="text-danger">*</span>
-                <input
-                  v-model="payload.ip"
-                  class="form-control"
-                  type="text"
-                />
+                <input v-model="payload.ip" class="form-control" type="text" />
                 <span v-if="errors && errors.ip" class="text-danger mt-2">{{
                   errors.ip[0]
                 }}</span>
@@ -124,11 +120,9 @@
                   class="form-control"
                   type="text"
                 />
-                <span
-                  v-if="errors && errors.port"
-                  class="text-danger mt-2"
-                  >{{ errors.port[0] }}</span
-                >
+                <span v-if="errors && errors.port" class="text-danger mt-2">{{
+                  errors.port[0]
+                }}</span>
               </div>
             </div>
 
@@ -207,7 +201,7 @@
                   small
                   :loading="loading"
                   color="primary"
-                  @click="store_device"
+                  @click="register_device"
                 >
                   Submit
                 </v-btn>
@@ -226,7 +220,7 @@ export default {
   data: () => ({
     loading: false,
     upload: {
-      name: "",
+      name: ""
     },
 
     payload: {
@@ -239,7 +233,7 @@ export default {
       location: "",
       short_name: "",
       ip: "",
-      port: "",
+      port: ""
     },
 
     errors: [],
@@ -247,7 +241,7 @@ export default {
     companies: [],
     data: {},
     response: "",
-    snackbar: false,
+    snackbar: false
   }),
   async created() {
     this.getCompanies();
@@ -265,10 +259,26 @@ export default {
         this.device_statusses = data.data;
       });
     },
-    store_device() {
-      let payload = this.payload;
+
+    register_device() {
+
+      let payload = {
+        sn: this.payload.device_id,
+        ip: this.payload.ip,
+        port: this.payload.port
+      };
 
       this.loading = true;
+
+      this.$axios
+        .post(`${LOCAL_IP}:5000/Register`, payload)
+        .then(({ data }) => {
+          this.store_device();
+        })
+        .catch(e => console.log(e));
+    },
+    store_device() {
+      let payload = this.payload;
 
       this.$axios
         .post(`/device`, payload)
@@ -277,13 +287,11 @@ export default {
 
           if (!data.status) {
             this.errors = data.errors;
-          }
-          else if (data.status == 'device_api_error') {
+          } else if (data.status == "device_api_error") {
             this.errors = [];
             this.snackbar = true;
-            this.response =  'Check your device details';
-          }
-           else {
+            this.response = "Check your device details";
+          } else {
             this.snackbar = true;
             this.response = data.message;
             setTimeout(
@@ -295,8 +303,8 @@ export default {
             );
           }
         })
-        .catch((e) => console.log(e));
-    },
-  },
+        .catch(e => console.log(e));
+    }
+  }
 };
 </script>
