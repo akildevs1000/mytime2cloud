@@ -19,7 +19,7 @@ export default {
   data() {
     return {
       options: {
-        series: [40, 50, 35, 60, 60, 80],
+        series: [40, 50, 35, 60],
         chart: {
           type: "pie"
         },
