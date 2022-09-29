@@ -59,16 +59,14 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row class="mt-5">
       <v-col md="4" cols="12" sm="12">
         <v-card elevation="0">
           <v-list three-line>
             <template v-for="(item, index) in devices">
-              <v-subheader
-                v-if="item.header"
-                :key="item.header"
-                v-text="item.header"
-              ></v-subheader>
+              <v-subheader v-if="item.header" :key="item.header">
+                <h5>{{ item.header }}</h5>
+              </v-subheader>
 
               <v-divider
                 v-else-if="item.divider"
@@ -97,11 +95,9 @@
         <v-card elevation="0">
           <v-list three-line>
             <template v-for="(item, index) in polices">
-              <v-subheader
-                v-if="item.header"
-                :key="item.header"
-                v-text="item.header"
-              ></v-subheader>
+              <v-subheader v-if="item.header" :key="item.header">
+                <h5>{{ item.header }}</h5>
+              </v-subheader>
 
               <v-divider
                 v-else-if="item.divider"
@@ -110,10 +106,6 @@
               ></v-divider>
 
               <v-list-item v-else :key="item.title">
-                <v-list-item-avatar>
-                  <v-img :src="item.avatar"></v-img>
-                </v-list-item-avatar>
-
                 <v-list-item-content>
                   <v-list-item-title v-html="item.title"></v-list-item-title>
                   <v-list-item-subtitle
@@ -129,11 +121,9 @@
         <v-card elevation="0">
           <v-list three-line>
             <template v-for="(item, index) in anc">
-              <v-subheader
-                v-if="item.header"
-                :key="item.header"
-                v-text="item.header"
-              ></v-subheader>
+              <v-subheader v-if="item.header" :key="item.header">
+                <h5>{{ item.header }}</h5>
+              </v-subheader>
 
               <v-divider
                 v-else-if="item.divider"
@@ -142,10 +132,6 @@
               ></v-divider>
 
               <v-list-item v-else :key="item.title">
-                <v-list-item-avatar>
-                  <v-img :src="item.avatar"></v-img>
-                </v-list-item-avatar>
-
                 <v-list-item-content>
                   <v-list-item-title v-html="item.title"></v-list-item-title>
                   <v-list-item-subtitle
@@ -199,104 +185,101 @@ export default {
       devices: [
         { header: "Devices" },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/1.jpg",
-          title: "Brunch this weekend?",
-          subtitle: `<span class="text--primary">Ali Connors</span> &mdash; I'll be in your neighborhood doing errands this weekend. Do you want to hang out?`
+          avatar:
+            "https://www.shopkees.com/images/1000/9242668587_1599380694.png",
+          title: "Main Door",
+          subtitle: `<span class="text--primary">X-566</span> &mdash; this device use for main entrance door`
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/2.jpg",
-          title: 'Summer BBQ <span class="grey--text text--lighten-1">4</span>',
-          subtitle: `<span class="text--primary">to Alex, Scott, Jennifer</span> &mdash; Wish I could come, but I'm out of town this weekend.`
+          avatar:
+            "https://4.imimg.com/data4/FV/IJ/MY-9999211/face-recognition-devices-500x500.jpg",
+          title: "Hall Door",
+          subtitle: `<span class="text--primary">X-765</span> &mdash; this device use for main entrance door`
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/3.jpg",
-          title: "Oui oui",
-          subtitle:
-            '<span class="text--primary">Sandra Adams</span> &mdash; Do you have Paris recommendations? Have you ever been?'
+          avatar:
+            "https://lenvica.b-cdn.net/wp-content/uploads/2020/05/SpeedFace-V5LTD-Face-Palm-and-Body-Temperature-Terminal-1.jpg",
+          title: "Conference Area",
+          subtitle: `<span class="text--primary">X-685</span> &mdash; this device use for main entrance door`
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/4.jpg",
-          title: "Birthday gift",
-          subtitle:
-            '<span class="text--primary">Trevor Hansen</span> &mdash; Have any ideas about what we should get Heidi for her birthday?'
+          avatar:
+            "https://www.scanmaxai.com/data/watermark/20191217/5df889f53c35e.jpg",
+          title: "Out Door",
+          subtitle: `<span class="text--primary">X-896</span> &mdash; this device use for main entrance door`
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/5.jpg",
-          title: "Recipe to try",
-          subtitle:
-            '<span class="text--primary">Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.'
+          avatar:
+            "https://www.shopkees.com/images/1000/9242668587_1599380694.png",
+          title: "Main Door",
+          subtitle: `<span class="text--primary">X-606</span> &mdash; this device use for main entrance door`
         }
       ],
       polices: [
         { header: "Polices" },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/1.jpg",
-          title: "Brunch this weekend?",
-          subtitle: `<span class="text--primary">Ali Connors</span> &mdash; I'll be in your neighborhood doing errands this weekend. Do you want to hang out?`
+          title: "Computer Usage?",
+          subtitle: `<span class="text--primary">Make Your Own Printer Paper</span> &mdash;"" - Employees will be provided with a block of wood to chew, a large hunk of metal for a press, and a sunlamp.`
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/2.jpg",
-          title: 'Summer BBQ <span class="grey--text text--lighten-1">4</span>',
-          subtitle: `<span class="text--primary">to Alex, Scott, Jennifer</span> &mdash; Wish I could come, but I'm out of town this weekend.`
+          title:
+            'Special Days <span class="grey--text text--lighten-1"></span>',
+          subtitle: `<span class="text--primary">Friday is Pajama Day</span> &mdash; Bring Your Dog to Work Day.`
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/3.jpg",
-          title: "Oui oui",
+          title: "Cutting Expenses and Work Hour",
           subtitle:
-            '<span class="text--primary">Sandra Adams</span> &mdash; Do you have Paris recommendations? Have you ever been?'
+            '<span class="text--primary">This Company</span> &mdash; The company is saving money by installing dehydrated water coolers.'
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/4.jpg",
-          title: "Birthday gift",
+          title: "Security and Employee Testing",
           subtitle:
-            '<span class="text--primary">Trevor Hansen</span> &mdash; Have any ideas about what we should get Heidi for her birthday?'
+            '<span class="text--primary">Weekly body armor testing.</span> &mdash; Random breathalyzers at 2:00pm everyday.'
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/5.jpg",
-          title: "Recipe to try",
+          title: "New Employees",
           subtitle:
-            '<span class="text--primary">Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.'
+            '<span class="text--primary">Exam</span> &mdash; Prostate exams are required for all new hires.'
         }
       ],
       anc: [
-        { header: "Today" },
+        { header: "Announcement" },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/1.jpg",
-          title: "Brunch this weekend?",
+          title: "Annual Party",
           subtitle: `<span class="text--primary">Ali Connors</span> &mdash; I'll be in your neighborhood doing errands this weekend. Do you want to hang out?`
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/2.jpg",
-          title: 'Summer BBQ <span class="grey--text text--lighten-1">4</span>',
+          title:
+            'Eid Holiday <span class="grey--text text--lighten-1">08-Jun-22</span>',
           subtitle: `<span class="text--primary">to Alex, Scott, Jennifer</span> &mdash; Wish I could come, but I'm out of town this weekend.`
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/3.jpg",
-          title: "Oui oui",
+          title:
+            'Summer Holiday <span class="grey--text text--lighten-1">08-Jun-22</span>',
           subtitle:
             '<span class="text--primary">Sandra Adams</span> &mdash; Do you have Paris recommendations? Have you ever been?'
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/4.jpg",
-          title: "Birthday gift",
+          title:
+            'Independent Holiday <span class="grey--text text--lighten-1">08-Oct-22</span>',
           subtitle:
             '<span class="text--primary">Trevor Hansen</span> &mdash; Have any ideas about what we should get Heidi for her birthday?'
         },
         { divider: true, inset: true },
         {
-          avatar: "https://cdn.vuetifyjs.com/images/lists/5.jpg",
-          title: "Recipe to try",
+          title:
+            'Eid Holiday <span class="grey--text text--lighten-1">08-Jun-22</span>',
           subtitle:
             '<span class="text--primary">Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.'
         }
