@@ -18,17 +18,20 @@ class DeviceController extends Controller
     public function store(Device $model, StoreRequest $request)
     {
 
-        $record = false;
+        // $record = false;
         try {
-            $response = Http::post(env("LOCAL_IP") .':'. env("LOCAL_PORT") . '/Register', [
-                'sn' => $request->device_id, //OX-8862021010010
-                'ip' => $request->ip,
-                'port' => $request->port,
-            ]);
+            // $response = Http::post(env("LOCAL_IP") .':'. env("LOCAL_PORT") . '/Register', [
+            //     'sn' => $request->device_id, //OX-8862021010010
+            //     'ip' => $request->ip,
+            //     'port' => $request->port,
+            // ]);
 
-            if ($response->status() == 200) {
-                $record = $model->create($request->validated());
-            }
+            // if ($response->status() == 200) {
+            //     $record = $model->create($request->validated());
+            // }
+
+            $record = $model->create($request->validated());
+
 
             if ($record) {
                 return $this->response('Device successfully added.', $record, true);
