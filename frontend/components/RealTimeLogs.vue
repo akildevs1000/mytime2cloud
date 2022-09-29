@@ -2,7 +2,7 @@
   <v-app>
     <v-row>
       <v-col cols="12" md="12">
-        <v-btn class="primary mb-2" @click="socketConnection">Connect</v-btn>
+        <!-- <v-btn class="primary mb-2" @click="socketConnection">Connect</v-btn> -->
         <v-card>
           <v-toolbar flat dark class="primary">Live Logs </v-toolbar>
 
@@ -73,7 +73,7 @@ export default {
     errors: []
   }),
   mounted() {
-    // this.socketConnection();
+    this.socketConnection();
   },
 
   methods: {
