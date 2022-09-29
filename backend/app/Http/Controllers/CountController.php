@@ -55,13 +55,25 @@ class CountController extends Controller
                 "title" => "Today Presents",
                 "value" => $model->where('status', 'P')->count(),
                 "icon" => "mdi-check",
+                "color" => "l-bg-orange-dark",
+            ],
+            [
+                "title" => "Today Absence",
+                "value" => $model->where('status', 'A')->count(),
+                "icon" => "mdi-check",
                 "color" => "l-bg-purple-dark",
             ],
             [
                 "title" => "Today Absence",
                 "value" => $model->where('status', 'A')->count(),
                 "icon" => "mdi-check",
-                "color" => "l-bg-orange-dark",
+                "color" => "l-bg-cyan-dark",
+            ],
+            [
+                "title" => "Today Absence",
+                "value" => $model->where('status', 'A')->count(),
+                "icon" => "mdi-check",
+                "color" => "l-bg-green-dark",
             ],
         ];
     }

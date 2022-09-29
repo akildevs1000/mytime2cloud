@@ -13,9 +13,7 @@ use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TradeLicenseController;
 use App\Http\Controllers\UserController;
-use App\Mail\TestMail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 // Auth
@@ -44,7 +42,7 @@ Route::get('users/search/{key}', [UserController::class, 'search']);
 Route::post('users/delete/selected', [UserController::class, 'deleteSelected']);
 
 //  Company
-Route::get('company/list', [CompanyController::class, 'list']);
+Route::get('company/list', [CompanyController::class, 'CompanyList']);
 
 Route::apiResource('company', CompanyController::class)->except('update');
 Route::post('company/{id}/update', [CompanyController::class, 'updateCompany']);

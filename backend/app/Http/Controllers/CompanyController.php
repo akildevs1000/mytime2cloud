@@ -22,7 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
 use TechTailor\RPG\Facade\RPG;
 
 class CompanyController extends Controller
@@ -47,9 +46,11 @@ class CompanyController extends Controller
         return ["status" => true];
     }
 
-    function list(Company $Company) {
+    public function CompanyList(Company $Company)
+    {
         return $Company->select('id', 'name')->get();
     }
+
     public function index(Company $model, Request $request)
     {
         return $model->with(['user', 'contact', 'modules', 'trade_license'])->paginate($request->per_page);
@@ -100,10 +101,8 @@ class CompanyController extends Controller
             $file = $request->file('logo');
             $ext = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
-            $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
-            // $company['logo'] = saveFile($request, 'media/company/logo', 'logo', $request->company_name, 'logo');
-            $company['logo'] = $path;
-            Storage::put('logo.txt', $company['logo']);
+            $request->file('logo')->move(public_path('/upload'), $fileName);
+            $company['logo'] = $fileName;
         }
 
         $contact = [
@@ -219,9 +218,8 @@ class CompanyController extends Controller
         $file = $request->file('logo');
         $ext = $file->getClientOriginalExtension();
         $fileName = time() . '.' . $ext;
-        $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
-
-        $company = Company::find($id)->update(["logo" => $path]);
+        $request->file('logo')->move(public_path('/upload'), $fileName);
+        $company = Company::find($id)->update(["logo" => $fileName]);
         if (!$company) {
             return $this->response('Company cannot updated.', null, false);
         }
