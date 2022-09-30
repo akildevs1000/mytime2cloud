@@ -4,6 +4,26 @@ use App\Mail\TestMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+
+
+Route::get('/test', function (Request $request) {
+    return "Awesome APIs";
+});
+
+Route::get('/storage', function (Request $request) {
+    Storage::put('example.csv', 'francis');
+});
+
+Route::post('/upload', function (Request $request) {
+    $file = $request->file->getClientOriginalName();
+    $request->file->move(public_path('media/employee/file/'), $file);
+    return $product_image = url('media/employee/file/' . $file);
+    $data['file'] = $file;
+});
+
+
+
 
 Route::post('/fahath', function (Request $request) {
     // upload/1664210353.png

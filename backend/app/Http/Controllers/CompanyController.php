@@ -70,6 +70,10 @@ class CompanyController extends Controller
     {
         $randPass = RPG::Generate("luds", 8, 0, 0);
 
+        if (env("APP_ENV") == "local") {
+            Storage::put('password.txt', $randPass);
+        }
+
         $data = $request->validated();
         $user = [
             "name" => "ignore",
