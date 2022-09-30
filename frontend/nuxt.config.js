@@ -77,10 +77,10 @@ export default {
         "nuxt-sweetalert2"
     ],
 
-  // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {
-    baseURL: process.env.BACKEND_URL,
-  },
+    // Axios module configuration: https://go.nuxtjs.dev/config-axios
+    axios: {
+        baseURL: process.env.BACKEND_URL,
+    },
 
     auth: {
         strategies: {
@@ -126,8 +126,20 @@ export default {
                     info: colors.teal.lighten1,
                     warning: colors.amber.base,
                     error: colors.deepOrange.accent4,
-                    success: colors.green.accent3
-                }
+                    success: colors.green.accent3,
+                    main_bg: "#ECF0F4"
+                },
+                // dark: {
+                //     // primary: "#fffff",
+                //     // accent: "#d8363a",
+                //     // secondary: "#242424",
+                //     // background: "#34444c",
+                //     // info: colors.teal.lighten1,
+                //     // warning: colors.amber.base,
+                //     // error: colors.deepOrange.accent4,
+                //     // success: colors.green.accent3,
+                //     // main_bg: "#ECF0F4"
+                // }
             }
         }
     },

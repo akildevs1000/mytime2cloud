@@ -9,8 +9,7 @@
                 <div class="col-lg-6">
                   <div class="card-body p-md-5 mx-md-4">
                     <div class="text-center">
-                      <!-- <img width="15%" :src="logo" alt="logo" /> -->
-                      <img width="35%" src="ideaHRMS-final-blue.svg" />
+                      <img width="35%" :src="logo" alt="logo" />
                     </div>
 
                     <v-form
@@ -143,8 +142,7 @@ export default {
     // sitekey: "6Lf1wYwhAAAAAOMJYvI73SgjCSrS_OSS2kDJbVvs", // i am not robot
     // reCaptcha: null,
     // showGRC: false,
-    logo: "https://smarthr.dreamguystech.com/purple/assets/img/logo2.png",
-    // logo: "/app-logo.png",
+    logo: "/ideaHRMS-final-blue.svg",
     valid: true,
     loading: false,
     snackbar: false,

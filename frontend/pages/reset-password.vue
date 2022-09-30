@@ -12,7 +12,7 @@
                 <div class="col-lg-6">
                   <div class="card-body p-md-5 mx-md-4">
                     <div class="text-center">
-                      <img :src="logo" alt="logo" />
+                      <img width="35%" :src="logo" alt="logo" />
 
                       <h4 class="mt-2 mb-5 pb-1">Reset Password</h4>
                     </div>
@@ -78,6 +78,7 @@
                           class="form-control"
                           placeholder="master@erp.com"
                         />
+                        <!-- <v-otp-input length="6"></v-otp-input> -->
                       </div>
 
                       <div class="text-center pt-1 mb-5 pb-1">
@@ -193,9 +194,7 @@
                     </v-form>
                   </div>
                 </div>
-                <div
-                  class="col-lg-6 d-flex align-items-center primary"
-                >
+                <div class="col-lg-6 d-flex align-items-center primary">
                   <div class="text-white px-3 py-4 p-md-5 mx-md-4">
                     <h6>SMART-HR THE RIGHT SOLUTION FOR YOU</h6>
                     <p class="small mb-0">
@@ -220,8 +219,7 @@ export default {
   layout: "login",
   auth: false,
   data: () => ({
-    // logo : '/LTLOGO.png',
-    logo: "https://smarthr.dreamguystech.com/orange/assets/img/logo2.png",
+    logo: "/ideaHRMS-final-blue.svg",
 
     loading: false,
     snackbar: false,
@@ -239,12 +237,12 @@ export default {
     password_confirmation: "",
 
     msg: "",
-    errors: [],
+    errors: []
   }),
   methods: {
     reset_password() {
       let payload = {
-        email: this.email,
+        email: this.email
       };
       this.loading = true;
 
@@ -262,13 +260,13 @@ export default {
             this.codeView = true;
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     check_code() {
       let payload = {
         code: this.code,
-        email: this.email,
+        email: this.email
       };
       this.loading = true;
 
@@ -286,14 +284,14 @@ export default {
             this.codeView = false;
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     change_new_password() {
       let payload = {
         email: this.email,
         password: this.password,
-        password_confirmation: this.password_confirmation,
+        password_confirmation: this.password_confirmation
       };
       this.loading = true;
 
@@ -310,13 +308,12 @@ export default {
             this.$router.push(`/login`);
           }
         })
-        .catch((e) => console.log(e));
-    },
-  },
+        .catch(e => console.log(e));
+    }
+  }
 };
 </script>
 <style scoped>
-
 @media (min-width: 768px) {
   .gradient-form {
     height: 100vh !important;

@@ -1,6 +1,6 @@
 <template>
-  <!-- <div style="background-color:white;" class="p-4"> -->
-  <div class="p-4">
+  <div style="background-color:white;" class="p-4">
+    <!-- <div class="p-4"> -->
     <v-row>
       <v-col md="2">
         <v-card elevation="5">
@@ -27,13 +27,26 @@
 
           <v-list-item two-line>
             <v-list-item-content>
-              <div class="d-flex">
+              <div class="d-flex" style="color: #7F7F7F;">
                 <v-list-item-title>Member From : </v-list-item-title>
                 <v-list-item-subtitle>31 Aug 2020</v-list-item-subtitle>
               </div>
-              <small
-                style="border-style:dashed; border-width: 1px; border-color: #ECF0F4;"
-              ></small>
+              <div class="d-flex pt-3" style="color: #7F7F7F;">
+                <v-list-item-title>Expiry Date : </v-list-item-title>
+                <v-list-item-subtitle>31 Aug 2022</v-list-item-subtitle>
+              </div>
+              <div class="d-flex pt-3" style="color: #7F7F7F;">
+                <v-list-item-title>Max Branches : </v-list-item-title>
+                <v-list-item-subtitle>3</v-list-item-subtitle>
+              </div>
+              <div class="d-flex pt-3" style="color: #7F7F7F;">
+                <v-list-item-title>Max Employees : </v-list-item-title>
+                <v-list-item-subtitle>120</v-list-item-subtitle>
+              </div>
+              <div class="d-flex pt-3" style="color: #7F7F7F;">
+                <v-list-item-title>Max Devices : </v-list-item-title>
+                <v-list-item-subtitle>40</v-list-item-subtitle>
+              </div>
             </v-list-item-content>
           </v-list-item>
         </v-card>
@@ -43,7 +56,7 @@
           <v-col md="12">
             <div>
               <v-expansion-panels v-model="panel" multiple>
-                <v-expansion-panel>
+                <!-- <v-expansion-panel>
                   <v-expansion-panel-header>Company </v-expansion-panel-header>
                   <v-expansion-panel-content>
                     <v-list-item
@@ -109,7 +122,7 @@
                       </v-list-item-content>
                     </v-list-item>
                   </v-expansion-panel-content>
-                </v-expansion-panel>
+                </v-expansion-panel> -->
 
                 <v-expansion-panel>
                   <v-expansion-panel-header>Contact </v-expansion-panel-header>

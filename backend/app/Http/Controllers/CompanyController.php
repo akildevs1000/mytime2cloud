@@ -241,8 +241,8 @@ class CompanyController extends Controller
             $file = $request->file('logo');
             $ext = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
-            $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
-            $data['logo'] = $path;
+            $request->file('logo')->move(public_path('/upload'), $fileName);
+            $data['logo'] = $fileName;
         }
 
         $company = Company::find($id)->update($data);

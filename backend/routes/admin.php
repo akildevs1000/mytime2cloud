@@ -87,6 +87,7 @@ Route::get('branch/search/{key}', [BranchController::class, 'search']);
 // Device
 Route::apiResource('device', DeviceController::class);
 Route::get('device/search/{key}', [DeviceController::class, 'search']);
+Route::get('device/{key}/details', [DeviceController::class, 'getDeviceCompany']);
 Route::post('device/delete/selected', [DeviceController::class, 'deleteSelected']);
 
 //  Device Status

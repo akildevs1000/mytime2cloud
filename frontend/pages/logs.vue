@@ -5,7 +5,7 @@
       <div>Dashboard / Attendances Logs</div>
     </v-col>
     <v-col cols="12">
-      <OriginalLogs />
+      <RealTimeLogs />
     </v-col>
   </v-row>
 </template>
