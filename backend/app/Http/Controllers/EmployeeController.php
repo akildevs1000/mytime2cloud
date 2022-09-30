@@ -82,8 +82,8 @@ class EmployeeController extends Controller
             $file = $request->file('profile_picture');
             $ext = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
-            $path = $request->file('profile_picture')->storePubliclyAs('upload', $fileName, "do");
-            $employee['profile_picture'] = $path;
+            $request->profile_picture->move(public_path('media/employee/profile_picture/'), $fileName);
+            $employee['profile_picture'] = $fileName;
         }
         DB::beginTransaction();
         try {
@@ -325,6 +325,7 @@ class EmployeeController extends Controller
         $success = false;
         DB::beginTransaction();
         try {
+
             foreach ($data as $data) {
                 $validator = $this->validateImportData($data);
                 if ($validator->fails()) {
@@ -350,6 +351,7 @@ class EmployeeController extends Controller
                     'system_user_id' => trim($data['employee_device_id']),
                 ];
                 $success = Employee::create($arr) ? true : false;
+
             }
             if ($success) {
                 DB::commit();
@@ -358,6 +360,7 @@ class EmployeeController extends Controller
                     'status' => true,
                 ], 200);
             }
+
             return response()->json([
                 'message' => 'Employee cannot import.',
                 'status' => true,
@@ -391,9 +394,9 @@ class EmployeeController extends Controller
         $extension = $file->getClientOriginalExtension();
         $tempPath = $file->getRealPath();
         $fileSize = $file->getSize();
-        $location = 'uploads';
-        // $file->move($location, $filename);
-        $file->storePubliclyAs($location, 'employee', "do");
+        $location = 'upload';
+        $file->move($location, $filename);
+        // $file->storePubliclyAs($location, 'employee', "do");
         return public_path($location . "/" . $filename);
 
     }
@@ -413,7 +416,7 @@ class EmployeeController extends Controller
             while (($row = fgetcsv($filedata, 1000, ',')) !== false) {
                 if (!$header) {
                     $header = $row;
-                    // dd($columns);
+                    // dd($row);
                     if ($header != $columns) {
                         return [
                             "status" => false,
@@ -438,6 +441,7 @@ class EmployeeController extends Controller
                 "errors" => "file is empty",
             ];
         }
+        // dd($data);
         return $data;
     }
     public function employeeUpdateSetting(Employee $model, Request $request)

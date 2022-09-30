@@ -57,8 +57,8 @@ class Employee extends Model
         if (!$value) {
             return null;
         }
-        // return asset('media/employee/profile_picture/' . $value);
-        return asset(env('BUCKET_URL') . '/' . $value);
+        return asset('media/employee/profile_picture/' . $value);
+        // return asset(env('BUCKET_URL') . '/' . $value);
 
     }
 
