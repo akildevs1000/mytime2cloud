@@ -27,7 +27,7 @@
       <v-row>
         <v-col>
           <v-card>
-            <v-tabs color="primary" :vertical="vertical">
+            <v-tabs class="pt-3" color="primary" :vertical="vertical">
               <v-tab>
                 <v-icon> mdi-domain </v-icon>
               </v-tab>
@@ -55,8 +55,8 @@
                           <input
                             readonly
                             v-model="company_payload.company_code"
-                            class="form-control"
-                            type=""
+                            class="form-control form-control-lg shadow-none shadow-none"
+                            type="text"
                           />
                         </div>
                       </div>
@@ -68,8 +68,8 @@
                           <input
                             readonly
                             v-model="company_payload.name"
-                            class="form-control"
-                            type=""
+                            class="form-control form-control-lg shadow-none"
+                            type="text"
                           />
                           <span
                             v-if="errors && errors.name"
@@ -86,8 +86,8 @@
                           <input
                             readonly
                             v-model="user_payload.email"
-                            class="form-control"
-                            type=""
+                            class="form-control form-control-lg shadow-none"
+                            type="text"
                           />
                           <span
                             v-if="errors && errors.email"
@@ -105,7 +105,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="company_payload.mol_id"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="text"
                           />
 
@@ -123,7 +123,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="company_payload.p_o_box_no"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="text"
                           />
 
@@ -142,7 +142,7 @@
                           <input
                             readonly
                             v-model="company_payload.member_from"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="date"
                           />
 
@@ -162,7 +162,7 @@
                             readonly
                             v-model="company_payload.expiry"
                             type="date"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                           />
                           <span
                             v-if="errors && errors.expiry"
@@ -180,9 +180,9 @@
                           >
                           <input
                             v-model="company_payload.max_branches"
-                            type="number"
+                            type="text"
                             readonly
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                           />
                           <span
                             v-if="errors && errors.max_branches"
@@ -200,9 +200,9 @@
                           >
                           <input
                             v-model="company_payload.max_employee"
-                            type="number"
+                            type="text"
                             readonly
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                           />
                           <span
                             v-if="errors && errors.max_employee"
@@ -220,9 +220,9 @@
                           >
                           <input
                             v-model="company_payload.max_devices"
-                            type="number"
+                            type="text"
                             readonly
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                           />
                           <span
                             v-if="errors && errors.max_devices"
@@ -232,7 +232,7 @@
                         </div>
                       </div>
 
-                      <!-- <div class="col-sm-3">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <v-card class="ml-1 mr-1">
                             <div class="pa-5">
@@ -276,7 +276,7 @@
                             >{{ errors.logo[0] }}</span
                           >
                         </div>
-                      </div> -->
+                      </div>
                     </div>
 
                     <v-row>
@@ -309,7 +309,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="company_trade_license.license_no"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="text"
                           />
                           <span
@@ -351,7 +351,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="company_trade_license.emirate"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="text"
                           />
                           <span
@@ -367,7 +367,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="company_trade_license.manager"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="text"
                           />
                           <span
@@ -383,7 +383,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="company_trade_license.issue_date"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="date"
                           />
                           <span
@@ -399,7 +399,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="company_trade_license.expiry_date"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="date"
                           />
                           <span
@@ -415,7 +415,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="company_trade_license.makeem_no"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="text"
                           />
                           <span
@@ -457,7 +457,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="contact_payload.name"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="text"
                           />
                           <span
@@ -475,7 +475,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="contact_payload.number"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="number"
                           />
                           <span
@@ -493,7 +493,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="contact_payload.position"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="text"
                           />
                           <span
@@ -511,7 +511,7 @@
                           <span class="text-danger">*</span>
                           <input
                             v-model="contact_payload.whatsapp"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="number"
                           />
                           <span
@@ -553,7 +553,7 @@
                           <input
                             v-model="geographic_payload.lat"
                             type="number"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                           />
                           <span
                             v-if="errors && errors.lat"
@@ -571,7 +571,7 @@
                           <input
                             v-model="geographic_payload.lon"
                             type="number"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                           />
                           <span
                             v-if="errors && errors.lon"
@@ -588,7 +588,7 @@
                             v-model="geographic_payload.location"
                             cols="30"
                             rows="3"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                           ></textarea>
                           <span
                             v-if="errors && errors.location"
@@ -626,7 +626,7 @@
                           <label class="col-form-label">Password</label>
                           <input
                             v-model="user_payload.password"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="password"
                           />
                           <span
@@ -643,7 +643,7 @@
                           </label>
                           <input
                             v-model="user_payload.password_confirmation"
-                            class="form-control"
+                            class="form-control form-control-lg shadow-none"
                             type="password"
                           />
                           <span
@@ -866,3 +866,33 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+input[type="text"]:focus.form-control {
+  border: 2px solid #5fafa3 !important;
+}
+
+input[type="date"]:focus.form-control {
+  border: 2px solid #5fafa3 !important;
+}
+
+input[type="number"]:focus.form-control {
+  border: 2px solid #5fafa3 !important;
+}
+
+textarea:focus.form-control {
+  outline: none !important;
+  border-color: #5fafa3;
+  box-shadow: 0 0 10px #5fafa3;
+}
+
+select.form-select {
+  border: 2px solid #5fafa3 !important;
+}
+
+select:focus {
+  outline: none !important;
+  border-color: #5fafa3;
+  box-shadow: 0 0 0px #5fafa3;
+}
+</style>
