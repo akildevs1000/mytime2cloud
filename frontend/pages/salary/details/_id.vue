@@ -20,7 +20,7 @@
               <v-list-item-avatar tile size="120">
                 <v-avatar size="100">
                   <img
-                    :src="payload.employee.profile_picture || '/no-image.png'"
+                    :src="payload.employee.profile_picture || '/no-image.PNG'"
                   />
                 </v-avatar>
               </v-list-item-avatar>

@@ -31,7 +31,7 @@
                                   margin: 0 auto;
                                   border-radius: 50%;
                                 " :src="
-                                  previewImage || imgPath || '/no-image.png'
+                                  previewImage || imgPath || '/no-image.PNG'
                                 "></v-img>
                             </div>
                             <v-btn style="width: 100%" @click="onpick_attachment">{{

@@ -1422,7 +1422,7 @@
                     width: 50%;
                     margin: 0 auto;
                   "
-                  :src="payload.profile_picture || '/no-image.png'"
+                  :src="payload.profile_picture || '/no-image.PNG'"
                 >
                 </v-img>
               </v-list-item-avatar>

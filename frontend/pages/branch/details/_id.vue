@@ -14,7 +14,7 @@
             <v-list-item-avatar tile size="120">
               <v-img
                 :src="
-                  company_payload.logo ? company_payload.logo : '/no-image.png'
+                  company_payload.logo ? company_payload.logo : '/no-image.PNG'
                 "
               ></v-img>
             </v-list-item-avatar>

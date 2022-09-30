@@ -107,7 +107,7 @@
 
           <v-btn icon color="yellow" v-bind="attrs" v-on="on">
             <v-avatar>
-              <img :src="getLogo || '/no-image.png'" />
+              <img :src="getLogo || '/no-image.PNG'" />
             </v-avatar>
           </v-btn>
         </template>
