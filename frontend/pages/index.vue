@@ -22,11 +22,7 @@
           </nuxt-link>
         </v-alert> -->
       </v-col>
-      <div
-        class="col-xl-3 col-lg-6 text-uppercase"
-        v-for="(i, index) in items"
-        :key="index"
-      >
+      <div class="col-xl-3 col-lg-6 text-uppercase" v-for="(i, index) in items" :key="index">
         <div class="card p-2" :class="i.color">
           <div class="card-statistic-3">
             <div class="card-icon card-icon-large ">
@@ -38,8 +34,8 @@
               <p class="mb-0 text-sm">
                 <span class="mr-2"><i class="fa fa-arrow-right"></i></span>
                 <nuxt-link class="text-nowrap text-white" to="">
-                  <span class="text-nowrap">View Details</span></nuxt-link
-                >
+                  <span class="text-nowrap">View Details</span>
+                </nuxt-link>
               </p>
             </div>
           </div>
@@ -60,6 +56,9 @@
       </v-col>
     </v-row>
     <v-row class="mt-5">
+      <v-col cols="12">
+        <RealTimeLogs />
+      </v-col>
       <v-col md="4" cols="12" sm="12">
         <v-card elevation="0">
           <v-list three-line>
@@ -68,11 +67,7 @@
                 <h5>{{ item.header }}</h5>
               </v-subheader>
 
-              <v-divider
-                v-else-if="item.divider"
-                :key="index"
-                :inset="item.inset"
-              ></v-divider>
+              <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
 
               <v-list-item v-else :key="item.title">
                 <v-list-item-avatar>
@@ -81,9 +76,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title v-html="item.title"></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-html="item.subtitle"
-                  ></v-list-item-subtitle>
+                  <v-list-item-subtitle v-html="item.subtitle"></v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </template>
@@ -99,18 +92,12 @@
                 <h5>{{ item.header }}</h5>
               </v-subheader>
 
-              <v-divider
-                v-else-if="item.divider"
-                :key="index"
-                :inset="item.inset"
-              ></v-divider>
+              <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
 
               <v-list-item v-else :key="item.title">
                 <v-list-item-content>
                   <v-list-item-title v-html="item.title"></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-html="item.subtitle"
-                  ></v-list-item-subtitle>
+                  <v-list-item-subtitle v-html="item.subtitle"></v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </template>
@@ -125,18 +112,12 @@
                 <h5>{{ item.header }}</h5>
               </v-subheader>
 
-              <v-divider
-                v-else-if="item.divider"
-                :key="index"
-                :inset="item.inset"
-              ></v-divider>
+              <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
 
               <v-list-item v-else :key="item.title">
                 <v-list-item-content>
                   <v-list-item-title v-html="item.title"></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-html="item.subtitle"
-                  ></v-list-item-subtitle>
+                  <v-list-item-subtitle v-html="item.subtitle"></v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </template>
@@ -144,24 +125,19 @@
         </v-card>
       </v-col>
 
-      <v-col md="12" cols="12" sm="12">
+
+
+      <!-- <v-col md="12" cols="12" sm="12">
         <v-card elevation="0">
-          <v-data-table
-            :headers="headers"
-            :items="desserts"
-            class="elevation-1"
-          >
+          <v-data-table :headers="headers" :items="desserts" class="elevation-1">
             <template v-slot:item.calories="{ item }">
               <v-avatar>
-                <img
-                  src="https://cdn.vuetifyjs.com/images/lists/1.jpg"
-                  alt="John"
-                />
+                <img src="https://cdn.vuetifyjs.com/images/lists/1.jpg" alt="John" />
               </v-avatar>
             </template>
           </v-data-table>
         </v-card>
-      </v-col>
+      </v-col> -->
     </v-row>
   </div>
   <Preloader v-else />
@@ -429,11 +405,11 @@ export default {
     }
   },
   filters: {
-    get_decimal_value: function(value) {
+    get_decimal_value: function (value) {
       if (!value) return "";
       return (Math.round(value * 100) / 100).toFixed(2);
     },
-    get_comma_seperator: function(x) {
+    get_comma_seperator: function (x) {
       if (!x) return "";
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
@@ -534,4 +510,6 @@ export default {
 };
 </script>
 
-<style scoped src="@/assets/dashtem.css"></style>
+<style scoped src="@/assets/dashtem.css">
+
+</style>

@@ -1,12 +1,26 @@
 <template>
-  <v-data-table :headers="headers" :items="logs" :items-per-page="5" dense>
-  </v-data-table>
+  <div>
+    <v-sheet class="mx-auto" elevation="8" max-width="1050">
+      <v-slide-group class="pa-4" center-active show-arrows>
+        <v-slide-item v-for="(log, index) in logs" :key="index" v-slot="{ toggle }">
+          <v-card class="ma-4 primary " height="150" width="150" @click="toggle">
+            <v-row class="fill-height" align="center" justify="center">
+              <v-avatar size="70">
+                <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John">
+              </v-avatar>
+            </v-row>
+            <div class="text-center">{{log.UserID}}</div>
+
+
+          </v-card>
+        </v-slide-item>
+      </v-slide-group>
+    </v-sheet>
+  </div>
 </template>
 
 <script>
 export default {
-  layout: "login",
-  auth: false,
   data: () => ({
     // logo : '/LTLOGO.png',
     // logo: "https://smarthr.dreamguystech.com/orange/assets/img/logo2.png",
