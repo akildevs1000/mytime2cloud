@@ -67,7 +67,7 @@
               <div>
                 <v-img
                   style="height: 125px; width: 50%; margin: 0 auto"
-                  :src="item.logo ? item.logo : '/no-image.png'"
+                  :src="item.logo ? item.logo : '/no-image.PNG'"
                 >
                 </v-img>
               </div>

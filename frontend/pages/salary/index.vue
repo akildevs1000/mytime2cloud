@@ -143,7 +143,7 @@
                     width: 50%;
                     margin: 0 auto;
                   "
-                  :src="item.employee.profile_picture || '/no-image.png'"
+                  :src="item.employee.profile_picture || '/no-image.PNG'"
                 >
                 </v-img>
               </div>
