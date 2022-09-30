@@ -241,8 +241,8 @@
                                 "
                                 :src="
                                   previewImage ||
-                                  company_payload.logo ||
-                                  '/no-image.PNG'
+                                    company_payload.logo ||
+                                    '/no-image.PNG'
                                 "
                               ></v-img>
                             </div>
