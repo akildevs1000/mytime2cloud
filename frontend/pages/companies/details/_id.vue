@@ -33,6 +33,15 @@
                 <v-row class="mt-2">
                   <v-col cols="3">
                     <v-list-item-title class="text-h7 mb-1">
+                      Company Email
+                    </v-list-item-title>
+                  </v-col>
+                  <v-col cols="8">
+                    {{ login_payload.email }}
+                  </v-col>
+
+                  <v-col cols="3">
+                    <v-list-item-title class="text-h7 mb-1">
                       Member From
                     </v-list-item-title>
                   </v-col>
@@ -136,16 +145,6 @@
               <v-col cols="8">
                 {{ login_payload.user_name }}
               </v-col> -->
-
-              <v-col cols="4">
-                <v-list-item-title class="text-h7 mb-1">
-                  User Email
-                </v-list-item-title>
-              </v-col>
-              <v-col cols="8">
-                {{ login_payload.email }}
-              </v-col>
-
               <v-col cols="4">
                 <v-list-item-title class="text-h7 mb-1">
                   Company Created At

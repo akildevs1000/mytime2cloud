@@ -333,18 +333,17 @@ export default {
         },
 
         {
-          icon: "mdi-domain",
-          title: "Company Info",
-          to: `/companies/details/${this.$auth?.user?.company?.id}`,
-          permission: this.can("company_access")
-        },
-
-        {
           icon: "mdi-briefcase-outline",
-          title: `Setup`,
+          title: `Organization`,
           open_menu: false,
           permission: this.can("company_access"),
           hasChildren: [
+            {
+              icon: "mdi-domain",
+              title: "Company",
+              to: `/companies/details/${this.$auth?.user?.company?.id}`,
+              permission: this.can("company_access")
+            },
             {
               icon: "mdi-door",
               title: "Department",
@@ -355,7 +354,7 @@ export default {
               icon: "mdi-door",
               title: "Sub Department",
               to: "/sub-department",
-              permission: this.can("department_access")
+              permission: this.can("sub_department_access")
             },
 
             {
@@ -365,17 +364,18 @@ export default {
               permission: this.can("designation_access")
             },
             {
-              icon: "mdi-account",
-              title: "Roles",
-              to: "/role",
-              permission: this.can("role_access")
+              icon: "mdi-bullhorn-variant-outline",
+              title: "Announcement",
+              to: "/announcement",
+              permission: this.can("announcement_access")
             },
             {
-              icon: "mdi-lock",
-              title: "Assign Permissions",
-              to: "/assign_permission",
-              permission: this.can("assign_permission_access")
+              icon: "mdi-clipboard-edit-outline",
+              title: "Policy",
+              to: "/policy",
+              permission: this.can("policy_access")
             }
+
             // {
             //   icon: "mdi-account",
             //   title: "Employees",
@@ -409,20 +409,18 @@ export default {
           to: "/employees",
           permission: this.can("employee_access")
         },
-
         {
-          icon: "mdi-bullhorn-variant-outline",
-          title: "Announcement",
-          to: "/announcement",
-          permission: this.can("employee_access")
+          icon: "mdi-account",
+          title: "Roles",
+          to: "/role",
+          permission: this.can("role_access")
         },
         {
-          icon: "mdi-clipboard-edit-outline",
-          title: "Policy",
-          to: "/policy",
-          permission: this.can("employee_access")
+          icon: "mdi-lock",
+          title: "Assign Permissions",
+          to: "/assign_permission",
+          permission: this.can("assign_permission_access")
         },
-
         {
           icon: "mdi-apps",
           title: "Modules",
@@ -452,36 +450,42 @@ export default {
         {
           icon: "mdi-clipboard-text-clock",
           title: "Reports",
-          to: "/attendance_report",
-          permission: this.can("module_access"),
-          open_menu: false,
-          hasChildren: [
-            {
-              icon: "mdi-chart-bubble",
-              title: "Daily",
-              to: "/attendance_report/daily",
-              permission: this.can("module_access")
-            },
-            {
-              icon: "mdi-chart-bubble",
-              title: "Weekly",
-              to: "/attendance_report/weekly",
-              permission: this.can("module_access")
-            },
-            {
-              icon: "mdi-chart-bubble",
-              title: "Monthly",
-              to: "/attendance_report/monthly",
-              permission: this.can("module_access")
-            },
-            {
-              icon: "mdi-chart-bubble",
-              title: "Yearly",
-              to: "/attendance_report/yearly",
-              permission: this.can("module_access")
-            }
-          ]
+          to: "/attendance_report/monthly",
+          permission: this.can("module_access")
         },
+        // {
+        //   icon: "mdi-clipboard-text-clock",
+        //   title: "Reports",
+        //   to: "/attendance_report",
+        //   permission: this.can("module_access"),
+        //   open_menu: false,
+        //   hasChildren: [
+        // {
+        //   icon: "mdi-chart-bubble",
+        //   title: "Daily",
+        //   to: "/attendance_report/daily",
+        //   permission: this.can("module_access")
+        // },
+        // {
+        //   icon: "mdi-chart-bubble",
+        //   title: "Weekly",
+        //   to: "/attendance_report/weekly",
+        //   permission: this.can("module_access")
+        // },
+        // {
+        //   icon: "mdi-chart-bubble",
+        //   title: "Monthly",
+        //   to: "/attendance_report/monthly",
+        //   permission: this.can("module_access")
+        // },
+        // {
+        //   icon: "mdi-chart-bubble",
+        //   title: "Yearly",
+        //   to: "/attendance_report/yearly",
+        //   permission: this.can("module_access")
+        // }
+        //   ]
+        // },
         // {
         //   icon: "mdi-account",
         //   title: "User Management",
@@ -586,15 +590,21 @@ export default {
       this.$axios.get(`company/${user?.company?.id}`).then(({ data }) => {
         let { modules } = data.record;
 
-        this.modules = {
-          module_ids: modules.module_ids || [],
-          module_names: modules.module_names.map(e => ({
-            icon: "mdi-chart-bubble",
-            title: this.caps(e),
-            to: "/" + e + "_modules",
-            permission: true
-          }))
-        };
+        if (modules !== null) {
+          this.modules = {
+            module_ids: modules.module_ids || [],
+            module_names: modules.module_names.map(e => ({
+              icon: "mdi-chart-bubble",
+              title: this.caps(e),
+              to: "/" + e + "_modules",
+              permission: true
+            }))
+          };
+        }
+        console.log(
+          "🚀 ~ file: default.vue ~ line 592 ~ this.$axios.get ~ modules",
+          modules
+        );
       });
     },
     can(per) {
