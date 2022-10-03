@@ -5,8 +5,8 @@
         {{ msg }}
       </v-snackbar>
     </div>
-
-    <v-card v-if="permissions && permissions.length > 0">
+    <!-- v-if="permissions && permissions.length > 0" -->
+    <v-card>
       <v-form ref="form" lazy-validation>
         <v-card-text>
           <v-container>
