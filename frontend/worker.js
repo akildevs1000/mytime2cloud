@@ -17,21 +17,7 @@ socket.onmessage = ({ data }) => {
 
   if (UserID !== 0) {
     let str = `${UserID},${DeviceID},${LogTime},${SerialNumber}`;
-    fs.appendFileSync("logs.csv", str + "\n");
-
+    fs.appendFileSync("/var/www/staging/ideahrms/backend/logs/logs.csv", str + "\n");
     console.log(str);
-
-
-    // let payload = {
-    //   UserID,
-    //   DeviceID,
-    //   LogTime,
-    //   SerialNumber,
-    //   Hash: process.env.Hash,
-    // };
-
-    // axios.post("/log_payload", payload).then(({ data }) => {
-    //   console.table([data]);
-    // });
   }
 };

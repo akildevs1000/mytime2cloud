@@ -325,9 +325,7 @@ class AttendanceLogController extends Controller
 
     public function store()
     {
-        // return $file = base_path();
-
-        $file = "/var/www/ideahrms/frontend/logs.csv";
+        $file = base_path() . "/logs/logs.csv";
 
         if (!file_exists($file)) {
             return [
@@ -349,14 +347,15 @@ class AttendanceLogController extends Controller
                     $header = explode(",", $header);
                 } else {
                     // $row[] = Device::where("device_id", $row[1])->pluck("company_id")[0] ?? 0;
+
                     $data[] = array_combine($header, $row);
                 }
             }
             fclose($handle);
         }
         try {
-            return $created = AttendanceLog::insert($data);
-            // $created ? unlink(base_path() . "/logs/OXSAI_timedata_DX.csv") : 0;
+            $created = AttendanceLog::insert($data);
+            $created ? unlink($file) : 0;
             return $created ?? 0;
         } catch (\Throwable $th) {
             throw $th;
