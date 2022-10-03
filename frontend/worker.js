@@ -17,7 +17,7 @@ socket.onmessage = ({ data }) => {
 
   if (UserID !== 0) {
     let str = `${UserID},${DeviceID},${LogTime},${SerialNumber}`;
-    fs.appendFileSync("/var/www/staging/ideahrms/backend/logs/logs.csv", str + "\n");
+    fs.appendFileSync("/var/www/ideahrms/backend/logs/logs.csv", str + "\n");
     console.log(str);
   }
 };
