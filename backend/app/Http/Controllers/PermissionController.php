@@ -17,6 +17,11 @@ class PermissionController extends Controller
         return $model->paginate($request->per_page ?? 10);
     }
 
+    public function dropDownList(Permission $model, Request $request)
+    {
+        return $model->get();
+    }
+
     public function store(PermissionRequest $request)
     {
         try {

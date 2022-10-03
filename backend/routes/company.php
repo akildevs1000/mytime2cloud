@@ -20,6 +20,7 @@ use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\PassportController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalInfoController;
 use App\Http\Controllers\policyController;
 use App\Http\Controllers\QualificationController;
@@ -54,6 +55,7 @@ Route::post('/check-code', [ResetPasswordController::class, 'checkCode']);
 Route::post('/new-password', [ResetPasswordController::class, 'newPassword']);
 
 // Assign Permission
+Route::get('dropDownList', [PermissionController::class, 'dropDownList']);
 Route::post('assign-permission/delete/selected', [AssignPermissionController::class, 'dsr']);
 Route::get('assign-permission/search/{key}', [AssignPermissionController::class, 'search']); // search records
 Route::get('assign-permission/nars', [AssignPermissionController::class, 'notAssignedRoleIds']);
