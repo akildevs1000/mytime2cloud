@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can(`assign_permission_accesss`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ msg }}
@@ -66,7 +66,7 @@
       </template>
     </v-card>
   </div>
-  <!-- <NoAccess v-else /> -->
+  <NoAccess v-else />
 </template>
 
 <script>

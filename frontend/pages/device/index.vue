@@ -46,12 +46,11 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "Name", align: "left", value: "name", sortable: false },
+      { text: "Name/Location", align: "left", value: "name", sortable: false },
       { text: "Device Id", align: "left", value: "device_id", sortable: false },
+      // { text: "Device Model", align: "left", value: "model_number", sortable: false },
       { text: "Status", align: "left", value: "status", sortable: false },
-      { text: "Location", align: "left", value: "location", sortable: false },
       { text: "Type", align: "left", value: "device_type", sortable: false },
-      { text: "Location", align: "left", value: "location", sortable: false },
 
     ],
     editedIndex: -1,
