@@ -19,14 +19,14 @@ class PermissionController extends Controller
 
     public function dropDownList(Permission $model, Request $request)
     {
-        return $model->get();
+        return response()->json(["data" => $model->get()]);
     }
 
     public function store(PermissionRequest $request)
     {
         try {
             $record = Permission::create($request->all());
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
 
@@ -56,11 +56,9 @@ class PermissionController extends Controller
                 'message' => 'Permission Successfully updated.',
                 'status' => true,
             ], 200);
-
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
-
     }
 
     public function destroy($id)
@@ -71,7 +69,6 @@ class PermissionController extends Controller
         } else {
             return Response::json(['message' => 'Permission assigned to some users please check those.'], 404);
         }
-
     }
 
     public function permissions($id): JsonResponse
@@ -108,6 +105,5 @@ class PermissionController extends Controller
         } else {
             return Response::json(['message' => ''], 404);
         }
-
     }
 }
