@@ -49,16 +49,18 @@ class SyncAttendanceLogs extends Command
         if (($handle = fopen($file, 'r')) !== false) {
             while (($row = fgetcsv($handle, 1000, ',')) !== false) {
 
+                $data[] = array_combine(["UserID", "DeviceID", "LogTime", "SerialNumber"], $row);
 
-                if (!$header) {
-                    $header = join(",", $row); //. ",company_id";
-                    $header = str_replace(" ", "", $header);
-                    $header = explode(",", $header);
-                } else {
-                    // $row[] = Device::where("device_id", $row[1])->pluck("company_id")[0] ?? 0;
 
-                    $data[] = array_combine($header, $row);
-                }
+                // if (!$header) {
+                //     $header = join(",", $row); //. ",company_id";
+                //     $header = str_replace(" ", "", $header);
+                //     $header = explode(",", $header);
+                // } else {
+                //     $row[] = Device::where("device_id", $row[1])->pluck("company_id")[0] ?? 0;
+
+                //     $data[] = array_combine($header, $row);
+                // }
             }
             fclose($handle);
         }
