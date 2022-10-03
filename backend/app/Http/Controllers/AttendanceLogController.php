@@ -334,28 +334,29 @@ class AttendanceLogController extends Controller
             ];
         }
 
-        $header = null;
         $data = [];
 
         if (($handle = fopen($file, 'r')) !== false) {
             while (($row = fgetcsv($handle, 1000, ',')) !== false) {
 
+                $data[] = array_combine(["UserID", "DeviceID", "LogTime", "SerialNumber"], $row);
 
-                if (!$header) {
-                    $header = join(",", $row); //. ",company_id";
-                    $header = str_replace(" ", "", $header);
-                    $header = explode(",", $header);
-                } else {
-                    // $row[] = Device::where("device_id", $row[1])->pluck("company_id")[0] ?? 0;
+                // if (!$header) {
+                //     $header = join(",", $row); //. ",company_id";
+                //     $header = str_replace(" ", "", $header);
+                //     $header = explode(",", $header);
+                // } else {
+                //     // $row[] = Device::where("device_id", $row[1])->pluck("company_id")[0] ?? 0;
 
-                    $data[] = array_combine($header, $row);
-                }
+                //     $data[] = array_combine("UserID,DeviceID,LogTime,SerialNumber", $row);
+                // }
             }
             fclose($handle);
         }
         try {
+            return $data;
             $created = AttendanceLog::insert($data);
-            $created ? unlink($file) : 0;
+            // $created ? unlink($file) : 0;
             return $created ?? 0;
         } catch (\Throwable $th) {
             throw $th;
