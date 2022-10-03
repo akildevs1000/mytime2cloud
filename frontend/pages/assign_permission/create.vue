@@ -105,12 +105,11 @@ export default {
         u.is_master
       );
     },
-    getPermissions(url = "permission") {
+    getPermissions(url = "dropDownList") {
       this.$axios
         .get(url)
         .then(({ data }) => {
           this.permissions = data.data;
-          console.log(this.permissions);
         })
         .catch(err => console.log(err));
     },
