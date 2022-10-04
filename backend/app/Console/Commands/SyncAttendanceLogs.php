@@ -37,10 +37,10 @@ class SyncAttendanceLogs extends Command
 
             Logger::channel("custom")->info('No new data found');
 
-            // return [
-            //     'status' => false,
-            //     'message' => 'No new data found',
-            // ];
+            return [
+                'status' => false,
+                'message' => 'No new data found',
+            ];
         }
 
         $header = null;
