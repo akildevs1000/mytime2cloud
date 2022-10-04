@@ -67,8 +67,9 @@ class SyncAttendanceLogs extends Command
         try {
             $created = AttendanceLog::insert($data);
             $created ? unlink($file) : 0;
+            $count = count($data);
             Logger::channel("custom")->info('Old file has been deleted');
-            Logger::channel("custom")->info('All data has been inserted');
+            Logger::channel("custom")->info($count . ' new logs has been inserted');
             return $created ?? 0;
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('error found');
