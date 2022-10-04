@@ -526,7 +526,7 @@ export default {
         },
         {
           icon: "mdi-history",
-          title: "Original Logs",
+          title: "Logs",
           to: "/logs",
           permission: this.can("/")
         }
