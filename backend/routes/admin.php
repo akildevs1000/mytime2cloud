@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssignModuleController;
 use App\Http\Controllers\AssignPermissionController;
+use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CompanyController;
@@ -105,3 +106,8 @@ Route::post('assign-module/delete/selected', [AssignModuleController::class, 'ds
 Route::get('assign-module/search/{key}', [AssignModuleController::class, 'search']);
 Route::get('assign-module/nacs', [AssignModuleController::class, 'notAssignedCompanyIds']);
 Route::resource('assign-module', AssignModuleController::class);
+
+
+//Testing Routes for Cron Jobs
+Route::get('SyncCompanyIdsWithDevices', [AttendanceLogController::class, 'SyncCompanyIdsWithDevices']);
+

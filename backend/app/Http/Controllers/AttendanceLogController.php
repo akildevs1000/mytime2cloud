@@ -10,6 +10,7 @@ use App\Models\Reason;
 use App\Models\ScheduleEmployee;
 use App\Models\TimeTable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Facades\DB;
 
@@ -323,6 +324,39 @@ class AttendanceLogController extends Controller
         }
     }
 
+    public function SyncCompanyIdsWithDevices()
+    {
+
+        // return 282+499+245+257+335+209;
+        // get device ids with company ids = 0
+        $model = AttendanceLog::query();
+        $model->distinct('DeviceID');
+        $model->where("company_id", 0);
+        $model->take(10);
+        $free_device_ids = $model->pluck("DeviceID");
+
+        // get company ids against found device ids
+        $rows = Device::whereIn("device_id", $free_device_ids)->get(["company_id", "device_id as DeviceID"])->toArray();
+
+        if (count($rows) == 0 || count($free_device_ids) == 0) {
+            Logger::channel("custom")->info('No new record found while updating company ids for device');
+            return 'No new record found while updating company ids for device';
+        }
+
+        foreach ($rows as $arr) {
+            try {
+                AttendanceLog::where("company_id", 0)->where("DeviceID", $arr["DeviceID"])->update($arr);
+            } catch (\Throwable $th) {
+                Logger::channel("custom")->error('Error occured while updating company ids.');
+                Logger::channel("custom")->error('Error Details: ' . $th);
+                $th;
+            }
+        }
+        Logger::channel("custom")->info("Company IDS has been updated. Details: " . json_encode($rows));
+
+        return "Company IDS has been updated. Details: " . json_encode($rows);
+    }
+
     public function store()
     {
         $file = base_path() . "/logs/logs.csv";
@@ -346,7 +380,6 @@ class AttendanceLogController extends Controller
                 //     $header = str_replace(" ", "", $header);
                 //     $header = explode(",", $header);
                 // } else {
-                //     // $row[] = Device::where("device_id", $row[1])->pluck("company_id")[0] ?? 0;
 
                 //     $data[] = array_combine("UserID,DeviceID,LogTime,SerialNumber", $row);
                 // }
