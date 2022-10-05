@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Models\AttendanceLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log as Logger;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NotifyIfLogsDoesNotGenerate;
 
 
 class SyncAttendanceLogs extends Command
@@ -50,17 +52,7 @@ class SyncAttendanceLogs extends Command
             while (($row = fgetcsv($handle, 1000, ',')) !== false) {
 
                 $data[] = array_combine(["UserID", "DeviceID", "LogTime", "SerialNumber"], $row);
-
-
-                // if (!$header) {
-                //     $header = join(",", $row); //. ",company_id";
-                //     $header = str_replace(" ", "", $header);
-                //     $header = explode(",", $header);
-                // } else {
-                //     $row[] = Device::where("device_id", $row[1])->pluck("company_id")[0] ?? 0;
-
-                //     $data[] = array_combine($header, $row);
-                // }
+                
             }
             fclose($handle);
         }
@@ -71,8 +63,17 @@ class SyncAttendanceLogs extends Command
             Logger::channel("custom")->info($count . ' new logs has been inserted. Old file has been deleted.');
             return $created ?? 0;
         } catch (\Throwable $th) {
+        
             Logger::channel("custom")->error('Error occured while inserting logs.');
             Logger::channel("custom")->error('Error Details: ' . $th);
+
+            $data = [
+                'title' => 'Quick action required',
+                'body' => $th,
+            ];
+
+            Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+            return;
         }
     }
 }

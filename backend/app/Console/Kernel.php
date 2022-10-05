@@ -15,8 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('task:sync_attendance_logs')->everyTenMinutes();
-        $schedule->command('task:update_company_ids')->everyTenMinutes();
+        $schedule->command('task:sync_attendance_logs')->everyThirtyMinutes();
+        $schedule->command('task:update_company_ids')->everyThirtyMinutes();
     }
 
     /**

@@ -6,6 +6,8 @@ use App\Models\AttendanceLog;
 use App\Models\Device;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log as Logger;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NotifyIfLogsDoesNotGenerate;
 
 
 class UpdateCompanyIds extends Command
@@ -31,8 +33,6 @@ class UpdateCompanyIds extends Command
      */
     public function handle()
     {
-
-        // return 282+499+245+257+335+209;
         // get device ids with company ids = 0
         $model = AttendanceLog::query();
         $model->distinct('DeviceID');
@@ -54,7 +54,14 @@ class UpdateCompanyIds extends Command
             } catch (\Throwable $th) {
                 Logger::channel("custom")->error('Error occured while updating company ids.');
                 Logger::channel("custom")->error('Error Details: ' . $th);
-                $th;
+
+                $data = [
+                    'title' => 'Quick action required',
+                    'body' => $th,
+                ];
+            
+                Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+                return;
             }
         }
         Logger::channel("custom")->info("Company IDS has been updated. Details: " . json_encode($rows));
