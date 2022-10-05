@@ -450,7 +450,7 @@ export default {
         {
           icon: "mdi-clipboard-text-clock",
           title: "Reports",
-          to: "/attendance_report/monthly",
+          to: "/attendance_report",
           permission: this.can("module_access")
         },
         // {

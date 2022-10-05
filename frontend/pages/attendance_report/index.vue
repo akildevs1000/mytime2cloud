@@ -329,12 +329,65 @@
       </v-card>
     </v-dialog>
     <v-toolbar class="primary" dark flat>
+      <v-btn
+        small
+        class="primary darken-2"
+        @click="generateReport('/monthly_details')"
+      >
+        Details
+      </v-btn>
+      &nbsp;
+      <v-btn
+        v-if="can(`attendance_summary_access`)"
+        small
+        class="primary darken-2"
+        @click="generateReport('/monthly_summary')"
+      >
+        Summary
+      </v-btn>
+      &nbsp;
+      <v-btn
+        small
+        class="primary darken-2"
+        @click="generateReport('/monthly_present')"
+      >
+        Present
+      </v-btn>
+      &nbsp;
+      <v-btn
+        v-if="can(`attendance_summary_access`)"
+        small
+        class="primary darken-2"
+        @click="generateReport('/monthly_absent')"
+      >
+        Absent
+      </v-btn>
+      &nbsp;
+      <v-btn
+        small
+        class="primary darken-2"
+        @click="generateReport('/monthly_late_in')"
+      >
+        Late In
+      </v-btn>
+      &nbsp;
+      <v-btn
+        v-if="can(`attendance_summary_access`)"
+        small
+        class="primary darken-2"
+        @click="generateReport('/monthly_early_out')"
+      >
+        Early Out
+      </v-btn>
+      <v-spacer />
+      &nbsp;
+
       <v-btn small class="primary darken-2" @click="get_time_slots">
         <v-icon class="mr-1">mdi-clock-outline</v-icon>
         Time Slots
       </v-btn>
       &nbsp;
-      <v-btn
+      <!-- <v-btn
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
@@ -342,11 +395,9 @@
       >
         <v-icon class="mr-1">mdi-chart-bar</v-icon>
         Summary
-      </v-btn>
-      <v-spacer />
-      &nbsp;
+      </v-btn> -->
 
-      <v-btn
+      <!-- <v-btn
         v-if="can(`attendance_pdf_access`)"
         small
         class="primary darken-2"
@@ -370,7 +421,7 @@
       >
         <v-icon class="mr-1" small>mdi-file-outline</v-icon>
         Log +
-      </v-btn>
+      </v-btn> -->
     </v-toolbar>
     <v-data-table
       v-if="can(`attendance_log_view_access`)"
@@ -380,16 +431,18 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [5, 10, 15],
+        itemsPerPageOptions: [5, 10, 15]
       }"
       class="elevation-1"
     >
       <template v-slot:item.employee_id="{ item }">
-        <NuxtLink
+        <v-btn @click="log_details = true">click</v-btn>
+        <!-- <NuxtLink
           :to="`/attendance_report/${item.employee_id}_${item.edit_date}`"
           >{{ item.employee_id
           }}<v-icon small color="black">mdi-open-in-new</v-icon></NuxtLink
-        >
+        > -->
+        <!-- <v-icon small color="black" @click="log_details = true">mdi-open-in-new</v-icon> -->
       </template>
       <template v-slot:item.status="{ item }">
         <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
@@ -454,6 +507,10 @@
         </v-tooltip>
         <span v-else>---</span>
       </template>
+      <v-dialog
+      v-model="log_details"
+      width="500"
+    ></v-dialog>
     </v-data-table>
     <NoAccess v-else />
   </div>
@@ -463,14 +520,15 @@
 export default {
   data: () => ({
     time_table_dialog: false,
+    log_details: false,
     overtime: false,
     options: {},
     date: null,
     menu: false,
     loading: false,
     time_menu: false,
-    Model: "Attendance",
-    endpoint: "auto_report",
+    Model: "Reports",
+    endpoint: "report",
     search: "",
     snackbar: false,
     add_fake_log: false,
@@ -492,25 +550,25 @@ export default {
         text: "First Name",
         align: "left",
         sortable: false,
-        value: "employee.first_name",
+        value: "employee.first_name"
       },
       {
         text: "Dept",
         align: "left",
         sortable: false,
-        value: "employee.department.name",
+        value: "employee.department.name"
       },
       {
         text: "Shift Type",
         align: "left",
         sortable: false,
-        value: "shift_type.name",
+        value: "shift_type.name"
       },
       {
         text: "Shift",
         align: "left",
         sortable: false,
-        value: "shift",
+        value: "shift"
       },
       { text: "Status", align: "left", sortable: false, value: "status" },
       { text: "In", align: "left", sortable: false, value: "in" },
@@ -519,33 +577,33 @@ export default {
         text: "Total Hrs",
         align: "left",
         sortable: false,
-        value: "total_hrs",
+        value: "total_hrs"
       },
       { text: "OT", align: "left", sortable: false, value: "ot" },
       {
         text: "Late coming",
         align: "left",
         sortable: false,
-        value: "late_coming",
+        value: "late_coming"
       },
       {
         text: "Early Going",
         align: "left",
         sortable: false,
-        value: "early_going",
+        value: "early_going"
       },
       {
         text: "D.In",
         align: "left",
         sortable: false,
-        value: "device_in",
+        value: "device_in"
       },
       {
         text: "D.Out",
         align: "left",
         sortable: false,
-        value: "device_out",
-      },
+        value: "device_out"
+      }
     ],
     payload: {
       from_date: null,
@@ -553,13 +611,13 @@ export default {
       employee_id: null,
       department_id: -1,
       status: "Select All",
-      late_early: "Select All",
+      late_early: "Select All"
     },
     log_payload: {
       user_id: null,
       device_id: "OX-8862021010011",
       date: null,
-      time: null,
+      time: null
     },
 
     snackbar: false,
@@ -570,14 +628,14 @@ export default {
     data: [],
     csvData: [],
     shifts: [],
-    errors: [],
+    errors: []
   }),
   custom_options: {},
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
+    }
   },
 
   watch: {
@@ -590,8 +648,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
@@ -606,10 +664,11 @@ export default {
     this.custom_options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
-      },
+        company_id: this.$auth.user.company.id
+      }
     };
     this.getDepartments(this.custom_options);
+    this.getScheduledEmployees();
   },
 
   methods: {
@@ -619,7 +678,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time + ":00",
         DeviceID: device_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company.id
       };
       this.loading = true;
 
@@ -643,18 +702,16 @@ export default {
     },
     getShift(options) {
       this.$axios.get(`/shift`, options).then(({ data }) => {
-        this.shifts = data.data.map((e) => ({
+        this.shifts = data.data.map(e => ({
           name: e.name,
           on_duty_time: (e.time_table && e.time_table.on_duty_time) || "",
-          off_duty_time: (e.time_table && e.time_table.off_duty_time) || "",
+          off_duty_time: (e.time_table && e.time_table.off_duty_time) || ""
         }));
         this.time_table_dialog = true;
       });
     },
 
     getEmployeesByDepartment() {
-      // alert("ff");
-      // return;
       this.$axios
         .get(
           `/employees_by_departments/${this.payload.department_id}`,
@@ -666,9 +723,9 @@ export default {
         });
     },
 
-    getScheduledEmployees(options) {
+    getScheduledEmployees() {
       this.$axios
-        .get(`/scheduled_employees_with_type`, options)
+        .get(`/scheduled_employees_with_type`)
         .then(({ data }) => {
           this.scheduled_employees = data;
         });
@@ -686,15 +743,15 @@ export default {
         .then(({ data }) => {
           this.departments = [{ id: -1, name: "Select All" }].concat(data.data);
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     caps(str) {
-      return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      return str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -743,13 +800,13 @@ export default {
           ...this.payload,
           status,
           late_early,
-          ot: this.overtime ? 1 : 0,
-        },
+          ot: this.overtime ? 1 : 0
+        }
       };
 
       this.$axios.get(url, options).then(({ data }) => {
         this.data = data.data;
-        this.csvData = data.data.map((e) => ({
+        this.csvData = data.data.map(e => ({
           Date: e.date,
           "E.ID": e.employee_id,
           "First Name": e.employee.first_name,
@@ -765,7 +822,7 @@ export default {
           "Late Coming": e.late_coming,
           "Early Going": e.early_going,
           "D.In": (e.device_in && e.device_in.name) || "---",
-          "D.Out": (e.device_out && e.device_out.name) || "---",
+          "D.Out": (e.device_out && e.device_out.name) || "---"
         }));
         this.total = data.total;
         this.loading = false;
@@ -781,7 +838,7 @@ export default {
         name: item.shift.name,
         days: item.shift.days,
         ot_interval: item.shift.overtime,
-        working_hours: item.shift.working_hours || "---",
+        working_hours: item.shift.working_hours || "---"
       };
 
       if (item && !item.time_table) {
@@ -805,11 +862,20 @@ export default {
       }, 300);
     },
     pdfDownload() {
+      let path = process.env.BACKEND_URL + "/pdf";
       let pdf = document.createElement("a");
-      pdf.setAttribute("href", "http://192.168.2.174:8000/api/pdf");
+      pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
       pdf.click();
     },
-  },
+
+    generateReport(url) {
+      let path = process.env.BACKEND_URL + url;
+      let report = document.createElement("a");
+      report.setAttribute("href", path);
+      report.setAttribute("target", "_blank");
+      report.click();
+    }
+  }
 };
 </script>

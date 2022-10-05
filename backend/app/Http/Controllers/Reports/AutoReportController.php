@@ -32,7 +32,7 @@ class AutoReportController extends Controller
 
         return Attendance::insert($free_employees);
     }
-    public function custom_report(Request $request)
+    public function report(Request $request)
     {
         $model = Attendance::query();
 

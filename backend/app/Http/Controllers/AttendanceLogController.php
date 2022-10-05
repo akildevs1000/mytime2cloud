@@ -24,36 +24,69 @@ class AttendanceLogController extends Controller
     {
         return $model->where("company_id", $request->company_id)->paginate($request->per_page);
     }
-    public function GenerateLog(Request $request)
-    {
-        $row = ScheduleEmployee::where("employee_id", $request->UserID)->first();
 
-        if (!$row) {
-            return $this->response('User does not exist.', null, false);
+    public function store()
+    {
+        $file = base_path() . "/logs/logs.csv";
+
+        if (!file_exists($file)) {
+
+            Logger::channel("custom")->info('No new data found');
+
+            return [
+                'status' => false,
+                'message' => 'No new data found',
+            ];
         }
 
+        $data = [];
+
+        if (($handle = fopen($file, 'r')) !== false) {
+            while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+
+                $data[] = array_combine(["UserID", "DeviceID", "LogTime", "SerialNumber"], $row);
+            }
+            fclose($handle);
+        }
         try {
+            $created = AttendanceLog::insert($data);
+            $created ? unlink($file) : 0;
+            $count = count($data);
+            Logger::channel("custom")->info($count . ' new logs has been inserted. Old file has been deleted.');
+            return $created ?? 0;
+        } catch (\Throwable $th) {
+
+            Logger::channel("custom")->error('Error occured while inserting logs.');
+            Logger::channel("custom")->error('Error Details: ' . $th);
+
             $data = [
-                "UserID" => $request->UserID,
-                "DeviceID" => $request->DeviceID,
-                "LogTime" => $request->LogTime,
+                'title' => 'Quick action required',
+                'body' => $th,
             ];
-            AttendanceLog::create($data);
+
+            // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+            return;
+        }
+    }
+
+    public function process_log($log)
+    {
+        try {
 
             $model = ScheduleEmployee::query();
 
-            $row = $model->where("employee_id", $request->UserID)->first();
+            $row = $model->where("employee_id", $log->UserID)->first();
 
-            $date = date("Y-m-d", strtotime($request->LogTime));
+            $date = date("Y-m-d", strtotime($log->LogTime));
 
             $item = [
                 "company_id" =>  $row->company_id ?? 1,
-                "employee_id" =>  $request->UserID ?? 1,
+                "employee_id" =>  $log->UserID ?? 1,
                 "shift_type_id" => $row->shift_type_id ?? 1,
                 "date" => $date,
             ];
 
-            // return $this->process_columns($row, $date);
+            // $this->process_columns($row, $date);
 
             $item = $item + $this->process_columns($row, $date);
 
@@ -65,6 +98,103 @@ class AttendanceLogController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function generate_logs()
+    {
+        $items = [];
+        $model = AttendanceLog::query();
+        $model->where("company_id", ">", 0);
+        $model->take(5);
+        $logs = $model->get();
+
+        foreach ($logs as $log) {
+            $items[] = $this->process_log($log);
+        }
+
+        return $items;
+    }
+
+    public function process_columns($row, $date)
+    {
+        $item = [];
+        $shift = null;
+        $time_table = null;
+
+        $first_log = $row->first_log()->whereDate("LogTime", $date)->first() ?? false;
+        $last_log = $row->last_log()->whereDate("LogTime", $date)->first() ?? false;
+        $logs = $row->logs()->whereDate("LogTime", $date)->count();
+
+        // no shift
+        if ($row->shift_type_id == 1) {
+
+            if ($first_log) {
+                $item["in"] = $first_log->time;
+                $item["device_id_in"] = Device::where("device_id", $first_log->DeviceID)->pluck("id")[0] ?? "---";
+            }
+            if ($logs > 1 && $last_log) {
+                $item["out"] = $last_log->time;
+                $item["device_id_out"] = Device::where("device_id", $last_log->DeviceID)->pluck("id")[0] ?? "---";
+
+                $item["status"] = "P";
+                $diff = abs(($last_log->show_log_time - $first_log->show_log_time));
+
+                if (!$row->isOverTime) {
+                    $item["ot"] = "NA";
+                } else {
+                    
+                    $diff_ot =  $diff - $row->shift->working_hours * 3600;
+
+                    $h = floor($diff_ot / 3600);
+                    $h = $h < 0 ? "0" : $h;
+                    $m = floor($diff_ot % 3600) / 60;
+                    $m = $m < 0 ? "0" : $m;
+
+                    $item["ot"] = (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+                }
+
+                $h = floor($diff / 3600);
+                $m = floor(($diff % 3600) / 60);
+
+                $item["total_hrs"] = (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+            }
+
+            $item["shift_id"] = $row->shift->id ?? 0;
+
+
+
+
+
+            return $item;
+        }
+
+        // auto shift
+        if ($row->shift_type_id == 2) {
+            $time_tables = TimeTable::orderBy("on_duty_time")->with("shift")->get();
+            $time_tables_count = count($time_tables);
+            $time_table = $this->findClosest($time_tables, $time_tables_count, $row->first_log->show_log_time);
+            $shift = $time_table->shift;
+        }
+
+        // manual shift
+        if ($row->shift_type_id == 3) {
+            $time_table = $row->shift->time_table;
+            $shift = $row->shift;
+            $item["late_coming"] = $this->getLateComing($row, $time_table, $date);
+            $item["early_going"] = $this->getEarlyGoing($row, $time_table, $date);
+        }
+
+        $item["in"] = $this->getCheckIn($row, $time_table, $date);
+        $item["out"] = $this->getCheckOut($row, $time_table, $date);
+        $item["shift_id"] = $shift->id ?? 0;
+        $item["time_table_id"] = $time_table->id ?? 0;
+        $item["status"] = $this->getStatus($row, $time_table, $date);
+        $item["total_hrs"] = $this->getTotalHrsMins($row, $time_table, $date);
+        $item["ot"] = $this->getOT($row, $time_table, $date, $shift);
+        $item["device_id_in"] = $this->getDeviceIn($row, $time_table, $date);
+        $item["device_id_out"] = $this->getDeviceOut($row, $time_table, $date);
+
+        return $item;
     }
 
     public function getCheckIn($row, $time_table, $date)
@@ -218,80 +348,6 @@ class AttendanceLogController extends Controller
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 
-    public function process_columns($row, $date)
-    {
-        $item = [];
-        $shift = null;
-        $time_table = null;
-
-        $first_log = $row->first_log()->whereDate("LogTime", $date)->first() ?? false;
-        $last_log = $row->last_log()->whereDate("LogTime", $date)->first() ?? false;
-        $logs = $row->logs()->whereDate("LogTime", $date)->count();
-
-        // no shift
-        if ($row->shift_type_id == 1) {
-
-            if ($first_log) {
-                $item["in"] = $first_log->time;
-                $item["device_id_in"] = Device::where("device_id", $first_log->DeviceID)->pluck("id")[0] ?? "---";
-            }
-            if ($logs > 1 && $last_log) {
-                $item["out"] = $last_log->time;
-                $item["device_id_out"] = Device::where("device_id", $last_log->DeviceID)->pluck("id")[0] ?? "---";
-
-                $item["status"] = "P";
-
-
-                if (!$row->isOverTime) {
-                    $item["ot"] = "NA";
-                } else {
-                    $diff = abs(($last_log->show_log_time - $first_log->show_log_time));
-                    $diff =  $diff - $row->shift->working_hours * 3600;
-
-                    $h = floor($diff / 3600);
-                    $h = $h < 0 ? "0" : $h;
-                    $m = floor($diff % 3600) / 60;
-                    $m = $m < 0 ? "0" : $m;
-
-                    $item["ot"] = (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-                }
-            }
-
-            $item["shift_id"] = $row->shift->id ?? 0;
-
-
-            return $item;
-        }
-
-        // auto shift
-        if ($row->shift_type_id == 2) {
-            $time_tables = TimeTable::orderBy("on_duty_time")->with("shift")->get();
-            $time_tables_count = count($time_tables);
-            $time_table = $this->findClosest($time_tables, $time_tables_count, $row->first_log->show_log_time);
-            $shift = $time_table->shift;
-        }
-
-        // manual shift
-        if ($row->shift_type_id == 3) {
-            $time_table = $row->shift->time_table;
-            $shift = $row->shift;
-            $item["late_coming"] = $this->getLateComing($row, $time_table, $date);
-            $item["early_going"] = $this->getEarlyGoing($row, $time_table, $date);
-        }
-
-        $item["in"] = $this->getCheckIn($row, $time_table, $date);
-        $item["out"] = $this->getCheckOut($row, $time_table, $date);
-        $item["shift_id"] = $shift->id ?? 0;
-        $item["time_table_id"] = $time_table->id ?? 0;
-        $item["status"] = $this->getStatus($row, $time_table, $date);
-        $item["total_hrs"] = $this->getTotalHrsMins($row, $time_table, $date);
-        $item["ot"] = $this->getOT($row, $time_table, $date, $shift);
-        $item["device_id_in"] = $this->getDeviceIn($row, $time_table, $date);
-        $item["device_id_out"] = $this->getDeviceOut($row, $time_table, $date);
-
-        return $item;
-    }
-
     public function singleView(AttendanceLog $model, Request $request)
     {
         return $model->where('UserID', $request->UserID)
@@ -357,44 +413,7 @@ class AttendanceLogController extends Controller
         return "Company IDS has been updated. Details: " . json_encode($rows);
     }
 
-    public function store()
-    {
-        $file = base_path() . "/logs/logs.csv";
 
-        if (!file_exists($file)) {
-            return [
-                'status' => false,
-                'message' => 'No new data found',
-            ];
-        }
-
-        $data = [];
-
-        if (($handle = fopen($file, 'r')) !== false) {
-            while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-
-                $data[] = array_combine(["UserID", "DeviceID", "LogTime", "SerialNumber"], $row);
-
-                // if (!$header) {
-                //     $header = join(",", $row); //. ",company_id";
-                //     $header = str_replace(" ", "", $header);
-                //     $header = explode(",", $header);
-                // } else {
-
-                //     $data[] = array_combine("UserID,DeviceID,LogTime,SerialNumber", $row);
-                // }
-            }
-            fclose($handle);
-        }
-        try {
-            return $data;
-            $created = AttendanceLog::insert($data);
-            // $created ? unlink($file) : 0;
-            return $created ?? 0;
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
     public function getShift($log)
     {
         return $log;

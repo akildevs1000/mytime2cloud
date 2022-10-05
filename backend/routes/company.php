@@ -100,6 +100,8 @@ Route::post('role/{id}/permissions', [RoleController::class, 'assignPermission']
 Route::post('role/delete/selected', [RoleController::class, 'deleteSelected']);
 
 // AttendanceLogs
+Route::apiResource('attendance_logs', AttendanceLogController::class);
+
 Route::get('attendance_logs/{key}/daily', [AttendanceLogController::class, 'AttendanceLogsDaily']);
 Route::get('attendance_logs/{key}/monthly', [AttendanceLogController::class, 'AttendanceLogsMonthly']);
 Route::post('generate_manual_log', [AttendanceLogController::class, 'GenerateManualLog']);
@@ -107,11 +109,9 @@ Route::post('generate_manual_log', [AttendanceLogController::class, 'GenerateMan
 Route::get('attendance_logs/{id}/search/{key}', [AttendanceLogController::class, 'AttendanceLogsSearch']);
 Route::get('attendance_log_paginate/{page?}', [AttendanceLogController::class, 'AttendanceLogPaginate']);
 
-Route::post('generate_log', [AttendanceLogController::class, 'GenerateLog'])->middleware('CheckToken');
+Route::post('generate_logs', [AttendanceLogController::class, 'generate_logs']);
+Route::get('logs', [AttendanceLogController::class, 'getAttendanceLogs']);
 
-Route::get('generate_log', [AttendanceLogController::class, 'getAttendanceLogs']);
-
-Route::apiResource('attendance_logs', AttendanceLogController::class);
 
 Route::get('attendance_single_list', [AttendanceLogController::class, 'singleView']);
 

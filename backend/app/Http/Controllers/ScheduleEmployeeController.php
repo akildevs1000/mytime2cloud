@@ -21,11 +21,11 @@ class ScheduleEmployeeController extends Controller
     }
     public function employees_by_departments(Employee $employee, Request $request, $id)
     {
-        return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
-            $q->where('slug', '=', $request->shift_type);
-        })
+        return $employee->whereHas('schedule')
             ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])
-            ->where("department_id", $id)
+            ->when($id != -1, function ($q) use ($id) {
+                $q->where("department_id", $id);
+            })
             ->get(["first_name", "system_user_id", "employee_id"]);
     }
 

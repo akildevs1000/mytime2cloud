@@ -9,7 +9,7 @@ Route::get('custom_report', [ReportController::class, 'custom_report']);
 
 Route::get('manual_report', [ManualReportController::class, 'custom_report']);
 Route::post('manual_report', [ManualReportController::class, 'store']);
-Route::get('auto_report', [AutoReportController::class, 'custom_report']);
+Route::get('report', [AutoReportController::class, 'report']);
 Route::post('auto_report', [AutoReportController::class, 'store']);
 Route::get('SyncDefaultAttendance', [AutoReportController::class, 'SyncDefaultAttendance']);
 
