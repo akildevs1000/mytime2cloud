@@ -69,6 +69,24 @@ class AttendanceLogController extends Controller
         }
     }
 
+    public function generate_logs()
+    {
+        $items = [];
+        $model = AttendanceLog::query();
+        $model->where("company_id", ">", 0);
+        $model->take(5);
+        $logs = $model->get();
+
+        foreach ($logs as $log) {
+            $items[] = $this->process_log($log);
+        }
+
+        return $items;
+    }
+
+
+    
+
     public function process_log($log)
     {
         try {
@@ -98,21 +116,6 @@ class AttendanceLogController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
-    }
-
-    public function generate_logs()
-    {
-        $items = [];
-        $model = AttendanceLog::query();
-        $model->where("company_id", ">", 0);
-        $model->take(5);
-        $logs = $model->get();
-
-        foreach ($logs as $log) {
-            $items[] = $this->process_log($log);
-        }
-
-        return $items;
     }
 
     public function process_columns($row, $date)
@@ -353,7 +356,7 @@ class AttendanceLogController extends Controller
         return $model->where('UserID', $request->UserID)
             ->where('company_id', $request->company_id)
             ->whereDate('LogTime', $request->LogTime)
-            ->with("employee", "device")
+            ->select("LogTime")
             ->paginate($request->per_page ?? 100);
     }
 

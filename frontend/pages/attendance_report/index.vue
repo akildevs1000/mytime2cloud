@@ -436,13 +436,11 @@
       class="elevation-1"
     >
       <template v-slot:item.employee_id="{ item }">
-        <v-btn @click="log_details = true">click</v-btn>
-        <!-- <NuxtLink
-          :to="`/attendance_report/${item.employee_id}_${item.edit_date}`"
+        <NuxtLink
+          :to="`/employees/details/${item.employee.id}`"
           >{{ item.employee_id
           }}<v-icon small color="black">mdi-open-in-new</v-icon></NuxtLink
-        > -->
-        <!-- <v-icon small color="black" @click="log_details = true">mdi-open-in-new</v-icon> -->
+        >
       </template>
       <template v-slot:item.status="{ item }">
         <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
@@ -507,12 +505,31 @@
         </v-tooltip>
         <span v-else>---</span>
       </template>
-      <v-dialog
-      v-model="log_details"
-      width="500"
-    ></v-dialog>
+      <template v-slot:item.actions="{ item }">
+        <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
+          mdi-eye
+        </v-icon>
+      </template>
     </v-data-table>
     <NoAccess v-else />
+
+    <v-row justify="center">
+      <v-dialog v-model="log_details" max-width="600px">
+        <v-card class="darken-1">
+          <v-toolbar class="primary" dense dark flat>
+            <span class="text-h5 pa-2">Log Details</span>
+          </v-toolbar>
+          <v-card-text>
+            <div class="pt-5">
+              <span v-for="(log, index) in log_list" :key="index">
+                {{ log.time }}
+                <hr />
+              </span>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+    </v-row>
   </div>
   <NoAccess v-else />
 </template>
@@ -603,7 +620,8 @@ export default {
         align: "left",
         sortable: false,
         value: "device_out"
-      }
+      },
+      { text: "Actions", value: "actions", sortable: false }
     ],
     payload: {
       from_date: null,
@@ -619,7 +637,7 @@ export default {
       date: null,
       time: null
     },
-
+    log_list: [],
     snackbar: false,
     editedIndex: -1,
     editedItem: { name: "" },
@@ -724,11 +742,9 @@ export default {
     },
 
     getScheduledEmployees() {
-      this.$axios
-        .get(`/scheduled_employees_with_type`)
-        .then(({ data }) => {
-          this.scheduled_employees = data;
-        });
+      this.$axios.get(`/scheduled_employees_with_type`).then(({ data }) => {
+        this.scheduled_employees = data;
+      });
     },
 
     getDevices(options) {
@@ -850,9 +866,24 @@ export default {
       return { ...shift, ...time_table };
     },
     editItem(item) {
-      this.editedIndex = this.data.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
+      this.log_list = [];
+      let options = {
+        params: {
+          per_page: 500,
+          UserID: item.employee_id,
+          LogTime: item.edit_date,
+          company_id: this.$auth.user.company.id
+        }
+      };
+      this.log_details = true;
+
+      this.$axios.get("attendance_single_list", options).then(({ data }) => {
+        this.log_list = data.data;
+      });
+
+      // this.editedIndex = this.data.indexOf(item);
+      // this.editedItem = Object.assign({}, item);
+      // this.dialog = true;
     },
     close() {
       this.dialog = false;
