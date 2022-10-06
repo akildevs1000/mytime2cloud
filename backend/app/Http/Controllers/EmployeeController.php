@@ -7,6 +7,7 @@ use App\Http\Requests\Employee\EmployeeContactRequest;
 use App\Http\Requests\Employee\EmployeeImportRequest;
 use App\Http\Requests\Employee\EmployeeOtherRequest;
 use App\Http\Requests\Employee\EmployeeRequest;
+use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Models\Company;
 use App\Models\CompanyContact;
@@ -258,16 +259,26 @@ class EmployeeController extends Controller
     public function updateEmployee(EmployeeUpdateRequest $request, $id)
     {
         $data = $request->except(['user_name', 'email', 'password', 'password_confirmation']);
-        $data['employee_role_id'] = $request->role_id;
+        $data['employee_role_id'] = $request->role_id ?? 0;
         $employee = Employee::find($id);
+
         $user_arr = [
             'email' => $request->email,
-            'employee_role_id' => $request->role_id,
+            'employee_role_id' => $request->role_id ?? 0,
         ];
+
         if ($request->password) {
             $user_arr['password'] = Hash::make($request->password);
         }
-        $user = User::where('id', $employee->user_id)->update($user_arr);
+
+        User::where('id', $employee->user_id)->update($user_arr);
+
+        // if ($request->role_id) {
+        //     $user_arr['employee_role_id'] = $request->role_id;
+        //     User::where('id', $employee->user_id)->update($user_arr);
+        // }
+
+        // $user = User::where('id', $employee->user_id)->update($user_arr);
         // if (isset($request->profile_picture)) {
         //     $arr['profile_picture'] = saveFile($request, 'media/employee/profile_picture', 'profile_picture', $request->name, 'profile_picture');
         // }
@@ -284,8 +295,9 @@ class EmployeeController extends Controller
             'status' => true,
         ], 200);
     }
-    public function updateContact(Employee $model, Request $request, $id): JsonResponse
+    public function updateContact(Employee $model, EmployeeUpdateContact $request, $id)
     {
+        // return $request->all();
         $model->whereId($id)->update($request->all());
         return Response::json([
             'record' => $model,
