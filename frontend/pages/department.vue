@@ -74,7 +74,9 @@
                         v-model="editedItem.name"
                         label="Departments"
                       ></v-text-field>
-                      <span v-if="errors && errors.name" class="error--text">{{ errors.name[0] }}</span>
+                      <span v-if="errors && errors.name" class="error--text">{{
+                        errors.name[0]
+                      }}</span>
                     </v-col>
                     <v-col> </v-col>
                   </v-row>
@@ -109,9 +111,14 @@
           mdi-delete
         </v-icon>
       </template>
-      <template v-slot:item.sub_departments = "{ item }">
-        <v-chip small class="primary ma-1" v-for="(sub_dep,index) in item.children" :key="index">
-          {{sub_dep.name}}
+      <template v-slot:item.sub_departments="{ item }">
+        <v-chip
+          small
+          class="primary ma-1"
+          v-for="(sub_dep, index) in item.children"
+          :key="index"
+        >
+          {{ sub_dep.name }}
         </v-chip>
       </template>
     </v-data-table>
@@ -132,8 +139,14 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "Departments", align: "left", sortable: false, value: "name" },
-      { text: "Sub Departments", align: "left", sortable: false, value: "sub_departments" },
+      { text: "Department Code", align: "left", sortable: false, value: "id" },
+      { text: "Department", align: "left", sortable: false, value: "name" },
+      {
+        text: "Sub Department",
+        align: "left",
+        sortable: false,
+        value: "sub_department"
+      },
       { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
@@ -303,7 +316,6 @@ export default {
               this.errors = [];
               this.search = "";
               this.getDataFromApi();
-
             }
           })
           .catch(res => console.log(res));
