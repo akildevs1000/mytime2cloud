@@ -351,6 +351,7 @@ class EmployeeController extends Controller
                     'user_id' => $record->id,
                     'company_id' => $request->company_id,
                     'system_user_id' => trim($data['employee_device_id']),
+                    'department_id' => trim($data['department_code']),
                 ];
                 $success = Employee::create($arr) ? true : false;
 
@@ -381,6 +382,7 @@ class EmployeeController extends Controller
             'email' => 'required|min:3|max:191|unique:users',
             'phone_number' => ['required', 'min:1', 'max:15'],
             'joining_date' => ['required', 'date'],
+            'department_code' => ['required'],
         ]);
     }
     public function saveFile($file)
@@ -411,6 +413,7 @@ class EmployeeController extends Controller
             "email",
             "phone_number",
             "joining_date",
+            "department_code",
         ];
         $header = null;
         $data = [];
