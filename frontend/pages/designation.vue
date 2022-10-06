@@ -7,8 +7,8 @@
     </div>
     <v-row class="mt-5 mb-5">
       <v-col cols="6">
-        <h3>{{Model}}</h3>
-        <div>Dashboard / {{Model}}</div>
+        <h3>{{ Model }}</h3>
+        <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="6">
         <div class="text-right">
@@ -21,112 +21,189 @@
             >Delete Selected Records</v-btn
           >
 
-          <v-btn
+          <!-- <v-btn
             v-if="can(`designation_create`)"
             small
             color="primary"
             @click="dialog = true"
             class="mb-2"
-            >{{Model}} +</v-btn
-          >
+            >{{ Model }} +</v-btn
+          > -->
         </div>
       </v-col>
     </v-row>
-    <v-data-table
-      v-if="can(`designation_view`)"
-      v-model="ids"
-      show-select
-      item-key="id"
-      :headers="headers"
-      :items="data"
-      :server-items-length="total"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
-        itemsPerPageOptions: [5, 10, 15]
-      }"
-      class="elevation-1"
-    >
-      <template v-slot:top>
-        <v-toolbar flat color="">
-          <v-toolbar-title>List</v-toolbar-title>
-          <v-divider class="mx-4" inset vertical></v-divider>
 
-          <v-text-field
-            @input="searchIt"
-            v-model="search"
-            label="Search"
-            single-line
-            hide-details
-          ></v-text-field>
+    <!-- <v-dialog v-model="dialog" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">{{ formTitle }} {{ Model }}</span>
+        </v-card-title>
 
-          <v-dialog v-model="dialog" max-width="500px">
-            <v-card>
-              <v-card-title>
-                <span class="headline">{{ formTitle }} {{Model}}</span>
-              </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="editedItem.name"
+                  label="Designation"
+                ></v-text-field>
+                <span v-if="errors && errors.name" class="error--text">{{
+                  errors.name[0]
+                }}</span>
+              </v-col>
+              <v-col cols="12">
+                <v-autocomplete
+                  label="Select Department"
+                  v-model="editedItem.department_id"
+                  :items="departments"
+                  item-text="name"
+                  item-value="id"
+                >
+                </v-autocomplete>
+                <span
+                  v-if="errors && errors.department_id"
+                  class="error--text"
+                  >{{ errors.department_id[0] }}</span
+                >
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
 
-              <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-text-field
-                        v-model="editedItem.name"
-                        label="Designation"
-                      ></v-text-field>
-                      <span v-if="errors && errors.name" class="error--text">{{ errors.name[0] }}</span>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn class="error" small @click="close"> Cancel </v-btn>
+          <v-btn class="primary" small @click="save">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog> -->
 
-                    </v-col>
-                    <v-col cols="12">
-                      <v-autocomplete
-                        label="Select Department"
-                        v-model="editedItem.department_id"
-                        :items="departments"
-                        item-text="name"
-                        item-value="id"
-                      >
-                      </v-autocomplete>
-                      <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
+    <v-row>
+      <v-col md="4">
+        <v-card>
+          <v-toolbar color="primary" dense flat dark>
+            <v-card-title>
+              <span class="headline">{{ formTitle }} {{ Model }}</span>
+            </v-card-title>
+          </v-toolbar>
 
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="editedItem.name"
+                    label="Designation"
+                  ></v-text-field>
+                  <span v-if="errors && errors.name" class="error--text">{{
+                    errors.name[0]
+                  }}</span>
+                </v-col>
+                <v-col cols="12">
+                  <v-autocomplete
+                    label="Select Department"
+                    v-model="editedItem.department_id"
+                    :items="departments"
+                    item-text="name"
+                    item-value="id"
+                  >
+                  </v-autocomplete>
+                  <span
+                    v-if="errors && errors.department_id"
+                    class="error--text"
+                    >{{ errors.department_id[0] }}</span
+                  >
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
 
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn class="error" small @click="close"> Cancel </v-btn>
-                <v-btn class="primary" small @click="save">Save</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+          <v-card-actions>
+            <v-btn class="primary ml-4" @click="save">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+      <v-col md="8">
+        <v-toolbar color="primary" dense flat dark>
+          <v-card-title>
+            <span class="headline">Designation List</span>
+          </v-card-title>
         </v-toolbar>
-      </template>
-      <template v-slot:item.action="{ item }">
-        <v-icon
-          v-if="can(`designation_edit`)"
-          color="secondary"
-          small
-          class="mr-2"
-          @click="editItem(item)"
+
+        <v-toolbar style="background-color: white" flat>
+          <v-row class="py-3">
+            <!-- <v-col md="6"></v-col> -->
+            <v-col md="12">
+              <v-toolbar flat color="">
+                <v-text-field
+                  @input="searchIt"
+                  v-model="search"
+                  hide-details
+                  outlined
+                  dense
+                  label="Search"
+                ></v-text-field>
+              </v-toolbar> </v-col
+          ></v-row>
+        </v-toolbar>
+
+        <v-data-table
+          v-if="can(`designation_view`)"
+          v-model="ids"
+          show-select
+          item-key="id"
+          :headers="headers"
+          :items="data"
+          :server-items-length="total"
+          :loading="loading"
+          :options.sync="options"
+          :footer-props="{
+            itemsPerPageOptions: [5, 10, 15]
+          }"
+          class="elevation-1"
         >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          v-if="can(`designation_delete`)"
-          color="error"
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
-      </template>
-      <template v-slot:no-data>
-        <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
-      </template>
-    </v-data-table>
-    <NoAccess v-else />
+          <!-- <template v-slot:top>
+            <div class="text-right">
+              <v-toolbar class="w-100" flat color="">
+                <v-toolbar-title>Search</v-toolbar-title>
+                <v-divider class="mx-4" inset vertical></v-divider>
+                <v-text-field
+                  @input="searchIt"
+                  v-model="search"
+                  hide-details
+                  outlined
+                  dense
+                ></v-text-field>
+              </v-toolbar>
+            </div>
+          </template> -->
+          <template v-slot:item.action="{ item }">
+            <v-icon
+              v-if="can(`designation_edit`)"
+              color="secondary"
+              small
+              class="mr-2"
+              @click="editItem(item)"
+            >
+              mdi-pencil
+            </v-icon>
+            <v-icon
+              v-if="can(`designation_delete`)"
+              color="error"
+              small
+              @click="deleteItem(item)"
+            >
+              mdi-delete
+            </v-icon>
+          </template>
+          <template v-slot:no-data>
+            <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
+          </template>
+        </v-data-table>
+      </v-col>
+    </v-row>
   </div>
+  <NoAccess v-else />
   <NoAccess v-else />
 </template>
 <script>
@@ -143,7 +220,12 @@ export default {
     total: 0,
     headers: [
       { text: "Designation", align: "left", sortable: false, value: "name" },
-      { text: "Department", align: "left", sortable: false, value: "department.name" },
+      {
+        text: "Department",
+        align: "left",
+        sortable: false,
+        value: "department.name"
+      },
       { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
@@ -286,7 +368,7 @@ export default {
       if (this.editedIndex > -1) {
         this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, payload)
-          .then(({data}) => {
+          .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {
@@ -303,7 +385,7 @@ export default {
       } else {
         this.$axios
           .post(this.endpoint, payload)
-          .then(({data}) => {
+          .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {
