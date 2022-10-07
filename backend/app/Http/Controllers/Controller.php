@@ -91,13 +91,23 @@ class Controller extends BaseController
         return $model;
     }
 
-    public function monthly_details()
+    public function getEmployee($arr)
     {
 
-        // $model = Employee::query();
-        // return $model->whereRaw('extract(month from joining_date) = ?', 8)->get();
+        foreach ($arr as $a) {
+            // dd($a[0]->employeeAttendance);
+            $data = $a[0]->employeeAttendance;
+        }
+        return $data;
+    }
 
-        return $model = Attendance::query()->get();
+    public function monthly_details()
+    {
+        // return $model = Attendance::query()
+        //     ->whereRaw("extract(month from date) = ?", 10)
+        //     ->get();
+
+        $model = Attendance::query();
 
         if (env('DB_CONNECTION') == 'pgsql') {
             $model->whereRaw('extract(month from date) = ?', date("m"));
@@ -105,15 +115,17 @@ class Controller extends BaseController
             $model = $model->whereMonth("date", date("m"));
         }
         // $model = $model->where("employee_id", "<", 5);
-        return $data = $model->get();
+        $data = $model->with('employeeAttendance')->get();
         $data = $data->groupBy(['employee_id', 'date']);
         $arr = [];
 
         foreach ($data as $employee_id => $row) {
+            $emp = $this->getEmployee($row);
+            // return $emp;
             $arr[] = [
-                'Name' => $employee_id,
-                'E.ID' => $employee_id,
-                'Dept' => $employee_id,
+                'Name' => $emp->first_name ?? '',
+                'E.ID' => $emp->employee_id ?? '',
+                'Dept' => $emp->department->name ?? '',
                 'Date' => "Filter Date",
                 'Total Hrs' => 200,
                 'OT' => $this->TotalOtHours(),
@@ -122,7 +134,6 @@ class Controller extends BaseController
                 'Late In' => 2,
                 'Early Out' => 5,
                 'record' => $row,
-
             ];
         }
         $footer = [
@@ -131,7 +142,7 @@ class Controller extends BaseController
             'Shift' => "Morning = Mor, Evening = Eve, Evening2 = Eve2",
         ];
         $pdf = App::make('dompdf.wrapper');
-        // return $arr;
+        $arr;
 
         // $this->getHTML($arr);
         $pdfJobs = new PDFJob($this->getHTML($arr));
@@ -236,7 +247,7 @@ class Controller extends BaseController
 
             $str_arr[] = '<div class="page-breaks"><table  style="margin-top: 5px !important;">' .
                 '<tr style="text-align: left; border :1px solid black; width:120px;">' .
-                '<td style="text-align:left;"><b>Name</b>:' . $row["Name"] . $key . '</td>' .
+                '<td style="text-align:left;"><b>Name</b>:' . $row["Name"] . '</td>' .
                 '<td style="text-align:left;"><b>EID</b>:' . $row["E.ID"] . '</td>' .
                 '<td style="text-align:left;"><b>Dept</b>:' . $row["E.ID"] . '</td>' .
                 '<td style="text-align:left; width:120px;"><b>Date: </b> 1 Sep 22 to 30 Sep 22</td>' .
