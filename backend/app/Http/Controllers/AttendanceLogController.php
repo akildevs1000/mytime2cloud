@@ -12,7 +12,6 @@ use App\Models\TimeTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
-use Illuminate\Support\Facades\DB;
 
 class AttendanceLogController extends Controller
 {
@@ -74,18 +73,22 @@ class AttendanceLogController extends Controller
         $items = [];
         $model = AttendanceLog::query();
         $model->where("company_id", ">", 0);
-        $model->take(5);
-        $logs = $model->get();
+        $model->where("checked", false);
+        $model->take(1000);
+        $logs = $model->get(["id","UserID","LogTime","DeviceID","company_id"]);
 
         foreach ($logs as $log) {
-            $items[] = $this->process_log($log);
+            $user_exist = $this->process_log($log);
+            if ($user_exist) {
+                $items[] = $user_exist;
+            }
         }
 
-        return $items;
+        return $logs;
     }
 
 
-    
+
 
     public function process_log($log)
     {
@@ -94,6 +97,10 @@ class AttendanceLogController extends Controller
             $model = ScheduleEmployee::query();
 
             $row = $model->where("employee_id", $log->UserID)->first();
+
+            if (!$row) {
+                return false;
+            }
 
             $date = date("Y-m-d", strtotime($log->LogTime));
 
@@ -112,7 +119,9 @@ class AttendanceLogController extends Controller
 
             $attendance->first() ? $attendance->update($item) : Attendance::create($item);
 
-            return $row;
+            AttendanceLog::where("id",$log->id)->update(["checked" => true]);
+
+            return $item;
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -145,7 +154,7 @@ class AttendanceLogController extends Controller
                 if (!$row->isOverTime) {
                     $item["ot"] = "NA";
                 } else {
-                    
+
                     $diff_ot =  $diff - $row->shift->working_hours * 3600;
 
                     $h = floor($diff_ot / 3600);

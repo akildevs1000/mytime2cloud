@@ -213,7 +213,7 @@ class CompanyController extends Controller
 
     public function devices(Request $request, $id)
     {
-        return Device::where('company_id', $id)->with(['status'])->orderByDesc('id')->paginate($request->perPage);
+        return Device::where('company_id', $id)->with(['status'])->orderByDesc('id')->paginate(100);
     }
 
     public function update_log($request, $id)
