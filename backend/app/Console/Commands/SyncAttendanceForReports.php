@@ -36,7 +36,6 @@ class SyncAttendanceForReports extends Command
     {
         $AttendanceLogController = new AttendanceLogController;
         $result = $AttendanceLogController->generate_logs();
-        $arr = [$result["id"],$result["UserID"],$result["LogTime"],$result["DeviceID"]];
-        Logger::channel("custom")->info(json_encode($arr));
+        Logger::channel("custom")->info("processed");
     }
 }

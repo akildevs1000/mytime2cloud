@@ -84,7 +84,7 @@ class AttendanceLogController extends Controller
             }
         }
 
-        return $logs;
+        return $items;
     }
 
 
