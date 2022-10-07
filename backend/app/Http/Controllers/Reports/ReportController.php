@@ -4,15 +4,12 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
-use App\Models\Device;
 use App\Models\Employee;
-use App\Models\ScheduleEmployee;
-use App\Models\TimeTable;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-  
+
     public function report(Request $request)
     {
         $model = Attendance::query();
@@ -54,9 +51,14 @@ class ReportController extends Controller
             $q->where('ot', "!=", "---");
         });
 
-        $model->with(["employee", "shift", "shift_type", "time_table", "device_out", "device_in"]);
-
-        // $model->select("first_name","date");
+        $model->with([
+            "employee:id,first_name",
+            "shift:id,name,beginning_date,cycle_number,cycle_unit,overtime,days,working_hours",
+            "shift_type:id,name,slug",
+            "time_table",
+            "device_in:id,name,short_name,device_id,location",
+            "device_out:id,name,short_name,device_id,location",
+        ]);
 
         return $model->orderByDesc("date")->paginate($request->per_page);
     }
