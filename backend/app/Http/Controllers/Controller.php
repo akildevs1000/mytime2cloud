@@ -124,8 +124,7 @@ class Controller extends BaseController
     {
         $times = [];
         foreach ($arr as $a) {
-            dd($a);
-            $times[] = $a[0]->total_hrs;
+            $times[] = $a[0]->ot;
         }
         $minutes = 0;
         foreach ($times as $time) {
@@ -143,8 +142,8 @@ class Controller extends BaseController
 
     public function monthly_details(Request $request)
     {
-        $start = $request->start ?? date('Y-9-1');
-        $end = $request->end ?? date('Y-9-t');
+        $start = $request->start ?? date('Y-09-1');
+        $end = $request->end ?? date('Y-09-30');
 
         // return $model = Attendance::query()
         //     ->whereRaw("extract(month from date) = ?", 10)
@@ -157,13 +156,12 @@ class Controller extends BaseController
 
         if (env('DB_CONNECTION') == 'pgsql') {
             // $model->whereRaw('extract(month from date) = ?', date("m"));
-            // $model = $model->whereBetween('date', [$start, $end]);
-            $model->whereMonth("date", date("m"));
+            $model = $model->whereBetween('date', [$start, $end]);
+            // $model->whereMonth("date", date("9"));
 
         } else if (env('DB_CONNECTION') == 'mysql') {
             // $model = $model->whereMonth("date", date("m"));
             $model->whereBetween('date', [$start, $end]);
-
         }
         // $model = $model->where("employee_id", "<", 5);
         $data = $model->with('employeeAttendance')->get();
@@ -177,7 +175,7 @@ class Controller extends BaseController
                 'Name' => $emp->first_name ?? '',
                 'E.ID' => $emp->employee_id ?? '',
                 'Dept' => $emp->department->name ?? '',
-                'Date' => $start . '-' . $end,
+                'Date' => $start . ' to ' . $end,
                 'Total Hrs' => $this->totalHours($row),
                 'OT' => $this->TotalOtHours($row),
                 'Present' => 14,
