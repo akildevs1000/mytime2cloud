@@ -56,7 +56,7 @@ class ReportController extends Controller
 
         $model->with(["employee", "shift", "shift_type", "time_table", "device_out", "device_in"]);
 
-        $model->select("first_name","date");
+        // $model->select("first_name","date");
 
         return $model->orderByDesc("date")->paginate($request->per_page);
     }
