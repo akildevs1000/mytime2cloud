@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->string("date")->nullable()->default("---");
+            $table->date("date")->nullable();
             $table->string("employee_id")->nullable()->default("---");
             $table->string("shift_id")->nullable()->default("---");
             $table->string("shift_type_id")->nullable()->default("---");
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->string("date_in")->nullable()->default("---");
             $table->string("date_out")->nullable()->default("---");
             $table->integer("company_id")->default(0);
-            $table->integer("branche_id")->default(0);
+            $table->integer("branch_id")->default(0);
             $table->timestamps();
         });
     }
