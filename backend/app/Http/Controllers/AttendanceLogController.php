@@ -10,8 +10,8 @@ use App\Models\Reason;
 use App\Models\ScheduleEmployee;
 use App\Models\TimeTable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use Illuminate\Support\Facades\Log as Logger;
 
 class AttendanceLogController extends Controller
 {
@@ -53,7 +53,7 @@ class AttendanceLogController extends Controller
             $count = count($data);
             Logger::channel("custom")->info($count . ' new logs has been inserted. Old file has been deleted.');
             return $created ?? 0;
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
 
             Logger::channel("custom")->error('Error occured while inserting logs.');
             Logger::channel("custom")->error('Error Details: ' . $th);
@@ -74,8 +74,8 @@ class AttendanceLogController extends Controller
         $model = AttendanceLog::query();
         $model->where("company_id", ">", 0);
         $model->where("checked", false);
-        $model->take(1000);
-        $logs = $model->get(["id","UserID","LogTime","DeviceID","company_id"]);
+        $model->take(100);
+        $logs = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
 
         foreach ($logs as $log) {
             $user_exist = $this->process_log($log);
@@ -86,9 +86,6 @@ class AttendanceLogController extends Controller
 
         return $items;
     }
-
-
-
 
     public function process_log($log)
     {
@@ -105,8 +102,8 @@ class AttendanceLogController extends Controller
             $date = date("Y-m-d", strtotime($log->LogTime));
 
             $item = [
-                "company_id" =>  $row->company_id ?? 1,
-                "employee_id" =>  $log->UserID ?? 1,
+                "company_id" => $row->company_id ?? 1,
+                "employee_id" => $log->UserID ?? 1,
                 "shift_type_id" => $row->shift_type_id ?? 1,
                 "date" => $date,
             ];
@@ -119,10 +116,10 @@ class AttendanceLogController extends Controller
 
             $attendance->first() ? $attendance->update($item) : Attendance::create($item);
 
-            AttendanceLog::where("id",$log->id)->update(["checked" => true]);
+            AttendanceLog::where("id", $log->id)->update(["checked" => true]);
 
             return $item;
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             throw $th;
         }
     }
@@ -155,7 +152,7 @@ class AttendanceLogController extends Controller
                     $item["ot"] = "NA";
                 } else {
 
-                    $diff_ot =  $diff - $row->shift->working_hours * 3600;
+                    $diff_ot = $diff - $row->shift->working_hours * 3600;
 
                     $h = floor($diff_ot / 3600);
                     $h = $h < 0 ? "0" : $h;
@@ -172,10 +169,6 @@ class AttendanceLogController extends Controller
             }
 
             $item["shift_id"] = $row->shift->id ?? 0;
-
-
-
-
 
             return $item;
         }
@@ -224,7 +217,7 @@ class AttendanceLogController extends Controller
     public function getStatus($row, $time_table, $date)
     {
         if (count($row->logs) <= 1) {
-            return  "---";
+            return "---";
         }
 
         $first_log = $row->first_log()->whereDate("LogTime", $date)->first();
@@ -261,15 +254,13 @@ class AttendanceLogController extends Controller
         $first_log = $row->first_log()->whereDate("LogTime", $date)->first();
         $last_log = $row->last_log()->whereDate("LogTime", $date)->first();
 
-
         if ((($first_log->show_log_time) > strtotime($time_table->beginning_out))) {
-            return   "---";
+            return "---";
         }
 
         if ((($last_log->show_log_time) < strtotime($time_table->beginning_out))) {
-            return   "---";
+            return "---";
         }
-
 
         $diff = abs(($last_log->show_log_time - $first_log->show_log_time));
 
@@ -288,16 +279,16 @@ class AttendanceLogController extends Controller
         $last_log = $row->last_log()->whereDate("LogTime", $date)->first();
 
         if ((($first_log->show_log_time) > strtotime($time_table->beginning_out))) {
-            return   "---";
+            return "---";
         }
 
         if ((($last_log->show_log_time) < strtotime($time_table->beginning_out))) {
-            return   "---";
+            return "---";
         }
 
         $diff = abs(($last_log->show_log_time - $first_log->show_log_time) - ($shift->overtime * 60));
 
-        $diff =  $diff - $shift->working_hours * 3600;
+        $diff = $diff - $shift->working_hours * 3600;
 
         $h = floor($diff / 3600);
         $h = $h < 0 ? "0" : $h;
@@ -339,7 +330,6 @@ class AttendanceLogController extends Controller
         $early_time = $time_table->early_time;
 
         $last_log = $row->last_log()->whereDate("LogTime", $date)->first();
-
 
         $out = ($last_log->show_log_time);
 
@@ -387,7 +377,7 @@ class AttendanceLogController extends Controller
                     'message' => 'Reason Successfully Updated',
                 ];
             }
-        } catch (\Throwable $th) {
+        } catch (\Throwable$th) {
             throw $th;
         }
     }
@@ -414,7 +404,7 @@ class AttendanceLogController extends Controller
         foreach ($rows as $arr) {
             try {
                 AttendanceLog::where("company_id", 0)->where("DeviceID", $arr["DeviceID"])->update($arr);
-            } catch (\Throwable $th) {
+            } catch (\Throwable$th) {
                 Logger::channel("custom")->error('Error occured while updating company ids.');
                 Logger::channel("custom")->error('Error Details: ' . $th);
                 $th;
@@ -424,7 +414,6 @@ class AttendanceLogController extends Controller
 
         return "Company IDS has been updated. Details: " . json_encode($rows);
     }
-
 
     public function getShift($log)
     {
@@ -528,10 +517,13 @@ class AttendanceLogController extends Controller
     public function findClosest($arr, $n, $target)
     {
         // Corner cases
-        if ($target <= $arr[0]->time_in_numbers)
+        if ($target <= $arr[0]->time_in_numbers) {
             return $arr[0];
-        if ($target >= $arr[$n - 1]->time_in_numbers)
+        }
+
+        if ($target >= $arr[$n - 1]->time_in_numbers) {
             return $arr[$n - 1];
+        }
 
         // Doing binary search
         $i = 0;
@@ -540,8 +532,9 @@ class AttendanceLogController extends Controller
         while ($i < $j) {
             $mid = ($i + $j) / 2;
 
-            if ($arr[$mid]->time_in_numbers == $target)
+            if ($arr[$mid]->time_in_numbers == $target) {
                 return $arr[$mid];
+            }
 
             /* If target is less than array element,
             then search in left */
@@ -549,8 +542,9 @@ class AttendanceLogController extends Controller
 
                 // If target is greater than previous
                 // to mid, return closest of two
-                if ($mid > 0 && $target > $arr[$mid - 1]->time_in_numbers)
+                if ($mid > 0 && $target > $arr[$mid - 1]->time_in_numbers) {
                     return $this->getClosest($arr[$mid - 1], $arr[$mid], $target);
+                }
 
                 /* Repeat for left half */
                 $j = $mid;
@@ -558,8 +552,10 @@ class AttendanceLogController extends Controller
 
             // If target is greater than mid
             else {
-                if ($mid < $n - 1 && $target < $arr[$mid + 1]->time_in_numbers)
+                if ($mid < $n - 1 && $target < $arr[$mid + 1]->time_in_numbers) {
                     return $this->getClosest($arr[$mid], $arr[$mid + 1], $target);
+                }
+
                 // update i
                 $i = $mid + 1;
             }
