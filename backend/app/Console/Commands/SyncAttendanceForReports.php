@@ -36,6 +36,12 @@ class SyncAttendanceForReports extends Command
     {
         $AttendanceLogController = new AttendanceLogController;
         $result = $AttendanceLogController->generate_logs();
-        Logger::channel("custom")->info("processed");
+        if ($result) {
+            Logger::channel("custom")->info("processed");
+            return;
+        }
+
+        Logger::channel("custom")->info("no record found");
+
     }
 }

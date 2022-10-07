@@ -436,11 +436,11 @@
       class="elevation-1"
     >
       <template v-slot:item.employee_id="{ item }">
-        <NuxtLink
-          :to="`/employees/details/${item.employee.id}`"
+        <!-- <NuxtLink :to="`/employees/details/${item.employee.id}`"
           >{{ item.employee_id
           }}<v-icon small color="black">mdi-open-in-new</v-icon></NuxtLink
-        >
+        > -->
+        {{ item.employee_id }}
       </template>
       <template v-slot:item.status="{ item }">
         <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
@@ -564,7 +564,7 @@ export default {
       { text: "Date", align: "left", sortable: false, value: "date" },
       { text: "E.ID", align: "left", sortable: false, value: "employee_id" },
       {
-        text: "First Name",
+        text: "Name",
         align: "left",
         sortable: false,
         value: "employee.first_name"

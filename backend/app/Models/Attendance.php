@@ -49,7 +49,12 @@ class Attendance extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class, "employee_id", "system_user_id");
+        return $this->belongsTo(Employee::class, "employee_id", "system_user_id")->withDefault([
+            'first_name' => '---',
+            "department" => [
+                "name" => "---"
+            ]
+        ]);
     }
 
     public function employeeAttendance()

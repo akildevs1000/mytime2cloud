@@ -75,6 +75,9 @@ class AttendanceLogController extends Controller
         $model->where("company_id", ">", 0);
         $model->where("checked", false);
         $model->take(1000);
+        if($model->count() == 0){
+            return false;
+        }
         $logs = $model->get(["id","UserID","LogTime","DeviceID","company_id"]);
 
         foreach ($logs as $log) {

@@ -28,7 +28,7 @@
       </template>
       <template v-slot:item.status="{ item }">
         <v-chip small class="p-2 mx-1" :color="item.status.name == 'active'?'primary':'error'">
-          {{ item.status.name }}
+          {{ item.status.name == "active" ? "online" : "offline" }}
         </v-chip>
       </template>
     </v-data-table>
@@ -46,12 +46,12 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "Name/Location", align: "left", value: "name", sortable: false },
+      { text: "Location", align: "left", value: "location", sortable: false },
+      { text: "Name", align: "left", value: "name", sortable: false },
+      { text: "Short Name", align: "left", value: "short_name", sortable: false },
       { text: "Device Id", align: "left", value: "device_id", sortable: false },
-      // { text: "Device Model", align: "left", value: "model_number", sortable: false },
-      { text: "Status", align: "left", value: "status", sortable: false },
       { text: "Type", align: "left", value: "device_type", sortable: false },
-
+      { text: "Status", align: "left", value: "status", sortable: false },
     ],
     editedIndex: -1,
     editedItem: { name: "" },
