@@ -4,7 +4,6 @@ namespace App\Http\Requests\Employee;
 
 use App\Traits\failedValidationWithName;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Hash;
 
 class EmployeeUpdateRequest extends FormRequest
 {
@@ -27,18 +26,20 @@ class EmployeeUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'first_name' => ['required', 'min:3', 'max:100'],
-            'last_name' => ['required', 'min:3', 'max:100'],
-            'email' => 'required|min:3|max:191'/*|unique:companies,email,'*//*.$this->company->id*/,
+            'file_no' => ['nullable', 'max:100'],
+            'title' => ['nullable', 'max:100'],
+            'first_name' => ['nullable', 'min:3', 'max:100'],
+            'last_name' => ['min:3', 'nullable', 'max:100'],
+            'email' => 'min:3|max:191' /*|unique:companies,email,'*//*.$this->company->id*/,
             // 'profile_picture' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048'],
             'password' => [
                 'confirmed',
                 'string',
-                'min:6',             // must be at least 10 characters in length
-                'max:25',             // must be maximum 25 characters in length
-                'regex:/[a-z]/',      // must contain at least one lowercase letter
-                'regex:/[A-Z]/',      // must contain at least one uppercase letter
-                'regex:/[0-9]/',      // must contain at least one digit
+                'min:6', // must be at least 10 characters in length
+                'max:25', // must be maximum 25 characters in length
+                'regex:/[a-z]/', // must contain at least one lowercase letter
+                'regex:/[A-Z]/', // must contain at least one uppercase letter
+                'regex:/[0-9]/', // must contain at least one digit
                 'regex:/[@$!%*#?&]/', // must contain a special character
             ],
 
@@ -56,17 +57,17 @@ class EmployeeUpdateRequest extends FormRequest
     {
 
         return [
-            'name'  => $this->contact_name,
+            'name' => $this->contact_name,
             'number' => $this->contact_no,
             'position' => $this->contact_position,
-            'whatsapp' => $this->contact_whatsapp
+            'whatsapp' => $this->contact_whatsapp,
         ];
     }
 
     public function setUserFields()
     {
         return [
-            'name'  => $this->user_name,
+            'name' => $this->user_name,
             'email' => $this->email,
         ];
     }
