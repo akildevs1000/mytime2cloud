@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\PDFJob;
 use App\Models\Attendance;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -140,29 +139,40 @@ class Controller extends BaseController
         return $hours . ':' . $minutes;
     }
 
+    public function TotalPresent($arr)
+    {
+        $times = [];
+        foreach ($arr as $a) {
+            $times[] = $a[0]->ot;
+        }
+        $minutes = 0;
+        foreach ($times as $time) {
+            if ($time != '---') {
+                list($hour, $minute) = explode(':', $time);
+                $minutes += $hour * 60;
+                $minutes += $minute;
+            }
+        }
+
+        $hours = floor($minutes / 60);
+        $minutes -= $hours * 60;
+        return $hours . ':' . $minutes;
+    }
+
     public function monthly_details(Request $request)
     {
         $start = $request->start ?? date('Y-09-1');
         $end = $request->end ?? date('Y-09-30');
 
-        // return $model = Attendance::query()
-        //     ->whereRaw("extract(month from date) = ?", 10)
-        //     ->get();
-
-        // $start = date('Y-m-1'); // hard-coded '01' for first day
-        // $end = date('Y-m-t');
-
         $model = Attendance::query();
 
-        if (env('DB_CONNECTION') == 'pgsql') {
-            // $model->whereRaw('extract(month from date) = ?', date("m"));
-            $model = $model->whereBetween('date', [$start, $end]);
-            // $model->whereMonth("date", date("9"));
+        // $model->whereRaw('extract(month from date) = ?', date("m"));
+        // $model->whereMonth("date", date("9"));
 
-        } else if (env('DB_CONNECTION') == 'mysql') {
-            // $model = $model->whereMonth("date", date("m"));
-            $model->whereBetween('date', [$start, $end]);
-        }
+        // $model = $model->whereMonth("date", date("m"));
+
+        $model = $model->whereBetween('date', [$start, $end]);
+
         // $model = $model->where("employee_id", "<", 5);
         $data = $model->with('employeeAttendance')->get();
         $data = $data->groupBy(['employee_id', 'date']);
@@ -194,10 +204,10 @@ class Controller extends BaseController
         $arr;
 
         // $this->getHTML($arr);
-        $pdfJobs = new PDFJob($this->getHTML($arr));
-        $this->dispatch($pdfJobs);
+        // $pdfJobs = new PDFJob($this->getHTML($arr));
+        // $this->dispatch($pdfJobs);
 
-        $pdf->loadHTML($this->getHTML($arr));
+        $pdf->loadHTML($this->getHTML($arr, $request));
         return $pdf->stream();
         return Pdf::loadView('pdf.monthly_details', compact("arr", "footer"))->stream();
     }
@@ -237,8 +247,11 @@ class Controller extends BaseController
         return Pdf::loadView('pdf.monthly_performance', ["data" => $data])->stream();
     }
 
-    public function getHTML($arr)
+    public function getHTML($arr, $request)
     {
+        $companyName = $request->company_name ?? "Sample Company Name";
+        $companyAddress = $request->company_address ?? "Street Address,City, State, Zip Code";
+        $companyLogo = $request->company_logo ?? "https://backend.ideahrms.com/upload/1664788253.jpeg";
         return '
         <!DOCTYPE html>
             <html>
@@ -259,14 +272,14 @@ class Controller extends BaseController
                     <tr style="background-color: #5fafa3;">
                         <td style="text-align: left; border :none; padding:15px;">
                             <div>
-                                <h3 style="color: #ffffff">CHIPTRONICS SOLUTIONS</h3>
-                                <h4 style="color: #ffffff">Street Address,City, State, Zip Code</h4>
+                                <h3 style="color: #ffffff">' . "$companyName" . '</h3>
+                                <h4 style="color: #ffffff">' . $companyAddress . '</h4>
                             </div>
 
                         </td>
                         <td style="text-align: right; border :none;">
                             <div>
-                                <img width="150" src="https://placeholderlogo.com/img/placeholder-logo-5.png">
+                                <img width="150" src="' . $companyLogo . '" height="70px" width="70">
                             </div>
                         </td>
                     </tr>
