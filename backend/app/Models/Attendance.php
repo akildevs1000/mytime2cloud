@@ -27,6 +27,18 @@ class Attendance extends Model
         return date("D", strtotime($this->date));
     }
 
+    public function getOtAttribute($value)
+    {
+        $value = explode(".", "$value")[0];
+        return $value > '04:00' ? '00:00' : $value;
+    }
+
+    public function getTotalHrsAttribute($value)
+    {
+        $value = explode(".", "$value")[0];
+        return $value > '12:00' ? '00:00' : $value;
+    }
+
     /**
      * Get the user that owns the Attendance
      *
@@ -49,7 +61,12 @@ class Attendance extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class, "employee_id", "system_user_id");
+        return $this->belongsTo(Employee::class, "employee_id", "system_user_id")->withDefault([
+            'first_name' => '---',
+            "department" => [
+                "name" => "---",
+            ],
+        ]);
     }
 
     public function employeeAttendance()
