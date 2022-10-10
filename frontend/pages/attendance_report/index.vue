@@ -38,6 +38,64 @@
             <v-col md="12">
               <h5>Filters</h5>
             </v-col>
+            <v-col :md="payload.report_type == 'Daily' ? 5 : 10">
+              Report Type
+              <v-autocomplete
+                @change="changeReportType(payload.report_type)"
+                class="mt-2"
+                outlined
+                dense
+                v-model="payload.report_type"
+                x-small
+                :items="['Daily', 'Weekly', 'Monthly']"
+                item-text="Daily"
+                :hide-details="true"
+              ></v-autocomplete>
+            </v-col>
+            <v-col md="5" v-if="payload.report_type == 'Daily'">
+              <div class="mb-2">Date</div>
+              <div class="text-left">
+                <v-menu
+                  ref="daily_menu"
+                  v-model="daily_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="daily_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      :hide-details="payload.daily_date"
+                      outlined
+                      dense
+                      v-model="payload.daily_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="payload.daily_date"
+                    no-title
+                    scrollable
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="daily_menu = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.daily_menu.save(payload.daily_date)"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
+              </div>
+            </v-col>
+
             <v-col md="5">
               Departments
               <v-autocomplete
@@ -53,6 +111,20 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
+            <!-- <v-col md="5">
+              Employee ID
+              <v-autocomplete
+                class="mt-2"
+                outlined
+                dense
+                v-model="payload.employee_id"
+                x-small
+                :items="scheduled_employees"
+                item-value="system_user_id"
+                item-text="name_with_user_id"
+                :hide-details="true"
+              ></v-autocomplete>
+            </v-col> -->
             <v-col md="5">
               Employee ID
               <v-autocomplete
@@ -67,7 +139,7 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col md="5">
+            <v-col v-if="payload.report_type == 'Monthly'" md="5">
               <div class="text-left">
                 <v-menu
                   ref="from_menu"
@@ -110,7 +182,7 @@
                 </v-menu>
               </div>
             </v-col>
-            <v-col md="5">
+            <v-col v-if="payload.report_type == 'Monthly'" md="5">
               <div class="mb-1">To Date</div>
               <div class="text-left">
                 <v-menu
@@ -149,6 +221,7 @@
                 </v-menu>
               </div>
             </v-col>
+
             <v-col md="5">
               Status
               <v-select
@@ -176,7 +249,8 @@
                 item-value="id"
                 item-text="name"
                 :hide-details="true"
-              ></v-select>
+              >
+              </v-select>
             </v-col>
             <v-col md="12">
               <v-checkbox
@@ -249,7 +323,8 @@
                     readonly
                     v-bind="attrs"
                     v-on="on"
-                  ></v-text-field>
+                  >
+                  </v-text-field>
                 </template>
                 <v-date-picker v-model="log_payload.date" no-title scrollable>
                   <v-spacer></v-spacer>
@@ -285,7 +360,8 @@
                     readonly
                     v-bind="attrs"
                     v-on="on"
-                  ></v-text-field>
+                  >
+                  </v-text-field>
                 </template>
                 <v-time-picker
                   v-if="time_menu"
@@ -431,16 +507,16 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [5, 10, 15]
+        itemsPerPageOptions: [50, 100, 500, 1000]
       }"
       class="elevation-1"
     >
       <template v-slot:item.employee_id="{ item }">
-        <NuxtLink
-          :to="`/employees/details/${item.employee.id}`"
+        <!-- <NuxtLink :to="`/employees/details/${item.employee.id}`"
           >{{ item.employee_id
           }}<v-icon small color="black">mdi-open-in-new</v-icon></NuxtLink
-        >
+        > -->
+        {{ item.employee_id }}
       </template>
       <template v-slot:item.status="{ item }">
         <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
@@ -557,6 +633,11 @@ export default {
     ids: [],
     departments: [],
     scheduled_employees: [],
+    DateRange: true,
+
+    daily_menu: false,
+    daily_date: null,
+    dailyDate: false,
 
     loading: false,
     total: 0,
@@ -564,7 +645,7 @@ export default {
       { text: "Date", align: "left", sortable: false, value: "date" },
       { text: "E.ID", align: "left", sortable: false, value: "employee_id" },
       {
-        text: "First Name",
+        text: "Name",
         align: "left",
         sortable: false,
         value: "employee.first_name"
@@ -626,7 +707,9 @@ export default {
     payload: {
       from_date: null,
       to_date: null,
+      daily_date: null,
       employee_id: null,
+      report_type: "Monthly",
       department_id: -1,
       status: "Select All",
       late_early: "Select All"
@@ -676,8 +759,8 @@ export default {
     let y = dt.getFullYear();
     let m = dt.getMonth() + 1;
     m = m < 10 ? "0" + m : m;
-    this.payload.from_date = `${y}-${m}-01`;
-    this.payload.to_date = `${y}-${m}-${31}`;
+
+    this.setMonthlyDateRange(y, m);
 
     this.custom_options = {
       params: {
@@ -686,10 +769,33 @@ export default {
       }
     };
     this.getDepartments(this.custom_options);
-    this.getScheduledEmployees();
+    // this.getScheduledEmployees();
+    this.getAttendanceEmployees();
   },
 
   methods: {
+    changeReportType(report_type) {
+      if (report_type == "Daily") {
+        this.setDailyDate();
+      } else if (report_type == "Weekly") {
+        alert("on working please select another report type");
+      } else if (report_type == "Monthly") {
+        this.setMonthlyDateRange();
+      }
+    },
+
+    setMonthlyDateRange(y, m) {
+      delete this.payload.daily_date;
+      this.payload.from_date = `${y}-${m}-01`;
+      this.payload.to_date = `${y}-${m}-${31}`;
+    },
+
+    setDailyDate() {
+      this.payload.daily_date = new Date().toJSON().slice(0, 10);
+      delete this.payload.from_date;
+      delete this.payload.to_date;
+    },
+
     store_schedule() {
       let { user_id, date, time, device_id } = this.log_payload;
       let log_payload = {
@@ -747,6 +853,13 @@ export default {
       });
     },
 
+    getAttendanceEmployees() {
+      this.$axios.get(`/attendance_employees`).then(({ data }) => {
+        let res = data.map(e => e.employee_attendance);
+        this.scheduled_employees = data.map(e => e.employee_attendance);
+      });
+    },
+
     getDevices(options) {
       this.$axios.get(`/device`, options).then(({ data }) => {
         this.devices = data.data;
@@ -777,6 +890,16 @@ export default {
     },
 
     getDataFromApi(url = this.endpoint) {
+      // if (daily) {
+      //   delete this.payload.from_date;
+      //   delete this.payload.to_date;
+      // }
+
+      // if (!this.payload.report_type) {
+      //   alert("Select report type");
+      //   return;
+      // }
+
       this.loading = true;
 
       let status = this.payload.status;
@@ -877,7 +1000,7 @@ export default {
       };
       this.log_details = true;
 
-      this.$axios.get("attendance_single_list", options).then(({ data }) => {
+      this.$axios.get("attendance_daily_list", options).then(({ data }) => {
         this.log_list = data.data;
       });
 

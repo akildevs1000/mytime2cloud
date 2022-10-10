@@ -1,14 +1,40 @@
 <?php
 
 use App\Mail\TestMail;
+use App\Models\Attendance;
+use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-
 Route::get('/test', function (Request $request) {
     return "Awesome APIs";
+});
+
+Route::get('/test-re', function (Request $request) {
+    Employee::truncate();
+    DB::statement('DELETE FROM users WHERE id > 2');
+
+    return 'done';
+
+});
+
+Route::get('/test-date', function (Request $request) {
+
+    // $start = date('Y-m-d');
+    // $end = date('Y-m-d');
+
+    $start = date('Y-m-1'); // hard-coded '01' for first day
+    $end = date('Y-m-t');
+
+    $model = Attendance::query();
+    return $model->whereBetween('date', [$start, $end])
+        ->get();
+
+    return 'done';
+
 });
 
 Route::get('/storage', function (Request $request) {
@@ -21,9 +47,6 @@ Route::post('/upload', function (Request $request) {
     return $product_image = url('media/employee/file/' . $file);
     $data['file'] = $file;
 });
-
-
-
 
 Route::post('/fahath', function (Request $request) {
     // upload/1664210353.png

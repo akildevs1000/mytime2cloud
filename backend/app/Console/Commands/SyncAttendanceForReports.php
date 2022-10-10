@@ -35,7 +35,6 @@ class SyncAttendanceForReports extends Command
     public function handle()
     {
         $AttendanceLogController = new AttendanceLogController;
-        $result = $AttendanceLogController->generate_logs();
-        Logger::channel("custom")->info("processed");
+        $AttendanceLogController->generate_logs();
     }
 }

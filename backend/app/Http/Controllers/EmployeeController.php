@@ -9,6 +9,7 @@ use App\Http\Requests\Employee\EmployeeOtherRequest;
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
+use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\CompanyContact;
 use App\Models\Designation;
@@ -100,7 +101,7 @@ class EmployeeController extends Controller
             $employee->profile_picture = asset('media/employee/profile_picture' . $employee->profile_picture);
             DB::commit();
             return $this->response('Employee successfully created.', null, true);
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
@@ -122,6 +123,12 @@ class EmployeeController extends Controller
         })
             ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])->get(["first_name", "system_user_id", "employee_id"]);
     }
+
+    public function attendance_employees(Employee $employee, Request $request)
+    {
+        return Attendance::with('employeeAttendance')->distinct()->get('employee_id');
+    }
+
     public function not_scheduled_employees(Employee $employee, Request $request)
     {
         return $employee->doesntHave('schedule')->paginate($request->per_page);
@@ -183,7 +190,7 @@ class EmployeeController extends Controller
             }
             User::find($record->user_id)->update($user);
             DB::commit();
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
@@ -201,7 +208,7 @@ class EmployeeController extends Controller
                 'message' => 'Contact Successfully updated.',
                 'status' => true,
             ], 200);
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
@@ -366,7 +373,6 @@ class EmployeeController extends Controller
                     'department_id' => trim($data['department_code']),
                 ];
                 $success = Employee::create($arr) ? true : false;
-
             }
             if ($success) {
                 DB::commit();
@@ -380,7 +386,7 @@ class EmployeeController extends Controller
                 'message' => 'Employee cannot import.',
                 'status' => true,
             ], 200);
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
         }
@@ -414,7 +420,6 @@ class EmployeeController extends Controller
         $file->move($location, $filename);
         // $file->storePubliclyAs($location, 'employee', "do");
         return public_path($location . "/" . $filename);
-
     }
     public function csvParser($filepath)
     {

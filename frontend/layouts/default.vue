@@ -601,10 +601,6 @@ export default {
             }))
           };
         }
-        console.log(
-          "🚀 ~ file: default.vue ~ line 592 ~ this.$axios.get ~ modules",
-          modules
-        );
       });
     },
     can(per) {
