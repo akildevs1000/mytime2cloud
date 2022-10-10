@@ -102,7 +102,7 @@ class AttendanceLogController extends Controller
             $row = $model->where("employee_id", $log->UserID)->first();
 
             if (!$row) {
-                Logger::channel("custom")->info("Employee profile is not created yet against this Employee Id: " . $log->UserID);
+                // Logger::channel("custom")->info("Employee profile is not created yet against this Employee Id: " . $log->UserID);
                 return false;
             }
 
