@@ -20,35 +20,71 @@
           </v-btn>
         </div>
         <div class="text-right">
-          <v-btn v-if="can(`employee_create`)" small color="primary" class="mb-2" to="/employees/create">{{ Model }} +
+          <v-btn
+            v-if="can(`employee_create`)"
+            small
+            color="primary"
+            class="mb-2"
+            to="/employees/create"
+            >{{ Model }} +
           </v-btn>
         </div>
       </v-col>
     </v-row>
-    <v-data-table v-if="can(`employee_view`)" v-model="ids" show-select item-key="id" :headers="headers" :items="data"
-      :server-items-length="total" :loading="loading" :options.sync="options" :footer-props="{
-        itemsPerPageOptions: [5, 10, 15],
-      }" class="elevation-1">
+    <v-data-table
+      v-if="can(`employee_view`)"
+      v-model="ids"
+      show-select
+      item-key="id"
+      :headers="headers"
+      :items="data"
+      :server-items-length="total"
+      :loading="loading"
+      :options.sync="options"
+      :footer-props="{
+        itemsPerPageOptions: [50, 100, 500, 1000]
+      }"
+      class="elevation-1"
+    >
       <template v-slot:top>
         <v-toolbar flat color="">
           <v-toolbar-title>List</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
 
-          <v-text-field @input="searchIt" v-model="search" label="Search" single-line hide-details></v-text-field>
+          <v-text-field
+            @input="searchIt"
+            v-model="search"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
         </v-toolbar>
       </template>
       <template v-slot:item.action="{ item }">
-        <v-icon v-if="can(`employee_edit`)" color="secondary" small class="mr-2" @click="editItem(item)">
+        <v-icon
+          v-if="can(`employee_edit`)"
+          color="secondary"
+          small
+          class="mr-2"
+          @click="editItem(item)"
+        >
           mdi-pencil
         </v-icon>
-        <v-icon v-if="can(`employee_delete`)" color="error" small @click="deleteItem(item)">
+        <v-icon
+          v-if="can(`employee_delete`)"
+          color="error"
+          small
+          @click="deleteItem(item)"
+        >
           mdi-delete
         </v-icon>
       </template>
       <template v-slot:item.profile_picture="{ item }">
         <div class="pa-1">
-          <v-img style="border-radius: 50%; height: auto; width: 75px"
-            :src="item.profile_picture || '/no-profile-image.jpg'">
+          <v-img
+            style="border-radius: 50%; height: auto; width: 75px"
+            :src="item.profile_picture || '/no-profile-image.jpg'"
+          >
           </v-img>
         </div>
       </template>
@@ -71,49 +107,49 @@ export default {
     total: 0,
     headers: [
       {
-        text: "Profile Picture",
+        text: "EID",
         align: "left",
         sortable: false,
-        value: "profile_picture",
+        value: "employee_id"
       },
       {
         text: "First Name",
         align: "left",
         sortable: false,
-        value: "first_name",
+        value: "first_name"
       },
       {
         text: "Last Name",
         align: "left",
         sortable: false,
-        value: "first_name",
+        value: "first_name"
       },
       {
         text: "Department",
         align: "left",
         sortable: false,
-        value: "department.name",
+        value: "department.name"
       },
       {
         text: "Designation",
         align: "left",
         sortable: false,
-        value: "designation.name",
+        value: "designation.name"
       },
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
     editedItem: { name: "" },
     defaultItem: { name: "" },
     response: "",
     data: [],
-    errors: [],
+    errors: []
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
+    }
   },
 
   watch: {
@@ -126,8 +162,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
@@ -137,7 +173,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -150,8 +186,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -173,13 +209,13 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
+      let just_ids = this.ids.map(e => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
+            ids: just_ids
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -191,7 +227,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
@@ -209,7 +245,7 @@ export default {
               this.response = data.message;
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     close() {
@@ -223,7 +259,7 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company.id
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -233,18 +269,18 @@ export default {
               this.errors = data.errors;
             } else {
               const index = this.data.findIndex(
-                (item) => item.id == this.editedItem.id
+                item => item.id == this.editedItem.id
               );
               this.data.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name,
+                name: this.editedItem.name
               });
               this.snackbar = data.status;
               this.response = data.message;
               this.close();
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, payload)
@@ -260,9 +296,9 @@ export default {
               this.search = "";
             }
           })
-          .catch((res) => console.log(res));
+          .catch(res => console.log(res));
       }
-    },
-  },
+    }
+  }
 };
 </script>

@@ -146,7 +146,7 @@
       <v-col md="12">
         <v-data-table v-if="can(`announcement_view`)" v-model="ids" show-select item-key="id" :headers="headers"
           :items="data" :server-items-length="total" :loading="loading" :options.sync="options" :footer-props="{
-            itemsPerPageOptions: [5, 10, 15],
+            itemsPerPageOptions: [50, 100, 500,1000],
           }" class="elevation-1">
           <template v-slot:top>
             <v-toolbar flat color="">

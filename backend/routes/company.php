@@ -36,11 +36,9 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\ShiftTypeController;
 use App\Http\Controllers\SubDepartmentController;
 use App\Http\Controllers\TimeTableController;
-use App\Http\Controllers\TradeLicenseController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisaController;
 use Illuminate\Support\Facades\Route;
-
 
 // employee reporter
 Route::post('/employee_to_reporter/{id}', [EmployeeController::class, 'employeeToReporter']);
@@ -83,7 +81,6 @@ Route::get('schedule/search/{key}', [ScheduleController::class, 'search']);
 Route::post('schedule/delete/selected', [ScheduleController::class, 'deleteSelected']);
 Route::post('schedule_employee/delete/selected', [ScheduleEmployeeController::class, 'deleteSelected']);
 
-
 // Designation
 Route::apiResource('designation', DesignationController::class);
 Route::get('designations-by-department', [DesignationController::class, 'designations_by_department']);
@@ -111,7 +108,6 @@ Route::get('attendance_log_paginate/{page?}', [AttendanceLogController::class, '
 
 Route::post('generate_logs', [AttendanceLogController::class, 'generate_logs']);
 Route::get('logs', [AttendanceLogController::class, 'getAttendanceLogs']);
-
 
 Route::get('attendance_single_list', [AttendanceLogController::class, 'singleView']);
 
@@ -149,6 +145,7 @@ Route::get('employeesByDesignation/{key}', [EmployeeController::class, 'employee
 Route::get('designationsByDepartment/{key}', [EmployeeController::class, 'designationsByDepartment']);
 Route::get('scheduled_employees', [EmployeeController::class, 'scheduled_employees']);
 Route::get('scheduled_employees_with_type', [EmployeeController::class, 'scheduled_employees_with_type']);
+Route::get('attendance_employees', [EmployeeController::class, 'attendance_employees']);
 Route::get('scheduled_employees/search/{key}', [EmployeeController::class, 'scheduled_employees_search']);
 
 Route::get('not_scheduled_employees', [EmployeeController::class, 'not_scheduled_employees']);
@@ -228,7 +225,6 @@ Route::apiResource('leave', LeaveController::class);
 Route::post('leave/delete/selected', [LeaveController::class, 'deleteSelected']);
 Route::get('/leave-notification/{id}', [LeaveController::class, 'geLeaveNotification']);
 Route::post('/leave-status', [LeaveController::class, 'status']);
-
 
 Route::get('leave-notification/search/{key}/{id}', [LeaveController::class, 'searchNotification']); // search records
 Route::get('leave/search/{key}', [LeaveController::class, 'search']); // search records

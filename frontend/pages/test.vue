@@ -47,6 +47,14 @@
                 <v-list-item-title>Max Devices : </v-list-item-title>
                 <v-list-item-subtitle>40</v-list-item-subtitle>
               </div>
+              <div class="d-flex pt-3" style="color: #7F7F7F;">
+                <v-list-item-title>Mol ID : </v-list-item-title>
+                <v-list-item-subtitle>1155698</v-list-item-subtitle>
+              </div>
+              <div class="d-flex pt-3" style="color: #7F7F7F;">
+                <v-list-item-title>P.O Box : </v-list-item-title>
+                <v-list-item-subtitle>33669</v-list-item-subtitle>
+              </div>
             </v-list-item-content>
           </v-list-item>
         </v-card>
