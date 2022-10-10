@@ -74,9 +74,11 @@ class AttendanceLogController extends Controller
         $model = AttendanceLog::query();
         $model->where("company_id", ">", 0);
         $model->where("checked", false);
-        $model->take(100);
-        $logs = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
-
+        $model->take(1000);
+        if($model->count() == 0){
+            return false;
+        }
+        $logs = $model->get(["id","UserID","LogTime","DeviceID","company_id"]);
         foreach ($logs as $log) {
             $user_exist = $this->process_log($log);
             if ($user_exist) {
@@ -102,8 +104,8 @@ class AttendanceLogController extends Controller
             $date = date("Y-m-d", strtotime($log->LogTime));
 
             $item = [
-                "company_id" => $row->company_id ?? 1,
-                "employee_id" => $log->UserID ?? 1,
+                "company_id" =>  $log->company_id ?? 1,
+                "employee_id" =>  $log->UserID ?? 1,
                 "shift_type_id" => $row->shift_type_id ?? 1,
                 "date" => $date,
             ];
@@ -116,10 +118,11 @@ class AttendanceLogController extends Controller
 
             $attendance->first() ? $attendance->update($item) : Attendance::create($item);
 
-            AttendanceLog::where("id", $log->id)->update(["checked" => true]);
+            AttendanceLog::where("id",$log->id)->update(["checked" => true]);
 
             return $item;
-        } catch (\Throwable$th) {
+ 
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -169,6 +172,10 @@ class AttendanceLogController extends Controller
             }
 
             $item["shift_id"] = $row->shift->id ?? 0;
+
+
+
+
 
             return $item;
         }
