@@ -47,7 +47,7 @@
                 dense
                 v-model="payload.report_type"
                 x-small
-                :items="['Daily', 'Weekly', 'Monthly']"
+                :items="['Daily', 'Monthly']"
                 item-text="Daily"
                 :hide-details="true"
               ></v-autocomplete>
