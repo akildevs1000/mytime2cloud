@@ -75,10 +75,10 @@ class AttendanceLogController extends Controller
         $model->where("company_id", ">", 0);
         $model->where("checked", false);
         $model->take(1000);
-        if ($model->count() == 0) {
+        if($model->count() == 0){
             return false;
         }
-        $logs = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
+        $logs = $model->get(["id","UserID","LogTime","DeviceID","company_id"]);
 
         foreach ($logs as $log) {
             $user_exist = $this->process_log($log);
@@ -101,10 +101,10 @@ class AttendanceLogController extends Controller
 
             $row = $model->where("employee_id", $log->UserID)->first();
 
-            // if (!$row) {
-            //     Logger::channel("custom")->info("Employee profile is not created yet against this Employee Id: " . $log->UserID);
-            //     return false;
-            // }
+            if (!$row) {
+                Logger::channel("custom")->info("Employee profile is not created yet against this Employee Id: " . $log->UserID);
+                return false;
+            }
 
             $date = date("Y-m-d", strtotime($log->LogTime));
 
@@ -123,11 +123,9 @@ class AttendanceLogController extends Controller
 
             $attendance->first() ? $attendance->update($item) : Attendance::create($item);
 
-            AttendanceLog::where("id", $log->id)->update(["checked" => true]);
+            AttendanceLog::where("id",$log->id)->update(["checked" => true]);
 
-            Logger::channel("custom")->info("Attendance record has been inserted. Details: " . $log);
-
-            return;
+            return $item;
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -178,6 +176,10 @@ class AttendanceLogController extends Controller
             }
 
             $item["shift_id"] = $row->shift->id ?? 0;
+
+
+
+
 
             return $item;
         }
