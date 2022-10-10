@@ -9,7 +9,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000]
+        itemsPerPageOptions: [5, 10, 15]
       }"
       class="elevation-1"
     ></v-data-table>
@@ -28,6 +28,12 @@ export default {
     loading: false,
     total: 0,
     headers: [
+      // {
+      //   text: "Image",
+      //   align: "center",
+      //   sortable: false,
+      //   value: "RecordImage"
+      // },
       {
         text: "UserID",
         align: "center",
@@ -36,6 +42,7 @@ export default {
       },
       { text: "DeviceID", align: "center", sortable: false, value: "DeviceID" },
       { text: "LogTime", align: "center", sortable: false, value: "LogTime" },
+      { text: "SerialNumber", sortable: false, value: "SerialNumber" }
     ],
     editedIndex: -1,
     editedItem: { name: "" },

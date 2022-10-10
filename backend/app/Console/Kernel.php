@@ -18,7 +18,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('task:sync_attendance_logs')->everyThirtyMinutes();
         $schedule->command('task:update_company_ids')->everyThirtyMinutes();
         // $schedule->command('task:sync_attendance_for_reports')->everyThirtyMinutes();
-
     }
 
     /**

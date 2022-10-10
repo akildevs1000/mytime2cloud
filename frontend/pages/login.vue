@@ -198,14 +198,14 @@ export default {
               name = data.user?.name;
             }
 
-            // this.$axios.post(`activity`, {
-            //   user_id: id,
-            //   action: "Logged In",
-            //   type: "Login",
-            //   model_id: id,
-            //   model_type: "User",
-            //   description: `${name} logged In`
-            // });
+            this.$axios.post(`activity`, {
+              user_id: id,
+              action: "Logged In",
+              type: "Login",
+              model_id: id,
+              model_type: "User",
+              description: `${name} logged In`
+            });
           })
           .catch(({ response }) => {
             if (!response) {

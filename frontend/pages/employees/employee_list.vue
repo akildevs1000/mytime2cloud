@@ -27,7 +27,7 @@
     </v-row>
     <v-data-table v-if="can(`employee_view`)" v-model="ids" show-select item-key="id" :headers="headers" :items="data"
       :server-items-length="total" :loading="loading" :options.sync="options" :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
+        itemsPerPageOptions: [5, 10, 15],
       }" class="elevation-1">
       <template v-slot:top>
         <v-toolbar flat color="">

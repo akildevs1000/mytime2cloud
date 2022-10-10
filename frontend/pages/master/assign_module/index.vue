@@ -31,7 +31,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
+        itemsPerPageOptions: [5, 10, 15],
       }"
       class="elevation-1"
     >

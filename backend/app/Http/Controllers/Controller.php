@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\PDFJob;
 use App\Models\Attendance;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\App;
 
@@ -93,27 +93,86 @@ class Controller extends BaseController
 
     public function getEmployee($arr)
     {
-
         foreach ($arr as $a) {
-            // dd($a[0]->employeeAttendance);
             $data = $a[0]->employeeAttendance;
         }
         return $data;
     }
 
-    public function monthly_details()
+    public function totalHours($arr)
     {
-        // return $model = Attendance::query()
-        //     ->whereRaw("extract(month from date) = ?", 10)
-        //     ->get();
+        $times = [];
+        foreach ($arr as $a) {
+            $times[] = $a[0]->total_hrs;
+        }
+        $minutes = 0;
+        foreach ($times as $time) {
+            if ($time != '---') {
+                list($hour, $minute) = explode(':', $time);
+                $minutes += $hour * 60;
+                $minutes += $minute;
+            }
+        }
+
+        $hours = floor($minutes / 60);
+        $minutes -= $hours * 60;
+        return $hours . ':' . $minutes;
+    }
+
+    public function TotalOtHours($arr)
+    {
+        $times = [];
+        foreach ($arr as $a) {
+            $times[] = $a[0]->ot;
+        }
+        $minutes = 0;
+        foreach ($times as $time) {
+            if ($time != '---') {
+                list($hour, $minute) = explode(':', $time);
+                $minutes += $hour * 60;
+                $minutes += $minute;
+            }
+        }
+
+        $hours = floor($minutes / 60);
+        $minutes -= $hours * 60;
+        return $hours . ':' . $minutes;
+    }
+
+    public function TotalPresent($arr)
+    {
+        $times = [];
+        foreach ($arr as $a) {
+            $times[] = $a[0]->ot;
+        }
+        $minutes = 0;
+        foreach ($times as $time) {
+            if ($time != '---') {
+                list($hour, $minute) = explode(':', $time);
+                $minutes += $hour * 60;
+                $minutes += $minute;
+            }
+        }
+
+        $hours = floor($minutes / 60);
+        $minutes -= $hours * 60;
+        return $hours . ':' . $minutes;
+    }
+
+    public function monthly_details(Request $request)
+    {
+        $start = $request->start ?? date('Y-09-1');
+        $end = $request->end ?? date('Y-09-30');
 
         $model = Attendance::query();
 
-        if (env('DB_CONNECTION') == 'pgsql') {
-            $model->whereRaw('extract(month from date) = ?', date("m"));
-        } else if (env('DB_CONNECTION') == 'mysql') {
-            $model = $model->whereMonth("date", date("m"));
-        }
+        // $model->whereRaw('extract(month from date) = ?', date("m"));
+        // $model->whereMonth("date", date("9"));
+
+        // $model = $model->whereMonth("date", date("m"));
+
+        $model = $model->whereBetween('date', [$start, $end]);
+
         // $model = $model->where("employee_id", "<", 5);
         $data = $model->with('employeeAttendance')->get();
         $data = $data->groupBy(['employee_id', 'date']);
@@ -121,14 +180,14 @@ class Controller extends BaseController
 
         foreach ($data as $employee_id => $row) {
             $emp = $this->getEmployee($row);
-            // return $emp;
+
             $arr[] = [
                 'Name' => $emp->first_name ?? '',
                 'E.ID' => $emp->employee_id ?? '',
                 'Dept' => $emp->department->name ?? '',
-                'Date' => "Filter Date",
-                'Total Hrs' => 200,
-                'OT' => $this->TotalOtHours(),
+                'Date' => $start . ' to ' . $end,
+                'Total Hrs' => $this->totalHours($row),
+                'OT' => $this->TotalOtHours($row),
                 'Present' => 14,
                 'Absent' => 17,
                 'Late In' => 2,
@@ -145,10 +204,10 @@ class Controller extends BaseController
         $arr;
 
         // $this->getHTML($arr);
-        $pdfJobs = new PDFJob($this->getHTML($arr));
-        $this->dispatch($pdfJobs);
+        // $pdfJobs = new PDFJob($this->getHTML($arr));
+        // $this->dispatch($pdfJobs);
 
-        $pdf->loadHTML($this->getHTML($arr));
+        $pdf->loadHTML($this->getHTML($arr, $request));
         return $pdf->stream();
         return Pdf::loadView('pdf.monthly_details', compact("arr", "footer"))->stream();
     }
@@ -188,8 +247,11 @@ class Controller extends BaseController
         return Pdf::loadView('pdf.monthly_performance', ["data" => $data])->stream();
     }
 
-    public function getHTML($arr)
+    public function getHTML($arr, $request)
     {
+        $companyName = $request->company_name ?? "Sample Company Name";
+        $companyAddress = $request->company_address ?? "Street Address,City, State, Zip Code";
+        $companyLogo = $request->company_logo ?? "https://backend.ideahrms.com/upload/1664788253.jpeg";
         return '
         <!DOCTYPE html>
             <html>
@@ -210,14 +272,14 @@ class Controller extends BaseController
                     <tr style="background-color: #5fafa3;">
                         <td style="text-align: left; border :none; padding:15px;">
                             <div>
-                                <h3 style="color: #ffffff">CHIPTRONICS SOLUTIONS</h3>
-                                <h4 style="color: #ffffff">Street Address,City, State, Zip Code</h4>
+                                <h3 style="color: #ffffff">' . "$companyName" . '</h3>
+                                <h4 style="color: #ffffff">' . $companyAddress . '</h4>
                             </div>
 
                         </td>
                         <td style="text-align: right; border :none;">
                             <div>
-                                <img width="150" src="https://placeholderlogo.com/img/placeholder-logo-5.png">
+                                <img width="150" src="' . $companyLogo . '" height="70px" width="70">
                             </div>
                         </td>
                     </tr>
@@ -246,12 +308,13 @@ class Controller extends BaseController
             $records = $this->getData($row['record']);
 
             $str_arr[] = '<div class="page-breaks"><table  style="margin-top: 5px !important;">' .
-                '<tr style="text-align: left; border :1px solid black; width:120px;">' .
-                '<td style="text-align:left;"><b>Name</b>:' . $row["Name"] . '</td>' .
-                '<td style="text-align:left;"><b>EID</b>:' . $row["E.ID"] . '</td>' .
-                '<td style="text-align:left;"><b>Dept</b>:' . $row["E.ID"] . '</td>' .
-                '<td style="text-align:left; width:120px;"><b>Date: </b> 1 Sep 22 to 30 Sep 22</td>' .
-                '<td style="text-align:left;"><b>Total Hrs</b>:' . $row["Total Hrs"] . '</td>' .
+            '<tr style="text-align: left; border :1px solid black; width:120px;">' .
+            '<td style="text-align:left;"><b>Name</b>:' . $row["Name"] . '</td>' .
+            '<td style="text-align:left;"><b>EID</b>:' . $row["E.ID"] . '</td>' .
+            '<td style="text-align:left;"><b>Dept</b>: ' . $row["Dept"] . '</td>' .
+            '<td style="text-align:left; width:120px;"><b>Date: </b> ' . $row["Date"] . '</td>' .
+            // '<td style="text-align:left; width:120px;"><b>Date: </b> 1 Sep 22 to 30 Sep 22</td>' .
+            '<td style="text-align:left;"><b>Total Hrs</b>:' . $row["Total Hrs"] . '</td>' .
                 '<td style="text-align:left;"><b>OT</b>:' . $row["OT"] . '</td>' .
                 '<td style="text-align:left;"><b>Present</b>:' . $row["Present"] . '</td>' .
                 '<td style="text-align:left;"><b>Absent</b>:' . $row["Absent"] . '</td>' .
@@ -319,13 +382,4 @@ class Controller extends BaseController
         ];
     }
 
-    public function TotalOtHours()
-    {
-        $totOtCal = [];
-
-        for ($i = 1; $i <= 31; $i++) {
-            $totOtCal[] = $i;
-        }
-        return array_sum($totOtCal);
-    }
 }

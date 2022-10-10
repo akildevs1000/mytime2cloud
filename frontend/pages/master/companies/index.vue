@@ -25,7 +25,7 @@
             @change="getDataFromApi(endpoint)"
             outlined
             v-model="per_page"
-            :items="[50, 100, 500,1000]"
+            :items="[5, 10, 15]"
             dense
             placeholder="Per Page Records"
           ></v-select>

@@ -123,7 +123,7 @@
                 :loading="loading_dialog"
                 :options.sync="options_dialog"
                 :footer-props="{
-                  itemsPerPageOptions: [50, 100, 500,1000],
+                  itemsPerPageOptions: [5, 10, 15],
                 }"
               >
               </v-data-table>
@@ -199,7 +199,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
+        itemsPerPageOptions: [5, 10, 15],
       }"
       class="elevation-1"
     >
