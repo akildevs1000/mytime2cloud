@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssignModuleController;
 use App\Http\Controllers\AssignPermissionController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchController;
@@ -110,4 +111,7 @@ Route::resource('assign-module', AssignModuleController::class);
 
 //Testing Routes for Cron Jobs
 Route::get('SyncCompanyIdsWithDevices', [AttendanceLogController::class, 'SyncCompanyIdsWithDevices']);
+
+Route::get('SyncAttendance', [AttendanceController::class, 'SyncAttendance']);
+
 

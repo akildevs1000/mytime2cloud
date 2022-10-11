@@ -17,7 +17,7 @@ class AttendanceLogController extends Controller
 {
     public function index(AttendanceLog $model, Request $request)
     {
-        return $model->where("company_id", $request->company_id)->paginate($request->per_page);
+        return $model->where("company_id", $request->company_id)->orderBy("UserID")->paginate($request->per_page);
     }
     public function getAttendanceLogs(AttendanceLog $model, Request $request)
     {
@@ -172,10 +172,6 @@ class AttendanceLogController extends Controller
             }
 
             $item["shift_id"] = $row->shift->id ?? 0;
-
-
-
-
 
             return $item;
         }
