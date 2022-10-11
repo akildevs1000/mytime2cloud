@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\Company;
+use App\Models\Department;
 use App\Models\Employee;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -162,37 +164,18 @@ class Controller extends BaseController
 
     public function daily_summary(Request $request)
     {
-
-
-
-        // $data = [
-        //     "date"=> "06-Oct-22",
-        //     "employee_id": "675",
-        //     "status": "P",
-        //     "in": "09:34",
-        //     "out": "18:03",
-        //     "total_hrs": "08:28",
-        //     "ot": "00:00",
-        //     "device_id_in": "16",
-        //     "device_id_out": "16",
-        //     "date_in": "---",
-
-        // ]
-
-        // http://localhost:8000/api/daily_summary?company_id=1&status=SA&daily_date=2022-10-10&department_id=25&employee_id=-1
-
-
         $model = Attendance::query();
+        $company = Company::find($request->company_id);
         $model->where('company_id', $request->company_id);
 
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
         });
 
-        // $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-        //     $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
-        //     $q->whereIn('employee_id', $ids);
-        // });
+        $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
+            $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
+            $q->whereIn('employee_id', $ids);
+        });
 
         $model->when($request->status == "P", function ($q) {
             $q->where('status', "P");
@@ -214,10 +197,9 @@ class Controller extends BaseController
             $q->where('ot', "!=", "---");
         });
 
-        // // ->where('department_id', $request->department_id)
-        // ->where('employee_id', $request->employee_id)
-        $data = $model->get();
-        return Pdf::loadView('pdf.daily_summary', ["datas" => $data, "req" => $request])->stream();
+        $data = $model->with('employee')->get();
+
+        return Pdf::loadView('pdf.daily_summary', ["datas" => $data, "req" => $request, 'company' => $company])->stream();
     }
 
 
