@@ -47,19 +47,22 @@ die();
 </head>
 
 <body>
-    {{-- @dd($req->all()) --}}
     <table style="margin-top: -20px !important;">
         <tr style="background-color: #5fafa3;">
             <td style="text-align: left; border :none; padding:15px;">
                 <div>
-                    <h3 style="color: #ffffff">{{ $req->company_name ?? 'Sample Company' }}</h3>
-                    <h4 style="color: #ffffff">{{ $req->address ?? 'Waleed Road Burdubai' }}</h4>
+                    <h3 style="color: #ffffff">{{ $company->name ?? 'Sample Company' }}</h3>
+                    <h4 style="color: #ffffff">{{ $company->location ?? 'Waleed Road Burdubai' }}</h4>
+                    <h4 style="color: #ffffff">{{ $company->logo ?? 'Waleed Road Burdubai' }}</h4>
                 </div>
-
             </td>
             <td style="text-align: right; border :none;">
                 <div>
-                    <img width="150" src="https://placeholderlogo.com/img/placeholder-logo-5.png">
+                    {{-- background-image: url("https://stagingbackend.ideahrms.com/upload/1665481898.jpeg"); background-position: center center; --}}
+                    @php
+                        $img = 'https://stagingbackend.ideahrms.com/upload/' . $company->Pdf_logo;
+                    @endphp
+                    <img src="{{ $img }}" height="70px" width="70">
                 </div>
             </td>
         </tr>
@@ -98,26 +101,12 @@ die();
             <td style="text-align: left;"><b>Device Out </b></td>
         </tr>
         <tbody>
-            {{--
-            // $data = [
-                //     "date"=> "06-Oct-22",
-                //     "employee_id": "675",
-                //     "status": "P",
-                //     "in": "09:34",
-                //     "out": "18:03",
-                //     "total_hrs": "08:28",
-                //     "ot": "00:00",
-                //     "device_id_in": "16",
-                //     "device_id_out": "16",
-                //     "date_in": "---", --}}
-
-
             @foreach ($datas as $data)
                 <tr style="text-align: left; border :1px solid black; width:120px;">
                     <td style="text-align: left;"> {{ $data->employee_id }}</td>
                     <td style="text-align: left;"> {{ $data->employee_id }}</td>
                     <td style="text-align: left;"> {{ $data->date }}</td>
-                    <td style="text-align: left;"> {{ $data->department_id }}</td>
+                    <td style="text-align: left;"> {{ $data->employee->department->name ?? '' }}</td>
                     <td style="text-align: left;"> {{ $data->status }}</td>
                     <td style="text-align: left;"> {{ $data->in }}</td>
                     <td style="text-align: left; "> {{ $data->total_hrs }}</td>
@@ -127,9 +116,6 @@ die();
 
                 </tr>
             @endforeach
-
-
-
         </tbody>
     </table>
 
