@@ -47,7 +47,7 @@
                 dense
                 v-model="payload.report_type"
                 x-small
-                :items="['Daily', 'Monthly']"
+                :items="['Daily']"
                 item-text="Daily"
                 :hide-details="true"
               ></v-autocomplete>
@@ -417,30 +417,40 @@
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
-        @click="generateReport('/monthly_summary')"
+        @click="generateReport('summary')"
       >
         {{
           payload.report_type == "Daily" ? "Daily Summary" : "Monthly Summary"
         }}
       </v-btn>
       &nbsp;
-      <v-btn
-        small
-        class="primary darken-2"
-        @click="generateReport('/monthly_present')"
-      >
-        Present
+      <v-btn small class="primary darken-2" @click="generateReport('present')">
+        {{
+          payload.report_type == "Daily" ? "Daily Present" : "Monthly Present"
+        }}
       </v-btn>
       &nbsp;
       <v-btn
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
-        @click="generateReport('/monthly_absent')"
+        @click="generateReport('absent')"
       >
-        Absent
+        {{ payload.report_type == "Daily" ? "Daily Absent" : "Monthly Absent" }}
       </v-btn>
       &nbsp;
+      <v-btn
+        v-if="can(`attendance_summary_access`)"
+        small
+        class="primary darken-2"
+        @click="generateReport('missing')"
+      >
+        {{
+          payload.report_type == "Daily" ? "Daily Missing" : "Monthly Missing"
+        }}
+      </v-btn>
+      &nbsp;
+
       <!-- <v-btn
         small
         class="primary darken-2"
@@ -711,7 +721,7 @@ export default {
       to_date: null,
       daily_date: null,
       employee_id: "",
-      report_type: "Monthly",
+      report_type: "Daily",
       department_id: -1,
       status: "Select All",
       late_early: "Select All"
@@ -757,8 +767,8 @@ export default {
   created() {
     this.loading = true;
 
-    this.setMonthlyDateRange();
-
+    // this.setMonthlyDateRange();
+    this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.custom_options = {
       params: {
         per_page: 1000,
@@ -1034,11 +1044,19 @@ export default {
     },
 
     generateReport(url) {
-      let path = process.env.BACKEND_URL + url;
+      let path = process.env.BACKEND_URL + "/" + url;
       let report = document.createElement("a");
 
       if (this.payload.report_type == "Daily") {
         let status = this.payload.status;
+
+        if (url == "present") {
+          status = "P";
+        } else if (url == "absent") {
+          status = "A";
+        } else if (url == "missing") {
+          status = "Missing";
+        }
 
         switch (status) {
           case "Select All":
@@ -1061,7 +1079,7 @@ export default {
         report.setAttribute(
           "href",
           process.env.BACKEND_URL +
-            `/daily_summary?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`
+            `/daily_${url}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`
         );
         report.setAttribute("target", "_blank");
         report.click();

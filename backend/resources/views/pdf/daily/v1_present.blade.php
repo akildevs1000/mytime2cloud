@@ -72,7 +72,7 @@ die();
         <tr>
             <td style="text-align: center; border :none;">
                 <div>
-                    <h2>Daily Summary</h2>
+                    <h2>Daily Present</h2>
                 </div>
             </td>
         </tr>
@@ -82,7 +82,6 @@ die();
             <td style="text-align: left; width:120px;"><b>Date: </b>{{ $req->daily_date }}</td>
             <td style="text-align: left; width:120px;"><b>Department: </b>{{ $info->department }}</td>
             <td style="text-align: left; width:120px; color: green;"><b>Present</b>: {{ $info->total_present }}</td>
-            <td style="text-align: left; width:120px; color: red;"><b>Absent</b>: {{ $info->total_absent }}</td>
         </tr>
     </table>
     <table style="margin-top: 5px !important;">
