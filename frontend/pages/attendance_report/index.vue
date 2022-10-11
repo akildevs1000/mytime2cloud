@@ -439,7 +439,7 @@
         Absent
       </v-btn>
       &nbsp;
-      <v-btn
+      <!-- <v-btn
         small
         class="primary darken-2"
         @click="generateReport('/monthly_late_in')"
@@ -462,7 +462,7 @@
         <v-icon class="mr-1">mdi-clock-outline</v-icon>
         Time Slots
       </v-btn>
-      &nbsp;
+      &nbsp; -->
       <!-- <v-btn
         v-if="can(`attendance_summary_access`)"
         small
@@ -1008,7 +1008,7 @@ export default {
       };
       this.log_details = true;
 
-      this.$axios.get("attendance_daily_list", options).then(({ data }) => {
+      this.$axios.get("attendance_single_list", options).then(({ data }) => {
         this.log_list = data.data;
       });
 
