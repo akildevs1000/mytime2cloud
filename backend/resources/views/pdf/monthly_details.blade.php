@@ -73,7 +73,7 @@ die();
         </tr>
     </table>
 
-    @foreach ($arr as $key => $row)
+    @foreach ($data as $key => $row)
         <table style="margin-top: 5px !important;">
             <tr style="text-align: left; border :1px solid black; width:120px;">
                 <td style="text-align: left;"><b>Name</b>: {{ $row['Name'] }}</td>

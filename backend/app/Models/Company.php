@@ -28,7 +28,7 @@ class Company extends Model
         'created_at' => 'datetime:d-M-y',
         'no_branch' => 'boolean',
     ];
-    protected $appends = ['show_member_from', 'show_expiry'];
+    protected $appends = ['show_member_from', 'show_expiry', 'Pdf_logo'];
 
     public function contact()
     {
@@ -55,14 +55,21 @@ class Company extends Model
         return $this->hasMany(Branch::class);
     }
 
+    public function getPdfLogoAttribute()
+    {
+        $value = explode('/', $this->logo);
+        if (!$value) {
+            return null;
+        }
+        return $value[4];
+    }
+
     public function getLogoAttribute($value)
     {
         if (!$value) {
             return null;
         }
-        // return env('BUCKET_URL') . '/' . $value;
         return asset('upload/' . $value);
-        // return asset('media/company/logo/' . $value);
     }
 
     public function getCreatedAtAttribute($value): string
@@ -93,8 +100,8 @@ class Company extends Model
     protected function companyCode(): Attribute
     {
         return Attribute::make(
-            get:fn($value) => $value < 1000 ? 'AE000' . $value : 'AE' . $value,
-            set:fn($value) => $value,
+            get: fn ($value) => $value < 1000 ? 'AE000' . $value : 'AE' . $value,
+            set: fn ($value) => $value,
         );
     }
 }
