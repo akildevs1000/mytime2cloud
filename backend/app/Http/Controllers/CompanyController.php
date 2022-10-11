@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Company\CompanyRequest;
-use App\Http\Requests\Company\CompanyUpdateRequest;
-use App\Http\Requests\Company\ContactRequest;
-use App\Http\Requests\Company\GeographicUpdateRequest;
-use App\Http\Requests\Company\StoreRequest;
-use App\Http\Requests\Company\UserRequest;
-use App\Http\Requests\Company\UserUpdateRequest;
-use App\Models\AssignModule;
-use App\Models\Branch;
-use App\Models\Company;
-use App\Models\CompanyContact;
-use App\Models\Device;
 use App\Models\Role;
 use App\Models\User;
-use App\Notifications\CompanyCreationNotification;
-use Illuminate\Http\JsonResponse;
+use App\Models\Branch;
+use App\Models\Device;
+use App\Models\Company;
+use App\Models\AssignModule;
 use Illuminate\Http\Request;
+use App\Models\CompanyContact;
+use TechTailor\RPG\Facade\RPG;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
-use TechTailor\RPG\Facade\RPG;
+use App\Http\Requests\Company\UserRequest;
+use App\Http\Requests\Company\StoreRequest;
+use App\Http\Requests\Company\CompanyRequest;
+use App\Http\Requests\Company\ContactRequest;
+use App\Http\Requests\Company\UserUpdateRequest;
+use App\Notifications\CompanyCreationNotification;
+use App\Http\Requests\Company\CompanyUpdateRequest;
+use App\Http\Requests\Company\GeographicUpdateRequest;
 
 class CompanyController extends Controller
 {
@@ -164,7 +165,7 @@ class CompanyController extends Controller
             $record->pass = $randPass;
 
             return $this->response('Company Successfully created.', $record, true);
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }

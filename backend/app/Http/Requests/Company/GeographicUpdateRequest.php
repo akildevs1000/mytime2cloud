@@ -26,9 +26,9 @@ class GeographicUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'lat'=>['required','min:3','max:100'],
-            'lon'=>['required','min:3','max:100'],
-            'location'=>['nullable','min:3','max:250'],
+            'lat' => ['nullable', 'min:3', 'max:100'],
+            'lon' => ['nullable', 'min:3', 'max:100'],
+            'location' => ['nullable', 'min:3', 'max:250'],
         ];
     }
 }
