@@ -81,7 +81,9 @@ class Attendance extends Model
      */
     public function shift()
     {
-        return $this->belongsTo(Shift::class);
+        return $this->belongsTo(Shift::class)->withDefault([
+            'name' => '---',
+        ]);
     }
 
     public function getEditDateAttribute()
@@ -96,7 +98,9 @@ class Attendance extends Model
      */
     public function shift_type()
     {
-        return $this->belongsTo(ShiftType::class);
+        return $this->belongsTo(ShiftType::class)->withDefault([
+            'name' => '---',
+        ]);
     }
 
     /**

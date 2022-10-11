@@ -5,20 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\AttendanceLog;
 use App\Models\Attendance;
 use App\Models\Device;
-use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
-    public function SyncAttendance(Attendance $attendance)
+    public function SyncAttendance()
     {
         $items = [];
         $model = AttendanceLog::query();
         $model->where("checked", false);
         $model->take(1000);
         if ($model->count() == 0) {
-            return "No logs found";
+            return false;
         }
         $logs = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
+
+        $i = 0;
 
         foreach ($logs as $log) {
 
@@ -60,9 +61,11 @@ class AttendanceController extends Controller
 
             AttendanceLog::where("id", $log->id)->update(["checked" => true]);
 
-            $items[$date][$log->UserID] = $item;
+            $i++;
+
+            // $items[$date][$log->UserID] = $item;
         }
 
-        return $items;
+        return $i;
     }
 }
