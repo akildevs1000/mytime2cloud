@@ -54,13 +54,14 @@ die();
                     <h3 style="color: #ffffff">{{ $company->name ?? 'Sample Company' }}</h3>
                     <h4 style="color: #ffffff">{{ $company->location ?? 'Waleed Road Burdubai' }}</h4>
                     <h4 style="color: #ffffff">{{ $company->logo ?? 'Waleed Road Burdubai' }}</h4>
+                    <h4 style="color: #ffffff">{{ $company->Pdf_logo ?? 'Waleed Road Burdubai' }}</h4>
                 </div>
             </td>
             <td style="text-align: right; border :none;">
                 <div>
                     {{-- background-image: url("https://stagingbackend.ideahrms.com/upload/1665481898.jpeg"); background-position: center center; --}}
                     @php
-                        $img = 'https://stagingbackend.ideahrms.com/upload/' . $company->Pdf_logo;
+                        $img = 'https://stagingbackend.ideahrms.com/upload/' . $company->Pdf_logo ?? '';
                     @endphp
                     <img src="{{ $img }}" height="70px" width="70">
                 </div>
