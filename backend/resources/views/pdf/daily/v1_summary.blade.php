@@ -58,8 +58,10 @@ die();
             <td style="text-align: right; border :none;">
                 <div>
                     @php
-                        $img = env('APP_ENV') == 'local' ? env('BASE_URL') . '/upload/' . $company->Pdf_logo : $company->logo;
+                        // $img = env('APP_ENV') == 'local' ? public_path() . '/upload/1665500012.png' : $company->logo;
+                        $img = env('APP_ENV') == 'local' ? public_path() . '/upload/' . $company->pdf_logo : $company->logo;
                     @endphp
+                    {{-- @dd(getcwd() . '/upload/1665497365.jpeg') --}}
                     <img src="{{ $img }}" height="70px" width="70">
                 </div>
             </td>
@@ -76,41 +78,38 @@ die();
     </table>
     <table style="margin-top: 5px !important;">
         <tr style="text-align: left; border :1px solid black; width:120px;">
-            <td style="text-align: left; width:120px;"><b>Date: </b> 1 Sep 22 to 13 Sep 22</td>
-            <td style="text-align: left;"><b>Total Hrs</b>: 150</td>
-            <td style="text-align: left;"><b>OT</b>: 10:31</td>
-            <td style="text-align: left; color: green;"><b>Present</b>: 14</td>
-            <td style="text-align: left; color: red;"><b>Absent</b>: 14</td>
-
-
+            <td style="text-align: left; width:120px;"><b>Date: </b>{{ $req->daily_date }}</td>
+            <td style="text-align: left; width:120px;"><b>Department: </b>{{ $info->department }}</td>
+            <td style="text-align: left; width:120px; color: green;"><b>Present</b>: {{ $info->total_present }}</td>
+            <td style="text-align: left; width:120px; color: red;"><b>Absent</b>: {{ $info->total_absent }}</td>
         </tr>
     </table>
     <table style="margin-top: 5px !important;">
         <tr style="text-align: left; border :1px solid black; width:120px; background-color: #A6A6A6">
-            <td style="text-align: left;"><b>Name</b></td>
             <td style="text-align: left;"><b>EID</b></td>
+            <td style="text-align: left;"><b>Name</b></td>
             <td style="text-align: left;"><b>Dept</b></td>
             <td style="text-align: left;"><b>Status </b></td>
             <td style="text-align: left;"><b>In </b></td>
             <td style="text-align: left;"><b>Out </b></td>
             <td style="text-align: left;"><b>Total Hours </b></td>
-            <td style="text-align: left;"><b>OT</b></td>
             <td style="text-align: left;"><b>Device In </b></td>
             <td style="text-align: left;"><b>Device Out </b></td>
         </tr>
         <tbody>
             @foreach ($datas as $data)
+                {{ $status = $data->status == 'P' ? 'green' : 'red' }}
+                {{-- {{ $res = $data->device_out->name == '---' ? '---' : $data->device_out->name }} --}}
                 <tr style="text-align: left; border :1px solid black; width:120px;">
-                    <td style="text-align: left;"> {{ $data->employee_id }}</td>
-                    <td style="text-align: left;"> {{ $data->employee_id }}</td>
-                    <td style="text-align: left;"> {{ $data->date }}</td>
-                    <td style="text-align: left;"> {{ $data->employee->department->name ?? '' }}</td>
-                    <td style="text-align: left;"> {{ $data->status }}</td>
-                    <td style="text-align: left;"> {{ $data->in }}</td>
-                    <td style="text-align: left; "> {{ $data->total_hrs }}</td>
-                    <td style="text-align: left; color: green;"> {{ $data->ot }}</td>
-                    <td style="text-align: left;"> {{ $data->device_id_in }}</td>
-                    <td style="text-align: left;"> {{ $data->device_id_out }}</td>
+                    <td style="text-align: left;"> {{ $data->employee_id ?? '---' }}</td>
+                    <td style="text-align: left;"> {{ $data->employee->first_name ?? '---' }}</td>
+                    <td style="text-align: left;"> {{ $data->employee->department->name ?? '---' }}</td>
+                    <td style="text-align: left; color:{{ $status }}"> {{ $data->status }}</td>
+                    <td style="text-align: left;"> {{ $data->in ?? '---' }}</td>
+                    <td style="text-align: left; "> {{ $data->out ?? '---' }}</td>
+                    <td style="text-align: left; "> {{ $data->total_hrs ?? '---' }}</td>
+                    <td style="text-align: left;"> {{ $data->device_in->name ?? '---' }}</td>
+                    <td style="text-align: left;"> {{ $data->device_out->name }}</td>
 
                 </tr>
             @endforeach

@@ -56,7 +56,9 @@ class Attendance extends Model
      */
     public function device_out()
     {
-        return $this->belongsTo(Device::class, 'device_id_out');
+        return $this->belongsTo(Device::class, 'device_id_out')->withDefault([
+            'name' => '---',
+        ]);
     }
 
     public function employee()

@@ -162,10 +162,32 @@ class Controller extends BaseController
     }
 
 
+    public function dailyTotalHours($arr)
+    {
+        $times = [];
+
+        foreach ($arr as $a) {
+            $times[] = $a->total_hrs;
+        }
+        $minutes = 0;
+        foreach ($times as $time) {
+            if ($time != '---') {
+                list($hour, $minute) = explode(':', $time);
+                $minutes += $hour * 60;
+                $minutes += $minute;
+            }
+        }
+
+        $hours = floor($minutes / 60);
+        $minutes -= $hours * 60;
+        return $hours . ':' . $minutes;
+    }
+
     public function daily_summary(Request $request)
     {
         $model = Attendance::query();
         $company = Company::find($request->company_id);
+        $companyLogo = $company->logo;
         $model->where('company_id', $request->company_id);
 
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
@@ -197,9 +219,23 @@ class Controller extends BaseController
             $q->where('ot', "!=", "---");
         });
 
-        $data = $model->with('employee')->get();
+        $data = $model->with(
+            'employee',
+            "device_in:id,name,short_name,device_id,location",
+            "device_out:id,name,short_name,device_id,location",
+        )->get();
 
-        return Pdf::loadView('pdf.daily_summary', ["datas" => $data, "req" => $request, 'company' => $company])->stream();
+        $info = [
+            'total_hours' => $this->dailyTotalHours($data),
+            'total_absent' => $model->where('status', 'A')->count(),
+            'total_present' => $data->where('status', 'P')->count(),
+            'companyLogo' => $companyLogo,
+            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
+        ];
+
+
+
+        return Pdf::loadView('pdf.daily.v1_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
     }
 
 
