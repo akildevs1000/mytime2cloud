@@ -708,7 +708,7 @@ export default {
       from_date: null,
       to_date: null,
       daily_date: null,
-      employee_id: -1,
+      employee_id: "",
       report_type: "Monthly",
       department_id: -1,
       status: "Select All",
@@ -842,7 +842,7 @@ export default {
           this.scheduled_employees = data;
           if (this.scheduled_employees.length > 0) {
             this.scheduled_employees.unshift({
-              system_user_id: -1,
+              system_user_id: "",
               name_with_user_id: "Select All"
             });
           }
@@ -862,7 +862,7 @@ export default {
         let res = data.map(e => e.employee_attendance);
         this.scheduled_employees = data.map(e => e.employee_attendance);
         this.scheduled_employees.unshift({
-          system_user_id: -1,
+          system_user_id: "",
           name_with_user_id: "Select All"
         });
       });
