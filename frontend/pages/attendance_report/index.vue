@@ -236,7 +236,7 @@
                 :hide-details="true"
               ></v-select>
             </v-col>
-            <v-col md="5">
+            <!-- <v-col md="5">
               Late/Early
               <v-select
                 s
@@ -251,15 +251,15 @@
                 :hide-details="true"
               >
               </v-select>
-            </v-col>
-            <v-col md="12">
+            </v-col> -->
+            <!-- <v-col md="12">
               <v-checkbox
                 dense
                 v-model="overtime"
                 label="Overtime"
                 hide-details
               />
-            </v-col>
+            </v-col> -->
 
             <v-col md="12">
               <div class="mb-5">
@@ -405,13 +405,13 @@
       </v-card>
     </v-dialog>
     <v-toolbar class="primary" dark flat>
-      <v-btn
+      <!-- <v-btn
         small
         class="primary darken-2"
         @click="generateReport('/monthly_details')"
       >
         Details
-      </v-btn>
+      </v-btn> -->
       &nbsp;
       <v-btn
         v-if="can(`attendance_summary_access`)"
