@@ -58,11 +58,9 @@ die();
             <td style="text-align: right; border :none;">
                 <div>
                     @php
-                        // $img = env('APP_LINK') . '/upload/' . $company->Pdf_logo ?? '';
-                        $img = $company->logo;
+                        $img = env('APP_ENV') == 'local' ? env('BASE_URL') . '/upload/' . $company->Pdf_logo : $company->logo;
                     @endphp
                     <img src="{{ $img }}" height="70px" width="70">
-                    {{ $img }}
                 </div>
             </td>
         </tr>
