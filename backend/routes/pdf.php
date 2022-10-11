@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
 
+Route::get('/daily_summary', [Controller::class, 'daily_summary']);
+
+
 Route::get('/monthly_details', [Controller::class, 'monthly_details']);
 Route::get('/monthly_summary', [Controller::class, 'monthly_summary']);
 Route::get('/monthly_present', [Controller::class, 'monthly_present']);

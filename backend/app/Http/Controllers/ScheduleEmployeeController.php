@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
+use App\Models\Attendance;
+use Illuminate\Http\Request;
+use App\Models\ScheduleEmployee;
 use App\Http\Requests\ScheduleEmployee\StoreRequest;
 use App\Http\Requests\ScheduleEmployee\UpdateRequest;
-use App\Models\Employee;
-use App\Models\ScheduleEmployee;
-use Illuminate\Http\Request;
 
 class ScheduleEmployeeController extends Controller
 {
@@ -19,24 +20,34 @@ class ScheduleEmployeeController extends Controller
     {
         return $model->with("shift_type", "shift", "employee")->paginate($request->per_page);
     }
-    public function employees_by_departments(Employee $employee, Request $request, $id)
+    // public function employees_by_departments_old(Employee $employee, Request $request, $id)
+    // {
+    //     return $employee->whereHas('schedule')
+    //         ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])
+    //         ->when($id != -1, function ($q) use ($id) {
+    //             $q->where("department_id", $id);
+    //         })
+    //         ->get(["first_name", "system_user_id", "employee_id"]);
+    // }
+
+    public function employees_by_departments(Attendance $employee, Request $request, $id)
     {
-        return $employee->whereHas('schedule')
-            ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])
+        $ids =  $employee->where('company_id', $request->company_id)->pluck('employee_id');
+        return  Employee::select("first_name", "system_user_id", "employee_id", "department_id")
+            ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
+            ->whereIn('employee_id', $ids)
             ->when($id != -1, function ($q) use ($id) {
                 $q->where("department_id", $id);
             })
-            ->get(["first_name", "system_user_id", "employee_id"]);
+            ->get();
     }
 
     public function logs(Request $request, ScheduleEmployee $model)
     {
         $emps = $model->with("logs")->get();
-
         foreach ($emps as $emp) {
             $emp->new_logs = [$emp->logs->groupBy("date")];
         }
-
         return $emps;
     }
 
@@ -70,7 +81,7 @@ class ScheduleEmployeeController extends Controller
             } else {
                 return $this->response('Schedule Employee cannot add.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -102,7 +113,7 @@ class ScheduleEmployeeController extends Controller
             } else {
                 return response()->json(['status' => false, 'message' => 'Schedule Employee cannot update']);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -124,7 +135,7 @@ class ScheduleEmployeeController extends Controller
             } else {
                 return $this->response('Employee Schedule cannot delete.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
