@@ -13,13 +13,12 @@ class ReportController extends Controller
     public function report(Request $request)
     {
         $model = Attendance::query();
-
-        $model->when($request->employee_id, function ($q) use ($request) {
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
         });
 
         $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $ids = Employee::where("department_id", $request->department_id)->pluck("system_user_id");
+            $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
             $q->whereIn('employee_id', $ids);
         });
 

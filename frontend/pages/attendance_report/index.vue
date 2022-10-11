@@ -47,7 +47,7 @@
                 dense
                 v-model="payload.report_type"
                 x-small
-                :items="['Daily', 'Weekly', 'Monthly']"
+                :items="['Daily', 'Monthly']"
                 item-text="Daily"
                 :hide-details="true"
               ></v-autocomplete>
@@ -708,7 +708,7 @@ export default {
       from_date: null,
       to_date: null,
       daily_date: null,
-      employee_id: null,
+      employee_id: -1,
       report_type: "Monthly",
       department_id: -1,
       status: "Select All",
@@ -755,12 +755,7 @@ export default {
   created() {
     this.loading = true;
 
-    let dt = new Date();
-    let y = dt.getFullYear();
-    let m = dt.getMonth() + 1;
-    m = m < 10 ? "0" + m : m;
-
-    this.setMonthlyDateRange(y, m);
+    this.setMonthlyDateRange();
 
     this.custom_options = {
       params: {
@@ -777,14 +772,16 @@ export default {
     changeReportType(report_type) {
       if (report_type == "Daily") {
         this.setDailyDate();
-      } else if (report_type == "Weekly") {
-        alert("on working please select another report type");
       } else if (report_type == "Monthly") {
         this.setMonthlyDateRange();
       }
     },
 
-    setMonthlyDateRange(y, m) {
+    setMonthlyDateRange() {
+      let dt = new Date();
+      let y = dt.getFullYear();
+      let m = dt.getMonth() + 1;
+      m = m < 10 ? "0" + m : m;
       delete this.payload.daily_date;
       this.payload.from_date = `${y}-${m}-01`;
       this.payload.to_date = `${y}-${m}-${31}`;
@@ -843,6 +840,13 @@ export default {
         )
         .then(({ data }) => {
           this.scheduled_employees = data;
+          if (this.scheduled_employees.length > 0) {
+            this.scheduled_employees.unshift({
+              system_user_id: -1,
+              name_with_user_id: "Select All"
+            });
+          }
+
           this.loading = false;
         });
     },
@@ -857,6 +861,10 @@ export default {
       this.$axios.get(`/attendance_employees`).then(({ data }) => {
         let res = data.map(e => e.employee_attendance);
         this.scheduled_employees = data.map(e => e.employee_attendance);
+        this.scheduled_employees.unshift({
+          system_user_id: -1,
+          name_with_user_id: "Select All"
+        });
       });
     },
 
@@ -1026,6 +1034,37 @@ export default {
     generateReport(url) {
       let path = process.env.BACKEND_URL + url;
       let report = document.createElement("a");
+
+      if (this.payload.report_type == "Daily") {
+        let status = this.payload.status;
+
+        switch (status) {
+          case "Select All":
+            status = "SA";
+            break;
+
+          case "Missing":
+            status = "---";
+            break;
+
+          default:
+            status = status.charAt(0);
+            break;
+        }
+
+        let data = this.payload;
+        let company_id = this.$auth.user.company.id;
+
+        report.setAttribute(
+          "href",
+          process.env.BACKEND_URL +
+            `/daily_summary?company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`
+        );
+        report.setAttribute("target", "_blank");
+        report.click();
+        return;
+      }
+
       report.setAttribute("href", path);
       report.setAttribute("target", "_blank");
       report.click();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\Employee;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -63,7 +64,7 @@ class Controller extends BaseController
                     'message' => $model . ' cannot ' . $action,
                 ], 200);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -153,11 +154,72 @@ class Controller extends BaseController
                 $minutes += $minute;
             }
         }
-
         $hours = floor($minutes / 60);
         $minutes -= $hours * 60;
         return $hours . ':' . $minutes;
     }
+
+
+    public function daily_summary(Request $request)
+    {
+
+
+
+        // $data = [
+        //     "date"=> "06-Oct-22",
+        //     "employee_id": "675",
+        //     "status": "P",
+        //     "in": "09:34",
+        //     "out": "18:03",
+        //     "total_hrs": "08:28",
+        //     "ot": "00:00",
+        //     "device_id_in": "16",
+        //     "device_id_out": "16",
+        //     "date_in": "---",
+
+        // ]
+
+        // http://localhost:8000/api/daily_summary?company_id=1&status=SA&daily_date=2022-10-10&department_id=25&employee_id=-1
+
+
+        $model = Attendance::query();
+        $model->where('company_id', $request->company_id);
+
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+            $q->where('employee_id', $request->employee_id);
+        });
+
+        // $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
+        //     $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
+        //     $q->whereIn('employee_id', $ids);
+        // });
+
+        $model->when($request->status == "P", function ($q) {
+            $q->where('status', "P");
+        });
+
+        $model->when($request->status == "A", function ($q) {
+            $q->where('status', "A");
+        });
+
+        $model->when($request->status == "M", function ($q) {
+            $q->where('status', "---");
+        });
+
+        $model->when($request->daily_date, function ($q) use ($request) {
+            $q->whereDate('date', $request->daily_date);
+        });
+
+        $model->when($request->ot == 1, function ($q) {
+            $q->where('ot', "!=", "---");
+        });
+
+        // // ->where('department_id', $request->department_id)
+        // ->where('employee_id', $request->employee_id)
+        $data = $model->get();
+        return Pdf::loadView('pdf.daily_summary', ["datas" => $data, "req" => $request])->stream();
+    }
+
 
     public function monthly_details(Request $request)
     {
@@ -308,13 +370,13 @@ class Controller extends BaseController
             $records = $this->getData($row['record']);
 
             $str_arr[] = '<div class="page-breaks"><table  style="margin-top: 5px !important;">' .
-            '<tr style="text-align: left; border :1px solid black; width:120px;">' .
-            '<td style="text-align:left;"><b>Name</b>:' . $row["Name"] . '</td>' .
-            '<td style="text-align:left;"><b>EID</b>:' . $row["E.ID"] . '</td>' .
-            '<td style="text-align:left;"><b>Dept</b>: ' . $row["Dept"] . '</td>' .
-            '<td style="text-align:left; width:120px;"><b>Date: </b> ' . $row["Date"] . '</td>' .
-            // '<td style="text-align:left; width:120px;"><b>Date: </b> 1 Sep 22 to 30 Sep 22</td>' .
-            '<td style="text-align:left;"><b>Total Hrs</b>:' . $row["Total Hrs"] . '</td>' .
+                '<tr style="text-align: left; border :1px solid black; width:120px;">' .
+                '<td style="text-align:left;"><b>Name</b>:' . $row["Name"] . '</td>' .
+                '<td style="text-align:left;"><b>EID</b>:' . $row["E.ID"] . '</td>' .
+                '<td style="text-align:left;"><b>Dept</b>: ' . $row["Dept"] . '</td>' .
+                '<td style="text-align:left; width:120px;"><b>Date: </b> ' . $row["Date"] . '</td>' .
+                // '<td style="text-align:left; width:120px;"><b>Date: </b> 1 Sep 22 to 30 Sep 22</td>' .
+                '<td style="text-align:left;"><b>Total Hrs</b>:' . $row["Total Hrs"] . '</td>' .
                 '<td style="text-align:left;"><b>OT</b>:' . $row["OT"] . '</td>' .
                 '<td style="text-align:left;"><b>Present</b>:' . $row["Present"] . '</td>' .
                 '<td style="text-align:left;"><b>Absent</b>:' . $row["Absent"] . '</td>' .
@@ -381,5 +443,4 @@ class Controller extends BaseController
             join("", $str_arr["status"]),
         ];
     }
-
 }

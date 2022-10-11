@@ -13,12 +13,34 @@ Route::get('/test', function (Request $request) {
     return "Awesome APIs";
 });
 
+
+
+Route::get('/generate_attendance_log', function (Request $request) {
+
+    $arr = [];
+    for ($i = 1; $i <= 5; $i++) {
+        for ($j = 1; $j <= 4; $j++) {
+            for ($k = 1; $k <= 5; $k++) {
+                $time =  rand(8, 20);
+                $time = $time < 10 ? '0' . $time : $time;
+                $arr[] = [
+                    'UserID' => $i,
+                    'LogTime' => "2022-10-0$j $time:00:00",
+                    'DeviceID' => "OX-8862021010097",
+                    'company_id' => "1",
+                ];
+            }
+        }
+    }
+    // return $arr;
+    DB::table('attendance_logs')->insert($arr);
+});
+
 Route::get('/test-re', function (Request $request) {
     Employee::truncate();
     DB::statement('DELETE FROM users WHERE id > 2');
 
     return 'done';
-
 });
 
 Route::get('/test-date', function (Request $request) {
@@ -34,7 +56,6 @@ Route::get('/test-date', function (Request $request) {
         ->get();
 
     return 'done';
-
 });
 
 Route::get('/storage', function (Request $request) {
@@ -61,7 +82,6 @@ Route::post('/fahath', function (Request $request) {
     $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
 
     return isset($path);
-
 });
 
 Route::get('/test/{email}', function (Request $request, $email) {
@@ -76,7 +96,6 @@ Route::get('/test/{email}', function (Request $request, $email) {
     }
 
     Mail::to($email)->send(new TestMail($data));
-
 });
 
 Route::post('/do_spaces', function (Request $request) {
