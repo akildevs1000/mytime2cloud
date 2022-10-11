@@ -419,7 +419,9 @@
         class="primary darken-2"
         @click="generateReport('/monthly_summary')"
       >
-        Summary
+        {{
+          payload.report_type == "Daily" ? "Daily Summary" : "Monthly Summary"
+        }}
       </v-btn>
       &nbsp;
       <v-btn
@@ -1054,11 +1056,12 @@ export default {
 
         let data = this.payload;
         let company_id = this.$auth.user.company.id;
+        const { page, itemsPerPage } = this.options;
 
         report.setAttribute(
           "href",
           process.env.BACKEND_URL +
-            `/daily_summary?company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`
+            `/daily_summary?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`
         );
         report.setAttribute("target", "_blank");
         report.click();

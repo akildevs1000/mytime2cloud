@@ -58,11 +58,12 @@ die();
             <td style="text-align: right; border :none;">
                 <div>
                     @php
+                    $i = 0;
                         // $img = env('APP_ENV') == 'local' ? public_path() . '/upload/1665500012.png' : $company->logo;
-                        $img = env('APP_ENV') == 'local' ? public_path() . '/upload/' . $company->pdf_logo : $company->logo;
+                        // $img = env('APP_ENV') == 'local' ? public_path() . '/upload/' . $company->pdf_logo : $company->logo;
                     @endphp
                     {{-- @dd(getcwd() . '/upload/1665497365.jpeg') --}}
-                    <img src="{{ $img }}" height="70px" width="70">
+                    {{-- <img src="{{ $img }}" height="70px" width="70"> --}}
                 </div>
             </td>
         </tr>
@@ -86,6 +87,7 @@ die();
     </table>
     <table style="margin-top: 5px !important;">
         <tr style="text-align: left; border :1px solid black; width:120px; background-color: #A6A6A6">
+            <td style="text-align: left;"><b>#</b></td>
             <td style="text-align: left;"><b>EID</b></td>
             <td style="text-align: left;"><b>Name</b></td>
             <td style="text-align: left;"><b>Dept</b></td>
@@ -101,6 +103,7 @@ die();
                 {{ $status = $data->status == 'P' ? 'green' : 'red' }}
                 {{-- {{ $res = $data->device_out->name == '---' ? '---' : $data->device_out->name }} --}}
                 <tr style="text-align: left; border :1px solid black; width:120px;">
+                    <td style="text-align: left;"> {{ ++$i }}</td>
                     <td style="text-align: left;"> {{ $data->employee_id ?? '---' }}</td>
                     <td style="text-align: left;"> {{ $data->employee->first_name ?? '---' }}</td>
                     <td style="text-align: left;"> {{ $data->employee->department->name ?? '---' }}</td>
@@ -116,7 +119,7 @@ die();
         </tbody>
     </table>
 
-    <footer>
+    {{-- <footer>
         <table>
             <tr>
                 <td style="text-align: left;"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
@@ -127,7 +130,7 @@ die();
                 </td>
             </tr>
         </table>
-    </footer>
+    </footer> --}}
 </body>
 
 </html>

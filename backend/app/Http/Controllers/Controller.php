@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Reports\ReportController;
 use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\Department;
@@ -185,51 +186,16 @@ class Controller extends BaseController
 
     public function daily_summary(Request $request)
     {
-        $model = Attendance::query();
+        
         $company = Company::find($request->company_id);
-        $companyLogo = $company->logo;
-        $model->where('company_id', $request->company_id);
 
-        $model->when($request->filled('employee_id'), function ($q) use ($request) {
-            $q->where('employee_id', $request->employee_id);
-        });
+        $rc = new ReportController;
+        $data = $rc->report($request);
 
-        $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
-            $q->whereIn('employee_id', $ids);
-        });
-
-        $model->when($request->status == "P", function ($q) {
-            $q->where('status', "P");
-        });
-
-        $model->when($request->status == "A", function ($q) {
-            $q->where('status', "A");
-        });
-
-        $model->when($request->status == "M", function ($q) {
-            $q->where('status', "---");
-        });
-
-        $model->when($request->daily_date, function ($q) use ($request) {
-            $q->whereDate('date', $request->daily_date);
-        });
-
-        $model->when($request->ot == 1, function ($q) {
-            $q->where('ot', "!=", "---");
-        });
-
-        $data = $model->with(
-            'employee',
-            "device_in:id,name,short_name,device_id,location",
-            "device_out:id,name,short_name,device_id,location",
-        )->get();
-
-        $info = [
-            'total_hours' => $this->dailyTotalHours($data),
-            'total_absent' => $model->where('status', 'A')->count(),
-            'total_present' => $data->where('status', 'P')->count(),
-            'companyLogo' => $companyLogo,
+       $info = [
+            'total_absent' => $rc->report($request)->where('status', 'A')->count(),
+            'total_present' => $rc->report($request)->where('status', 'P')->count(),
+            'companyLogo' => $company->logo,
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
         ];
 

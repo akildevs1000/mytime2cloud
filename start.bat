@@ -1,16 +1,21 @@
-@REM start php\php.exe backend/artisan serve
-@REM cd frontend
-@REM start npm run dev
-
 @ECHO OFF
 
-@REM for backend
-@set PATH=backend\php;%PATH%
-start php backend/artisan serve
+
+@REM @REM for backend
+@cd backend
+@set PATH=php;%PATH%
+start php artisan serve
+
+@cd ..
 
 @REM for frontend   
 @cd frontend
 @set PATH=nodejs;%PATH%
 
 start npm run dev
-start http://localhost:3000
+
+@cd ..
+
+@REM start http://192.168.2.174:3000
+
+code backend/. && code frontend/.
