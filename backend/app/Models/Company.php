@@ -57,11 +57,13 @@ class Company extends Model
 
     public function getPdfLogoAttribute()
     {
-        $value = explode('/', $this->logo);
-        if (!$value) {
-            return null;
+        if ($this->logo) {
+            $value = explode('/', $this->logo);
+            if (!$value) {
+                return null;
+            }
+            return $value[4];
         }
-        return $value[4];
     }
 
     public function getLogoAttribute($value)
