@@ -27,13 +27,13 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            "license_no" => "required|min:3|max:20",
-            "license_type" => "required|min:1|max:20",
-            "emirate" => "required|min:3|max:20",
-            "makeem_no" => "required",
-            "manager" => "required",
-            "issue_date" => "required",
-            "expiry_date" => "required",
+            "license_no" => "nullable|min:3|max:20",
+            "license_type" => "nullable|min:1|max:20",
+            "emirate" => "nullable|min:3|max:20",
+            "makeem_no" => "nullable",
+            "manager" => "nullable",
+            "issue_date" => "nullable",
+            "expiry_date" => "nullable",
 
             // "company_id" => "required",
 
