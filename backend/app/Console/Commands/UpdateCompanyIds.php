@@ -33,6 +33,8 @@ class UpdateCompanyIds extends Command
      */
     public function handle()
     {
+        $date = date("d-m-Y H:i:s");
+
         // get device ids with company ids = 0
         $model = AttendanceLog::query();
         $model->distinct('DeviceID');
@@ -44,28 +46,30 @@ class UpdateCompanyIds extends Command
         $rows = Device::whereIn("device_id", $free_device_ids)->get(["company_id", "device_id as DeviceID"])->toArray();
 
         if (count($rows) == 0 || count($free_device_ids) == 0) {
-            Logger::channel("custom")->info('No new record found while updating company ids for device');
-            return 'No new record found while updating company ids for device';
+            Logger::channel("custom")->info('Cron: UpdateCompanyIds. No new record found while updating company ids for device');
+            echo "[".$date."] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n";
+            return;
         }
 
         foreach ($rows as $arr) {
             try {
                 AttendanceLog::where("company_id", 0)->where("DeviceID", $arr["DeviceID"])->update($arr);
             } catch (\Throwable $th) {
-                Logger::channel("custom")->error('Error occured while updating company ids.');
-                Logger::channel("custom")->error('Error Details: ' . $th);
+                Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error occured while updating company ids.');
+                Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
 
                 $data = [
                     'title' => 'Quick action required',
                     'body' => $th,
                 ];
-            
+
                 Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+                echo "[".$date."] Cron: UpdateCompanyIds. Error Details: " . $th . ".\n";
                 return;
             }
         }
-        Logger::channel("custom")->info("Company IDS has been updated. Details: " . json_encode($rows));
-
-        return "Company IDS has been updated. Details: " . json_encode($rows);
+        Logger::channel("custom")->info("Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . json_encode($rows));
+        echo "[".$date."] Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . json_encode($rows) . ".\n";
+        return;
     }
 }

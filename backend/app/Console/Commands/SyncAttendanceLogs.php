@@ -32,20 +32,18 @@ class SyncAttendanceLogs extends Command
      */
     public function handle()
     {
+        $date = date("d-m-Y H:i:s");
 
         $file = base_path() . "/logs/logs.csv";
 
         if (!file_exists($file)) {
 
-            Logger::channel("custom")->info('No new data found');
+            Logger::channel("custom")->info('Cron: SyncAttendanceLogs. No new data found');
 
-            return [
-                'status' => false,
-                'message' => 'No new data found',
-            ];
+            echo "[".$date."] Cron: SyncAttendanceLogs. No new data found.\n";
+            return;
         }
 
-        $header = null;
         $data = [];
 
         if (($handle = fopen($file, 'r')) !== false) {
@@ -60,12 +58,13 @@ class SyncAttendanceLogs extends Command
             $created = AttendanceLog::insert($data);
             $created ? unlink($file) : 0;
             $count = count($data);
-            Logger::channel("custom")->info($count . ' new logs has been inserted. Old file has been deleted.');
-            return $created ?? 0;
+            Logger::channel("custom")->info('Cron: SyncAttendanceLogs. ' . $count . ' new logs has been inserted. Old file has been deleted.');
+            echo "[".$date."] Cron: SyncAttendanceLogs. " . $count . " new logs has been inserted. Old file has been deleted.\n";
+            return;
         } catch (\Throwable $th) {
         
-            Logger::channel("custom")->error('Error occured while inserting logs.');
-            Logger::channel("custom")->error('Error Details: ' . $th);
+            Logger::channel("custom")->error('Cron: SyncAttendanceLogs. Error occured while inserting logs.');
+            Logger::channel("custom")->error('Cron: SyncAttendanceLogs. Error Details: ' . $th);
 
             $data = [
                 'title' => 'Quick action required',
@@ -73,6 +72,7 @@ class SyncAttendanceLogs extends Command
             ];
 
             Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+            echo "[".$date."] Cron: SyncAttendanceLogs. Error occured while inserting logs.\n";
             return;
         }
     }

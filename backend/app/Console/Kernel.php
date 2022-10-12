@@ -15,9 +15,27 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('task:sync_attendance_logs')->everyMinute();
-        $schedule->command('task:update_company_ids')->everyMinute();
-        $schedule->command('task:sync_attendance')->everyMinute();
+        $schedule
+            ->command('task:sync_attendance_logs')
+            ->everyThirtyMinutes()
+            // ->everyMinute()
+            ->between('7:00', '23:59')
+            ->appendOutputTo("scheduler.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:update_company_ids')
+            ->everyThirtyMinutes()
+            // ->everyMinute()
+            ->between('7:00', '23:59')
+            ->appendOutputTo("scheduler.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:sync_attendance')
+            ->everyThirtyMinutes()
+            // ->everyMinute()
+            ->between('7:00', '23:59')
+            ->appendOutputTo("scheduler.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
     }
 
     /**
