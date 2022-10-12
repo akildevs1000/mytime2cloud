@@ -106,9 +106,8 @@ die();
                     <td style="text-align: left;"> {{ $data->in ?? '---' }}</td>
                     <td style="text-align: left; "> {{ $data->out ?? '---' }}</td>
                     <td style="text-align: left; "> {{ $data->total_hrs ?? '---' }}</td>
-                    <td style="text-align: left;"> {{ $data->device_in->name ?? '---' }}</td>
-                    <td style="text-align: left;"> {{ $data->device_out->name }}</td>
-
+                    <td style="text-align: left;"> {{ $data->device_in->short_name ?? '---' }}</td>
+                    <td style="text-align: left;"> {{ $data->device_out->short_name ?? '---' }}</td>
                 </tr>
             @endforeach
         </tbody>
