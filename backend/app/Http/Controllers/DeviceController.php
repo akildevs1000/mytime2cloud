@@ -15,6 +15,11 @@ class DeviceController extends Controller
         return $model->with(['status', 'company'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 1000);
     }
 
+    public function getDeviceList(Device $model, Request $request)
+    {
+        return $model->with(['status'])->where('company_id', $request->company_id)->get();
+    }
+
     public function store(Device $model, StoreRequest $request)
     {
 
@@ -50,7 +55,7 @@ class DeviceController extends Controller
 
     public function getDeviceCompany($id)
     {
-        return Device::where("device_id",$id)->select("company_id")->first();
+        return Device::where("device_id", $id)->select("company_id")->first();
     }
 
     public function update(Device $Device, UpdateRequest $request)

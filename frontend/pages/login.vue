@@ -158,7 +158,7 @@ export default {
     passwordRules: [v => !!v || "Password is required"]
   }),
   created() {
-    console.log(process.env.SOCKET_ENDPOINT);
+    // console.log(process.env.SOCKET_ENDPOINT);
   },
   methods: {
     // mxVerify(res) {
@@ -185,11 +185,9 @@ export default {
             let id, name;
             if (data.user && data.user.user_type == "employee") {
               this.$router.push(`/employee_dashboard`);
-              console.log("employee");
               id = data.user?.employee?.id;
               name = data.user?.employee?.first_name;
             } else if (data.user && data.user.user_type == "company") {
-              console.log("company");
               id = data.user?.company?.id;
               name = data.user?.company?.name;
             } else if (data.user && data.user.user_type == "master") {

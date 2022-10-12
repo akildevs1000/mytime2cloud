@@ -22,7 +22,11 @@
           </nuxt-link>
         </v-alert> -->
       </v-col>
-      <div class="col-xl-3 col-lg-6 text-uppercase" v-for="(i, index) in items" :key="index">
+      <div
+        class="col-xl-3 col-lg-6 text-uppercase"
+        v-for="(i, index) in items"
+        :key="index"
+      >
         <div class="card p-2" :class="i.color">
           <div class="card-statistic-3">
             <div class="card-icon card-icon-large ">
@@ -70,7 +74,11 @@
                 <h5>{{ item.header }}</h5>
               </v-subheader>
 
-              <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
+              <v-divider
+                v-else-if="item.divider"
+                :key="index"
+                :inset="item.inset"
+              ></v-divider>
 
               <v-list-item v-else :key="item.title">
                 <v-list-item-avatar>
@@ -79,7 +87,9 @@
 
                 <v-list-item-content>
                   <v-list-item-title v-html="item.title"></v-list-item-title>
-                  <v-list-item-subtitle v-html="item.subtitle"></v-list-item-subtitle>
+                  <v-list-item-subtitle
+                    v-html="item.subtitle"
+                  ></v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </template>
@@ -95,12 +105,18 @@
                 <h5>{{ item.header }}</h5>
               </v-subheader>
 
-              <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
+              <v-divider
+                v-else-if="item.divider"
+                :key="index"
+                :inset="item.inset"
+              ></v-divider>
 
               <v-list-item v-else :key="item.title">
                 <v-list-item-content>
                   <v-list-item-title v-html="item.title"></v-list-item-title>
-                  <v-list-item-subtitle v-html="item.subtitle"></v-list-item-subtitle>
+                  <v-list-item-subtitle
+                    v-html="item.subtitle"
+                  ></v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </template>
@@ -115,20 +131,24 @@
                 <h5>{{ item.header }}</h5>
               </v-subheader>
 
-              <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
+              <v-divider
+                v-else-if="item.divider"
+                :key="index"
+                :inset="item.inset"
+              ></v-divider>
 
               <v-list-item v-else :key="item.title">
                 <v-list-item-content>
                   <v-list-item-title v-html="item.title"></v-list-item-title>
-                  <v-list-item-subtitle v-html="item.subtitle"></v-list-item-subtitle>
+                  <v-list-item-subtitle
+                    v-html="item.subtitle"
+                  ></v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </template>
           </v-list>
         </v-card>
       </v-col>
-
-
 
       <!-- <v-col md="12" cols="12" sm="12">
         <v-card elevation="0">
@@ -408,11 +428,11 @@ export default {
     }
   },
   filters: {
-    get_decimal_value: function (value) {
+    get_decimal_value: function(value) {
       if (!value) return "";
       return (Math.round(value * 100) / 100).toFixed(2);
     },
-    get_comma_seperator: function (x) {
+    get_comma_seperator: function(x) {
       if (!x) return "";
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
@@ -440,6 +460,4 @@ export default {
 };
 </script>
 
-<style scoped src="@/assets/dashtem.css">
-
-</style>
+<style scoped src="@/assets/dashtem.css"></style>

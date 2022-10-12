@@ -56,6 +56,10 @@ class ReportController extends Controller
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
         });
 
+        $model->with("AttendanceLogs", function ($q) use ($request) {
+            $q->whereDate('LogTime', $request->daily_date);
+        });
+
         $model->with([
             "employee:id,system_user_id,first_name,employee_id,department_id",
             "shift:id,name,beginning_date,cycle_number,cycle_unit,overtime,days,working_hours",

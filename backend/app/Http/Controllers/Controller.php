@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Reports\ReportController;
-use App\Models\Attendance;
 use App\Models\Company;
-use App\Models\Department;
 use App\Models\Employee;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
+use App\Models\Attendance;
+use App\Models\Department;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
+use App\Models\AttendanceLog;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\App;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Http\Controllers\Reports\ReportController;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Controller extends BaseController
 {
@@ -187,8 +188,17 @@ class Controller extends BaseController
     public function daily_summary(Request $request)
     {
 
-        $company = Company::find($request->company_id);
+        // ============================
 
+        // AttendanceLog::where('UserID', $request->employee_id)
+        //     ->where('company_id', $request->company_id)
+        //     ->whereDate('LogTime', $request->daily_date)
+        //     ->select("LogTime")
+        //     ->get();
+
+        // ============================
+
+        $company = Company::find($request->company_id);
         $rc = new ReportController;
         $data = $rc->report($request);
 
@@ -199,40 +209,9 @@ class Controller extends BaseController
             'companyLogo' => $company->logo,
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
         ];
-        return Pdf::loadView('pdf.daily.v1_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
+        return Pdf::loadView('pdf.daily.v2_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
     }
 
-    public function daily_check_in(Request $request)
-    {
-        $company = Company::find($request->company_id);
-        $rc = new ReportController;
-        $data = $rc->report($request);
-        $info = [
-            'total_absent' => $rc->report($request)->where('status', 'A')->count(),
-            'total_present' => $rc->report($request)->where('status', 'P')->count(),
-            'total_missing' => $rc->report($request)->where('status', '---')->count(),
-            'total_check_in' => $rc->report($request)->where('in', '!=', '')->count(),
-            'companyLogo' => $company->logo,
-            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
-        ];
-        return Pdf::loadView('pdf.daily.v1_check_in', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
-    }
-
-    public function daily_check_out(Request $request)
-    {
-        $company = Company::find($request->company_id);
-        $rc = new ReportController;
-        $data = $rc->report($request);
-        $info = [
-            'total_absent' => $rc->report($request)->where('status', 'A')->count(),
-            'total_present' => $rc->report($request)->where('status', 'P')->count(),
-            'total_missing' => $rc->report($request)->where('status', '---')->count(),
-            'total_check_out' => $rc->report($request)->where('in', '!=', '')->where('out', '!=', '')->count(),
-            'companyLogo' => $company->logo,
-            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
-        ];
-        return Pdf::loadView('pdf.daily.v1_check_out', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
-    }
 
     public function daily_present(Request $request)
     {
