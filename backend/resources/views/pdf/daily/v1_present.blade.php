@@ -57,8 +57,8 @@ die();
             </td>
             <td style="text-align: right; border :none;">
                 <div>
-                    @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->pdf_logo }}" height="70px" width="70">
+                    @if(env('APP_ENV') !== 'local')
+                        <img src="{{ $company->logo }}" height="70px" width="70">
                     @endif
                     {{-- @dd(getcwd() . '/upload/1665497365.jpeg') --}}
                 </div>
