@@ -110,7 +110,7 @@ export default {
         text: "EID",
         align: "left",
         sortable: false,
-        value: "employee_id"
+        value: "system_user_id"
       },
       {
         text: "First Name",

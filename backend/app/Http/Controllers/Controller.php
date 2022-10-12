@@ -202,6 +202,38 @@ class Controller extends BaseController
         return Pdf::loadView('pdf.daily.v1_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
     }
 
+    public function daily_check_in(Request $request)
+    {
+        $company = Company::find($request->company_id);
+        $rc = new ReportController;
+        $data = $rc->report($request);
+        $info = [
+            'total_absent' => $rc->report($request)->where('status', 'A')->count(),
+            'total_present' => $rc->report($request)->where('status', 'P')->count(),
+            'total_missing' => $rc->report($request)->where('status', '---')->count(),
+            'total_check_in' => $rc->report($request)->where('in', '!=', '')->count(),
+            'companyLogo' => $company->logo,
+            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
+        ];
+        return Pdf::loadView('pdf.daily.v1_check_in', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
+    }
+
+    public function daily_check_out(Request $request)
+    {
+        $company = Company::find($request->company_id);
+        $rc = new ReportController;
+        $data = $rc->report($request);
+        $info = [
+            'total_absent' => $rc->report($request)->where('status', 'A')->count(),
+            'total_present' => $rc->report($request)->where('status', 'P')->count(),
+            'total_missing' => $rc->report($request)->where('status', '---')->count(),
+            'total_check_out' => $rc->report($request)->where('in', '!=', '')->where('out', '!=', '')->count(),
+            'companyLogo' => $company->logo,
+            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
+        ];
+        return Pdf::loadView('pdf.daily.v1_check_out', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
+    }
+
     public function daily_present(Request $request)
     {
         $company = Company::find($request->company_id);
