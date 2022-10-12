@@ -55,7 +55,7 @@ class ReportController extends Controller
         });
 
         $model->with([
-            "employee:id,first_name",
+            "employee:id,system_user_id,first_name,employee_id,department_id",
             "shift:id,name,beginning_date,cycle_number,cycle_unit,overtime,days,working_hours",
             "shift_type:id,name,slug",
             "time_table",
