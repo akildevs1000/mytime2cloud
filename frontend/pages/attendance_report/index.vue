@@ -450,6 +450,30 @@
         }}
       </v-btn>
       &nbsp;
+      <v-btn
+        v-if="can(`attendance_summary_access`)"
+        small
+        class="primary darken-2"
+        @click="generateReport('check_in')"
+      >
+        {{
+          payload.report_type == "Daily" ? "Daily Check/in" : "Monthly Check/in"
+        }}
+      </v-btn>
+      &nbsp;
+      <v-btn
+        v-if="can(`attendance_summary_access`)"
+        small
+        class="primary darken-2"
+        @click="generateReport('check_out')"
+      >
+        {{
+          payload.report_type == "Daily"
+            ? "Daily Check/Out"
+            : "Monthly Check/Out"
+        }}
+      </v-btn>
+      &nbsp;
 
       <!-- <v-btn
         small
