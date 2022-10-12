@@ -5,7 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="dialog" width="1100">
+    <v-dialog v-model="dialog" width="1300">
       <v-card>
         <v-card-title class="text-h5"> Schedule Employees </v-card-title>
         <v-divider></v-divider>
@@ -360,11 +360,11 @@ export default {
         sortable: false,
         value: "department.name",
       },
-      {
-        text: "Sub Department",
-        sortable: false,
-        value: "sub_department.name",
-      },
+      // {
+      //   text: "Sub Department",
+      //   sortable: false,
+      //   value: "sub_department.name",
+      // },
     ],
   }),
 

@@ -30,45 +30,7 @@
     <v-row class="mt-15" dense>
       <v-col md="12">
         <v-toolbar class="primary" dark flat>
-          <!-- <v-btn
-        small
-        class="primary darken-2"
-        @click="generateReport('/monthly_details')"
-      >
-        Details
-      </v-btn> -->
-          &nbsp;
-          <v-btn
-            v-if="can(`attendance_summary_access`)"
-            small
-            class="primary darken-2"
-            @click="generateReport('summary')"
-          >Summary
-          </v-btn>
-          &nbsp;
-          <v-btn
-            small
-            class="primary darken-2"
-            @click="generateReport('present')"
-          >Present
-          </v-btn>
-          &nbsp;
-          <v-btn
-            v-if="can(`attendance_summary_access`)"
-            small
-            class="primary darken-2"
-            @click="generateReport('absent')"
-          >Absent
-          </v-btn>
-          &nbsp;
-          <v-btn
-            v-if="can(`attendance_summary_access`)"
-            small
-            class="primary darken-2"
-            @click="generateReport('missing')"
-          >Missing
-          </v-btn>
-          &nbsp;
+          Today Summary View
         </v-toolbar>
         <v-data-table
           v-if="can(`attendance_log_view_access`)"
@@ -220,7 +182,6 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "Date", align: "left", sortable: false, value: "date" },
       { text: "E.ID", align: "left", sortable: false, value: "employee_id" },
       {
         text: "Name",
