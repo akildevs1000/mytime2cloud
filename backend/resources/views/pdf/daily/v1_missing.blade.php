@@ -72,7 +72,7 @@ die();
         <tr>
             <td style="text-align: center; border :none;">
                 <div>
-                    <h2>Daily Summary</h2>
+                    <h2>Daily Missing</h2>
                 </div>
             </td>
         </tr>
@@ -81,9 +81,7 @@ die();
         <tr style="text-align: left; border :1px solid black; width:120px;">
             <td style="text-align: left; width:120px;"><b>Date: </b>{{ $req->daily_date }}</td>
             <td style="text-align: left; width:120px;"><b>Department: </b>{{ $info->department }}</td>
-            <td style="text-align: left; width:120px; color: green;"><b>Present</b>: {{ $info->total_present }}</td>
-            <td style="text-align: left; width:120px; color: red;"><b>Absent</b>: {{ $info->total_absent }}</td>
-            <td style="text-align: left; width:120px; color: #f34100ed;"><b>Missing</b>: {{ $info->total_missing }}</td>
+            <td style="text-align: left; width:120px; color:#f34100"><b>Missing</b>: {{ $info->total_missing }}</td>
         </tr>
     </table>
     <table style="margin-top: 5px !important;">
@@ -100,24 +98,13 @@ die();
             <td style="text-align: left;"><b>Device Out </b></td>
         </tr>
         <tbody>
-            @php
-                $statusColor = '';
-            @endphp
             @foreach ($datas as $data)
-                @if ($data->status == 'P')
-                    {{ $statusColor = 'green' }}
-                @elseif ($data->status == 'A')
-                    {{ $statusColor = 'red' }}
-                @elseif ($data->status == '---')
-                    {{ $statusColor = '#f34100ed' }}
-                @endif
-
                 <tr style="text-align: left; border :1px solid black; width:120px;">
                     <td style="text-align: left;"> {{ ++$i }}</td>
                     <td style="text-align: left;"> {{ $data->employee_id ?? '---' }}</td>
                     <td style="text-align: left;"> {{ $data->employee->first_name ?? '---' }}</td>
                     <td style="text-align: left;"> {{ $data->employee->department->name ?? '---' }}</td>
-                    <td style="text-align: left; color:{{ $statusColor }}">
+                    <td style="text-align: left; color:#f34100">
                         {{ $data->status == '---' ? 'M' : $data->status }}</td>
                     <td style="text-align: left;"> {{ $data->in ?? '---' }}</td>
                     <td style="text-align: left; "> {{ $data->out ?? '---' }}</td>
