@@ -46,7 +46,6 @@ class UpdateCompanyIds extends Command
         $rows = Device::whereIn("device_id", $free_device_ids)->get(["company_id", "device_id as DeviceID"])->toArray();
 
         if (count($rows) == 0 || count($free_device_ids) == 0) {
-            Logger::channel("custom")->info('Cron: UpdateCompanyIds. No new record found while updating company ids for device');
             echo "[".$date."] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n";
             return;
         }
@@ -55,7 +54,6 @@ class UpdateCompanyIds extends Command
             try {
                 AttendanceLog::where("company_id", 0)->where("DeviceID", $arr["DeviceID"])->update($arr);
             } catch (\Throwable $th) {
-                Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error occured while updating company ids.');
                 Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
 
                 $data = [
@@ -63,12 +61,11 @@ class UpdateCompanyIds extends Command
                     'body' => $th,
                 ];
 
+                echo "[".$date."] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
                 Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
-                echo "[".$date."] Cron: UpdateCompanyIds. Error Details: " . $th . ".\n";
                 return;
             }
         }
-        Logger::channel("custom")->info("Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . json_encode($rows));
         echo "[".$date."] Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . json_encode($rows) . ".\n";
         return;
     }
