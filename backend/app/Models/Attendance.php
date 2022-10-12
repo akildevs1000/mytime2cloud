@@ -114,4 +114,9 @@ class Attendance extends Model
     {
         return $this->belongsTo(TimeTable::class);
     }
+
+    public function AttendanceLogs()
+    {
+        return $this->hasMany(AttendanceLog::class, "UserID", "employee_id");
+    }
 }

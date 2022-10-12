@@ -91,6 +91,7 @@ Route::apiResource('device', DeviceController::class);
 Route::get('device/search/{key}', [DeviceController::class, 'search']);
 Route::get('device/{key}/details', [DeviceController::class, 'getDeviceCompany']);
 Route::post('device/delete/selected', [DeviceController::class, 'deleteSelected']);
+Route::get('device_list', [DeviceController::class, 'getDeviceList']);
 
 //  Device Status
 Route::apiResource('device_status', DeviceStatusController::class);
@@ -113,5 +114,3 @@ Route::resource('assign-module', AssignModuleController::class);
 Route::get('SyncCompanyIdsWithDevices', [AttendanceLogController::class, 'SyncCompanyIdsWithDevices']);
 
 Route::get('SyncAttendance', [AttendanceController::class, 'SyncAttendance']);
-
-

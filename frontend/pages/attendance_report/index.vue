@@ -27,6 +27,122 @@
       </v-snackbar>
     </div>
 
+    <v-row justify="center">
+      <v-dialog v-model="dialog" max-width="700px">
+        <v-card>
+          <v-card-title>
+            <span class="headline"> Reason </span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-col md="12">
+                    <v-menu
+                      ref="time_menu_ref"
+                      v-model="time_menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      :return-value.sync="payload.time"
+                      transition="scale-transition"
+                      offset-y
+                      max-width="290px"
+                      min-width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="editItems.time"
+                          label="Time In"
+                          readonly
+                          v-bind="attrs"
+                          :rules="timeRules"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-time-picker
+                        v-if="time_menu"
+                        v-model="editItems.time"
+                        full-width
+                        format="24hr"
+                      >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          x-small
+                          color="primary"
+                          @click="time_menu = false"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          x-small
+                          color="primary"
+                          @click="$refs.time_menu_ref.save(editItems.time)"
+                        >
+                          OK
+                        </v-btn>
+                      </v-time-picker>
+                    </v-menu>
+                    <span
+                      v-if="errors && errors.time"
+                      class="text-danger mt-2"
+                      >{{ errors.time[0] }}</span
+                    >
+                  </v-col>
+                  <!-- <v-col md="12">
+                  <v-text-field
+                    v-model="editItems.device_id"
+                    label="Device Id"
+                    readonly
+                  ></v-text-field>
+                  <span
+                    v-if="errors && errors.device_id"
+                    class="text-danger mt-2"
+                    >{{ errors.device_id[0] }}</span
+                  >
+                </v-col> -->
+
+                  <v-col md="12">
+                    <v-autocomplete
+                      label="Select Device"
+                      v-model="editItems.device_id"
+                      :items="devices"
+                      item-text="device_id"
+                      item-value="id"
+                      :rules="deviceRules"
+                    >
+                    </v-autocomplete>
+                    <span
+                      v-if="errors && errors.device_id"
+                      class="text-danger mt-2"
+                      >{{ errors.device_id[0] }}</span
+                    >
+                  </v-col>
+                  <v-col cols="12">
+                    <v-textarea
+                      filled
+                      label="Reason"
+                      v-model="editItems.reason"
+                      auto-grow
+                      :rules="nameRules"
+                      required
+                    ></v-textarea>
+                    <span v-if="errors && errors.reason" class="error--text">
+                      {{ errors.reason[0] }}
+                    </span>
+                  </v-col>
+                </v-form>
+              </v-row>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn class="error" small @click="close"> Cancel </v-btn>
+            <v-btn class="primary" small @click="update">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
+
     <v-row class="mt-5 mb-5">
       <v-col cols="6">
         <h3>{{ Model }}</h3>
@@ -424,7 +540,7 @@
         }}
       </v-btn>
       &nbsp;
-      <v-btn small class="primary darken-2" @click="generateReport('present')">
+      <!-- <v-btn small class="primary darken-2" @click="generateReport('present')">
         {{
           payload.report_type == "Daily" ? "Daily Present" : "Monthly Present"
         }}
@@ -449,8 +565,8 @@
           payload.report_type == "Daily" ? "Daily Missing" : "Monthly Missing"
         }}
       </v-btn>
-      &nbsp;
-      <v-btn
+      &nbsp; -->
+      <!-- <v-btn
         v-if="can(`attendance_summary_access`)"
         small
         class="primary darken-2"
@@ -473,7 +589,7 @@
             : "Monthly Check/Out"
         }}
       </v-btn>
-      &nbsp;
+      &nbsp; -->
 
       <!-- <v-btn
         small
@@ -566,6 +682,22 @@
         <span v-else>{{ item.status }}</span>
       </template>
 
+      <template v-slot:item.reason="{ item }">
+        <!-- <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
+
+        <v-icon v-else-if="item.status == 'P'" color="success darken-1"
+          >mdi-check</v-icon
+        >
+        <v-icon v-else-if="item.status == 'H'" color="grey darken-1"
+          >mdi-check</v-icon
+        >
+        <span v-else>{{ item.status }}</span> -->
+
+        <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
+          mdi-pencil
+        </v-icon>
+      </template>
+
       <template v-slot:item.shift="{ item }">
         <v-tooltip v-if="item && item.shift" top color="primary">
           <template v-slot:activator="{ on, attrs }">
@@ -618,7 +750,7 @@
         <span v-else>---</span>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
+        <v-icon @click="viewItem(item)" x-small color="primary" class="mr-2">
           mdi-eye
         </v-icon>
       </template>
@@ -670,11 +802,24 @@ export default {
     departments: [],
     scheduled_employees: [],
     DateRange: true,
+    devices: [],
+    valid: true,
+    nameRules: [v => !!v || "reason is required"],
+    timeRules: [v => !!v || "time is required"],
+    deviceRules: [v => !!v || "device is required"],
 
     daily_menu: false,
     daily_date: null,
     dailyDate: false,
-
+    editItems: {
+      attendance_logs_id: "",
+      UserID: "",
+      device_id: "",
+      user_id: "",
+      reason: "",
+      date: "",
+      time: null
+    },
     loading: false,
     total: 0,
     headers: [
@@ -738,6 +883,12 @@ export default {
         sortable: false,
         value: "device_out"
       },
+      {
+        text: "Reason",
+        align: "left",
+        sortable: false,
+        value: "reason"
+      },
       { text: "Actions", value: "actions", sortable: false }
     ],
     payload: {
@@ -800,8 +951,9 @@ export default {
       }
     };
     this.getDepartments(this.custom_options);
-    // this.getScheduledEmployees();
     this.getAttendanceEmployees();
+
+    this.getDeviceList();
   },
 
   methods: {
@@ -811,6 +963,17 @@ export default {
       } else if (report_type == "Monthly") {
         this.setMonthlyDateRange();
       }
+    },
+
+    getDeviceList() {
+      let payload = {
+        params: {
+          company_id: this.$auth.user.company.id
+        }
+      };
+      this.$axios.get(`/device_list`, payload).then(({ data }) => {
+        this.devices = data;
+      });
     },
 
     setMonthlyDateRange() {
@@ -904,11 +1067,11 @@ export default {
       });
     },
 
-    getDevices(options) {
-      this.$axios.get(`/device`, options).then(({ data }) => {
-        this.devices = data.data;
-      });
-    },
+    // getDevices(options) {
+    //   this.$axios.get(`/device`, options).then(({ data }) => {
+    //     this.devices = data.data;
+    //   });
+    // },
 
     getDepartments(options) {
       this.$axios
@@ -1032,7 +1195,43 @@ export default {
 
       return { ...shift, ...time_table };
     },
+
     editItem(item) {
+      this.dialog = true;
+      this.editItems.UserID = item.employee_id;
+      this.editItems.date = item.edit_date;
+    },
+
+    update() {
+      if (this.$refs.form.validate()) {
+        let payload = {
+          UserID: this.editItems.UserID,
+          LogTime: this.editItems.date + " " + this.editItems.time + ":00",
+          DeviceID: this.editItems.device_id,
+          user_id: this.editItems.UserID,
+          company_id: this.$auth.user.company.id,
+          reason: this.editItems.reason
+        };
+
+        this.$axios
+          .post("/generate_manual_log", payload)
+          .then(({ data }) => {
+            this.loading = false;
+            if (!data.status) {
+              this.errors = data.errors;
+              // this.msg = data.message;
+            } else {
+              this.snackbar = true;
+              this.response = data.message;
+              this.editItems = [];
+              this.close();
+            }
+          })
+          .catch(e => console.log(e));
+      }
+    },
+
+    viewItem(item) {
       this.log_list = [];
       let options = {
         params: {
@@ -1052,6 +1251,7 @@ export default {
       // this.editedItem = Object.assign({}, item);
       // this.dialog = true;
     },
+
     close() {
       this.dialog = false;
       setTimeout(() => {
