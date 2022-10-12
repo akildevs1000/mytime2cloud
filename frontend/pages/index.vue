@@ -29,13 +29,13 @@
               <i :class="i.icon"></i>
             </div>
             <div class="card-content">
-              <h4 class="card-title text-capitalize">{{ i.title }}</h4>
+              <h4 class="card-title text-capitalize">{{ i.title }} </h4>
               <span class="data-1"> {{ i.value }}</span>
               <p class="mb-0 text-sm">
-                <span class="mr-2"><i class="fa fa-arrow-right"></i></span>
-                <nuxt-link class="text-nowrap text-white" to="">
-                  <span class="text-nowrap">View Details</span>
-                </nuxt-link>
+                <span class="mr-2"><v-icon dark small>mdi-arrow-right</v-icon></span>
+                <a class="text-nowrap text-white" target="_blank" :href="i.link">
+                  <span class="text-nowrap">View Report</span>
+                </a>
               </p>
             </div>
           </div>
@@ -55,10 +55,13 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-row class="mt-5">
-      <v-col cols="12">
-        <RealTimeLogs />
+    <v-row>
+       <v-col cols="12">
+        <DailySummary />
       </v-col>
+    </v-row>
+    <v-row class="mt-5">
+     
       <v-col md="4" cols="12" sm="12">
         <v-card elevation="0">
           <v-list three-line>
@@ -420,79 +423,6 @@ export default {
       else if (calories > 200) return "orange";
       else return "green";
     },
-    // async initialize() {
-    //   this.total_items = [
-    //     {
-    //       title: "TOTAL Employees",
-    //       value: "723",
-    //     },
-    //     {
-    //       title: "Payroll For Current Month",
-    //       value: "5.2k",
-    //     },
-    //     {
-    //       title: "Today Abense",
-    //       value: "4",
-    //     },
-    //   ],
-    //     this.items_by_cities = [
-    //       {
-    //         title: "Gamosaj",
-    //         value: "3pm",
-    //       },
-    //       {
-    //         title: "Vekorot",
-    //         value: "9am",
-    //       },
-    //       {
-    //         title: "Pinih",
-    //         value: "12pm",
-    //       },
-    //       {
-    //         title: "Cixobele",
-    //         value: "10:30am",
-    //       },
-    //     ],
-    //     this.payment_modes = [
-    //       {
-    //         title: "CASH ON DELIVER",
-    //         value: 9.5,
-    //         color: "success",
-    //       },
-    //       {
-    //         title: "EASY PAISA",
-    //         value: 3.2,
-    //         color: "warning",
-    //       },
-    //       {
-    //         title: "JAZZ CASH",
-    //         value: 7.2,
-    //         color: "info",
-    //       },
-    //       {
-    //         title: "DEBIT CARD",
-    //         value: 1.2,
-    //         color: "error",
-    //       },
-    //     ];
-    //   this.order_by_devices = [
-    //     {
-    //       title: "DESKTOP",
-    //       value: 3.2,
-    //       color: "success",
-    //     },
-    //     {
-    //       title: "MOBILE",
-    //       value: 7.2,
-    //       color: "warning",
-    //     },
-    //     {
-    //       title: "POS",
-    //       value: 1.2,
-    //       color: "error",
-    //     },
-    //   ];
-    // },
     initialize() {
       let options = {
         company_id: this.$auth.user.company.id

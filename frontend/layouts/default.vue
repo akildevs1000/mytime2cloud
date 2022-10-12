@@ -524,12 +524,6 @@ export default {
           to: "/setting",
           permission: this.can("/")
         },
-        {
-          icon: "mdi-history",
-          title: "Logs",
-          to: "/logs",
-          permission: this.can("/")
-        }
       ],
       modules: {
         module_ids: [],

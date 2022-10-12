@@ -19,63 +19,43 @@ class CountController extends Controller
     public function __invoke(Request $request)
     {
         $id = $request->company_id ?? 0;
-        $attendanceModel = Attendance::query();
-        $attendanceModel->whereCompanyId($id);
-        $model = $attendanceModel->whereDate('date', date('Y-m-d'))->get();
+        $model = Attendance::query();
+        $model->whereCompanyId($id);
+        $model = $model->whereDate('date', date('Y-m-d'))->get();
 
         return [
-            // [
-            //     "title" => "TOTAL MODULES",
-            //     "value" => count(AssignModule::whereCompanyId($id)->pluck("module_ids")[0]),
-            //     "icon" => "mdi-apps",
-            //     "color" => "l-bg-green-dark",
-            // ],
-            // [
-            //     "title" => "TOTAL Department",
-            //     "value" => Department::whereCompanyId($id)->count(),
-            //     "icon" => "mdi-door",
-            //     "color" => "l-bg-cyan-dark",
-            // ],
-            // [
-            //     "title" => "TOTAL Employee",
-            //     "value" => Employee::whereCompanyId($id)->count(),
-            //     "icon" => "mdi-account",
-            //     "color" => "l-bg-purple-dark",
-            // ],
-            // [
-            //     "title" => "TOTAL Device",
-            //     "value" => Device::whereCompanyId($id)->count(),
-            //     "icon" => "mdi-laptop",
-            //     "color" => "l-bg-orange-dark",
-            // ],
+            [
+                "title" => "Today Summary",
+                "value" => $model->count(), 
+                "icon" => "fas fa-clock",
+                "color" => "l-bg-purple-dark",
+                "link"  => env("BASE_URL") . "/api/daily_summary?page=1&per_page=1000&company_id=$id&status=SA&daily_date=" . date("Y-m-d") . "&department_id=-1"
+
+            ],
             [
                 "title" => "Today Presents",
-                "value" => 25,
-                // "value" => $model->where('status', 'P')->count(),
+                "value" => $model->where('status', 'P')->count(),
                 "icon" => "fas fa-calendar-check",
-                "color" => "l-bg-orange-dark",
+                "color" => "l-bg-green-dark ",
+                "link"  => env("BASE_URL") . "/api/daily_present?page=1&per_page=1000&company_id=$id&status=P&daily_date=" . date("Y-m-d") . "&department_id=-1"
             ],
             [
                 "title" => "Today Absent",
-                "value" => 14,
-                // "value" => $model->where('status', 'A')->count(),
+                "value" => $model->where('status', 'A')->count(),
                 "icon" => "fas fa-calendar-times",
-                "color" => "l-bg-purple-dark",
+                "color" => "l-bg-orange-dark",
+                "link"  => env("BASE_URL") . "/api/daily_absent?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . date("Y-m-d") . "&department_id=-1"
+
             ],
             [
-                "title" => "Late Coming",
-                "value" => 20,
-                // "value" => $model->where('status', 'A')->count(),
+                "title" => "Today Missing",
+                "value" => $model->where('status', '---')->count(),
                 "icon" => "	fas fa-clock",
                 "color" => "l-bg-cyan-dark",
+                "link"  => env("BASE_URL") . "/api/daily_missing?page=1&per_page=1000&company_id=$id&status=---&daily_date=" . date("Y-m-d") . "&department_id=-1"
+
             ],
-            [
-                "title" => "Online Devices",
-                "value" => 10,
-                // "value" => $model->where('status', 'A')->count(),
-                "icon" => "fas fa-clock",
-                "color" => "l-bg-green-dark",
-            ],
+
         ];
     }
 
@@ -132,5 +112,4 @@ class CountController extends Controller
             ],
         ];
     }
-
 }

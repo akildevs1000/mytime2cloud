@@ -57,13 +57,9 @@ die();
             </td>
             <td style="text-align: right; border :none;">
                 <div>
-                    @php
-                        $i = 0;
-                        // $img = env('APP_ENV') == 'local' ? public_path() . '/upload/1665500012.png' : $company->logo;
-                        $img = env('APP_ENV') == 'local' ? public_path() . '/upload/' . $company->pdf_logo : $company->logo;
-                    @endphp
-                    {{-- @dd(getcwd() . '/upload/1665497365.jpeg') --}}
-                    <img src="{{ $img }}" height="70px" width="70">
+                    @if (env('APP_ENV') !== 'local')
+                        <img src="{{ $company->pdf_logo }}" height="70px" width="70">
+                    @endif
                 </div>
             </td>
         </tr>
@@ -84,6 +80,7 @@ die();
             <td style="text-align: left; width:120px; color:#f34100"><b>Missing</b>: {{ $info->total_missing }}</td>
         </tr>
     </table>
+    @php $i = 0; @endphp
     <table style="margin-top: 5px !important;">
         <tr style="text-align: left; border :1px solid black; width:120px; background-color: #A6A6A6">
             <td style="text-align: left;"><b>#</b></td>

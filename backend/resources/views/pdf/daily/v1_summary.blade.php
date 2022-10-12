@@ -57,13 +57,10 @@ die();
             </td>
             <td style="text-align: right; border :none;">
                 <div>
-                    @php
-                        $i = 0;
-                        // $img = env('APP_ENV') == 'local' ? public_path() . '/upload/1665500012.png' : $company->logo;
-                        $img = env('APP_ENV') == 'local' ? public_path() . '/upload/' . $company->pdf_logo : $company->logo;
-                    @endphp
-                    {{-- @dd(getcwd() . '/upload/1665497365.jpeg') --}}
-                    <img src="{{ $img }}" height="70px" width="70">
+                    @if (env('APP_ENV') !== 'local')
+                        <img src="{{ $company->pdf_logo }}" height="70px" width="70">
+                    @endif
+
                 </div>
             </td>
         </tr>
@@ -102,6 +99,7 @@ die();
         <tbody>
             @php
                 $statusColor = '';
+                $i = 0;
             @endphp
             @foreach ($datas as $data)
                 @if ($data->status == 'P')
