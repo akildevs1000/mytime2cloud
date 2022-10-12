@@ -33,7 +33,7 @@ class UpdateCompanyIds extends Command
      */
     public function handle()
     {
-        $date = date("d-m-Y H:i:s");
+        $date = date("Y-m-d H:i:s");
 
         // get device ids with company ids = 0
         $model = AttendanceLog::query();
