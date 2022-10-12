@@ -58,7 +58,7 @@ die();
             <td style="text-align: right; border :none;">
                 <div>
                     @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->pdf_logo }}" height="70px" width="70">
+                        <img src="{{ $company->logo }}" height="70px" width="70">
                     @endif
                 </div>
             </td>
