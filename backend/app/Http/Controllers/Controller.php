@@ -209,7 +209,7 @@ class Controller extends BaseController
             'companyLogo' => $company->logo,
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
         ];
-        return Pdf::loadView('pdf.daily.v2_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
+        return Pdf::loadView('pdf.daily.v1_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
     }
 
 
