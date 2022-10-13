@@ -13,7 +13,7 @@ class AttendanceController extends Controller
         $items = [];
         $model = AttendanceLog::query();
         $model->where("checked", false);
-        $model->take(1000);
+        $model->take(100);
         if ($model->count() == 0) {
             return false;
         }
@@ -42,6 +42,7 @@ class AttendanceController extends Controller
 
             if ($first_log) {
                 $item["in"] = $first_log->time;
+                $item["status"] = "---";
                 $item["device_id_in"] = Device::where("device_id", $first_log->DeviceID)->pluck("id")[0] ?? "---";
             }
             if ($logs > 1 && $last_log) {
