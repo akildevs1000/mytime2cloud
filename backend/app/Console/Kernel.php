@@ -17,22 +17,22 @@ class Kernel extends ConsoleKernel
     {
         $schedule
             ->command('task:sync_attendance_logs')
-            ->everyThirtyMinutes()
-            // ->everyMinute()
+            // ->everyThirtyMinutes()
+            ->everyMinute()
             ->between('7:00', '23:59')
             ->appendOutputTo("scheduler.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:update_company_ids')
-            ->everyThirtyMinutes()
-            // ->everyMinute()
+            // ->everyThirtyMinutes()
+            ->everyMinute()
             ->between('7:00', '23:59')
             ->appendOutputTo("scheduler.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:sync_attendance')
-            ->everyThirtyMinutes()
-            // ->everyMinute()
+            // ->everyThirtyMinutes()
+            ->everyMinute()
             ->between('7:00', '23:59')
             ->appendOutputTo("scheduler.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
