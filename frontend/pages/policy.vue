@@ -119,11 +119,12 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [50, 100, 500,1000]
+            itemsPerPageOptions: [50, 100, 500, 1000]
           }"
           class="elevation-1"
         >
           <template v-slot:top>
+            <v-toolbar dark class="primary">Policy</v-toolbar>
             <v-toolbar flat color="">
               <v-toolbar-title>List</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>

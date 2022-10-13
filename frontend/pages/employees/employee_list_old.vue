@@ -1,154 +1,97 @@
 <template>
-  <div v-if="can(`role_access`)">
+  <div v-if="can(`employee_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
       </v-snackbar>
     </div>
-    <v-row>
-      <!-- <v-dialog v-model="dialog" max-width="500px">
-        <v-card>
-          <v-card-title>
-            <span class="headline">{{ formTitle }} {{ Model }} </span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="editedItem.name"
-                    label="Role"
-                  ></v-text-field>
-                  <span v-if="errors && errors.name" class="error--text">
-                    {{ errors.name[0] }}</span
-                  >
-                </v-col>
-                <v-col> </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn class="error" small @click="close"> Cancel </v-btn>
-            <v-btn class="primary" small @click="save">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog> -->
-    </v-row>
     <v-row class="mt-5 mb-5">
       <v-col cols="6">
         <h3>{{ Model }}</h3>
         <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="6">
+        <div class="text-left">
+          <v-btn small class="primary pt-4 pb-4" to="/employees/employee_list">
+            <v-icon class="pa-0">mdi-menu</v-icon>
+          </v-btn>
+          <v-btn x-small class="primary--text pt-4 pb-4" to="/employees">
+            <v-icon class="pa-0">mdi-grid</v-icon>
+          </v-btn>
+        </div>
         <div class="text-right">
           <v-btn
-            v-if="can(`role_deleted`)"
-            small
-            color="error"
-            class="mr-2 mb-2"
-            @click="delteteSelectedRecords"
-            >Delete Selected Records</v-btn
-          >
-          <!-- <v-btn
-            v-if="can(`role_create`)"
+            v-if="can(`employee_create`)"
             small
             color="primary"
-            @click="dialog = true"
             class="mb-2"
+            to="/employees/create"
             >{{ Model }} +
-          </v-btn> -->
+          </v-btn>
         </div>
       </v-col>
     </v-row>
+    <v-data-table
+      v-if="can(`employee_view`)"
+      v-model="ids"
+      show-select
+      item-key="id"
+      :headers="headers"
+      :items="data"
+      :server-items-length="total"
+      :loading="loading"
+      :options.sync="options"
+      :footer-props="{
+        itemsPerPageOptions: [50, 100, 500, 1000]
+      }"
+      class="elevation-1"
+    >
+      <template v-slot:top>
+        <v-toolbar dark class="primary">Employees List</v-toolbar>
 
-    <v-row>
-      <v-col md="4">
-        <v-card>
-          <v-toolbar flat dark class="primary">
-            {{ formTitle }} {{ Model }}
-          </v-toolbar>
+        <v-toolbar flat>
+          <v-toolbar-title>List</v-toolbar-title>
+          <v-divider class="mx-4" inset vertical></v-divider>
 
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="editedItem.name"
-                    label="Role"
-                  ></v-text-field>
-                  <span v-if="errors && errors.name" class="error--text">
-                    {{ errors.name[0] }}</span
-                  >
-                </v-col>
-                <v-col> </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn class="error" small @click="close"> Cancel </v-btn>
-            <v-btn class="primary" small @click="save">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-      <v-col md="8">
-        <v-data-table
-          v-if="can(`role_view`)"
-          v-model="ids"
-          show-select
-          item-key="id"
-          :headers="headers"
-          :items="data"
-          :server-items-length="total"
-          :loading="loading"
-          :options.sync="options"
-          :footer-props="{
-            itemsPerPageOptions: [50, 100, 500, 1000]
-          }"
-          class="elevation-1"
+          <v-text-field
+            @input="searchIt"
+            v-model="search"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
+        </v-toolbar>
+      </template>
+      <template v-slot:item.action="{ item }">
+        <v-icon
+          v-if="can(`employee_edit`)"
+          color="secondary"
+          small
+          class="mr-2"
+          @click="editItem(item)"
         >
-          <template v-slot:top>
-            <v-toolbar dark class="primary">Roles List</v-toolbar>
-            <v-toolbar flat>
-              <v-toolbar-title>List</v-toolbar-title>
-              <v-divider class="mx-4" inset vertical></v-divider>
-              <v-text-field
-                @input="searchIt"
-                v-model="search"
-                label="Search"
-                single-line
-                hide-details
-              ></v-text-field>
-            </v-toolbar>
-          </template>
-          <template v-slot:item.action="{ item }">
-            <v-icon
-              v-if="can(`role_edit`)"
-              color="secondary"
-              small
-              class="mr-2"
-              @click="editItem(item)"
-            >
-              mdi-pencil
-            </v-icon>
-            <v-icon
-              v-if="can(`role_delete`)"
-              color="error"
-              small
-              @click="deleteItem(item)"
-            >
-              {{ item.role === "customer" ? "" : "mdi-delete" }}
-            </v-icon>
-          </template>
-          <template v-slot:no-data>
-            <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
-          </template>
-        </v-data-table></v-col
-      >
-    </v-row>
+          mdi-pencil
+        </v-icon>
+        <v-icon
+          v-if="can(`employee_delete`)"
+          color="error"
+          small
+          @click="deleteItem(item)"
+        >
+          mdi-delete
+        </v-icon>
+      </template>
+      <template v-slot:item.profile_picture="{ item }">
+        <div class="pa-1">
+          <v-img
+            style="border-radius: 50%; height: auto; width: 75px"
+            :src="item.profile_picture || '/no-profile-image.jpg'"
+          >
+          </v-img>
+        </div>
+      </template>
+    </v-data-table>
+    <NoAccess v-else />
   </div>
   <NoAccess v-else />
 </template>
@@ -156,8 +99,8 @@
 export default {
   data: () => ({
     options: {},
-    Model: "Role",
-    endpoint: "role",
+    Model: "Employee",
+    endpoint: "employee",
     search: "",
     snackbar: false,
     dialog: false,
@@ -165,7 +108,36 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "Role", align: "left", sortable: false, value: "name" },
+      {
+        text: "EID",
+        align: "left",
+        sortable: false,
+        value: "system_user_id"
+      },
+      {
+        text: "First Name",
+        align: "left",
+        sortable: false,
+        value: "first_name"
+      },
+      {
+        text: "Last Name",
+        align: "left",
+        sortable: false,
+        value: "first_name"
+      },
+      {
+        text: "Department",
+        align: "left",
+        sortable: false,
+        value: "department.name"
+      },
+      {
+        text: "Designation",
+        align: "left",
+        sortable: false,
+        value: "designation.name"
+      },
       { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
@@ -216,8 +188,7 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-          role_type: "employee"
+          company_id: this.$auth.user.company.id
         }
       };
 
@@ -236,9 +207,7 @@ export default {
     },
 
     editItem(item) {
-      this.editedIndex = this.data.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
+      this.$router.push(`/employees/${item.id}`);
     },
 
     delteteSelectedRecords() {
