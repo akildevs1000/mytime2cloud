@@ -13,7 +13,7 @@ class AttendanceController extends Controller
         $items = [];
         $model = AttendanceLog::query();
         $model->where("checked", false);
-        $model->take(100);
+        $model->take(1000);
         if ($model->count() == 0) {
             return false;
         }
