@@ -30,7 +30,7 @@ class Attendance extends Model
     public function getOtAttribute($value)
     {
         $value = explode(".", "$value")[0];
-        return $value > '04:00' ? '00:00' : $value;
+        return $value > '06:00' ? '00:00' : $value;
     }
 
     public function getTotalHrsAttribute($value)
