@@ -67,26 +67,6 @@
 
             <div class="col-sm-6">
               <div class="form-group">
-                <label class="col-form-label">Device IP </label>
-                <span class="text-danger">*</span>
-                <input v-model="payload.ip" class="form-control" type="text" />
-                <span v-if="errors && errors.ip" class="text-danger mt-2">{{
-                errors.ip[0]
-                }}</span>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="form-group">
-                <label class="col-form-label">Port </label>
-                <span class="text-danger">*</span>
-                <input v-model="payload.port" class="form-control" type="text" />
-                <span v-if="errors && errors.port" class="text-danger mt-2">{{ errors.port[0] }}</span>
-              </div>
-            </div>
-
-
-            <div class="col-sm-6">
-              <div class="form-group">
                 <label class="col-form-label">Device Status </label>
                 <span class="text-danger">*</span>
                 <select v-model="payload.status_id" class="form-select" aria-label="Default select">

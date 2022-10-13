@@ -13,19 +13,17 @@ Route::get('/test', function (Request $request) {
     return "Awesome APIs";
 });
 
-
-
 Route::get('/generate_attendance_log', function (Request $request) {
 
     $arr = [];
     for ($i = 1; $i <= 5; $i++) {
-        for ($j = 1; $j <= 4; $j++) {
-            for ($k = 1; $k <= 5; $k++) {
+        for ($j = 13; $j <= 13; $j++) {
+            for ($k = 1; $k <= 1; $k++) {
                 $time =  rand(8, 20);
                 $time = $time < 10 ? '0' . $time : $time;
                 $arr[] = [
                     'UserID' => $i,
-                    'LogTime' => "2022-10-0$j $time:00:00",
+                    'LogTime' => "2022-10-$j $time:00:00",
                     'DeviceID' => "OX-8862021010097",
                     'company_id' => "1",
                 ];

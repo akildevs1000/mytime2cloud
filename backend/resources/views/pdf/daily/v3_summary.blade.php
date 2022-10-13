@@ -60,6 +60,8 @@ die();
                 <div>
                     @if (env('APP_ENV') !== 'local')
                         <img src="{{ $company->logo }}" height="70px" width="70">
+                    @else
+                        <img src="{{ getcwd() . '/upload/1665668211.png' }}" height="70px" width="70">
                     @endif
                 </div>
             </td>
@@ -102,15 +104,15 @@ die();
     @endphp
     <table style="margin-top: 5px !important;">
         <tr style="text-align: left;font-weight:bold">
+            <td style="text-align:  left;"> Name </td>
             <td style="text-align:  center;width:80px"> EID </td>
-            <td style="text-align:  center;"> Name </td>
             <td style="text-align:  center;width:80px"> In </td>
             <td style="text-align:  center;width:80px"> Out </td>
             <td style="text-align:  center;width:80px"> Total Hours </td>
             <td style="text-align:  center;width:80px"> OT </td>
             <td style="text-align:  center;width:80px"> Status </td>
-            <td style="text-align:  center;width:150px"> Device In </td>
-            <td style="text-align:  center;width:150px"> Device Out </td>
+            <td style="text-align:  left;width:150px"> Device In </td>
+            <td style="text-align:  left;width:150px"> Device Out </td>
         </tr>
         @foreach ($datas as $data)
             @php
@@ -130,15 +132,15 @@ die();
                     <td colspan="7" style="text-align: left;"></td>
                 </tr> --}}
                 <tr style="text-align:  center; ">
+                    <td style="text-align:  left; width:120px"> {{ $data->employee->first_name ?? '---' }}</td>
                     <td style="text-align:  center;">{{ $data->employee_id ?? '---' }}</td>
-                    <td style="text-align:  center; width:120px"> {{ $data->employee->first_name ?? '---' }}</td>
                     <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td>
                     <td style="text-align:  center; color:{{ $statusColor }}""> {{ $data->status ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->device_in->short_name ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->device_out->short_name ?? '---' }} </td>
+                    <td style="text-align:  left;"> {{ $data->device_in->short_name ?? '---' }} </td>
+                    <td style="text-align:  left;"> {{ $data->device_out->short_name ?? '---' }} </td>
                 </tr>
             </tbody>
         @endforeach
