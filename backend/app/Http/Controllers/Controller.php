@@ -163,7 +163,6 @@ class Controller extends BaseController
         return $hours . ':' . $minutes;
     }
 
-
     public function dailyTotalHours($arr)
     {
         $times = [];
@@ -188,20 +187,9 @@ class Controller extends BaseController
     public function daily_summary(Request $request)
     {
 
-        // ============================
-
-        // AttendanceLog::where('UserID', $request->employee_id)
-        //     ->where('company_id', $request->company_id)
-        //     ->whereDate('LogTime', $request->daily_date)
-        //     ->select("LogTime")
-        //     ->get();
-
-        // ============================
-
         $company = Company::find($request->company_id);
         $rc = new ReportController;
         $data = $rc->report($request);
-
         $info = [
             'total_absent' => $rc->report($request)->where('status', 'A')->count(),
             'total_present' => $rc->report($request)->where('status', 'P')->count(),
@@ -209,7 +197,22 @@ class Controller extends BaseController
             'companyLogo' => $company->logo,
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
         ];
-        return Pdf::loadView('pdf.daily.v1_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
+        return Pdf::loadView('pdf.daily.v3_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
+    }
+
+    public function daily_details(Request $request)
+    {
+        $company = Company::find($request->company_id);
+        $rc = new ReportController;
+        $data = $rc->report($request);
+        $info = [
+            'total_absent' => $rc->report($request)->where('status', 'A')->count(),
+            'total_present' => $rc->report($request)->where('status', 'P')->count(),
+            'total_missing' => $rc->report($request)->where('status', '---')->count(),
+            'companyLogo' => $company->logo,
+            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
+        ];
+        return Pdf::loadView('pdf.daily.v3_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
     }
 
 
