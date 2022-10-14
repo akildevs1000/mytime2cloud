@@ -682,21 +682,7 @@
         <span v-else>{{ item.status }}</span>
       </template>
 
-      <template v-slot:item.reason="{ item }">
-        <!-- <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
-
-        <v-icon v-else-if="item.status == 'P'" color="success darken-1"
-          >mdi-check</v-icon
-        >
-        <v-icon v-else-if="item.status == 'H'" color="grey darken-1"
-          >mdi-check</v-icon
-        >
-        <span v-else>{{ item.status }}</span> -->
-
-        <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
-          mdi-pencil
-        </v-icon>
-      </template>
+      <template v-slot:item.reason="{ item }"> </template>
 
       <template v-slot:item.shift="{ item }">
         <v-tooltip v-if="item && item.shift" top color="primary">
@@ -750,6 +736,9 @@
         <span v-else>---</span>
       </template>
       <template v-slot:item.actions="{ item }">
+        <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
+          mdi-pencil
+        </v-icon>
         <v-icon @click="viewItem(item)" x-small color="primary" class="mr-2">
           mdi-eye
         </v-icon>
@@ -883,12 +872,7 @@ export default {
         sortable: false,
         value: "device_out"
       },
-      {
-        text: "Reason",
-        align: "left",
-        sortable: false,
-        value: "reason"
-      },
+
       { text: "Actions", value: "actions", sortable: false }
     ],
     payload: {
