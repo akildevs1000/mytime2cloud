@@ -31,7 +31,7 @@
         </div>
       </v-col>
     </v-row>
-    <v-data-table
+    <!-- <v-data-table
       v-if="can(`employee_view`)"
       v-model="ids"
       show-select
@@ -47,7 +47,9 @@
       class="elevation-1"
     >
       <template v-slot:top>
-        <v-toolbar flat color="">
+        <v-toolbar dark class="primary">Employees List</v-toolbar>
+
+        <v-toolbar flat>
           <v-toolbar-title>List</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
 
@@ -88,7 +90,49 @@
           </v-img>
         </div>
       </template>
-    </v-data-table>
+    </v-data-table> -->
+
+    <v-card v-if="can(`employee_view`)">
+      <!-- <v-toolbar elevation="1" dense dark class="primary"
+        >Employees List</v-toolbar
+      > -->
+      <table>
+        <tr>
+          <th v-for="(item, index) in headers" :key="index">{{ item.text }}</th>
+        </tr>
+        <tr v-for="(item, index) in data" :key="index">
+          <td>{{ item.system_user_id || "---" }}</td>
+
+          <td>
+            <v-img
+              style="border-radius: 50%; height: auto; width: 50px"
+              :src="item.profile_picture || '/no-profile-image.jpg'"
+            >
+            </v-img>
+          </td>
+          <td>{{ item.first_name || "---" }}</td>
+          <td>{{ item.department.name || "---" }}</td>
+          <td>{{ (item.designation && item.designation.name) || "---" }}</td>
+          <td>{{ (item && item.user.email) || "---" }}</td>
+          <td>{{ (item && item.phone_number) || "---" }}</td>
+          <td>{{ (item && item.schedule.shift_type.name) || "---" }}</td>
+          <td>{{ (item && item.joining_date) || "---" }}</td>
+          <td>
+            <v-icon
+              color="secondary"
+              small
+              class="mr-2"
+              @click="editItem(item)"
+            >
+              mdi-pencil
+            </v-icon>
+            <v-icon color="error" small @click="deleteItem(item)">
+              mdi-delete
+            </v-icon>
+          </td>
+        </tr>
+      </table>
+    </v-card>
     <NoAccess v-else />
   </div>
   <NoAccess v-else />
@@ -113,13 +157,13 @@ export default {
         value: "system_user_id"
       },
       {
-        text: "First Name",
+        text: "Profile",
         align: "left",
         sortable: false,
         value: "first_name"
       },
       {
-        text: "Last Name",
+        text: "Name",
         align: "left",
         sortable: false,
         value: "first_name"
@@ -132,6 +176,30 @@ export default {
       },
       {
         text: "Designation",
+        align: "left",
+        sortable: false,
+        value: "designation.name"
+      },
+      {
+        text: "Email",
+        align: "left",
+        sortable: false,
+        value: "designation.name"
+      },
+      {
+        text: "Mobile",
+        align: "left",
+        sortable: false,
+        value: "designation.name"
+      },
+      {
+        text: "Shift",
+        align: "left",
+        sortable: false,
+        value: "designation.name"
+      },
+      {
+        text: "Joining Date",
         align: "left",
         sortable: false,
         value: "designation.name"
@@ -167,6 +235,7 @@ export default {
   },
   created() {
     this.loading = true;
+    this.getDataFromApi();
   },
 
   methods: {
@@ -194,6 +263,7 @@ export default {
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
+        console.log(this.data);
       });
     },
     searchIt(e) {
@@ -302,3 +372,22 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>

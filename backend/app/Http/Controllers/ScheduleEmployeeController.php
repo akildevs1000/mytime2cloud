@@ -35,7 +35,7 @@ class ScheduleEmployeeController extends Controller
         $ids =  $employee->where('company_id', $request->company_id)->pluck('employee_id');
         return  Employee::select("first_name", "system_user_id", "employee_id", "department_id")
             ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
-            ->whereIn('employee_id', $ids)
+            ->whereIn('system_user_id', $ids)
             ->when($id != -1, function ($q) use ($id) {
                 $q->where("department_id", $id);
             })

@@ -8,6 +8,7 @@ Route::get('/daily_summary', [Controller::class, 'daily_summary']);
 Route::get('/daily_present', [Controller::class, 'daily_present']);
 Route::get('/daily_absent', [Controller::class, 'daily_absent']);
 Route::get('/daily_missing', [Controller::class, 'daily_missing']);
+Route::get('/daily_details', [Controller::class, 'daily_details']);
 
 //monthly
 Route::get('/monthly_details', [Controller::class, 'monthly_details']);
