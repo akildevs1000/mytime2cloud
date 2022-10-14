@@ -114,3 +114,5 @@ Route::resource('assign-module', AssignModuleController::class);
 Route::get('SyncCompanyIdsWithDevices', [AttendanceLogController::class, 'SyncCompanyIdsWithDevices']);
 
 Route::get('SyncAttendance', [AttendanceController::class, 'SyncAttendance']);
+Route::get('SyncAbsent', [AttendanceController::class, 'SyncAbsent']);
+// Route::get('SyncAbsentForMultipleDays', [AttendanceController::class, 'SyncAbsentForMultipleDays']);

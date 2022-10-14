@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AttendanceLog;
 use App\Models\Attendance;
 use App\Models\Device;
+use App\Models\Employee;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -68,5 +70,49 @@ class AttendanceController extends Controller
         }
 
         return $i;
+    }
+    public function SyncAbsent($no_of_day = 1)
+    {
+        $day = date('Y-m-d', strtotime('-' . $no_of_day . ' days'));
+
+        $employees = Employee::whereDoesntHave('attendances', function ($q) use ($day) {
+            $q->whereDate('date', $day);
+        })
+            ->get(["employee_id", "company_id"]);
+
+        if(count($employees) == 0) {
+            return false;
+        }
+
+        $record = [];
+
+        foreach ($employees as $employee) {
+            $record[] = [
+                "employee_id"   => $employee->employee_id,
+                "date"          => $day,
+                "status"        => "A",
+                "company_id"    => $employee->company_id
+            ];
+        }
+
+        Attendance::insert($record);
+
+        return count($record);
+    }
+
+    public function SyncAbsentForMultipleDays()
+    {
+        $first = AttendanceLog::orderBy("id")->first();
+        $today = date('Y-m-d');
+        $startDate = $first->edit_date;
+        $difference = strtotime($startDate) - strtotime($today);
+        $days = abs($difference / (60 * 60) / 24);
+        $arr = [];
+
+        for ($i = $days; $i > 0; $i--) {
+            $arr[] = $this->SyncAbsent($i);
+        }
+
+        return json_encode($arr);
     }
 }

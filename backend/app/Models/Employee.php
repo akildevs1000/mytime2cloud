@@ -24,7 +24,12 @@ class Employee extends Model
 
     public function schedule()
     {
-        return $this->hasOne(ScheduleEmployee::class, "employee_id", "system_user_id")->withOut("logs");
+        return $this->hasOne(ScheduleEmployee::class, "employee_id", "system_user_id")->withOut("logs")->withDefault([
+            "shift_type_id" => "---",
+            "shift_type" => [
+                "name" => "---",
+            ],
+        ]);
     }
 
     public function user()
@@ -39,7 +44,9 @@ class Employee extends Model
 
     public function designation()
     {
-        return $this->belongsTo(Designation::class);
+        return $this->belongsTo(Designation::class)->withDefault([
+            "name" => "---",
+        ]);
     }
 
     public function department()
@@ -96,6 +103,12 @@ class Employee extends Model
         static::addGlobalScope('order', function (Builder $builder) {
             $builder->orderBy('id', 'desc');
         });
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, "employee_id", "employee_id");
+
     }
 
     public function logs()
