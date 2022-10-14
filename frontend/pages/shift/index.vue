@@ -116,10 +116,10 @@ export default {
         value: "name",
       },
       {
-        text: "Beginning Date",
+        text: "Shift Type",
         align: "left",
         sortable: false,
-        value: "beginning_date",
+        value: "shift_type.name",
       },
       {
         text: "OT Interval",
@@ -134,29 +134,10 @@ export default {
         value: "working_hours",
       },
       {
-        text: "Cycle Number",
-        align: "left",
-        sortable: false,
-        value: "cycle_number",
-      },
-      {
-        text: "Cycle Unit",
-        align: "left",
-        sortable: false,
-        value: "cycle_unit",
-      },
-
-      {
         text: "Holidays",
         align: "left",
         sortable: false,
         value: "days",
-      },
-      {
-        text: "Shift Type",
-        align: "left",
-        sortable: false,
-        value: "shift_type.name",
       },
       {
         text: "Time Slots",

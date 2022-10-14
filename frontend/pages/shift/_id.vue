@@ -34,7 +34,7 @@
               <v-card flat>
                 <v-card-text>
                   <v-row>
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="6">
                       Shift Name <span class="error--text">*</span>
                       <v-text-field
                         :hide-details="!errors.name"
@@ -46,7 +46,30 @@
                       ></v-text-field>
                     </v-col>
 
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="6">
+                      Select Shift Type <span class="error--text">*</span>
+                      <v-autocomplete
+                        class="mt-1"
+                        outlined
+                        dense
+                        :hide-details="!errors.shift_type_id"
+                        :error="errors.shift_type_id"
+                        :error-messages="
+                          errors && errors.shift_type_id
+                            ? errors.shift_type_id[0]
+                            : ''
+                        "
+                        @change="checkIfShiftIsManual"
+                        v-model="shift_payload.shift_type_id"
+                        x-small
+                        :items="shift_types"
+                        item-value="id"
+                        item-text="name"
+                      >
+                      </v-autocomplete>
+                    </v-col>
+
+                    <!-- <v-col cols="12" md="4">
                       Beginning Date <span class="error--text">*</span>
                       <v-menu
                         ref="menu"
@@ -92,9 +115,9 @@
                           </v-btn>
                         </v-date-picker>
                       </v-menu>
-                    </v-col>
+                    </v-col> -->
 
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="6">
                       Overtime start after duty hours (Minutes)
                       <span class="error--text">*</span>
                       <v-text-field
@@ -109,7 +132,7 @@
                       ></v-text-field>
                     </v-col>
 
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="6">
                       <div class="mb-1">
                         Minimum Working Hours<span class="error--text">*</span>
                       </div>
@@ -129,7 +152,7 @@
                       ></v-text-field>
                     </v-col>
 
-                    <v-col cols="12" md="4">
+                    <!-- <v-col cols="12" md="4">
                       Cycle Number
                       <span class="error--text">*</span>
                       <v-text-field
@@ -143,9 +166,9 @@
                         v-model="shift_payload.cycle_number"
                         type="number"
                       ></v-text-field>
-                    </v-col>
+                    </v-col> -->
 
-                    <v-col cols="12" md="4">
+                    <!-- <v-col cols="12" md="4">
                       Cycle Unit
                       <v-text-field
                         :hide-details="!errors.cycle_unit"
@@ -155,29 +178,9 @@
                         readonly
                         v-model="shift_payload.cycle_unit"
                       ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      Select Shift Type <span class="error--text">*</span>
-                      <v-autocomplete
-                        class="mt-1"
-                        outlined
-                        dense
-                        :hide-details="!errors.shift_type_id"
-                        :error="errors.shift_type_id"
-                        :error-messages="
-                          errors && errors.shift_type_id
-                            ? errors.shift_type_id[0]
-                            : ''
-                        "
-                        @change="checkIfShiftIsManual"
-                        v-model="shift_payload.shift_type_id"
-                        x-small
-                        :items="shift_types"
-                        item-value="id"
-                        item-text="name"
-                      >
-                      </v-autocomplete>
-                    </v-col>
+                    </v-col> -->
+
+                    
 
                     <v-col
                       cols="12"
