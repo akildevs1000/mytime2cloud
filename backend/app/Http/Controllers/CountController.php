@@ -26,7 +26,7 @@ class CountController extends Controller
         return [
             [
                 "title" => "Today Summary",
-                "value" => $model->count(), 
+                "value" => $model->count(),
                 "icon" => "fas fa-clock",
                 "color" => "l-bg-purple-dark",
                 "link"  => env("BASE_URL") . "/api/daily_summary?page=1&per_page=1000&company_id=$id&status=SA&daily_date=" . date("Y-m-d") . "&department_id=-1"
