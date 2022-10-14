@@ -30,12 +30,10 @@ class ScheduleEmployeeController extends Controller
     //         ->get(["first_name", "system_user_id", "employee_id"]);
     // }
 
-    public function employees_by_departments(Attendance $employee, Request $request, $id)
+    public function employees_by_departments($id)
     {
-        $ids =  $employee->where('company_id', $request->company_id)->pluck('employee_id');
         return  Employee::select("first_name", "system_user_id", "employee_id", "department_id")
             ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
-            ->whereIn('employee_id', $ids)
             ->when($id != -1, function ($q) use ($id) {
                 $q->where("department_id", $id);
             })
