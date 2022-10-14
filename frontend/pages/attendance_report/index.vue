@@ -682,23 +682,18 @@
         <span v-else>{{ item.status }}</span>
       </template>
 
-      <template v-slot:item.reason="{ item }"> </template>
-
-      <template v-slot:item.shift="{ item }">
-        <v-tooltip v-if="item && item.shift" top color="primary">
+      <template v-slot:item.schedule="{ item }">
+        <v-tooltip v-if="item && item.schedule" top color="primary">
           <template v-slot:activator="{ on, attrs }">
             <div class="primary--text" v-bind="attrs" v-on="on">
-              {{ item.shift.name }}
+              {{ (item.schedule.shift && item.schedule.shift.name) || "---" }}
             </div>
           </template>
-
           <div
-            v-for="(iterable, index) in getDataForToolTip(item)"
+            v-for="(iterable, index) in getDataForToolTip(item.schedule.shift)"
             :key="index"
           >
-            <span v-if="index !== 'id'">
-              {{ caps(index) }}: {{ iterable || "---" }}</span
-            >
+            <span> {{ caps(index) }}: {{ iterable || "---" }}</span>
           </div>
         </v-tooltip>
         <span v-else>---</span>
@@ -830,13 +825,13 @@ export default {
         text: "Shift Type",
         align: "left",
         sortable: false,
-        value: "shift_type.name"
+        value: "schedule.shift_type.name"
       },
       {
         text: "Shift",
         align: "left",
         sortable: false,
-        value: "shift"
+        value: "schedule"
       },
       { text: "Status", align: "left", sortable: false, value: "status" },
       { text: "In", align: "left", sortable: false, value: "in" },
@@ -1160,25 +1155,41 @@ export default {
     },
 
     getDataForToolTip(item) {
-      if (item && !item.shift) {
+      if (!item) {
         return {};
       }
 
       let shift = {
-        name: item.shift.name,
-        days: item.shift.days,
-        ot_interval: item.shift.overtime,
-        working_hours: item.shift.working_hours || "---"
+        name: item.name,
+        days: item.days,
+        ot_interval: item.overtime,
+        working_hours: item.working_hours || "---"
       };
-
-      if (item && !item.time_table) {
-        return shift;
-      }
-
-      let time_table = item.time_table;
-
-      return { ...shift, ...time_table };
+      return shift;
     },
+
+    // getDataForToolTip(item) {
+    //   console.log(item);
+
+    //   if (item && !item.shift) {
+    //     return {};
+    //   }
+
+    //   let shift = {
+    //     name: item.shift.name,
+    //     days: item.shift.days,
+    //     ot_interval: item.shift.overtime,
+    //     working_hours: item.shift.working_hours || "---"
+    //   };
+
+    //   if (item && !item.time_table) {
+    //     return shift;
+    //   }
+
+    //   let time_table = item.time_table;
+
+    //   return { ...shift, ...time_table };
+    // },
 
     editItem(item) {
       this.dialog = true;

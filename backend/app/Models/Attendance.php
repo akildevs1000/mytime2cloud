@@ -11,8 +11,6 @@ class Attendance extends Model
 
     protected $guarded = [];
 
-    protected $with = ["schedule"];
-
     protected $appends = ["edit_date", "day"];
 
     protected $casts = [
@@ -21,7 +19,13 @@ class Attendance extends Model
 
     public function schedule()
     {
-        return $this->belongsTo(ScheduleEmployee::class, "employee_id", "employee_id")->withOut("logs");
+        return $this->belongsTo(ScheduleEmployee::class, "employee_id", "employee_id")->withOut("logs")->withDefault([
+            "shift_type_id" => "---",
+            "shift_type" => [
+                "name" => "---",
+            ],
+
+        ]);
     }
 
     public function getDateAttribute($value)
