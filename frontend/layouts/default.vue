@@ -151,7 +151,7 @@
       </v-menu>
     </v-app-bar>
 
-    <v-main class="main_bg">
+    <v-main class="main_bg1">
       <v-container>
         <nuxt />
       </v-container>
@@ -523,7 +523,7 @@ export default {
           title: "Setting",
           to: "/setting",
           permission: this.can("/")
-        },
+        }
       ],
       modules: {
         module_ids: [],

@@ -9,7 +9,7 @@ class ScheduleEmployee extends Model
 {
     use HasFactory;
 
-    protected $with = ["shift","shift_type","logs","first_log","last_log"];
+    protected $with = ["shift", "shift_type", "logs", "first_log", "last_log"];
 
     protected $guarded = [];
 
@@ -31,12 +31,14 @@ class ScheduleEmployee extends Model
 
     public function shift_type()
     {
-        return $this->belongsTo(ShiftType::class,"shift_type_id");
+        return $this->belongsTo(ShiftType::class, "shift_type_id")->withDefault([
+            'name' => '---',
+        ]);
     }
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class,"employee_id","system_user_id",);
+        return $this->belongsTo(Employee::class, "employee_id", "system_user_id",);
     }
 
     public function logs()
