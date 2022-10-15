@@ -151,7 +151,7 @@
       </v-menu>
     </v-app-bar>
 
-    <v-main class="main_bg1">
+    <v-main class="main_bg">
       <v-container>
         <nuxt />
       </v-container>

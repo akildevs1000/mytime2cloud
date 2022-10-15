@@ -27,29 +27,8 @@
       </v-snackbar>
     </div>
 
-    <v-row class="mt-10" dense>
-      <v-col md="4">
-        <v-card v-if="can(`employee_view`)">
-          <table>
-            <tr class="primary text-white" dark>
-              <th v-for="(item, index) in headers" :key="index">
-                {{ item.text }}
-              </th>
-            </tr>
-            <tr v-for="(item, index) in data" :key="index">
-              <td>{{ item.employee_id || "---" }}</td>
-              <td>{{ item.employee.first_name || "---" }}</td>
-              <td>{{ item.in || "---" }}</td>
-              <td>{{ item.device_in.short_name || "---" }}</td>
-            </tr>
-          </table>
-        </v-card>
-      </v-col>
-
-      <v-col md="8">
-        <DailyLogs :data="data" :headers="headers" />
-      </v-col>
-      <!-- <v-col md="12">
+    <v-row class="mt-15" dense>
+      <v-col md="12">
         <v-toolbar class="primary" dark flat>
           Today Summary View
         </v-toolbar>
@@ -61,12 +40,15 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [10, 50, 100, 500, 1000]
+            itemsPerPageOptions: [10, 50,100, 500, 1000]
           }"
           class="elevation-1"
         >
           <template v-slot:item.employee_id="{ item }">
-
+            <!-- <NuxtLink :to="`/employees/details/${item.employee.id}`"
+          >{{ item.employee_id
+          }}<v-icon small color="black">mdi-open-in-new</v-icon></NuxtLink
+        > -->
             {{ item.employee_id }}
           </template>
           <template v-slot:item.status="{ item }">
@@ -143,7 +125,8 @@
             </v-icon>
           </template>
         </v-data-table>
-      </v-col> -->
+      </v-col>
+        
     </v-row>
 
     <v-row justify="center">
@@ -167,10 +150,8 @@
   <NoAccess v-else />
 </template>
 <script>
-import DailyLogs from "./DailyLogs.vue";
 export default {
   data: () => ({
-    model: null,
     time_table_dialog: false,
     log_details: false,
     overtime: false,
@@ -193,23 +174,74 @@ export default {
     departments: [],
     scheduled_employees: [],
     DateRange: true,
+
     daily_menu: false,
     daily_date: null,
     dailyDate: false,
+
     loading: false,
     total: 0,
     headers: [
       { text: "E.ID", align: "left", sortable: false, value: "employee_id" },
       {
-        text: "Name"
+        text: "Name",
+        align: "left",
+        sortable: false,
+        value: "employee.first_name"
       },
-      { text: "In" },
+      {
+        text: "Dept",
+        align: "left",
+        sortable: false,
+        value: "employee.department.name"
+      },
+      {
+        text: "Shift Type",
+        align: "left",
+        sortable: false,
+        value: "shift_type.name"
+      },
+      {
+        text: "Shift",
+        align: "left",
+        sortable: false,
+        value: "shift"
+      },
+      { text: "Status", align: "left", sortable: false, value: "status" },
+      { text: "In", align: "left", sortable: false, value: "in" },
+      { text: "Out", align: "left", sortable: false, value: "out" },
+      {
+        text: "Total Hrs",
+        align: "left",
+        sortable: false,
+        value: "total_hrs"
+      },
+      { text: "OT", align: "left", sortable: false, value: "ot" },
+      {
+        text: "Late coming",
+        align: "left",
+        sortable: false,
+        value: "late_coming"
+      },
+      {
+        text: "Early Going",
+        align: "left",
+        sortable: false,
+        value: "early_going"
+      },
       {
         text: "D.In",
         align: "left",
         sortable: false,
         value: "device_in"
-      }
+      },
+      {
+        text: "D.Out",
+        align: "left",
+        sortable: false,
+        value: "device_out"
+      },
+      { text: "Actions", value: "actions", sortable: false }
     ],
     payload: {
       from_date: null,
@@ -239,11 +271,13 @@ export default {
     errors: []
   }),
   custom_options: {},
+
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
     }
   },
+
   watch: {
     dialog(val) {
       val || this.close();
@@ -259,14 +293,9 @@ export default {
   },
   created() {
     this.loading = true;
-    this.getDataFromApi();
+
     // this.setMonthlyDateRange();
-    // this.payload.daily_date = new Date().toJSON().slice(0, 10);
-    let dt = new Date();
-    let y = dt.getFullYear();
-    let m = dt.getMonth() + 1;
-    m = m < 10 ? "0" + m : m;
-    this.payload.daily_date = `${y}-${m}-11`;
+    this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.custom_options = {
       params: {
         per_page: 1000,
@@ -277,6 +306,7 @@ export default {
     // this.getScheduledEmployees();
     this.getAttendanceEmployees();
   },
+
   methods: {
     changeReportType(report_type) {
       if (report_type == "Daily") {
@@ -285,6 +315,7 @@ export default {
         this.setMonthlyDateRange();
       }
     },
+
     setMonthlyDateRange() {
       let dt = new Date();
       let y = dt.getFullYear();
@@ -294,11 +325,13 @@ export default {
       this.payload.from_date = `${y}-${m}-01`;
       this.payload.to_date = `${y}-${m}-${31}`;
     },
+
     setDailyDate() {
       this.payload.daily_date = new Date().toJSON().slice(0, 10);
       delete this.payload.from_date;
       delete this.payload.to_date;
     },
+
     store_schedule() {
       let { user_id, date, time, device_id } = this.log_payload;
       let log_payload = {
@@ -308,6 +341,7 @@ export default {
         company_id: this.$auth.user.company.id
       };
       this.loading = true;
+
       this.$axios
         .post(`/generate_log`, log_payload)
         .then(({ data }) => {
@@ -336,6 +370,7 @@ export default {
         this.time_table_dialog = true;
       });
     },
+
     getEmployeesByDepartment() {
       this.$axios
         .get(
@@ -350,14 +385,17 @@ export default {
               name_with_user_id: "Select All"
             });
           }
+
           this.loading = false;
         });
     },
+
     getScheduledEmployees() {
       this.$axios.get(`/scheduled_employees_with_type`).then(({ data }) => {
         this.scheduled_employees = data;
       });
     },
+
     getAttendanceEmployees() {
       this.$axios.get(`/attendance_employees`).then(({ data }) => {
         let res = data.map(e => e.employee_attendance);
@@ -368,11 +406,13 @@ export default {
         });
       });
     },
+
     getDevices(options) {
       this.$axios.get(`/device`, options).then(({ data }) => {
         this.devices = data.data;
       });
     },
+
     getDepartments(options) {
       this.$axios
         .get("departments", options)
@@ -391,41 +431,53 @@ export default {
         u.is_master
       );
     },
+
     fetch_logs() {
       this.getDataFromApi();
     },
+
     getDataFromApi(url = this.endpoint) {
       // if (daily) {
       //   delete this.payload.from_date;
       //   delete this.payload.to_date;
       // }
+
       // if (!this.payload.report_type) {
       //   alert("Select report type");
       //   return;
       // }
+
       this.loading = true;
+
       let status = this.payload.status;
       let late_early = this.payload.late_early;
+
       switch (late_early) {
         case "Select All":
           late_early = "SA";
           break;
+
         default:
           late_early = late_early.charAt(0);
           break;
       }
+
       switch (status) {
         case "Select All":
           status = "SA";
           break;
+
         case "Missing":
           status = "---";
           break;
+
         default:
           status = status.charAt(0);
           break;
       }
+
       const { page, itemsPerPage } = this.options;
+
       let options = {
         params: {
           per_page: itemsPerPage,
@@ -437,9 +489,9 @@ export default {
           ot: this.overtime ? 1 : 0
         }
       };
+
       this.$axios.get(url, options).then(({ data }) => {
         this.data = data.data;
-        console.log(this.data);
         this.csvData = data.data.map(e => ({
           Date: e.date,
           "E.ID": e.employee_id,
@@ -462,20 +514,25 @@ export default {
         this.loading = false;
       });
     },
+
     getDataForToolTip(item) {
       if (item && !item.shift) {
         return {};
       }
+
       let shift = {
         name: item.shift.name,
         days: item.shift.days,
         ot_interval: item.shift.overtime,
         working_hours: item.shift.working_hours || "---"
       };
+
       if (item && !item.time_table) {
         return shift;
       }
+
       let time_table = item.time_table;
+
       return { ...shift, ...time_table };
     },
     editItem(item) {
@@ -489,9 +546,11 @@ export default {
         }
       };
       this.log_details = true;
+
       this.$axios.get("attendance_single_list", options).then(({ data }) => {
         this.log_list = data.data;
       });
+
       // this.editedIndex = this.data.indexOf(item);
       // this.editedItem = Object.assign({}, item);
       // this.dialog = true;
@@ -510,11 +569,14 @@ export default {
       pdf.setAttribute("target", "_blank");
       pdf.click();
     },
+
     generateReport(url) {
       let path = process.env.BACKEND_URL + "/" + url;
       let report = document.createElement("a");
+
       if (this.payload.report_type == "Daily") {
         let status = this.payload.status;
+
         if (url == "present") {
           status = "P";
         } else if (url == "absent") {
@@ -522,20 +584,25 @@ export default {
         } else if (url == "missing") {
           status = "Missing";
         }
+
         switch (status) {
           case "Select All":
             status = "SA";
             break;
+
           case "Missing":
             status = "---";
             break;
+
           default:
             status = status.charAt(0);
             break;
         }
+
         let data = this.payload;
         let company_id = this.$auth.user.company.id;
         const { page, itemsPerPage } = this.options;
+
         report.setAttribute(
           "href",
           process.env.BACKEND_URL +
@@ -545,30 +612,11 @@ export default {
         report.click();
         return;
       }
+
       report.setAttribute("href", path);
       report.setAttribute("target", "_blank");
       report.click();
     }
-  },
-  components: { DailyLogs }
+  }
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-/*
-tr:nth-child(even) {
-  background-color: #dddddd;
-} */
-</style>

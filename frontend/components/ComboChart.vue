@@ -8,11 +8,12 @@
 
 <script>
 export default {
-  head() {
-    return {
-      script: [{ src: "https://cdn.jsdelivr.net/npm/apexcharts", body: true }]
-    };
-  },
+  // head() {
+  //   return {
+  //     script: [{ src: "https://cdn.jsdelivr.net/npm/apexcharts", body: true }]
+  //     // script: [{ src: "~/plugins/apex.js", body: true }]
+  //   };
+  // },
 
   data() {
     return {
@@ -145,7 +146,7 @@ export default {
   },
   mounted() {
     this.getDaysInCurrentMonth;
-    console.log(this.options.xaxis.categories);
+
     var chart = new ApexCharts(
       document.querySelector("#comboChart"),
       this.options

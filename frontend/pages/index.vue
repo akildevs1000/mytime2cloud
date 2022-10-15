@@ -33,11 +33,17 @@
               <i :class="i.icon"></i>
             </div>
             <div class="card-content">
-              <h4 class="card-title text-capitalize">{{ i.title }} </h4>
+              <h4 class="card-title text-capitalize">{{ i.title }}</h4>
               <span class="data-1"> {{ i.value }}</span>
               <p class="mb-0 text-sm">
-                <span class="mr-2"><v-icon dark small>mdi-arrow-right</v-icon></span>
-                <a class="text-nowrap text-white" target="_blank" :href="i.link">
+                <span class="mr-2"
+                  ><v-icon dark small>mdi-arrow-right</v-icon></span
+                >
+                <a
+                  class="text-nowrap text-white"
+                  target="_blank"
+                  :href="i.link"
+                >
                   <span class="text-nowrap">View Report</span>
                 </a>
               </p>
@@ -55,17 +61,16 @@
       </v-col>
       <v-col md="4" cols="12" sm="12">
         <v-card elevation="0">
-          <Donut />
+          <Donut :items="items" />
         </v-card>
       </v-col>
     </v-row>
     <v-row>
-       <v-col cols="12">
+      <v-col cols="12">
         <DailySummary />
       </v-col>
     </v-row>
     <v-row class="mt-5">
-     
       <v-col md="4" cols="12" sm="12">
         <v-card elevation="0">
           <v-list three-line>
@@ -149,7 +154,6 @@
           </v-list>
         </v-card>
       </v-col>
-
       <!-- <v-col md="12" cols="12" sm="12">
         <v-card elevation="0">
           <v-data-table :headers="headers" :items="desserts" class="elevation-1">
@@ -171,6 +175,7 @@ import AreaChart from "../components/AreaChart.vue";
 import Preloader from "../components/Preloader.vue";
 import Donut from "../components/Donut.vue";
 import ComboChart from "../components/ComboChart.vue";
+
 export default {
   head() {
     return {
