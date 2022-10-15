@@ -24,7 +24,6 @@ class Attendance extends Model
             "shift_type" => [
                 "name" => "---",
             ],
-
         ]);
     }
 

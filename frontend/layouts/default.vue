@@ -410,6 +410,18 @@ export default {
           permission: this.can("employee_access")
         },
         {
+          icon: "mdi-clock",
+          title: "Shift",
+          to: "/shift",
+          permission: this.can("shift_access")
+        },
+        {
+          icon: "mdi-account",
+          title: "Employee Schedule",
+          to: "/employee_schedule",
+          permission: this.can("employee_schedule_access")
+        },
+        {
           icon: "mdi-account",
           title: "Roles",
           to: "/role",
@@ -421,32 +433,32 @@ export default {
           to: "/assign_permission",
           permission: this.can("assign_permission_access")
         },
-        {
-          icon: "mdi-apps",
-          title: "Modules",
-          open_menu: false,
-          permission: this.can("module_access"),
-          hasChildren: [
-            {
-              icon: "mdi-chart-bubble",
-              title: "Payroll",
-              to: "/payroll_modules",
-              permission: this.can("module_access")
-            },
-            {
-              icon: "mdi-chart-bubble",
-              title: "Attendance",
-              to: "/attendance_modules",
-              permission: this.can("module_access")
-            },
-            {
-              icon: "mdi-chart-bubble",
-              title: "HR Management",
-              to: "/hr_modules",
-              permission: this.can("module_access")
-            }
-          ]
-        },
+        // {
+        //   icon: "mdi-apps",
+        //   title: "Modules",
+        //   open_menu: false,
+        //   permission: this.can("module_access"),
+        //   hasChildren: [
+        //     {
+        //       icon: "mdi-chart-bubble",
+        //       title: "Payroll",
+        //       to: "/payroll_modules",
+        //       permission: this.can("module_access")
+        //     },
+        //     {
+        //       icon: "mdi-chart-bubble",
+        //       title: "Attendance",
+        //       to: "/attendance_modules",
+        //       permission: this.can("module_access")
+        //     },
+        //     {
+        //       icon: "mdi-chart-bubble",
+        //       title: "HR Management",
+        //       to: "/hr_modules",
+        //       permission: this.can("module_access")
+        //     }
+        //   ]
+        // },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Reports",

@@ -112,12 +112,11 @@
           </td>
           <td>{{ item.first_name || "---" }}</td>
           <td>{{ item.department.name || "---" }}</td>
-          <td>{{ (item.designation && item.designation.name) || "---" }}</td>
+          <td>{{ item.designation.name }}</td>
           <td>{{ (item && item.user.email) || "---" }}</td>
           <td>{{ (item && item.phone_number) || "---" }}</td>
-          <td>{{ (item && item.schedule.shift_type.name) || "---" }}</td>
-          <td>{{ (item && item.joining_date) || "---" }}</td>
-          <td>
+          <td>{{ item.schedule.shift_type.name }}</td>
+          <td   >
             <v-icon
               color="secondary"
               small
@@ -152,57 +151,27 @@ export default {
     headers: [
       {
         text: "EID",
-        align: "left",
-        sortable: false,
-        value: "system_user_id"
       },
       {
         text: "Profile",
-        align: "left",
-        sortable: false,
-        value: "first_name"
       },
       {
         text: "Name",
-        align: "left",
-        sortable: false,
-        value: "first_name"
       },
       {
         text: "Department",
-        align: "left",
-        sortable: false,
-        value: "department.name"
       },
       {
         text: "Designation",
-        align: "left",
-        sortable: false,
-        value: "designation.name"
       },
       {
         text: "Email",
-        align: "left",
-        sortable: false,
-        value: "designation.name"
       },
       {
         text: "Mobile",
-        align: "left",
-        sortable: false,
-        value: "designation.name"
       },
       {
-        text: "Shift",
-        align: "left",
-        sortable: false,
-        value: "designation.name"
-      },
-      {
-        text: "Joining Date",
-        align: "left",
-        sortable: false,
-        value: "designation.name"
+        text: "Shift Type",
       },
       { text: "Actions", align: "center", value: "action", sortable: false }
     ],
