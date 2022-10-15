@@ -68,6 +68,6 @@ class ReportController extends Controller
             "device_out:id,name,short_name,device_id,location",
         ]);
 
-        return $model->orderByDesc("date")->paginate($request->per_page);
+        return $model->paginate($request->per_page);
     }
 }

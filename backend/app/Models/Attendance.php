@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class Attendance extends Model
 {
@@ -128,5 +130,14 @@ class Attendance extends Model
     public function AttendanceLogs()
     {
         return $this->hasMany(AttendanceLog::class, "UserID", "employee_id");
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('order', function (Builder $builder) {
+            $builder->orderBy('id', 'desc');
+        });
     }
 }

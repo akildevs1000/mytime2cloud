@@ -118,7 +118,7 @@ class AttendanceLogController extends Controller
 
             $attendance->first() ? $attendance->update($item) : Attendance::create($item);
 
-            AttendanceLog::where("id",$log->id)->update(["checked" => true]);
+            AttendanceLog::where("id", $log->id)->update(["checked" => true]);
 
             return $item;
  
@@ -375,9 +375,11 @@ class AttendanceLogController extends Controller
             ]);
 
             if ($created) {
+                $Attendance = new AttendanceController;
+                $Attendance->SyncAttendance();
                 return [
                     'status' => true,
-                    'message' => 'Reason Successfully Updated',
+                    'message' => 'Log Successfully Updated',
                 ];
             }
         } catch (\Throwable$th) {

@@ -348,6 +348,56 @@ class Controller extends BaseController
         return Pdf::loadView('pdf.monthly_performance', ["data" => $data])->stream();
     }
 
+    public function weekly_details(Request $request)
+    {
+
+        $end = $request->end ?? date('Y-m-d');
+        $start = date("Y-m-d", strtotime($end . "-7 days"));
+
+        $model = Attendance::query();
+
+        $model = $model->whereBetween('date', [$start, $end]);
+
+        $data = $model->with('employeeAttendance')->get();
+        $data = $data->groupBy(['employee_id', 'date']);
+        $arr = [];
+
+        foreach ($data as $employee_id => $row) {
+            $emp = $this->getEmployee($row);
+
+            $arr[] = [
+                'Name' => $emp->first_name ?? '',
+                'E.ID' => $emp->employee_id ?? '',
+                'Dept' => $emp->department->name ?? '',
+                'Date' => $start . ' to ' . $end,
+                'Total Hrs' => $this->totalHours($row),
+                'OT' => $this->TotalOtHours($row),
+                'Present' => 14,
+                'Absent' => 17,
+                'Late In' => 2,
+                'Early Out' => 5,
+                'record' => $row,
+            ];
+        }
+        $footer = [
+            'Device' => "Main Entrance = MED, Back Entrance = BED",
+            'Shift Type' => "Manual = MA, Auto = AU, NO = NO",
+            'Shift' => "Morning = Mor, Evening = Eve, Evening2 = Eve2",
+        ];
+        $pdf = App::make('dompdf.wrapper');
+        $arr;
+
+        // $this->getHTML($arr);
+        // $pdfJobs = new PDFJob($this->getHTML($arr));
+        // $this->dispatch($pdfJobs);
+
+        return $arr;
+
+        $pdf->loadHTML($this->getHTML($arr, $request));
+        return $pdf->stream();
+        return Pdf::loadView('pdf.monthly_details', compact("arr", "footer"))->stream();
+    }
+
     public function getHTML($arr, $request)
     {
         $companyName = $request->company_name ?? "Sample Company Name";

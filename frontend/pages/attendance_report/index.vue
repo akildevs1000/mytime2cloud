@@ -30,8 +30,8 @@
     <v-row justify="center">
       <v-dialog v-model="dialog" max-width="700px">
         <v-card>
-          <v-card-title>
-            <span class="headline"> Reason </span>
+          <v-card-title class="primary darken-2">
+            <span class="headline white--text"> Update Log </span>
           </v-card-title>
           <v-card-text>
             <v-container>
@@ -52,7 +52,7 @@
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
                           v-model="editItems.time"
-                          label="Time In"
+                          label="Time"
                           readonly
                           v-bind="attrs"
                           :rules="timeRules"
@@ -106,7 +106,7 @@
                       label="Select Device"
                       v-model="editItems.device_id"
                       :items="devices"
-                      item-text="device_id"
+                      item-text="name"
                       item-value="id"
                       :rules="deviceRules"
                     >
@@ -394,10 +394,10 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-dialog v-model="add_fake_log" width="500">
+    <v-dialog v-model="add_manual_log" width="700">
       <v-card>
         <v-card-title class="text-h5 primary white--text darken-2" dark>
-          Generate Log
+          Manual Log
         </v-card-title>
 
         <v-card-text class="pa-3">
@@ -412,10 +412,15 @@
               }}</span>
             </v-col>
             <v-col md="12">
-              <v-text-field
+              <v-autocomplete
+                label="Select Device"
                 v-model="log_payload.device_id"
-                label="Device Id"
-              ></v-text-field>
+                :items="devices"
+                item-text="name"
+                item-value="id"
+                :rules="deviceRules"
+              >
+              </v-autocomplete>
               <span
                 v-if="errors && errors.device_id"
                 class="text-danger mt-2"
@@ -423,6 +428,21 @@
               >
             </v-col>
             <v-col md="12">
+              <v-autocomplete
+                label="In/Out"
+                v-model="log_payload.log_type"
+                :items="['In','Out']"
+                :rules="deviceRules"
+              >
+              {{log_payload.log_type}}
+              </v-autocomplete>
+              <span
+                v-if="errors && errors.log_type"
+                class="text-danger mt-2"
+                >{{ errors.log_type[0] }}</span
+              >
+            </v-col>
+            <v-col cols="12" md="6">
               <v-menu
                 ref="menu"
                 v-model="menu"
@@ -457,10 +477,10 @@
                 </v-date-picker>
               </v-menu>
             </v-col>
-            <v-col md="12">
+            <v-col cols="12" md="6">
               <v-menu
-                ref="time_menu_ref"
-                v-model="time_menu"
+                ref="manual_time_menu_ref"
+                v-model="manual_time_menu"
                 :close-on-content-click="false"
                 :nudge-right="40"
                 :return-value.sync="log_payload.time"
@@ -472,7 +492,7 @@
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
                     v-model="log_payload.time"
-                    label="Time In"
+                    label="Time"
                     readonly
                     v-bind="attrs"
                     v-on="on"
@@ -480,19 +500,19 @@
                   </v-text-field>
                 </template>
                 <v-time-picker
-                  v-if="time_menu"
+                  v-if="manual_time_menu"
                   v-model="log_payload.time"
                   full-width
                   format="24hr"
                 >
                   <v-spacer></v-spacer>
-                  <v-btn x-small color="primary" @click="time_menu = false">
+                  <v-btn x-small color="primary" @click="manual_ = false">
                     Cancel
                   </v-btn>
                   <v-btn
                     x-small
                     color="primary"
-                    @click="$refs.time_menu_ref.save(log_payload.time)"
+                    @click="$refs.manual_time_menu_ref.save(log_payload.time)"
                   >
                     OK
                   </v-btn>
@@ -641,15 +661,18 @@
         :headers="headers"
       />
       &nbsp;
-      <v-btn
+      -->
+      <v-spacer></v-spacer>
+      <!-- <v-btn
         v-if="can(`attendance_log_access`)"
         small
         class="primary darken-2"
-        @click="add_fake_log = true"
+        @click="add_manual_log = true"
       >
         <v-icon class="mr-1" small>mdi-file-outline</v-icon>
-        Log +
+        Manual Log +
       </v-btn> -->
+      <!-- <GenerateLog /> -->
     </v-toolbar>
     <v-data-table
       v-if="can(`attendance_log_view_access`)"
@@ -772,11 +795,12 @@ export default {
     menu: false,
     loading: false,
     time_menu: false,
+    manual_time_menu: false,
     Model: "Reports",
     endpoint: "report",
     search: "",
     snackbar: false,
-    add_fake_log: false,
+    add_manual_log: false,
     dialog: false,
     from_date: null,
     from_menu: false,
@@ -985,7 +1009,7 @@ export default {
         .post(`/generate_log`, log_payload)
         .then(({ data }) => {
           this.fetch_logs();
-          this.add_fake_log = false;
+          this.add_manual_log = false;
           this.loading = false;
         })
         .catch(({ message }) => {
@@ -1219,6 +1243,7 @@ export default {
               this.snackbar = true;
               this.response = data.message;
               this.editItems = [];
+              this.getDataFromApi();
               this.close();
             }
           })
