@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:sync_absent')
-            ->dailyAt('13:00')
+            ->dailyAt('1:00')
             ->appendOutputTo("scheduler.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
     }
