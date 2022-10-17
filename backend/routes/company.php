@@ -195,6 +195,8 @@ Route::get('/count', CountController::class);
 // dev started
 
 Route::apiResource('shift', ShiftController::class);
+Route::get('shift', [ShiftController::class, 'shift_by_type']);
+
 Route::apiResource('time_table', TimeTableController::class);
 
 Route::apiResource('schedule_employees', ScheduleEmployeeController::class);

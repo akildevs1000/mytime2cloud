@@ -65,11 +65,10 @@
                     item-text="name"
                   ></v-autocomplete>
 
-                  <div class="mb-1" v-if="manual_shift.slug == `manual_shift`">
+                  <div class="mb-1">
                     Shifts
                   </div>
                   <v-autocomplete
-                    v-if="manual_shift.slug == `manual_shift`"
                     :error="errors && errors.shift_id"
                     :error-messages="
                       errors && errors.shift_id ? errors.shift_id[0] : ''
@@ -407,7 +406,7 @@ export default {
       },
     };
 
-    this.getShifts(this.options);
+    // this.getShifts(this.options);
   },
 
   methods: {
@@ -429,25 +428,19 @@ export default {
     },
 
     runShiftTypeFunction() {
-      this.manual_shift = this.shift_types.find(
-        (e) => e.id == this.shift_type_id
-      );
-      this.getShifts(this.options);
+      this.getShifts(this.shift_type_id);
     },
     close() {
       this.dialog = false;
       this.is_edit = false;
     },
-    getShifts(options) {
+    getShifts(shift_type_id) {
       this.$axios
-        .get("shift", options)
+        .get("shift",{params: {shift_type_id: shift_type_id}})
         .then(({ data }) => {
-          this.shifts = data.data;
-          this.shifts = data.data.filter((e) =>
-            e.shift_type.slug == "manual_shift" ? e : false
-          );
-          this.shifts.unshift({ id: "", name: "Select Shift" });
-          this.shifts_for_filter = data.data;
+          this.shifts = data;
+          // this.shifts.unshift({ id: "", name: "Select Shift" });
+          // this.shifts_for_filter = data;
         })
         .catch((err) => console.log(err));
     },

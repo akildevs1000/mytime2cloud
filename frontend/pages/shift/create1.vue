@@ -842,6 +842,9 @@ export default {
     });
 
     this.$axios.get("shift_type", { params: options }).then(({ data }) => {
+      this.shift_types = data;
+      return;
+
       let manual_shift = data.filter((e) =>
         e.slug == "manual_shift" ? e : ""
       )[0];
