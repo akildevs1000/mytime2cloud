@@ -36,11 +36,15 @@ class Kernel extends ConsoleKernel
             ->between('7:00', '23:59')
             ->appendOutputTo("scheduler.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
         $schedule
             ->command('task:sync_absent')
             ->dailyAt('1:00')
             ->appendOutputTo("scheduler.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:restart_sdk')
+            ->dailyAt('1:00')
+            ->appendOutputTo("sdk.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
     }
 
