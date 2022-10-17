@@ -41,15 +41,40 @@ class Attendance extends Model
 
     public function getOtAttribute($value)
     {
-        return '00:00';
-        $value = explode(".", "$value")[0];
-        return $value > '06:00' ? '00:00' : $value;
+        $schedule = $this->schedule;
+
+        if (!$schedule->isOverTime) {
+            return "NA";
+        }
+
+        $working_hours = $schedule->shift->working_hours ?? null;
+        $working_hours = $working_hours < 10 ? "0" . $working_hours : $working_hours;
+
+        $starttimestamp = strtotime($working_hours . ":00");
+        $endtimestamp   = strtotime($this->total_hrs);
+        $maxtimestamp   = strtotime('06:00');
+        $difference = abs($endtimestamp - $starttimestamp);
+
+        if ($endtimestamp < $starttimestamp || $maxtimestamp > $endtimestamp) {
+            return  "00:00";
+        }
+
+        return $this->getHrsMins($difference);
+    }
+
+    public function getHrsMins($difference)
+    {
+        $h = floor($difference / 3600);
+        $h = $h < 0 ? "0" : $h;
+        $m = floor($difference % 3600) / 60;
+        $m = $m < 0 ? "0" : $m;
+
+        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 
     public function getTotalHrsAttribute($value)
     {
-        $value = explode(".", "$value")[0];
-        return $value > '18:00' ? '00:00' : $value;
+        return strtotime($value) < strtotime('18:00') ? $value : '00:00';
     }
 
     /**
