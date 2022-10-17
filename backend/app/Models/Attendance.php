@@ -41,6 +41,7 @@ class Attendance extends Model
 
     public function getOtAttribute($value)
     {
+        return '00:00';
         $value = explode(".", "$value")[0];
         return $value > '06:00' ? '00:00' : $value;
     }
