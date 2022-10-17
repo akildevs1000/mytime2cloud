@@ -31,6 +31,6 @@ class RestartSDK extends Command
      */
     public function handle()
     {
-        echo exec("sudo pm2 list");
+        echo exec("sudo pm2 logs --json");
     }
 }
