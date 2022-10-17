@@ -126,7 +126,8 @@ class EmployeeController extends Controller
 
     public function attendance_employees(Employee $employee, Request $request)
     {
-        return Attendance::with('employeeAttendance')->distinct()->get('employee_id');
+        //
+        return Attendance::with('employeeAttendance')->get('employee_id');
     }
 
     public function not_scheduled_employees(Employee $employee, Request $request)

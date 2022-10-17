@@ -61,7 +61,7 @@ class ReportController extends Controller
         });
 
         $model->with([
-            "employee:id,system_user_id,first_name,employee_id,department_id",
+            "employee:id,system_user_id,first_name,employee_id,department_id,profile_picture",
             "time_table",
             "schedule",
             "device_in:id,name,short_name,device_id,location",

@@ -80,7 +80,14 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar :color="changeColor" dark :clipped-left="clipped" fixed app>
+    <v-app-bar
+      :color="changeColor"
+      dark
+      :clipped-left="clipped"
+      fixed
+      app
+      :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''"
+    >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
@@ -172,6 +179,7 @@
       :clipped="true"
       :right="right"
       fixed
+      style="z-index:1000"
     >
       <v-row style="margin-top: 50px;">
         <v-col>

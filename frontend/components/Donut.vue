@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row style="height: 367px;">
+    <v-row style="height: 347px;">
       <v-col md="10">
         <div id="donut"></div>
       </v-col>
@@ -11,11 +11,11 @@
 <script>
 export default {
   props: ["items"],
-  // head() {
-  //   return {
-  //     script: [{ src: "https://cdn.jsdelivr.net/npm/apexcharts", body: true }]
-  //   };
-  // },
+  head() {
+    return {
+      script: [{ src: "https://cdn.jsdelivr.net/npm/apexcharts", body: true }]
+    };
+  },
 
   data() {
     return {
@@ -26,7 +26,7 @@ export default {
         },
         colors: ["#A24FDD", "#6DFCCA", "#E78956", "#3A95D9"],
 
-        series: [40, 50, 35, 60],
+        series: [],
         chart: {
           type: "pie"
         },
@@ -67,6 +67,7 @@ export default {
     },
     getValue() {
       this.options.series = this.items.map(e => e.value);
+      console.log(this.options.series);
     }
   }
 };

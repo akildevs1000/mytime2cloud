@@ -27,8 +27,8 @@
       </v-snackbar>
     </div>
 
-    <v-row class="mt-10" dense>
-      <v-col md="4">
+    <v-row class="mt-5" dense>
+      <!-- <v-col md="4">
         <v-card v-if="can(`employee_view`)">
           <table>
             <tr class="primary text-white" dark>
@@ -44,106 +44,13 @@
             </tr>
           </table>
         </v-card>
-      </v-col>
-
-      <v-col md="8">
-        <DailyLogs :data="data" :headers="headers" />
-      </v-col>
-      <!-- <v-col md="12">
-        <v-toolbar class="primary" dark flat>
-          Today Summary View
-        </v-toolbar>
-        <v-data-table
-          v-if="can(`attendance_log_view_access`)"
-          :headers="headers"
-          :items="data"
-          :server-items-length="total"
-          :loading="loading"
-          :options.sync="options"
-          :footer-props="{
-            itemsPerPageOptions: [10, 50, 100, 500, 1000]
-          }"
-          class="elevation-1"
-        >
-          <template v-slot:item.employee_id="{ item }">
-
-            {{ item.employee_id }}
-          </template>
-          <template v-slot:item.status="{ item }">
-            <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
-
-            <v-icon v-else-if="item.status == 'P'" color="success darken-1"
-              >mdi-check</v-icon
-            >
-            <v-icon v-else-if="item.status == 'H'" color="grey darken-1"
-              >mdi-check</v-icon
-            >
-            <span v-else>{{ item.status }}</span>
-          </template>
-
-          <template v-slot:item.shift="{ item }">
-            <v-tooltip v-if="item && item.shift" top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <div class="primary--text" v-bind="attrs" v-on="on">
-                  {{ item.shift.name }}
-                </div>
-              </template>
-
-              <div
-                v-for="(iterable, index) in getDataForToolTip(item)"
-                :key="index"
-              >
-                <span v-if="index !== 'id'">
-                  {{ caps(index) }}: {{ iterable || "---" }}</span
-                >
-              </div>
-            </v-tooltip>
-            <span v-else>---</span>
-          </template>
-
-          <template v-slot:item.device_in="{ item }">
-            <v-tooltip v-if="item && item.device_in" top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <div class="primary--text" v-bind="attrs" v-on="on">
-                  {{ (item.device_in && item.device_in.short_name) || "---" }}
-                </div>
-              </template>
-              <div v-for="(iterable, index) in item.device_in" :key="index">
-                <span v-if="index !== 'id'">
-                  {{ caps(index) }}: {{ iterable || "---" }}</span
-                >
-              </div>
-            </v-tooltip>
-            <span v-else>---</span>
-          </template>
-
-          <template v-slot:item.device_out="{ item }">
-            <v-tooltip v-if="item && item.device_out" top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <div class="primary--text" v-bind="attrs" v-on="on">
-                  {{ (item.device_out && item.device_out.short_name) || "---" }}
-                </div>
-              </template>
-              <div v-for="(iterable, index) in item.device_out" :key="index">
-                <span v-if="index !== 'id'">
-                  {{ caps(index) }}: {{ iterable || "---" }}</span
-                >
-              </div>
-            </v-tooltip>
-            <span v-else>---</span>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <v-icon
-              @click="editItem(item)"
-              x-small
-              color="primary"
-              class="mr-2"
-            >
-              mdi-eye
-            </v-icon>
-          </template>
-        </v-data-table>
       </v-col> -->
+
+      <v-col md="12" class="mb-2">
+        <v-card elevation="0">
+          <DailyLogs :data="data" :headers="headers" />
+        </v-card>
+      </v-col>
     </v-row>
 
     <v-row justify="center">
@@ -261,12 +168,12 @@ export default {
     this.loading = true;
     this.getDataFromApi();
     // this.setMonthlyDateRange();
-    // this.payload.daily_date = new Date().toJSON().slice(0, 10);
+    this.payload.daily_date = new Date().toJSON().slice(0, 10);
     let dt = new Date();
     let y = dt.getFullYear();
     let m = dt.getMonth() + 1;
     m = m < 10 ? "0" + m : m;
-    this.payload.daily_date = `${y}-${m}-11`;
+    // this.payload.daily_date = `${y}-${m}-11`;
     this.custom_options = {
       params: {
         per_page: 1000,
@@ -439,7 +346,6 @@ export default {
       };
       this.$axios.get(url, options).then(({ data }) => {
         this.data = data.data;
-        console.log(this.data);
         this.csvData = data.data.map(e => ({
           Date: e.date,
           "E.ID": e.employee_id,
