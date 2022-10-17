@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Device\StoreRequest;
-use App\Http\Requests\Device\UpdateRequest;
 use App\Models\Device;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Http\Requests\Device\StoreRequest;
+use App\Http\Requests\Device\UpdateRequest;
 
 class DeviceController extends Controller
 {
@@ -53,9 +54,19 @@ class DeviceController extends Controller
         return $model->with(['status', 'company'])->find($id);
     }
 
-    public function getDeviceCompany($id)
+    public function getDeviceCompany($id, $userId)
     {
-        return Device::where("device_id", $id)->select("company_id")->first();
+
+        $emp = Employee::whereSystemUserId($userId)->without(['schedule', 'user', 'sub_department', 'role', 'first_log', 'last_log',])->first(['first_name', 'profile_picture'])->toArray();
+        $device =  Device::where("device_id", $id)->first(['company_id', 'name as device_name', 'short_name', 'device_id', 'location'])->toArray();
+
+        return array_merge($emp, $device);
+
+        return (gettype($device));
+
+        // return json_encode([$emp, $device]);
+
+        // return $data = [];
     }
 
     public function update(Device $Device, UpdateRequest $request)

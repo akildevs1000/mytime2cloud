@@ -56,7 +56,7 @@
     <v-row>
       <v-col md="8" cols="12" sm="12">
         <v-card elevation="0">
-          <ComboChart />
+          <DailySummary />
         </v-card>
       </v-col>
       <v-col md="4" cols="12" sm="12">
@@ -65,9 +65,12 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col cols="12">
-        <DailySummary />
+
+    <v-row class="mt-4">
+      <v-col md="12" cols="12" sm="12">
+        <v-card elevation="0">
+          <ComboChart />
+        </v-card>
       </v-col>
     </v-row>
     <v-row class="mt-5">
@@ -169,7 +172,6 @@
   </div>
   <Preloader v-else />
 </template>
-
 <script>
 import AreaChart from "../components/AreaChart.vue";
 import Preloader from "../components/Preloader.vue";

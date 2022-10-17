@@ -8,41 +8,43 @@
 
 <script>
 export default {
-  // head() {
-  //   return {
-  //     script: [{ src: "https://cdn.jsdelivr.net/npm/apexcharts", body: true }]
-  //     // script: [{ src: "~/plugins/apex.js", body: true }]
-  //   };
-  // },
+  head() {
+    return {
+      script: [{ src: "https://cdn.jsdelivr.net/npm/apexcharts", body: true }]
+    };
+  },
 
   data() {
     return {
       days: [],
       options: {
+        // colors: ["#A24FDD", "#6DFCCA", "#E78956", "#3A95D9"],
         series: [
           {
-            name: "Present",
+            name: "Today Summary",
             type: "column",
-            data: [1.4, 2, 2.5, 1.5, 2.5, 2.8, 3.8, 4.6]
+            data: []
+            // background: "black"
           },
           {
-            name: "Absent",
+            name: "Today Presents",
             type: "column",
-            data: [1.1, 3, 3.1, 4, 4.1, 4.9, 6.5, 8.5]
+            data: []
           },
           {
-            name: "Early",
+            name: "Today Absent",
             type: "column",
-            data: [20, 29, 37, 36, 44, 45, 50, 58]
+            data: []
           },
           {
-            name: "Late",
-            type: "line",
-            data: [20, 29, 37, 36, 44, 45, 50, 58]
+            name: "Today Missing",
+            type: "column",
+            data: []
           }
         ],
         chart: {
           height: 350,
+          // width: 0,
           type: "line",
           stacked: false
         },
@@ -60,75 +62,26 @@ export default {
         xaxis: {
           categories: []
         },
-        yaxis: [
-          {
-            axisTicks: {
-              show: true
-            },
-            axisBorder: {
-              show: true,
-              color: "#008FFB"
-            },
-            labels: {
-              style: {
-                colors: "#008FFB"
-              }
-            },
-            // title: {
-            //   text: "Income (thousand crores)",
-            //   style: {
-            //     color: "#008FFB"
-            //   }
-            // },
-            tooltip: {
-              enabled: true
-            }
-          },
-          // {
-          //   seriesName: "Income",
-          //   opposite: true,
-          //   axisTicks: {
-          //     show: true
-          //   },
-          //   axisBorder: {
-          //     show: true,
-          //     color: "#00E396"
-          //   },
-          //   labels: {
-          //     style: {
-          //       colors: "#00E396"
-          //     }
-          //   },
-          //   title: {
-          //     text: "Operating Cashflow (thousand crores)",
-          //     style: {
-          //       color: "#00E396"
-          //     }
-          //   }
-          // },
-          {
-            seriesName: "Revenue",
-            opposite: true,
-            axisTicks: {
-              show: true
-            },
-            axisBorder: {
-              show: true,
-              color: "#FEB019"
-            },
-            labels: {
-              style: {
-                colors: "#FEB019"
-              }
-            },
-            title: {
-              text: "Revenue (thousand crores)",
-              style: {
-                color: "#FEB019"
-              }
-            }
-          }
-        ],
+        // yaxis: [
+        //   {
+        //     axisTicks: {
+        //       show: true
+        //     },
+        //     axisBorder: {
+        //       show: true,
+        //       color: "#008FFB"
+        //     },
+        //     labels: {
+        //       style: {
+        //         colors: "#008FFB"
+        //       }
+        //     },
+
+        //     tooltip: {
+        //       enabled: true
+        //     }
+        //   }
+        // ],
         tooltip: {
           fixed: {
             enabled: true,
@@ -162,7 +115,14 @@ export default {
         0
       ).getDate();
       for (let i = 1; i <= lastDay; i++) {
-        this.options.xaxis.categories.push(i);
+        // this.options.xaxis.categories.push(i);
+      }
+      for (let i = 1; i <= lastDay; i++) {
+        // let r = Math.floor(Math.random() * 20);
+        this.options.series[0].data.push(Math.floor(Math.random() * 20));
+        this.options.series[1].data.push(Math.floor(Math.random() * 20));
+        this.options.series[2].data.push(Math.floor(Math.random() * 20));
+        this.options.series[3].data.push(Math.floor(Math.random() * 20));
       }
     }
   },

@@ -163,8 +163,8 @@
                 dense
                 v-model="payload.report_type"
                 x-small
-                :items="['Daily']"
-                item-text="Daily"
+                :items="['Daily', 'Weekly']"
+                item-text="['Daily', 'Weekly']"
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
@@ -431,16 +431,14 @@
               <v-autocomplete
                 label="In/Out"
                 v-model="log_payload.log_type"
-                :items="['In','Out']"
+                :items="['In', 'Out']"
                 :rules="deviceRules"
               >
-              {{log_payload.log_type}}
+                {{ log_payload.log_type }}
               </v-autocomplete>
-              <span
-                v-if="errors && errors.log_type"
-                class="text-danger mt-2"
-                >{{ errors.log_type[0] }}</span
-              >
+              <span v-if="errors && errors.log_type" class="text-danger mt-2">{{
+                errors.log_type[0]
+              }}</span>
             </v-col>
             <v-col cols="12" md="6">
               <v-menu
@@ -555,9 +553,7 @@
         class="primary darken-2"
         @click="generateReport('summary')"
       >
-        {{
-          payload.report_type == "Daily" ? "Daily Summary" : "Monthly Summary"
-        }}
+        {{ changeBtnTitle }}
       </v-btn>
       &nbsp;
       <!-- <v-btn small class="primary darken-2" @click="generateReport('present')">
@@ -926,6 +922,17 @@ export default {
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
+    },
+    changeBtnTitle() {
+      let title = "Summary";
+      let type = this.payload.report_type;
+      if (type == "Daily") {
+        return `Daily ${title}`;
+      } else if (type == "Weekly") {
+        return `Weekly ${title}`;
+      } else if (type == "Monthly") {
+        return `Monthly ${title}`;
+      }
     }
   },
 
@@ -954,8 +961,7 @@ export default {
       }
     };
     this.getDepartments(this.custom_options);
-    this.getAttendanceEmployees();
-
+    this.getEmployeesByDepartment();
     this.getDeviceList();
   },
 
@@ -977,6 +983,35 @@ export default {
       this.$axios.get(`/device_list`, payload).then(({ data }) => {
         this.devices = data;
       });
+    },
+
+    // getAttendanceEmployees() {
+    //   this.$axios.get(`/employees_by_departments/${-1}`).then(({ data }) => {
+    //     let res = data.map(e => e.employee_attendance);
+    //     this.scheduled_employees = data.map(e => e.employee_attendance);
+    //     this.scheduled_employees.unshift({
+    //       system_user_id: "",
+    //       name_with_user_id: "Select All"
+    //     });
+    //   });
+    // },
+
+    getEmployeesByDepartment() {
+      this.$axios
+        .get(
+          `/employees_by_departments/${this.payload.department_id}`,
+          this.custom_options
+        )
+        .then(({ data }) => {
+          this.scheduled_employees = data;
+          if (this.scheduled_employees.length > 0) {
+            this.scheduled_employees.unshift({
+              system_user_id: "",
+              name_with_user_id: "Select All"
+            });
+          }
+          this.loading = false;
+        });
     },
 
     setMonthlyDateRange() {
@@ -1034,39 +1069,9 @@ export default {
       });
     },
 
-    getEmployeesByDepartment() {
-      this.$axios
-        .get(
-          `/employees_by_departments/${this.payload.department_id}`,
-          this.custom_options
-        )
-        .then(({ data }) => {
-          this.scheduled_employees = data;
-          if (this.scheduled_employees.length > 0) {
-            this.scheduled_employees.unshift({
-              system_user_id: "",
-              name_with_user_id: "Select All"
-            });
-          }
-
-          this.loading = false;
-        });
-    },
-
     getScheduledEmployees() {
       this.$axios.get(`/scheduled_employees_with_type`).then(({ data }) => {
         this.scheduled_employees = data;
-      });
-    },
-
-    getAttendanceEmployees() {
-      this.$axios.get(`/attendance_employees`).then(({ data }) => {
-        let res = data.map(e => e.employee_attendance);
-        this.scheduled_employees = data.map(e => e.employee_attendance);
-        this.scheduled_employees.unshift({
-          system_user_id: "",
-          name_with_user_id: "Select All"
-        });
       });
     },
 
@@ -1291,39 +1296,50 @@ export default {
       let path = process.env.BACKEND_URL + "/" + url;
       let report = document.createElement("a");
 
+      let status = this.payload.status;
+
+      if (url == "present") {
+        status = "P";
+      } else if (url == "absent") {
+        status = "A";
+      } else if (url == "missing") {
+        status = "Missing";
+      }
+
+      switch (status) {
+        case "Select All":
+          status = "SA";
+          break;
+
+        case "Missing":
+          status = "---";
+          break;
+
+        default:
+          status = status.charAt(0);
+          break;
+      }
+
+      let data = this.payload;
+      let company_id = this.$auth.user.company.id;
+      const { page, itemsPerPage } = this.options;
+
       if (this.payload.report_type == "Daily") {
-        let status = this.payload.status;
-
-        if (url == "present") {
-          status = "P";
-        } else if (url == "absent") {
-          status = "A";
-        } else if (url == "missing") {
-          status = "Missing";
-        }
-
-        switch (status) {
-          case "Select All":
-            status = "SA";
-            break;
-
-          case "Missing":
-            status = "---";
-            break;
-
-          default:
-            status = status.charAt(0);
-            break;
-        }
-
-        let data = this.payload;
-        let company_id = this.$auth.user.company.id;
-        const { page, itemsPerPage } = this.options;
-
         report.setAttribute(
           "href",
           process.env.BACKEND_URL +
             `/daily_${url}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`
+        );
+        report.setAttribute("target", "_blank");
+        report.click();
+        return;
+      }
+
+      if (this.payload.report_type == "Weekly") {
+        report.setAttribute(
+          "href",
+          process.env.BACKEND_URL +
+            `/weekly_${url}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`
         );
         report.setAttribute("target", "_blank");
         report.click();
