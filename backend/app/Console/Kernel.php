@@ -43,7 +43,7 @@ class Kernel extends ConsoleKernel
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:restart_sdk')
-            ->dailyAt('1:00')
+            ->everyMinute()
             ->appendOutputTo("sdk.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
     }
