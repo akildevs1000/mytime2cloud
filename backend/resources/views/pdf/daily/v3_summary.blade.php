@@ -137,7 +137,7 @@ die();
                     <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->ot ?? '---' }} </td>
                     <td style="text-align:  center; color:{{ $statusColor }}""> {{ $data->status ?? '---' }} </td>
                     <td style="text-align:  left;"> {{ $data->device_in->short_name ?? '---' }} </td>
                     <td style="text-align:  left;"> {{ $data->device_out->short_name ?? '---' }} </td>
