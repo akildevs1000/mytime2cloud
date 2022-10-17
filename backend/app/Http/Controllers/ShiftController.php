@@ -22,6 +22,11 @@ class ShiftController extends Controller
         return $model->paginate($request->per_page);
     }
 
+    public function shift_by_type(Request $request)
+    {
+        return Shift::with('time_table', "shift_type")->where("shift_type_id",$request->shift_type_id)->get();
+    }
+
     /**
      * Store a newly created resource in storage.
      *
