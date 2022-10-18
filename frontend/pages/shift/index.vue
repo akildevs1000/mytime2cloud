@@ -45,8 +45,8 @@
           <td>{{ (item && item.absent_min_in) || "---" }}</td>
           <td>{{ (item && item.absent_min_out) || "---" }}</td>
           <td>
-            <span v-if="item.days.length == 0">
-              -------------------------------------------
+            <span v-if="item && item.days.length == 0">
+              ---
             </span>
             <span v-else v-for="(day, index) in item.days" :key="index">
               {{ day }}
