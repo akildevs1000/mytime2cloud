@@ -29,14 +29,22 @@ class UpdateRequest extends FormRequest
 
         return [
             'name' => ['required', Rule::unique('shifts')->ignore($this->shift)],
-            // 'beginning_date' => ["required"],
-            // 'cycle_number' => ["required"],
-            // 'cycle_unit' => ["required"],
             // 'days' => ["required", "array", "min:1"],
             'overtime' => ["required"],
             'shift_type_id' => ["required"],
             'company_id' => ["required"],
             'working_hours' => ['nullable'],
+
+            'on_duty_time' => 'required',
+            'off_duty_time' => 'required',
+            'late_time' => 'required',
+            'early_time' => 'required',
+            'beginning_in' => 'required',
+            'ending_in' => 'required',
+            'beginning_out' => 'required',
+            'ending_out' => 'required',
+            'absent_min_in' => 'required',
+            'absent_min_out' => 'required',
         ];
 
     }
