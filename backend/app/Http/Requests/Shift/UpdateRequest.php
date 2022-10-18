@@ -26,15 +26,13 @@ class UpdateRequest extends FormRequest
      */
     public function rules()
     {
-
         return [
             'name' => ['required', Rule::unique('shifts')->ignore($this->shift)],
-            // 'days' => ["required", "array", "min:1"],
             'overtime' => ["required"],
             'shift_type_id' => ["required"],
             'company_id' => ["required"],
             'working_hours' => ['nullable'],
-
+            'days' => ['nullable'],
             'on_duty_time' => 'required',
             'off_duty_time' => 'required',
             'late_time' => 'required',
@@ -46,6 +44,5 @@ class UpdateRequest extends FormRequest
             'absent_min_in' => 'required',
             'absent_min_out' => 'required',
         ];
-
     }
 }

@@ -55,7 +55,7 @@ export default {
           width: [1, 1, 1]
         },
         title: {
-          text: "DAILY ATTENDANCE REPORT",
+          text: "MONTHLY ATTENDANCE REPORT",
           align: "left",
           offsetX: 110
         },

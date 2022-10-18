@@ -23,76 +23,53 @@
         </div>
       </v-col>
     </v-row>
-    <v-data-table
-      v-if="can(`shift_view`)"
-      v-model="ids"
-      item-key="id"
-      :headers="headers"
-      :items="data"
-      :server-items-length="total"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
-      }"
-      class="elevation-1"
-    >
-      <template v-slot:item.days="{ item }">
-        <v-chip
-          class="primary ma-1"
-          small
-          v-for="(day, index) in item.days"
-          :key="index"
-          >{{ day }}</v-chip
-        >
-      </template>
-      <template v-slot:item.time_table="{ item }">
-        <span v-if="item.time_table">
-          <v-tooltip v-if="item && item.time_table" top color="primary">
-            <template v-slot:activator="{ on, attrs }">
-              <div class="primary--text" v-bind="attrs" v-on="on">
-                {{ item.time_table.on_duty_time }} -
-                {{ item.time_table.off_duty_time }}
-              </div>
-            </template>
-            <div
-              v-for="(time_table, index) in getDataForToolTip(item)"
-              :key="index"
+
+    <v-card elevation="0" v-if="can(`shift_view`)">
+      <table>
+        <tr>
+          <th v-for="(i, index) in headers" :key="index">{{ i.text }}</th>
+        </tr>
+        <tr v-for="(item, index) in data" :key="index">
+          <td>{{ (item && item.name) || "---" }}</td>
+          <td>{{ (item && item.shift_type.name) || "---" }}</td>
+          <td>{{ (item && item.working_hours) || "---" }}</td>
+          <td>{{ (item && item.overtime) || "---" }}</td>
+          <td>{{ (item && item.on_duty_time) || "---" }}</td>
+          <td>{{ (item && item.off_duty_time) || "---" }}</td>
+          <td>{{ (item && item.late_time) || "---" }}</td>
+          <td>{{ (item && item.early_time) || "---" }}</td>
+          <td>{{ (item && item.beginning_in) || "---" }}</td>
+          <td>{{ (item && item.beginning_out) || "---" }}</td>
+          <td>{{ (item && item.ending_in) || "---" }}</td>
+          <td>{{ (item && item.ending_out) || "---" }}</td>
+          <td>{{ (item && item.absent_min_in) || "---" }}</td>
+          <td>{{ (item && item.absent_min_out) || "---" }}</td>
+          <td>
+            <span v-if="item.days.length == 0">
+              -------------------------------------------
+            </span>
+            <span v-else v-for="(day, index) in item.days" :key="index">
+              {{ day }}
+              <span v-if="item.days.length - 1 !== index">, </span>
+            </span>
+          </td>
+          <td style="text-align: center">
+            <v-icon
+              color="secondary"
+              small
+              class="mr-2"
+              @click="editItem(item)"
             >
-              {{ caps(index) }}: {{ time_table || "---" }}
-            </div>
-          </v-tooltip>
-        </span>
-        <span v-else>---</span>
-      </template>
-      <template v-slot:item.action="{ item }">
-        <v-icon
-          v-if="can(`shift_edit`)"
-          color="secondary"
-          small
-          @click="editItem(item)"
-        >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          v-if="can(`shift_delete`)"
-          color="error"
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
-      </template>
-      <template v-slot:item.off_days="{ item }">
-        <v-chip
-          small
-          class="primary ma-1"
-          v-for="(off_day, index) in item.off_days"
-          :key="index"
-          >{{ off_day }}</v-chip
-        >
-      </template>
-    </v-data-table>
+              mdi-pencil
+            </v-icon>
+            <v-icon color="error" small @click="deleteItem(item)">
+              mdi-delete
+            </v-icon>
+          </td>
+        </tr>
+      </table>
+    </v-card>
+
     <NoAccess v-else />
   </div>
   <NoAccess v-else />
@@ -109,48 +86,26 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      {
-        text: "Name",
-        align: "left",
-        sortable: false,
-        value: "name",
-      },
-      {
-        text: "Shift Type",
-        align: "left",
-        sortable: false,
-        value: "shift_type.name",
-      },
-      {
-        text: "OT Interval",
-        align: "left",
-        sortable: false,
-        value: "overtime",
-      },
-      {
-        text: "Min Hrs",
-        align: "left",
-        sortable: false,
-        value: "working_hours",
-      },
-      {
-        text: "Holidays",
-        align: "left",
-        sortable: false,
-        value: "days",
-      },
-      {
-        text: "Time Slots",
-        align: "left",
-        sortable: false,
-        value: "time_table",
-      },
-
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "Name" },
+      { text: "Shift Type" },
+      { text: "W.Hrs" },
+      { text: "OT Interval" },
+      { text: "Time In" },
+      { text: "Time Out" },
+      { text: "L.Time" },
+      { text: "E.Time" },
+      { text: "B.In" },
+      { text: "B.Out" },
+      { text: "E.In" },
+      { text: "E.Out" },
+      { text: "A.Min In" },
+      { text: "A.Min Out" },
+      { text: "H.Days" },
+      { text: "Actions" }
     ],
     response: "",
     data: [],
-    errors: [],
+    errors: []
   }),
 
   watch: {
@@ -158,11 +113,12 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
+    this.getDataFromApi();
   },
 
   methods: {
@@ -183,17 +139,17 @@ export default {
         beginning_out: time_table.beginning_out || "---",
         ending_out: time_table.ending_out || "---",
         absent_min_in: time_table.absent_min_in || "---",
-        absent_min_out: time_table.absent_min_out || "---",
+        absent_min_out: time_table.absent_min_out || "---"
       };
     },
 
     caps(str) {
-      return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      return str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -207,8 +163,8 @@ export default {
         params: {
           page: page,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -235,7 +191,7 @@ export default {
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: this.ids.map((e) => e.id),
+            ids: this.ids.map(e => e.id)
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -247,7 +203,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
@@ -265,8 +221,27 @@ export default {
               this.response = data.message;
             }
           })
-          .catch((err) => console.log(err));
-    },
-  },
+          .catch(err => console.log(err));
+    }
+  }
 };
 </script>
+
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #ecf0f4;
+}
+</style>

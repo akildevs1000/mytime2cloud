@@ -28,7 +28,7 @@
                 <div class="opener"></div>
               </div>
               <h2 class="name" style="font-size:15px">
-                {{ item.first_name }}
+                {{ getShortName(item.first_name) }}
               </h2>
               <div class="title" style="font-size:12px !important">
                 {{ item.UserCode }}
@@ -43,13 +43,13 @@
                       ><span>{{
                         (item && getTime(item.RecordDate)) || "---"
                       }}</span
-                      ><small>In</small></a
+                      ><small>Time</small></a
                     >
                   </h2>
                   <h2>
                     <a href="#"
                       ><span>{{ (item && item.short_name) || "MED" }}</span
-                      ><small>D/Name</small></a
+                      ><small>Device</small></a
                     >
                   </h2>
                 </div>
@@ -85,6 +85,16 @@ export default {
       d.getMinutes();
       return d.getHours() + ":" + d.getMinutes();
     },
+
+    getShortName(item) {
+      if (!item) {
+        return false;
+      }
+      return item
+        .split(" ")
+        .slice(0, 2)
+        .join(" ");
+    },
     socketConnection() {
       this.socket = new WebSocket(this.url);
 
@@ -114,11 +124,6 @@ export default {
   }
 };
 </script>
-
-<!-- Accesstype : 1 BodyTemperature : 0 DeviceID : "OX-8862021010099" Photo : 1
-RecordDate : "2022-10-17 19:53:02" RecordImage :
-"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SE RecordMsg : "人脸验证"
-RecordNumber : 14182 RecordType : 1 UserCode : 544 -->
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
