@@ -28,12 +28,11 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => ['required', Rule::unique('shifts')],
-            // 'days' => ["required", "array", "min:1"],
             'overtime' => ["required"],
             'shift_type_id' => ["required"],
             'company_id' => ["required"],
             'working_hours' => ['nullable'],
-
+            'days' => ['nullable'],
             'on_duty_time' => 'required',
             'off_duty_time' => 'required',
             'late_time' => 'required',
