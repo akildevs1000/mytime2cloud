@@ -38,6 +38,7 @@ use App\Http\Controllers\SubDepartmentController;
 use App\Http\Controllers\TimeTableController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisaController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // employee reporter
@@ -230,3 +231,8 @@ Route::post('/leave-status', [LeaveController::class, 'status']);
 
 Route::get('leave-notification/search/{key}/{id}', [LeaveController::class, 'searchNotification']); // search records
 Route::get('leave/search/{key}', [LeaveController::class, 'search']); // search records
+
+
+Route::post('report_notifications', function(Request $request){
+    return $request->all();
+});

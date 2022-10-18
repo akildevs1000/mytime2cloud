@@ -539,6 +539,12 @@ export default {
         //   ],
         // },
         {
+          icon: "mdi-email",
+          title: "Report Notifications",
+          to: "/report_notifications",
+          permission: this.can("/")
+        },
+        {
           icon: "mdi-cog",
           title: "Setting",
           to: "/setting",
