@@ -116,7 +116,7 @@
           <td>{{ (item && item.user.email) || "---" }}</td>
           <td>{{ (item && item.phone_number) || "---" }}</td>
           <td>{{ item.schedule.shift_type.name }}</td>
-          <td   >
+          <td>
             <v-icon
               color="secondary"
               small
@@ -150,28 +150,28 @@ export default {
     total: 0,
     headers: [
       {
-        text: "EID",
+        text: "EID"
       },
       {
-        text: "Profile",
+        text: "Profile"
       },
       {
-        text: "Name",
+        text: "Name"
       },
       {
-        text: "Department",
+        text: "Department"
       },
       {
-        text: "Designation",
+        text: "Designation"
       },
       {
-        text: "Email",
+        text: "Email"
       },
       {
-        text: "Mobile",
+        text: "Mobile"
       },
       {
-        text: "Shift Type",
+        text: "Shift Type"
       },
       { text: "Actions", align: "center", value: "action", sortable: false }
     ],

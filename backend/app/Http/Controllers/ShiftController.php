@@ -24,7 +24,7 @@ class ShiftController extends Controller
 
     public function shift_by_type(Request $request)
     {
-        return Shift::with('time_table', "shift_type")->where("shift_type_id",$request->shift_type_id)->get();
+        return Shift::with('time_table', "shift_type")->where("shift_type_id", $request->shift_type_id)->get();
     }
 
     /**
@@ -43,7 +43,7 @@ class ShiftController extends Controller
             } else {
                 return $this->response('Shift cannot add.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -76,7 +76,7 @@ class ShiftController extends Controller
             } else {
                 return $this->response('Shift cannot update.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -95,7 +95,7 @@ class ShiftController extends Controller
             } else {
                 return $this->response('Shift cannot update.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
