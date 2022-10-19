@@ -709,7 +709,7 @@
             </div>
           </template>
           <div
-            v-for="(iterable, index) in getDataForToolTip(item.schedule.shift)"
+            v-for="(iterable, index) in item.schedule.shift"
             :key="index"
           >
             <span> {{ caps(index) }}: {{ iterable || "---" }}</span>
@@ -1182,43 +1182,6 @@ export default {
         this.loading = false;
       });
     },
-
-    getDataForToolTip(item) {
-      if (!item) {
-        return {};
-      }
-
-      let shift = {
-        name: item.name,
-        days: item.days,
-        ot_interval: item.overtime,
-        working_hours: item.working_hours || "---"
-      };
-      return shift;
-    },
-
-    // getDataForToolTip(item) {
-    //   console.log(item);
-
-    //   if (item && !item.shift) {
-    //     return {};
-    //   }
-
-    //   let shift = {
-    //     name: item.shift.name,
-    //     days: item.shift.days,
-    //     ot_interval: item.shift.overtime,
-    //     working_hours: item.shift.working_hours || "---"
-    //   };
-
-    //   if (item && !item.time_table) {
-    //     return shift;
-    //   }
-
-    //   let time_table = item.time_table;
-
-    //   return { ...shift, ...time_table };
-    // },
 
     editItem(item) {
       this.dialog = true;
