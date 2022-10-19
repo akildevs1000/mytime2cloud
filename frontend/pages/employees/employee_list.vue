@@ -31,107 +31,90 @@
         </div>
       </v-col>
     </v-row>
-    <!-- <v-data-table
-      v-if="can(`employee_view`)"
-      v-model="ids"
-      show-select
-      item-key="id"
-      :headers="headers"
-      :items="data"
-      :server-items-length="total"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000]
-      }"
-      class="elevation-1"
-    >
-      <template v-slot:top>
-        <v-toolbar dark class="primary">Employees List</v-toolbar>
+    <v-row>
+      <v-col xs="12" sm="12" md="3" cols="12">
+        <v-select
+          @change="getDataFromApi(`employee`)"
+          outlined
+          v-model="pagination.per_page"
+          :items="[50, 100, 500, 1000]"
+          dense
+          placeholder="Per Page Records"
+        ></v-select>
+      </v-col>
 
-        <v-toolbar flat>
-          <v-toolbar-title>List</v-toolbar-title>
-          <v-divider class="mx-4" inset vertical></v-divider>
-
-          <v-text-field
-            @input="searchIt"
-            v-model="search"
-            label="Search"
-            single-line
-            hide-details
-          ></v-text-field>
-        </v-toolbar>
-      </template>
-      <template v-slot:item.action="{ item }">
-        <v-icon
-          v-if="can(`employee_edit`)"
-          color="secondary"
-          small
-          class="mr-2"
-          @click="editItem(item)"
-        >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          v-if="can(`employee_delete`)"
-          color="error"
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
-      </template>
-      <template v-slot:item.profile_picture="{ item }">
-        <div class="pa-1">
-          <v-img
-            style="border-radius: 50%; height: auto; width: 75px"
-            :src="item.profile_picture || '/no-profile-image.jpg'"
-          >
-          </v-img>
-        </div>
-      </template>
-    </v-data-table> -->
-
-    <v-card v-if="can(`employee_view`)">
-      <!-- <v-toolbar elevation="1" dense dark class="primary"
+      <v-col xs="12" sm="12" md="3" offset-md="6" cols="12">
+        <v-text-field
+          outlined
+          @input="searchIt"
+          v-model="search"
+          dense
+          placeholder="Search..."
+        ></v-text-field>
+      </v-col>
+    </v-row>
+    <div v-if="can(`employee_view`)">
+      <v-card class="mb-5">
+        <!-- <v-toolbar elevation="1" dense dark class="primary"
         >Employees List</v-toolbar
       > -->
-      <table>
-        <tr>
-          <th v-for="(item, index) in headers" :key="index">{{ item.text }}</th>
-        </tr>
-        <tr v-for="(item, index) in data" :key="index">
-          <td>{{ item.system_user_id || "---" }}</td>
+        <table>
+          <tr>
+            <th v-for="(item, index) in headers" :key="index">
+              {{ item.text }}
+            </th>
+          </tr>
+          <tr v-for="(item, index) in data" :key="index">
+            <td class="text-center">
+              <b>{{ ++index }}</b>
+            </td>
 
-          <td>
-            <v-img
-              style="border-radius: 50%; height: auto; width: 50px"
-              :src="item.profile_picture || '/no-profile-image.jpg'"
-            >
-            </v-img>
-          </td>
-          <td>{{ item.first_name || "---" }}</td>
-          <td>{{ item.department.name || "---" }}</td>
-          <td>{{ item.designation.name }}</td>
-          <td>{{ (item && item.user.email) || "---" }}</td>
-          <td>{{ (item && item.phone_number) || "---" }}</td>
-          <td>{{ item.schedule.shift_type.name }}</td>
-          <td>
-            <v-icon
-              color="secondary"
-              small
-              class="mr-2"
-              @click="editItem(item)"
-            >
-              mdi-pencil
-            </v-icon>
-            <v-icon color="error" small @click="deleteItem(item)">
-              mdi-delete
-            </v-icon>
-          </td>
-        </tr>
-      </table>
-    </v-card>
+            <td>{{ item.system_user_id || "---" }}</td>
+
+            <td>
+              <v-img
+                style="border-radius: 50%; height: auto; width: 50px"
+                :src="item.profile_picture || '/no-profile-image.jpg'"
+              >
+              </v-img>
+            </td>
+            <td>{{ item.first_name || "---" }}</td>
+            <td>{{ item.department.name || "---" }}</td>
+            <td>{{ item.designation.name }}</td>
+            <td>{{ (item && item.user.email) || "---" }}</td>
+            <td>{{ (item && item.phone_number) || "---" }}</td>
+            <td>{{ item.schedule.shift_type.name }}</td>
+            <td>
+              <v-icon
+                color="secondary"
+                small
+                class="mr-2"
+                @click="editItem(item)"
+              >
+                mdi-pencil
+              </v-icon>
+              <v-icon color="error" small @click="deleteItem(item)">
+                mdi-delete
+              </v-icon>
+            </td>
+          </tr>
+        </table>
+      </v-card>
+      <div>
+        <v-row>
+          <v-col md="12" class="float-right">
+            <div class="float-right">
+              <v-pagination
+                v-model="pagination.current"
+                :length="pagination.total"
+                @input="onPageChange"
+                :total-visible="7"
+              ></v-pagination>
+            </div>
+          </v-col>
+        </v-row>
+      </div>
+    </div>
     <NoAccess v-else />
   </div>
   <NoAccess v-else />
@@ -139,6 +122,11 @@
 <script>
 export default {
   data: () => ({
+    pagination: {
+      current: 1,
+      total: 0,
+      per_page: 10
+    },
     options: {},
     Model: "Employee",
     endpoint: "employee",
@@ -149,6 +137,9 @@ export default {
     loading: false,
     total: 0,
     headers: [
+      {
+        text: "#"
+      },
       {
         text: "EID"
       },
@@ -194,20 +185,21 @@ export default {
       val || this.close();
       this.errors = [];
       this.search = "";
-    },
-    options: {
-      handler() {
-        this.getDataFromApi();
-      },
-      deep: true
     }
   },
   created() {
     this.loading = true;
+    // this.getDataFromApi();
+  },
+  mounted() {
     this.getDataFromApi();
   },
 
   methods: {
+    onPageChange() {
+      this.getDataFromApi();
+    },
+
     can(per) {
       let u = this.$auth.user;
       return (
@@ -218,21 +210,19 @@ export default {
 
     getDataFromApi(url = this.endpoint) {
       this.loading = true;
-
-      const { page, itemsPerPage } = this.options;
-
+      let page = this.pagination.current;
       let options = {
         params: {
-          per_page: itemsPerPage,
+          per_page: this.pagination.per_page,
           company_id: this.$auth.user.company.id
         }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.data = data.data;
-        this.total = data.total;
+        this.pagination.current = data.current_page;
+        this.pagination.total = data.last_page;
         this.loading = false;
-        console.log(this.data);
       });
     },
     searchIt(e) {

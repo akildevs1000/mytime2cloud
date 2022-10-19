@@ -220,7 +220,8 @@ class EmployeeController extends Controller
         $user = User::find($record->user_id);
         if ($record->delete()) {
             $user->delete();
-            return Response::noContent(204);
+            // return Response::noContent(204);
+            return Response::json(['message' => 'Employee Successfully deleted.', 'status' => true], 200);
         } else {
             return Response::json(['message' => 'No such record found.'], 404);
         }

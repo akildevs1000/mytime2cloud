@@ -108,27 +108,7 @@
       </v-row>
 
       <v-row class="mt-15">
-        <!-- <v-col md="2">
-          <v-card
-            class="msx-auto elevation-0 "
-            width="256"
-            style="border: 1px solid #A09FA0;"
-          >
-            <v-list dense>
-              <v-list-item-group v-model="selectedItem" color="primary">
-                <v-list-item v-for="(item, i) in items" :key="i" class="py-2 ">
-                  <v-list-item-icon>
-                    <v-icon v-text="item.icon"></v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title v-text="item.text"></v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-card>
-        </v-col> -->
-        <v-col md="6">
+        <v-col md="7">
           <!-- <v-row>
               <v-col xs="12" sm="12" md="3" cols="12">
                 <v-select
@@ -157,8 +137,13 @@
               md="3"
               v-for="(item, index) in data"
               :key="index"
+              class="pa-xs-0  ma-xs-0"
             >
-              <div class="card mx-0 my-0 pa-0">
+              <div
+                class="card mx-0 my-0 pa-0"
+                @click="res(item.id)"
+                style="cursor:pointer"
+              >
                 <div class="banner">
                   <v-img
                     class="gg"
@@ -174,7 +159,7 @@
                   {{ limitName(item.first_name) }}
                 </h2>
                 <div class="title" style="font-size:12px !important">
-                  EID: 0001
+                  EID: {{ item.employee_id }}
                 </div>
                 <div class="title" style="font-size:12px !important">
                   {{
@@ -221,126 +206,326 @@
             </v-col>
           </v-row>
         </v-col>
-        <v-col md="6">
-          <v-card class="elevation-0">
-            <v-toolbar color="primary " dark flat>
-              <v-toolbar-title>Employee</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn icon>
-                <v-icon small>mdi-pencil</v-icon>
-              </v-btn>
-              <v-btn icon>
-                <v-icon small>mdi-eye</v-icon>
-              </v-btn>
-              <template v-slot:extension>
-                <v-tabs v-model="tab" align-with-title>
-                  <v-tabs-slider color="yellow"></v-tabs-slider>
-                  <v-tab v-for="item in items1" :key="item">
-                    {{ item }}
-                  </v-tab>
-                </v-tabs>
-              </template>
-            </v-toolbar>
-            <v-tabs-items v-model="tab">
-              <v-tab-item>
-                <div class="" style=" margin: 8px auto; width: 91px;">
-                  <div class="banner">
-                    <v-img
-                      class="gg"
-                      viewBox="0 0 100 100"
-                      style="border-radius: 50%;  height: 80px; max-width: 80px !important"
-                      src="http://localhost:8000/media/employee/profile_picture/209536-360-f-364211147-1qglvxv1tcq0ohz3fawufrtonzz8nq3e.jpg"
-                    ></v-img>
+        <v-col md="5">
+          <v-row>
+            <v-col md="12">
+              <v-card height="700px" class="view-card mx-0 my-0 pa-0">
+                <v-toolbar color="primary " dark flat fixed max-height="55">
+                  <v-toolbar-title>{{
+                    caps(ListName) || "Work Info"
+                  }}</v-toolbar-title>
+                </v-toolbar>
+                <v-container grid-list-xs>
+                  <div class="" style=" margin: 8px auto; width: 91px;">
+                    <div class="banner">
+                      <v-img
+                        class="gg"
+                        viewBox="0 0 100 100"
+                        style="border-radius: 50%;  height: 100px; min-width: 100px !important"
+                        src="http://localhost:8000/media/employee/profile_picture/209536-360-f-364211147-1qglvxv1tcq0ohz3fawufrtonzz8nq3e.jpg"
+                      ></v-img>
+                    </div>
                   </div>
-                </div>
-                <v-card flat>
-                  <v-card-text>
-                    <v-list-item>
-                      <v-list-item-content>
-                        <v-row class="mt-2">
-                          <v-col cols="3">
-                            <v-list-item-title class="text-bold mb-1">
-                              Role
-                            </v-list-item-title>
-                          </v-col>
-                          <v-col cols="8">
-                            (payload.role && payload.role.name) || "---"
-                          </v-col>
-                          <v-col cols="3">
-                            <v-list-item-title class="text-bold mb-1">
-                              First Name
-                            </v-list-item-title>
-                          </v-col>
-                          <v-col cols="8">
-                            (payload.first_name && payload.first_name) || "---"
-                          </v-col>
+                  <div style="margin: 0 auto; width: 100%;">
+                    <p style=" text-align: center;">
+                      <b>{{ work && caps(work.first_name) }}</b> <br />
+                      <b style="color:#A09FA0">{{
+                        work && caps(work.designation.name)
+                      }}</b>
+                    </p>
+                  </div>
+                  <v-divider style="width:94%;"></v-divider>
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col md="12" v-show="selectedItem == 0" color="primary">
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 0">
+                            <v-card flat>
+                              <v-card-text>
+                                <v-list-item>
+                                  <v-list-item-content>
+                                    <v-row class="mt-2">
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Role
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{ (work && work.id) || "---" }}
+                                      </v-col>
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          EID
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.employee_id) || "----"
+                                        }}
+                                      </v-col>
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Name
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.first_name) || "----"
+                                        }}
+                                      </v-col>
 
-                          <v-col cols="3">
-                            <v-list-item-title class="text-bold mb-1">
-                              Last Name
-                            </v-list-item-title>
-                          </v-col>
-                          <v-col cols="8">
-                            (payload.last_name && payload.last_name) || "---"
-                          </v-col>
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Department
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.department.name) ||
+                                            "----"
+                                        }}
+                                      </v-col>
 
-                          <v-col cols="3">
-                            <v-list-item-title class="text-bold mb-1">
-                              Department
-                            </v-list-item-title>
-                          </v-col>
-                          <v-col cols="8">
-                            (payload.department && payload.department.name) ||
-                            "---"
-                          </v-col>
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Sub Department
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work &&
+                                            work.sub_department &&
+                                            work.sub_department.name) ||
+                                            "----"
+                                        }}
+                                      </v-col>
 
-                          <v-col cols="3">
-                            <v-list-item-title class="text-bold mb-1">
-                              Sub Department
-                            </v-list-item-title>
-                          </v-col>
-                          <v-col cols="8">
-                            (payload.sub_department &&
-                            payload.sub_department.name) || "---"
-                          </v-col>
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Email
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.user.email) || "----"
+                                        }}
+                                      </v-col>
 
-                          <v-col cols="3">
-                            <v-list-item-title class="text-bold mb-1">
-                              Designation
-                            </v-list-item-title>
-                          </v-col>
-                          <v-col cols="8">
-                            (payload.designation && payload.designation.name) ||
-                            "---"
-                          </v-col>
-                        </v-row>
-                      </v-list-item-content>
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Whatsapp Number
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.whatsapp_number) ||
+                                            "----"
+                                        }}
+                                      </v-col>
+
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Joining Date
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.joining_date) || "----"
+                                        }}
+                                      </v-col>
+                                    </v-row>
+                                  </v-list-item-content>
+                                </v-list-item>
+                              </v-card-text>
+                            </v-card>
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col md="12" v-show="selectedItem == 1" color="primary">
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 1">
+                            <v-card flat>
+                              <v-card-text>
+                                <v-list-item>
+                                  <v-list-item-content>
+                                    <v-row class="mt-2">
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Role
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{ (work && work.id) || "---" }}
+                                      </v-col>
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          EID
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.employee_id) || "----"
+                                        }}
+                                      </v-col>
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Name
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.first_name) || "----"
+                                        }}
+                                      </v-col>
+
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Department
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.department.name) ||
+                                            "----"
+                                        }}
+                                      </v-col>
+
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Sub Department
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work &&
+                                            work.sub_department &&
+                                            work.sub_department.name) ||
+                                            "----"
+                                        }}
+                                      </v-col>
+
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Email
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.user.email) || "----"
+                                        }}
+                                      </v-col>
+
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Whatsapp Number
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.whatsapp_number) ||
+                                            "----"
+                                        }}
+                                      </v-col>
+
+                                      <v-col cols="3">
+                                        <v-list-item-title
+                                          class="text-bold mb-1"
+                                        >
+                                          Joining Date
+                                        </v-list-item-title>
+                                      </v-col>
+                                      <v-col cols="8">
+                                        {{
+                                          (work && work.joining_date) || "----"
+                                        }}
+                                      </v-col>
+                                    </v-row>
+                                  </v-list-item-content>
+                                </v-list-item>
+                              </v-card-text>
+                            </v-card>
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                </v-container>
+                <v-navigation-drawer
+                  permanent
+                  exdpand-on-hover
+                  :mini-variant="drawer"
+                  v-model="rightDrawer"
+                  :clipped="true"
+                  :right="right"
+                  absolute
+                >
+                  <v-list class="primary" dark height="55">
+                    <v-list-item class="px-2">
+                      <v-list-item-avatar>
+                        <v-app-bar-nav-icon
+                          @click.stop="drawer = !drawer"
+                        ></v-app-bar-nav-icon>
+                      </v-list-item-avatar>
                     </v-list-item>
-                  </v-card-text>
-                </v-card>
-              </v-tab-item>
-              <v-tab-item>
-                <v-card flat>
-                  <v-card-text
-                    >2 Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                    Hic tempora quisquam corporis! Officia inventore, repellat
-                    nulla qui dolorem ut molestias omnis sequi assumenda aliquam
-                    eius recusandae nobis suscipit eos ipsa.</v-card-text
-                  >
-                </v-card>
-              </v-tab-item>
-              <v-tab-item>
-                <v-card flat>
-                  <v-card-text
-                    >3 Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                    Hic tempora quisquam corporis! Officia inventore, repellat
-                    nulla qui dolorem ut molestias omnis sequi assumenda aliquam
-                    eius recusandae nobis suscipit eos ipsa.</v-card-text
-                  >
-                </v-card>
-              </v-tab-item>
-            </v-tabs-items>
-          </v-card>
+                  </v-list>
+                  <!-- <v-divider></v-divider> -->
+                  <v-list dense class="mt-0 pt-0">
+                    <v-list-item-group v-model="selectedItem" color="primary">
+                      <v-list-item
+                        @click="getListName(item.text)"
+                        class="py-2"
+                        v-for="(item, i) in items"
+                        :key="i"
+                      >
+                        <v-list-item-icon>
+                          <v-icon v-text="item.icon"></v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                          <v-list-item-title
+                            v-text="item.text"
+                          ></v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list-item-group>
+                  </v-list>
+                </v-navigation-drawer>
+              </v-card>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </div>
@@ -353,25 +538,21 @@
 <script>
 export default {
   data: () => ({
-    selectedItem: 1,
-
+    m: false,
+    expand: false,
+    expand2: false,
+    //////////////
+    right: true,
+    rightDrawer: false,
+    drawer: true,
+    selectedItem: 0,
     tab: null,
-    items1: [
-      "Work",
-      "Personal",
-      "Personal",
-      "Personal",
-      "Personal",
-      "Personal",
-      "Personal",
-      "Personal",
-      "Personal",
-      "Notes"
-    ],
-    text:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-
     items: [
+      {
+        text: "Work info",
+        icon: "mdi-briefcase ",
+        permission: "employee_personal_access"
+      },
       {
         text: "Personal info",
         icon: "mdi-account-circle ",
@@ -439,9 +620,26 @@ export default {
     current_page: 1,
     per_page: 8,
     response: "",
+    ListName: "",
     snackbar: false,
     btnLoader: false,
-    max_employee: 0
+    max_employee: 0,
+    payload: {},
+    work: {
+      first_name: "",
+      last_name: "",
+      department: "",
+      sub_department: "",
+      designation: "",
+      role: "",
+      employee_id: "",
+      system_user_id: "",
+      user: "",
+      profile_picture: "",
+      phone_number: "",
+      whatsapp_number: "",
+      joining_date: ""
+    }
   }),
   async created() {
     this.loading = false;
@@ -459,6 +657,16 @@ export default {
     }
   },
   methods: {
+    getListName(val) {
+      this.ListName = val;
+    },
+    caps(str = "---") {
+      if (str == "---") {
+        return str;
+      } else {
+        return str.replace(/\b\w/g, c => c.toUpperCase());
+      }
+    },
     close() {
       this.dialog = false;
       this.errors = [];
@@ -506,6 +714,16 @@ export default {
       return header + rows;
     },
     res(id) {
+      this.$axios.get(`employee/${id}`).then(({ data }) => {
+        // this.payload = data;
+        // this.contactItem = data;
+        // this.setting = data;
+        this.work = data;
+        console.log(this.data[0]);
+        this.loading = false;
+      });
+
+      return;
       if (!this.can("employee_single_view_access")) {
         return false;
       }
@@ -609,7 +827,7 @@ export default {
 
       this.$axios.get(`${url}`, options).then(({ data }) => {
         this.data = data.data;
-        this.total = data.total;
+        this.work = this.data[0];
         this.max_employee = this.$auth.user.company.max_employee;
         this.next_page_url = data.next_page_url;
         this.prev_page_url = data.prev_page_url;
@@ -652,14 +870,6 @@ body {
   box-sizing: border-box;
 }
 .card {
-  /* background-color: #fff;
-  max-width: 360px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 2rem;
-  box-shadow: 0px 1rem 1.5rem rgba(0, 0, 0, 0.5); */
-
   height: 285px !important;
   background-color: #fff !important;
   max-width: 260px !important;
@@ -668,6 +878,16 @@ body {
   overflow: hidden !important;
   border-radius: 2rem !important;
 }
+.view-card {
+  /* height: 285px !important; */
+  background-color: #fff !important;
+  /* max-width: 260px !important; */
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border-radius: 1rem !important;
+}
+
 .card .banner {
   /* background-image: url("https://images.unsplash.com/photo-1545703549-7bdb1d01b734?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ"); */
   background-color: #5fafa3;
@@ -680,6 +900,7 @@ body {
   justify-content: center;
   box-sizing: border-box;
 }
+
 .card .banner .gg {
   background-color: #fff;
   width: 8rem;
@@ -778,9 +999,7 @@ body {
   font-size: 0.85rem;
   font-weight: normal;
 }
-.card .actions .follow-info h2 a:hover {
-  /* background-color: #f2f2f2; */
-}
+
 .card .actions .follow-info h2 a:hover span {
   color: #007ad6;
 }
@@ -810,5 +1029,11 @@ body {
   text-align: justify;
   padding: 0 2rem 2.5rem;
   order: 100;
+}
+@media screen and (min-width: 1280px) and (max-width: 1440px) {
+  .card {
+    height: 303px !important;
+  }
+  /* Styles for Desktops */
 }
 </style>
