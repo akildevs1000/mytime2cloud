@@ -26,7 +26,7 @@ class ScheduleEmployee extends Model
      */
     public function shift()
     {
-        return $this->belongsTo(Shift::class);
+        return $this->belongsTo(Shift::class)->withOut(["shift_type"]);
     }
 
     public function shift_type()

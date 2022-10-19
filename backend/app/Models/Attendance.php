@@ -101,7 +101,7 @@ class Attendance extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class, "employee_id", "system_user_id")->withDefault([
+        return $this->belongsTo(Employee::class, "employee_id", "system_user_id")->withOut("schedule")->withDefault([
             'first_name' => '---',
             "department" => [
                 "name" => "---",
@@ -114,43 +114,9 @@ class Attendance extends Model
         return $this->belongsTo(Employee::class, "employee_id");
     }
 
-    /**
-     * Get the user that owns the Attendance
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function shift()
-    {
-        return $this->belongsTo(Shift::class)->withDefault([
-            'name' => '---',
-        ]);
-    }
-
     public function getEditDateAttribute()
     {
         return date("Y-m-d", strtotime($this->date));
-    }
-
-    /**
-     * Get the user that owns the Attendance
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function shift_type()
-    {
-        return $this->belongsTo(ShiftType::class)->withDefault([
-            'name' => '---',
-        ]);
-    }
-
-    /**
-     * Get the user that owns the Attendance
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function time_table()
-    {
-        return $this->belongsTo(TimeTable::class);
     }
 
     public function AttendanceLogs()
