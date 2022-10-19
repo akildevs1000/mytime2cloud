@@ -41,11 +41,14 @@ class Kernel extends ConsoleKernel
             ->dailyAt('1:00')
             ->appendOutputTo("scheduler.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        $schedule
-            ->command('task:restart_sdk')
-            ->dailyAt('1:00')
-            ->appendOutputTo("sdk.log")
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        if (env("APP_ENV") == "production") {
+            $schedule
+                ->command('task:restart_sdk')
+                ->dailyAt('1:00')
+                ->appendOutputTo("sdk.log")
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        }
     }
 
     /**

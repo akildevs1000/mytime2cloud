@@ -20,7 +20,7 @@
     </v-row>
 
     <v-card>
-      <v-toolbar flat dark class="primary"> Edit {{ Model }} </v-toolbar>
+      <v-toolbar flat dark class="primary"> Create {{ Model }} </v-toolbar>
 
       <v-card flat>
         <v-card-text>
@@ -33,7 +33,7 @@
                 class="mt-1"
                 outlined
                 dense
-                v-model="shift_payload.name"
+                v-model="payload.name"
               ></v-text-field>
             </v-col>
 
@@ -48,7 +48,7 @@
                 :error-messages="
                   errors && errors.shift_type_id ? errors.shift_type_id[0] : ''
                 "
-                v-model="shift_payload.shift_type_id"
+                v-model="payload.shift_type_id"
                 x-small
                 :items="shift_types"
                 item-value="id"
@@ -69,7 +69,7 @@
                 "
                 outlined
                 dense
-                v-model="shift_payload.working_hours"
+                v-model="payload.working_hours"
                 x-small
                 type="number"
               ></v-text-field>
@@ -79,12 +79,12 @@
               Overtime start after duty hours (Minutes)
               <span class="error--text">*</span>
               <v-text-field
-                :hide-details="!errors.overtime"
-                :error-messages="errors.overtime && errors.overtime[0]"
+                :hide-details="!errors.overtime_interval"
+                :error-messages="errors.overtime_interval && errors.overtime_interval[0]"
                 class="mt-1"
                 outlined
                 dense
-                v-model="shift_payload.overtime"
+                v-model="payload.overtime_interval"
                 label=""
                 type="number"
               ></v-text-field>
@@ -492,7 +492,7 @@
                 class="mr-5"
                 v-for="(week_day, index) in week_days"
                 :key="index"
-                v-model="shift_payload.days"
+                v-model="payload.days"
                 :label="week_day.label"
                 :value="week_day.value"
                 :error-messages="errors.days && errors.days[0]"
@@ -505,7 +505,6 @@
                 <v-btn
                   v-if="can(`shift_create`)"
                   small
-                  :loading="loading"
                   color="primary"
                   @click="store_shift"
                 >
@@ -543,13 +542,12 @@ export default {
       { label: "Sat", value: "Sat" }
     ],
 
-    shift_payload: {
-      name: null,
-      overtime: 0,
-      shift_type_id: "",
-      days: [],
-      working_hours: 0
-    },
+    // payload: {
+    //   overtime: 0,
+    //   shift_type_id: "",
+    //   days: [],
+    //   working_hours: 0
+    // },
 
     errors: [],
     data: [],
@@ -572,16 +570,7 @@ export default {
     ending_out_menu: false,
 
     payload: {
-      on_duty_time: null,
-      off_duty_time: null,
-      late_time: null,
-      early_time: null,
-      beginning_in: null,
-      ending_in: null,
-      beginning_out: null,
-      ending_out: null,
-      absent_min_in: null,
-      absent_min_out: null
+      days: [],
     },
 
     errors: [],
@@ -609,14 +598,10 @@ export default {
     },
 
     store_shift() {
-      let payload = {
-        ...this.shift_payload,
-        ...this.payload
-      };
-      payload.company_id = this.$auth.user.company.id;
+      this.payload.company_id = this.$auth.user.company.id;
       this.loading = true;
       this.$axios
-        .post(`/shift`, payload)
+        .post(`/shift`, this.payload)
         .then(({ data }) => {
           this.loading = false;
           if (!data.status) {

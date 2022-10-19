@@ -30,27 +30,27 @@
           <th v-for="(i, index) in headers" :key="index">{{ i.text }}</th>
         </tr>
         <tr v-for="(item, index) in data" :key="index">
-          <td>{{ (item && item.name) || "---" }}</td>
-          <td>{{ (item && item.shift_type.name) || "---" }}</td>
-          <td>{{ (item && item.working_hours) || "---" }}</td>
-          <td>{{ (item && item.overtime) || "---" }}</td>
-          <td>{{ (item && item.on_duty_time) || "---" }}</td>
-          <td>{{ (item && item.off_duty_time) || "---" }}</td>
-          <td>{{ (item && item.late_time) || "---" }}</td>
-          <td>{{ (item && item.early_time) || "---" }}</td>
-          <td>{{ (item && item.beginning_in) || "---" }}</td>
-          <td>{{ (item && item.beginning_out) || "---" }}</td>
-          <td>{{ (item && item.ending_in) || "---" }}</td>
-          <td>{{ (item && item.ending_out) || "---" }}</td>
-          <td>{{ (item && item.absent_min_in) || "---" }}</td>
-          <td>{{ (item && item.absent_min_out) || "---" }}</td>
+          <td>{{ item && item.name }}</td>
+          <td>{{ item && item.shift_type.name }}</td>
+          <td>{{ item && item.working_hours }}</td>
+          <td>{{ item && item.overtime_interval }}</td>
+          <td>{{ item && item.on_duty_time }}</td>
+          <td>{{ item && item.off_duty_time }}</td>
+          <td>{{ item && item.late_time }}</td>
+          <td>{{ item && item.early_time }}</td>
+          <td>{{ item && item.beginning_in }}</td>
+          <td>{{ item && item.beginning_out }}</td>
+          <td>{{ item && item.ending_in }}</td>
+          <td>{{ item && item.ending_out }}</td>
+          <td>{{ item && item.absent_min_in }}</td>
+          <td>{{ item && item.absent_min_out }}</td>
           <td>
-            <span v-if="item && item.days.length == 0">
+            <span v-if="item && !item.days">
               ---
             </span>
             <span v-else v-for="(day, index) in item.days" :key="index">
-              {{ day }}
-              <span v-if="item.days.length - 1 !== index">, </span>
+              {{ item.days }}
+              <span v-if="item && item.days.length - 1 !== index">, </span>
             </span>
           </td>
           <td style="text-align: center">
@@ -87,20 +87,20 @@ export default {
     total: 0,
     headers: [
       { text: "Name" },
-      { text: "Shift Type" },
-      { text: "W.Hrs" },
+      { text: "Type" },
+      { text: "Working Hrs" },
       { text: "OT Interval" },
-      { text: "Time In" },
-      { text: "Time Out" },
-      { text: "L.Time" },
-      { text: "E.Time" },
-      { text: "B.In" },
-      { text: "B.Out" },
-      { text: "E.In" },
-      { text: "E.Out" },
-      { text: "A.Min In" },
-      { text: "A.Min Out" },
-      { text: "H.Days" },
+      { text: "In" },
+      { text: "Out" },
+      { text: "Late In" },
+      { text: "Early Out" },
+      { text: "Start In" },
+      { text: "Start Out" },
+      { text: "Ending In" },
+      { text: "Ending Out" },
+      { text: "Absent In" },
+      { text: "Absent Out" },
+      { text: "Off Days" },
       { text: "Actions" }
     ],
     response: "",

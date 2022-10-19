@@ -11,11 +11,11 @@ class Shift extends Model
     use HasFactory;
 
     protected $guarded = [];
+
     protected $with = ['shift_type'];
 
     protected $casts = [
         'days' => 'array',
-        // 'beginning_date' => 'datetime:d-M-y',
     ];
 
     public function time_table()
@@ -31,7 +31,7 @@ class Shift extends Model
     protected static function boot()
     {
         parent::boot();
-        // Order by name DESC
+        
         static::addGlobalScope('order', function (Builder $builder) {
             $builder->orderBy('id', 'desc');
         });

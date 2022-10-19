@@ -198,7 +198,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
+        itemsPerPageOptions: [50, 100, 500, 1000]
       }"
       class="elevation-1"
     >
@@ -287,34 +287,34 @@ export default {
         text: "E.ID",
         align: "left",
         sortable: false,
-        value: "system_user_id",
+        value: "system_user_id"
       },
       {
         text: "First Name",
         align: "left",
         sortable: false,
-        value: "first_name",
+        value: "first_name"
       },
       {
         text: "Shift Type",
         align: "left",
         sortable: false,
-        value: "shift_type",
+        value: "shift_type"
       },
       {
         text: "Schedule",
         align: "left",
         sortable: false,
-        value: "schedule",
+        value: "schedule"
       },
       {
         text: "OT",
         align: "left",
         sortable: false,
-        value: "schedule.isOverTime",
+        value: "schedule.isOverTime"
       },
 
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "Actions", align: "center", value: "action", sortable: false }
     ],
 
     department_ids: ["---"],
@@ -342,12 +342,12 @@ export default {
         text: "E.ID",
         align: "left",
         sortable: false,
-        value: "system_user_id",
+        value: "system_user_id"
       },
       {
         text: "First Name",
         sortable: false,
-        value: "first_name",
+        value: "first_name"
       },
       // {
       //   text: "Profile Image",
@@ -357,14 +357,14 @@ export default {
       {
         text: "Department",
         sortable: false,
-        value: "department.name",
-      },
+        value: "department.name"
+      }
       // {
       //   text: "Sub Department",
       //   sortable: false,
       //   value: "sub_department.name",
       // },
-    ],
+    ]
   }),
 
   computed: {},
@@ -384,7 +384,7 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
+      deep: true
     },
     options_dialog: {
       handler() {
@@ -392,8 +392,8 @@ export default {
           this.getDataFromApiForDialog();
         }
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
@@ -402,8 +402,8 @@ export default {
     this.options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
-      },
+        company_id: this.$auth.user.company.id
+      }
     };
 
     // this.getShifts(this.options);
@@ -436,13 +436,13 @@ export default {
     },
     getShifts(shift_type_id) {
       this.$axios
-        .get("shift_by_type",{params: {shift_type_id: shift_type_id}})
+        .get("shift_by_type", { params: { shift_type_id: shift_type_id } })
         .then(({ data }) => {
           this.shifts = data;
           // this.shifts.unshift({ id: "", name: "Select Shift" });
           // this.shifts_for_filter = data;
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     getShiftTypes(options) {
       this.$axios
@@ -451,11 +451,11 @@ export default {
           this.shift_types = data;
           this.shift_types.unshift({ id: "", name: "Select Shift Type" });
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
 
     runShiftFunction() {
-      this.shifts = this.shifts.filter((e) => e.id !== "---");
+      this.shifts = this.shifts.filter(e => e.id !== "---");
     },
     getDepartments(options) {
       this.$axios
@@ -464,7 +464,7 @@ export default {
           this.departments = data.data;
           this.departments.unshift({ id: "---", name: "Select All" });
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     employeesByDepartment() {
       this.loading_dialog = true;
@@ -476,8 +476,8 @@ export default {
           department_ids: this.department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       if (!this.department_ids.length) {
@@ -505,8 +505,8 @@ export default {
           sub_department_ids: this.sub_department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       if (!this.sub_department_ids.length) {
@@ -521,7 +521,7 @@ export default {
           this.total_dialog = data.total;
           this.loading_dialog = false;
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     subDepartmentsByDepartment() {
       this.options.params.department_ids = this.department_ids;
@@ -532,10 +532,10 @@ export default {
           this.sub_departments = data;
           this.sub_departments.unshift({
             id: "---",
-            name: "Select All",
+            name: "Select All"
           });
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     runMultipleFunctions() {
       this.employeesByDepartment();
@@ -544,7 +544,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -557,8 +557,8 @@ export default {
         params: {
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -576,8 +576,8 @@ export default {
         params: {
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -605,14 +605,14 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.schedule.id);
+      let just_ids = this.ids.map(e => e.schedule.id);
 
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`schedule_employee/delete/selected`, {
-            ids: just_ids,
+            ids: just_ids
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -625,7 +625,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
@@ -641,7 +641,7 @@ export default {
             this.response = data.message;
             this.getDataFromApiForDialog();
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     save() {
@@ -651,76 +651,45 @@ export default {
         alert("Atleast 1 Employee must be selected");
         return;
       }
-      let stId = this.shift_type_id;
-      let s_filter = this.shifts_for_filter;
-      let s_id = this.shift_id;
-      let shiftId =
-        stId == 3
-          ? s_id
-          : s_filter.find((e) => (e.shift_type_id == stId ? e : null));
-
-      if (shiftId == undefined) {
-        alert("Please create shift before schedule");
-        return;
-      }
-      console.log(shiftId);
       this.errors = [];
-      let payload = {
-        shift_id: shiftId.id,
-        shift_type_id: stId,
-        isOverTime: this.isOverTime ? 1 : 0,
-        employee_ids: this.employee_ids.map((e) => e.system_user_id),
-        company_id: this.$auth.user.company.id,
-      };
 
-      let updatePayload = {
+      let payload = {
         shift_type_id: this.shift_type_id,
-        shift_id: shiftId,
+        shift_id: this.shift_id,
         company_id: this.$auth.user.company.id,
         isOverTime: this.isOverTime ? 1 : 0,
+        employee_ids: this.employee_ids.map(e => e.system_user_id)
       };
 
       if (this.is_edit) {
-        this.$axios
-          .put(`schedule_employees/${payload.employee_ids}`, updatePayload)
-          .then(({ data }) => {
-            if (!data.status) {
-              this.loading_dialog = false;
-              return;
-            }
-            this.response = data.message;
-            this.snackbar = true;
-            this.loading_dialog = false;
-            this.getDataFromApi();
-            this.getDataFromApiForDialog();
-          })
-          .catch((err) => console.log(err));
+        this.process(this.$axios.put(`schedule_employees/${payload.employee_ids}`, payload));
       } else {
-        this.$axios
-          .post("schedule_employees", payload)
-          .then(({ data }) => {
-            if (!data.status) {
-              if (data?.custom_errors) {
-                this.custom_errors = data.custom_errors;
-                this.errors = [];
-              }
-              if (data?.errors) {
-                this.errors = data.errors;
-                this.custom_errors = [];
-              }
-              this.loading_dialog = false;
-
-              return;
-            }
-            this.response = "Employees has been scheduled";
-            this.snackbar = true;
-            this.loading_dialog = false;
-            this.getDataFromApi();
-            this.getDataFromApiForDialog();
-          })
-          .catch((err) => console.log(err));
+        this.process(this.$axios.post(`schedule_employees`, payload));
       }
     },
-  },
+    process(method) {
+      method
+        .then(({ data }) => {
+          if (!data.status) {
+            if (data?.custom_errors) {
+              this.custom_errors = data.custom_errors;
+              this.errors = [];
+            }
+            if (data?.errors) {
+              this.errors = data.errors;
+              this.custom_errors = [];
+            }
+            this.loading_dialog = false;
+            return;
+          }
+          this.response = data.message;
+          this.snackbar = true;
+          this.loading_dialog = false;
+          this.getDataFromApi();
+          this.getDataFromApiForDialog();
+        })
+        .catch(err => console.log(err));
+    }
+  }
 };
 </script>
