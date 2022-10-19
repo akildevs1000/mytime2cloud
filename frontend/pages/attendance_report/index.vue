@@ -712,7 +712,9 @@
             v-for="(iterable, index) in item.schedule.shift"
             :key="index"
           >
-            <span> {{ caps(index) }}: {{ iterable || "---" }}</span>
+          <span v-if="index !== 'id'">
+              {{ caps(index) }}: {{ iterable || "---" }}</span
+            >
           </div>
         </v-tooltip>
         <span v-else>---</span>
