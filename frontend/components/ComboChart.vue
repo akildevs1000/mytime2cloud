@@ -8,12 +8,6 @@
 
 <script>
 export default {
-  head() {
-    return {
-      script: [{ src: "https://cdn.jsdelivr.net/npm/apexcharts", body: true }]
-    };
-  },
-
   data() {
     return {
       days: [],

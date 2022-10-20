@@ -1,12 +1,10 @@
 <template>
-  <div id="donut"></div>
+  <div id="pie"></div>
 </template>
 
 <script>
 export default {
   props: ["items"],
- 
-
   data() {
     return {
       options: {
@@ -18,7 +16,7 @@ export default {
 
         series: [],
         chart: {
-          type: "donut"
+          type: "pie"
         },
         labels: [],
         dataLabels: {
@@ -43,22 +41,12 @@ export default {
       }
     };
   },
-  created() {
-    this.getTitle();
-    this.getValue();
-  },
   mounted() {
-    var chart = new ApexCharts(document.querySelector("#donut"), this.options);
-    chart.render();
+    this.options.labels = this.items.map(e => e.title);
+    this.options.series = this.items.map(e => e.value);
+    new ApexCharts(document.querySelector("#pie"), this.options).render();
   },
   methods: {
-    getTitle() {
-      this.options.labels = this.items.map(e => e.title);
-    },
-    getValue() {
-      this.options.series = this.items.map(e => e.value);
-      console.log(this.options.series);
-    }
   }
 };
 </script>

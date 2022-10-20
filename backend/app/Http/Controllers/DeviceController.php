@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Device;
 use App\Models\Employee;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use App\Http\Requests\Device\StoreRequest;
 use App\Http\Requests\Device\UpdateRequest;
+use App\Models\AttendanceLog;
+use Illuminate\Support\Facades\Cache;
 
 class DeviceController extends Controller
 {
@@ -38,7 +39,6 @@ class DeviceController extends Controller
 
             $record = $model->create($request->validated());
 
-
             if ($record) {
                 return $this->response('Device successfully added.', $record, true);
             } else {
@@ -56,17 +56,27 @@ class DeviceController extends Controller
 
     public function getDeviceCompany($id, $userId)
     {
-
         $emp = Employee::whereSystemUserId($userId)->without(['schedule', 'user', 'sub_department', 'role', 'first_log', 'last_log',])->first(['first_name', 'profile_picture'])->toArray();
         $device =  Device::where("device_id", $id)->first(['company_id', 'name as device_name', 'short_name', 'device_id', 'location'])->toArray();
 
         return array_merge($emp, $device);
+    }
 
-        return (gettype($device));
+    public function getLastRecordsByCount($id, $count)
+    {
+        // Cache::forget("last-five-logs");
+        return Cache::remember('last-five-logs', 300, function () use ($id, $count) {
 
-        // return json_encode([$emp, $device]);
-
-        // return $data = [];
+            $model = AttendanceLog::query();
+            $model->where('company_id', $id);
+            $model->take($count);
+            $model->orderByDesc("id");
+            $model->with([
+                "device:id,company_id,name as device_name,short_name,device_id,location",
+                "employee:id,first_name,profile_picture,system_user_id",
+            ]);
+            return $model->get();
+        });
     }
 
     public function update(Device $Device, UpdateRequest $request)

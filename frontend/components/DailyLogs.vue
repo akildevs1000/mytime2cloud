@@ -1,64 +1,49 @@
 <template>
   <div>
-    <v-row>
-      <v-col md="12">
-        <v-slide-group
-          v-model="model"
-          class="px-4"
-          active-class="success"
-          show-arrows
-        >
-          <v-slide-item
-            v-for="(item, index) in logs"
-            :key="index"
-            v-slot="{ active, toggle }"
-          >
-            <div class="card mx-2 my-2 w-25" v-if="index < 6">
-              <div class="banner">
-                <v-img
-                  class="gg"
-                  viewBox="0 0 100 100"
-                  style="border-radius: 50%;  height: 80px; max-width: 80px !important"
-                  :src="item.profile_picture || '/no-profile-image.jpg'"
-                ></v-img>
-                <!-- </svg> -->
-              </div>
-              <!-- employee_id first_name in device_in.short_name -->
-              <div class="menu">
-                <div class="opener"></div>
-              </div>
-              <h2 class="name" style="font-size:15px">
-                {{ getShortName(item.first_name) }}
+    <v-skeleton-loader  v-if="logs && !logs.length" type="card" />
+    <v-slide-group v-else class="px-4" active-class="success" show-arrows>
+      <v-slide-item
+        v-for="(item, index) in logs" :key="index"
+      >
+        <div class="card mx-2 my-2 w-25">
+          <div class="banner">
+            <v-img
+              class="gg"
+              viewBox="0 0 100 100"
+              style="border-radius: 50%;  height: 80px; max-width: 80px !important"
+              :src="item.profile_picture || '/no-profile-image.jpg'"
+            ></v-img>
+            <!-- </svg> -->
+          </div>
+          <!-- employee_id first_name in device_in.short_name -->
+          <div class="menu">
+            <div class="opener"></div>
+          </div>
+          <h2 class="name" style="font-size:15px">
+            {{ item.first_name }}
+          </h2>
+          <div class="title" style="font-size:12px !important">
+            EID: {{ item.UserID }}
+          </div>
+          <div class="title" style="font-size:12px !important"></div>
+          <div class="actions">
+            <div class="follow-info">
+              <h2>
+                <a href="#"
+                  ><span>{{ item && item.time }} </span><small>Time</small></a
+                >
               </h2>
-              <div class="title" style="font-size:12px !important">
-                {{ item.UserCode }}
-              </div>
-              <div class="title" style="font-size:12px !important">
-                {{ item.designation.name }}
-              </div>
-              <div class="actions">
-                <div class="follow-info">
-                  <h2>
-                    <a href="#"
-                      ><span>{{
-                        (item && getTime(item.RecordDate)) || "---"
-                      }}</span
-                      ><small>Time</small></a
-                    >
-                  </h2>
-                  <h2>
-                    <a href="#"
-                      ><span>{{ (item && item.short_name) || "MED" }}</span
-                      ><small>Device</small></a
-                    >
-                  </h2>
-                </div>
-              </div>
+              <h2>
+                <a href="#"
+                  ><span>{{ (item && item.device.short_name) || "---" }}</span
+                  ><small>Device</small></a
+                >
+              </h2>
             </div>
-          </v-slide-item>
-        </v-slide-group>
-      </v-col>
-    </v-row>
+          </div>
+        </div>
+      </v-slide-item>
+    </v-slide-group>
   </div>
 </template>
 
@@ -73,8 +58,15 @@ export default {
     };
   },
   mounted() {
-    this.socketConnection();
+    // this.socketConnection();
+    this.$axios
+      .get(`device/getLastRecordsByCount/${this.$auth.user.company.id}/${15}`)
+      .then(res => {
+        this.logs = res.data;
+        // this.socketConnection();
+      });
   },
+  created() {},
   methods: {
     getTime(item) {
       if (!item) {
@@ -83,7 +75,7 @@ export default {
       var d = new Date(item);
       d.getHours();
       d.getMinutes();
-      return d.getHours() + ":" + d.getMinutes();
+      return { LogTime: d.getHours() + ":" + d.getMinutes() };
     },
 
     getShortName(item) {
@@ -102,7 +94,6 @@ export default {
         let json = JSON.parse(data);
         if (json.Status == 200 && json.Data.UserCode !== 0) {
           this.getDetails(json.Data);
-          console.log(json.Data);
         }
       };
     },
@@ -115,7 +106,6 @@ export default {
               ...item,
               ...data
             };
-            console.log(obj);
 
             this.logs.unshift(obj);
           }
@@ -126,8 +116,7 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
-body {
+  body {
   font-size: 16px;
   color: #404040;
   font-family: Montserrat, sans-serif;
@@ -153,7 +142,7 @@ body {
   border-radius: 2rem;
   box-shadow: 0px 1rem 1.5rem rgba(0, 0, 0, 0.5); */
 
-  height: 300px !important;
+  height: 350px !important;
   background-color: #fff !important;
   max-width: 200px !important;
   display: flex !important;

@@ -28,24 +28,6 @@
     </div>
 
     <v-row class="mt-5" dense>
-      <!-- <v-col md="4">
-        <v-card v-if="can(`employee_view`)">
-          <table>
-            <tr class="primary text-white" dark>
-              <th v-for="(item, index) in headers" :key="index">
-                {{ item.text }}
-              </th>
-            </tr>
-            <tr v-for="(item, index) in data" :key="index">
-              <td>{{ item.employee_id || "---" }}</td>
-              <td>{{ item.employee.first_name || "---" }}</td>
-              <td>{{ item.in || "---" }}</td>
-              <td>{{ item.device_in.short_name || "---" }}</td>
-            </tr>
-          </table>
-        </v-card>
-      </v-col> -->
-
       <v-col md="12" class="mb-2">
         <v-card elevation="0">
           <DailyLogs :data="data" :headers="headers" />
