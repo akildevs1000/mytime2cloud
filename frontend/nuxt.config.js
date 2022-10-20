@@ -17,16 +17,7 @@ export default {
 
         link: [
             { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-            // {
-            //   rel: "stylesheet",
-            //   href:
-            //     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
-            // },
-            // {
-            //   rel: "stylesheet",
-            //   href:
-            //     "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-            // },
+          
             {
                 rel: "stylesheet",
                 href: "https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css"
@@ -52,9 +43,8 @@ export default {
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
     plugins: [
         { src: "~/plugins/axios.js" },
-        { src: "~/plugins/chart.js" },
         { src: "~/plugins/TiptapVuetify", mode: "client" },
-        "~/plugins/carousel.js"
+        { src : '~/plugins/vue-apexchart.js', ssr : false },
     ],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
@@ -64,7 +54,7 @@ export default {
     buildModules: [
         // https://go.nuxtjs.dev/vuetify
         "@nuxtjs/vuetify",
-        '@nuxtjs/dotenv'
+        '@nuxtjs/dotenv',
     ],
 
     // Modules: https://go.nuxtjs.dev/config-modules
@@ -73,8 +63,7 @@ export default {
         "@nuxtjs/axios",
         // https://go.nuxtjs.dev/pwa
         "@nuxtjs/pwa",
-        "@nuxtjs/auth-next",
-        "nuxt-sweetalert2"
+        "@nuxtjs/auth-next"
     ],
 
     // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -146,7 +135,7 @@ export default {
 
     // Build Configuration: https://go.nuxtjs.dev/config-build
     build: {
-        transpile: ["vuetify/lib", "tiptap-vuetify"]
+        transpile: ["vuetify/lib", "tiptap-vuetify","vue-apexchart"]
     },
 
     server: {
