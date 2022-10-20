@@ -229,12 +229,16 @@
                   <div style="margin: 0 auto; width: 100%;">
                     <p style=" text-align: center;">
                       <b>{{ work && caps(work.first_name) }}</b> <br />
-                      <b style="color:#A09FA0">{{
-                        work && caps(work.designation.name)
-                      }}</b>
+                      <b style="color:#A09FA0">
+                        EID: {{ work && work.employee_id }} </b
+                      ><br />
+                      <b style="color:#A09FA0">
+                        {{ work && caps(work.designation.name) }}</b
+                      >
                     </p>
                   </div>
                   <v-divider style="width:94%;"></v-divider>
+                  <!-- work info -->
                   <section style="width:94%">
                     <v-row>
                       <v-col md="12" v-show="selectedItem == 0" color="primary">
@@ -253,7 +257,12 @@
                                         </v-list-item-title>
                                       </v-col>
                                       <v-col cols="8">
-                                        {{ (work && work.id) || "---" }}
+                                        {{
+                                          (work &&
+                                            work.role &&
+                                            work.role.name) ||
+                                            "---"
+                                        }}
                                       </v-col>
                                       <v-col cols="3">
                                         <v-list-item-title
@@ -359,11 +368,79 @@
                       </v-col>
                     </v-row>
                   </section>
+                  <!-- personal info -->
                   <section style="width:94%">
                     <v-row>
                       <v-col md="12" v-show="selectedItem == 1" color="primary">
                         <v-expand-x-transition>
                           <section class="pridmary" v-show="selectedItem == 1">
+                            <table>
+                              <tr>
+                                <th>Nationality</th>
+                                <td>{{ personalItem.nationality || "---" }}</td>
+                              </tr>
+                              <tr>
+                                <th>Religion</th>
+                                <td>{{ personalItem.religion || "---" }}</td>
+                              </tr>
+                              <tr>
+                                <th>Marital Status</th>
+                                <td>
+                                  {{
+                                    personalItem.marital_status
+                                      ? personalItem.marital_status == 1
+                                        ? "Married"
+                                        : "Single"
+                                      : "---"
+                                  }}
+                                </td>
+                                <th>Employment of Spouse</th>
+                                <td>
+                                  {{ personalItem.no_of_spouse || "---" }}
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>No. of Children</th>
+                                <td>
+                                  {{ personalItem.no_of_children || "---" }}
+                                </td>
+                                <th>Date of Birth</th>
+                                <td>
+                                  {{ personalItem.date_of_birth || "---" }}
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>Father Name</th>
+                                <td>
+                                  {{ personalItem.father_name || "---" }}
+                                </td>
+                                <th>Mother Name</th>
+                                <td>{{ personalItem.mother_name || "---" }}</td>
+                              </tr>
+                              <tr>
+                                <th>Gender</th>
+                                <td>
+                                  {{
+                                    personalItem.gender == 1
+                                      ? "Male"
+                                      : "Female" || "---"
+                                  }}
+                                </td>
+                              </tr>
+                            </table>
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- contact info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col md="12" v-show="selectedItem == 2" color="primary">
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 2">
                             <v-card flat>
                               <v-card-text>
                                 <v-list-item>
@@ -377,7 +454,12 @@
                                         </v-list-item-title>
                                       </v-col>
                                       <v-col cols="8">
-                                        {{ (work && work.id) || "---" }}
+                                        {{
+                                          (work &&
+                                            work.role &&
+                                            work.role.name) ||
+                                            "---"
+                                        }}
                                       </v-col>
                                       <v-col cols="3">
                                         <v-list-item-title
@@ -639,11 +721,30 @@ export default {
       phone_number: "",
       whatsapp_number: "",
       joining_date: ""
+    },
+    personalItem: {
+      passport_no: "",
+      passport_expiry: "",
+      tel: "",
+      nationality: "",
+      religion: "",
+      marital_status: "",
+      no_of_spouse: "",
+      no_of_children: "",
+
+      father_name: "",
+      mother_name: "",
+      gender: "",
+      date_of_birth: "",
+
+      company_id: "",
+      employee_id: ""
     }
   }),
   async created() {
     this.loading = false;
     this.getDataFromApi();
+    this.getPersonalInfo();
   },
   watch: {
     dialog(val) {
@@ -719,8 +820,9 @@ export default {
         // this.contactItem = data;
         // this.setting = data;
         this.work = data;
-        console.log(this.data[0]);
         this.loading = false;
+        this.getPersonalInfo(data.employee_id);
+        console.log(this.personalItem);
       });
 
       return;
@@ -728,6 +830,16 @@ export default {
         return false;
       }
       this.goDetails(id);
+    },
+
+    getPersonalInfo(id) {
+      this.$axios.get(`personalinfo/${id}`).then(({ data }) => {
+        this.personalItem = {
+          ...data
+        };
+        // this.personalItem = data;
+        this.loading = false;
+      });
     },
 
     export_submit() {
@@ -852,6 +964,21 @@ export default {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #fbfdff;
+}
 body {
   font-size: 16px;
   color: #404040;

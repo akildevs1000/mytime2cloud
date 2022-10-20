@@ -11,20 +11,18 @@
         <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="6">
-        <div class="text-left">
+        <div class="text-right">
           <v-btn small class="primary pt-4 pb-4" to="/employees/employee_list">
             <v-icon class="pa-0">mdi-menu</v-icon>
           </v-btn>
-          <v-btn x-small class="primary--text pt-4 pb-4" to="/employees">
+          <v-btn small class="primary--text pt-4 pb-4" to="/employees">
             <v-icon class="pa-0">mdi-grid</v-icon>
           </v-btn>
-        </div>
-        <div class="text-right">
           <v-btn
             v-if="can(`employee_create`)"
             small
+            class="primary ms-4 pt-4 pb-4"
             color="primary"
-            class="mb-2"
             to="/employees/create"
             >{{ Model }} +
           </v-btn>
@@ -35,26 +33,47 @@
       <v-col xs="12" sm="12" md="3" cols="12">
         <v-select
           @change="getDataFromApi(`employee`)"
-          outlined
           v-model="pagination.per_page"
           :items="[50, 100, 500, 1000]"
-          dense
           placeholder="Per Page Records"
+          solo
+          flat
         ></v-select>
       </v-col>
-
-      <v-col xs="12" sm="12" md="3" offset-md="6" cols="12">
-        <v-text-field
-          outlined
+      <v-col xs="12" sm="12" md="3" cols="12">
+        <v-select
+          @change="getDataFromApi(`employee`)"
+          v-model="department_id"
+          item-text="name"
+          item-value="id"
+          :items="departments"
+          placeholder="Department"
+          solo
+          flat
+        ></v-select>
+      </v-col>
+      <v-col xs="12" sm="12" md="3" cols="12">
+        <!-- <v-text-field
           @input="searchIt"
           v-model="search"
           dense
           placeholder="Search..."
+          class="white rounded-md"
+          filled
+        ></v-text-field> -->
+        <v-text-field
+          class="rounded-md"
+          placeholder="Search..."
+          solo
+          flat
+          @input="searchIt"
+          v-model="search"
         ></v-text-field>
       </v-col>
     </v-row>
+
     <div v-if="can(`employee_view`)">
-      <v-card class="mb-5">
+      <v-card class="mb-5 rounded-md" elevation="0">
         <!-- <v-toolbar elevation="1" dense dark class="primary"
         >Employees List</v-toolbar
       > -->
@@ -64,6 +83,13 @@
               {{ item.text }}
             </th>
           </tr>
+          <v-progress-linear
+            v-if="loading"
+            :active="loading"
+            :indeterminate="loading"
+            absolute
+            color="primary"
+          ></v-progress-linear>
           <tr v-for="(item, index) in data" :key="index">
             <td class="text-center">
               <b>{{ ++index }}</b>
@@ -85,17 +111,34 @@
             <td>{{ (item && item.phone_number) || "---" }}</td>
             <td>{{ item.schedule.shift_type.name }}</td>
             <td>
-              <v-icon
-                color="secondary"
-                small
-                class="mr-2"
-                @click="editItem(item)"
-              >
-                mdi-pencil
-              </v-icon>
-              <v-icon color="error" small @click="deleteItem(item)">
-                mdi-delete
-              </v-icon>
+              <v-menu bottom left>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list width="120" dense>
+                  <v-list-item>
+                    <v-list-item-title
+                      style="cursor:pointer"
+                      @click="editItem(item)"
+                    >
+                      <v-icon color="secondary" small>
+                        mdi-pencil
+                      </v-icon>
+                      Edit
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title style="cursor:pointer">
+                      <v-icon color="error" small @click="deleteItem(item)">
+                        mdi-delete
+                      </v-icon>
+                      Delete
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </td>
           </tr>
         </table>
@@ -108,7 +151,7 @@
                 v-model="pagination.current"
                 :length="pagination.total"
                 @input="onPageChange"
-                :total-visible="7"
+                :total-visible="12"
               ></v-pagination>
             </div>
           </v-col>
@@ -171,7 +214,9 @@ export default {
     defaultItem: { name: "" },
     response: "",
     data: [],
-    errors: []
+    errors: [],
+    departments: [],
+    department_id: ""
   }),
 
   computed: {
@@ -185,11 +230,15 @@ export default {
       val || this.close();
       this.errors = [];
       this.search = "";
+    },
+    department_id() {
+      this.pagination.current = 1;
+      this.getDataFromApi();
     }
   },
   created() {
     this.loading = true;
-    // this.getDataFromApi();
+    this.getDepartments();
   },
   mounted() {
     this.getDataFromApi();
@@ -207,14 +256,27 @@ export default {
         u.is_master
       );
     },
-
+    getDepartments() {
+      let options = {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company.id
+        }
+      };
+      this.$axios.get(`departments`, options).then(({ data }) => {
+        this.departments = data.data;
+        this.departments.unshift({ name: "All", id: "" });
+      });
+    },
     getDataFromApi(url = this.endpoint) {
       this.loading = true;
       let page = this.pagination.current;
+      let department_id = this.department_id;
       let options = {
         params: {
           per_page: this.pagination.per_page,
-          company_id: this.$auth.user.company.id
+          company_id: this.$auth.user.company.id,
+          department_id: department_id
         }
       };
 
@@ -341,12 +403,12 @@ table {
 
 td,
 th {
-  border: 1px solid #dddddd;
+  /* border: 1px solid #dddddd; */
   text-align: left;
   padding: 8px;
 }
 
 tr:nth-child(even) {
-  background-color: #ecf0f4;
+  background-color: #e9e9e9;
 }
 </style>
