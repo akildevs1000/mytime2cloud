@@ -154,7 +154,14 @@
             <v-col md="12">
               <h5>Filters</h5>
             </v-col>
-            <v-col :md="payload.report_type == 'Daily' ? 5 : 10">
+            <v-col
+              :md="
+                payload.report_type == 'Daily' ||
+                payload.report_type == 'Weekly'
+                  ? 5
+                  : 10
+              "
+            >
               Report Type
               <v-autocomplete
                 @change="changeReportType(payload.report_type)"
@@ -163,12 +170,18 @@
                 dense
                 v-model="payload.report_type"
                 x-small
-                :items="['Daily', 'Weekly']"
+                :items="['Daily', 'Weekly', 'Monthly']"
                 item-text="['Daily', 'Weekly']"
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col md="5" v-if="payload.report_type == 'Daily'">
+            <v-col
+              md="5"
+              v-if="
+                payload.report_type == 'Daily' ||
+                  payload.report_type == 'Weekly'
+              "
+            >
               <div class="mb-2">Date</div>
               <div class="text-left">
                 <v-menu
@@ -708,11 +721,8 @@
               {{ (item.schedule.shift && item.schedule.shift.name) || "---" }}
             </div>
           </template>
-          <div
-            v-for="(iterable, index) in item.schedule.shift"
-            :key="index"
-          >
-          <span v-if="index !== 'id'">
+          <div v-for="(iterable, index) in item.schedule.shift" :key="index">
+            <span v-if="index !== 'id'">
               {{ caps(index) }}: {{ iterable || "---" }}</span
             >
           </div>
@@ -970,6 +980,8 @@ export default {
   methods: {
     changeReportType(report_type) {
       if (report_type == "Daily") {
+        this.setDailyDate();
+      } else if (report_type == "Monthly") {
         this.setDailyDate();
       } else if (report_type == "Monthly") {
         this.setMonthlyDateRange();

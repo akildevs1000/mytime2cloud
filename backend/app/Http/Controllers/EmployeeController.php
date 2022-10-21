@@ -2,13 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Employee\ContactRequest;
-use App\Http\Requests\Employee\EmployeeContactRequest;
-use App\Http\Requests\Employee\EmployeeImportRequest;
-use App\Http\Requests\Employee\EmployeeOtherRequest;
-use App\Http\Requests\Employee\EmployeeRequest;
-use App\Http\Requests\Employee\EmployeeUpdateContact;
-use App\Http\Requests\Employee\EmployeeUpdateRequest;
+
 use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\CompanyContact;
@@ -20,7 +14,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Employee\ContactRequest;
+use App\Http\Requests\Employee\EmployeeRequest;
+use App\Http\Requests\Employee\EmployeeOtherRequest;
+use App\Http\Requests\Employee\EmployeeImportRequest;
+use App\Http\Requests\Employee\EmployeeUpdateContact;
+use App\Http\Requests\Employee\EmployeeUpdateRequest;
+use App\Http\Requests\Employee\EmployeeContactRequest;
 
 class EmployeeController extends Controller
 {
@@ -108,7 +110,13 @@ class EmployeeController extends Controller
     }
     public function index(Employee $employee, Request $request)
     {
-        return $employee->with('reportTo')->where('company_id', $request->company_id)->paginate($request->per_page);
+        return $employee
+            ->with('reportTo')
+            ->where('company_id', $request->company_id)
+            ->when($request->filled('department_id'), function ($q) use ($request) {
+                $q->whereHas('department',  fn (Builder $query) => $query->where('department_id', $request->department_id));
+            })
+            ->paginate($request->per_page ?? 100);
     }
     public function scheduled_employees(Employee $employee, Request $request)
     {
@@ -220,7 +228,8 @@ class EmployeeController extends Controller
         $user = User::find($record->user_id);
         if ($record->delete()) {
             $user->delete();
-            return Response::noContent(204);
+            // return Response::noContent(204);
+            return Response::json(['message' => 'Employee Successfully deleted.', 'status' => true], 200);
         } else {
             return Response::json(['message' => 'No such record found.'], 404);
         }

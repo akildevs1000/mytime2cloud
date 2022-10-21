@@ -29,7 +29,7 @@ class StoreRequest extends FormRequest
         return [
             "passport_no" => "nullable|min:6|max:20",
             "tel" => "nullable|min:10|max:13",
-            "nationality" => "nullable|min:10|max:20",
+            "nationality" => "nullable|min:3|max:20",
             "religion" => "nullable|min:3|max:20",
             "marital_status" => "nullable",
             "no_of_spouse" => "nullable|min:1|max:50",

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 
 class Permission extends Model
@@ -10,4 +11,10 @@ class Permission extends Model
 
     public $timestamps = false;
 
+    protected $appends = ["title"];
+
+    public function getTitleAttribute()
+    {
+        return Str::replace('_', ' ', $this->name);
+    }
 }
