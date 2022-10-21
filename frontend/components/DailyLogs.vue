@@ -10,7 +10,7 @@
         </h5>
         <v-spacer />
         <v-select
-        @change="getRecords"
+          @change="getRecords"
           v-model="number_of_records"
           outlined
           dense
@@ -28,7 +28,10 @@
                 class="gg"
                 viewBox="0 0 100 100"
                 style="border-radius: 50%;  height: 80px; max-width: 80px !important"
-                :src="item.employee && item.employee.profile_picture || '/no-profile-image.jpg'"
+                :src="
+                  (item.employee && item.employee.profile_picture) ||
+                    '/no-profile-image.jpg'
+                "
               ></v-img>
             </div>
             <div class="menu">
@@ -75,9 +78,11 @@ export default {
   },
   mounted() {
     this.socketConnection();
+
+    this.getRecords();
   },
   created() {
-    this.getRecords();
+    // this.getRecords();
   },
   methods: {
     getRecords() {
@@ -101,11 +106,14 @@ export default {
     socketConnection() {
       this.socket = new WebSocket(this.url);
 
+      console.log(this.socket);
+
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data);
         if (json.Status == 200 && json.Data.UserCode !== 0) {
           let { UserCode, DeviceID, RecordDate, RecordNumber } = json.Data;
-          this.getDetails({ UserCode, DeviceID, RecordDate, RecordNumber });
+          let item = { UserCode, DeviceID, RecordDate, RecordNumber };
+          this.getDetails(item);
         }
       };
     },
@@ -116,6 +124,10 @@ export default {
         })
         .then(({ data }) => {
           if (data.company_id == this.$auth.user.company.id) {
+            console.log(
+              "🚀 ~ file: DailyLogs.vue ~ line 129 ~ .then ~ data",
+              data
+            );
             this.logs.unshift(data);
           }
         });
