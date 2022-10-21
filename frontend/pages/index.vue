@@ -161,10 +161,6 @@
   <Preloader v-else />
 </template>
 <script>
-import Preloader from "../components/Preloader.vue";
-import Donut from "../components/Donut.vue";
-import ComboChart from "../components/ComboChart.vue";
-
 export default {
   data() {
     return {
@@ -359,7 +355,6 @@ export default {
       });
     }
   },
-  components: { Preloader }
 };
 </script>
 
