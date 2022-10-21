@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
     <!-- v-if="permissions && permissions.length > 0" -->
-    <v-card>
+    <v-card elevation="0">
       <v-form ref="form" lazy-validation>
         <v-card-text>
           <v-container>
@@ -22,17 +22,23 @@
                 </div>
               </v-col>
               <v-col cols="12">
-                <v-select
-                  :rules="Rules"
-                  v-model="role_id"
-                  :items="roles"
-                  item-value="id"
-                  item-text="name"
-                  label="Role*"
-                ></v-select>
-                <span v-if="errors && errors.role_id" class="red--text">
-                  {{ errors.role_id[0] }}
-                </span>
+                <v-row>
+                  <v-col md="4">
+                    <v-select
+                      :rules="Rules"
+                      v-model="role_id"
+                      :items="roles"
+                      item-value="id"
+                      item-text="name"
+                      placeholder="Role*"
+                      outlined
+                      dense
+                    ></v-select>
+                    <span v-if="errors && errors.role_id" class="red--text">
+                      {{ errors.role_id[0] }}
+                    </span>
+                  </v-col>
+                </v-row>
 
                 <!-- <v-text-field
                   @input="searchIt"
@@ -44,35 +50,43 @@
                 <!-- <v-checkbox v-for="(pa, idx) in permissions" :key="idx" :value="pa.id" v-model="permission_ids"
                   :label="`${pa.name}`">
                 </v-checkbox> -->
-
                 <!-- <v-checkbox
                   @change="setAllIds"
                   :label="`Select All`"
                   v-model="just_ids"
                 >
                 </v-checkbox> -->
-
                 <table>
-                  <tr>
-                    <th>Module</th>
-                    <th>Contact</th>
-                    <th>Contact</th>
-                    <th>Contact</th>
-                    <th>Country</th>
+                  <tr style="text-align:center; ">
+                    <th style="width:600px; padding: 5px 0 !important">
+                      Module
+                    </th>
+                    <th>Access</th>
+                    <th>View</th>
+                    <th>Create</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
                   </tr>
                   <tr v-for="(items, idx) in permissions" :key="idx">
-                    <td v-for="(pa, idx) in items" :key="idx">
+                    <th>{{ capsTitle(idx) }}</th>
+                    <th
+                      v-for="(pa, idx) in items"
+                      :key="idx"
+                      style="text-align:center !important;"
+                      class=""
+                    >
                       <v-checkbox
                         :value="pa.id"
                         v-model="permission_ids"
-                        :label="`${pa.name}`"
+                        :hide-details="true"
+                        class="pt-0  py-1 chk-align"
                       >
                       </v-checkbox>
-                    </td>
+                    </th>
                   </tr>
                 </table>
 
-                <v-row>
+                <!-- <v-row class="mt-5">
                   <v-col
                     xs="12"
                     sm="12"
@@ -83,7 +97,7 @@
                   >
                     <div class="componentWrapper my-3">
                       <div class="header">
-                        title
+                        {{ capsTitle(idx) }}
                       </div>
                       <v-checkbox
                         v-for="(pa, idx) in items"
@@ -91,11 +105,12 @@
                         :value="pa.id"
                         v-model="permission_ids"
                         :label="capsTitle(pa.name)"
+                        :hide-details="true"
                       >
                       </v-checkbox>
                     </div>
                   </v-col>
-                </v-row>
+                </v-row> -->
               </v-col>
               <v-col cols="12">
                 <span v-if="errors && errors.permission_ids" class="red--text">
@@ -223,20 +238,19 @@ table {
   width: 100%;
 }
 
-td,
 th {
   border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
+  /* text-align: center; */
+  padding: 0px 5px;
 }
 
 tr:nth-child(even) {
-  background-color: #ecf0f4;
+  background-color: #e9e9e9;
 }
 
 .componentWrapper {
-  border: solid cadetblue;
-  border-radius: 4px;
+  border: solid 1px cadetblue;
+  border-radius: 5px;
   padding: 15px 10px 10px;
   width: 95%;
 }
@@ -247,7 +261,13 @@ tr:nth-child(even) {
   margin-left: 10px;
   color: white;
   background: cadetblue;
-  border-radius: 10px;
+  border-radius: 5px;
   padding: 2px 10px;
+}
+
+.chk-align {
+  text-align: center !important;
+  margin-top: 8px !important;
+  margin-left: 98px !important;
 }
 </style>
