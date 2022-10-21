@@ -1,79 +1,94 @@
 <template>
   <div>
     <v-skeleton-loader v-if="logs && !logs.length" type="card" />
-    <v-slide-group v-else class="px-4" active-class="success" show-arrows>
-      <v-slide-item v-for="(item, index) in logs" :key="index">
-        <div class="card mx-2 my-2 w-25">
-          <div class="banner">
-            <v-img
-              class="gg"
-              viewBox="0 0 100 100"
-              style="border-radius: 50%;  height: 80px; max-width: 80px !important"
-              :src="item.profile_picture || '/no-profile-image.jpg'"
-            ></v-img>
-            <!-- </svg> -->
-          </div>
-          <div class="menu">
-            <div class="opener"></div>
-          </div>
-          <h2 class="text-center pa-1" style="font-size:15px">
-            {{ item.employee.first_name }}
-          </h2>
-          <div class="title" style="font-size:12px !important">
-            EID: {{ item.UserID }}
-          </div>
-          <div class="title" style="font-size:12px !important"></div>
-          <div class="actions">
-            <div class="follow-info">
-              <h2>
-                <a href="#"
-                  ><span>{{ item && item.time }} </span><small>Time</small></a
-                >
-              </h2>
-              <h2>
-                <a href="#"
-                  ><span>{{ (item && item.device.short_name) || "---" }}</span
-                  ><small>Device</small></a
-                >
-              </h2>
+    <div v-else>
+      <v-toolbar flat>
+        <h5>
+          <b>
+            Lattest Logs
+          </b>
+        </h5>
+        <v-spacer />
+        <v-select
+        @change="getRecords"
+          v-model="number_of_records"
+          outlined
+          dense
+          class="mt-5"
+          placeholder="Select Number of Records"
+          :items="[10, 20, 50, 100]"
+        ></v-select>
+      </v-toolbar>
+      <v-slide-group class="px-4" active-class="success" show-arrows>
+        <div></div>
+        <v-slide-item v-for="(item, index) in logs" :key="index">
+          <div class="card mx-2 my-2 w-25">
+            <div class="banner">
+              <v-img
+                class="gg"
+                viewBox="0 0 100 100"
+                style="border-radius: 50%;  height: 80px; max-width: 80px !important"
+                :src="item.employee && item.employee.profile_picture || '/no-profile-image.jpg'"
+              ></v-img>
+            </div>
+            <div class="menu">
+              <div class="opener"></div>
+            </div>
+            <h2 class="text-center pa-1" style="font-size:15px">
+              {{ item.employee && item.employee.first_name }}
+            </h2>
+            <div class="title" style="font-size:12px !important">
+              EID: {{ item.UserID }}
+            </div>
+            <div class="title" style="font-size:12px !important"></div>
+            <div class="actions">
+              <div class="follow-info">
+                <h2>
+                  <a href="#"
+                    ><span>{{ item && item.time }} </span><small>Time</small></a
+                  >
+                </h2>
+                <h2>
+                  <a href="#"
+                    ><span>{{ (item && item.device.short_name) || "---" }}</span
+                    ><small>Device</small></a
+                  >
+                </h2>
+              </div>
             </div>
           </div>
-        </div>
-      </v-slide-item>
-    </v-slide-group>
+        </v-slide-item>
+      </v-slide-group>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  // props: ["data", "headers"],
   data() {
     return {
+      number_of_records: 10,
       logs: [],
       url: process.env.SOCKET_ENDPOINT,
       socket: null
     };
   },
   mounted() {
-    this.$axios
-      .get(`device/getLastRecordsByCount/${this.$auth.user.company.id}/${15}`)
-      .then(res => {
-        this.logs = res.data;
-        this.socketConnection();
-      });
+    this.socketConnection();
   },
-  created() {},
+  created() {
+    this.getRecords();
+  },
   methods: {
-    getTime(item) {
-      if (!item) {
-        return false;
-      }
-      var d = new Date(item);
-      d.getHours();
-      d.getMinutes();
-      return  d.getHours() + ":" + d.getMinutes();
+    getRecords() {
+      this.$axios
+        .get(
+          `device/getLastRecordsByCount/${this.$auth.user.company.id}/${this.number_of_records}`
+        )
+        .then(res => {
+          this.logs = res.data;
+        });
     },
-
     getShortName(item) {
       if (!item) {
         return false;
@@ -89,7 +104,6 @@ export default {
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data);
         if (json.Status == 200 && json.Data.UserCode !== 0) {
-
           let { UserCode, DeviceID, RecordDate, RecordNumber } = json.Data;
           this.getDetails({ UserCode, DeviceID, RecordDate, RecordNumber });
         }
@@ -97,18 +111,12 @@ export default {
     },
     getDetails(item) {
       this.$axios
-        .get(`/device/${item.DeviceID}/${item.UserCode}/details`)
+        .get(`/device/${item.DeviceID}/${item.UserCode}/details`, {
+          params: { item: item }
+        })
         .then(({ data }) => {
           if (data.company_id == this.$auth.user.company.id) {
-
-            let obj = {};
-
-            obj.employee.first_name = data.first_name;
-            obj.short_name.short_name = data.short_name;
-            obj.UserID = item.UserCode;
-            obj.time = this.getTime(item.RecordDate);
-
-            this.logs.unshift(obj);
+            this.logs.unshift(data);
           }
         });
     }

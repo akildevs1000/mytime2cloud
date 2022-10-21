@@ -9,6 +9,7 @@ use App\Http\Requests\Device\StoreRequest;
 use App\Http\Requests\Device\UpdateRequest;
 use App\Models\AttendanceLog;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class DeviceController extends Controller
 {
@@ -54,22 +55,29 @@ class DeviceController extends Controller
         return $model->with(['status', 'company'])->find($id);
     }
 
-    public function getDeviceCompany($id, $userId)
+    public function getDeviceCompany(Request $request, $id, $userId)
     {
-        $emp = Employee::whereSystemUserId($userId)->without(['schedule', 'user', 'sub_department', 'role', 'first_log', 'last_log',])->first(['first_name', 'profile_picture'])->toArray();
-        $device =  Device::where("device_id", $id)->first(['company_id', 'name as device_name', 'short_name', 'device_id', 'location']);
-
-        if ($device) {
-            $device->toArray();
-        } else {
-            $device = [];
-        }
-
-        return array_merge($emp, $device);
+        return [
+            "UserID" => $request->UserCode,
+            "time" => date("h:i", strtotime($request->RecordDate)),
+            "employee" => DB::table("employees")->where("system_user_id", $userId)->first(['first_name', 'profile_picture']),
+            "device" => DB::table("devices")->where("device_id", $id)->first(['name as device_name', 'short_name', 'device_id', 'location']),
+        ];
     }
 
     public function getLastRecordsByCount($id, $count)
     {
+        $model = AttendanceLog::query();
+        $model->where('company_id', $id);
+        $model->take($count);
+        $model->orderByDesc("id");
+        $model->with([
+            "device:id,company_id,name as device_name,short_name,device_id,location",
+            "employee:id,first_name,profile_picture,system_user_id",
+        ]);
+        return $model->get();
+
+
         // Cache::forget("last-five-logs");
         return Cache::remember('last-five-logs', 300, function () use ($id, $count) {
 
