@@ -23,14 +23,16 @@
           </v-row>
           <v-container>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="4">
                 <v-select
                   :rules="Rules"
                   v-model="role_id"
                   :items="roles"
                   item-value="id"
                   item-text="name"
-                  label="Role*"
+                  placeholder="Role*"
+                  outlined
+                  dense
                 ></v-select>
               </v-col>
 
