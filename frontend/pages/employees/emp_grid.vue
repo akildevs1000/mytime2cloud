@@ -209,27 +209,34 @@
         <v-col md="5">
           <v-row>
             <v-col md="12">
-              <v-card height="700px" class="view-card mx-0 my-0 pa-0">
+              <v-skeleton-loader
+                class="view-card"
+                v-if="boilerplate"
+                type="list-item-avatar-three-line, image, article,article,article"
+              ></v-skeleton-loader>
+
+              <v-card v-else height="700px" class="view-card mx-0 my-0 pa-0">
                 <v-toolbar color="primary " dark flat fixed max-height="55">
                   <v-toolbar-title>{{
                     caps(ListName) || "Work Info"
                   }}</v-toolbar-title>
                 </v-toolbar>
+
                 <v-container grid-list-xs>
-                  <div class="" style=" margin: 8px auto; width: 91px;">
+                  <div class="" style=" margin:  4px  auto; width: 91px;">
                     <div class="banner">
                       <v-img
                         class="gg"
                         viewBox="0 0 100 100"
                         style="border-radius: 50%;  height: 100px; min-width: 100px !important"
-                        src="http://localhost:8000/media/employee/profile_picture/209536-360-f-364211147-1qglvxv1tcq0ohz3fawufrtonzz8nq3e.jpg"
+                        :src="work.profile_picture || '/no-profile-image.jpg'"
                       ></v-img>
                     </div>
                   </div>
                   <div style="margin: 0 auto; width: 100%;">
                     <p style=" text-align: center;">
                       <b>{{ work && caps(work.first_name) }}</b> <br />
-                      <b style="color:#A09FA0">
+                      <b style="color:#A09FA0;font-size: 15px;">
                         EID: {{ work && work.employee_id }} </b
                       ><br />
                       <b style="color:#A09FA0">
@@ -244,125 +251,66 @@
                       <v-col md="12" v-show="selectedItem == 0" color="primary">
                         <v-expand-x-transition>
                           <section class="pridmary" v-show="selectedItem == 0">
-                            <v-card flat>
-                              <v-card-text>
-                                <v-list-item>
-                                  <v-list-item-content>
-                                    <v-row class="mt-2">
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Role
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work &&
-                                            work.role &&
-                                            work.role.name) ||
-                                            "---"
-                                        }}
-                                      </v-col>
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          EID
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.employee_id) || "----"
-                                        }}
-                                      </v-col>
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Name
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.first_name) || "----"
-                                        }}
-                                      </v-col>
+                            <table>
+                              <tr>
+                                <th>Role</th>
+                                <td>
+                                  {{
+                                    (work && work.role && work.role.name) ||
+                                      "---"
+                                  }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>EID</th>
+                                <td>
+                                  {{ (work && work.employee_id) || "----" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Name</th>
+                                <td>
+                                  {{ caps(work && work.first_name) || "---" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Department</th>
+                                <td>
+                                  {{ (work && work.department.name) || "----" }}
+                                </td>
+                              </tr>
 
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Department
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.department.name) ||
-                                            "----"
-                                        }}
-                                      </v-col>
+                              <tr>
+                                <th>Sub Department</th>
+                                <td>
+                                  {{
+                                    (work &&
+                                      work.sub_department &&
+                                      work.sub_department.name) ||
+                                      "----"
+                                  }}
+                                </td>
+                              </tr>
 
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Sub Department
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work &&
-                                            work.sub_department &&
-                                            work.sub_department.name) ||
-                                            "----"
-                                        }}
-                                      </v-col>
-
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Email
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.user.email) || "----"
-                                        }}
-                                      </v-col>
-
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Whatsapp Number
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.whatsapp_number) ||
-                                            "----"
-                                        }}
-                                      </v-col>
-
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Joining Date
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.joining_date) || "----"
-                                        }}
-                                      </v-col>
-                                    </v-row>
-                                  </v-list-item-content>
-                                </v-list-item>
-                              </v-card-text>
-                            </v-card>
+                              <tr>
+                                <th>Email</th>
+                                <td>
+                                  {{ (work && work.user.email) || "----" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Whatsapp Number</th>
+                                <td>
+                                  {{ (work && work.whatsapp_number) || "----" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Joining Date</th>
+                                <td>
+                                  {{ (work && work.joining_date) || "----" }}
+                                </td>
+                              </tr>
+                            </table>
                           </section>
                         </v-expand-x-transition>
                       </v-col>
@@ -374,62 +322,7 @@
                       <v-col md="12" v-show="selectedItem == 1" color="primary">
                         <v-expand-x-transition>
                           <section class="pridmary" v-show="selectedItem == 1">
-                            <table>
-                              <tr>
-                                <th>Nationality</th>
-                                <td>{{ personalItem.nationality || "---" }}</td>
-                              </tr>
-                              <tr>
-                                <th>Religion</th>
-                                <td>{{ personalItem.religion || "---" }}</td>
-                              </tr>
-                              <tr>
-                                <th>Marital Status</th>
-                                <td>
-                                  {{
-                                    personalItem.marital_status
-                                      ? personalItem.marital_status == 1
-                                        ? "Married"
-                                        : "Single"
-                                      : "---"
-                                  }}
-                                </td>
-                                <th>Employment of Spouse</th>
-                                <td>
-                                  {{ personalItem.no_of_spouse || "---" }}
-                                </td>
-                              </tr>
-
-                              <tr>
-                                <th>No. of Children</th>
-                                <td>
-                                  {{ personalItem.no_of_children || "---" }}
-                                </td>
-                                <th>Date of Birth</th>
-                                <td>
-                                  {{ personalItem.date_of_birth || "---" }}
-                                </td>
-                              </tr>
-
-                              <tr>
-                                <th>Father Name</th>
-                                <td>
-                                  {{ personalItem.father_name || "---" }}
-                                </td>
-                                <th>Mother Name</th>
-                                <td>{{ personalItem.mother_name || "---" }}</td>
-                              </tr>
-                              <tr>
-                                <th>Gender</th>
-                                <td>
-                                  {{
-                                    personalItem.gender == 1
-                                      ? "Male"
-                                      : "Female" || "---"
-                                  }}
-                                </td>
-                              </tr>
-                            </table>
+                            <Personal :personalItem="personalItem" />
                           </section>
                         </v-expand-x-transition>
                       </v-col>
@@ -438,128 +331,65 @@
                   <!-- contact info -->
                   <section style="width:94%">
                     <v-row>
-                      <v-col md="12" v-show="selectedItem == 2" color="primary">
+                      <v-col
+                        md="12"
+                        class="mt-3"
+                        v-show="selectedItem == 2"
+                        color="primary"
+                      >
                         <v-expand-x-transition>
                           <section class="pridmary" v-show="selectedItem == 2">
-                            <v-card flat>
-                              <v-card-text>
-                                <v-list-item>
-                                  <v-list-item-content>
-                                    <v-row class="mt-2">
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Role
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work &&
-                                            work.role &&
-                                            work.role.name) ||
-                                            "---"
-                                        }}
-                                      </v-col>
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          EID
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.employee_id) || "----"
-                                        }}
-                                      </v-col>
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Name
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.first_name) || "----"
-                                        }}
-                                      </v-col>
-
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Department
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.department.name) ||
-                                            "----"
-                                        }}
-                                      </v-col>
-
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Sub Department
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work &&
-                                            work.sub_department &&
-                                            work.sub_department.name) ||
-                                            "----"
-                                        }}
-                                      </v-col>
-
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Email
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.user.email) || "----"
-                                        }}
-                                      </v-col>
-
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Whatsapp Number
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.whatsapp_number) ||
-                                            "----"
-                                        }}
-                                      </v-col>
-
-                                      <v-col cols="3">
-                                        <v-list-item-title
-                                          class="text-bold mb-1"
-                                        >
-                                          Joining Date
-                                        </v-list-item-title>
-                                      </v-col>
-                                      <v-col cols="8">
-                                        {{
-                                          (work && work.joining_date) || "----"
-                                        }}
-                                      </v-col>
-                                    </v-row>
-                                  </v-list-item-content>
-                                </v-list-item>
-                              </v-card-text>
-                            </v-card>
+                            <Contact :contactItem="contactItem" /></section
+                        ></v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Passport info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-6"
+                        v-show="selectedItem == 3"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 3">
+                            <Passport :passport_list="passport_list" />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Emirates info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-10"
+                        v-show="selectedItem == 4"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 4">
+                            <Emirates :emirateItems="emirateItems" />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Visa info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-10"
+                        v-show="selectedItem == 5"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 5">
+                            <Visa :visaItem="visaItem" />
                           </section>
                         </v-expand-x-transition>
                       </v-col>
@@ -618,11 +448,17 @@
 </template>
 
 <script>
+import Personal from "../../components/employee/Personal.vue";
+import Contact from "../../components/employee/Contact.vue";
+import Passport from "../../components/employee/Passport.vue";
+import Emirates from "../../components/employee/Emirates.vue";
+import Visa from "../../components/employee/Visa.vue";
 export default {
   data: () => ({
     m: false,
     expand: false,
     expand2: false,
+    boilerplate: false,
     //////////////
     right: true,
     rightDrawer: false,
@@ -686,7 +522,6 @@ export default {
         permission: "employee_setting_access"
       }
     ],
-
     color: "primary",
     files: "",
     dialog: false,
@@ -731,20 +566,73 @@ export default {
       marital_status: "",
       no_of_spouse: "",
       no_of_children: "",
-
       father_name: "",
       mother_name: "",
       gender: "",
       date_of_birth: "",
+      company_id: "",
+      employee_id: ""
+    },
+    contactItem: {
+      local_address: "",
+      phone_number: "",
+      whatsapp_number: "",
+      phone_relative_number: "",
+      whatsapp_relative_number: "",
+      local_fax: "",
+      local_email: "",
+      local_country: "",
+      local_city: "",
+      local_residence_no: "",
+      relation: "",
+      home_address: "",
+      home_tel: "",
+      home_tel: "",
+      home_mobile: "",
+      home_fax: "",
+      home_city: "",
+      home_state: "",
+      home_country: "",
+      home_email: "",
+      other_value: "",
+      other_text: "",
+      company_id: "",
+      employee_id: ""
+    },
+    emirateItems: {
+      emirate_id: "",
+      name: "",
+      gender: "",
+      date_of_birth: "",
+      nationality: "",
+      issue: "",
+      expiry: "",
+      company_id: "",
+      employee_id: ""
+    },
+    visaItem: {
+      visa_no: "",
+      place_of_issues: "",
+      country: "",
+      issue_date: "",
+      expiry_date: "",
+      security_amount: "",
+
+      labour_no: "",
+      personal_no: "",
+      labour_issue_date: "",
+      labour_expiry_date: "",
+      note: "",
 
       company_id: "",
       employee_id: ""
-    }
+    },
+    passport_list: {}
   }),
   async created() {
     this.loading = false;
+    this.boilerplate = true;
     this.getDataFromApi();
-    this.getPersonalInfo();
   },
   watch: {
     dialog(val) {
@@ -773,7 +661,6 @@ export default {
       this.errors = [];
       setTimeout(() => {}, 300);
     },
-
     limitName(value) {
       if (!value) {
         return "---";
@@ -782,7 +669,6 @@ export default {
       var length = 14;
       return string.substring(0, length);
     },
-
     json_to_csv(json) {
       let data = json.map(e => ({
         first_name: e.first_name,
@@ -800,57 +686,72 @@ export default {
         department: e.department.name,
         designation: e.designation.name
       }));
-
       let header = Object.keys(data[0]).join(",") + "\n";
-
       let rows = "";
-
       data.forEach(e => {
         rows +=
           Object.values(e)
             .join(",")
             .trim() + "\n";
       });
-
       return header + rows;
     },
     res(id) {
+      this.boilerplate = true;
       this.$axios.get(`employee/${id}`).then(({ data }) => {
-        // this.payload = data;
-        // this.contactItem = data;
-        // this.setting = data;
-        this.work = data;
-        this.loading = false;
+        this.contactItem = {
+          ...data
+        };
+
+        this.work = {
+          ...data
+        };
+
         this.getPersonalInfo(data.employee_id);
-        console.log(this.personalItem);
+        this.getPassportInfo(data.employee_id);
+        this.getEmirateInfo(data.employee_id);
+        this.getVisaInfo(data.employee_id);
       });
-
-      return;
-      if (!this.can("employee_single_view_access")) {
-        return false;
-      }
-      this.goDetails(id);
     },
-
     getPersonalInfo(id) {
       this.$axios.get(`personalinfo/${id}`).then(({ data }) => {
         this.personalItem = {
           ...data
         };
-        // this.personalItem = data;
-        this.loading = false;
+        this.boilerplate = false;
       });
     },
-
+    getPassportInfo(id) {
+      this.$axios.get(`passport/${id}`).then(({ data }) => {
+        this.passport_list = {
+          ...data
+        };
+        this.boilerplate = false;
+      });
+    },
+    getEmirateInfo(id) {
+      this.$axios.get(`emirate/${id}`).then(({ data }) => {
+        this.emirateItems = {
+          ...data
+        };
+        this.boilerplate = false;
+      });
+    },
+    getVisaInfo(id) {
+      this.$axios.get(`visa/${id}`).then(({ data }) => {
+        this.visaItem = {
+          ...data
+        };
+        this.boilerplate = false;
+      });
+    },
     export_submit() {
       if (this.data.length == 0) {
         this.snackbar = true;
         this.response = "No record to download";
         return;
       }
-
       let csvData = this.json_to_csv(this.data);
-
       let element = document.createElement("a");
       element.setAttribute(
         "href",
@@ -861,35 +762,28 @@ export default {
       element.click();
       document.body.removeChild(element);
     },
-
     save() {
       let payload = new FormData();
       payload.append("employees", this.files);
       payload.append("company_id", this.$auth?.user?.company?.id);
-
       let options = {
         headers: {
           "Content-Type": "multipart/form-data"
         }
       };
-
       this.btnLoader = true;
       this.$axios
         .post("/employee/import", payload, options)
         .then(({ data }) => {
           this.btnLoader = false;
-
           if (!data.status) {
             this.errors = data.errors;
             payload.delete("employees");
           } else {
             this.errors = [];
             this.snackbar = true;
-
             this.response = "Employees imported successfully";
-
             this.getDataFromApi();
-
             this.close();
           }
         })
@@ -908,19 +802,16 @@ export default {
         u.is_master
       );
     },
-
     createEmployee() {
       if (this.total >= this.max_employee) {
         alert(`You cannot add more than ${this.max_employee} employees`);
         return;
       }
-
       this.$router.push(`/employees/create`);
     },
     goDetails(id) {
       this.$router.push(`/employees/details/${id}`);
     },
-
     searchIt(e) {
       if (e.length == 0) {
         this.getDataFromApi();
@@ -929,14 +820,12 @@ export default {
       }
     },
     getDataFromApi(url = this.endpoint) {
-      // this.loading = true;
       let options = {
         params: {
           per_page: this.per_page,
           company_id: this.$auth?.user?.company?.id
         }
       };
-
       this.$axios.get(`${url}`, options).then(({ data }) => {
         this.data = data.data;
         this.work = this.data[0];
@@ -945,6 +834,7 @@ export default {
         this.prev_page_url = data.prev_page_url;
         this.current_page = data.current_page;
         this.loading = false;
+        this.boilerplate = false;
       });
     },
     editItem(item) {
@@ -958,7 +848,8 @@ export default {
           this.getDataFromApi();
         });
     }
-  }
+  },
+  components: { Personal, Contact, Passport, Emirates, Visa }
 };
 </script>
 

@@ -154,13 +154,13 @@
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{
-                      caps("no of spouse")
+                      caps("Employment of Spouse")
                     }}</label>
                     <input
                       min="0"
                       v-model="personalItem.no_of_spouse"
                       class="form-control"
-                      type="number"
+                      type="text"
                     />
                     <span
                       v-if="errors && errors.no_of_spouse"
@@ -382,6 +382,7 @@
                     <input
                       v-model="contactItem.phone_number"
                       class="form-control"
+                      type="number"
                     />
                     <span
                       v-if="errors && errors.phone_number"
@@ -398,6 +399,8 @@
                     <input
                       v-model="contactItem.whatsapp_number"
                       class="form-control"
+                      type="number"
+
                     />
                     <span
                       v-if="errors && errors.whatsapp_number"
@@ -414,6 +417,8 @@
                     <input
                       v-model="contactItem.phone_relative_number"
                       class="form-control"
+                      type="number"
+
                     />
                     <span
                       v-if="errors && errors.phone_relative_number"
@@ -2543,7 +2548,6 @@ export default {
 
     contactItem: {
       local_address: "",
-      local_tel: "",
       phone_number: "",
       whatsapp_number: "",
       phone_relative_number: "",
