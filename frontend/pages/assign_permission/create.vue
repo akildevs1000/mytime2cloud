@@ -22,8 +22,14 @@
                 </div>
               </v-col>
               <v-col cols="12">
-                <v-select :rules="Rules" v-model="role_id" :items="roles" item-value="id" item-text="name"
-                  label="Role*"></v-select>
+                <v-select
+                  :rules="Rules"
+                  v-model="role_id"
+                  :items="roles"
+                  item-value="id"
+                  item-text="name"
+                  label="Role*"
+                ></v-select>
                 <span v-if="errors && errors.role_id" class="red--text">
                   {{ errors.role_id[0] }}
                 </span>
@@ -35,12 +41,61 @@
                   single-line
                   hide-details
                 ></v-text-field> -->
-
-                <v-checkbox @change="setAllIds" :label="`Select All`" v-model="just_ids">
-                </v-checkbox>
-                <v-checkbox v-for="(pa, idx) in permissions" :key="idx" :value="pa.id" v-model="permission_ids"
+                <!-- <v-checkbox v-for="(pa, idx) in permissions" :key="idx" :value="pa.id" v-model="permission_ids"
                   :label="`${pa.name}`">
-                </v-checkbox>
+                </v-checkbox> -->
+
+                <!-- <v-checkbox
+                  @change="setAllIds"
+                  :label="`Select All`"
+                  v-model="just_ids"
+                >
+                </v-checkbox> -->
+
+                <table>
+                  <tr>
+                    <th>Module</th>
+                    <th>Contact</th>
+                    <th>Contact</th>
+                    <th>Contact</th>
+                    <th>Country</th>
+                  </tr>
+                  <tr v-for="(items, idx) in permissions" :key="idx">
+                    <td v-for="(pa, idx) in items" :key="idx">
+                      <v-checkbox
+                        :value="pa.id"
+                        v-model="permission_ids"
+                        :label="`${pa.name}`"
+                      >
+                      </v-checkbox>
+                    </td>
+                  </tr>
+                </table>
+
+                <v-row>
+                  <v-col
+                    xs="12"
+                    sm="12"
+                    md="3"
+                    cols="12"
+                    v-for="(items, idx) in permissions"
+                    :key="idx"
+                  >
+                    <div class="componentWrapper my-3">
+                      <div class="header">
+                        title
+                      </div>
+                      <v-checkbox
+                        v-for="(pa, idx) in items"
+                        :key="idx"
+                        :value="pa.id"
+                        v-model="permission_ids"
+                        :label="capsTitle(pa.name)"
+                      >
+                      </v-checkbox>
+                    </div>
+                  </v-col>
+                </v-row>
               </v-col>
               <v-col cols="12">
                 <span v-if="errors && errors.permission_ids" class="red--text">
@@ -49,7 +104,14 @@
               </v-col>
 
               <v-col>
-                <v-btn v-if="can(`assign_permission_create`)" dark small color="primary" class="mr-4" @click="save">
+                <v-btn
+                  v-if="can(`assign_permission_create`)"
+                  dark
+                  small
+                  color="primary"
+                  class="mr-4"
+                  @click="save"
+                >
                   Submit
                 </v-btn>
               </v-col>
@@ -98,6 +160,12 @@ export default {
     this.getPermissions();
   },
   methods: {
+    capsTitle(val) {
+      let res = val;
+      let r = res.replace(/[^a-z]/g, " ");
+      let title = r.replace(/\b\w/g, c => c.toUpperCase());
+      return title;
+    },
     can(per) {
       let u = this.$auth.user;
       return (
@@ -147,3 +215,39 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #ecf0f4;
+}
+
+.componentWrapper {
+  border: solid cadetblue;
+  border-radius: 4px;
+  padding: 15px 10px 10px;
+  width: 95%;
+}
+
+.componentWrapper .header {
+  position: absolute;
+  margin-top: -25px;
+  margin-left: 10px;
+  color: white;
+  background: cadetblue;
+  border-radius: 10px;
+  padding: 2px 10px;
+}
+</style>

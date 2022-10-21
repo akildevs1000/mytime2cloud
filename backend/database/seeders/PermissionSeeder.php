@@ -63,52 +63,52 @@ class PermissionSeeder extends Seeder
         // Permission::create(['name'=>'assign_permission_view']);
         // Permission::create(['name'=>'assign_permission_access']);
 
-        Permission::create(['name'=>'department_create']);
-        Permission::create(['name'=>'department_edit']);
-        Permission::create(['name'=>'department_delete']);
-        Permission::create(['name'=>'department_view']);
-        Permission::create(['name'=>'department_access']);
+        Permission::create(['module' => 'department', 'title' => 'department create', 'name' => 'department_create']);
+        Permission::create(['module' => 'department', 'title' => 'department edit', 'name' => 'department_edit']);
+        Permission::create(['module' => 'department', 'title' => 'department delete', 'name' => 'department_delete']);
+        Permission::create(['module' => 'department', 'title' => 'department view', 'name' => 'department_view']);
+        Permission::create(['module' => 'department', 'title' => 'department access', 'name' => 'department_access']);
 
-        Permission::create(['name'=>'sub_department_create']);
-        Permission::create(['name'=>'sub_department_edit']);
-        Permission::create(['name'=>'sub_department_delete']);
-        Permission::create(['name'=>'sub_department_view']);
-        Permission::create(['name'=>'sub_department_access']);
+        Permission::create(['module' => 'sub_department', 'title' => 'sub department create', 'name' => 'sub_department_create']);
+        Permission::create(['module' => 'sub_department', 'title' => 'sub department edit', 'name' => 'sub_department_edit']);
+        Permission::create(['module' => 'sub_department', 'title' => 'sub department delete', 'name' => 'sub_department_delete']);
+        Permission::create(['module' => 'sub_department', 'title' => 'sub department view', 'name' => 'sub_department_view']);
+        Permission::create(['module' => 'sub_department', 'title' => 'sub department access', 'name' => 'sub_department_access']);
 
-        Permission::create(['name'=>'designation_create']);
-        Permission::create(['name'=>'designation_edit']);
-        Permission::create(['name'=>'designation_delete']);
-        Permission::create(['name'=>'designation_view']);
-        Permission::create(['name'=>'designation_access']);
+        Permission::create(['module' => 'designation', 'title' => 'designation create', 'name' => 'designation_create']);
+        Permission::create(['module' => 'designation', 'title' => 'designation edit', 'name' => 'designation_edit']);
+        Permission::create(['module' => 'designation', 'title' => 'designation delete', 'name' => 'designation_delete']);
+        Permission::create(['module' => 'designation', 'title' => 'designation view', 'name' => 'designation_view']);
+        Permission::create(['module' => 'designation', 'title' => 'designation access', 'name' => 'designation_access']);
 
-        Permission::create(['name'=>'role_create']);
-        Permission::create(['name'=>'role_edit']);
-        Permission::create(['name'=>'role_delete']);
-        Permission::create(['name'=>'role_view']);
-        Permission::create(['name'=>'role_access']);
+        Permission::create(['module' => 'role', 'title' => 'role create', 'name' => 'role_create']);
+        Permission::create(['module' => 'role', 'title' => 'role edit', 'name' => 'role_edit']);
+        Permission::create(['module' => 'role', 'title' => 'role delete', 'name' => 'role_delete']);
+        Permission::create(['module' => 'role', 'title' => 'role view', 'name' => 'role_view']);
+        Permission::create(['module' => 'role', 'title' => 'role access', 'name' => 'role_access']);
 
-        Permission::create(['name'=>'assign_permission_create']);
-        Permission::create(['name'=>'assign_permission_edit']);
-        Permission::create(['name'=>'assign_permission_delete']);
-        Permission::create(['name'=>'assign_permission_view']);
-        Permission::create(['name'=>'assign_permission_access']);
+        Permission::create(['module' => 'assign_permission', 'title' => 'assign permission create', 'name' => 'assign_permission_create']);
+        Permission::create(['module' => 'assign_permission', 'title' => 'assign permission edit', 'name' => 'assign_permission_edit']);
+        Permission::create(['module' => 'assign_permission', 'title' => 'assign permission delete', 'name' => 'assign_permission_delete']);
+        Permission::create(['module' => 'assign_permission', 'title' => 'assign permission view', 'name' => 'assign_permission_view']);
+        Permission::create(['module' => 'assign_permission', 'title' => 'assign permission access', 'name' => 'assign_permission_access']);
 
-        Permission::create(['name'=>'employee_create']);
-        Permission::create(['name'=>'employee_edit']);
-        Permission::create(['name'=>'employee_delete']);
-        Permission::create(['name'=>'employee_view']);
-        Permission::create(['name'=>'employee_access']);
+        Permission::create(['module' => 'employee', 'title' => 'employee create', 'name' => 'employee_create']);
+        Permission::create(['module' => 'employee', 'title' => 'employee edit', 'name' => 'employee_edit']);
+        Permission::create(['module' => 'employee', 'title' => 'employee delete', 'name' => 'employee_delete']);
+        Permission::create(['module' => 'employee', 'title' => 'employee view', 'name' => 'employee_view']);
+        Permission::create(['module' => 'employee', 'title' => 'employee access', 'name' => 'employee_access']);
 
-        Permission::create(['name'=>'announcement_create']);
-        Permission::create(['name'=>'announcement_edit']);
-        Permission::create(['name'=>'announcement_delete']);
-        Permission::create(['name'=>'announcement_view']);
-        Permission::create(['name'=>'announcement_access']);
+        Permission::create(['module' => 'announcement', 'title' => 'announcement create', 'name' => 'announcement_create']);
+        Permission::create(['module' => 'announcement', 'title' => 'announcement edit', 'name' => 'announcement_edit']);
+        Permission::create(['module' => 'announcement', 'title' => 'announcement delete', 'name' => 'announcement_delete']);
+        Permission::create(['module' => 'announcement', 'title' => 'announcement view', 'name' => 'announcement_view']);
+        Permission::create(['module' => 'announcement', 'title' => 'announcement access', 'name' => 'announcement_access']);
 
-        Permission::create(['name'=>'policy_create']);
-        Permission::create(['name'=>'policy_edit']);
-        Permission::create(['name'=>'policy_delete']);
-        Permission::create(['name'=>'policy_view']);
-        Permission::create(['name'=>'policy_access']);
+        Permission::create(['module' => 'policy', 'title' => 'policy create', 'name' => 'policy_create']);
+        Permission::create(['module' => 'policy', 'title' => 'policy edit', 'name' => 'policy_edit']);
+        Permission::create(['module' => 'policy', 'title' => 'policy delete', 'name' => 'policy_delete']);
+        Permission::create(['module' => 'policy', 'title' => 'policy view', 'name' => 'policy_view']);
+        Permission::create(['module' => 'policy', 'title' => 'policy access', 'name' => 'policy_access']);
     }
 }
