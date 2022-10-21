@@ -57,7 +57,13 @@ class DeviceController extends Controller
     public function getDeviceCompany($id, $userId)
     {
         $emp = Employee::whereSystemUserId($userId)->without(['schedule', 'user', 'sub_department', 'role', 'first_log', 'last_log',])->first(['first_name', 'profile_picture'])->toArray();
-        $device =  Device::where("device_id", $id)->first(['company_id', 'name as device_name', 'short_name', 'device_id', 'location'])->toArray();
+        $device =  Device::where("device_id", $id)->first(['company_id', 'name as device_name', 'short_name', 'device_id', 'location']);
+
+        if ($device) {
+            $device->toArray();
+        } else {
+            $device = [];
+        }
 
         return array_merge($emp, $device);
     }

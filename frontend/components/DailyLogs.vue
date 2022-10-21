@@ -1,10 +1,8 @@
 <template>
   <div>
-    <v-skeleton-loader  v-if="logs && !logs.length" type="card" />
+    <v-skeleton-loader v-if="logs && !logs.length" type="card" />
     <v-slide-group v-else class="px-4" active-class="success" show-arrows>
-      <v-slide-item
-        v-for="(item, index) in logs" :key="index"
-      >
+      <v-slide-item v-for="(item, index) in logs" :key="index">
         <div class="card mx-2 my-2 w-25">
           <div class="banner">
             <v-img
@@ -15,12 +13,11 @@
             ></v-img>
             <!-- </svg> -->
           </div>
-          <!-- employee_id first_name in device_in.short_name -->
           <div class="menu">
             <div class="opener"></div>
           </div>
-          <h2 class="name" style="font-size:15px">
-            {{ item.first_name }}
+          <h2 class="text-center pa-1" style="font-size:15px">
+            {{ item.employee.first_name }}
           </h2>
           <div class="title" style="font-size:12px !important">
             EID: {{ item.UserID }}
@@ -58,12 +55,11 @@ export default {
     };
   },
   mounted() {
-    // this.socketConnection();
     this.$axios
       .get(`device/getLastRecordsByCount/${this.$auth.user.company.id}/${15}`)
       .then(res => {
         this.logs = res.data;
-        // this.socketConnection();
+        this.socketConnection();
       });
   },
   created() {},
@@ -75,7 +71,7 @@ export default {
       var d = new Date(item);
       d.getHours();
       d.getMinutes();
-      return { LogTime: d.getHours() + ":" + d.getMinutes() };
+      return  d.getHours() + ":" + d.getMinutes();
     },
 
     getShortName(item) {
@@ -93,7 +89,9 @@ export default {
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data);
         if (json.Status == 200 && json.Data.UserCode !== 0) {
-          this.getDetails(json.Data);
+
+          let { UserCode, DeviceID, RecordDate, RecordNumber } = json.Data;
+          this.getDetails({ UserCode, DeviceID, RecordDate, RecordNumber });
         }
       };
     },
@@ -102,10 +100,13 @@ export default {
         .get(`/device/${item.DeviceID}/${item.UserCode}/details`)
         .then(({ data }) => {
           if (data.company_id == this.$auth.user.company.id) {
-            let obj = {
-              ...item,
-              ...data
-            };
+
+            let obj = {};
+
+            obj.employee.first_name = data.first_name;
+            obj.short_name.short_name = data.short_name;
+            obj.UserID = item.UserCode;
+            obj.time = this.getTime(item.RecordDate);
 
             this.logs.unshift(obj);
           }
@@ -116,42 +117,14 @@ export default {
 </script>
 
 <style scoped>
-  body {
-  font-size: 16px;
-  color: #404040;
-  font-family: Montserrat, sans-serif;
-  background-image: linear-gradient(
-    to bottom right,
-    #ff9eaa 0% 65%,
-    #e860ff 95% 100%
-  );
-  background-position: center;
-  background-attachment: fixed;
-  margin: 0;
-  padding: 2rem 0;
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-}
 .card {
-  /* background-color: #fff;
-  max-width: 360px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 2rem;
-  box-shadow: 0px 1rem 1.5rem rgba(0, 0, 0, 0.5); */
-
   height: 350px !important;
-  background-color: #fff !important;
-  max-width: 200px !important;
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
   border-radius: 2rem !important;
 }
 .card .banner {
-  /* background-image: url("https://images.unsplash.com/photo-1545703549-7bdb1d01b734?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ"); */
   background-color: #5fafa3;
   background-position: center;
   background-repeat: no-repeat;
@@ -212,11 +185,7 @@ export default {
 .card .menu .opener span:nth-child(3) {
   top: 1.65rem;
 }
-.card h2.name {
-  text-align: center;
-  padding: 0 2rem 0.5rem;
-  margin: 0;
-}
+
 .card .title {
   color: #a0a0a0;
   font-size: 0.85rem;
@@ -265,32 +234,5 @@ export default {
 }
 .card .actions .follow-info h2 a:hover span {
   color: #007ad6;
-}
-.card .actions .follow-btn button {
-  color: inherit;
-  font: inherit;
-  font-weight: bold;
-  background-color: #ffd01a;
-  width: 100%;
-  border: none;
-  padding: 1rem;
-  outline: none;
-  box-sizing: border-box;
-  border-radius: 1.5rem/50%;
-  transition: background-color 100ms ease-in-out,
-    transform 200ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-.card .actions .follow-btn button:hover {
-  background-color: #efb10a;
-  transform: scale(1.1);
-}
-.card .actions .follow-btn button:active {
-  background-color: #e8a200;
-  transform: scale(1);
-}
-.card .desc {
-  text-align: justify;
-  padding: 0 2rem 2.5rem;
-  order: 100;
 }
 </style>
