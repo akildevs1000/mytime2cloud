@@ -53,7 +53,9 @@
                 </h2>
                 <h2>
                   <a href="#"
-                    ><span>{{ (item && item.device.short_name) || "---" }}</span
+                    ><span>{{
+                      (item.device && item.device.short_name) || "---"
+                    }}</span
                     ><small>Device</small></a
                   >
                 </h2>
@@ -106,28 +108,19 @@ export default {
     socketConnection() {
       this.socket = new WebSocket(this.url);
 
-      console.log(this.socket);
-
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data);
         if (json.Status == 200 && json.Data.UserCode !== 0) {
-          let { UserCode, DeviceID, RecordDate, RecordNumber } = json.Data;
-          let item = { UserCode, DeviceID, RecordDate, RecordNumber };
-          this.getDetails(item);
+          this.getDetails(json.Data);
         }
       };
     },
     getDetails(item) {
+
       this.$axios
-        .get(`/device/${item.DeviceID}/${item.UserCode}/details`, {
-          params: { item: item }
-        })
+        .post(`/device/details`, item)
         .then(({ data }) => {
-          if (data.company_id == this.$auth.user.company.id) {
-            console.log(
-              "🚀 ~ file: DailyLogs.vue ~ line 129 ~ .then ~ data",
-              data
-            );
+          if (data.device.company_id == this.$auth.user.company.id) {
             this.logs.unshift(data);
           }
         });

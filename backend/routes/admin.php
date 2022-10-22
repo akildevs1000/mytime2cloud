@@ -89,7 +89,7 @@ Route::get('branch/search/{key}', [BranchController::class, 'search']);
 // Device
 Route::apiResource('device', DeviceController::class);
 Route::get('device/search/{key}', [DeviceController::class, 'search']);
-Route::get('device/{key}/{userId}/details', [DeviceController::class, 'getDeviceCompany']);
+Route::post('device/details', [DeviceController::class, 'getDeviceCompany']);
 Route::get('device/getLastRecordsByCount/{company_id}/{count}', [DeviceController::class, 'getLastRecordsByCount']);
 Route::post('device/delete/selected', [DeviceController::class, 'deleteSelected']);
 Route::get('device_list', [DeviceController::class, 'getDeviceList']);

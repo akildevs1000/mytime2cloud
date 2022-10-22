@@ -55,13 +55,13 @@ class DeviceController extends Controller
         return $model->with(['status', 'company'])->find($id);
     }
 
-    public function getDeviceCompany(Request $request, $id, $userId)
+    public function getDeviceCompany(Request $request)
     {
         return [
             "UserID" => $request->UserCode,
             "time" => date("h:i", strtotime($request->RecordDate)),
-            "employee" => DB::table("employees")->where("system_user_id", $userId)->first(['first_name', 'profile_picture']),
-            "device" => DB::table("devices")->where("device_id", $id)->first(['name as device_name', 'short_name', 'device_id', 'location']),
+            "employee" => DB::table("employees")->where("system_user_id", $request->UserCode)->first(['first_name', 'profile_picture']),
+            "device" => DB::table("devices")->where("device_id", $request->DeviceID)->first(['name as device_name', 'short_name', 'device_id', 'location',"company_id"]),
         ];
     }
 
