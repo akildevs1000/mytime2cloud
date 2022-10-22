@@ -14,9 +14,7 @@
       </v-row>
       <v-card elevation="0" class="pa-3">
         <v-card-title>
-          <label class="col-form-label"
-            ><b>Create Automation </b></label
-          >
+          <label class="col-form-label"><b>Update Automation </b></label>
           <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
             <v-icon>mdi-arrow-left</v-icon>
@@ -338,14 +336,26 @@ export default {
       bccs: []
     },
 
+    route_id: 0,
+
     errors: []
   }),
+
+  mounted() {},
 
   created() {
     this.preloader = false;
     this.id = this.$auth?.user?.company?.id;
+    this.getRecord();
   },
   methods: {
+    getRecord() {
+      this.$axios
+        .get("/report_notification/" + this.$route.params.id)
+        .then(({ data }) => {
+          this.payload = data;
+        });
+    },
     can(per) {
       let u = this.$auth.user;
       return (
@@ -355,14 +365,23 @@ export default {
     },
 
     add_to() {
+      if (!this.payload.tos) {
+        this.payload.tos = [];
+      }
       this.payload.tos.push(this.to);
       this.to = "";
     },
     add_cc() {
+      if (!this.payload.ccs) {
+        this.payload.ccs = [];
+      }
       this.payload.ccs.push(this.cc);
       this.cc = "";
     },
     add_bcc() {
+      if (!this.payload.bccs) {
+        this.payload.bccs = [];
+      }
       this.payload.bccs.push(this.bcc);
       this.bcc = "";
     },
@@ -379,9 +398,8 @@ export default {
     },
 
     store() {
-      this.payload.company_id = this.id;
       this.$axios
-        .post("/report_notification", this.payload)
+        .put("/report_notification/" + this.$route.params.id, this.payload)
         .then(({ data }) => {
           this.loading = false;
 
@@ -392,9 +410,6 @@ export default {
 
           this.snackbar = data.status;
           this.response = data.message;
-
-        console.log("🚀 ~ file: create.vue ~ line 397 ~ .then ~ data", data)
-
         })
         .catch(e => console.log(e));
     }

@@ -540,7 +540,7 @@ export default {
         // },
         {
           icon: "mdi-email",
-          title: "Report Notifications",
+          title: "Automation",
           to: "/report_notifications",
           permission: this.can("/")
         },
