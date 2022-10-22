@@ -24,6 +24,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalInfoController;
 use App\Http\Controllers\policyController;
 use App\Http\Controllers\QualificationController;
+use App\Http\Controllers\ReportNotificationController;
 use App\Http\Controllers\Reports\AutoReportController;
 use App\Http\Controllers\Reports\ManualReportController;
 use App\Http\Controllers\ResetPasswordController;
@@ -236,3 +237,6 @@ Route::get('leave/search/{key}', [LeaveController::class, 'search']); // search 
 Route::post('report_notifications', function(Request $request){
     return $request->all();
 });
+
+
+Route::apiResource('report_notification', ReportNotificationController::class);
