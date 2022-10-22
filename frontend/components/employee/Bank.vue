@@ -1,51 +1,38 @@
 <template>
-  <div>
+  <div class="mt-8">
     <table>
-      <tr>
-        <th>Emirate Id</th>
-        <td>
-          {{ caps(emirateItems.emirate_id || "---") }}
-        </td>
-      </tr>
-
       <tr>
         <th>Name</th>
         <td>
-          {{ emirateItems.name || "---" }}
+          {{ caps(BankInfo.bank_name) }}
         </td>
       </tr>
 
       <tr>
-        <th>Gender</th>
+        <th>Account No</th>
         <td>
-          {{ emirateItems.gender || "---" }}
+          {{ caps(BankInfo.account_no) }}
         </td>
       </tr>
 
       <tr>
-        <th>Date Of Birth</th>
+        <th>Title</th>
         <td>
-          {{ caps(emirateItems.date_of_birth || "---") }}
+          {{ caps(BankInfo.account_title) }}
         </td>
       </tr>
 
       <tr>
-        <th>Nationality</th>
+        <th>Iban</th>
         <td>
-          {{ caps(emirateItems.nationality || "---") }}
-        </td>
-      </tr>
-      <tr>
-        <th>Issue</th>
-        <td>
-          {{ caps(emirateItems.issue || "---") }}
+          {{ caps(BankInfo.iban) }}
         </td>
       </tr>
 
       <tr>
-        <th>Expiry</th>
+        <th>Address</th>
         <td>
-          {{ caps(emirateItems.expiry || "---") }}
+          {{ caps(BankInfo.address) }}
         </td>
       </tr>
     </table>
@@ -54,7 +41,7 @@
 
 <script>
 export default {
-  props: ["emirateItems"],
+  props: ["BankInfo"],
   data() {
     return {};
   },

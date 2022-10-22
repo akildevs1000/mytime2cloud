@@ -400,7 +400,6 @@
                       v-model="contactItem.whatsapp_number"
                       class="form-control"
                       type="number"
-
                     />
                     <span
                       v-if="errors && errors.whatsapp_number"
@@ -418,7 +417,6 @@
                       v-model="contactItem.phone_relative_number"
                       class="form-control"
                       type="number"
-
                     />
                     <span
                       v-if="errors && errors.phone_relative_number"
@@ -3034,7 +3032,6 @@ export default {
     },
     getPassportInfo() {
       this.$axios.get(`passport/${this.$route.params.id}`).then(({ data }) => {
-        // this.passport_list = data;
         this.passport_list = {
           ...data
         };
@@ -3049,14 +3046,12 @@ export default {
           this.personalItem = {
             ...data
           };
-          // this.personalItem = data;
           this.loading = false;
         });
     },
 
     getVisaInfo() {
       this.$axios.get(`visa/${this.$route.params.id}`).then(({ data }) => {
-        // this.visaItem = data;
         this.visaItem = {
           ...data
         };
@@ -3066,7 +3061,6 @@ export default {
 
     getEmirateInfo() {
       this.$axios.get(`emirate/${this.$route.params.id}`).then(({ data }) => {
-        // this.visaItem = data;
         this.emirateItems = {
           ...data
         };
@@ -3090,7 +3084,6 @@ export default {
           this.qualification_list = {
             ...data
           };
-          // this.qualification_list = data;
           this.loading = false;
         });
     },

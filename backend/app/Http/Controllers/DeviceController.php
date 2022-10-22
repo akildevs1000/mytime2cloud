@@ -134,7 +134,7 @@ class DeviceController extends Controller
         $model = Device::query();
 
         $fields = [
-            'name', 'device_id', 'location',
+            'name', 'device_id', 'location', 'short_name',
             'status' => ['name'],
             'company' => ['name'],
         ];

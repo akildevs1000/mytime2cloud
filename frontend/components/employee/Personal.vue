@@ -82,11 +82,12 @@ export default {
     return {};
   },
   methods: {
-    caps(str = "---") {
-      if (str == "---") {
-        return str;
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
       } else {
-        return str.replace(/\b\w/g, c => c.toUpperCase());
+        let res = str.toString();
+        return res.replace(/\b\w/g, c => c.toUpperCase());
       }
     }
   }

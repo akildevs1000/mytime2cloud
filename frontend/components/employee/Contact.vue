@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-responsive class="overflow-y-auto" max-height="700">
-      <v-responsive height="90vh" class="text-center pa-2">
+      <v-responsive height="100vh" class="text-center pa-2">
         <v-responsive min-height="0vh"></v-responsive>
         <div class="text-center text-body-2 mb-12">
           <table>
@@ -16,45 +16,45 @@
             <tr>
               <th>Address</th>
               <td>
-                {{ caps(contactItem.local_address || "---") }}
+                {{ caps(contactItem.local_address) }}
               </td>
             </tr>
             <tr>
               <th>Whatsapp Number</th>
               <td>
-                {{ contactItem.whatsapp_number || "---" }}
+                {{ contactItem.whatsapp_number }}
               </td>
             </tr>
             <tr>
               <th>Phone Number</th>
               <td>
-                {{ contactItem.phone_number || "---" }}
+                {{ contactItem.phone_number }}
               </td>
             </tr>
             <tr>
               <th>Phone Relative Number</th>
               <td>
-                {{ contactItem.phone_relative_number || "---" }}
+                {{ contactItem.phone_relative_number }}
               </td>
             </tr>
 
             <tr>
               <th>Relation</th>
               <td>
-                {{ contactItem.relation || "---" }}
+                {{ contactItem.relation }}
               </td>
             </tr>
 
             <tr>
               <th>City</th>
               <td>
-                {{ caps(contactItem.local_city || "---") }}
+                {{ caps(contactItem.local_city) }}
               </td>
             </tr>
             <tr>
               <th>Country</th>
               <td>
-                {{ caps(contactItem.local_country || "---") }}
+                {{ caps(contactItem.local_country) }}
               </td>
             </tr>
             <th colspan="2">
@@ -65,45 +65,45 @@
             <tr>
               <th>Address</th>
               <td>
-                {{ caps(contactItem.local_address || "---") }}
+                {{ caps(contactItem.local_address) }}
               </td>
             </tr>
             <tr>
               <th>Whatsapp Number</th>
               <td>
-                {{ contactItem.whatsapp_number || "---" }}
+                {{ caps(contactItem.whatsapp_number) }}
               </td>
             </tr>
             <tr>
               <th>Phone Number</th>
               <td>
-                {{ contactItem.phone_number || "---" }}
+                {{ caps(contactItem.phone_number) }}
               </td>
             </tr>
             <tr>
               <th>Phone Relative Number</th>
               <td>
-                {{ contactItem.phone_relative_number || "---" }}
+                {{ caps(contactItem.phone_relative_number) }}
               </td>
             </tr>
 
             <tr>
               <th>Relation</th>
               <td>
-                {{ contactItem.relation || "---" }}
+                {{ caps(contactItem.relation) }}
               </td>
             </tr>
 
             <tr>
               <th>City</th>
               <td>
-                {{ caps(contactItem.local_city || "---") }}
+                {{ caps(contactItem.local_city) }}
               </td>
             </tr>
             <tr>
               <th>Country</th>
               <td>
-                {{ caps(contactItem.local_country || "---") }}
+                {{ caps(contactItem.local_country) }}
               </td>
             </tr>
           </table>
@@ -123,45 +123,45 @@
       <tr>
         <th>Address</th>
         <td>
-          {{ caps(contactItem.local_address || "---") }}
+          {{ caps(contactItem.local_address ) }}
         </td>
       </tr>
       <tr>
         <th>Whatsapp Number</th>
         <td>
-          {{ contactItem.whatsapp_number || "---" }}
+          {{ contactItem.whatsapp_number  }}
         </td>
       </tr>
       <tr>
         <th>Phone Number</th>
         <td>
-          {{ contactItem.phone_number || "---" }}
+          {{ contactItem.phone_number  }}
         </td>
       </tr>
       <tr>
         <th>Phone Relative Number</th>
         <td>
-          {{ contactItem.phone_relative_number || "---" }}
+          {{ contactItem.phone_relative_number  }}
         </td>
       </tr>
 
       <tr>
         <th>Relation</th>
         <td>
-          {{ contactItem.relation || "---" }}
+          {{ contactItem.relation  }}
         </td>
       </tr>
 
       <tr>
         <th>City</th>
         <td>
-          {{ caps(contactItem.local_city || "---") }}
+          {{ caps(contactItem.local_city ) }}
         </td>
       </tr>
       <tr>
         <th>Country</th>
         <td>
-          {{ caps(contactItem.local_country || "---") }}
+          {{ caps(contactItem.local_country ) }}
         </td>
       </tr>
       <th colspan="2">
@@ -172,45 +172,45 @@
       <tr>
         <th>Address</th>
         <td>
-          {{ caps(contactItem.local_address || "---") }}
+          {{ caps(contactItem.local_address ) }}
         </td>
       </tr>
       <tr>
         <th>Whatsapp Number</th>
         <td>
-          {{ contactItem.whatsapp_number || "---" }}
+          {{ contactItem.whatsapp_number  }}
         </td>
       </tr>
       <tr>
         <th>Phone Number</th>
         <td>
-          {{ contactItem.phone_number || "---" }}
+          {{ contactItem.phone_number  }}
         </td>
       </tr>
       <tr>
         <th>Phone Relative Number</th>
         <td>
-          {{ contactItem.phone_relative_number || "---" }}
+          {{ contactItem.phone_relative_number  }}
         </td>
       </tr>
 
       <tr>
         <th>Relation</th>
         <td>
-          {{ contactItem.relation || "---" }}
+          {{ contactItem.relation  }}
         </td>
       </tr>
 
       <tr>
         <th>City</th>
         <td>
-          {{ caps(contactItem.local_city || "---") }}
+          {{ caps(contactItem.local_city ) }}
         </td>
       </tr>
       <tr>
         <th>Country</th>
         <td>
-          {{ caps(contactItem.local_country || "---") }}
+          {{ caps(contactItem.local_country ) }}
         </td>
       </tr>
     </table> -->
@@ -227,11 +227,12 @@ export default {
   },
 
   methods: {
-    caps(str = "---") {
-      if (str == "---") {
-        return str;
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
       } else {
-        return str.replace(/\b\w/g, c => c.toUpperCase());
+        let res = str.toString();
+        return res.replace(/\b\w/g, c => c.toUpperCase());
       }
     }
   }

@@ -14,12 +14,12 @@ class DepartmentController extends Controller
         return $model->with('children')->where('company_id', $request->company_id)->paginate($request->per_page);
     }
 
-    public function search(Department $model, Request $request, $key)
+    public function search(Request $request, $key)
     {
+        $model = Department::query();
         $model->where('id', 'LIKE', "%$key%");
-
+        $model->where('company_id', $request->company_id);
         $model->orWhere('name', 'LIKE', "%$key%");
-
         return $model->with('children')->paginate($request->per_page);
     }
 
@@ -38,7 +38,7 @@ class DepartmentController extends Controller
             } else {
                 return $this->response('Department cannot add.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -58,7 +58,7 @@ class DepartmentController extends Controller
             } else {
                 return $this->response('Department cannot update.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -73,7 +73,7 @@ class DepartmentController extends Controller
             } else {
                 return $this->response('Department cannot delete.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -88,7 +88,7 @@ class DepartmentController extends Controller
             } else {
                 return $this->response('Department cannot delete.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }

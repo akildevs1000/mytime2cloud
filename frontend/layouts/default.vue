@@ -349,7 +349,7 @@ export default {
             {
               icon: "mdi-domain",
               title: "Company",
-              to: `/companies/details/${this.$auth?.user?.company?.id}`,
+              to: `/companies/${this.$auth?.user?.company?.id}`,
               permission: this.can("company_access")
             },
             {
@@ -370,18 +370,6 @@ export default {
               title: "Designation",
               to: "/designation",
               permission: this.can("designation_access")
-            },
-            {
-              icon: "mdi-bullhorn-variant-outline",
-              title: "Announcement",
-              to: "/announcement",
-              permission: this.can("announcement_access")
-            },
-            {
-              icon: "mdi-clipboard-edit-outline",
-              title: "Policy",
-              to: "/policy",
-              permission: this.can("policy_access")
             }
 
             // {
@@ -412,6 +400,18 @@ export default {
           permission: this.can("device_access")
         },
         {
+          icon: "mdi-clipboard-edit-outline",
+          title: "Policy",
+          to: "/policy",
+          permission: this.can("policy_access")
+        },
+        {
+          icon: "mdi-bullhorn-variant-outline",
+          title: "Announcement",
+          to: "/announcement",
+          permission: this.can("announcement_access")
+        },
+        {
           icon: "mdi-account",
           title: "Employees",
           to: "/employees",
@@ -429,18 +429,55 @@ export default {
           to: "/employee_schedule",
           permission: this.can("employee_schedule_access")
         },
+
+        {
+          icon: "mdi-cash-multiple",
+          title: `Payroll`,
+          open_menu: false,
+          permission: this.can("payroll_access"),
+          hasChildren: [
+            {
+              icon: "mdi-cash-multiple ",
+              title: "Generate Payroll",
+              to: "/employees",
+              permission: this.can("employee_schedule_access")
+            },
+            {
+              icon: "mdi-cash-multiple ",
+              title: "Salary",
+              to: "/payroll/salary",
+              permission: this.can("payroll_generate_access")
+            },
+            {
+              icon: "mdi-cash-multiple ",
+              title: "Salary Advance",
+              to: "/employee_schedule",
+              permission: this.can("employee_schedule_access")
+            }
+          ]
+        },
+
         {
           icon: "mdi-account",
-          title: "Roles",
-          to: "/role",
-          permission: this.can("role_access")
+          title: `User Management`,
+          open_menu: false,
+          permission: this.can("payroll_access"),
+          hasChildren: [
+            {
+              icon: "mdi-account",
+              title: "Roles",
+              to: "/role",
+              permission: this.can("role_access")
+            },
+            {
+              icon: "mdi-lock",
+              title: "Assign Permissions",
+              to: "/assign_permission",
+              permission: this.can("assign_permission_access")
+            }
+          ]
         },
-        {
-          icon: "mdi-lock",
-          title: "Assign Permissions",
-          to: "/assign_permission",
-          permission: this.can("assign_permission_access")
-        },
+
         // {
         //   icon: "mdi-apps",
         //   title: "Modules",

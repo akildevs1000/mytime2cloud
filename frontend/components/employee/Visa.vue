@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-responsive class="overflow-y-auto" max-height="700">
-      <v-responsive height="90vh" class="text-center pa-2">
+      <v-responsive height="100vh" class="text-center pa-2">
         <v-responsive min-height="0vh"></v-responsive>
         <div class="text-center text-body-2 mb-12">
           <table>
@@ -16,32 +16,32 @@
             <tr>
               <th>Visa No</th>
               <td>
-                {{ caps(visaItem.visa_no || "---") }}
+                {{ caps(visaItem.visa_no) }}
               </td>
             </tr>
             <tr>
               <th>Place Of Issues</th>
               <td>
-                {{ visaItem.place_of_issues || "---" }}
+                {{ caps(visaItem.place_of_issues) }}
               </td>
             </tr>
             <tr>
               <th>Country</th>
               <td>
-                {{ visaItem.country || "---" }}
+                {{ caps(visaItem.country) }}
               </td>
             </tr>
             <tr>
               <th>Issue Date</th>
               <td>
-                {{ visaItem.issue_date || "---" }}
+                {{ caps(visaItem.issue_date) }}
               </td>
             </tr>
 
             <tr>
               <th>Expiry Date</th>
               <td>
-                {{ visaItem.expiry_date || "---" }}
+                {{ caps(visaItem.expiry_date) }}
               </td>
             </tr>
 
@@ -55,45 +55,32 @@
             <tr>
               <th>Labour No</th>
               <td>
-                {{ caps(visaItem.labour_no || "---") }}
+                {{ caps(visaItem.labour_no) }}
               </td>
             </tr>
             <tr>
               <th>Personal No</th>
               <td>
-                {{ visaItem.personal_no || "---" }}
+                {{ caps(visaItem.personal_no) }}
               </td>
             </tr>
             <tr>
               <th>Issue Date</th>
               <td>
-                {{ visaItem.labour_issue_date || "---" }}
+                {{ caps(visaItem.labour_issue_date) }}
               </td>
             </tr>
             <tr>
               <th>Expiry Date</th>
               <td>
-                {{ visaItem.labour_expiry_date || "---" }}
+                {{ caps(visaItem.labour_expiry_date) }}
               </td>
             </tr>
 
             <tr>
               <th>Note</th>
               <td>
-                {{ visaItem.note || "---" }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>City</th>
-              <td>
-                {{ caps(visaItem.local_city || "---") }}
-              </td>
-            </tr>
-            <tr>
-              <th>Country</th>
-              <td>
-                {{ caps(visaItem.local_country || "---") }}
+                {{ caps(visaItem.note) }}
               </td>
             </tr>
           </table>
@@ -113,11 +100,12 @@ export default {
   },
 
   methods: {
-    caps(str = "---") {
-      if (str == "---") {
-        return str;
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
       } else {
-        return str.replace(/\b\w/g, c => c.toUpperCase());
+        let res = str.toString();
+        return res.replace(/\b\w/g, c => c.toUpperCase());
       }
     }
   }

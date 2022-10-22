@@ -395,6 +395,23 @@
                       </v-col>
                     </v-row>
                   </section>
+                  <!-- Bank info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-10"
+                        v-show="selectedItem == 6"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 6">
+                            <Bank :BankInfo="BankInfo" />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
                 </v-container>
                 <v-navigation-drawer
                   permanent
@@ -453,6 +470,7 @@ import Contact from "../../components/employee/Contact.vue";
 import Passport from "../../components/employee/Passport.vue";
 import Emirates from "../../components/employee/Emirates.vue";
 import Visa from "../../components/employee/Visa.vue";
+import Bank from "../../components/employee/Bank.vue";
 export default {
   data: () => ({
     m: false,
@@ -488,7 +506,7 @@ export default {
       },
       {
         text: "Emirates info",
-        icon: "mdi-city-variant ",
+        icon: "mdi-city-variant",
         permission: "employee_emirate_access"
       },
       {
@@ -508,7 +526,7 @@ export default {
       },
       {
         text: "Qualification",
-        icon: "mdi-file",
+        icon: "mdi-file-sign",
         permission: "employee_qualification_access"
       },
       {
@@ -617,13 +635,20 @@ export default {
       issue_date: "",
       expiry_date: "",
       security_amount: "",
-
       labour_no: "",
       personal_no: "",
       labour_issue_date: "",
       labour_expiry_date: "",
       note: "",
-
+      company_id: "",
+      employee_id: ""
+    },
+    BankInfo: {
+      bank_name: "",
+      account_no: "",
+      account_title: "",
+      iban: "",
+      address: "",
       company_id: "",
       employee_id: ""
     },
@@ -711,6 +736,7 @@ export default {
         this.getPassportInfo(data.employee_id);
         this.getEmirateInfo(data.employee_id);
         this.getVisaInfo(data.employee_id);
+        this.getBankInfo(data.employee_id);
       });
     },
     getPersonalInfo(id) {
@@ -740,6 +766,14 @@ export default {
     getVisaInfo(id) {
       this.$axios.get(`visa/${id}`).then(({ data }) => {
         this.visaItem = {
+          ...data
+        };
+        this.boilerplate = false;
+      });
+    },
+    getBankInfo(id) {
+      this.$axios.get(`visa/${id}`).then(({ data }) => {
+        this.BankInfo = {
           ...data
         };
         this.boilerplate = false;
@@ -849,12 +883,11 @@ export default {
         });
     }
   },
-  components: { Personal, Contact, Passport, Emirates, Visa }
+  components: { Personal, Contact, Passport, Emirates, Visa, Bank }
 };
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
