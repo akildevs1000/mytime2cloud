@@ -8,17 +8,26 @@
     <div v-if="!preloader">
       <v-row class="mt-5 mb-5">
         <v-col cols="10">
-          <h3>Report Notifications</h3>
-          <div>Dashboard / Report Notifications</div>
+          <h3>Automation</h3>
+          <div>Dashboard / Automation</div>
         </v-col>
       </v-row>
       <v-card elevation="0" class="pa-3">
+        <v-card-title>
+          <label class="col-form-label"
+            ><b>Create Automation </b></label
+          >
+          <v-spacer></v-spacer>
+          <v-btn small fab color="background" dark to="/report_notifications">
+            <v-icon>mdi-arrow-left</v-icon>
+          </v-btn>
+        </v-card-title>
         <v-container>
           <v-row>
-            <label class="col-form-label pt-5"><b>When </b></label>
-
+            <label class="col-form-label pt-3"><b>When </b></label>
             <v-col cols="3">
               <v-autocomplete
+                :hide-details="!payload.frequency"
                 v-model="payload.frequency"
                 outlined
                 dense
@@ -26,8 +35,8 @@
                 :items="['Daily', 'Weekly', 'Monthly', 'Yearly']"
               >
               </v-autocomplete>
-              <span v-if="errors && errors.to_report" class="error--text">{{
-                errors.to_report[0]
+              <span v-if="errors && errors.frequency" class="error--text">{{
+                errors.frequency[0]
               }}</span>
             </v-col>
             <v-col cols="3">
@@ -44,6 +53,7 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
+                    :hide-details="!payload.time"
                     outlined
                     dense
                     v-model="payload.time"
@@ -65,112 +75,112 @@
               }}</span>
             </v-col>
           </v-row>
-
           <v-divider></v-divider>
           <v-row dense>
-            <label class="col-form-label pt-5"><b>Report Type </b></label>
-            <v-col cols="3" class="pa-0 ma-0">
+            <label class="col-form-label pt-5"><b>Reports</b></label>
+            <v-col cols="2" class="pa-0 ma-0">
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Daily Summary"
                 value="Daily Summary"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Daily Present"
                 value="Daily Present"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Daily Absent"
                 value="Daily Absent"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Daily Missing"
                 value="Daily Missing"
               ></v-checkbox>
+              <span v-if="errors && errors.frequency" class="error--text">{{
+                errors.reports[0]
+              }}</span>
             </v-col>
-            <v-col cols="3" class="pa-0 ma-0">
+            <v-col cols="2" class="pa-0 ma-0">
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Weekly Summary"
                 value="Weekly Summary"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Weekly Present"
                 value="Weekly Present"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Weekly Absent"
                 value="Weekly Absent"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Weekly Missing"
                 value="Weekly Missing"
               ></v-checkbox>
             </v-col>
-
-            <v-col cols="3" class="pa-0 ma-0">
+            <v-col cols="2" class="pa-0 ma-0">
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Monthly Summary"
                 value="Monthly Summary"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Monthly Present"
                 value="Monthly Present"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Monthly Absent"
                 value="Monthly Absent"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Monthly Missing"
                 value="Monthly Missing"
               ></v-checkbox>
             </v-col>
-
-            <v-col cols="3" class="pa-0 ma-0">
+            <v-col cols="2" class="pa-0 ma-0">
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Yearly Summary"
                 value="Yearly Summary"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Yearly Present"
                 value="Yearly Present"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Yearly Absent"
                 value="Yearly Absent"
               ></v-checkbox>
               <v-checkbox
                 dense
-                v-model="payload.report_types"
+                v-model="payload.reports"
                 label="Yearly Missing"
                 value="Yearly Missing"
               ></v-checkbox>
@@ -188,7 +198,7 @@
                 value="Email"
               ></v-checkbox>
             </v-col>
-            <v-col cols="1" class="pa-0 mr-7">
+            <v-col cols="2" class="pa-0 mr-7">
               <v-checkbox
                 dense
                 v-model="payload.mediums"
@@ -196,52 +206,102 @@
                 value="Whatsapp"
               ></v-checkbox>
             </v-col>
-            <v-col cols="1" class="pa-0 ma-0">
-              <v-checkbox
-                dense
-                v-model="payload.mediums"
-                label="SMS"
-                value="SMS"
-              ></v-checkbox>
+            <v-col cols="12" class="pa-0 ma-0">
+              <span v-if="errors && errors.mediums" class="error--text">{{
+                errors.mediums[0]
+              }}</span>
             </v-col>
           </v-row>
           <v-divider></v-divider>
           <v-row>
             <v-col cols="3">
-              <label class="col-form-label pt-5"><b>Recipients </b></label>
-            </v-col>
+              <label class="col-form-label pt-5"
+                ><b>To </b>(Press enter to add email address/es)</label
+              >
 
-            <v-col cols="2" style="margin-left: -7px;">
-              <v-btn x-small fab class="background mt-4" dark @click="add">
-                <v-icon>
-                  mdi-plus
-                </v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-
-          <v-row dense v-for="(d, index) in payload.recipients" :key="index">
-            <v-col cols="3">
               <v-text-field
-                v-model="payload.recipients[index].email"
+                :hide-details="!to"
+                @keyup.enter="add_to"
+                v-model="to"
                 type="email"
                 placeholder="Email"
                 outlined
                 dense
               ></v-text-field>
+
+              <v-chip
+                color="primary"
+                class="ma-1"
+                v-for="(item, index) in payload.tos"
+                :key="index"
+              >
+                <span class="mx-1">{{ item }}</span>
+                <v-icon small @click="deleteTO(index)"
+                  >mdi-close-circle-outline</v-icon
+                >
+              </v-chip>
+              <span v-if="errors && errors.tos" class="error--text">{{
+                errors.tos[0]
+              }}</span>
             </v-col>
 
-            <v-col md="2">
-              <v-icon color="error" @click="deleteItem(index)"
-                >mdi-delete</v-icon
+            <v-col cols="3">
+              <label class="col-form-label pt-5"
+                ><b>Cc </b>(Press enter to add email address/es)</label
               >
+              <v-text-field
+                @keyup.enter="add_cc"
+                v-model="cc"
+                type="email"
+                placeholder="Email"
+                outlined
+                dense
+              ></v-text-field>
+
+              <v-chip
+                color="primary"
+                class="ma-1"
+                v-for="(item, index) in payload.ccs"
+                :key="index"
+              >
+                <span class="mx-1">{{ item }}</span>
+                <v-icon small @click="deleteCC(index)"
+                  >mdi-close-circle-outline</v-icon
+                >
+              </v-chip>
+            </v-col>
+
+            <v-col cols="3">
+              <label class="col-form-label pt-5"
+                ><b>Bcc </b>(Press enter to add email address/es)</label
+              >
+              <v-text-field
+                @keyup.enter="add_bcc"
+                v-model="bcc"
+                type="email"
+                placeholder="Email"
+                outlined
+                dense
+              ></v-text-field>
+
+              <v-chip
+                color="primary"
+                class="ma-1"
+                v-for="(item, index) in payload.bccs"
+                :key="index"
+              >
+                <span class="mx-1">{{ item }}</span>
+                <v-icon small @click="deleteBCC(index)"
+                  >mdi-close-circle-outline</v-icon
+                >
+              </v-chip>
             </v-col>
           </v-row>
 
           <v-divider></v-divider>
           <v-row>
             <v-col cols="12">
-              <v-btn small color="primary" @click="update_setting">
+              <v-btn small color="primary" @click="store">
                 Submit
               </v-btn>
             </v-col>
@@ -265,12 +325,17 @@ export default {
     response: false,
     id: "",
     snackbar: false,
+    to: "",
+    cc: "",
+    bcc: "",
     payload: {
-      report_types: [],
+      reports: [],
       mediums: [],
       frequency: null,
       time: null,
-      recipients: [{ email: "" }]
+      tos: [],
+      ccs: [],
+      bccs: []
     },
 
     errors: []
@@ -289,37 +354,68 @@ export default {
       );
     },
 
-    add() {
-      this.payload.recipients.push({ email: "" });
+    add_to() {
+      this.payload.tos.push(this.to);
+      this.to = "";
     },
-    deleteItem(i) {
-      this.payload.recipients.splice(i, 1);
+    add_cc() {
+      this.payload.ccs.push(this.cc);
+      this.cc = "";
+    },
+    add_bcc() {
+      this.payload.bccs.push(this.bcc);
+      this.bcc = "";
+    },
+    deleteTO(i) {
+      this.payload.tos.splice(i, 1);
     },
 
-    update_setting() {
-      let payload = this.payload;
-      console.log(payload);
+    deleteCC(i) {
+      this.payload.ccs.splice(i, 1);
+    },
 
+    deleteBCC(i) {
+      this.payload.bccs.splice(i, 1);
+    },
+
+    store() {
+      this.payload.company_id = this.id;
       this.$axios
-        .post("/report_notifications", this.payload)
+        .post("/report_notification", this.payload)
         .then(({ data }) => {
-          console.log(data);
-          return;
           this.loading = false;
 
           if (!data.status) {
             this.errors = data.errors;
-          } else {
-            this.snackbar = true;
-            this.response = model + " updated successfully";
-            if (model == "Company") {
-              location.reload();
-            }
+            return;
           }
+
+          this.snackbar = data.status;
+          this.response = data.message;
+
+        console.log("🚀 ~ file: create.vue ~ line 397 ~ .then ~ data", data)
+
         })
         .catch(e => console.log(e));
-    },
-    
+    }
   }
 };
 </script>
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>

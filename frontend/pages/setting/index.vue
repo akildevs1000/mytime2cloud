@@ -113,20 +113,18 @@
             <v-container>
               <v-row>
                 <v-col cols="12">
-                     <!-- <v-btn style="width: 100%" @click="onpick_attachment"
+                  <!-- <v-btn style="width: 100%" @click="onpick_attachment"
                     >{{ !upload.name ? "Upload Logo" : "File Uploaded" }}
                     <v-icon right dark>mdi-cloud-upload</v-icon>
                   </v-btn> -->
                   <div class="pa-5">
-                     
-
                     <v-img
                       @click="onpick_attachment"
                       style="width: 150px;height: 150px;margin: 0 auto;border-radius: 50%;"
-                      :src="previewImage || imgPath || '/no-image.PNG'"
+                      :src="showImage"
                     ></v-img>
                   </div>
-              
+
                   <input
                     required
                     type="file"
@@ -200,6 +198,18 @@ export default {
     this.preloader = false;
     this.id = this.$auth?.user?.company?.id;
     this.getImage();
+    console.log(this.imgPath, this.previewImage);
+  },
+  computed: {
+    showImage() {
+      if (!this.imgPath && !this.previewImage) {
+        return "/no-image.PNG";
+      } else if (this.previewImage) {
+        return this.previewImage;
+      }
+
+      return this.imgPath;
+    }
   },
   methods: {
     changeTopBarColor(color) {
@@ -263,7 +273,7 @@ export default {
           } else {
             this.snackbar = true;
             this.response = model + " updated successfully";
-            if(model == "Company") {
+            if (model == "Company") {
               location.reload();
             }
           }

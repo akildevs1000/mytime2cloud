@@ -1,6 +1,5 @@
 const WebSocket = require("ws");
 require("dotenv").config();
-const axios = require("axios").default;
 
 const fs = require("fs");
 let socket = new WebSocket(process.env.SOCKET_ENDPOINT);
@@ -18,6 +17,5 @@ socket.onmessage = ({ data }) => {
   if (UserID !== 0) {
     let str = `${UserID},${DeviceID},${LogTime},${SerialNumber}`;
     fs.appendFileSync("/var/www/ideahrms/backend/logs/logs.csv", str + "\n");
-    console.log(str);
   }
 };

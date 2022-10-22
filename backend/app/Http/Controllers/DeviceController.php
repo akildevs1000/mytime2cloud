@@ -9,6 +9,7 @@ use App\Http\Requests\Device\StoreRequest;
 use App\Http\Requests\Device\UpdateRequest;
 use App\Models\AttendanceLog;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class DeviceController extends Controller
 {
@@ -54,16 +55,35 @@ class DeviceController extends Controller
         return $model->with(['status', 'company'])->find($id);
     }
 
-    public function getDeviceCompany($id, $userId)
+    public function getDeviceCompany(Request $request)
     {
-        $emp = Employee::whereSystemUserId($userId)->without(['schedule', 'user', 'sub_department', 'role', 'first_log', 'last_log',])->first(['first_name', 'profile_picture'])->toArray();
-        $device =  Device::where("device_id", $id)->first(['company_id', 'name as device_name', 'short_name', 'device_id', 'location'])->toArray();
+        $model = DB::table("employees")->where("system_user_id", $request->UserCode)->first(['first_name', 'profile_picture']);
 
-        return array_merge($emp, $device);
+        if ($model->profile_picture) {
+            $model->profile_picture = asset('media/employee/profile_picture/' . $model->profile_picture);
+        }
+
+        return [
+            "UserID" => $request->UserCode,
+            "time" => date("H:i", strtotime($request->RecordDate)),
+            "employee" => $model,
+            "device" => DB::table("devices")->where("device_id", $request->DeviceID)->first(['name as device_name', 'short_name', 'device_id', 'location', "company_id"]),
+        ];
     }
 
     public function getLastRecordsByCount($id, $count)
     {
+        $model = AttendanceLog::query();
+        $model->where('company_id', $id);
+        $model->take($count);
+        $model->orderByDesc("id");
+        $model->with([
+            "device:id,company_id,name as device_name,short_name,device_id,location",
+            "employee:id,first_name,profile_picture,system_user_id",
+        ]);
+        return $model->get();
+
+
         // Cache::forget("last-five-logs");
         return Cache::remember('last-five-logs', 300, function () use ($id, $count) {
 
