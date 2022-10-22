@@ -53,14 +53,6 @@
         ></v-select>
       </v-col>
       <v-col xs="12" sm="12" md="3" cols="12">
-        <!-- <v-text-field
-          @input="searchIt"
-          v-model="search"
-          dense
-          placeholder="Search..."
-          class="white rounded-md"
-          filled
-        ></v-text-field> -->
         <v-text-field
           class="rounded-md"
           placeholder="Search..."
@@ -74,9 +66,6 @@
 
     <div v-if="can(`employee_view`)">
       <v-card class="mb-5 rounded-md" elevation="0">
-        <!-- <v-toolbar elevation="1" dense dark class="primary"
-        >Employees List</v-toolbar
-      > -->
         <table>
           <tr>
             <th v-for="(item, index) in headers" :key="index">
@@ -94,12 +83,10 @@
             <td class="text-center">
               <b>{{ ++index }}</b>
             </td>
-
             <td>{{ item.system_user_id || "---" }}</td>
-
             <td>
               <v-img
-                style="border-radius: 50%; height: auto; width: 50px"
+                style="border-radius: 50%; height: 40px; width: 40px"
                 :src="item.profile_picture || '/no-profile-image.jpg'"
               >
               </v-img>
@@ -118,20 +105,17 @@
                   </v-btn>
                 </template>
                 <v-list width="120" dense>
-                  <v-list-item>
-                    <v-list-item-title
-                      style="cursor:pointer"
-                      @click="editItem(item)"
-                    >
+                  <v-list-item @click="editItem(item)">
+                    <v-list-item-title style="cursor:pointer">
                       <v-icon color="secondary" small>
                         mdi-pencil
                       </v-icon>
                       Edit
                     </v-list-item-title>
                   </v-list-item>
-                  <v-list-item>
+                  <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor:pointer">
-                      <v-icon color="error" small @click="deleteItem(item)">
+                      <v-icon color="error" small>
                         mdi-delete
                       </v-icon>
                       Delete
@@ -403,7 +387,6 @@ table {
 
 td,
 th {
-  /* border: 1px solid #dddddd; */
   text-align: left;
   padding: 8px;
 }
