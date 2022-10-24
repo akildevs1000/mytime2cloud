@@ -32,16 +32,19 @@
     <v-row>
       <v-col xs="12" sm="12" md="3" cols="12">
         <v-select
+          class="custom-text-box shadow-none"
           @change="getDataFromApi(`employee`)"
           v-model="pagination.per_page"
           :items="[50, 100, 500, 1000]"
           placeholder="Per Page Records"
           solo
           flat
+          :hide-details="true"
         ></v-select>
       </v-col>
       <v-col xs="12" sm="12" md="3" cols="12">
         <v-select
+          class="custom-text-box shadow-none"
           @change="getDataFromApi(`employee`)"
           v-model="department_id"
           item-text="name"
@@ -50,22 +53,34 @@
           placeholder="Department"
           solo
           flat
+          :hide-details="true"
         ></v-select>
       </v-col>
       <v-col xs="12" sm="12" md="3" cols="12">
-        <v-text-field
-          class="rounded-md"
+        <!-- <v-text-field
+          class="rounded-md custom-text-box shadow-none"
+          :hide-details="true"
           placeholder="Search..."
           solo
           flat
           @input="searchIt"
           v-model="search"
-        ></v-text-field>
+        ></v-text-field> -->
+        <input
+          class="form-control py-3 custom-text-box floating shadow-none"
+          placeholder="Search..."
+          @input="searchIt"
+          v-model="search"
+          type="text"
+        />
       </v-col>
     </v-row>
 
     <div v-if="can(`employee_view`)">
-      <v-card class="mb-5 rounded-md" elevation="0">
+      <v-card class="mb-5 rounded-md mt-3" elevation="0">
+        <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <span> {{ Model }} List</span>
+        </v-toolbar>
         <table>
           <tr>
             <th v-for="(item, index) in headers" :key="index">
@@ -271,11 +286,14 @@ export default {
         this.loading = false;
       });
     },
-    searchIt(e) {
-      if (e.length == 0) {
+
+    searchIt() {
+      let s = this.search.length;
+      let search = this.search;
+      if (s == 0) {
         this.getDataFromApi();
-      } else if (e.length > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${e}`);
+      } else if (s > 2) {
+        this.getDataFromApi(`${this.endpoint}/search/${search}`);
       }
     },
 
@@ -393,5 +411,23 @@ th {
 
 tr:nth-child(even) {
   background-color: #e9e9e9;
+}
+
+.custom-text-box {
+  border-radius: 2px !important;
+  border: 1px solid #dbdddf !important;
+}
+input[type="text"]:focus.custom-text-box {
+  border: 2px solid #5fafa3 !important;
+}
+
+select.custom-text-box {
+  border: 2px solid #5fafa3 !important;
+}
+
+select:focus {
+  outline: none !important;
+  border-color: #5fafa3;
+  box-shadow: 0 0 0px #5fafa3;
 }
 </style>

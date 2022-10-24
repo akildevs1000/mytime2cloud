@@ -36,9 +36,9 @@
 
     <v-dialog v-model="dialog" max-width="60%">
       <v-card>
-        <v-card-title>
-          <span class="headline">{{ formTitle }} {{ Model }}</span>
-        </v-card-title>
+        <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <span>{{ formTitle }} {{ Model }} List</span>
+        </v-toolbar>
 
         <v-card-text>
           <v-container>
@@ -124,7 +124,9 @@
           class="elevation-1"
         >
           <template v-slot:top>
-            <v-toolbar dark class="primary">Policy</v-toolbar>
+            <v-toolbar class="rounded-md" color="background" dense flat dark>
+              <span> {{ Model }} List</span>
+            </v-toolbar>
             <v-toolbar flat color="">
               <v-toolbar-title>List</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
@@ -280,6 +282,14 @@ export default {
   },
 
   methods: {
+    selectImage() {
+      // When doing an asynchronous upload, you can set the src property to the value provided by the server (backend).
+      this.$emit("select-file", {
+        src: "/path/to/image.jpg",
+        alt: "Uploaded image"
+      });
+    },
+
     can(per) {
       let u = this.$auth.user;
       return (

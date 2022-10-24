@@ -13,11 +13,22 @@
 
       <v-col cols="6">
         <div class="text-right">
-          <v-btn v-if="can(`announcement_delete_all`)" small color="error" class="mr-2 mb-2"
-            @click="delteteSelectedRecords">Delete Selected Records
+          <v-btn
+            v-if="can(`announcement_delete_all`)"
+            small
+            color="error"
+            class="mr-2 mb-2"
+            @click="delteteSelectedRecords"
+            >Delete Selected Records
           </v-btn>
-          <v-btn v-if="can(`announcement_create`)" small color="primary" @click="dialog = true" class="mb-2">{{ Model }}
-            +</v-btn>
+          <v-btn
+            v-if="can(`announcement_create`)"
+            small
+            color="primary"
+            @click="dialog = true"
+            class="mb-2"
+            >{{ Model }} +</v-btn
+          >
         </div>
       </v-col>
     </v-row>
@@ -32,75 +43,155 @@
           <v-container>
             <v-row>
               <v-col cols="12">
-                <v-text-field v-model="editedItem.title" label="Title" :error-messages="
-                  errors && errors.title ? errors.title[0] : ''
-                "></v-text-field>
+                <v-text-field
+                  v-model="editedItem.title"
+                  label="Title"
+                  :error-messages="
+                    errors && errors.title ? errors.title[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
               <!-- {{ employees_dialog }} -->
 
               <v-col cols="12">
-                <v-autocomplete v-model="editedItem.department" :items="departments" @change="employeesByDepartment"
-                  item-text="name" item-value="id" label="Departments" multiple chips :error-messages="
+                <v-autocomplete
+                  v-model="editedItem.department"
+                  :items="departments"
+                  @change="employeesByDepartment"
+                  item-text="name"
+                  item-value="id"
+                  label="Departments"
+                  multiple
+                  chips
+                  :error-messages="
                     errors && errors.departments ? errors.departments[0] : ''
-                  "></v-autocomplete>
+                  "
+                ></v-autocomplete>
               </v-col>
               <v-col cols="12">
-                <v-autocomplete v-model="editedItem.employee" :items="employees_dialog" item-text="name_with_user_id"
-                  item-value="id" label="Employee" multiple chips :error-messages="
+                <v-autocomplete
+                  v-model="editedItem.employee"
+                  :items="employees_dialog"
+                  item-text="name_with_user_id"
+                  item-value="id"
+                  label="Employee"
+                  multiple
+                  chips
+                  :error-messages="
                     errors && errors.employee ? errors.employee[0] : ''
-                  "></v-autocomplete>
+                  "
+                ></v-autocomplete>
               </v-col>
 
               <v-col cols="6">
-                <v-menu ref="from_menu" v-model="start_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.start_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="from_menu"
+                  v-model="start_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.start_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">Start Date</div>
-                    <v-text-field dense v-model="editedItem.start_date" readonly v-bind="attrs" v-on="on">
+                    <v-text-field
+                      dense
+                      v-model="editedItem.start_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    >
                     </v-text-field>
                   </template>
-                  <v-date-picker v-model="editedItem.start_date" no-title scrollable>
+                  <v-date-picker
+                    v-model="editedItem.start_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="from_menu = false">
                       Cancel
                     </v-btn>
-                    <v-btn text color="primary" @click="$refs.from_menu.save(editedItem.start_date)">
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.from_menu.save(editedItem.start_date)"
+                    >
                       OK
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
-                <span v-if="errors && errors.start_date" class="text-danger mt-2">{{ errors.start_date[0] }}</span>
+                <span
+                  v-if="errors && errors.start_date"
+                  class="text-danger mt-2"
+                  >{{ errors.start_date[0] }}</span
+                >
               </v-col>
               <v-col cols="6">
-                <v-menu ref="end_menu" v-model="end_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.end_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="end_menu"
+                  v-model="end_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.end_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">End Date</div>
-                    <v-text-field :hide-details="!editedItem.end_date" dense v-model="editedItem.end_date" readonly
-                      v-bind="attrs" v-on="on"></v-text-field>
+                    <v-text-field
+                      :hide-details="!editedItem.end_date"
+                      dense
+                      v-model="editedItem.end_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
                   </template>
-                  <v-date-picker v-model="editedItem.end_date" no-title scrollable>
+                  <v-date-picker
+                    v-model="editedItem.end_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="end_menu = false">
                       Cancel
                     </v-btn>
-                    <v-btn text color="primary" @click="$refs.end_menu.save(editedItem.end_date)">
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.end_menu.save(editedItem.end_date)"
+                    >
                       OK
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
-                <span v-if="errors && errors.end_date" class="text-danger mt-2">{{ errors.end_date[0] }}</span>
+                <span
+                  v-if="errors && errors.end_date"
+                  class="text-danger mt-2"
+                  >{{ errors.end_date[0] }}</span
+                >
               </v-col>
               <v-col cols="12">
                 <ClientOnly>
-                  <tiptap-vuetify v-model="editedItem.description" :extensions="extensions" v-scroll.self="onScroll"
-                    max-height="300" :toolbar-attributes="{
-                      color: 'primary lighten-2 red--text text--lighten-1',
-                    }" />
+                  <tiptap-vuetify
+                    v-model="editedItem.description"
+                    :extensions="extensions"
+                    v-scroll.self="onScroll"
+                    max-height="300"
+                    :toolbar-attributes="{
+                      color: 'primary lighten-2 red--text text--lighten-1'
+                    }"
+                  />
                   <template #placeholder> Loading... </template>
                 </ClientOnly>
               </v-col>
-              <span v-if="errors && errors.description" class="text-danger mt-2">{{ errors.description[0] }}</span>
+              <span
+                v-if="errors && errors.description"
+                class="text-danger mt-2"
+                >{{ errors.description[0] }}</span
+              >
             </v-row>
           </v-container>
         </v-card-text>
@@ -120,7 +211,9 @@
             <span class="pb-0"><small>Announcement Details</small></span>
           </div>
           <div class="w-50 text-right">
-            <span class="pb-0"><small>Created: {{ desDate }}</small></span>
+            <span class="pb-0"
+              ><small>Created: {{ desDate }}</small></span
+            >
           </div>
         </v-toolbar>
         <v-card-text>
@@ -130,7 +223,7 @@
             <div>
               <span v-for="(item, index) in dept" :key="index">
                 <v-chip small class="p-2 mx-1" color="primary">{{
-                item.name
+                  item.name
                 }}</v-chip>
               </span>
             </div>
@@ -144,26 +237,63 @@
 
     <v-row>
       <v-col md="12">
-        <v-data-table v-if="can(`announcement_view`)" v-model="ids" show-select item-key="id" :headers="headers"
-          :items="data" :server-items-length="total" :loading="loading" :options.sync="options" :footer-props="{
-            itemsPerPageOptions: [50, 100, 500,1000],
-          }" class="elevation-1">
+        <v-data-table
+          v-if="can(`announcement_view`)"
+          v-model="ids"
+          show-select
+          item-key="id"
+          :headers="headers"
+          :items="data"
+          :server-items-length="total"
+          :loading="loading"
+          :options.sync="options"
+          :footer-props="{
+            itemsPerPageOptions: [50, 100, 500, 1000]
+          }"
+          class="elevation-1"
+        >
           <template v-slot:top>
+            <v-toolbar class="rounded-md" color="background" dense flat dark>
+              <span> {{ Model }} List</span>
+            </v-toolbar>
             <v-toolbar flat color="">
               <v-toolbar-title>List</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
 
-              <v-text-field @input="searchIt" v-model="search" label="Search" single-line hide-details></v-text-field>
+              <v-text-field
+                @input="searchIt"
+                v-model="search"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
             </v-toolbar>
           </template>
           <template v-slot:item.action="{ item }">
-            <v-icon v-if="can(`announcement_edit`)" color="secondary" small class="mr-2" @click="editItem(item)">
+            <v-icon
+              v-if="can(`announcement_edit`)"
+              color="secondary"
+              small
+              class="mr-2"
+              @click="editItem(item)"
+            >
               mdi-pencil
             </v-icon>
-            <v-icon v-if="can(`announcement_single_view`)" color="secondary" small class="mr-2" @click="viewItem(item)">
+            <v-icon
+              v-if="can(`announcement_single_view`)"
+              color="secondary"
+              small
+              class="mr-2"
+              @click="viewItem(item)"
+            >
               mdi-eye
             </v-icon>
-            <v-icon v-if="can(`announcement_delete`)" color="error" small @click="deleteItem(item)">
+            <v-icon
+              v-if="can(`announcement_delete`)"
+              color="error"
+              small
+              @click="deleteItem(item)"
+            >
               {{ item.announcement === "customer" ? "" : "mdi-delete" }}
             </v-icon>
           </template>
@@ -203,12 +333,12 @@ import {
   Blockquote,
   HardBreak,
   HorizontalRule,
-  History,
+  History
 } from "tiptap-vuetify";
 
 export default {
   components: {
-    TiptapVuetify,
+    TiptapVuetify
   },
   data: () => ({
     //editor
@@ -227,16 +357,16 @@ export default {
         Heading,
         {
           options: {
-            levels: [1, 2, 3],
-          },
-        },
+            levels: [1, 2, 3]
+          }
+        }
       ],
       Bold,
       Link,
       Code,
       HorizontalRule,
       Paragraph,
-      HardBreak,
+      HardBreak
     ],
     // starting editor's content
     content: `
@@ -269,9 +399,9 @@ export default {
         text: "Departments",
         align: "left",
         sortable: false,
-        value: "departments",
+        value: "departments"
       },
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
     editedItem: {
@@ -280,27 +410,27 @@ export default {
       department: "",
       employee: "",
       start_date: null,
-      end_date: null,
+      end_date: null
     },
     defaultItem: {
       title: "",
       description: "",
       department: "",
       start_date: null,
-      end_date: null,
+      end_date: null
     },
     view_notification: false,
     response: "",
     data: [],
     errors: [],
     options_dialog: {},
-    employees_dialog: [],
+    employees_dialog: []
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
+    }
   },
 
   watch: {
@@ -313,8 +443,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
@@ -326,7 +456,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -338,8 +468,8 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
@@ -355,8 +485,8 @@ export default {
           department_ids: this.editedItem.department,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       if (!this.editedItem.department.length) {
@@ -369,7 +499,7 @@ export default {
         console.log(this.employees_dialog);
         this.employees_dialog.unshift({
           id: "---",
-          name_with_user_id: "Select All",
+          name_with_user_id: "Select All"
         });
         this.loading_dialog = false;
       });
@@ -383,8 +513,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -405,7 +535,7 @@ export default {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
-      this.editedItem.department = item.departments.map((e) => e.id);
+      this.editedItem.department = item.departments.map(e => e.id);
     },
 
     viewItem(item) {
@@ -417,13 +547,13 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
+      let just_ids = this.ids.map(e => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
+            ids: just_ids
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -435,7 +565,7 @@ export default {
             }
             this.getDataFromApi();
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
@@ -453,7 +583,7 @@ export default {
               this.response = data.message;
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     close() {
@@ -472,15 +602,15 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.employees_dialog = data.data;
         this.employees_dialog.unshift({
           id: "---",
-          name_with_user_id: "Select All",
+          name_with_user_id: "Select All"
         });
         console.log(this.employees_dialog);
       });
@@ -496,7 +626,7 @@ export default {
           this.editedItem.department == "" ? [] : this.editedItem.department,
         employee:
           this.editedItem.employee == "" ? [] : this.editedItem.employee,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company.id
       };
 
       if (this.editedIndex > -1) {
@@ -507,11 +637,11 @@ export default {
               this.errors = data.errors;
             } else {
               const index = this.data.findIndex(
-                (item) => item.id == this.editedItem.id
+                item => item.id == this.editedItem.id
               );
               this.data.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name,
+                name: this.editedItem.name
               });
               this.getDataFromApi();
               this.snackbar = data.status;
@@ -519,7 +649,7 @@ export default {
               this.close();
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, editedItem)
@@ -535,15 +665,14 @@ export default {
               this.search = "";
             }
           })
-          .catch((res) => console.log(res));
+          .catch(res => console.log(res));
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
-
-<style >
+<style>
 .tiptap-vuetify-editor__content {
   min-height: 300px !important;
 }
@@ -552,4 +681,3 @@ export default {
   height: 400px !important;
 }
 </style>
-

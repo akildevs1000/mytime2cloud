@@ -10,7 +10,7 @@
         <h3>{{ Model }}</h3>
         <div>Dashboard / {{ Model }}</div>
       </v-col>
-      <v-col cols="6">
+      <!-- <v-col cols="6">
         <div class="text-right">
           <v-btn
             v-if="can(`department_delete`)"
@@ -30,16 +30,30 @@
             >{{ Model }} +</v-btn
           >
         </div>
-      </v-col>
+      </v-col> -->
     </v-row>
 
     <div v-if="can(`employee_view`)">
+      <!-- <v-row>
+        <v-col md="4"> </v-col>
+        <v-col xs="12" sm="12" md="8" cols="12">
+          <v-text-field
+            class="form-control py-1 mb-0 w-25 float-right custom-text-box floating shadow-none"
+            placeholder="Search..."
+            solo
+            flat
+            @input="searchIt"
+            v-model="search"
+            :hide-details="true"
+          ></v-text-field>
+        </v-col>
+      </v-row> -->
       <v-row>
         <v-col md="4" lg="4">
           <v-card elevation="0">
-            <v-card-title>
+            <v-toolbar color="background" dense flat dark>
               <span>{{ formTitle }} {{ Model }}</span>
-            </v-card-title>
+            </v-toolbar>
             <v-divider class="py-0 my-0"></v-divider>
             <v-card-text>
               <v-container>
@@ -65,29 +79,26 @@
           </v-card>
         </v-col>
         <v-col md="8" lg="8">
-          <v-row>
-            <v-col xs="12" sm="12" md="3" cols="12">
-              <v-text-field
-                class="rounded-md"
-                placeholder="Search..."
-                solo
-                flat
-                @input="searchIt"
-                v-model="search"
-              ></v-text-field>
-            </v-col>
-          </v-row>
           <v-card class="mb-5 rounded-md" elevation="0">
+            <v-toolbar class="rounded-md" color="background" dense flat dark>
+              <span> {{ Model }} List</span>
+            </v-toolbar>
+            <v-text-field
+              class="form-control py-0  ma-1 mb-0 w-25 float-start custom-text-box floating shadow-none"
+              placeholder="Search..."
+              solo
+              flat
+              @input="searchIt"
+              v-model="search"
+              :hide-details="true"
+            ></v-text-field>
             <table>
               <tr>
-                <th class="ps-3">#</th>
+                <th class="ps-5">#</th>
                 <th>Department Code</th>
                 <th>Department</th>
                 <th>Sub Department</th>
                 <th class="text-center">Action</th>
-                <th v-for="(item, index) in headers" :key="index">
-                  {{ item.text }}
-                </th>
               </tr>
               <v-progress-linear
                 v-if="loading"
@@ -97,7 +108,7 @@
                 color="primary"
               ></v-progress-linear>
               <tr v-for="(item, index) in data" :key="index">
-                <td class="ps-3">
+                <td class="ps-5">
                   <b>{{ ++index }}</b>
                 </td>
                 <td>{{ caps(item.id) }}</td>
@@ -414,7 +425,7 @@ export default {
               const index = this.data.findIndex(
                 item => item.id == this.editedItem.id
               );
-              this.data.splice(index, 1, data.record);
+              this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
               this.close();
@@ -428,13 +439,12 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
             } else {
-              this.data.push(data.record);
+              this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
               this.close();
               this.errors = [];
               this.search = "";
-              this.getDataFromApi();
             }
           })
           .catch(res => console.log(res));
@@ -458,5 +468,9 @@ th {
 
 tr:nth-child(even) {
   background-color: #e9e9e9;
+}
+
+input[type="text"]:focus.custom-text-box {
+  border: 2px solid #5fafa3 !important;
 }
 </style>

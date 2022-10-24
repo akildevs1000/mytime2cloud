@@ -16,26 +16,32 @@
     <v-row>
       <v-col xs="12" sm="12" md="3" cols="12">
         <v-select
+          class="form-control"
           @change="getDataFromApi(`device`)"
           v-model="pagination.per_page"
           :items="[10, 25, 50, 100]"
           placeholder="Per Page Records"
           solo
+          hide-details
           flat
         ></v-select>
       </v-col>
       <v-col xs="12" sm="12" md="3" cols="12">
         <v-text-field
-          class="rounded-md"
+          class="form-control py-0 custom-text-box floating shadow-none"
           placeholder="Search..."
           solo
           flat
           @input="searchIt"
           v-model="search"
+          hide-details
         ></v-text-field>
       </v-col>
     </v-row>
-    <v-card class="mb-5 rounded-md" elevation="0">
+    <v-card class="mb-5 rounded-md mt-3" elevation="0">
+      <v-toolbar class="rounded-md" color="background" dense flat dark>
+        <span> {{ Model }} List</span>
+      </v-toolbar>
       <table>
         <tr>
           <th v-for="(item, index) in headers" :key="index">
@@ -87,6 +93,7 @@
 <script>
 export default {
   data: () => ({
+    Model: "Device",
     pagination: {
       current: 1,
       total: 0,
@@ -191,7 +198,7 @@ table {
 td,
 th {
   text-align: left;
-  padding: 5px;
+  padding: 7px;
 }
 
 tr:nth-child(even) {

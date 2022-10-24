@@ -17,19 +17,17 @@ class AssignPermissionController extends Controller
             $record = $model->whereIn('id', $request->ids)->delete();
 
             if ($record) {
-                return $this->response('Assign Permission successfully added.',null, true);
+                return $this->response('Assign Permission successfully added.', null, true);
             } else {
-                return $this->response('Assign Permission cannot add.',null, false);
+                return $this->response('Assign Permission cannot add.', null, false);
             }
-
         } catch (\Throwable $th) {
             throw $th;
         }
-
     }
     public function index(Model $model, Request $request)
     {
-        return $this->FilterCompanyList($model, $request)->with('role')->paginate($request->per_page);
+        return $this->FilterCompanyList($model, $request)->with('role')->get();
     }
 
     public function show(Model $model, $id)
@@ -40,7 +38,7 @@ class AssignPermissionController extends Controller
     {
         $data = $request->validated();
 
-        if($request->company_id){
+        if ($request->company_id) {
             $data['company_id'] = $request->company_id;
         }
 
@@ -81,7 +79,6 @@ class AssignPermissionController extends Controller
         $model->orderByDesc('id');
 
         return $model->paginate($request->per_page);
-
     }
 
     public function notAssignedRoleIds(Model $model, Request $request)
@@ -100,7 +97,7 @@ class AssignPermissionController extends Controller
 
         $model->whereNotIn('id', $ids);
 
-        $model->where('name','!=','company');
+        $model->where('name', '!=', 'company');
 
         return $model->get();
     }

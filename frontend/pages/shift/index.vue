@@ -25,6 +25,9 @@
     </v-row>
 
     <v-card elevation="0" v-if="can(`shift_view`)">
+      <v-toolbar class="rounded-md" color="background" dense flat dark>
+        <span> {{ Model }} List</span>
+      </v-toolbar>
       <table>
         <tr>
           <th v-for="(i, index) in headers" :key="index">{{ i.text }}</th>

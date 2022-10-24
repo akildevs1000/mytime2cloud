@@ -122,7 +122,7 @@
                 :loading="loading_dialog"
                 :options.sync="options_dialog"
                 :footer-props="{
-                  itemsPerPageOptions: [50, 100, 500,1000],
+                  itemsPerPageOptions: [50, 100, 500, 1000]
                 }"
               >
               </v-data-table>
@@ -147,14 +147,14 @@
       </v-col>
       <v-col cols="6">
         <div class="text-right">
-          <v-btn
+          <!-- <v-btn
             v-if="can(`employee_schedule_delete`)"
             small
             color="error"
             class="mr-2 mb-2"
             @click="delteteSelectedRecords"
             >Delete Selected Records</v-btn
-          >
+          > -->
 
           <v-btn
             v-if="can(`employee_schedule_create`)"
@@ -168,6 +168,7 @@
         </div>
       </v-col>
     </v-row>
+
     <!-- <v-row>
       <v-toolbar flat class="mb-5">
         <v-col md="8">
@@ -187,7 +188,130 @@
       </v-toolbar>
     </v-row> -->
 
-    <v-data-table
+    <v-row>
+      <v-col xs="12" sm="12" md="3" cols="12">
+        <v-select
+          class="form-control custom-text-box shadow-none"
+          @change="getDataFromApi(`scheduled_employees`)"
+          v-model="pagination.per_page"
+          :items="[50, 100, 500, 1000]"
+          placeholder="Per Page Records"
+          solo
+          flat
+          :hide-details="true"
+        ></v-select>
+      </v-col>
+
+      <v-col xs="12" sm="12" md="3" cols="12">
+        <!-- <v-text-field
+          class="form-control py-1 custom-text-box floating shadow-none"
+          placeholder="Search..."
+          @input="searchIt"
+          v-model="search"
+          :hide-details="true"
+          dense
+          solo
+          flat
+        ></v-text-field> -->
+        <input
+          class="form-control py-3 custom-text-box floating shadow-none"
+          placeholder="Search..."
+          @input="searchIt"
+          v-model="search"
+          type="text"
+        />
+      </v-col>
+    </v-row>
+
+    <v-card class="mb-5 rounded-md mt-3" elevation="0">
+      <table>
+        <tr>
+          <th>#</th>
+          <th>E.ID</th>
+          <th>First Name</th>
+          <th>Shift Type</th>
+          <th>Schedule</th>
+          <th>OT</th>
+          <th class="text-center">Actions</th>
+        </tr>
+        <v-progress-linear
+          v-if="loading"
+          :active="loading"
+          :indeterminate="loading"
+          absolute
+          color="primary"
+        ></v-progress-linear>
+        <tr v-for="(item, index) in employees" :key="index">
+          <td class="ps-3">
+            <b>{{ ++index }}</b>
+          </td>
+          <td>{{ caps(item.system_user_id) }}</td>
+          <td>{{ caps(item.first_name) }}</td>
+          <td>
+            <span v-if="item.schedule && item.schedule.shift_type">
+              {{ item.schedule.shift_type.name }}
+            </span>
+            <span v-else>---</span>
+          </td>
+          <td>
+            <span v-if="item.schedule && item.schedule.shift">
+              {{ item.schedule.shift.name }}
+            </span>
+            <span v-else>---</span>
+          </td>
+          <td>
+            <v-icon
+              v-if="item.schedule && item.schedule.isOverTime"
+              color="success darken-1"
+              >mdi-check</v-icon
+            >
+            <v-icon v-else color="error">mdi-close</v-icon>
+          </td>
+
+          <td class="text-center">
+            <v-menu bottom left>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </template>
+              <v-list width="120" dense>
+                <v-list-item @click="editItem(item)">
+                  <v-list-item-title style="cursor:pointer">
+                    <v-icon color="secondary" small>
+                      mdi-pencil
+                    </v-icon>
+
+                    Edit
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="deleteItem(item)">
+                  <v-list-item-title style="cursor:pointer">
+                    <v-icon color="error" small>
+                      mdi-delete
+                    </v-icon>
+                    Delete
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </td>
+        </tr>
+      </table>
+    </v-card>
+    <v-row>
+      <v-col md="12" class="float-right">
+        <div class="float-right">
+          <v-pagination
+            v-model="pagination.current"
+            :length="pagination.total"
+            @input="onPageChange"
+            :total-visible="12"
+          ></v-pagination>
+        </div>
+      </v-col>
+    </v-row>
+    <!-- <v-data-table
       v-if="can(`employee_schedule_list_view`)"
       v-model="ids"
       show-select
@@ -255,16 +379,20 @@
         </v-icon>
       </template>
       <template v-slot:no-data>
-        <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
+        <v-btn color="primary" @click="initialize">Reset</v-btn>
       </template>
-    </v-data-table>
-    <NoAccess v-else />
+    </v-data-table> -->
   </div>
   <NoAccess v-else />
 </template>
 <script>
 export default {
   data: () => ({
+    pagination: {
+      current: 1,
+      total: 0,
+      per_page: 10
+    },
     Module: "Employee Schedule",
     shift_types: [],
     manual_shift: {},
@@ -283,6 +411,9 @@ export default {
     total: 0,
     total_dialog: 0,
     headers: [
+      {
+        text: "#"
+      },
       {
         text: "E.ID",
         align: "left",
@@ -314,7 +445,12 @@ export default {
         value: "schedule.isOverTime"
       },
 
-      { text: "Actions", align: "center", value: "action", sortable: false }
+      {
+        text: "Actions",
+        align: "center",
+        value: "action",
+        sortable: false
+      }
     ],
 
     department_ids: ["---"],
@@ -393,6 +529,10 @@ export default {
         }
       },
       deep: true
+    },
+    search() {
+      this.pagination.current = 1;
+      this.searchIt();
     }
   },
   created() {
@@ -410,6 +550,18 @@ export default {
   },
 
   methods: {
+    onPageChange() {
+      this.getDataFromApi();
+    },
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
+      } else {
+        let res = str.toString();
+        return res.replace(/\b\w/g, c => c.toUpperCase());
+      }
+    },
+
     editItem(item) {
       this.is_edit = true;
       this.total_dialog = 1;
@@ -548,14 +700,15 @@ export default {
         u.is_master
       );
     },
+    //main
     getDataFromApi(url = this.endpoint) {
       this.loading = true;
 
-      const { page, itemsPerPage } = this.options;
+      let page = this.pagination.current;
 
       let options = {
         params: {
-          per_page: itemsPerPage,
+          per_page: this.pagination.per_page,
           page: page,
           company_id: this.$auth.user.company.id
         }
@@ -563,7 +716,8 @@ export default {
 
       this.$axios.get(url, options).then(({ data }) => {
         this.employees = data.data;
-        this.total = data.total;
+        this.pagination.current = data.current_page;
+        this.pagination.total = data.last_page;
         this.loading = false;
       });
     },
@@ -586,11 +740,21 @@ export default {
         this.loading_dialog = false;
       });
     },
-    searchIt(e) {
-      if (e.length == 0) {
+    // searchIt(e) {
+    //   if (e.length == 0) {
+    //     this.getDataFromApi();
+    //   } else if (e.length > 2) {
+    //     this.getDataFromApi(`${this.endpoint}/search/${e}`);
+    //   }
+    // },
+
+    searchIt() {
+      let s = this.search.length;
+      let search = this.search;
+      if (s == 0) {
         this.getDataFromApi();
-      } else if (e.length > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${e}`);
+      } else if (s > 2) {
+        this.getDataFromApi(`${this.endpoint}/search/${search}`);
       }
     },
 
@@ -662,7 +826,9 @@ export default {
       };
 
       if (this.is_edit) {
-        this.process(this.$axios.put(`schedule_employees/${payload.employee_ids}`, payload));
+        this.process(
+          this.$axios.put(`schedule_employees/${payload.employee_ids}`, payload)
+        );
       } else {
         this.process(this.$axios.post(`schedule_employees`, payload));
       }
@@ -693,3 +859,39 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  text-align: left;
+  padding: 7px;
+}
+
+tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+
+.custom-text-box {
+  border-radius: 2px !important;
+  border: 1px solid #dbdddf !important;
+}
+input[type="text"]:focus.custom-text-box {
+  border: 2px solid #5fafa3 !important;
+}
+
+select.custom-text-box {
+  border: 2px solid #5fafa3 !important;
+}
+
+select:focus {
+  outline: none !important;
+  border-color: #5fafa3;
+  box-shadow: 0 0 0px #5fafa3;
+}
+</style>
