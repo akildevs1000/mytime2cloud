@@ -12,14 +12,14 @@
       </v-col>
       <v-col cols="6">
         <div class="text-right">
-          <v-btn
+          <!-- <v-btn
             v-if="can(`assign_permission_delete`)"
             small
             color="error"
             class="mr-2 mb-2"
             @click="delteteSelectedRecords"
             >Delete Selected Records</v-btn
-          >
+          > -->
 
           <v-btn
             v-if="can(`assign_permission_create`)"
@@ -32,7 +32,105 @@
         </div>
       </v-col>
     </v-row>
-    <v-data-table
+
+    <v-row>
+      <v-col md="12">
+        <v-card elevation="0">
+          <div v-for="(item, index) in data" :key="index">
+            <v-toolbar class="rounded-md" color="background" dense flat dark>
+              <span> {{ item.role.name }}</span>
+            </v-toolbar>
+            <table class="mb-15">
+              <tr style="text-align:center; ">
+                <th style="width:600px; padding: 5px 0 !important">
+                  Module
+                </th>
+                <th>Access</th>
+                <th>View</th>
+                <th>Create</th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </tr>
+              <tr v-for="(items, idx) in permissions" :key="idx">
+                <th class="ps-3">{{ capsTitle(idx) }}</th>
+                <th
+                  v-for="(pa, idx) in items"
+                  :key="idx"
+                  style="text-align:center !important;"
+                  class=""
+                >
+                  <v-checkbox
+                    :value="pa.id"
+                    v-model="item.permission_ids"
+                    :hide-details="true"
+                    class="pt-0  py-1 chk-align"
+                  >
+                  </v-checkbox>
+                </th>
+              </tr>
+              <v-btn
+                v-if="can(`assign_permission_edit`)"
+                dark
+                small
+                color="primary"
+                class="mx-1 my-4"
+                @click="save(item)"
+              >
+                Submit
+              </v-btn>
+            </table>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- <v-row>
+      <v-col>
+        <div class="display-1 pa-2">Assign Permissions</div>
+      </v-col>
+      <v-col>
+        <div class="display-1 pa-2 text-right">
+          <v-btn small class="primary" to="/assign_permission">
+            <v-icon small>mdi-arrow-left</v-icon>&nbsp;Back
+          </v-btn>
+        </div>
+      </v-col>
+      <v-col cols="12">
+        <v-expansion-panels v-model="panel" :readonly="readonly" multiple>
+          <v-expansion-panel v-for="(item, index) in data" :key="index">
+            <v-expansion-panel-header>
+              <b>{{ item.role.name }}</b>
+            </v-expansion-panel-header>
+            <v-divider class="p-0 mt-0"></v-divider>
+            <v-expansion-panel-content>
+              <v-chip
+                color="primary ma-2 px-5 py-1"
+                v-for="(p, i) in item.permission_names"
+                :key="i"
+              >
+                {{ p }}
+              </v-chip>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row> -->
+
+    <!-- <v-card elevation="0" class="mb-15">
+      <v-form ref="form" lazy-validation>
+        <v-card-text>
+          <v-container> </v-container>
+        </v-card-text>
+      </v-form>
+
+      <template v-slot:item.action="{ item }">
+        <v-icon small class="mr-2" @click="editItem(item)">
+          mdi-pencil
+        </v-icon>
+        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+      </template>
+    </v-card> -->
+    <!-- <v-data-table
       v-if="can(`assign_permission_view`)"
       v-model="ids"
       show-select
@@ -45,15 +143,13 @@
       :footer-props="{
         itemsPerPageOptions: [50, 100, 500, 1000]
       }"
-      class="elevation-1"
+      class="elevation-1 mt-15"
     >
       <template v-slot:top>
         <v-toolbar dark class="primary">{{ Module }}s</v-toolbar>
-
         <v-toolbar flat color="">
           <v-toolbar-title>List</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
-
           <v-text-field
             @input="searchIt"
             v-model="search"
@@ -97,17 +193,16 @@
           mdi-delete
         </v-icon>
       </template>
-      <template v-slot:no-data>
-        <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
-      </template>
-    </v-data-table>
-    <NoAccess v-else />
+      <template v-slot:no-data> </template>
+    </v-data-table> -->
   </div>
   <NoAccess v-else />
 </template>
 <script>
 export default {
   data: () => ({
+    panel: [0, 1, 2],
+    readonly: false,
     Module: "Assign Permission",
     options: {},
     endpoint: "assign-permission",
@@ -123,7 +218,9 @@ export default {
     defaultItem: { name: "" },
     response: "",
     data: [],
-    errors: []
+    errors: [],
+    permission_ids: [],
+    permissions: []
   }),
 
   computed: {
@@ -150,6 +247,15 @@ export default {
   },
   created() {
     this.loading = true;
+    this.getDataFromApi();
+    this.getHeaders();
+
+    this.$axios
+      .get("dropDownList")
+      .then(({ data }) => {
+        this.permissions = data.data;
+      })
+      .catch(err => console.log(err));
   },
 
   methods: {
@@ -160,6 +266,13 @@ export default {
         u.is_master
       );
     },
+    capsTitle(val) {
+      let res = val;
+      let r = res.replace(/[^a-z]/g, " ");
+      let title = r.replace(/\b\w/g, c => c.toUpperCase());
+      return title;
+    },
+
     getHeaders() {
       this.headers = [
         {
@@ -190,9 +303,8 @@ export default {
         }
       };
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        this.data = data.data;
-        this.total = data.total;
+      this.$axios.get(`${url}`, options).then(({ data }) => {
+        this.data = data;
         this.loading = false;
       });
     },
@@ -203,7 +315,19 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
-
+    save(item) {
+      let payload = {
+        role_id: item.role_id,
+        permission_ids: item.permission_ids
+      };
+      this.$axios
+        .put("assign-permission/" + item.id, payload)
+        .then(({ data }) => {
+          this.response = "Permissions has been assigned";
+          this.snackbar = true;
+          setTimeout(() => this.$router.push("/assign_permission"), 2000);
+        });
+    },
     editItem(item) {
       this.$router.push(`assign_permission/${item.id}`);
     },
@@ -247,3 +371,26 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+th,
+td {
+  border: 1px solid #dddddd;
+  /* text-align: center; */
+  padding: 5px 5px;
+}
+
+.chk-align {
+  text-align: center !important;
+  margin-top: 8px !important;
+  margin-left: 98px !important;
+}
+</style>

@@ -346,12 +346,12 @@ export default {
           open_menu: false,
           permission: this.can("company_access"),
           hasChildren: [
-            {
-              icon: "mdi-domain",
-              title: "Company",
-              to: `/companies/${this.$auth?.user?.company?.id}`,
-              permission: this.can("company_access")
-            },
+            // {
+            //   icon: "mdi-domain",
+            //   title: "Company",
+            //   to: `/companies/${this.$auth?.user?.company?.id}`,
+            //   permission: this.can("company_access")
+            // },
             {
               icon: "mdi-door",
               title: "Department",
@@ -436,24 +436,24 @@ export default {
           open_menu: false,
           permission: this.can("payroll_access"),
           hasChildren: [
-            {
-              icon: "mdi-cash-multiple ",
-              title: "Generate Payroll",
-              to: "/employees",
-              permission: this.can("employee_schedule_access")
-            },
+            // {
+            //   icon: "mdi-cash-multiple ",
+            //   title: "Generate Payroll",
+            //   to: "/employees",
+            //   permission: this.can("employee_schedule_access")
+            // },
             {
               icon: "mdi-cash-multiple ",
               title: "Salary",
               to: "/payroll/salary",
               permission: this.can("payroll_generate_access")
-            },
-            {
-              icon: "mdi-cash-multiple ",
-              title: "Salary Advance",
-              to: "/employee_schedule",
-              permission: this.can("employee_schedule_access")
             }
+            // {
+            //   icon: "mdi-cash-multiple ",
+            //   title: "Salary Advance",
+            //   to: "/employee_schedule",
+            //   permission: this.can("employee_schedule_access")
+            // }
           ]
         },
 
@@ -639,7 +639,7 @@ export default {
       this.$router.push("/setting");
     },
     goToCompany() {
-      this.$router.push(`/companies/details/${this.$auth.user?.company?.id}`);
+      this.$router.push(`/companies/${this.$auth.user?.company?.id}`);
     },
     getCompanyDetails() {
       let user = this.$auth.user;

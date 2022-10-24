@@ -36,7 +36,7 @@
       </v-col>
       <v-col xs="12" sm="12" lg="3" cols="12">
         <v-text-field
-          class="rounded-lg"
+          class=""
           placeholder="Search..."
           solo
           flat
@@ -49,11 +49,11 @@
     <div v-if="can(`employee_view`)">
       <v-row>
         <v-col lg="6">
-          <v-toolbar color="cyan" dark flat>
-            <v-app-bar-nav-icon></v-app-bar-nav-icon>
-            <v-toolbar-title>Salary Details</v-toolbar-title>
-          </v-toolbar>
-          <v-card class="mb-5 rounded-lg" elevation="0">
+          <v-card class="mb-5" elevation="0">
+            <v-toolbar color="background" dark flat>
+              <v-app-bar-nav-icon></v-app-bar-nav-icon>
+              <v-toolbar-title>Salary Details</v-toolbar-title>
+            </v-toolbar>
             <table class="employee-table">
               <tr>
                 <th v-for="(item, index) in headers" :key="index">
@@ -122,7 +122,7 @@
         </v-col>
         <v-col lg="6">
           <v-card>
-            <v-toolbar color="cyan" dark flat>
+            <v-toolbar color="background" dark flat>
               <v-app-bar-nav-icon></v-app-bar-nav-icon>
               <v-toolbar-title>Payroll</v-toolbar-title>
               <v-spacer></v-spacer>

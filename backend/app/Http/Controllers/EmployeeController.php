@@ -265,13 +265,16 @@ class EmployeeController extends Controller
         // $model->when($input == "no", function ($q) {
         //     $q->where('overtime', 0);
         // });
-        $model->whereHas("schedule.shift_type", function ($q) use ($input) {
-            $q->where('name', 'like', '%' . $input . '%');
-        });
+
+        // $model->whereHas("schedule.shift_type", function ($q) use ($input) {
+        //     $q->where('name', 'like', '%' . $input . '%');
+        // });
+
         $model->orWhereHas("schedule.shift", function ($q) use ($input) {
             $q->where('name', 'like', '%' . $input . '%');
         });
-        return $model->whereHas('schedule')->paginate($request->perPage);
+
+        return $model->whereHas('schedule')->paginate($request->perPage ?? 10);
     }
     public function updateEmployee(EmployeeUpdateRequest $request, $id)
     {
@@ -478,7 +481,7 @@ class EmployeeController extends Controller
     }
     public function employeeUpdateSetting(Employee $model, Request $request)
     {
-        $record = $model->where('id', $request->employee_id)->update($request->only('status'));
+        $record = $model->where('id', $request->employee_id)->update($request->only(['status', 'overtime', 'mobile_application']));
         return response()->json($record);
     }
     public function employeeToReporter(Request $request, $id)

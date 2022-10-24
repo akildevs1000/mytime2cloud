@@ -12,14 +12,14 @@
       </v-col>
       <v-col cols="6">
         <div class="text-right">
-          <v-btn
+          <!-- <v-btn
             v-if="can(`designation_delete`)"
             small
             color="error"
             class="mr-2 mb-2"
             @click="delteteSelectedRecords"
             >Delete Selected Records</v-btn
-          >
+          > -->
 
           <!-- <v-btn
             v-if="can(`designation_create`)"
@@ -79,8 +79,7 @@
     </v-dialog> -->
 
     <v-row>
-      <v-col md="4">
-        <v-card>
+      <!-- <v-card>
           <v-toolbar color="primary" dense flat dark>
             <v-card-title>
               <span class="headline">{{ formTitle }} {{ Model }}</span>
@@ -121,33 +120,146 @@
           <v-card-actions>
             <v-btn class="primary ml-4" @click="save">Save</v-btn>
           </v-card-actions>
+        </v-card> -->
+
+      <v-col md="4" lg="4">
+        <v-card elevation="0">
+          <v-toolbar color="background" dense flat dark>
+            <span>{{ formTitle }} {{ Model }}</span>
+          </v-toolbar>
+          <v-divider class="py-0 my-0"></v-divider>
+          <v-card-text>
+            <v-container>
+              <v-row class="mt-2">
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="editedItem.name"
+                    placeholder="Designation"
+                    outlined
+                    dense
+                  ></v-text-field>
+                  <span v-if="errors && errors.name" class="error--text">{{
+                    errors.name[0]
+                  }}</span>
+                </v-col>
+                <v-col cols="12">
+                  <v-autocomplete
+                    v-model="editedItem.department_id"
+                    :items="departments"
+                    item-text="name"
+                    item-value="id"
+                    placeholder="Select Departments"
+                    outlined
+                    dense
+                  >
+                  </v-autocomplete>
+                  <span
+                    v-if="errors && errors.department_id"
+                    class="error--text"
+                    >{{ errors.department_id[0] }}</span
+                  >
+                </v-col>
+                <v-card-actions>
+                  <v-btn class="error" @click="close"> Cancel </v-btn>
+                  <v-btn class="primary" @click="save">Save</v-btn>
+                </v-card-actions>
+              </v-row>
+            </v-container>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col md="8">
-        <v-toolbar color="primary" dense flat dark>
-          <v-card-title>
-            <span class="headline">Designation List</span>
-          </v-card-title>
-        </v-toolbar>
+        <!-- <v-row>
+          <v-col xs="12" sm="12" md="4" cols="12">
+            <v-text-field
+              class="form-control py-1 mb-3 custom-text-box floating shadow-none"
+              placeholder="Search..."
+              solo
+              flat
+              @input="searchIt"
+              v-model="search"
+              :hide-details="true"
+            ></v-text-field>
+          </v-col>
+        </v-row> -->
 
-        <v-toolbar style="background-color: white" flat>
-          <v-row class="py-3">
-            <!-- <v-col md="6"></v-col> -->
-            <v-col md="12">
-              <v-toolbar flat color="">
-                <v-text-field
-                  @input="searchIt"
-                  v-model="search"
-                  hide-details
-                  outlined
-                  dense
-                  label="Search"
-                ></v-text-field>
-              </v-toolbar> </v-col
-          ></v-row>
-        </v-toolbar>
+        <v-card class="mb-5 " elevation="0">
+          <v-toolbar class="rounded-md" color="background" dense flat dark>
+            <span> {{ Model }} List</span>
+          </v-toolbar>
 
-        <v-data-table
+          <v-text-field
+            class="form-control py-0  ma-1 mb-0 w-25 float-start custom-text-box floating shadow-none"
+            placeholder="Search..."
+            solo
+            flat
+            @input="searchIt"
+            v-model="search"
+            :hide-details="true"
+          ></v-text-field>
+          <table>
+            <tr>
+              <th class="ps-5">#</th>
+              <th>Designation</th>
+              <th>Department</th>
+              <th class="text-center">Action</th>
+            </tr>
+            <v-progress-linear
+              v-if="loading"
+              :active="loading"
+              :indeterminate="loading"
+              absolute
+              color="primary"
+            ></v-progress-linear>
+            <tr v-for="(item, index) in data" :key="index">
+              <td class="ps-5">
+                <b>{{ ++index }}</b>
+              </td>
+              <td>{{ caps(item.name || "---") }}</td>
+              <td>{{ caps(item.department.name) }}</td>
+              <td class="text-center">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="editItem(item)">
+                      <v-list-item-title style="cursor:pointer">
+                        <v-icon color="secondary" small>
+                          mdi-pencil
+                        </v-icon>
+                        Edit
+                      </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item @click="deleteItem(item)">
+                      <v-list-item-title style="cursor:pointer">
+                        <v-icon color="error" small>
+                          mdi-delete
+                        </v-icon>
+                        Delete
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </td>
+            </tr>
+          </table>
+        </v-card>
+        <v-row>
+          <v-col md="12" class="float-right">
+            <div class="float-right">
+              <v-pagination
+                v-model="pagination.current"
+                :length="pagination.total"
+                @input="onPageChange"
+                :total-visible="12"
+              ></v-pagination>
+            </div>
+          </v-col>
+        </v-row>
+        <!-- <v-data-table
           v-if="can(`designation_view`)"
           v-model="ids"
           show-select
@@ -158,25 +270,10 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [50, 100, 500,1000]
+            itemsPerPageOptions: [50, 100, 500, 1000]
           }"
           class="elevation-1"
         >
-          <!-- <template v-slot:top>
-            <div class="text-right">
-              <v-toolbar class="w-100" flat color="">
-                <v-toolbar-title>Search</v-toolbar-title>
-                <v-divider class="mx-4" inset vertical></v-divider>
-                <v-text-field
-                  @input="searchIt"
-                  v-model="search"
-                  hide-details
-                  outlined
-                  dense
-                ></v-text-field>
-              </v-toolbar>
-            </div>
-          </template> -->
           <template v-slot:item.action="{ item }">
             <v-icon
               v-if="can(`designation_edit`)"
@@ -196,10 +293,8 @@
               mdi-delete
             </v-icon>
           </template>
-          <template v-slot:no-data>
-            <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
-          </template>
-        </v-data-table>
+          <template v-slot:no-data> </template>
+        </v-data-table> -->
       </v-col>
     </v-row>
   </div>
@@ -209,6 +304,11 @@
 <script>
 export default {
   data: () => ({
+    pagination: {
+      current: 1,
+      total: 0,
+      per_page: 10
+    },
     Model: "Designation",
     options: {},
     endpoint: "designation",
@@ -248,20 +348,25 @@ export default {
       val || this.close();
       this.errors = [];
       this.search = "";
-    },
-    options: {
-      handler() {
-        this.getDataFromApi();
-      },
-      deep: true
     }
   },
   created() {
-    this.loading = true;
     this.getDepartments();
+    this.getDataFromApi();
   },
 
   methods: {
+    onPageChange() {
+      this.getDataFromApi();
+    },
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
+      } else {
+        let res = str.toString();
+        return res.replace(/\b\w/g, c => c.toUpperCase());
+      }
+    },
     getDepartments() {
       let options = {
         params: {
@@ -284,18 +389,19 @@ export default {
     getDataFromApi(url = this.endpoint) {
       this.loading = true;
 
-      const { page, itemsPerPage } = this.options;
+      let page = this.pagination.current;
 
       let options = {
         params: {
-          per_page: itemsPerPage,
+          per_page: this.pagination.per_page,
           company_id: this.$auth.user.company.id
         }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.data = data.data;
-        this.total = data.total;
+        this.pagination.current = data.current_page;
+        this.pagination.total = data.last_page;
         this.loading = false;
       });
     },
@@ -375,7 +481,7 @@ export default {
               const index = this.data.findIndex(
                 item => item.id == this.editedItem.id
               );
-              this.data.splice(index, 1, payload);
+              this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
               this.close();
@@ -403,3 +509,21 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  text-align: left;
+  padding: 5px;
+}
+
+tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+</style>
