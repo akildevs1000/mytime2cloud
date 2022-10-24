@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\ReportNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -83,6 +84,20 @@ Route::post('/fahath', function (Request $request) {
     return isset($path);
 });
 
+Route::get('/test/whatsapp', function () {
+    return Http::post('https://graph.facebook.com/v14.0/102482416002121/messages', [
+        'messaging_product' => 'whatsapp', //OX-8862021010010
+        'to' => '971502848071',
+        'type' => 'template',
+        'template' => [
+            'name' => 'hello_world',
+            'language' => [
+                'code' => 'en_US'
+            ]
+        ]
+    ]);
+});
+
 Route::get('/test/{email}', function (Request $request, $email) {
 
     if (!env('IS_MAIL')) {
@@ -94,22 +109,13 @@ Route::get('/test/{email}', function (Request $request, $email) {
     foreach ($models as $model) {
         if ($model->frequency == "Daily") {
             if (in_array("Email", $model->mediums)) {
-                $data = [
-                    'title' => 'for test mail',
-                    'body' => 'this is from akil security system',
-                ];
-
                 Mail::to($model->tos)
                     ->cc($model->ccs)
-                    ->bcc($model->bccs)->send(new TestMail($data));
+                    ->bcc($model->bccs)
+                    ->queue(new TestMail($model->subject, $model->body));
             }
             if (in_array("Whatsapp", $model->mediums)) {
-                $data = [
-                    'title' => 'for test whatsapp',
-                    'body' => 'this is from akil security system',
-                ];
-
-                Mail::to($model->tos)->send(new TestMail($data));
+                Mail::to($model->tos)->send(new TestMail($model->subject, $model->body));
             }
         }
     }
