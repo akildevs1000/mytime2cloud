@@ -109,7 +109,7 @@ curl_setopt_array($curl, array(
 }',
   CURLOPT_HTTPHEADER => array(
     'Content-Type: application/json',
-    'Authorization: Bearer EAAP9IfKKSo0BAC10TcenQ4ZBxqsLpIbtyAPdIDZC7g1bfM33lKcrZAfSnrPWeCSwjPqyj7UtOiZC3nxhcdlUqHVSpesIPf1GDA3fLC7U02Kc38TyQZAplMBKar6Ie5GfD8wbIoyhqZCcjOcykO57LS8wWjbU1637WkZByup90rFfZC3C3FryoQlFZAyZB80cilbV2LVrRcHsf8zpcP2lYpywPC'
+    'Authorization: Bearer EAAP9IfKKSo0BALkTWKQE6xLcyfO3eyGt69Y7SH6EfpCmKCAGb1AZCuptzmnPf5qsRZBaj4WYqSXbbxDEvaOD6WiiFwklq4P0FvASsBYOigDTrEhC3geXTNLFZCzQ1wTxNthkfzI4wSfG0KF79rrvh7cEIKdyx7mvM4ZC06MHNZBYg78yYrfGZCIcbtDUnegflDudZB5e2i9AZBDCIJ81o2xa'
   ),
 ));
 
