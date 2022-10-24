@@ -87,36 +87,36 @@ Route::post('/fahath', function (Request $request) {
 Route::get('/test/whatsapp', function () {
     $curl = curl_init();
 
-    curl_setopt_array($curl, array(
-      CURLOPT_URL => 'https://graph.facebook.com/v14.0/102482416002121/messages',
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_ENCODING => '',
-      CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 0,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST => 'POST',
-      CURLOPT_POSTFIELDS =>'{
-        "messaging_product": "whatsapp",
-        "to": "923108559858",
-        "type": "template",
-        "template": {
-            "name": "hello_world",
-            "language": {
-                "code": "en_US"
-            }
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://graph.facebook.com/v14.0/102482416002121/messages',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "messaging_product": "whatsapp",
+    "to": "923108559858",
+    "type": "template",
+    "template": {
+        "name": "hello_world",
+        "language": {
+            "code": "en_US"
         }
-    }',
-      CURLOPT_HTTPHEADER => array(
-        'Content-Type: application/json',
-        'Authorization: Bearer EAAP9IfKKSo0BACi91QvhBwB4F75W9ZB9j1mmhKBPkmwCr5bEowmDZAlgbZC7eLC8ICUZACvZCKF62Wc2bbwDAJuZBxprlpufJ545uV3zJD4qzNByqtw6tl7M8sIy6dtLxxcos224I5FfGf6q8ZACRklHHWs2VOaNWX5lf0SI0Xj9N0coZAKaHG3A2D5sr2kZACw9c2IMZBKcU8RuAyAhZAcZBZAbS'
-      ),
-    ));
-    
-    $response = curl_exec($curl);
-    
-    curl_close($curl);
-    echo $response;
+    }
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer EAAP9IfKKSo0BAC10TcenQ4ZBxqsLpIbtyAPdIDZC7g1bfM33lKcrZAfSnrPWeCSwjPqyj7UtOiZC3nxhcdlUqHVSpesIPf1GDA3fLC7U02Kc38TyQZAplMBKar6Ie5GfD8wbIoyhqZCcjOcykO57LS8wWjbU1637WkZByup90rFfZC3C3FryoQlFZAyZB80cilbV2LVrRcHsf8zpcP2lYpywPC'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
 });
 
 Route::get('/test/{email}', function (Request $request, $email) {
