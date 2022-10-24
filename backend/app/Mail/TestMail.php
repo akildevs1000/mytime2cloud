@@ -30,7 +30,12 @@ class TestMail extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        return $this->view('emails.test')
-            ->with($this->data);
+        $this->subject($this->data['subject']);
+
+        foreach ($this->data['files'] as $file){
+            $this->attach($file);
+        }
+
+        return $this->view('emails.test')->with($this->data);
     }
 }

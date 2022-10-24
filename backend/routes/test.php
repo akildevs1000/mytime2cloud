@@ -4,6 +4,7 @@ use App\Mail\TestMail;
 use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\ReportNotification;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -87,16 +88,16 @@ Route::post('/fahath', function (Request $request) {
 Route::get('/test/whatsapp', function () {
     $curl = curl_init();
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => 'https://graph.facebook.com/v14.0/102482416002121/messages',
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => '',
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 0,
-  CURLOPT_FOLLOWLOCATION => true,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => 'POST',
-  CURLOPT_POSTFIELDS =>'{
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://graph.facebook.com/v14.0/102482416002121/messages',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => '{
     "messaging_product": "whatsapp",
     "to": "923108559858",
     "type": "template",
@@ -107,19 +108,104 @@ curl_setopt_array($curl, array(
         }
     }
 }',
-  CURLOPT_HTTPHEADER => array(
-    'Content-Type: application/json',
-    'Authorization: Bearer EAAP9IfKKSo0BALkTWKQE6xLcyfO3eyGt69Y7SH6EfpCmKCAGb1AZCuptzmnPf5qsRZBaj4WYqSXbbxDEvaOD6WiiFwklq4P0FvASsBYOigDTrEhC3geXTNLFZCzQ1wTxNthkfzI4wSfG0KF79rrvh7cEIKdyx7mvM4ZC06MHNZBYg78yYrfGZCIcbtDUnegflDudZB5e2i9AZBDCIJ81o2xa'
-  ),
-));
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json',
+            'Authorization: Bearer EAAP9IfKKSo0BALkTWKQE6xLcyfO3eyGt69Y7SH6EfpCmKCAGb1AZCuptzmnPf5qsRZBaj4WYqSXbbxDEvaOD6WiiFwklq4P0FvASsBYOigDTrEhC3geXTNLFZCzQ1wTxNthkfzI4wSfG0KF79rrvh7cEIKdyx7mvM4ZC06MHNZBYg78yYrfGZCIcbtDUnegflDudZB5e2i9AZBDCIJ81o2xa'
+        ),
+    ));
 
-$response = curl_exec($curl);
+    $response = curl_exec($curl);
 
-curl_close($curl);
-echo $response;
+    curl_close($curl);
+    echo $response;
 });
 
-Route::get('/test/{email}', function (Request $request, $email) {
+Route::get('/test_attachment', function () {
+
+    $files = [
+        base_path('test.log'),
+        base_path('scheduler.log'),
+    ];
+
+    $details = [
+        'subject' => 'my subject',
+        'body' => '<!DOCTYPE html>
+        <html>
+        <head>
+        <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+
+        td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+
+        tr:nth-child(even) {
+          background-color: #dddddd;
+        }
+        </style>
+        </head>
+        <body>
+
+        <h2>HTML Table</h2>
+
+        <table>
+          <tr>
+            <th>Company</th>
+            <th>Contact</th>
+            <th>Country</th>
+          </tr>
+          <tr>
+            <td>Alfreds Futterkiste</td>
+            <td>Maria Anders</td>
+            <td>Germany</td>
+          </tr>
+          <tr>
+            <td>Centro comercial Moctezuma</td>
+            <td>Francisco Chang</td>
+            <td>Mexico</td>
+          </tr>
+          <tr>
+            <td>Ernst Handel</td>
+            <td>Roland Mendel</td>
+            <td>Austria</td>
+          </tr>
+          <tr>
+            <td>Island Trading</td>
+            <td>Helen Bennett</td>
+            <td>UK</td>
+          </tr>
+          <tr>
+            <td>Laughing Bacchus Winecellars</td>
+            <td>Yoshi Tannamuri</td>
+            <td>Canada</td>
+          </tr>
+          <tr>
+            <td>Magazzini Alimentari Riuniti</td>
+            <td>Giovanni Rovelli</td>
+            <td>Italy</td>
+          </tr>
+        </table>
+
+        </body>
+        </html>
+
+        ',
+        'files' => $files
+    ];
+
+    Mail::to("francisgill1000@gmail.com")
+        ->cc("francisgill1000@gmail.com")
+        ->bcc("francisgill1000@gmail.com")
+        ->send(new TestMail($details));
+
+    // echo "mail sent";
+    die;
 
     if (!env('IS_MAIL')) {
         return "mail not allowed";

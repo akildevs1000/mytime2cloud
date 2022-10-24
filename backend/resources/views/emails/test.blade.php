@@ -1,4 +1,3 @@
 <div>
-    title: {{ $title }} <br>
-    body: {{ $body }}
+{!!$data['body']!!}
 </div>
