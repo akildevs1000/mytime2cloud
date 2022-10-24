@@ -3,6 +3,7 @@
 use App\Mail\TestMail;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\ReportNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -84,16 +85,43 @@ Route::post('/fahath', function (Request $request) {
 
 Route::get('/test/{email}', function (Request $request, $email) {
 
-    $data = [
-        'title' => 'for test mail',
-        'body' => 'this is from akil security system',
-    ];
-
     if (!env('IS_MAIL')) {
         return "mail not allowed";
     }
 
-    Mail::to($email)->send(new TestMail($data));
+    $models = ReportNotification::get();
+
+    foreach ($models as $model) {
+        if ($model->frequency == "Daily") {
+            if (in_array("Email", $model->mediums)) {
+                $data = [
+                    'title' => 'for test mail',
+                    'body' => 'this is from akil security system',
+                ];
+
+                Mail::to($model->tos)
+                    ->cc($model->ccs)
+                    ->bcc($model->bccs)->send(new TestMail($data));
+            }
+            if (in_array("Whatsapp", $model->mediums)) {
+                $data = [
+                    'title' => 'for test whatsapp',
+                    'body' => 'this is from akil security system',
+                ];
+
+                Mail::to($model->tos)->send(new TestMail($data));
+            }
+        }
+    }
+
+    // "reports": [
+    // "Daily Summary",
+    // "Weekly Summary",
+    // "Monthly Summary",
+    // "Yearly Summary"
+    // ],
+
+    return $model;
 });
 
 Route::post('/do_spaces', function (Request $request) {
