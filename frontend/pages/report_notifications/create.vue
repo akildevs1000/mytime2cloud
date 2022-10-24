@@ -14,9 +14,7 @@
       </v-row>
       <v-card elevation="0" class="pa-3">
         <v-card-title>
-          <label class="col-form-label"
-            ><b>Create Automation </b></label
-          >
+          <label class="col-form-label"><h3>Create Automation</h3></label>
           <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
             <v-icon>mdi-arrow-left</v-icon>
@@ -103,7 +101,17 @@
                 label="Daily Missing"
                 value="Daily Missing"
               ></v-checkbox>
-              <span v-if="errors && errors.frequency" class="error--text">{{
+              <span v-if="errors && errors.reports" class="error--text">{{
+                errors.reports[0]
+              }}</span>
+
+              <v-checkbox
+                dense
+                v-model="payload.reports"
+                label="Daily Manual Punch"
+                value="Daily Manual Punch"
+              ></v-checkbox>
+              <span v-if="errors && errors.reports" class="error--text">{{
                 errors.reports[0]
               }}</span>
             </v-col>
@@ -132,6 +140,13 @@
                 label="Weekly Missing"
                 value="Weekly Missing"
               ></v-checkbox>
+
+              <v-checkbox
+                dense
+                v-model="payload.reports"
+                label="Weekly Manual Punch"
+                value="Weekly Manual Punch"
+              ></v-checkbox>
             </v-col>
             <v-col cols="2" class="pa-0 ma-0">
               <v-checkbox
@@ -158,6 +173,12 @@
                 label="Monthly Missing"
                 value="Monthly Missing"
               ></v-checkbox>
+              <v-checkbox
+                dense
+                v-model="payload.reports"
+                label="Monthly Manual Punch"
+                value="Monthly Manual Punch"
+              ></v-checkbox>
             </v-col>
             <v-col cols="2" class="pa-0 ma-0">
               <v-checkbox
@@ -183,6 +204,12 @@
                 v-model="payload.reports"
                 label="Yearly Missing"
                 value="Yearly Missing"
+              ></v-checkbox>
+              <v-checkbox
+                dense
+                v-model="payload.reports"
+                label="Yearly Manual Punch"
+                value="Yearly Manual Punch"
               ></v-checkbox>
             </v-col>
           </v-row>
@@ -215,6 +242,8 @@
           <v-divider></v-divider>
           <v-row>
             <v-col cols="3">
+              <label class="col-form-label"><h4>Mail Settings</h4></label><br />
+
               <label class="col-form-label pt-5"
                 ><b>To </b>(Press enter to add email address/es)</label
               >
@@ -223,7 +252,6 @@
                 :hide-details="!to"
                 @keyup.enter="add_to"
                 v-model="to"
-                type="email"
                 placeholder="Email"
                 outlined
                 dense
@@ -246,13 +274,16 @@
             </v-col>
 
             <v-col cols="3">
+              <label class="col-form-label"
+                ><h4 style="color:white;">Mail Settings</h4></label
+              ><br />
+
               <label class="col-form-label pt-5"
                 ><b>Cc </b>(Press enter to add email address/es)</label
               >
               <v-text-field
                 @keyup.enter="add_cc"
                 v-model="cc"
-                type="email"
                 placeholder="Email"
                 outlined
                 dense
@@ -272,13 +303,16 @@
             </v-col>
 
             <v-col cols="3">
+              <label class="col-form-label"
+                ><h4 style="color:white;">Mail Settings</h4></label
+              ><br />
+
               <label class="col-form-label pt-5"
                 ><b>Bcc </b>(Press enter to add email address/es)</label
               >
               <v-text-field
                 @keyup.enter="add_bcc"
                 v-model="bcc"
-                type="email"
                 placeholder="Email"
                 outlined
                 dense
@@ -297,7 +331,75 @@
               </v-chip>
             </v-col>
           </v-row>
+          <v-row style="margin-top:-30px;">
+            <v-col cols="3">
+              <label class="col-form-label"><b>Subject </b></label>
 
+              <v-text-field
+                :hide-details="!subject"
+                v-model="payload.subject"
+                placeholder="Subject"
+                outlined
+                dense
+              ></v-text-field>
+
+              <span v-if="errors && errors.subject" class="error--text">{{
+                errors.subject[0]
+              }}</span>
+
+              <br />
+
+              <label class="col-form-label"><b>Body </b></label>
+
+              <v-textarea
+                :hide-details="!body"
+                v-model="payload.body"
+                placeholder="Body"
+                outlined
+                dense
+              ></v-textarea>
+
+              <span v-if="errors && errors.subject" class="error--text">{{
+                errors.subject[0]
+              }}</span>
+            </v-col>
+          </v-row>
+
+          <v-divider></v-divider>
+          <v-row>
+            <v-col cols="3">
+              <label class="col-form-label"><h4>Whatsapp Settings</h4></label
+              ><br />
+              <label class="col-form-label pt-5"
+                ><b>Numbers </b>(Press enter to more number)</label
+              >
+
+              <v-text-field
+                :hide-details="!to"
+                @keyup.enter="add_number"
+                type="number"
+                v-model="number"
+                placeholder="Whatsapp Number"
+                outlined
+                dense
+              ></v-text-field>
+
+              <v-chip
+                color="primary"
+                class="ma-1"
+                v-for="(item, index) in payload.numbers"
+                :key="index"
+              >
+                <span class="mx-1">{{ item }}</span>
+                <v-icon small @click="deleteNumber(index)"
+                  >mdi-close-circle-outline</v-icon
+                >
+              </v-chip>
+              <span v-if="errors && errors.tos" class="error--text">{{
+                errors.tos[0]
+              }}</span>
+            </v-col>
+          </v-row>
           <v-divider></v-divider>
           <v-row>
             <v-col cols="12">
@@ -326,13 +428,18 @@ export default {
     id: "",
     snackbar: false,
     to: "",
+
+    number: "",
     cc: "",
     bcc: "",
     payload: {
+      subject: "",
+      body: "",
       reports: [],
       mediums: [],
       frequency: null,
       time: null,
+      numbers: [],
       tos: [],
       ccs: [],
       bccs: []
@@ -354,6 +461,12 @@ export default {
       );
     },
 
+    add_number() {
+      if (this.number && this.number.length > 10) {
+        this.payload.numbers.push(this.number);
+        this.number = "";
+      }
+    },
     add_to() {
       this.payload.tos.push(this.to);
       this.to = "";
@@ -368,6 +481,10 @@ export default {
     },
     deleteTO(i) {
       this.payload.tos.splice(i, 1);
+    },
+
+    deleteNumber(i) {
+      this.payload.numbers.splice(i, 1);
     },
 
     deleteCC(i) {
@@ -393,10 +510,65 @@ export default {
           this.snackbar = data.status;
           this.response = data.message;
 
-        console.log("🚀 ~ file: create.vue ~ line 397 ~ .then ~ data", data)
-
+          console.log("🚀 ~ file: create.vue ~ line 397 ~ .then ~ data", data);
         })
         .catch(e => console.log(e));
+    },
+    test_endpoint() {
+      // /test/whatsapp
+      this.$axios.get("/test/whatsapp").then(res => {
+        console.log(res);
+      });
+    },
+    test() {
+      var axios = require("axios");
+      // var data = JSON.stringify({
+      //   messaging_product: "whatsapp",
+      //   recipient_type: "individual",
+      //   to: "923108559858",
+      //   type: "text",
+      //   text: {
+      //     preview_url: false,
+      //     body: "contect"
+      //   }
+      //   // type: "text",
+      //   // text: {
+      //   //   // the text object
+      //   //   preview_url: false,
+      //   //   body: "sdfsdf"
+      //   // }
+      // });
+
+      var data = JSON.stringify({
+        messaging_product: "whatsapp",
+        to: "923108559858",
+        type: "template",
+        template: {
+          name: "automated_reports",
+          language: {
+            code: "en"
+          }
+        }
+      });
+
+      var config = {
+        method: "post",
+        url: "https://graph.facebook.com/v14.0/102482416002121/messages",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer EAAP9IfKKSo0BAGDS96w2XuYjjpXIqxZBAOcwzlFWecCxODjNO3ruEcbnZCkmHSWNAGNf1Q9wC2uwe5XnyxteTOYAO3l9wgy4iu9L6wwYgtZBZAygXV3Tc4euoYANOZCFlvMAsnNz7vNQEYUYdL56l9poliM3eS6ZCZBV4dMzJhKEQKDbUTZB2ZBvEVl2mlHvSj8dCWgITF8e9GFkTXO8isMsx"
+        },
+        data: data
+      };
+
+      axios(config)
+        .then(function(response) {
+          console.log(JSON.stringify(response.data));
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     }
   }
 };
