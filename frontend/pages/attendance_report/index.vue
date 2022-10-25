@@ -393,13 +393,12 @@
             <v-col md="12">
               <div class="mb-5">
                 <v-btn
-                  small
                   :loading="loading"
                   color="primary"
                   @click="fetch_logs"
                 >
-                  <v-icon small class="pr-1">mdi-history</v-icon>
-                  Fetch records
+                  <v-icon class="pr-1">mdi-history</v-icon>
+                  Get Records
                 </v-btn>
               </div>
             </v-col>
@@ -551,7 +550,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-toolbar class="primary darken-2" dark flat>
+    <v-toolbar class="background" dark flat>
       <!-- <v-btn
         small
         class="primary darken-2"
@@ -654,7 +653,7 @@
         Summary
       </v-btn> -->
 
-    
+
       <!-- <v-spacer></v-spacer> -->
         <a href="https://backend.ideahrms.com/api/weekly_html" target="_blank"><v-icon class="mr-1 white--text">mdi-printer-outline</v-icon></a>
         <v-icon class="mr-1 white--text">mdi-file-outline</v-icon>
@@ -688,7 +687,7 @@
         :headers="headers"
       />
       &nbsp; -->
-     
+
       <!-- <v-btn
         v-if="can(`attendance_log_access`)"
         small

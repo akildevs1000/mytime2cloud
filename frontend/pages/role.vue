@@ -51,7 +51,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn class="error" small @click="close"> Cancel </v-btn>
-            <v-btn class="background" small @click="save">Save</v-btn>
+            <v-btn class="background" dark small @click="save">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
