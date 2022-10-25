@@ -438,6 +438,13 @@ export default {
           hasChildren: [
             // {
             //   icon: "mdi-cash-multiple ",
+            //   title: "Generate Month",
+            //   to: "/payroll/month",
+            //   permission: this.can("payroll_generate_month_access")
+            // },
+
+            // {
+            //   icon: "mdi-cash-multiple ",
             //   title: "Generate Payroll",
             //   to: "/employees",
             //   permission: this.can("employee_schedule_access")

@@ -224,6 +224,9 @@
     </v-row>
 
     <v-card class="mb-5 rounded-md mt-3" elevation="0">
+      <v-toolbar class="rounded-md" color="background" dense flat dark>
+        <span> Employee Schedule List</span>
+      </v-toolbar>
       <table>
         <tr>
           <th>#</th>

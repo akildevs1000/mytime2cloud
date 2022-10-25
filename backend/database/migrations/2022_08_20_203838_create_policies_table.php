@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('policies', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->longText('description');
+            $table->json('body')->nullable();
             $table->integer('company_id')->default(0);
             $table->integer('branch_id')->default(0);
             $table->timestamps();

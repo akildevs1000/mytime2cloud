@@ -56,7 +56,15 @@
       <tr>
         <th>Gender</th>
         <td>
-          {{ personalItem.gender == 1 ? "Male" : "Female" || "---" }}
+          <span v-if="personalItem.gender == 1">
+            Male
+          </span>
+          <span v-else-if="personalItem.gender == 2">
+            Female
+          </span>
+          <span v-else>
+            ---
+          </span>
         </td>
       </tr>
       <tr>

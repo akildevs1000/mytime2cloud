@@ -245,6 +245,6 @@ th {
 }
 
 tr:nth-child(even) {
-  background-color: #ecf0f4;
+  background-color: #e9e9e9;
 }
 </style>

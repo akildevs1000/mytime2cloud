@@ -27,7 +27,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             'title' => 'required|min:4|max:100',
-            'description' => 'required',
+            'body' => 'required',
             'company_id' => 'required',
             // 'branch_id' => 'required',
         ];

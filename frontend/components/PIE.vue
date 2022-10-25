@@ -16,7 +16,9 @@ export default {
 
         series: [],
         chart: {
-          type: "pie"
+          type: "pie",
+          width: 590,
+          height: 450
         },
         labels: [],
         dataLabels: {
@@ -46,7 +48,6 @@ export default {
     this.options.series = this.items.map(e => e.value);
     new ApexCharts(document.querySelector("#pie"), this.options).render();
   },
-  methods: {
-  }
+  methods: {}
 };
 </script>

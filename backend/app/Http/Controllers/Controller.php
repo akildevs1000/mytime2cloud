@@ -186,7 +186,6 @@ class Controller extends BaseController
 
     public function daily_summary(Request $request)
     {
-
         $company = Company::find($request->company_id);
         $rc = new ReportController;
         $data = $rc->report($request);
@@ -264,10 +263,10 @@ class Controller extends BaseController
     {
         $start = $request->start ?? date('Y-09-1');
         $end = $request->end ?? date('Y-09-30');
-
+        $type = 'monthly';
         $model = Attendance::query();
 
-        // $model->whereRaw('extract(month from date) = ?', date("m"));
+        // $mo del->whereRaw('extract(month from date) = ?', date("m"));
         // $model->whereMonth("date", date("9"));
 
         // $model = $model->whereMonth("date", date("m"));
@@ -303,12 +302,10 @@ class Controller extends BaseController
         ];
         $pdf = App::make('dompdf.wrapper');
         $arr;
-
         // $this->getHTML($arr);
         // $pdfJobs = new PDFJob($this->getHTML($arr));
         // $this->dispatch($pdfJobs);
-
-        $pdf->loadHTML($this->getHTML($arr, $request));
+        $pdf->loadHTML($this->getHTML($arr, $request, $type));
         return $pdf->stream();
         return Pdf::loadView('pdf.monthly_details', compact("arr", "footer"))->stream();
     }
@@ -348,58 +345,11 @@ class Controller extends BaseController
         return Pdf::loadView('pdf.monthly_performance', ["data" => $data])->stream();
     }
 
-    public function weekly_details(Request $request)
+    public function getHTML($arr, $request, $type)
     {
+        // if ($type = 'monthly'){
+        // }
 
-        $end = $request->end ?? date('Y-m-d');
-        $start = date("Y-m-d", strtotime($end . "-7 days"));
-
-        $model = Attendance::query();
-
-        $model = $model->whereBetween('date', [$start, $end]);
-
-        $data = $model->with('employeeAttendance')->get();
-        $data = $data->groupBy(['employee_id', 'date']);
-        $arr = [];
-
-        foreach ($data as $employee_id => $row) {
-            $emp = $this->getEmployee($row);
-
-            $arr[] = [
-                'Name' => $emp->first_name ?? '',
-                'E.ID' => $emp->employee_id ?? '',
-                'Dept' => $emp->department->name ?? '',
-                'Date' => $start . ' to ' . $end,
-                'Total Hrs' => $this->totalHours($row),
-                'OT' => $this->TotalOtHours($row),
-                'Present' => 14,
-                'Absent' => 17,
-                'Late In' => 2,
-                'Early Out' => 5,
-                'record' => $row,
-            ];
-        }
-        $footer = [
-            'Device' => "Main Entrance = MED, Back Entrance = BED",
-            'Shift Type' => "Manual = MA, Auto = AU, NO = NO",
-            'Shift' => "Morning = Mor, Evening = Eve, Evening2 = Eve2",
-        ];
-        $pdf = App::make('dompdf.wrapper');
-        $arr;
-
-        // $this->getHTML($arr);
-        // $pdfJobs = new PDFJob($this->getHTML($arr));
-        // $this->dispatch($pdfJobs);
-
-        return $arr;
-
-        $pdf->loadHTML($this->getHTML($arr, $request));
-        return $pdf->stream();
-        return Pdf::loadView('pdf.monthly_details', compact("arr", "footer"))->stream();
-    }
-
-    public function getHTML($arr, $request)
-    {
         $companyName = $request->company_name ?? "Sample Company Name";
         $companyAddress = $request->company_address ?? "Street Address,City, State, Zip Code";
         $companyLogo = $request->company_logo ?? "https://backend.ideahrms.com/upload/1664788253.jpeg";
@@ -454,10 +404,8 @@ class Controller extends BaseController
     public function renderTable($arr)
     {
         $str_arr = [];
-
         foreach ($arr as $key => $row) {
             $records = $this->getData($row['record']);
-
             $str_arr[] = '<div class="page-breaks"><table  style="margin-top: 5px !important;">' .
                 '<tr style="text-align: left; border :1px solid black; width:120px;">' .
                 '<td style="text-align:left;"><b>Name</b>:' . $row["Name"] . '</td>' .
@@ -531,5 +479,68 @@ class Controller extends BaseController
             join("", $str_arr["device_id_out"]),
             join("", $str_arr["status"]),
         ];
+    }
+
+
+
+    //weekly report
+    public function weekly_summary(Request $request)
+    {
+        // $type = 'weekly';
+        // $end = $request->daily_date ?? date('Y-m-d');
+        // $start = date("Y-m-d", strtotime($end . "-7 days"));
+
+        // $model = Attendance::query();
+
+        // $model = $model->whereBetween('date', [$start, $end]);
+
+
+        // $model = $model->where("employee_id", "<", 5);
+
+        // // return  $data = $model->with('employeeAttendance')->get();
+        // $data = $model->get();
+        // $data = $data->groupBy(['employee_id', 'date']);
+        // $arr = [];
+
+        // foreach ($data as $employee_id => $row) {
+        //     $emp = $this->getEmployee($row);
+
+        //     $arr[] = [
+        //         'Name' => $emp->first_name ?? '',
+        //         'E.ID' => $emp->employee_id ?? '',
+        //         'Dept' => $emp->department->name ?? '',
+        //         'Date' => $start . ' to ' . $end,
+        //         'Total Hrs' => $this->totalHours($row),
+        //         'OT' => $this->TotalOtHours($row),
+        //         'Present' => 14,
+        //         'Absent' => 17,
+        //         'Late In' => 2,
+        //         'Early Out' => 5,
+        //         'record' => $row,
+        //     ];
+        // }
+        // $footer = [
+        //     'Device' => "Main Entrance = MED, Back Entrance = BED",
+        //     'Shift Type' => "Manual = MA, Auto = AU, NO = NO",
+        //     'Shift' => "Morning = Mor, Evening = Eve, Evening2 = Eve2",
+        // ];
+        // $pdf = App::make('dompdf.wrapper');
+        // $arr;
+
+
+        return Pdf::loadView('pdf.weekly.weekly_summary')->stream();
+
+        // $pdf->loadHTML($this->getHTML($arr, $request, $type));
+        // return $pdf->stream();
+        // return Pdf::loadView('pdf.monthly_details', compact("arr", "footer"))->stream();
+    }
+
+    public function daily_html(Request $request)
+    {
+        return Pdf::loadView('pdf.html.daily.daily_summary')->stream();
+    }
+    public function weekly_html(Request $request)
+    {
+        return Pdf::loadView('pdf.html.weekly.weekly_summary')->stream();
     }
 }

@@ -56,22 +56,21 @@
               <v-col cols="12">
                 <ClientOnly>
                   <tiptap-vuetify
-                    v-model="editedItem.description"
+                    class="tiptap-icon"
+                    v-model="editedItem.body"
                     :extensions="extensions"
                     v-scroll.self="onScroll"
                     max-height="400"
                     :toolbar-attributes="{
-                      color: 'primary lighten-2 red--text text--lighten-1'
+                      color: 'background'
                     }"
                   />
                   <template #placeholder> Loading... </template>
                 </ClientOnly>
               </v-col>
-              <span
-                v-if="errors && errors.description"
-                class="text-danger mt-2"
-                >{{ errors.description[0] }}</span
-              >
+              <span v-if="errors && errors.body" class="text-danger mt-2">{{
+                errors.body[0]
+              }}</span>
             </v-row>
           </v-container>
         </v-card-text>
@@ -100,7 +99,7 @@
           <v-container>
             <h3>{{ title }}</h3>
             <v-divider></v-divider>
-            <div v-html="des"></div>
+            <div v-html="body"></div>
           </v-container>
         </v-card-text>
       </v-card>
@@ -139,6 +138,9 @@
                 hide-details
               ></v-text-field>
             </v-toolbar>
+          </template>
+          <template v-slot:item.body="{ item }">
+            <div v-html="item.body"></div>
           </template>
           <template v-slot:item.action="{ item }">
             <v-icon
@@ -243,13 +245,15 @@ export default {
     loading: false,
     total: 0,
     headers: [
+      { text: "Body", align: "left", sortable: false, value: "body" },
       { text: "Title", align: "left", sortable: false, value: "title" },
       { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
-    editedItem: { title: "", description: "" },
-    defaultItem: { title: "", description: "" },
+    editedItem: { title: "", body: "" },
+    defaultItem: { title: "", body: "" },
     title: "",
+    body: "",
     des: "",
     desDate: "",
     response: "",
@@ -334,7 +338,7 @@ export default {
 
     viewItem(item) {
       this.view_notification = true;
-      this.des = item.description;
+      this.body = item.body;
       this.title = item.title;
       this.desDate = item.created_at;
     },
@@ -390,7 +394,7 @@ export default {
     save() {
       let payload = {
         title: this.editedItem.title.toLowerCase(),
-        description: this.editedItem.description.toLowerCase(),
+        body: this.editedItem.body.toLowerCase(),
         company_id: this.$auth.user.company.id
       };
       if (this.editedIndex > -1) {
@@ -443,5 +447,12 @@ export default {
 
 .ProseMirror .ProseMirror-focused {
   height: 400px !important;
+}
+
+.tiptap-icon .v-icon {
+  color: white !important;
+}
+.tiptap-icon .v-btn--icon {
+  color: white !important;
 }
 </style>

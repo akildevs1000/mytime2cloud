@@ -27,3 +27,9 @@ Route::get('/monthly_absent', [Controller::class, 'monthly_absent']);
 Route::get('/monthly_late_in', [Controller::class, 'monthly_late_in']);
 Route::get('/monthly_early_out', [Controller::class, 'monthly_early_out']);
 Route::get('/monthly_performance', [Controller::class, 'monthly_performance']);
+
+
+
+//for testing static
+Route::get('/daily_html', [Controller::class, 'daily_html']);
+Route::get('/weekly_html', [Controller::class, 'weekly_html']);
