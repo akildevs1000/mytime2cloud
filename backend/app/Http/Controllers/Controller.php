@@ -196,6 +196,7 @@ class Controller extends BaseController
             'total_missing' => $rc->report($request)->where('status', '---')->count(),
             'companyLogo' => $company->logo,
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
+            "daily_date" => $request->daily_date
         ];
         return Pdf::loadView('pdf.daily.v3_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
     }
