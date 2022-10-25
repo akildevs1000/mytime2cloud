@@ -120,11 +120,11 @@ class EmployeeController extends Controller
     }
     public function scheduled_employees(Employee $employee, Request $request)
     {
-        return $employee->whereHas('schedule')->paginate($request->per_page);
+        return $employee->where("company_id",$request->company_id)->whereHas('schedule')->paginate($request->per_page);
     }
     public function scheduled_employees_with_type(Employee $employee, Request $request)
     {
-        return $employee->whereHas('schedule')->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])->get(["first_name", "system_user_id", "employee_id"]);
+        return $employee->where("company_id",$request->company_id)->whereHas('schedule')->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])->get(["first_name", "system_user_id", "employee_id"]);
 
         return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
             $q->where('slug', '=', $request->shift_type);
@@ -140,7 +140,7 @@ class EmployeeController extends Controller
 
     public function not_scheduled_employees(Employee $employee, Request $request)
     {
-        return $employee->doesntHave('schedule')->paginate($request->per_page);
+        return $employee->where("company_id",$request->company_id)->doesntHave('schedule')->paginate($request->per_page);
     }
     public function show(Employee $employee)
     {
