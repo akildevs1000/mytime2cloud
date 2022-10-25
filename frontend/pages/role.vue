@@ -5,37 +5,6 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-row>
-      <!-- <v-dialog v-model="dialog" max-width="500px">
-        <v-card>
-          <v-card-title>
-            <span class="headline">{{ formTitle }} {{ Model }} </span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="editedItem.name"
-                    label="Role"
-                  ></v-text-field>
-                  <span v-if="errors && errors.name" class="error--text">
-                    {{ errors.name[0] }}</span
-                  >
-                </v-col>
-                <v-col> </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn class="error" small @click="close"> Cancel </v-btn>
-            <v-btn class="primary" small @click="save">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog> -->
-    </v-row>
     <v-row class="mt-5 mb-5">
       <v-col cols="6">
         <h3>{{ Model }}</h3>
@@ -51,14 +20,6 @@
             @click="delteteSelectedRecords"
             >Delete Selected Records</v-btn
           >
-          <!-- <v-btn
-            v-if="can(`role_create`)"
-            small
-            color="primary"
-            @click="dialog = true"
-            class="mb-2"
-            >{{ Model }} +
-          </v-btn> -->
         </div>
       </v-col>
     </v-row>
@@ -66,7 +27,7 @@
     <v-row>
       <v-col md="4">
         <v-card>
-          <v-toolbar flat dark class="primary">
+          <v-toolbar flat dark class="background">
             {{ formTitle }} {{ Model }}
           </v-toolbar>
 
@@ -90,7 +51,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn class="error" small @click="close"> Cancel </v-btn>
-            <v-btn class="primary" small @click="save">Save</v-btn>
+            <v-btn class="background" small @click="save">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -111,7 +72,7 @@
           class="elevation-1"
         >
           <template v-slot:top>
-            <v-toolbar dark class="primary">Roles List</v-toolbar>
+            <v-toolbar dark class="background">Roles List</v-toolbar>
             <v-toolbar flat>
               <v-toolbar-title>List</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
@@ -144,7 +105,7 @@
             </v-icon>
           </template>
           <template v-slot:no-data>
-            <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
+            <!-- <v-btn color="background" @click="initialize">Reset</v-btn> -->
           </template>
         </v-data-table></v-col
       >
