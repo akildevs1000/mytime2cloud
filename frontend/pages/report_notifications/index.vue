@@ -8,17 +8,17 @@
     <div v-if="!preloader">
       <v-row class="mt-5">
         <v-col cols="3">
-          <h3>Automation</h3>
-          <div>Dashboard / Automation</div>
+          <h3>Report Notification</h3>
+          <div>Dashboard / Report Notification</div>
         </v-col>
 
         <v-col cols="12">
           <v-card elevation="0" class="px-5 pb-5">
             <v-card-title>
-              <label class="col-form-label"><b>Automation List </b></label>
+              <label class="col-form-label"><b>Report Notification List </b></label>
               <v-spacer></v-spacer>
               <v-btn color="background" dark to="/report_notifications/create">
-                <v-icon>mdi-plus</v-icon> Add Automation
+                <v-icon>mdi-plus</v-icon> Add Report Notification
               </v-btn>
             </v-card-title>
             <v-card-title>

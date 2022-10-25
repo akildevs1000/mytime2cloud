@@ -551,7 +551,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-toolbar class="primary" dark flat>
+    <v-toolbar class="primary darken-2" dark flat>
       <!-- <v-btn
         small
         class="primary darken-2"
@@ -559,7 +559,7 @@
       >
         Details
       </v-btn> -->
-      &nbsp;
+      <!-- &nbsp;
       <v-btn
         v-if="can(`attendance_summary_access`)"
         small
@@ -568,7 +568,7 @@
       >
         {{ changeBtnTitle }}
       </v-btn>
-      &nbsp;
+      &nbsp; -->
       <!-- <v-btn small class="primary darken-2" @click="generateReport('present')">
         {{
           payload.report_type == "Daily" ? "Daily Present" : "Monthly Present"
@@ -654,11 +654,29 @@
         Summary
       </v-btn> -->
 
-      <!-- <v-btn
+    
+      <!-- <v-spacer></v-spacer> -->
+        <a href="https://backend.ideahrms.com/api/weekly_html" target="_blank"><v-icon class="mr-1 white--text">mdi-printer-outline</v-icon></a>
+        <v-icon class="mr-1 white--text">mdi-file-outline</v-icon>
+        <v-icon class="mr-1 white--text">mdi-file</v-icon>
+
+        <!-- <v-icon class="mr-1">mdi-file-outline</v-icon>
+        <v-icon class="mr-1">mdi-file</v-icon> -->
+        <!-- <v-btn
         v-if="can(`attendance_pdf_access`)"
         small
-        class="primary darken-2"
-        @click="pdfDownload"
+        class=""
+        @click="generateReport('summary')"
+      >
+        <v-icon class="mr-1" small>mdi-printer-outline</v-icon>
+        PRINT
+      </v-btn>
+      &nbsp;
+      <v-btn
+        v-if="can(`attendance_pdf_access`)"
+        small
+        class=""
+        @click="generateReport('summary')"
       >
         <v-icon class="mr-1" small>mdi-file-outline</v-icon>
         PDF
@@ -669,13 +687,12 @@
         :data="csvData"
         :headers="headers"
       />
-      &nbsp;
-      -->
-      <v-spacer></v-spacer>
+      &nbsp; -->
+     
       <!-- <v-btn
         v-if="can(`attendance_log_access`)"
         small
-        class="primary darken-2"
+        class=" darken-2"
         @click="add_manual_log = true"
       >
         <v-icon class="mr-1" small>mdi-file-outline</v-icon>
