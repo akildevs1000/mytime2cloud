@@ -71,34 +71,32 @@
                 <td class="text-center">
                   <b>{{ ++index }}</b>
                 </td>
-
                 <td>{{ item.system_user_id || "---" }}</td>
-
                 <td>{{ item.first_name || "---" }}</td>
-                <td>{{ (item && item.phone_number) || "---" }}</td>
-                <td>{{ item.schedule.shift_type.name }}</td>
+                <td>{{ caps(item && item.designation.name) }}</td>
+                <td>{{ caps(item.department.name) }}</td>
                 <td>
                   <v-menu bottom left>
                     <template v-slot:activator="{ on, attrs }">
                       <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                        <v-icon>lgi-dots-vertical</v-icon>
+                        <v-icon>mdi-dots-vertical</v-icon>
                       </v-btn>
                     </template>
                     <v-list width="120" dense>
                       <v-list-item @click="editItem(item)">
                         <v-list-item-title style="cursor:pointer">
                           <v-icon color="secondary" small>
-                            lgi-pencil
+                            mdi-pencil
                           </v-icon>
                           Edit
                         </v-list-item-title>
                       </v-list-item>
-                      <v-list-item @click="deleteItem(item)">
+                      <v-list-item @click="res(item.id)">
                         <v-list-item-title style="cursor:pointer">
-                          <v-icon color="error" small>
-                            lgi-delete
+                          <v-icon color="primary" small>
+                            mdi-eye
                           </v-icon>
-                          Delete
+                          Select
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -136,7 +134,16 @@
                     Employee
                   </v-tab>
                   <v-tab>
+                    Bank Details
+                  </v-tab>
+                  <v-tab>
                     Salary
+                  </v-tab>
+                  <v-tab>
+                    Allowance
+                  </v-tab>
+                  <v-tab>
+                    Deduction
                   </v-tab>
                 </v-tabs>
               </template>
@@ -209,15 +216,14 @@
                           <b>Role :</b>
                         </v-col>
                         <v-col lg="3" cols="6" sm="6" md="6" class="pl-0 ml-0">
-                          Manager
+                          {{ caps(work.role && work.role.name) || "---" }}
                         </v-col>
                         <v-col lg="1" cols="6" sm="6" md="6" class="pr-0 mr-0">
                           <b>EID :</b>
                         </v-col>
                         <v-col lg="3" cols="6" sm="6" md="6" class="pl-0 ml-0">
-                          AE0001
+                          {{ caps(work && work.employee_id) || "---" }}
                         </v-col>
-
                         <v-col lg="1" cols="6" sm="6" md="6" class="pr-0 mr-0"
                           ><b>Name :</b>
                         </v-col>
@@ -237,16 +243,22 @@
                           }}
                         </v-col>
                         <v-col lg="1" cols="6" sm="6" md="6" class="pr-0 mr-00">
-                          <b>Email : </b>
+                          <b> Designation: </b>
                         </v-col>
                         <v-col lg="3" cols="6" sm="6" md="6" class="pl-0 ml-0">
-                          {{ (work && work.user.email) || "----" }}
+                          {{ (work && work.designation.name) || "----" }}
                         </v-col>
                         <v-col lg="1" cols="6" sm="6" md="6" class="px-0 mx-0"
                           ><b>JoinDate:</b>
                         </v-col>
                         <v-col lg="3" cols="6" sm="6" md="6" class="float-left">
                           {{ (work && work.joining_date) || "----" }}
+                        </v-col>
+                        <v-col lg="2" cols="6" sm="6" md="6" class="px-0 ml-3"
+                          ><b>Email :</b>
+                        </v-col>
+                        <v-col lg="3" cols="6" sm="6" md="6" class="float-left">
+                          {{ (work && work.user.email) || "----" }}
                         </v-col>
                         <!-- row 3 -->
                       </v-row>
@@ -255,8 +267,221 @@
                 </v-card>
               </v-tab-item>
               <v-tab-item>
+                <!-- Bank -->
                 <v-card flat>
-                  <v-card-text>Salary</v-card-text>
+                  <v-expand-x-transition>
+                    <section class="pa-5">
+                      <v-row class="mb-6" no-guttedrs>
+                        <!-- row 1 -->
+                        <v-col lg="2" cols="6" sm="6" md="6" class="pr-0 mr-0">
+                          <b>Name :</b>
+                        </v-col>
+                        <v-col lg="4" cols="6" sm="6" md="6" class="pl-0 ml-0">
+                          {{ caps(BankInfo.bank_name) }}
+                        </v-col>
+                        <v-col lg="2" cols="6" sm="6" md="6" class="pr-0 mr-0">
+                          <b>Account No :</b>
+                        </v-col>
+                        <v-col lg="4" cols="6" sm="6" md="6" class="pl-0 ml-0">
+                          {{ caps(BankInfo.account_no) }}
+                        </v-col>
+
+                        <v-col lg="2" cols="6" sm="6" md="6" class="pr-0 mr-0"
+                          ><b>Title :</b>
+                        </v-col>
+                        <v-col lg="4" cols="6" sm="6" md="6" class="pl-0 ml-0">
+                          {{ caps(BankInfo.account_title) }}
+                        </v-col>
+                        <!-- row 2 -->
+                        <v-col lg="2" cols="6" sm="6" md="6" class="pr-0 mr-0">
+                          <b>Iban :</b>
+                        </v-col>
+                        <v-col lg="4" cols="6" sm="6" md="6" class="pl-0 ml-0">
+                          {{ caps(BankInfo.iban) }}
+                        </v-col>
+                        <v-col lg="2" cols="6" sm="6" md="6" class="pr-0 mr-00">
+                          <b>Address : </b>
+                        </v-col>
+                        <v-col lg="4" cols="6" sm="6" md="6" class="pl-0 ml-0">
+                          {{ caps(BankInfo.address) }}
+                        </v-col>
+                        <!-- row 3 -->
+                      </v-row>
+                    </section>
+                  </v-expand-x-transition>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item>
+                <!-- Salary -->
+                <v-card flat>
+                  <v-expand-x-transition>
+                    <section class="pa-5">
+                      <v-row dense>
+                        <v-col md="6" sm="12" cols="12" dense>
+                          <label class="col-form-label"
+                            >Payment Method
+                            <span class="text-danger">*</span></label
+                          >
+                          <v-select
+                            v-model="salary.payment_method"
+                            :items="paymentMethod"
+                            :hide-details="!errors.payment_method"
+                            :error="errors.payment_method"
+                            :error-messages="
+                              errors && errors.payment_method
+                                ? errors.title[0]
+                                : ''
+                            "
+                            dense
+                            outlined
+                          ></v-select>
+                        </v-col>
+                        <v-col md="6" cols="12" sm="12" dense>
+                          <label class="col-form-label"
+                            >Basic Salary<span class="text-danger"
+                              >*</span
+                            ></label
+                          >
+                          <v-text-field
+                            dense
+                            outlined
+                            type="number"
+                            v-model="salary.basic_salary"
+                            :hide-details="!errors.basic_salary"
+                            :error="errors.basic_salary"
+                            :error-messages="
+                              errors && errors.basic_salary
+                                ? errors.basic_salary[0]
+                                : ''
+                            "
+                          ></v-text-field>
+                        </v-col>
+                        <v-col md="6" cols="12" sm="12" dense>
+                          <v-btn color="primary" :loading="loading">Save</v-btn>
+                        </v-col>
+                      </v-row>
+                    </section>
+                  </v-expand-x-transition>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item>
+                <!-- Allowance -->
+                <v-card flat>
+                  <v-expand-x-transition>
+                    <section class="pa-5">
+                      <v-row dense>
+                        <v-col md="6" sm="12" cols="12" dense>
+                          <label class="col-form-label"
+                            >Allowance Type
+                            <span class="text-danger">*</span></label
+                          >
+                          <v-select
+                            v-model="allowance.name"
+                            :items="Allowance"
+                            :hide-details="!errors.name"
+                            :error="errors.name"
+                            :error-messages="
+                              errors && errors.name ? errors.title[0] : ''
+                            "
+                            dense
+                            outlined
+                          ></v-select>
+                        </v-col>
+                        <v-col md="6" cols="12" sm="12" dense>
+                          <label class="col-form-label"
+                            >Amount<span class="text-danger">*</span></label
+                          >
+                          <v-text-field
+                            dense
+                            outlined
+                            type="number"
+                            v-model="allowance.amount"
+                            :hide-details="!errors.amount"
+                            :error="errors.amount"
+                            :error-messages="
+                              errors && errors.amount ? errors.amount[0] : ''
+                            "
+                          ></v-text-field>
+                        </v-col>
+                        <v-col md="12" cols="12" sm="12" dense>
+                          <label class="col-form-label"
+                            >Remark<span class="text-danger">*</span></label
+                          >
+                          <v-textarea
+                            v-model="allowance.remark"
+                            dense
+                            outlined
+                            type="text"
+                            :hide-details="!errors.remark"
+                            class="input-group--focused"
+                          ></v-textarea>
+                        </v-col>
+                        <v-col md="6" cols="12" sm="12" dense>
+                          <v-btn color="primary" :loading="loading">Save</v-btn>
+                        </v-col>
+                      </v-row>
+                    </section>
+                  </v-expand-x-transition>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item>
+                <!-- Allowance -->
+                <v-card flat>
+                  <v-expand-x-transition>
+                    <section class="pa-5">
+                      <v-row dense>
+                        <v-col md="6" sm="12" cols="12" dense>
+                          <label class="col-form-label"
+                            >Allowance Type
+                            <span class="text-danger">*</span></label
+                          >
+                          <v-select
+                            v-model="allowance.name"
+                            :items="Allowance"
+                            :hide-details="!errors.name"
+                            :error="errors.name"
+                            :error-messages="
+                              errors && errors.name ? errors.title[0] : ''
+                            "
+                            dense
+                            outlined
+                          ></v-select>
+                        </v-col>
+                        <v-col md="6" cols="12" sm="12" dense>
+                          <label class="col-form-label"
+                            >Amount<span class="text-danger">*</span></label
+                          >
+                          <v-text-field
+                            dense
+                            outlined
+                            type="number"
+                            v-model="allowance.amount"
+                            :hide-details="!errors.amount"
+                            :error="errors.amount"
+                            :error-messages="
+                              errors && errors.amount ? errors.amount[0] : ''
+                            "
+                          ></v-text-field>
+                        </v-col>
+                        <v-col md="12" cols="12" sm="12" dense>
+                          <label class="col-form-label"
+                            >Remark<span class="text-danger">*</span></label
+                          >
+                          <v-textarea
+                            v-model="allowance.remark"
+                            dense
+                            outlined
+                            type="text"
+                            :hide-details="!errors.remark"
+                            class="input-group--focused"
+                          ></v-textarea>
+                        </v-col>
+                        <v-col md="6" cols="12" sm="12" dense>
+                          <v-btn color="primary" :loading="loading">Save</v-btn>
+                        </v-col>
+                      </v-row>
+                    </section>
+                  </v-expand-x-transition>
                 </v-card>
               </v-tab-item>
             </v-tabs-items>
@@ -287,6 +512,16 @@ export default {
     ids: [],
     loading: false,
     total: 0,
+    paymentMethod: ["Bank Transfer", "Cash", "Cheque"],
+    Allowance: [
+      "Transport",
+      "Travel",
+      "Entertainment",
+      "Housing",
+      "Uniform",
+      "Uniform",
+      "Medical/health"
+    ],
     headers: [
       {
         text: "#"
@@ -298,9 +533,11 @@ export default {
       {
         text: "Name"
       },
-
       {
-        text: "Shift Type"
+        text: "Designation"
+      },
+      {
+        text: "Department"
       },
       { text: "Actions", align: "center", value: "action", sortable: false }
     ],
@@ -326,6 +563,26 @@ export default {
       phone_number: "",
       whatsapp_number: "",
       joining_date: ""
+    },
+    BankInfo: {
+      bank_name: "",
+      account_no: "",
+      account_title: "",
+      iban: "",
+      address: "",
+      remark: "",
+      company_id: "",
+      employee_id: ""
+    },
+    salary: {
+      basic_salary: "",
+      payment_method: "",
+      remark: ""
+    },
+    allowance: {
+      name: "",
+      amount: "",
+      remark: ""
     }
   }),
 
@@ -358,11 +615,12 @@ export default {
     onPageChange() {
       this.getDataFromApi();
     },
-    caps(str = "---") {
-      if (str == "---") {
-        return str;
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
       } else {
-        return str.replace(/\b\w/g, c => c.toUpperCase());
+        let res = str.toString();
+        return res.replace(/\b\w/g, c => c.toUpperCase());
       }
     },
     can(per) {
@@ -372,6 +630,20 @@ export default {
         u.is_master
       );
     },
+    res(id) {
+      this.$axios.get(`employee/${id}`).then(({ data }) => {
+        this.work = { ...data };
+        this.getBankInfo(data.employee_id);
+      });
+    },
+    getBankInfo(id) {
+      this.$axios.get(`bankinfo/${id}`).then(({ data }) => {
+        this.BankInfo = {
+          ...data
+        };
+      });
+    },
+
     getDepartments() {
       let options = {
         params: {
@@ -399,6 +671,7 @@ export default {
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.data = data.data;
         this.work = this.data[0];
+        this.BankInfo = this.data[0];
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
@@ -465,13 +738,13 @@ export default {
     },
 
     save() {
-      let payload = {
+      let salary = {
         name: this.editedItem.name.toLowerCase(),
         company_id: this.$auth.user.company.id
       };
       if (this.editedIndex > -1) {
         this.$axios
-          .put(this.endpoint + "/" + this.editedItem.id, payload)
+          .put(this.endpoint + "/" + this.editedItem.id, salary)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
@@ -491,7 +764,7 @@ export default {
           .catch(err => console.log(err));
       } else {
         this.$axios
-          .post(this.endpoint, payload)
+          .post(this.endpoint, salary)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;

@@ -119,27 +119,27 @@
 
       <v-row class="mt-15">
         <v-col md="7">
-          <!-- <v-row>
-              <v-col xs="12" sm="12" md="3" cols="12">
-                <v-select
-                  @change="getDataFromApi(`employee`)"
-                  outlined
-                  v-model="per_page"
-                  :items="[50, 100, 500, 1000]"
-                  dense
-                  placeholder="Per Page Records"
-                ></v-select>
-              </v-col>
-              <v-col xs="12" sm="12" md="3" offset-md="6" cols="12">
-                <v-text-field
-                  outlined
-                  @input="searchIt"
-                  v-model="search"
-                  dense
-                  placeholder="Search..."
-                ></v-text-field>
-              </v-col>
-            </v-row> -->
+          <v-row>
+            <v-col xs="12" sm="12" md="3" cols="12">
+              <v-select
+                @change="getDataFromApi(`employee`)"
+                outlined
+                v-model="per_page"
+                :items="['Default', 10, 25, 50, 100]"
+                dense
+                placeholder="Per Page Records"
+              ></v-select>
+            </v-col>
+            <v-col xs="12" sm="12" md="3" offset-md="6" cols="12">
+              <v-text-field
+                outlined
+                @input="searchIt"
+                v-model="search"
+                dense
+                placeholder="Search..."
+              ></v-text-field>
+            </v-col>
+          </v-row>
           <v-row>
             <v-col
               xs="12"
@@ -794,6 +794,7 @@ export default {
       return header + rows;
     },
     res(id) {
+      window.scrollTo(0, 0);
       this.boilerplate = true;
       this.$axios.get(`employee/${id}`).then(({ data }) => {
         this.contactItem = {
@@ -805,17 +806,20 @@ export default {
         this.setting = {
           ...data
         };
-
-        this.getPersonalInfo(data.employee_id);
-        this.getPassportInfo(data.employee_id);
-        this.getEmirateInfo(data.employee_id);
-        this.getVisaInfo(data.employee_id);
-        this.getBankInfo(data.employee_id);
-        this.getQualificationInfo(data.employee_id);
-
+        this.getAllData(data.employee_id);
         this.boilerplate = false;
       });
     },
+
+    getAllData(id) {
+      this.getPersonalInfo(id);
+      this.getPassportInfo(id);
+      this.getEmirateInfo(id);
+      this.getVisaInfo(id);
+      this.getBankInfo(id);
+      this.getQualificationInfo(id);
+    },
+
     getPersonalInfo(id) {
       this.$axios.get(`personalinfo/${id}`).then(({ data }) => {
         this.personalItem = {
@@ -845,7 +849,7 @@ export default {
       });
     },
     getBankInfo(id) {
-      this.$axios.get(`visa/${id}`).then(({ data }) => {
+      this.$axios.get(`bankinfo/${id}`).then(({ data }) => {
         this.BankInfo = {
           ...data
         };
@@ -933,15 +937,29 @@ export default {
       }
     },
     getDataFromApi(url = this.endpoint) {
+      // let p = this.per_page === "Default" ? 8 : this.per_page;
+
       let options = {
         params: {
-          per_page: this.per_page,
+          per_page: this.per_page === "Default" ? 8 : this.per_page,
           company_id: this.$auth?.user?.company?.id
         }
       };
       this.$axios.get(`${url}`, options).then(({ data }) => {
         this.data = data.data;
-        this.work = this.data[0];
+
+        this.contactItem = {
+          ...this.data[0]
+        };
+        this.work = {
+          ...this.data[0]
+        };
+        this.setting = {
+          ...this.data[0]
+        };
+
+        this.getAllData(this.data[0].employee_id);
+
         this.max_employee = this.$auth.user.company.max_employee;
         this.next_page_url = data.next_page_url;
         this.prev_page_url = data.prev_page_url;

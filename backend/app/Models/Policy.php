@@ -14,6 +14,7 @@ class Policy extends Model
 
     protected $casts = [
         'created_at' => 'datetime:d-M-y',
+        'body' => 'array',
     ];
 
     protected static function boot()

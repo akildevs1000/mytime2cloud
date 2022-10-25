@@ -17,9 +17,10 @@
           class="mt-5"
           placeholder="Select Number of Records"
           :items="[10, 20, 50, 100]"
+          style="max-width: 200px !important;"
         ></v-select>
       </v-toolbar>
-      <v-slide-group class="px-4" active-class="success" show-arrows>
+      <v-slide-group class="px-4 pb-3" active-class="success" show-arrows>
         <div></div>
         <v-slide-item v-for="(item, index) in logs" :key="index">
           <div class="card mx-2 my-2 w-25">
@@ -116,14 +117,11 @@ export default {
       };
     },
     getDetails(item) {
-
-      this.$axios
-        .post(`/device/details`, item)
-        .then(({ data }) => {
-          if (data.device.company_id == this.$auth.user.company.id) {
-            this.logs.unshift(data);
-          }
-        });
+      this.$axios.post(`/device/details`, item).then(({ data }) => {
+        if (data.device.company_id == this.$auth.user.company.id) {
+          this.logs.unshift(data);
+        }
+      });
     }
   }
 };

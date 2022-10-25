@@ -7,7 +7,7 @@
           <table>
             <tr>
               <th colspan="2">
-                <v-toolbar color="primary" small dense flat dark rounded="2">
+                <v-toolbar color="#E9E9E9" small dense flat rounded="2">
                   Visa
                 </v-toolbar>
               </th>
@@ -47,7 +47,7 @@
 
             <tr>
               <th colspan="2">
-                <v-toolbar color="primary" small dense flat dark rounded="2">
+                <v-toolbar color="#E9E9E9" small dense flat rounded="2">
                   Labour
                 </v-toolbar>
               </th>
