@@ -20,9 +20,9 @@ class ReportNotificationController extends Controller
             $record = ReportNotification::create($request->validated());
 
             if ($record) {
-                return $this->response('Automation created.', $record, true);
+                return $this->response('Report Notification created.', $record, true);
             } else {
-                return $this->response('Automation cannot create.', null, false);
+                return $this->response('Report Notification cannot create.', null, false);
             }
         } catch (\Throwable$th) {
             throw $th;
@@ -40,9 +40,9 @@ class ReportNotificationController extends Controller
             $record = $ReportNotification->update($request->validated());
 
             if ($record) {
-                return $this->response('Automation updated.', $record, true);
+                return $this->response('Report Notification updated.', $record, true);
             } else {
-                return $this->response('Automation update.', null, false);
+                return $this->response('Report Notification update.', null, false);
             }
         } catch (\Throwable$th) {
             throw $th;
@@ -54,9 +54,9 @@ class ReportNotificationController extends Controller
         $record = $ReportNotification->delete();
 
         if ($record) {
-            return $this->response('Automation successfully deleted.', $record, true);
+            return $this->response('Report Notification deleted.', $record, true);
         } else {
-            return $this->response('Automation cannot delete.', null, false);
+            return $this->response('Report Notification cannot delete.', null, false);
         }
     }
 }

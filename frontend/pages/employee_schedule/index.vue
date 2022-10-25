@@ -588,7 +588,7 @@ export default {
     },
     getShifts(shift_type_id) {
       this.$axios
-        .get("shift_by_type", { params: { shift_type_id: shift_type_id } })
+        .get("shift_by_type", { params: { shift_type_id: shift_type_id,company_id: this.$auth.user.company.id } })
         .then(({ data }) => {
           this.shifts = data;
           // this.shifts.unshift({ id: "", name: "Select Shift" });

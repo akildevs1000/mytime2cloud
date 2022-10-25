@@ -17,13 +17,15 @@ class StoreRequest extends FormRequest
 
     public function rules()
     {
-
-
         return [
+            'subject' => 'nullable',
+            'body' => 'nullable',
+            'day' => 'nullable',
+            'date' => 'nullable',
             'company_id' => 'required',
             'frequency' => 'required',
             'time' => 'required',
-            'reports' => 'array|min:1',
+            'reports' => 'array|min:1|max:5',
             'mediums' => 'array|min:1',
             'tos' => 'array|min:1',
             'ccs' => 'array|nullable',

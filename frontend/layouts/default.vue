@@ -577,7 +577,7 @@ export default {
         // },
         {
           icon: "mdi-email",
-          title: "Automation",
+          title: "Report Notification",
           to: "/report_notifications",
           permission: this.can("/")
         },

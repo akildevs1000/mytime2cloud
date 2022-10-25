@@ -1,16 +1,18 @@
 <?php
 
+use App\Http\Controllers\Reports\ReportController;
 use App\Mail\TestMail;
 use App\Models\Attendance;
+use App\Models\Company;
 use App\Models\Employee;
 use App\Models\ReportNotification;
-use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 Route::get('/test', function (Request $request) {
     return "Awesome APIs";
@@ -70,21 +72,6 @@ Route::post('/upload', function (Request $request) {
     $data['file'] = $file;
 });
 
-Route::post('/fahath', function (Request $request) {
-    // upload/1664210353.png
-    // return Storage::disk('do')->path('upload/1664210353.png');
-
-    // echo '<img src="' . Storage::disk('do')->path('upload/1664210353.png') . '" alt="">';
-    // return Storage::disk('do')->get('upload/1664210353.png');
-    $request->file('logo');
-    $file = $request->file('logo');
-    $ext = $file->getClientOriginalExtension();
-    $fileName = time() . '.' . $ext;
-    $path = $request->file('logo')->storePubliclyAs('upload', $fileName, "do");
-
-    return isset($path);
-});
-
 Route::get('/test/whatsapp', function () {
     $curl = curl_init();
 
@@ -122,95 +109,6 @@ Route::get('/test/whatsapp', function () {
 
 Route::get('/test_attachment', function () {
 
-    $files = [
-        base_path('test.log'),
-        base_path('scheduler.log'),
-    ];
-
-    $details = [
-        'subject' => 'my subject',
-        'body' => '<!DOCTYPE html>
-        <html>
-        <head>
-        <style>
-        table {
-          font-family: arial, sans-serif;
-          border-collapse: collapse;
-          width: 100%;
-        }
-
-        td, th {
-          border: 1px solid #dddddd;
-          text-align: left;
-          padding: 8px;
-        }
-
-        tr:nth-child(even) {
-          background-color: #dddddd;
-        }
-        </style>
-        </head>
-        <body>
-
-        <h2>HTML Table</h2>
-
-        <table>
-          <tr>
-            <th>Company</th>
-            <th>Contact</th>
-            <th>Country</th>
-          </tr>
-          <tr>
-            <td>Alfreds Futterkiste</td>
-            <td>Maria Anders</td>
-            <td>Germany</td>
-          </tr>
-          <tr>
-            <td>Centro comercial Moctezuma</td>
-            <td>Francisco Chang</td>
-            <td>Mexico</td>
-          </tr>
-          <tr>
-            <td>Ernst Handel</td>
-            <td>Roland Mendel</td>
-            <td>Austria</td>
-          </tr>
-          <tr>
-            <td>Island Trading</td>
-            <td>Helen Bennett</td>
-            <td>UK</td>
-          </tr>
-          <tr>
-            <td>Laughing Bacchus Winecellars</td>
-            <td>Yoshi Tannamuri</td>
-            <td>Canada</td>
-          </tr>
-          <tr>
-            <td>Magazzini Alimentari Riuniti</td>
-            <td>Giovanni Rovelli</td>
-            <td>Italy</td>
-          </tr>
-        </table>
-
-        </body>
-        </html>
-
-        ',
-        'files' => $files
-    ];
-
-    Mail::to("francisgill1000@gmail.com")
-        ->cc("francisgill1000@gmail.com")
-        ->bcc("francisgill1000@gmail.com")
-        ->send(new TestMail($details));
-
-    // echo "mail sent";
-    die;
-
-    if (!env('IS_MAIL')) {
-        return "mail not allowed";
-    }
-
     $models = ReportNotification::get();
 
     foreach ($models as $model) {
@@ -219,82 +117,12 @@ Route::get('/test_attachment', function () {
                 Mail::to($model->tos)
                     ->cc($model->ccs)
                     ->bcc($model->bccs)
-                    ->queue(new TestMail($model->subject, $model->body));
+                    ->queue(new TestMail($model));
             }
             if (in_array("Whatsapp", $model->mediums)) {
-                Mail::to($model->tos)->send(new TestMail($model->subject, $model->body));
+                Mail::to($model->tos)->send(new TestMail($model));
             }
         }
     }
-
-    // "reports": [
-    // "Daily Summary",
-    // "Weekly Summary",
-    // "Monthly Summary",
-    // "Yearly Summary"
-    // ],
-
-    return $model;
-});
-
-Route::post('/do_spaces', function (Request $request) {
-    return $request->file("file")->storePublicly("upload", "do") ? 1 : "0";
-});
-
-Route::get('/do_spaces', function (Request $request) {
-    return $request->file("file")->storePublicly("upload", "do") ? 1 : "0";
-});
-
-Route::post('/log_payload', function (Request $request) {
-    return $request->all();
-});
-
-Route::get('/php_mail', function (Request $request) {
-
-    $to = "akildevs1000@gmail.com";
-    $subject = "My subject";
-    $txt = "Hello world!";
-    $headers = "From: francisgill1000@gmail.com";
-
-    $mail = mail($to, $subject, $txt, $headers);
-    if ($mail) {
-        return "mail sent";
-    }
-    return "not sent";
-    // ini_set('SMTP', "server.com");
-    // ini_set('smtp_port', "25");
-    // ini_set('sendmail_from', "email@domain.com");
-
-    $to = env("RECIPIENT_LIST");
-    $subject = "HTML email";
-
-    $message = "
-                <html>
-                <head>
-                <title>HTML email</title>
-                </head>
-                <body>
-                <p>This email contains HTML Tags!</p>
-                <table>
-                <tr>
-                <th>Firstname</th>
-                <th>Lastname</th>
-                </tr>
-                <tr>
-                <td>John</td>
-                <td>Doe</td>
-                </tr>
-                </table>
-                </body>
-                </html>
-                ";
-
-    // Always set content-type when sending HTML email
-    $headers = "MIME-Version: 1.0" . "\r\n";
-    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-
-    // More headers
-    $headers .= 'From: <akildevs1000@gmail.com>' . "\r\n";
-
-    return mail($to, $subject, $message, $headers);
+    return "done";
 });

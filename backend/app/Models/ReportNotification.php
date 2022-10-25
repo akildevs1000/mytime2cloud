@@ -12,6 +12,7 @@ class ReportNotification extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'body' => 'array',
         'reports' => 'array',
         'mediums' => 'array',
         'tos' => 'array',

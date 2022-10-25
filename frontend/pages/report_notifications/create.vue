@@ -8,13 +8,15 @@
     <div v-if="!preloader">
       <v-row class="mt-5 mb-5">
         <v-col cols="10">
-          <h3>Automation</h3>
-          <div>Dashboard / Automation</div>
+          <h3>Report Notification</h3>
+          <div>Dashboard / Report Notification</div>
         </v-col>
       </v-row>
       <v-card elevation="0" class="pa-3">
         <v-card-title>
-          <label class="col-form-label"><h3>Create Automation</h3></label>
+          <label class="col-form-label"
+            ><h3>Create Report Notification</h3></label
+          >
           <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
             <v-icon>mdi-arrow-left</v-icon>
@@ -22,7 +24,23 @@
         </v-card-title>
         <v-container>
           <v-row>
-            <label class="col-form-label pt-3"><b>When </b></label>
+            <v-col cols="3">
+              <v-text-field
+                :hide-details="!subject"
+                v-model="payload.subject"
+                placeholder="Title/Subject"
+                outlined
+                dense
+              ></v-text-field>
+
+              <span v-if="errors && errors.subject" class="error--text">{{
+                errors.subject[0]
+              }}</span>
+
+              <span v-if="errors && errors.subject" class="error--text">{{
+                errors.subject[0]
+              }}</span>
+            </v-col>
             <v-col cols="3">
               <v-autocomplete
                 :hide-details="!payload.frequency"
@@ -30,11 +48,27 @@
                 outlined
                 dense
                 placeholder="Frequency"
-                :items="['Daily', 'Weekly', 'Monthly', 'Yearly']"
+                :items="['Daily', 'Weekly', 'Monthly']"
               >
               </v-autocomplete>
               <span v-if="errors && errors.frequency" class="error--text">{{
                 errors.frequency[0]
+              }}</span>
+            </v-col>
+            <v-col cols="3">
+              <v-autocomplete
+                :hide-details="!payload.day"
+                v-model="payload.day"
+                outlined
+                dense
+                placeholder="Days"
+                :items="payload.frequency !== 'Daily' ? days : []"
+                item-text="name"
+                item-value="id"
+              >
+              </v-autocomplete>
+              <span v-if="errors && errors.day" class="error--text">{{
+                errors.day[0]
               }}</span>
             </v-col>
             <v-col cols="3">
@@ -81,35 +115,31 @@
                 dense
                 v-model="payload.reports"
                 label="Daily Summary"
-                value="Daily Summary"
+                value="daily_summary.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
                 label="Daily Present"
-                value="Daily Present"
+                value="daily_present.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
                 label="Daily Absent"
-                value="Daily Absent"
+                value="daily_absent.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
                 label="Daily Missing"
-                value="Daily Missing"
+                value="daily_missing.pdf"
               ></v-checkbox>
-              <span v-if="errors && errors.reports" class="error--text">{{
-                errors.reports[0]
-              }}</span>
-
               <v-checkbox
                 dense
                 v-model="payload.reports"
-                label="Daily Manual Punch"
-                value="Daily Manual Punch"
+                label="Daily Manual Entry"
+                value="daily_manual.pdf"
               ></v-checkbox>
               <span v-if="errors && errors.reports" class="error--text">{{
                 errors.reports[0]
@@ -120,32 +150,32 @@
                 dense
                 v-model="payload.reports"
                 label="Weekly Summary"
-                value="Weekly Summary"
+                value="weekly_summary.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
                 label="Weekly Present"
-                value="Weekly Present"
+                value="weekly_present.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
                 label="Weekly Absent"
-                value="Weekly Absent"
+                value="weekly_absent.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
                 label="Weekly Missing"
-                value="Weekly Missing"
+                value="weekly_missing.pdf"
               ></v-checkbox>
 
               <v-checkbox
                 dense
                 v-model="payload.reports"
-                label="Weekly Manual Punch"
-                value="Weekly Manual Punch"
+                label="Weekly Manual Entry"
+                value="weekly_manual.pdf"
               ></v-checkbox>
             </v-col>
             <v-col cols="2" class="pa-0 ma-0">
@@ -153,63 +183,31 @@
                 dense
                 v-model="payload.reports"
                 label="Monthly Summary"
-                value="Monthly Summary"
+                value="monthly_summary.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
                 label="Monthly Present"
-                value="Monthly Present"
+                value="monthly_present.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
                 label="Monthly Absent"
-                value="Monthly Absent"
+                value="monthly_absent.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
                 label="Monthly Missing"
-                value="Monthly Missing"
+                value="monthly_missing.pdf"
               ></v-checkbox>
               <v-checkbox
                 dense
                 v-model="payload.reports"
-                label="Monthly Manual Punch"
-                value="Monthly Manual Punch"
-              ></v-checkbox>
-            </v-col>
-            <v-col cols="2" class="pa-0 ma-0">
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Yearly Summary"
-                value="Yearly Summary"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Yearly Present"
-                value="Yearly Present"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Yearly Absent"
-                value="Yearly Absent"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Yearly Missing"
-                value="Yearly Missing"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Yearly Manual Punch"
-                value="Yearly Manual Punch"
+                label="Monthly Manual Entry"
+                value="monthly_manual.pdf"
               ></v-checkbox>
             </v-col>
           </v-row>
@@ -241,10 +239,11 @@
           </v-row>
           <v-divider></v-divider>
           <v-row>
+            <v-col cols="12">
+              <label class="col-form-label"><h4>Email Settings</h4></label>
+            </v-col>
             <v-col cols="3">
-              <label class="col-form-label"><h4>Mail Settings</h4></label><br />
-
-              <label class="col-form-label pt-5"
+              <label class="col-form-label"
                 ><b>To </b>(Press enter to add email address/es)</label
               >
 
@@ -272,13 +271,8 @@
                 errors.tos[0]
               }}</span>
             </v-col>
-
             <v-col cols="3">
               <label class="col-form-label"
-                ><h4 style="color:white;">Mail Settings</h4></label
-              ><br />
-
-              <label class="col-form-label pt-5"
                 ><b>Cc </b>(Press enter to add email address/es)</label
               >
               <v-text-field
@@ -301,13 +295,8 @@
                 >
               </v-chip>
             </v-col>
-
             <v-col cols="3">
               <label class="col-form-label"
-                ><h4 style="color:white;">Mail Settings</h4></label
-              ><br />
-
-              <label class="col-form-label pt-5"
                 ><b>Bcc </b>(Press enter to add email address/es)</label
               >
               <v-text-field
@@ -331,42 +320,25 @@
               </v-chip>
             </v-col>
           </v-row>
-          <v-row style="margin-top:-30px;">
-            <v-col cols="3">
-              <label class="col-form-label"><b>Subject </b></label>
-
-              <v-text-field
-                :hide-details="!subject"
-                v-model="payload.subject"
-                placeholder="Subject"
-                outlined
-                dense
-              ></v-text-field>
-
-              <span v-if="errors && errors.subject" class="error--text">{{
-                errors.subject[0]
-              }}</span>
-
-              <br />
-
-              <label class="col-form-label"><b>Body </b></label>
-
-              <v-textarea
-                :hide-details="!body"
-                v-model="payload.body"
-                placeholder="Body"
-                outlined
-                dense
-              ></v-textarea>
-
-              <span v-if="errors && errors.subject" class="error--text">{{
-                errors.subject[0]
-              }}</span>
+          <v-row>
+            <v-col cols="12">
+              <ClientOnly>
+                <tiptap-vuetify
+                  class="tiptap-icon"
+                  v-model="payload.body"
+                  :extensions="extensions"
+                  v-scroll.self="onScroll"
+                  max-height="400"
+                  :toolbar-attributes="{
+                    color: 'background red--text'
+                  }"
+                />
+                <template #placeholder> Loading... </template>
+              </ClientOnly>
             </v-col>
           </v-row>
-
           <v-divider></v-divider>
-          <v-row>
+          <!-- <v-row>
             <v-col cols="3">
               <label class="col-form-label"><h4>Whatsapp Settings</h4></label
               ><br />
@@ -400,7 +372,8 @@
               }}</span>
             </v-col>
           </v-row>
-          <v-divider></v-divider>
+          <v-divider></v-divider> -->
+
           <v-row>
             <v-col cols="12">
               <v-btn small color="primary" @click="store">
@@ -417,8 +390,59 @@
 </template>
 
 <script>
+import {
+  TiptapVuetify,
+  Heading,
+  Bold,
+  Italic,
+  Strike,
+  Underline,
+  Paragraph,
+  BulletList,
+  OrderedList,
+  ListItem,
+  Blockquote,
+  History
+} from "tiptap-vuetify";
+
 export default {
+  components: { TiptapVuetify },
+
   data: () => ({
+    days: [
+      { id: 1, name: "Monday" },
+      { id: 2, name: "Tuesday" },
+      { id: 3, name: "Wednesday" },
+      { id: 4, name: "Thursday" },
+      { id: 5, name: "Friday" },
+      { id: 6, name: "Saturday" },
+      { id: 0, name: "Sunday" }
+    ],
+    extensions: [
+      History,
+      Blockquote,
+      Underline,
+      Strike,
+      Italic,
+      ListItem,
+      BulletList,
+      OrderedList,
+      [
+        Heading,
+        {
+          options: {
+            levels: [1, 2, 3]
+          }
+        }
+      ],
+      Bold,
+      Paragraph
+    ],
+    // starting editor's content
+    content: `
+      <h1>Yay Headlines!</h1>
+      <p>All these <strong>cool tags</strong> are working now.</p>
+        `,
     color: "primary",
     e1: 1,
     menu2: false,
@@ -453,6 +477,9 @@ export default {
     this.id = this.$auth?.user?.company?.id;
   },
   methods: {
+    onScroll() {
+      this.scrollInvoked++;
+    },
     can(per) {
       let u = this.$auth.user;
       return (
@@ -589,5 +616,21 @@ th {
 
 tr:nth-child(even) {
   background-color: #dddddd;
+}
+</style>
+<style>
+.tiptap-vuetify-editor__content {
+  min-height: 400px !important;
+}
+
+.ProseMirror .ProseMirror-focused {
+  height: 400px !important;
+}
+
+.tiptap-icon .v-icon {
+  color: white !important;
+}
+.tiptap-icon .v-btn--icon {
+  color: white !important;
 }
 </style>

@@ -15,7 +15,11 @@ return new class extends Migration
     {
         Schema::create('report_notifications', function (Blueprint $table) {
             $table->id();
+            $table->string("subject")->nullable();
+            $table->json("body")->nullable();
             $table->string("frequency")->nullable();
+            $table->string("day")->nullable();
+            $table->string("date")->nullable();
             $table->string("time")->nullable();
             $table->json("reports")->nullable();
             $table->json("mediums")->nullable();

@@ -1,3 +1,3 @@
 <div>
-{!!$data['body']!!}
+    {{!! $body !!}}
 </div>

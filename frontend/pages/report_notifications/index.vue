@@ -25,7 +25,10 @@
               <table style="width: 100%;">
                 <tr>
                   <td style="width:130px;">
-                    <label class="col-form-label"><b>Frequency </b></label>
+                    <label class="col-form-label"><b>Title</b></label>
+                  </td>
+                   <td style="max-width:100px;">
+                    <label class="col-form-label">Frequency</label>
                   </td>
                   <td style="width:80px;">
                     <label class="col-form-label"><b>Time</b></label>
@@ -48,6 +51,9 @@
                 </tr>
                 <tr v-for="(item, index) in data" :key="index">
                   <td style="max-width:10px;">
+                    <label class="col-form-label">{{ item.subject }}</label>
+                  </td>
+                   <td style="max-width:10px;">
                     <label class="col-form-label">{{ item.frequency }}</label>
                   </td>
                   <td>

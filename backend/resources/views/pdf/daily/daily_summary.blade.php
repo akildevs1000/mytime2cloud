@@ -1,7 +1,3 @@
-{{-- @php
-phpinfo();
-die();
-@endphp --}}
 <!DOCTYPE html>
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -48,6 +44,25 @@ die();
 </head>
 
 <body>
+    <table style="margin-top: -20px !important;">
+        <tr style="background-color: #5fafa3;">
+            <td style="text-align: left; border :none; padding:15px;">
+                <div>
+                    <h3 style="color: #ffffff">{{ $company->name ?? 'Sample Company' }}</h3>
+                    <h4 style="color: #ffffff">{{ $company->location ?? 'Waleed Road Burdubai' }}</h4>
+                </div>
+            </td>
+            <td style="text-align: right; border :none;">
+                <div>
+                    @if (env('APP_ENV') !== 'local')
+                        <img src="{{ $company->logo }}" height="70px" width="70">
+                    @else
+                        <img src="{{ getcwd() . '/upload/1665668211.png' }}" height="70px" width="70">
+                    @endif
+                </div>
+            </td>
+        </tr>
+    </table>
     <table>
         <tr>
             <td style="text-align: center; border :none;">
@@ -57,71 +72,27 @@ die();
             </td>
         </tr>
     </table>
-    <table style="margin-top: -20px !important;">
-        <tr>
-            <td style="text-align: left; border :none; padding:15px;">
-                <div >
-                    @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" height="70px" width="70">
-                    @else
-                        <img src="{{ getcwd() . '/upload/app-logo.jpg' }}" height="70px" width="70">
-                    @endif
-
-                    <table style="text-align: left; border :none; margin-top:5px">
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: left; border :none;"><strong>{{ $company->name ?? 'Sample Company' }} </strong></td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: left; border :none;"><strong>{{ $company->company_code }} </strong></td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: left; border :none;"><strong>{{ $company->location = 'Akil Security & Alarm Systemss LLC BR.' ?? 'Waleed Road Burdubai' }} </strong></td>
-                        </tr>
-                    </table>
-
-                </div>
-            </td>
-            <td style="text-align: right; border :none; width:120px;">
-                <table style="text-align: left; border :none; margin-top:50px;">
-                 
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none; color: green;"><b>Present: </b></td>
-                        <td style="text-align: left; border :none; color: green;">{{ $info->total_present }}</td>
-                    </tr>
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none; color: red;"><b>Absent: </b></td>
-                        <td style="text-align: left; border :none; color: red;">{{ $info->total_absent }}</td>
-                    </tr>
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none; color: #f34100ed;"><b>Missing: </b></td>
-                        <td style="text-align: left; border :none; color: #f34100ed;">{{ $info->total_missing }}</td>
-                    </tr>
-
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none;"><strong>Date: </strong></td>
-                        <td style="text-align: left; border :none;">{{ $info->daily_date }}</td>
-                    </tr>
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none;"><b>Department: </b></td>
-                        <td style="text-align: left; border :none;">{{ $info->department }}</td>
-                    </tr>
-                   
-                </table>
-            </td>
-         
-            </td>
-        </tr>
-    </table>
     {{-- <table style="margin-top: 5px !important;">
+        <tr style="text-align: left; border :1px solid black!important; width:120px;">
+            <td style="text-align: center; width:120px;"><b>Daily Performance Report </b></td>
+            <td style="text-align: right; width:10px;"><b>Date:- </b></td>
+            <td style="text-align: left; width:120px"><b>Present</b>: {{ $req->daily_date }}</td>
+        </tr>
+        <tr>
+        </tr>
+        <tr style="text-align: left; border :1px solid black!important; width:120px;">
+            <td colspan="3" style="text-align: center"><b> {{ $company->name ?? 'V Perfumes' }} </b></td>
+        </tr>
+    </table> --}}
+    <table style="margin-top: 5px !important;">
         <tr style="text-align: left; border :1px solid black; width:120px;">
             <td style="text-align: left; width:120px;"><b>Date: </b>{{ $req->daily_date }}</td>
             <td style="text-align: left; width:120px;"><b>Department: </b>{{ $info->department }}</td>
             <td style="text-align: left; width:120px; color: green;"><b>Present</b>: {{ $info->total_present }}</td>
             <td style="text-align: left; width:120px; color: red;"><b>Absent</b>: {{ $info->total_absent }}</td>
-            <td style="text-align: left; width:120px; color: #f34100ed;"><b>Missing</b>: {{ $info->total_missing }}
-            </td>
+            <td style="text-align: left; width:120px; color: #f34100ed;"><b>Missing</b>: {{ $info->total_missing }}</td>
         </tr>
-    </table> --}}
+    </table>
 
     @php
         $statusColor = '';
