@@ -38,7 +38,7 @@
         <v-card elevation="0">
           <div v-for="(item, index) in data" :key="index">
             <v-toolbar class="rounded-md" color="background" dense flat dark>
-              <span> {{ item.role.name }}</span>
+              <span> {{ item.role && item.role.name }}</span>
             </v-toolbar>
             <table class="mb-15">
               <tr style="text-align:center; ">
@@ -77,6 +77,16 @@
                 @click="save(item)"
               >
                 Submit
+              </v-btn>
+              <v-btn
+                v-if="can(`assign_permission_delete`)"
+                dark
+                small
+                color="error"
+                class="mx-1 my-4"
+                @click="deleteItem(item)"
+              >
+                Delete
               </v-btn>
             </table>
           </div>
@@ -361,8 +371,7 @@ export default {
         this.$axios
           .delete(this.endpoint + "/" + item.id)
           .then(({ data }) => {
-            const index = this.data.indexOf(item);
-            this.data.splice(index, 1);
+            this.getDataFromApi();
             this.snackbar = data.status;
             this.response = data.message;
           })
