@@ -29,7 +29,6 @@ Route::get('/monthly_early_out', [MonthlyController::class, 'monthly_early_out']
 Route::get('/monthly_performance', [MonthlyController::class, 'monthly_performance']);
 
 
-
 //for testing static
 Route::get('/daily_html', [Controller::class, 'daily_html']);
 Route::get('/weekly_html', [Controller::class, 'weekly_html']);
