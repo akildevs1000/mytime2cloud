@@ -154,15 +154,9 @@
             <v-col md="12">
               <h5>Filters</h5>
             </v-col>
-            <v-col
-              :md="
-                payload.report_type == 'Daily' ||
-                payload.report_type == 'Weekly'
-                  ? 5
-                  : 10
-              "
-            >
+            <v-col :md="payload.report_type == 'Daily' ? 5 : 10">
               Report Type
+
               <v-autocomplete
                 @change="changeReportType(payload.report_type)"
                 class="mt-2"
@@ -175,13 +169,7 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col
-              md="5"
-              v-if="
-                payload.report_type == 'Daily' ||
-                  payload.report_type == 'Weekly'
-              "
-            >
+            <v-col md="5" v-if="payload.report_type == 'Daily'">
               <div class="mb-2">Date</div>
               <div class="text-left">
                 <v-menu
@@ -240,23 +228,10 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <!-- <v-col md="5">
-              Employee ID
-              <v-autocomplete
-                class="mt-2"
-                outlined
-                dense
-                v-model="payload.employee_id"
-                x-small
-                :items="scheduled_employees"
-                item-value="system_user_id"
-                item-text="name_with_user_id"
-                :hide-details="true"
-              ></v-autocomplete>
-            </v-col> -->
             <v-col md="5">
               Employee ID
               <v-autocomplete
+                @change="fetch_logs"
                 class="mt-2"
                 outlined
                 dense
@@ -268,7 +243,7 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col v-if="payload.report_type == 'Monthly'" md="5">
+            <v-col v-if="payload.report_type !== 'Daily'" md="5">
               <div class="text-left">
                 <v-menu
                   ref="from_menu"
@@ -311,7 +286,7 @@
                 </v-menu>
               </div>
             </v-col>
-            <v-col v-if="payload.report_type == 'Monthly'" md="5">
+            <v-col v-if="payload.report_type !== 'Daily'" md="5">
               <div class="mb-1">To Date</div>
               <div class="text-left">
                 <v-menu
@@ -354,6 +329,7 @@
             <v-col md="5">
               Status
               <v-select
+                @change="fetch_logs"
                 class="mt-2"
                 outlined
                 dense
@@ -364,43 +340,6 @@
                 item-text="name"
                 :hide-details="true"
               ></v-select>
-            </v-col>
-            <!-- <v-col md="5">
-              Late/Early
-              <v-select
-                s
-                class="mt-2"
-                outlined
-                dense
-                v-model="payload.late_early"
-                x-small
-                :items="[`Select All`, `Late`, `Early`]"
-                item-value="id"
-                item-text="name"
-                :hide-details="true"
-              >
-              </v-select>
-            </v-col> -->
-            <!-- <v-col md="12">
-              <v-checkbox
-                dense
-                v-model="overtime"
-                label="Overtime"
-                hide-details
-              />
-            </v-col> -->
-
-            <v-col md="12">
-              <div class="mb-5">
-                <v-btn
-                  :loading="loading"
-                  color="primary"
-                  @click="fetch_logs"
-                >
-                  <v-icon class="pr-1">mdi-history</v-icon>
-                  Get Records
-                </v-btn>
-              </div>
             </v-col>
           </v-row>
         </v-card>
@@ -653,15 +592,16 @@
         Summary
       </v-btn> -->
 
-
       <!-- <v-spacer></v-spacer> -->
-        <a href="https://backend.ideahrms.com/api/weekly_html" target="_blank"><v-icon class="mr-1 white--text">mdi-printer-outline</v-icon></a>
-        <v-icon class="mr-1 white--text">mdi-file-outline</v-icon>
-        <v-icon class="mr-1 white--text">mdi-file</v-icon>
+      <v-icon class="mr-1 white--text" @click="generateReportDaily"
+        >mdi-printer-outline</v-icon
+      >
+      <v-icon class="mr-1 white--text">mdi-file-outline</v-icon>
+      <v-icon class="mr-1 white--text">mdi-file</v-icon>
 
-        <!-- <v-icon class="mr-1">mdi-file-outline</v-icon>
+      <!-- <v-icon class="mr-1">mdi-file-outline</v-icon>
         <v-icon class="mr-1">mdi-file</v-icon> -->
-        <!-- <v-btn
+      <!-- <v-btn
         v-if="can(`attendance_pdf_access`)"
         small
         class=""
@@ -995,13 +935,13 @@ export default {
 
   methods: {
     changeReportType(report_type) {
-      if (report_type == "Daily") {
-        this.setDailyDate();
-      } else if (report_type == "Monthly") {
-        this.setDailyDate();
-      } else if (report_type == "Monthly") {
-        this.setMonthlyDateRange();
-      }
+      // if (report_type == "Daily") {
+      //   this.setDailyDate();
+      // } else {
+      //   this.setMonthlyDateRange();
+      // }
+      this.setDailyDate();
+      this.fetch_logs();
     },
 
     getDeviceList() {
@@ -1027,6 +967,8 @@ export default {
     // },
 
     getEmployeesByDepartment() {
+      this.fetch_logs();
+
       this.$axios
         .get(
           `/employees_by_departments/${this.payload.department_id}`,
@@ -1285,19 +1227,8 @@ export default {
       pdf.click();
     },
 
-    generateReport(url) {
-      let path = process.env.BACKEND_URL + "/" + url;
-      let report = document.createElement("a");
-
+    generateReportDaily() {
       let status = this.payload.status;
-
-      if (url == "present") {
-        status = "P";
-      } else if (url == "absent") {
-        status = "A";
-      } else if (url == "missing") {
-        status = "Missing";
-      }
 
       switch (status) {
         case "Select All":
@@ -1317,31 +1248,16 @@ export default {
       let company_id = this.$auth.user.company.id;
       const { page, itemsPerPage } = this.options;
 
-      if (this.payload.report_type == "Daily") {
-        report.setAttribute(
-          "href",
-          process.env.BACKEND_URL +
-            `/daily_${url}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`
-        );
-        report.setAttribute("target", "_blank");
-        report.click();
-        return;
-      }
+      let path = process.env.BACKEND_URL + "/" + "daily_summary";
+      let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
 
-      if (this.payload.report_type == "Weekly") {
-        report.setAttribute(
-          "href",
-          process.env.BACKEND_URL +
-            `/weekly_${url}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`
-        );
-        report.setAttribute("target", "_blank");
-        report.click();
-        return;
-      }
-
-      report.setAttribute("href", path);
+      let report = document.createElement("a");
+      report.setAttribute("href", qs);
       report.setAttribute("target", "_blank");
       report.click();
+
+      this.fetch_logs();
+      return;
     }
   }
 };
