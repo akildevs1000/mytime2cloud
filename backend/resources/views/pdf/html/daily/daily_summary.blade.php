@@ -69,13 +69,12 @@ die();
             <td style="text-align: left; border :none; padding:15px;">
                 <div style="display: flex">
 
-                    <img src="https://seeklogo.com/images/B/business-company-logo-C561B48365-seeklogo.com.png"
-                        height="70px" width="100">
+                    <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="70px" width="70">
 
 
                     <table style="text-align: left; border :none; margin-top:10px">
                         <tr style="text-align: left; border :none;">
-                            <td style="text-align: left; border :none;"><strong>{{ $company->name ?? 'Sample Company' }}
+                            <td style="text-align: left; border :none;"><strong>{{ $company->name ?? 'V Perfume' }}
                                 </strong></td>
                         </tr>
                         <tr style="text-align: left; border :none;">
@@ -85,7 +84,10 @@ die();
                         </tr>
                         <tr style="text-align: left; border :none;">
                             <td style="text-align: left; border :none;">
-                                <strong>{{ 'Akil Security & Alarm Systemss LLC BR.' ?? 'Waleed Road Burdubai' }}
+                                <strong>{{ 'V Perfume LLC BR.' ?? 'Waleed Road Burdubai' }}
+                                    <br>
+                                </strong>
+                                <strong> Waleed Road Burdubai
                                 </strong>
                             </td>
                         </tr>
@@ -117,7 +119,7 @@ die();
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: left; border :none;"><b>Department: </b></td>
-                        <td style="text-align: left; border :none;">{{ $info->department ?? 'IT' }}</td>
+                        <td style="text-align: left; border :none;">{{ 'ALL' }}</td>
                     </tr>
 
                 </table>
@@ -145,18 +147,17 @@ die();
         $out = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
         $total_hours = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
         $ot = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
-
+        
         $device_out = ['CMD', 'AFD', 'BMD', 'MOD', 'RKMD', 'MBD', 'RKMD'];
         $device_in = ['CMD', 'AFD', 'BMD', 'MOD', 'RKMD', 'MBD', 'RKMD'];
         $total_hours = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
         $status = ['A', 'P', '---'];
-
+        
         $statusColor = '';
         // $i = 0;
     @endphp
     <table style="margin-top: 5px !important;">
         <tr style="text-align: left;font-weight:bold">
-            <td style="text-align:  center;"> # </td>
             <td style="text-align:  center;"> Name </td>
             <td style="text-align:  center;width:80px"> EID </td>
             <td style="text-align:  center;width:80px"> In </td>
@@ -180,12 +181,11 @@ die();
                     $totMissing[] = $i;
                     $statusColor = '#f34100ed';
                 }
-
+                
             @endphp
             <tbody>
 
                 <tr style="text-align:  center; ">
-                    <td>{{ $i }}</td>
                     <td style="text-align:  center; width:120px"> {{ $name[array_rand($name, 1)] ?? '---' }}</td>
                     <td style="text-align:  center;">{{ $eid[array_rand($eid, 1)] ?? '---' }}</td>
                     <td style="text-align:  center;"> {{ $in[array_rand($in, 1)] ?? '---' }} </td>
@@ -202,14 +202,14 @@ die();
         @endfor
 
         @php
-
+            
             $p = count($totPresent);
             // dd($p);
             function totPresent($p = null)
             {
                 return $p;
             }
-
+            
         @endphp
         <h1>
             {{ count($totPresent) }}
