@@ -502,109 +502,8 @@
     </v-dialog>
 
     <v-toolbar class="background" dark flat>
-      <!-- <v-btn
-        small
-        class="primary darken-2"
-        @click="generateReport('/monthly_details')"
-      >
-        Details
-      </v-btn> -->
-      <!-- &nbsp;
-      <v-btn
-        v-if="can(`attendance_summary_access`)"
-        small
-        class="primary darken-2"
-        @click="generateReport('summary')"
-      >
-        {{ changeBtnTitle }}
-      </v-btn>
-      &nbsp; -->
-      <!-- <v-btn small class="primary darken-2" @click="generateReport('present')">
-        {{
-          payload.report_type == "Daily" ? "Daily Present" : "Monthly Present"
-        }}
-      </v-btn>
-      &nbsp;
-      <v-btn
-        v-if="can(`attendance_summary_access`)"
-        small
-        class="primary darken-2"
-        @click="generateReport('absent')"
-      >
-        {{ payload.report_type == "Daily" ? "Daily Absent" : "Monthly Absent" }}
-      </v-btn>
-      &nbsp;
-      <v-btn
-        v-if="can(`attendance_summary_access`)"
-        small
-        class="primary darken-2"
-        @click="generateReport('missing')"
-      >
-        {{
-          payload.report_type == "Daily" ? "Daily Missing" : "Monthly Missing"
-        }}
-      </v-btn>
-      &nbsp; -->
-      <!-- <v-btn
-        v-if="can(`attendance_summary_access`)"
-        small
-        class="primary darken-2"
-        @click="generateReport('check_in')"
-      >
-        {{
-          payload.report_type == "Daily" ? "Daily Check/in" : "Monthly Check/in"
-        }}
-      </v-btn>
-      &nbsp;
-      <v-btn
-        v-if="can(`attendance_summary_access`)"
-        small
-        class="primary darken-2"
-        @click="generateReport('check_out')"
-      >
-        {{
-          payload.report_type == "Daily"
-            ? "Daily Check/Out"
-            : "Monthly Check/Out"
-        }}
-      </v-btn>
-      &nbsp; -->
+      <v-spacer></v-spacer>
 
-      <!-- <v-btn
-        small
-        class="primary darken-2"
-        @click="generateReport('/monthly_late_in')"
-      >
-        Late In
-      </v-btn>
-      &nbsp;
-      <v-btn
-        v-if="can(`attendance_summary_access`)"
-        small
-        class="primary darken-2"
-        @click="generateReport('/monthly_early_out')"
-      >
-        Early Out
-      </v-btn>
-      <v-spacer />
-      &nbsp;
-
-      <v-btn small class="primary darken-2" @click="get_time_slots">
-        <v-icon class="mr-1">mdi-clock-outline</v-icon>
-        Time Slots
-      </v-btn>
-      &nbsp; -->
-      <!-- <v-btn
-        v-if="can(`attendance_summary_access`)"
-        small
-        class="primary darken-2"
-        to="/summary"
-      >
-        <v-icon class="mr-1">mdi-chart-bar</v-icon>
-        Summary
-      </v-btn> -->
-
-      <!-- <v-spacer></v-spacer> -->
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -652,45 +551,6 @@
         </template>
         <span>CSV</span>
       </v-tooltip>
-      <!-- <v-icon class="mr-1">mdi-file-outline</v-icon>
-        <v-icon class="mr-1">mdi-file</v-icon> -->
-      <!-- <v-btn
-        v-if="can(`attendance_pdf_access`)"
-        small
-        class=""
-        @click="generateReport('summary')"
-      >
-        <v-icon class="mr-1" small>mdi-printer-outline</v-icon>
-        PRINT
-      </v-btn>
-      &nbsp;
-      <v-btn
-        v-if="can(`attendance_pdf_access`)"
-        small
-        class=""
-        @click="generateReport('summary')"
-      >
-        <v-icon class="mr-1" small>mdi-file-outline</v-icon>
-        PDF
-      </v-btn>
-      &nbsp;
-      <CSV
-        v-if="can(`attendance_csv_access`)"
-        :data="csvData"
-        :headers="headers"
-      />
-      &nbsp; -->
-
-      <!-- <v-btn
-        v-if="can(`attendance_log_access`)"
-        small
-        class=" darken-2"
-        @click="add_manual_log = true"
-      >
-        <v-icon class="mr-1" small>mdi-file-outline</v-icon>
-        Manual Log +
-      </v-btn> -->
-      <!-- <GenerateLog /> -->
     </v-toolbar>
     <v-data-table
       v-if="can(`attendance_log_view_access`)"

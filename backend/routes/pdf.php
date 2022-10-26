@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Reports\MonthlyController;
 
 //daily
 Route::get('/daily', [Controller::class, 'daily']);
@@ -16,18 +17,17 @@ Route::get('/weekly_details', [Controller::class, 'weekly_details']);
 
 
 //monthly
-Route::get('/monthly_details', [Controller::class, 'monthly_details']);
-Route::get('/monthly_summary', [Controller::class, 'monthly_summary']);
-Route::get('/monthly_present', [Controller::class, 'monthly_present']);
-
-Route::get('/monthly_absent', [Controller::class, 'monthly_absent']);
-Route::get('/monthly_late_in', [Controller::class, 'monthly_late_in']);
-Route::get('/monthly_early_out', [Controller::class, 'monthly_early_out']);
-Route::get('/monthly_performance', [Controller::class, 'monthly_performance']);
+Route::get('/monthly_details', [MonthlyController::class, 'monthly_details']);
+Route::get('/monthly_summary', [MonthlyController::class, 'monthly_summary']);
+Route::get('/monthly_present', [MonthlyController::class, 'monthly_present']);
+Route::get('/monthly_absent', [MonthlyController::class, 'monthly_absent']);
+Route::get('/monthly_late_in', [MonthlyController::class, 'monthly_late_in']);
+Route::get('/monthly_early_out', [MonthlyController::class, 'monthly_early_out']);
+Route::get('/monthly_performance', [MonthlyController::class, 'monthly_performance']);
 
 
 
 //for testing static
 Route::get('/daily_html', [Controller::class, 'daily_html']);
 Route::get('/weekly_html', [Controller::class, 'weekly_html']);
-Route::get('/monthly_html', [Controller::class, 'monthly_html']);
+Route::get('/monthly_html', [MonthlyController::class, 'monthly_html']);
