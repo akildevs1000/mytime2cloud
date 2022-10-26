@@ -50,16 +50,14 @@ class ReportController extends Controller
 
         $model->when($request->daily_date, function ($q) use ($request) {
             $q->whereDate('date', $request->daily_date);
+            $q->orderBy("id","desc");
         });
 
         $model->when($request->from_date && $request->to_date, function ($q) use ($request) {
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
+            $q->orderBy("date","asc");
         });
-
-        // $model->with("AttendanceLogs", function ($q) use ($request) {
-        //     $q->whereDate('LogTime', $request->daily_date);
-        // });
-
+        
         $model->with([
             "employee:id,system_user_id,first_name,employee_id,department_id,profile_picture",
             "device_in:id,name,short_name,device_id,location",

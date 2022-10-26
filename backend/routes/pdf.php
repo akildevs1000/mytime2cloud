@@ -4,11 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
 
 //daily
-Route::get('/daily_summary', [Controller::class, 'daily_summary']);
-Route::get('/daily_present', [Controller::class, 'daily_present']);
-Route::get('/daily_absent', [Controller::class, 'daily_absent']);
-Route::get('/daily_missing', [Controller::class, 'daily_missing']);
-Route::get('/daily_details', [Controller::class, 'daily_details']);
+Route::get('/daily', [Controller::class, 'daily']);
+Route::get('/daily_download', [Controller::class, 'daily_download']);
 
 // weekly
 Route::get('/weekly_summary', [Controller::class, 'weekly_summary']);

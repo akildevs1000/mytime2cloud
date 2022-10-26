@@ -184,7 +184,29 @@ class Controller extends BaseController
         return $hours . ':' . $minutes;
     }
 
-    public function daily_summary(Request $request)
+    public function getStatusText($status)
+    {
+        $report_type = "Summary";
+
+        if($status == 'P') {
+            $report_type = "Present";
+        }
+        else if($status == 'A') {
+            $report_type = "Absent";
+        }
+
+        else if($status == '---') {
+            $report_type = "Missing";
+        }
+
+        else if($status == 'ME') {
+            $report_type = "Manual Entry";
+        }
+
+        return $report_type;
+    }
+
+    public function daily(Request $request)
     {
         $company = Company::find($request->company_id);
         $rc = new ReportController;
@@ -195,9 +217,26 @@ class Controller extends BaseController
             'total_missing' => $rc->report($request)->where('status', '---')->count(),
             'companyLogo' => $company->logo,
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
-            "daily_date" => $request->daily_date
+            "daily_date" => $request->daily_date,
+            "report_type" => $this->getStatusText($request->status)
         ];
-        return Pdf::loadView('pdf.daily.v3_summary', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
+        return Pdf::loadView('pdf.daily', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
+    }
+    public function daily_download(Request $request)
+    {
+        $company = Company::find($request->company_id);
+        $rc = new ReportController;
+        $data = $rc->report($request);
+        $info = [
+            'total_absent' => $rc->report($request)->where('status', 'A')->count(),
+            'total_present' => $rc->report($request)->where('status', 'P')->count(),
+            'total_missing' => $rc->report($request)->where('status', '---')->count(),
+            'companyLogo' => $company->logo,
+            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
+            "daily_date" => $request->daily_date,
+            "report_type" => $this->getStatusText($request->status)
+        ];
+        return Pdf::loadView('pdf.daily', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->download();
     }
 
     public function daily_details(Request $request)

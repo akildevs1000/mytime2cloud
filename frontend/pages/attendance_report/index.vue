@@ -150,16 +150,68 @@
       </v-col>
       <v-col cols="12">
         <v-card elevation="2" class="pa-5">
-          <v-row class="pt-2" dense>
+          <v-row>
             <v-col md="12">
               <h5>Filters</h5>
             </v-col>
-            <v-col :md="payload.report_type == 'Daily' ? 5 : 10">
+            <v-col md="3">
               Report Type
-
-              <v-autocomplete
-                @change="changeReportType(payload.report_type)"
+              <v-select
+                @change="fetch_logs"
                 class="mt-2"
+                outlined
+                dense
+                v-model="payload.status"
+                x-small
+                :items="[
+                  `Select All`,
+                  `Summary`,
+                  `Present`,
+                  `Absent`,
+                  `Missing`,
+                  `Manual Entry`
+                ]"
+                item-value="id"
+                item-text="name"
+                :hide-details="true"
+              ></v-select>
+            </v-col>
+            <v-col md="3">
+              Departments
+              <v-autocomplete
+                @change="getEmployeesByDepartment"
+                class="mt-2"
+                outlined
+                dense
+                v-model="payload.department_id"
+                x-small
+                :items="departments"
+                item-value="id"
+                item-text="name"
+                :hide-details="true"
+              ></v-autocomplete>
+            </v-col>
+            <v-col md="3">
+              Employee ID
+              <v-autocomplete
+                @change="fetch_logs"
+                class="mt-2"
+                outlined
+                dense
+                v-model="payload.employee_id"
+                x-small
+                :items="scheduled_employees"
+                item-value="system_user_id"
+                item-text="name_with_user_id"
+                :hide-details="true"
+              ></v-autocomplete>
+            </v-col>
+            <v-col md="3"></v-col>
+            <v-col md="3">
+              <div>Frequency</div>
+              <v-autocomplete
+                class="mt-2"
+                @change="changeReportType(payload.report_type)"
                 outlined
                 dense
                 v-model="payload.report_type"
@@ -169,10 +221,11 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col md="5" v-if="payload.report_type == 'Daily'">
-              <div class="mb-2">Date</div>
-              <div class="text-left">
+            <v-col md="3" v-if="payload.report_type == 'Daily'">
+              <div>Date</div>
+              <div class="text-left mt-2">
                 <v-menu
+                  class="mt-2"
                   ref="daily_menu"
                   v-model="daily_menu"
                   :close-on-content-click="false"
@@ -204,7 +257,7 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="$refs.daily_menu.save(payload.daily_date)"
+                      @click="daily_date_save($refs.daily_menu)"
                     >
                       OK
                     </v-btn>
@@ -212,38 +265,7 @@
                 </v-menu>
               </div>
             </v-col>
-
-            <v-col md="5">
-              Departments
-              <v-autocomplete
-                @change="getEmployeesByDepartment"
-                class="mt-2"
-                outlined
-                dense
-                v-model="payload.department_id"
-                x-small
-                :items="departments"
-                item-value="id"
-                item-text="name"
-                :hide-details="true"
-              ></v-autocomplete>
-            </v-col>
-            <v-col md="5">
-              Employee ID
-              <v-autocomplete
-                @change="fetch_logs"
-                class="mt-2"
-                outlined
-                dense
-                v-model="payload.employee_id"
-                x-small
-                :items="scheduled_employees"
-                item-value="system_user_id"
-                item-text="name_with_user_id"
-                :hide-details="true"
-              ></v-autocomplete>
-            </v-col>
-            <v-col v-if="payload.report_type !== 'Daily'" md="5">
+            <v-col v-if="payload.report_type !== 'Daily'" md="3">
               <div class="text-left">
                 <v-menu
                   ref="from_menu"
@@ -255,7 +277,7 @@
                   min-width="auto"
                 >
                   <template v-slot:activator="{ on, attrs }">
-                    <div class="mb-1">From Date</div>
+                    <div class="mb-2">From Date</div>
                     <v-text-field
                       :hide-details="payload.from_date"
                       outlined
@@ -278,7 +300,7 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="$refs.from_menu.save(payload.from_date)"
+                      @click="from_date_save($refs.from_date)"
                     >
                       OK
                     </v-btn>
@@ -286,8 +308,9 @@
                 </v-menu>
               </div>
             </v-col>
-            <v-col v-if="payload.report_type !== 'Daily'" md="5">
-              <div class="mb-1">To Date</div>
+            <v-col v-if="payload.report_type !== 'Daily'" md="3">
+              <div class="mb-2">To Date</div>
+
               <div class="text-left">
                 <v-menu
                   ref="to_menu"
@@ -309,7 +332,11 @@
                       v-on="on"
                     ></v-text-field>
                   </template>
-                  <v-date-picker v-model="payload.to_date" no-title scrollable>
+                  <v-date-picker
+                    v-model="payload.to_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="to_menu = false">
                       Cancel
@@ -324,22 +351,6 @@
                   </v-date-picker>
                 </v-menu>
               </div>
-            </v-col>
-
-            <v-col md="5">
-              Status
-              <v-select
-                @change="fetch_logs"
-                class="mt-2"
-                outlined
-                dense
-                v-model="payload.status"
-                x-small
-                :items="[`Select All`, `Present`, `Absent`, `Missing`]"
-                item-value="id"
-                item-text="name"
-                :hide-details="true"
-              ></v-select>
             </v-col>
           </v-row>
         </v-card>
@@ -489,6 +500,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
     <v-toolbar class="background" dark flat>
       <!-- <v-btn
         small
@@ -593,12 +605,53 @@
       </v-btn> -->
 
       <!-- <v-spacer></v-spacer> -->
-      <v-icon class="mr-1 white--text" @click="generateReportDaily"
-        >mdi-printer-outline</v-icon
-      >
-      <v-icon class="mr-1 white--text">mdi-file-outline</v-icon>
-      <v-icon class="mr-1 white--text">mdi-file</v-icon>
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="ma-0"
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="generateReportDaily"
+          >
+            <v-icon class="">mdi-printer-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>PRINT</span>
+      </v-tooltip>
 
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="downloadReportDaily"
+          >
+            <v-icon class="">mdi-download-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>DOWNLOAD</span>
+      </v-tooltip>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-icon class="">mdi-file-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>CSV</span>
+      </v-tooltip>
       <!-- <v-icon class="mr-1">mdi-file-outline</v-icon>
         <v-icon class="mr-1">mdi-file</v-icon> -->
       <!-- <v-btn
@@ -795,6 +848,7 @@ export default {
     loading: false,
     total: 0,
     headers: [
+      { text: "#", align: "left", sortable: false, value: "id" },
       { text: "Date", align: "left", sortable: false, value: "date" },
       { text: "E.ID", align: "left", sortable: false, value: "employee_id" },
       {
@@ -886,6 +940,7 @@ export default {
     errors: []
   }),
   custom_options: {},
+  max_date : '2022-10-27',
 
   computed: {
     formTitle() {
@@ -934,13 +989,36 @@ export default {
   },
 
   methods: {
+    addSevenDays(selected_date) {
+      const date = new Date(selected_date);
+
+      date.setDate(date.getDate() + 7);
+
+      let datetime = new Date(date);
+
+      let d = datetime.getDate();
+      d = d < "10" ? "0" + d : d;
+      let m = datetime.getMonth() + 1;
+      let y = datetime.getFullYear();
+
+      this.max_date = `${y}-${m}-${d}`;
+
+    },
+    daily_date_save(daily_menu) {
+      daily_menu.save(this.payload.daily_date);
+      this.fetch_logs();
+    },
+    from_date_save(from_menu){
+      this.addSevenDays(from_menu);
+      from_menu.save(this.payload.from_date);
+      this.fetch_logs();
+    },
     changeReportType(report_type) {
-      // if (report_type == "Daily") {
-      //   this.setDailyDate();
-      // } else {
-      //   this.setMonthlyDateRange();
-      // }
-      this.setDailyDate();
+      if (report_type == "Daily") {
+        this.setDailyDate();
+      } else {
+        this.setMonthlyDateRange();
+      }
       this.fetch_logs();
     },
 
@@ -991,7 +1069,7 @@ export default {
       let y = dt.getFullYear();
       let m = dt.getMonth() + 1;
       m = m < 10 ? "0" + m : m;
-      delete this.payload.daily_date;
+      // delete this.payload.daily_date;
       this.payload.from_date = `${y}-${m}-01`;
       this.payload.to_date = `${y}-${m}-${31}`;
     },
@@ -1077,16 +1155,6 @@ export default {
     },
 
     getDataFromApi(url = this.endpoint) {
-      // if (daily) {
-      //   delete this.payload.from_date;
-      //   delete this.payload.to_date;
-      // }
-
-      // if (!this.payload.report_type) {
-      //   alert("Select report type");
-      //   return;
-      // }
-
       this.loading = true;
 
       let status = this.payload.status;
@@ -1109,6 +1177,10 @@ export default {
 
         case "Missing":
           status = "---";
+          break;
+
+        case "Manual Entry":
+          status = "ME";
           break;
 
         default:
@@ -1239,6 +1311,10 @@ export default {
           status = "---";
           break;
 
+        case "Manual Entry":
+          status = "ME";
+          break;
+
         default:
           status = status.charAt(0);
           break;
@@ -1248,7 +1324,40 @@ export default {
       let company_id = this.$auth.user.company.id;
       const { page, itemsPerPage } = this.options;
 
-      let path = process.env.BACKEND_URL + "/" + "daily_summary";
+      let path = process.env.BACKEND_URL + "/" + "daily";
+      let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
+
+      let report = document.createElement("a");
+      report.setAttribute("href", qs);
+      report.setAttribute("target", "_blank");
+      report.click();
+
+      this.fetch_logs();
+      return;
+    },
+
+    downloadReportDaily() {
+      let status = this.payload.status;
+
+      switch (status) {
+        case "Select All":
+          status = "SA";
+          break;
+
+        case "Missing":
+          status = "---";
+          break;
+
+        default:
+          status = status.charAt(0);
+          break;
+      }
+
+      let data = this.payload;
+      let company_id = this.$auth.user.company.id;
+      const { page, itemsPerPage } = this.options;
+
+      let path = process.env.BACKEND_URL + "/" + "daily_download";
       let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
 
       let report = document.createElement("a");
