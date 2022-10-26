@@ -33,3 +33,4 @@ Route::get('/monthly_performance', [Controller::class, 'monthly_performance']);
 //for testing static
 Route::get('/daily_html', [Controller::class, 'daily_html']);
 Route::get('/weekly_html', [Controller::class, 'weekly_html']);
+Route::get('/monthly_html', [Controller::class, 'monthly_html']);

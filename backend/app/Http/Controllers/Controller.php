@@ -544,4 +544,9 @@ class Controller extends BaseController
     {
         return Pdf::loadView('pdf.html.weekly.weekly_summary')->stream();
     }
+
+    public function monthly_html(Request $request)
+    {
+        return Pdf::loadView('pdf.html.monthly.monthly_summary')->stream();
+    }
 }
