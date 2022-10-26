@@ -64,9 +64,7 @@ die();
             <td style="text-align: left; border :none; padding:15px;">
                 <div style="display: flex">
 
-                    <img src="https://seeklogo.com/images/B/business-company-logo-C561B48365-seeklogo.com.png"
-                        height="70px" width="100">
-
+                    <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="70px" width="70">
 
                     <table style="text-align: left; border :none; margin-top:10px">
                         <tr style="text-align: left; border :none;">
