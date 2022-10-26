@@ -513,7 +513,7 @@
             text
             v-bind="attrs"
             v-on="on"
-            @click="generateReportDaily"
+            @click="process_file('daily')"
           >
             <v-icon class="">mdi-printer-outline</v-icon>
           </v-btn>
@@ -529,7 +529,7 @@
             text
             v-bind="attrs"
             v-on="on"
-            @click="downloadReportDaily"
+            @click="process_file('daily_download_pdf')"
           >
             <v-icon class="">mdi-download-outline</v-icon>
           </v-btn>
@@ -545,6 +545,7 @@
             text
             v-bind="attrs"
             v-on="on"
+            @click="process_file('daily_download_csv')"
           >
             <v-icon class="">mdi-file-outline</v-icon>
           </v-btn>
@@ -708,7 +709,6 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "#", align: "left", sortable: false, value: "id" },
       { text: "Date", align: "left", sortable: false, value: "date" },
       { text: "E.ID", align: "left", sortable: false, value: "employee_id" },
       {
@@ -1159,7 +1159,7 @@ export default {
       pdf.click();
     },
 
-    generateReportDaily() {
+    process_file(type) {
       let status = this.payload.status;
 
       switch (status) {
@@ -1182,9 +1182,8 @@ export default {
 
       let data = this.payload;
       let company_id = this.$auth.user.company.id;
-      const { page, itemsPerPage } = this.options;
-
-      let path = process.env.BACKEND_URL + "/" + "daily";
+      let { page, itemsPerPage } = this.options;
+      let path = process.env.BACKEND_URL + "/" + type;
       let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
 
       let report = document.createElement("a");
@@ -1195,39 +1194,6 @@ export default {
       this.fetch_logs();
       return;
     },
-
-    downloadReportDaily() {
-      let status = this.payload.status;
-
-      switch (status) {
-        case "Select All":
-          status = "SA";
-          break;
-
-        case "Missing":
-          status = "---";
-          break;
-
-        default:
-          status = status.charAt(0);
-          break;
-      }
-
-      let data = this.payload;
-      let company_id = this.$auth.user.company.id;
-      const { page, itemsPerPage } = this.options;
-
-      let path = process.env.BACKEND_URL + "/" + "daily_download";
-      let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
-
-      let report = document.createElement("a");
-      report.setAttribute("href", qs);
-      report.setAttribute("target", "_blank");
-      report.click();
-
-      this.fetch_logs();
-      return;
-    }
   }
 };
 </script>

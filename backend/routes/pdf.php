@@ -9,7 +9,8 @@ Route::get('report', [ReportController::class, 'index']);
 
 //daily
 Route::get('/daily', [Controller::class, 'daily']);
-Route::get('/daily_download', [Controller::class, 'daily_download']);
+Route::get('/daily_download_pdf', [Controller::class, 'daily_download_pdf']);
+Route::get('/daily_download_csv', [Controller::class, 'daily_download_csv']);
 
 // weekly
 Route::get('/weekly_summary', [Controller::class, 'weekly_summary']);

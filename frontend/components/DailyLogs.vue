@@ -5,7 +5,7 @@
       <v-toolbar flat>
         <h5>
           <b>
-            Lattest Logs
+            Recent Logs
           </b>
         </h5>
         <v-spacer />

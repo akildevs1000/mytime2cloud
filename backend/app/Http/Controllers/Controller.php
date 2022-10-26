@@ -83,23 +83,18 @@ class Controller extends BaseController
         }
         return $model;
     }
-    
+
     public function getStatusText($status)
     {
         $report_type = "Summary";
 
-        if($status == 'P') {
+        if ($status == 'P') {
             $report_type = "Present";
-        }
-        else if($status == 'A') {
+        } else if ($status == 'A') {
             $report_type = "Absent";
-        }
-
-        else if($status == '---') {
+        } else if ($status == '---') {
             $report_type = "Missing";
-        }
-
-        else if($status == 'ME') {
+        } else if ($status == 'ME') {
             $report_type = "Manual Entry";
         }
 
@@ -108,7 +103,7 @@ class Controller extends BaseController
 
     public function processPDF($request)
     {
-        $company = Company::whereId($request->company_id)->first(["logo","name","company_code","location"]);
+        $company = Company::whereId($request->company_id)->first(["logo", "name", "company_code", "location"]);
         $model = new ReportController;
         $info = (object) [
             'total_absent' => $model->report($request)->where('status', 'A')->count(),
@@ -120,16 +115,65 @@ class Controller extends BaseController
         ];
         $data = $model->report($request)->get();
 
-        return Pdf::loadView('pdf.daily', compact("company","info","data"));
+        return Pdf::loadView('pdf.daily', compact("company", "info", "data"));
     }
 
     public function daily(Request $request)
     {
         return $this->processPDF($request)->stream();
     }
-    public function daily_download(Request $request)
+    public function daily_download_pdf(Request $request)
     {
         return $this->processPDF($request)->download();
+    }
+
+    public function daily_download_csv(Request $request)
+    {
+        $model = new ReportController;
+        
+        $data = $model->report($request)->get();
+
+        $fileName = 'report.csv';
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+
+            $i = 0;
+
+            fputcsv($file,["#","Date","E.ID","Name","Dept","Shift Type","Shift","Status","In","Out","Total Hrs","OT","Late coming","Early Going","D.In","D.Out"]);
+            foreach ($data as $col) {
+                fputcsv($file, [
+                    ++$i,
+                    $col['date'],
+                    $col['employee_id'] ?? "---",
+                    $col['employee']["first_name"] ?? "---",
+                    $col['employee']["department"]["name"] ?? "---",
+                    $col['schedule']["shift_type"]["name"] ?? "---",
+                    $col['schedule']["shift"]["name"] ?? "---",
+                    $col["status"] ?? "---",
+                    $col["in"] ?? "---",
+                    $col["out"] ?? "---",
+                    $col["total_hrs"] ?? "---",
+                    $col["ot"] ?? "---",
+                    $col["late_coming"] ?? "---",
+                    $col["early_going"] ?? "---",
+                    $col["device_in"]["short_name"] ?? "---",
+                    $col["device_out"]["short_name"] ?? "---"
+            ], ",");
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     //weekly report
