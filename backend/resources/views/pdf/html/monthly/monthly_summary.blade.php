@@ -68,7 +68,7 @@ die();
 
                     <table style="text-align: left; border :none; margin-top:10px">
                         <tr style="text-align: left; border :none;">
-                            <td style="text-align: left; border :none;"><strong>{{ $company->name ?? 'Sample Company' }}
+                            <td style="text-align: left; border :none;"><strong>{{ $company->name ?? 'V Perfume' }}
                                 </strong></td>
                         </tr>
                         <tr style="text-align: left; border :none;">
@@ -78,7 +78,10 @@ die();
                         </tr>
                         <tr style="text-align: left; border :none;">
                             <td style="text-align: left; border :none;">
-                                <strong>{{ 'Akil Security & Alarm Systemss LLC BR.' ?? 'Waleed Road Burdubai' }}
+                                <strong>{{ 'V Perfume LLC BR.' ?? 'Waleed Road Burdubai' }}
+                                    <br>
+                                </strong>
+                                <strong> Waleed Road Burdubai
                                 </strong>
                             </td>
                         </tr>
@@ -92,15 +95,15 @@ die();
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: left; border :none; color: green;"><b>Present: </b></td>
                         <td style="text-align: left; border :none; color: green;">
-                            {{ $info->total_present ?? 14 }}</td>
+                            {{ $info->total_present ?? 98 }}</td>
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: left; border :none; color: red;"><b>Absent: </b></td>
-                        <td style="text-align: left; border :none; color: red;">{{ $info->total_absent ?? 14 }}</td>
+                        <td style="text-align: left; border :none; color: red;">{{ $info->total_absent ?? 52 }}</td>
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: left; border :none; color: #f34100ed;"><b>Late: </b></td>
-                        <td style="text-align: left; border :none; color: #f34100ed;">{{ $info->total_missing ?? 14 }}
+                        <td style="text-align: left; border :none; color: #f34100ed;">{{ $info->total_missing ?? 24 }}
                         </td>
                     </tr>
 
@@ -110,7 +113,7 @@ die();
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: left; border :none;"><b>Department: </b></td>
-                        <td style="text-align: left; border :none;">{{ $info->department ?? 'IT' }}</td>
+                        <td style="text-align: left; border :none;">{{ $info->department ?? 'ALL' }}</td>
                     </tr>
 
                 </table>
