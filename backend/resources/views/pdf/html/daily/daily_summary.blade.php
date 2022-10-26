@@ -69,8 +69,7 @@ die();
             <td style="text-align: left; border :none; padding:15px;">
                 <div style="display: flex">
 
-                    <img src="https://seeklogo.com/images/B/business-company-logo-C561B48365-seeklogo.com.png"
-                        height="70px" width="100">
+                    <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="70px" width="70">
 
 
                     <table style="text-align: left; border :none; margin-top:10px">
@@ -145,12 +144,12 @@ die();
         $out = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
         $total_hours = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
         $ot = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
-
+        
         $device_out = ['CMD', 'AFD', 'BMD', 'MOD', 'RKMD', 'MBD', 'RKMD'];
         $device_in = ['CMD', 'AFD', 'BMD', 'MOD', 'RKMD', 'MBD', 'RKMD'];
         $total_hours = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
         $status = ['A', 'P', '---'];
-
+        
         $statusColor = '';
         // $i = 0;
     @endphp
@@ -180,7 +179,7 @@ die();
                     $totMissing[] = $i;
                     $statusColor = '#f34100ed';
                 }
-
+                
             @endphp
             <tbody>
 
@@ -202,14 +201,14 @@ die();
         @endfor
 
         @php
-
+            
             $p = count($totPresent);
             // dd($p);
             function totPresent($p = null)
             {
                 return $p;
             }
-
+            
         @endphp
         <h1>
             {{ count($totPresent) }}
