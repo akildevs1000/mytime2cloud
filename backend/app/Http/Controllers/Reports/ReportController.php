@@ -9,8 +9,12 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
+    public function index(Request $request)
+    {
+        return $this->report($request)->paginate($request->per_page);
+    }
 
-    public function report(Request $request)
+    public function report($request)
     {
         $model = Attendance::query();
         $model->where('company_id', $request->company_id);
@@ -50,14 +54,14 @@ class ReportController extends Controller
 
         $model->when($request->daily_date, function ($q) use ($request) {
             $q->whereDate('date', $request->daily_date);
-            $q->orderBy("id","desc");
+            $q->orderBy("id", "desc");
         });
 
         $model->when($request->from_date && $request->to_date, function ($q) use ($request) {
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
-            $q->orderBy("date","asc");
+            $q->orderBy("date", "asc");
         });
-        
+
         $model->with([
             "employee:id,system_user_id,first_name,employee_id,department_id,profile_picture",
             "device_in:id,name,short_name,device_id,location",
@@ -66,6 +70,6 @@ class ReportController extends Controller
             "schedule.shift_type:id,name",
         ]);
 
-        return $model->paginate($request->per_page);
+        return $model;
     }
 }

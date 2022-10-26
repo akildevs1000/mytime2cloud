@@ -28,7 +28,7 @@ class Company extends Model
         'created_at' => 'datetime:d-M-y',
         'no_branch' => 'boolean',
     ];
-    protected $appends = ['show_member_from', 'show_expiry', 'Pdf_logo'];
+    protected $appends = ['show_member_from', 'show_expiry'];
 
     public function contact()
     {
@@ -53,17 +53,6 @@ class Company extends Model
     public function branches()
     {
         return $this->hasMany(Branch::class);
-    }
-
-    public function getPdfLogoAttribute()
-    {
-        if ($this->logo) {
-            $value = explode('/', $this->logo);
-            if (!$value) {
-                return null;
-            }
-            return $value[4];
-        }
     }
 
     public function getLogoAttribute($value)

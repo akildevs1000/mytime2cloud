@@ -83,7 +83,6 @@ class Controller extends BaseController
         }
         return $model;
     }
-
     
     public function getStatusText($status)
     {
@@ -107,41 +106,31 @@ class Controller extends BaseController
         return $report_type;
     }
 
-    public function daily(Request $request)
+    public function processPDF($request)
     {
-        $company = Company::find($request->company_id);
-        $rc = new ReportController;
-        $data = $rc->report($request);
-        $info = [
-            'total_absent' => $rc->report($request)->where('status', 'A')->count(),
-            'total_present' => $rc->report($request)->where('status', 'P')->count(),
-            'total_missing' => $rc->report($request)->where('status', '---')->count(),
-            'companyLogo' => $company->logo,
+        $company = Company::whereId($request->company_id)->first(["logo","name","company_code","location"]);
+        $model = new ReportController;
+        $info = (object) [
+            'total_absent' => $model->report($request)->where('status', 'A')->count(),
+            'total_present' => $model->report($request)->where('status', 'P')->count(),
+            'total_missing' => $model->report($request)->where('status', '---')->count(),
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
             "daily_date" => $request->daily_date,
             "report_type" => $this->getStatusText($request->status)
         ];
-        return Pdf::loadView('pdf.daily', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->stream();
+        $data = $model->report($request)->get();
+
+        return Pdf::loadView('pdf.daily', compact("company","info","data"));
+    }
+
+    public function daily(Request $request)
+    {
+        return $this->processPDF($request)->stream();
     }
     public function daily_download(Request $request)
     {
-        $company = Company::find($request->company_id);
-        $rc = new ReportController;
-        $data = $rc->report($request);
-        $info = [
-            'total_absent' => $rc->report($request)->where('status', 'A')->count(),
-            'total_present' => $rc->report($request)->where('status', 'P')->count(),
-            'total_missing' => $rc->report($request)->where('status', '---')->count(),
-            'companyLogo' => $company->logo,
-            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
-            "daily_date" => $request->daily_date,
-            "report_type" => $this->getStatusText($request->status)
-        ];
-        return Pdf::loadView('pdf.daily', ["datas" => $data, "req" => $request, 'company' => $company, 'info' => (object)$info])->download();
+        return $this->processPDF($request)->download();
     }
-
-
-
 
     //weekly report
     public function weekly_summary(Request $request)

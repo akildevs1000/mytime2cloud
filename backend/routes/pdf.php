@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Reports\MonthlyController;
+use App\Http\Controllers\Reports\ReportController;
+
+Route::get('report', [ReportController::class, 'index']);
 
 //daily
 Route::get('/daily', [Controller::class, 'daily']);
