@@ -80,6 +80,9 @@
                         <tr style="text-align: left; border :none;">
                             <td style="text-align: left; border :none;">
                                 <strong>{{ 'V Perfume LLC BR.' ?? 'Waleed Road Burdubai' }}
+                                    <br>
+                                </strong>
+                                <strong> Waleed Road Burdubai
                                 </strong>
                             </td>
                         </tr>
@@ -93,15 +96,15 @@
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: left; border :none; color: green;"><b>Present: </b></td>
                         <td style="text-align: left; border :none; color: green;">
-                            {{ $info->total_present ?? 14 }}</td>
+                            {{ $info->total_present ?? 60 }}</td>
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: left; border :none; color: red;"><b>Absent: </b></td>
-                        <td style="text-align: left; border :none; color: red;">{{ $info->total_absent ?? 98 }}</td>
+                        <td style="text-align: left; border :none; color: red;">{{ $info->total_absent ?? 18 }}</td>
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: left; border :none; color: #f34100ed;"><b>Late: </b></td>
-                        <td style="text-align: left; border :none; color: #f34100ed;">{{ $info->total_missing ?? 45 }}
+                        <td style="text-align: left; border :none; color: #f34100ed;">{{ $info->total_missing ?? 15 }}
                         </td>
                     </tr>
 
@@ -111,7 +114,7 @@
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: left; border :none;"><b>Department: </b></td>
-                        <td style="text-align: left; border :none;">{{ $info->department ?? 'IT' }}</td>
+                        <td style="text-align: left; border :none;">{{ $info->department ?? 'All' }}</td>
                     </tr>
 
                 </table>
