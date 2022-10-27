@@ -29,7 +29,7 @@ class CountController extends Controller
                 "value" => $model->count(),
                 "icon" => "fas fa-clock",
                 "color" => "l-bg-purple-dark",
-                "link"  => env("BASE_URL") . "/api/daily_summary?page=1&per_page=1000&company_id=$id&status=SA&daily_date=" . date("Y-m-d") . "&department_id=-1"
+                "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=SA&daily_date=" . date("Y-m-d") . "&department_id=-1"
 
             ],
             [
@@ -37,14 +37,14 @@ class CountController extends Controller
                 "value" => $model->where('status', 'P')->count(),
                 "icon" => "fas fa-calendar-check",
                 "color" => "l-bg-green-dark ",
-                "link"  => env("BASE_URL") . "/api/daily_present?page=1&per_page=1000&company_id=$id&status=P&daily_date=" . date("Y-m-d") . "&department_id=-1"
+                "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=P&daily_date=" . date("Y-m-d") . "&department_id=-1"
             ],
             [
                 "title" => "Today Absent",
                 "value" => $model->where('status', 'A')->count(),
                 "icon" => "fas fa-calendar-times",
                 "color" => "l-bg-orange-dark",
-                "link"  => env("BASE_URL") . "/api/daily_absent?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . date("Y-m-d") . "&department_id=-1"
+                "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . date("Y-m-d") . "&department_id=-1"
 
             ],
             [
@@ -52,7 +52,7 @@ class CountController extends Controller
                 "value" => $model->where('status', '---')->count(),
                 "icon" => "	fas fa-clock",
                 "color" => "l-bg-cyan-dark",
-                "link"  => env("BASE_URL") . "/api/daily_missing?page=1&per_page=1000&company_id=$id&status=---&daily_date=" . date("Y-m-d") . "&department_id=-1"
+                "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=---&daily_date=" . date("Y-m-d") . "&department_id=-1"
 
             ],
 
