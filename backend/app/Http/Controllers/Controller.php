@@ -85,7 +85,6 @@ class Controller extends BaseController
         return $model;
     }
 
-
     public function getStatusText($status)
     {
         $report_type = "Summary";
@@ -127,10 +126,110 @@ class Controller extends BaseController
     {
         return $this->processPDF($request)->stream();
     }
-
-    public function daily_download(Request $request)
+    public function daily_download_pdf(Request $request)
     {
         return $this->processPDF($request)->download();
+    }
+
+    public function daily_download_csv(Request $request)
+    {
+        $model = new ReportController;
+
+        $data = $model->report($request)->get();
+
+        $fileName = 'report.csv';
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+
+            $i = 0;
+
+            fputcsv($file, ["#", "Date", "E.ID", "Name", "Dept", "Shift Type", "Shift", "Status", "In", "Out", "Total Hrs", "OT", "Late coming", "Early Going", "D.In", "D.Out"]);
+            foreach ($data as $col) {
+                fputcsv($file, [
+                    ++$i,
+                    $col['date'],
+                    $col['employee_id'] ?? "---",
+                    $col['employee']["first_name"] ?? "---",
+                    $col['employee']["department"]["name"] ?? "---",
+                    $col['schedule']["shift_type"]["name"] ?? "---",
+                    $col['schedule']["shift"]["name"] ?? "---",
+                    $col["status"] ?? "---",
+                    $col["in"] ?? "---",
+                    $col["out"] ?? "---",
+                    $col["total_hrs"] ?? "---",
+                    $col["ot"] ?? "---",
+                    $col["late_coming"] ?? "---",
+                    $col["early_going"] ?? "---",
+                    $col["device_in"]["short_name"] ?? "---",
+                    $col["device_out"]["short_name"] ?? "---"
+                ], ",");
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    //weekly report
+    public function weekly_summary(Request $request)
+    {
+        // $type = 'weekly';
+        // $end = $request->daily_date ?? date('Y-m-d');
+        // $start = date("Y-m-d", strtotime($end . "-7 days"));
+
+        // $model = Attendance::query();
+
+        // $model = $model->whereBetween('date', [$start, $end]);
+
+
+        // $model = $model->where("employee_id", "<", 5);
+
+        // // return  $data = $model->with('employeeAttendance')->get();
+        // $data = $model->get();
+        // $data = $data->groupBy(['employee_id', 'date']);
+        // $arr = [];
+
+        // foreach ($data as $employee_id => $row) {
+        //     $emp = $this->getEmployee($row);
+
+        //     $arr[] = [
+        //         'Name' => $emp->first_name ?? '',
+        //         'E.ID' => $emp->employee_id ?? '',
+        //         'Dept' => $emp->department->name ?? '',
+        //         'Date' => $start . ' to ' . $end,
+        //         'Total Hrs' => $this->totalHours($row),
+        //         'OT' => $this->TotalOtHours($row),
+        //         'Present' => 14,
+        //         'Absent' => 17,
+        //         'Late In' => 2,
+        //         'Early Out' => 5,
+        //         'record' => $row,
+        //     ];
+        // }
+        // $footer = [
+        //     'Device' => "Main Entrance = MED, Back Entrance = BED",
+        //     'Shift Type' => "Manual = MA, Auto = AU, NO = NO",
+        //     'Shift' => "Morning = Mor, Evening = Eve, Evening2 = Eve2",
+        // ];
+        // $pdf = App::make('dompdf.wrapper');
+        // $arr;
+
+
+        return Pdf::loadView('pdf.weekly.weekly_summary')->stream();
+
+        // $pdf->loadHTML($this->getHTML($arr, $request, $type));
+        // return $pdf->stream();
+        // return Pdf::loadView('pdf.monthly_details', compact("arr", "footer"))->stream();
     }
 
     public function daily_html(Request $request)
