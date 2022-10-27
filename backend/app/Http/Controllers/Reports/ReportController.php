@@ -16,6 +16,7 @@ class ReportController extends Controller
 
     public function report($request)
     {
+
         $model = Attendance::query();
         $model->where('company_id', $request->company_id);
 

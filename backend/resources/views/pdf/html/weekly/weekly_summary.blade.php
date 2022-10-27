@@ -21,9 +21,10 @@
             text-align: left;
         }
 
-        /* tr:nth-child(even) {
-                    background-color: #eeeeee;
-                } */
+        tr:nth-child(even) {
+            /* background-color: #eeeeee; */
+            border: 1px solid #eeeeee;
+        }
 
         th {
             font-size: 9px;
@@ -35,94 +36,115 @@
         }
 
         footer {
+            bottom: 0px;
+            position: absolute;
             width: 100%;
-            position: fixed;
-            bottom: 0;
         }
 
-        .page-break {
+        /* .page-break {
             page-break-after: always;
+        } */
+
+        .main-table {
+            padding-bottom: 20px;
+            padding-top: 10px;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        hr {
+            position: relative;
+            border: none;
+            height: 2px;
+            background: #c5c2c2;
+            padding: 0px
+        }
+
+        .title-font {
+            font-family: Arial, Helvetica, sans-serif !important;
+            font-size: 14px;
+            font-weight: bold
+        }
+
+        .summary-header th {
+            font-size: 10px
+        }
+
+        .summary-table td {
+            font-size: 9px
         }
     </style>
 </head>
 
 <body>
-
-    <table>
+    <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
         <tr>
-            <td style="text-align: center; border :none;">
-                <div>
-                    <h2>Weekly Summary</h2>
+            <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
+                <div style=";">
+                    <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="70px" width="200">
                 </div>
             </td>
-        </tr>
-    </table>
-
-
-    <table style="margin-top: -20px !important;">
-        <tr>
-            <td style="text-align: left; border :none; padding:15px;">
-                <div style="display: flex">
-                    {{-- 1665500012 --}}
-                    {{-- <img src="{{ $company->logo }}" height="70px" width="70"> --}}
-                    <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="70px" width="70">
-
-                    <table style="text-align: left; border :none; margin-top:10px">
+            <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
+                <div>
+                    <table style="text-align: left; border :none;  ">
                         <tr style="text-align: left; border :none;">
-                            <td style="text-align: left; border :none;"><strong>{{ $company->name ?? 'V Perfume' }}
-                                </strong></td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: left; border :none;"><strong>{{ $company->company_code ?? 'AE0001' }}
-                                </strong>
+                            <td style="text-align: center; border :none">
+                                <span class="title-font">
+                                    Weekly Attendance Summary Report
+                                </span>
+                                <hr style="width: 230px">
                             </td>
                         </tr>
                         <tr style="text-align: left; border :none;">
-                            <td style="text-align: left; border :none;">
-                                <strong>{{ 'V Perfume LLC BR.' ?? 'Waleed Road Burdubai' }}
-                                    <br>
-                                </strong>
-                                <strong> Waleed Road Burdubai
-                                </strong>
+                            <td style="text-align: center; border :none">
+                                <span style="font-size: 11px">
+                                    01 Oct 2022 - 30 Oct 2022
+                                </span>
+                                <hr style="width: 230px">
                             </td>
                         </tr>
                     </table>
-
                 </div>
             </td>
-            <td style="text-align: right; border :none; width:120px;">
-                <table style="text-align: left; border :none; margin-top:0px;">
+            <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
 
+
+                <table class="summary-table"
+                    style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
                     <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none; color: green;"><b>Present: </b></td>
-                        <td style="text-align: left; border :none; color: green;">
-                            {{ $info->total_present ?? 60 }}</td>
-                    </tr>
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none; color: red;"><b>Absent: </b></td>
-                        <td style="text-align: left; border :none; color: red;">{{ $info->total_absent ?? 18 }}</td>
-                    </tr>
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none; color: #f34100ed;"><b>Late: </b></td>
-                        <td style="text-align: left; border :none; color: #f34100ed;">{{ $info->total_missing ?? 15 }}
+                        <td style="text-align: right; border :none;font-size:10px">
+                            <b>
+                                Akkil Security & Alarm System LLC
+                            </b>
+                            <br>
                         </td>
                     </tr>
-
                     <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none;"><strong>Date: </strong></td>
-                        <td style="text-align: left; border :none;">{{ $info->daily_date ?? '2022-10-21' }}</td>
+                        <td style="text-align: right; border :none;font-size:10px">
+                            <span style="margin-right: 3px"> P.O. Box 83481, Dubai </span>
+                            <br>
+                        </td>
                     </tr>
                     <tr style="text-align: left; border :none;">
-                        <td style="text-align: left; border :none;"><b>Department: </b></td>
-                        <td style="text-align: left; border :none;">{{ $info->department ?? 'All' }}</td>
+                        <td style="text-align: right; border :none;font-size:10px">
+                            <span style="margin-right: 3px"> United Arab Emirates </span>
+                            <br>
+                        </td>
                     </tr>
-
+                    <tr style="text-align: left; border :none;">
+                        <td style="text-align: right; border :none;font-size:10px">
+                            <span style="margin-right: 3px"> Tel: +97143939562 </span>
+                            <br>
+                        </td>
+                    </tr>
                 </table>
+
+                <br>
             </td>
-
             </td>
         </tr>
     </table>
+    <hr style="margin:0px;padding:0">
     <table style="margin-top: 5px !important;">
         <tr style="text-align: left; border :1px solid black; width:120px;">
             <td style="text-align: left;"><b>Name</b>: Fahath</td>
@@ -796,20 +818,25 @@
     </table>
 
 
-
-
-    <footer>
-        <table>
-            <tr>
-                <td style="text-align: left;"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
-                <td style="text-align: left;"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
-                <td style="text-align: left;"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2</td>
-                <td style="text-align: right;">
-                    Date : {{ date('d/M/Y H:i:s') }}
+    <hr style=" bottom: 0px; position: absolute; width: 100%; margin-bottom:40px">
+    <footer style="padding-top: 100px!important">
+        <table class="main-table">
+            <tr style="border :none">
+                <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
+                <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
+                <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
+                </td>
+                <td style="text-align: right;border :none;">
+                    <b>Powered by</b>: <span style="color:blue"> www.ideahrms.com</span>
+                </td>
+                <td style="text-align: right;border :none">
+                    Printed on : {{ date('d-M-Y ') }}
                 </td>
             </tr>
         </table>
     </footer>
+
+
 </body>
 
 </html>
