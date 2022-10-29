@@ -18,6 +18,7 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
+
         $user->user_type = $user->company_id > 0 ? ($user->employee_role_id > 0 ? "employee" : "company") : ($user->role_id > 0 ? "user" : "master");
 
         return response()->json([
@@ -61,6 +62,7 @@ class AuthController extends Controller
         $model = $model->with('company', 'employee')->first();
         $model->permissions = $user->permissions;
         $obj = (($user->is_master == 1) && $user->role_id == 0 && ($user->employee_role_id == 0)) ? $user : $model;
+        $obj->user_type =  $user->user_type;
         return response()->json(['user' => $obj], 200);
 
         // return response()->json(['user' => $user], 200);
