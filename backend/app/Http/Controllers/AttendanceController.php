@@ -6,7 +6,9 @@ use App\Models\AttendanceLog;
 use App\Models\Attendance;
 use App\Models\Device;
 use App\Models\Employee;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
 {
@@ -114,5 +116,70 @@ class AttendanceController extends Controller
         }
 
         return json_encode($arr);
+    }
+
+    public function ResetAttendance(Request $request)
+    {
+        $items = [];
+        $model = AttendanceLog::query();
+        $model->whereDate("LogTime", ">=", $request->date ?? date("Y-m-d"));
+        $model->where("DeviceID",$request->DeviceID);
+        if ($model->count() == 0) {
+            return false;
+        }
+        $logs = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
+
+
+        $i = 0;
+
+        foreach ($logs as $log) {
+
+            $date = date("Y-m-d", strtotime($log->LogTime));
+
+            $AttendanceLog = new AttendanceLog;
+
+            $orderByAsc = $AttendanceLog->where("UserID", $log->UserID)->whereDate("LogTime", $date);
+            $orderByDesc = $AttendanceLog->where("UserID", $log->UserID)->whereDate("LogTime", $date);
+
+            $first_log = $orderByAsc->orderBy("LogTime")->first() ?? false;
+            $last_log =  $orderByDesc->orderByDesc('LogTime')->first() ?? false;
+
+            $logs = $AttendanceLog->where("UserID", $log->UserID)->whereDate("LogTime", $date)->count();
+
+            $item = [];
+            $item["company_id"] = $log->company_id;
+            $item["employee_id"] = $log->UserID;
+            $item["date"] = $date;
+
+            if ($first_log) {
+                $item["in"] = $first_log->time;
+                $item["status"] = "---";
+                $item["device_id_in"] = Device::where("device_id", $first_log->DeviceID)->pluck("id")[0] ?? "---";
+            }
+            if ($logs > 1 && $last_log) {
+                $item["out"] = $last_log->time;
+                $item["device_id_out"] = Device::where("device_id", $last_log->DeviceID)->pluck("id")[0] ?? "---";
+                $item["status"] = "P";
+                $diff = abs(($last_log->show_log_time - $first_log->show_log_time));
+                $h = floor($diff / 3600);
+                $m = floor(($diff % 3600) / 60);
+                $item["total_hrs"] = (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+            }
+
+
+            $attendance = Attendance::whereDate("date", $date)->where("employee_id", $log->UserID);
+
+            $attendance->first() ? $attendance->update($item) : Attendance::create($item);
+
+            AttendanceLog::where("id", $log->id)->update(["checked" => true]);
+
+            $i++;
+
+            $items[$date][$log->UserID] = $item;
+        }
+
+        Storage::disk('local')->put($request->DeviceID . '-' . date("d-M-y") . '-reset_attendance.txt', json_encode($items));
+
+        return $i;
     }
 }

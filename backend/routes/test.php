@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Reports\ReportController;
 use App\Mail\TestMail;
 use App\Models\Attendance;
@@ -17,6 +18,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 Route::get('/test', function (Request $request) {
     return "Awesome APIs";
 });
+
+Route::get('/reset_attendance', [AttendanceController::class, 'ResetAttendance']);
+
 
 Route::get('/generate_attendance_log', function (Request $request) {
 
