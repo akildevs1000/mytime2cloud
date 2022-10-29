@@ -114,11 +114,5 @@ class PermissionSeeder extends Seeder
         Permission::create(['module' => 'notifications', 'title' => 'Notifications create', 'name' => 'notifications_create']);
         Permission::create(['module' => 'notifications', 'title' => 'Notifications edit', 'name' => 'notifications_edit']);
         Permission::create(['module' => 'notifications', 'title' => 'Notifications delete', 'name' => 'notifications_delete']);
-
-        Permission::create(['module' => 'manager_dashboard', 'title' => 'Manager_dashboard access', 'name' => 'manager_dashboard_access']);
-        Permission::create(['module' => 'manager_dashboard', 'title' => 'Manager_dashboard view', 'name' => 'manager_dashboard_view']);
-        Permission::create(['module' => 'manager_dashboard', 'title' => 'Manager_dashboard create', 'name' => 'manager_dashboard_create']);
-        Permission::create(['module' => 'manager_dashboard', 'title' => 'Manager_dashboard edit', 'name' => 'manager_dashboard_edit']);
-        Permission::create(['module' => 'manager_dashboard', 'title' => 'Manager_dashboard delete', 'name' => 'manager_dashboard_delete']);
     }
 }
