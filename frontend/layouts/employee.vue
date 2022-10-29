@@ -258,6 +258,12 @@ export default {
               permission: this.can("leave_notification_access")
             }
           ]
+        },
+        {
+          icon: "mdi-clipboard-text-clock",
+          title: "Reports",
+          to: "/attendance_report",
+          permission: this.can("attendance_report")
         }
 
         // {
@@ -316,7 +322,6 @@ export default {
       });
     },
     can(per) {
-      return true;
       let user = this.$auth.user;
       return user && user.permissions.some(e => e == per || per == "/");
     },

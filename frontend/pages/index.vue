@@ -54,13 +54,13 @@
     </v-row>
 
     <v-row>
-      <v-col cols="8">
+      <v-col cols="12" md="8" xl="8">
         <v-card flat>
           <DailyLogs />
         </v-card>
       </v-col>
-      <v-col cols="4">
-       <v-card flat>
+      <v-col cols="12" md="4" xl="4">
+        <v-card flat>
           <PIE :items="items" />
         </v-card>
       </v-col>
@@ -270,7 +270,7 @@ export default {
       // ],
 
       logs: [],
-            
+
       total_items: [],
       items_by_cities: [],
       test_headers: [
@@ -354,7 +354,7 @@ export default {
         }
       });
     }
-  },
+  }
 };
 </script>
 
