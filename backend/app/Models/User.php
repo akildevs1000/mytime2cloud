@@ -29,6 +29,7 @@ class User extends Authenticatable
         'is_master',
         'first_login',
         'reset_password_code',
+        'employee_role_id',
         'email_verified_at',
     ];
 

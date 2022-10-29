@@ -1,5 +1,7 @@
 <template>
-  <div id="pie"></div>
+  <div style="padding: 0px ;width:100%">
+    <div id="pie"></div>
+  </div>
 </template>
 
 <script>
@@ -10,7 +12,8 @@ export default {
       options: {
         title: {
           text: "DAILY ATTENDANCE REPORT",
-          align: "left"
+          align: "left",
+          margin: 50
         },
         colors: ["#A24FDD", "#6DFCCA", "#E78956", "#3A95D9"],
 
@@ -29,10 +32,12 @@ export default {
         },
         responsive: [
           {
-            breakpoint: 480,
+            breakpoint: 1400,
             options: {
               chart: {
-                width: 200
+                width: 350,
+                margin: 50,
+                height: 4500
               },
               legend: {
                 position: "bottom"
@@ -51,3 +56,12 @@ export default {
   methods: {}
 };
 </script>
+
+<style>
+/* .apexcharts-legend-series {
+  margin: 0px 100px 2px 0px !important;
+} */
+#pie .apexcharts-legend-series {
+  margin: 0px 50px 2px 0px !important;
+}
+</style>
