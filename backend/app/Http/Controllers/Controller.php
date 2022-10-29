@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Controllers\Reports\ReportController;
+use App\Models\Employee;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -103,18 +104,21 @@ class Controller extends BaseController
 
     public function processPDF($request)
     {
-        $company = Company::whereId($request->company_id)->first(["logo", "name", "company_code", "location"]);
+        $company = Company::whereId($request->company_id)->first(["logo", "name", "company_code", "location", "p_o_box_no"]);
         $model = new ReportController;
         $info = (object) [
+            'total_employee' => Employee::whereCompanyId($request->company_id)->count(),
             'total_absent' => $model->report($request)->where('status', 'A')->count(),
             'total_present' => $model->report($request)->where('status', 'P')->count(),
             'total_missing' => $model->report($request)->where('status', '---')->count(),
+            'total_early' => $model->report($request)->where('early_going', '!=', '---')->count(),
+            'total_late' => $model->report($request)->where('late_coming', '!=', '---')->count(),
+            'total_leave' => 0,
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
             "daily_date" => $request->daily_date,
             "report_type" => $this->getStatusText($request->status)
         ];
         $data = $model->report($request)->get();
-
         return Pdf::loadView('pdf.daily', compact("company", "info", "data"));
     }
 
@@ -130,7 +134,7 @@ class Controller extends BaseController
     public function daily_download_csv(Request $request)
     {
         $model = new ReportController;
-        
+
         $data = $model->report($request)->get();
 
         $fileName = 'report.csv';
@@ -148,7 +152,7 @@ class Controller extends BaseController
 
             $i = 0;
 
-            fputcsv($file,["#","Date","E.ID","Name","Dept","Shift Type","Shift","Status","In","Out","Total Hrs","OT","Late coming","Early Going","D.In","D.Out"]);
+            fputcsv($file, ["#", "Date", "E.ID", "Name", "Dept", "Shift Type", "Shift", "Status", "In", "Out", "Total Hrs", "OT", "Late coming", "Early Going", "D.In", "D.Out"]);
             foreach ($data as $col) {
                 fputcsv($file, [
                     ++$i,
@@ -167,7 +171,7 @@ class Controller extends BaseController
                     $col["early_going"] ?? "---",
                     $col["device_in"]["short_name"] ?? "---",
                     $col["device_out"]["short_name"] ?? "---"
-            ], ",");
+                ], ",");
             }
 
             fclose($file);
@@ -230,10 +234,7 @@ class Controller extends BaseController
 
     public function daily_html(Request $request)
     {
+        // return view('pdf.html.daily.daily_summary');
         return Pdf::loadView('pdf.html.daily.daily_summary')->stream();
-    }
-    public function weekly_html(Request $request)
-    {
-        return Pdf::loadView('pdf.html.weekly.weekly_summary')->stream();
     }
 }
