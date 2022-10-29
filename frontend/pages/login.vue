@@ -132,7 +132,6 @@
 </template>
 
 <script>
-
 export default {
   // components: { VueRecaptcha },
 
@@ -182,14 +181,20 @@ export default {
           .loginWith("local", { data: credentials })
           .then(({ data }) => {
             let id, name;
-            if (data.user && data.user.user_type == "employee") {
-              this.$router.push(`/employee_dashboard`);
-              id = data.user?.employee?.id;
-              name = data.user?.employee?.first_name;
-            } else if (data.user && data.user.user_type == "company") {
-              id = data.user?.company?.id;
-              name = data.user?.company?.name;
-            } else if (data.user && data.user.user_type == "master") {
+            // if (data.user && data.user.user_type == "employee") {
+            //   this.$router.push(`/employee_dashboard`);
+            //   id = data.user?.employee?.id;
+            //   name = data.user?.employee?.first_name;
+            // } else if (data.user && data.user.user_type == "company") {
+            //   id = data.user?.company?.id;
+            //   name = data.user?.company?.name;
+            // } else if (data.user && data.user.user_type == "master") {
+            //   this.$router.push(`/master`);
+            //   id = data.user?.id;
+            //   name = data.user?.name;
+            // }
+
+            if (data.user && data.user.user_type == "master") {
               this.$router.push(`/master`);
               id = data.user?.id;
               name = data.user?.name;
