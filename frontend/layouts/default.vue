@@ -10,6 +10,7 @@
       class="no_print"
       :color="sideBarcolor"
     >
+      <br />
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
         <v-list-item
           :to="i.to"
@@ -17,62 +18,35 @@
           v-if="!i.hasChildren"
           :class="!miniVariant || 'pl-2'"
         >
-          <v-list-item-icon v-if="i.permission" class="ma-2">
+          <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
           </v-list-item-icon>
-          <v-list-item-title v-if="i.permission">
-            {{ i.title }}&nbsp;
-            <v-badge
-              v-if="i.title == 'Orders' && order_count > 0"
-              color="primary"
-              :content="order_count"
-              small
-            />
-          </v-list-item-title>
+          <v-list-item-title> {{ i.title }}&nbsp; </v-list-item-title>
         </v-list-item>
-
         <v-list-item
           v-else
           :class="!miniVariant || 'pl-2'"
           @click="i.open_menu = !i.open_menu"
         >
-          <v-list-item-icon v-if="i.permission" class="ma-2">
+          <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
           </v-list-item-icon>
-          <v-list-item-title v-if="i.permission">{{
-            i.title
-          }}</v-list-item-title>
-          <v-icon v-if="i.permission" small>{{
-            !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up"
-          }}</v-icon>
+          <v-list-item-title>{{ i.title }}</v-list-item-title>
+          <v-icon small
+            >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+          </v-icon>
         </v-list-item>
-        <div v-if="i.open_menu && i.title == `Modules`">
-          <div
-            style="margin-left: 50px"
-            v-for="(j, jdx) in modules.module_names"
-            :key="jdx"
-          >
-            <v-list-item v-if="j.permission" style="min-height: 0" :to="j.to">
-              <v-list-item-title>{{ j.title }}</v-list-item-title>
-
-              <v-list-item-icon>
-                <v-icon :to="j.to">{{ j.icon }}</v-icon>
-              </v-list-item-icon>
-            </v-list-item>
-          </div>
-        </div>
-
-        <div v-else-if="i.open_menu && i.title != `Modules`">
+        <div v-if="i.open_menu">
           <div
             style="margin-left: 50px"
             v-for="(j, jdx) in i.hasChildren"
             :key="jdx"
           >
-            <v-list-item v-if="j.permission" style="min-height: 0" :to="j.to">
+            <v-list-item style="min-height: 0" :to="j.to">
               <v-list-item-title>{{ j.title }}</v-list-item-title>
 
               <v-list-item-icon>
-                <v-icon :to="i.to">{{ j.icon }}</v-icon>
+                <v-icon :to="j.to">{{ j.icon }}</v-icon>
               </v-list-item-icon>
             </v-list-item>
           </div>
@@ -321,145 +295,107 @@ export default {
       drawer: true,
       fixed: false,
       order_count: "",
-      admins: [
-        ["Management", "mdi-account-multiple-outline"],
-        ["Settings", "mdi-cog-outline"]
-      ],
-      cruds: [
-        ["Create", "mdi-plus-outline"],
-        ["Read", "mdi-file-outline"],
-        ["Update", "mdi-update"],
-        ["Delete", "mdi-delete"]
-      ],
-
-      items: [
+      menus: [
         {
           icon: "mdi-home",
-          title: "Dashboard",
-          to: "/",
-          permission: this.can("/")
+          title: "Manager Dashboard",
+          to: "/manager_dashboard",
+          menu: "manager_dashboard_access"
         },
-
         {
           icon: "mdi-briefcase-outline",
           title: `Organization`,
           open_menu: false,
-          permission: this.can("company_access"),
+          menu: "company_access",
           hasChildren: [
-            // {
-            //   icon: "mdi-domain",
-            //   title: "Company",
-            //   to: `/companies/${this.$auth?.user?.company?.id}`,
-            //   permission: this.can("company_access")
-            // },
             {
               icon: "mdi-door",
               title: "Department",
               to: "/department",
-              permission: this.can("department_access")
+              menu: "department_access"
             },
             {
               icon: "mdi-door",
               title: "Sub Department",
               to: "/sub-department",
-              permission: this.can("sub_department_access")
+              menu: "sub_department_access"
             },
 
             {
               icon: "mdi-door",
               title: "Designation",
               to: "/designation",
-              permission: this.can("designation_access")
+              menu: "designation_access"
             }
-
-            // {
-            //   icon: "mdi-account",
-            //   title: "Employees",
-            //   to: "/employees",
-            //   permission: this.can("employee_access"),
-            // },
-            // {
-            //   icon: "mdi-bullhorn-variant-outline",
-            //   title: "Announcement",
-            //   to: "/announcement",
-            //   permission: this.can("employee_access"),
-            // },
-            // {
-            //   icon: "mdi-clipboard-edit-outline",
-            //   title: "Policy",
-            //   to: "/policy",
-            //   permission: this.can("employee_access"),
-            // },
-            // employees
           ]
         },
         {
           icon: "mdi-door",
           title: "Devices",
           to: "/device",
-          permission: this.can("device_access")
+          menu: "device_access"
         },
         {
           icon: "mdi-clipboard-edit-outline",
           title: "Policy",
           to: "/policy",
-          permission: this.can("policy_access")
+          menu: "policy_access"
         },
         {
           icon: "mdi-bullhorn-variant-outline",
           title: "Announcement",
           to: "/announcement",
-          permission: this.can("announcement_access")
+          menu: "announcement_access"
         },
         {
           icon: "mdi-account",
           title: "Employees",
           to: "/employees",
-          permission: this.can("employee_access")
+          menu: "employee_access"
         },
         {
           icon: "mdi-clock",
           title: "Shift",
           to: "/shift",
-          permission: this.can("shift_access")
+          menu: "shift_access"
         },
         {
           icon: "mdi-account",
           title: "Employee Schedule",
           to: "/employee_schedule",
-          permission: this.can("employee_schedule_access")
+          menu: "employee_schedule_access"
         },
 
         {
           icon: "mdi-cash-multiple",
           title: `Payroll`,
           open_menu: false,
-          permission: this.can("payroll_access"),
+          menu: "payroll_access",
           hasChildren: [
             // {
             //   icon: "mdi-cash-multiple ",
             //   title: "Generate Month",
             //   to: "/payroll/month",
-            //   permission: this.can("payroll_generate_month_access")
+            //   menu:("payroll_generate_month_access")
             // },
 
             // {
             //   icon: "mdi-cash-multiple ",
             //   title: "Generate Payroll",
             //   to: "/employees",
-            //   permission: this.can("employee_schedule_access")
+            //   menu:("employee_schedule_access")
             // },
             {
               icon: "mdi-cash-multiple ",
               title: "Salary",
               to: "/payroll/salary",
-              permission: this.can("payroll_generate_access")
+              menu: "payroll_generate_access"
             }
             // {
             //   icon: "mdi-cash-multiple ",
             //   title: "Salary Advance",
             //   to: "/employee_schedule",
-            //   permission: this.can("employee_schedule_access")
+            //   menu:("employee_schedule_access")
             // }
           ]
         },
@@ -468,133 +404,44 @@ export default {
           icon: "mdi-account",
           title: `User Management`,
           open_menu: false,
-          permission: this.can("payroll_access"),
+          menu: "payroll_access",
           hasChildren: [
             {
               icon: "mdi-account",
               title: "Roles",
               to: "/role",
-              permission: this.can("role_access")
+              menu: "role_access"
             },
             {
               icon: "mdi-lock",
               title: "Assign Permissions",
               to: "/assign_permission",
-              permission: this.can("assign_permission_access")
+              menu: "assign_permission_access"
             }
           ]
         },
 
-        // {
-        //   icon: "mdi-apps",
-        //   title: "Modules",
-        //   open_menu: false,
-        //   permission: this.can("module_access"),
-        //   hasChildren: [
-        //     {
-        //       icon: "mdi-chart-bubble",
-        //       title: "Payroll",
-        //       to: "/payroll_modules",
-        //       permission: this.can("module_access")
-        //     },
-        //     {
-        //       icon: "mdi-chart-bubble",
-        //       title: "Attendance",
-        //       to: "/attendance_modules",
-        //       permission: this.can("module_access")
-        //     },
-        //     {
-        //       icon: "mdi-chart-bubble",
-        //       title: "HR Management",
-        //       to: "/hr_modules",
-        //       permission: this.can("module_access")
-        //     }
-        //   ]
-        // },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Reports",
           to: "/attendance_report",
-          permission: this.can("module_access")
+          menu: "attendance_report_access"
         },
-        // {
-        //   icon: "mdi-clipboard-text-clock",
-        //   title: "Reports",
-        //   to: "/attendance_report",
-        //   permission: this.can("module_access"),
-        //   open_menu: false,
-        //   hasChildren: [
-        // {
-        //   icon: "mdi-chart-bubble",
-        //   title: "Daily",
-        //   to: "/attendance_report/daily",
-        //   permission: this.can("module_access")
-        // },
-        // {
-        //   icon: "mdi-chart-bubble",
-        //   title: "Weekly",
-        //   to: "/attendance_report/weekly",
-        //   permission: this.can("module_access")
-        // },
-        // {
-        //   icon: "mdi-chart-bubble",
-        //   title: "Monthly",
-        //   to: "/attendance_report/monthly",
-        //   permission: this.can("module_access")
-        // },
-        // {
-        //   icon: "mdi-chart-bubble",
-        //   title: "Yearly",
-        //   to: "/attendance_report/yearly",
-        //   permission: this.can("module_access")
-        // }
-        //   ]
-        // },
-        // {
-        //   icon: "mdi-account",
-        //   title: "User Management",
-        //   open_menu: false,
-        //   permission: this.can("user_access"),
-        //   hasChildren: [
-        //     // {
-        //     //   icon: "mdi-account",
-        //     //   title: "Users",
-        //     //   to: "/user",
-        //     //   permission: this.can("user_access"),
-        //     // },
-        //     {
-        //       icon: "mdi-account",
-        //       title: "Roles",
-        //       to: "/role",
-        //       permission: this.can("role_access"),
-        //     },
-        //     {
-        //       icon: "mdi-lock",
-        //       title: "Assign Permissions",
-        //       to: "/assign_permission",
-        //       permission: this.can("assign_permission_access"),
-        //     },
-        //     // {
-        //     //   icon: "mdi-account",
-        //     //   title: "Employee To Report",
-        //     //   to: "/employee_to_report",
-        //     //   permission: this.can("assign_permission_access"),
-        //     // },
-        //   ],
-        // },
+
         {
           icon: "mdi-email",
-          title: "Report Notification",
+          title: "Notification",
           to: "/report_notifications",
-          permission: this.can("/")
+          menu: "notifications_access"
         },
         {
           icon: "mdi-cog",
           title: "Setting",
           to: "/setting",
-          permission: this.can("/")
+          menu: "setting_access"
         }
       ],
+      items: [],
       modules: {
         module_ids: [],
         module_names: []
@@ -610,6 +457,27 @@ export default {
     };
   },
   created() {
+    let das = {
+      icon: "mdi-home",
+      title: "Dashboard",
+      to: "/",
+      menu: "dashboard"
+    };
+    let user = this.$auth.user;
+    let permissions = user.permissions;
+
+    if (user && user.is_master) {
+      this.items = this.menus;
+      this.items.unshift(das);
+      return;
+    }
+
+    this.menus.forEach(ele => {
+      if (permissions.includes(ele.menu)) {
+        this.items.push(ele);
+      }
+    });
+
     this.getCompanyDetails();
   },
   computed: {
@@ -646,7 +514,11 @@ export default {
       this.$router.push("/setting");
     },
     goToCompany() {
-      this.$router.push(`/companies/${this.$auth.user?.company?.id}`);
+      // let u = this.$auth.user.user_type;
+      // if(u){
+      // }
+      // console.log();
+      // this.$router.push(`/companies/${this.$auth.user?.company?.id}`);
     },
     getCompanyDetails() {
       let user = this.$auth.user;
@@ -670,10 +542,11 @@ export default {
     can(per) {
       let user = this.$auth.user;
       return (
-        (user && user.permissions.some(e => e.name == per || per == "/")) ||
+        (user && user.permissions.some(e => e == per || per == "/")) ||
         user.is_master
       );
     },
+
     async logout() {
       this.$axios.get(`/logout`).then(({ res }) => {
         this.$auth.logout();
@@ -683,64 +556,6 @@ export default {
 };
 </script>
 <style scoped>
-/* .page-enter-active,
-.page-leave-active {
-  transition: opacity 0.5s;
-}
-.page-enter,
-.page-leave-to {
-  opacity: 0;
-}
-
-.layout-enter-active,
-.layout-leave-active {
-  transition: opacity 0.5s;
-}
-.layout-enter,
-.layout-leave-to {
-  opacity: 0;
-}
-
-.slide-bottom-enter-active,
-.slide-bottom-leave-active {
-  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
-}
-.slide-bottom-enter,
-.slide-bottom-leave-to {
-  opacity: 0;
-  transform: translate3d(0, 15px, 0);
-}
-.bounce-enter-active {
-  transform-origin: top;
-  animation: bounce-in 0.8s;
-}
-.bounce-leave-active {
-  transform-origin: top;
-  animation: bounce-out 0.5s;
-}
-@keyframes bounce-in {
-  0% {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.25);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-@keyframes bounce-out {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.25);
-  }
-  100% {
-    transform: scale(0);
-  }
-} */
-
 .fixed-setting {
   position: fixed !important;
   top: 500px;
