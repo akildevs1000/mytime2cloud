@@ -122,8 +122,9 @@ class AttendanceController extends Controller
     {
         $items = [];
         $model = AttendanceLog::query();
-        $model->whereDate("LogTime", ">=", $request->date ?? date("Y-m-d"));
+        $model->whereBetween("LogTime", [$request->from_date ?? date("Y-m-d"), $request->to_date ?? date("Y-m-d")]);
         $model->where("DeviceID",$request->DeviceID);
+
         if ($model->count() == 0) {
             return false;
         }
