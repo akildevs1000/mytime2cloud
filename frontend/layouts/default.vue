@@ -297,12 +297,6 @@ export default {
       order_count: "",
       menus: [
         {
-          icon: "mdi-home",
-          title: "Manager Dashboard",
-          to: "/manager_dashboard",
-          menu: "manager_dashboard_access"
-        },
-        {
           icon: "mdi-briefcase-outline",
           title: `Organization`,
           open_menu: false,
