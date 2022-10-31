@@ -31,6 +31,7 @@ class Kernel extends ConsoleKernel
             // ->everyThirtyMinutes()
             ->everyMinute()
             ->between('7:00', '23:59')
+            ->withoutOverlapping()
             ->appendOutputTo("scheduler.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
@@ -38,6 +39,7 @@ class Kernel extends ConsoleKernel
             // ->everyThirtyMinutes()
             ->everyMinute()
             ->between('7:00', '23:59')
+            ->withoutOverlapping()
             ->appendOutputTo("scheduler.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule

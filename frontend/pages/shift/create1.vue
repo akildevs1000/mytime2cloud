@@ -26,18 +26,6 @@
         <v-card-text>
           <v-row>
             <v-col cols="12" md="3">
-              Shift Name <span class="error--text">*</span>
-              <v-text-field
-                :hide-details="!errors.name"
-                :error-messages="errors.name && errors.name[0]"
-                class="mt-1"
-                outlined
-                dense
-                v-model="payload.name"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" md="3">
               Select Shift Type <span class="error--text">*</span>
               <v-autocomplete
                 class="mt-1"
@@ -56,6 +44,19 @@
               >
               </v-autocomplete>
             </v-col>
+            <v-col cols="12" md="3">
+              Shift Name <span class="error--text">*</span>
+              <v-text-field
+                :hide-details="!errors.name"
+                :error-messages="errors.name && errors.name[0]"
+                class="mt-1"
+                outlined
+                dense
+                v-model="payload.name"
+              ></v-text-field>
+            </v-col>
+
+            
 
             <v-col cols="12" md="3">
               <div class="mb-1">
@@ -105,7 +106,8 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   On Duty Time
-                  <v-text-field
+                  <v-text-field 
+                    :disabled="payload.shift_type_id == 1"
                     :hide-details="!errors.on_duty_time"
                     v-model="payload.on_duty_time"
                     readonly
@@ -114,6 +116,7 @@
                     dense
                     outlined
                     class="mt-2"
+                    :class="payload.shift_type_id !== 1 ? '': 'red lighten-1'"
                   ></v-text-field>
                 </template>
                 <v-time-picker
