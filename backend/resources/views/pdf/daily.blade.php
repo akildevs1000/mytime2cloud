@@ -40,7 +40,7 @@
                         </tr>
                         <tr style="text-align: left; border :none;">
                             <td style="text-align: right; border :none;font-size:10px">
-                                <span style="margin-right: 3px">{{ 'Tel: +97143939562' }}</span>
+                                <span style="margin-right: 3px">{{ $company->contact->number ?? '' }}</span>
                                 <br>
                             </td>
                         </tr>
