@@ -19,6 +19,8 @@ class WeeklyController extends Controller
         $end = $request->to_date ?? date('Y-10-07');
         $model = Attendance::query();
         $company['report_type'] = $this->getStatusText($request->status);
+        $company['start'] = $start;
+        $company['end'] = $end;
 
         // $mo del->whereRaw('extract(month from date) = ?', date("m"));
         // $model->whereMonth("date", date("9"));
@@ -175,7 +177,7 @@ class WeeklyController extends Controller
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                    Weekly Attendance Summary Report
+                                    Weekly Attendance ' . $company->report_type . ' Report
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -183,7 +185,7 @@ class WeeklyController extends Controller
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span style="font-size: 11px">
-                                    01 Oct 2022 - 30 Oct 2022
+                                      ' . $company->start . ' - ' . $company->end . '
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
