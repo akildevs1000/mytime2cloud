@@ -14,10 +14,9 @@ class WeeklyController extends Controller
 
     public function weekly_details(Request $request)
     {
-        $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+        $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $start = $request->from_date ?? date('Y-10-01');
         $end = $request->to_date ?? date('Y-10-07');
-        $type = 'weekly';
         $model = Attendance::query();
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
@@ -32,27 +31,31 @@ class WeeklyController extends Controller
         // $model = $model->where("employee_id", "<", 2);
         $model->with('employeeAttendance');
         $model->orderBy('date', 'asc');
-        // $data =   $model->take(10)->get();
-        $data =   $model->get();
-        $data = $data->groupBy(['employee_id', 'date']);
+        $data = $model->get()->groupBy(['employee_id', 'date']);
         $arr = [];
 
-        foreach ($data as $employee_id => $row) {
-            $emp = $this->getEmployee($row);
+        $d = $data->toArray();
 
-            $arr[] = [
-                'Name' => $emp->first_name ?? '',
-                'E.ID' => $emp->employee_id ?? '',
-                'Dept' => $emp->department->name ?? '',
-                'Date' => $start . ' to ' . $end,
-                'Total Hrs' => 'totalhrs',
-                'OT' => 'ot',
-                'Present' => 14,
-                'Absent' => 17,
-                'Late In' => 2,
-                'Early Out' => 5,
-                'record' => $row,
-            ];
+        foreach ($d as $employee_id => $row) {
+
+            print_r($row);
+            echo "<br>";
+            // $emp = $this->getEmployee($row);
+
+
+            // $arr[] = [
+            //     'Name' => $emp->first_name ?? '',
+            //     'E.ID' => $emp->employee_id ?? '',
+            //     'Dept' => $emp->department->name ?? '',
+            //     'Date' => $start . ' to ' . $end,
+            //     'Total Hrs' => $this->totalHours($row),
+            //     'OT' =>  $this->totalOtHours($row),
+            //     'Present' => 14,
+            //     'Absent' => 17,
+            //     'Late In' => 2,
+            //     'Early Out' => 5,
+            //     'record' => $row,
+            // ];
         }
         $footer = [
             'Device' => "Main Entrance = MED, Back Entrance = BED",
@@ -67,7 +70,8 @@ class WeeklyController extends Controller
 
 
         $arr;
-        $collection = collect($arr)->take(30);
+        return $collection = collect($arr)->take(2);
+
 
 
         return $pdf->loadHTML($this->getHTML($collection, (object)$company))->stream();
@@ -109,10 +113,9 @@ class WeeklyController extends Controller
     {
         $mob = $company->contact->number ?? '';
         $companyLogo = $company->logo ?? '';
-        // dd($company->contact->number ?? '');
-        // $companyName = $request->company_name ?? "Sample Company Name";
-        // $companyAddress = $request->company_address ?? "Street Address,City, State, Zip Code";
-        // $companyLogo = $request->company_logo ?? "https://backend.ideahrms.com/upload/1664788253.jpeg";
+
+        // <img src="' . $companyLogo . '" height="100px" width="100">
+
         return '
         <!DOCTYPE html>
             <html>
@@ -162,9 +165,8 @@ class WeeklyController extends Controller
             <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
             <tr>
                 <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
-                    <div style=";">
+                    <div style="img">
 
-                            <img src="' . $companyLogo . '" height="100px" width="100">
 
                     </div>
                 </td>
@@ -205,7 +207,7 @@ class WeeklyController extends Controller
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: right; border :none;font-size:10px">
-                            <span style="margin-right: 3px"> ' . $company->p_o_box_no . ' </span>
+                            <span style="margin-right: 3px"> P.O.Box ' . $company->p_o_box_no . ' </span>
                             <br>
                         </td>
                     </tr>
@@ -259,22 +261,8 @@ class WeeklyController extends Controller
         $str_arr = [];
         foreach ($arr as $key => $row) {
             $records = $this->getData($row['record']);
-            $str_arr[] = '<div class="page-breaks"><table class="main-table" style="margin-top: 10px !important;">' .
-                '<tr style="text-align: left; border :1px solid black; width:120px;">' .
-                '<td style="text-align:left;"><b>Name</b>:' . $row["Name"] . '</td>' .
-                '<td style="text-align:left;"><b>EID</b>:' . $row["E.ID"] . '</td>' .
-                '<td style="text-align:left;"><b>Dept</b>: ' . $row["Dept"] . '</td>' .
-                '<td style="text-align:left; width:120px;"><b>Date: </b> ' . $row["Date"] . '</td>' .
-                // '<td style="text-align:left; width:120px;"><b>Date: </b> 1 Sep 22 to 30 Sep 22</td>' .
-                '<td style="text-align:left;"><b>Total Hrs</b>:' . $row["Total Hrs"] . '</td>' .
-                '<td style="text-align:left;"><b>OT</b>:' . $row["OT"] . '</td>' .
-                '<td style="text-align:left;color:green"><b>Present</b>:' . $row["Present"] . '</td>' .
-                '<td style="text-align:left;color:red"><b>Absent</b>:' . $row["Absent"] . '</td>' .
-                '<td style="text-align:left;"><b>Late In</b>:' . $row["Late In"] . '</td>' .
-                '<td style="text-align:left;"><b>Early Out</b>:' . $row["Early Out"] . '</td>' .
-                '</tr>' .
-                '</table>' .
-                '<table class="main-table" style="margin-top: 5px !important;  padding-bottom: 5px;">
+            $str_arr[] = '<div class="page-breaks"> ' .
+                '<table class="main-table" style="margin-top: 15px !important;  padding-bottom: 5px;">
                     <tr style="background-colorq:#A6A6A6;"><td><b>Dates</b></td>' . $records[0] . '</tr>
                     <tr style="background-color:none;"><td><b>Days</b></td>'
                 . $records[1] .
@@ -361,16 +349,18 @@ class WeeklyController extends Controller
         return $hours . ':' . $minutes;
     }
 
-    public function TotalOtHours($arr)
+    public function totalOtHours($arr)
     {
         $times = [];
         foreach ($arr as $a) {
             $times[] = $a[0]->ot;
         }
         $minutes = 0;
+
         foreach ($times as $time) {
             if ($time != '---') {
-                list($hour, $minute) = explode(':', $time);
+                $hour = '00';
+                $minute = '00';
                 $minutes += $hour * 60;
                 $minutes += $minute;
             }
