@@ -508,11 +508,12 @@ export default {
       this.$router.push("/setting");
     },
     goToCompany() {
-      // let u = this.$auth.user.user_type;
+      let u = this.$auth.user.user_type;
       // if(u){
+      // this.$router.push(`/empl/${this.$auth.user?.company?.id}`);
       // }
       // console.log();
-      // this.$router.push(`/companies/${this.$auth.user?.company?.id}`);
+      this.$router.push(`/companies/${this.$auth.user?.company?.id}`);
     },
     getCompanyDetails() {
       let user = this.$auth.user;
