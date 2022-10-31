@@ -8,74 +8,36 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
+use App\Models\Employee;
 
 class WeeklyController extends Controller
 {
 
     public function weekly_details(Request $request)
     {
-        $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $start = $request->from_date ?? date('Y-10-01');
         $end = $request->to_date ?? date('Y-10-07');
+
         $model = Attendance::query();
+        $model = $model->whereBetween('date', [$start, $end]);
+        $model->orderBy('date', 'asc');
+
+        $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
+            $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
+            $q->whereIn('employee_id', $ids);
+        });
+
+        $data = $model->get()->groupBy(['employee_id', 'date']);
+        
+        $pdf = App::make('dompdf.wrapper');
+
+        $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
         $company['end'] = $end;
-        // $mo del->whereRaw('extract(month from date) = ?', date("m"));
-        // $model->whereMonth("date", date("9"));
-
-        // $model = $model->whereMonth("date", date("m"));
-
-        $model = $model->whereBetween('date', [$start, $end]);
-
-        // $model = $model->where("employee_id", "<", 2);
-        $model->with('employeeAttendance');
-        $model->orderBy('date', 'asc');
-        $data = $model->get()->groupBy(['employee_id', 'date']);
-        $arr = [];
-
-        $d = $data->toArray();
-
-        foreach ($d as $employee_id => $row) {
-
-            print_r($row);
-            echo "<br>";
-            // $emp = $this->getEmployee($row);
 
 
-            // $arr[] = [
-            //     'Name' => $emp->first_name ?? '',
-            //     'E.ID' => $emp->employee_id ?? '',
-            //     'Dept' => $emp->department->name ?? '',
-            //     'Date' => $start . ' to ' . $end,
-            //     'Total Hrs' => $this->totalHours($row),
-            //     'OT' =>  $this->totalOtHours($row),
-            //     'Present' => 14,
-            //     'Absent' => 17,
-            //     'Late In' => 2,
-            //     'Early Out' => 5,
-            //     'record' => $row,
-            // ];
-        }
-        $footer = [
-            'Device' => "Main Entrance = MED, Back Entrance = BED",
-            'Shift Type' => "Manual = MA, Auto = AU, NO = NO",
-            'Shift' => "Morning = Mor, Evening = Eve, Evening2 = Eve2",
-        ];
-        $pdf = App::make('dompdf.wrapper');
-
-        // $this->getHTML($arr, $request, $type);
-        // $pdfJobs = new PDFJob($this->getHTML($arr));
-        // $this->dispatch($pdfJobs);
-
-
-        $arr;
-        return $collection = collect($arr)->take(2);
-
-
-
-        return $pdf->loadHTML($this->getHTML($collection, (object)$company))->stream();
-        $pdf->stream();
+        return $pdf->loadHTML($this->getHTML($data, (object)$company))->stream();
     }
 
 
@@ -109,7 +71,7 @@ class WeeklyController extends Controller
         return Pdf::loadView('pdf.weekly_performance', ["data" => $data])->stream();
     }
 
-    public function getHTML($arr, $company)
+    public function getHTML($data, $company)
     {
         $mob = $company->contact->number ?? '';
         $companyLogo = $company->logo ?? '';
@@ -232,7 +194,7 @@ class WeeklyController extends Controller
         </table>
         <hr style="margin:0px;padding:0">
 
-            ' . $this->renderTable($arr) .
+            ' . $this->renderTable($data, $company) .
             '
             <hr style=" bottom: 0px; position: absolute; width: 100%; margin-bottom:20px">
             <footer style="padding-top: 0px!important">
@@ -255,70 +217,95 @@ class WeeklyController extends Controller
             </html>';
     }
 
-    public function renderTable($arr)
+    public function renderTable($data, $company)
     {
+        $start = date('d M Y', strtotime($company->start));
+        $end = date('d M Y', strtotime($company->enc));
 
         $str_arr = [];
-        foreach ($arr as $key => $row) {
-            $records = $this->getData($row['record']);
-            $str_arr[] = '<div class="page-breaks"> ' .
-                '<table class="main-table" style="margin-top: 15px !important;  padding-bottom: 5px;">
-                    <tr style="background-colorq:#A6A6A6;"><td><b>Dates</b></td>' . $records[0] . '</tr>
-                    <tr style="background-color:none;"><td><b>Days</b></td>'
-                . $records[1] .
-                '</tr>
-                    <tr><td><b>In</b></td>' . $records[2] . '</tr>
-                    <tr><td><b>Out</b></td>' . $records[3] . '</tr>
-                    <tr><td><b>Work</b></td>' . $records[4] . '</tr>
-                    <tr><td><b>OT</b></td>' . $records[5] . '</tr>
-                    <tr><td><b>Late Coming</b></td>' . $records[6] . '</tr>
-                    <tr><td><b>Early Going</b></td>' . $records[7] . '</tr>
-                    <tr><td><b>Shift</b></td>' . $records[8] . '</tr>
-                    <tr><td><b>Shift Type</b> </td>' . $records[9] . '</tr>
-                    <tr><td><b>Device In</b></td>' . $records[10] . '</tr>
-                    <tr><td><b>Device Out</b></td>' . $records[11] . '</tr>
-                    <tr><td><b>Status</b></td>' . $records[12] . '</tr>
-                </table></div>';
+        foreach ($data as $key => $row) {
+            $emp = Employee::where("employee_id", $key)->first();
+
+            $str_arr[] = '<div class="page-breaks"><table  style="margin-top: 5px !important;">' .
+                '<tr style="text-align: left; border :1px solid black; width:120px;">' .
+                '<td style="text-align:left;"><b>Name</b>:' . $emp->first_name ?? '' . '</td>' .
+                '<td style="text-align:left;"><b>EID</b>:' . $emp->employee_id ?? '' . '</td>' .
+                '<td style="text-align:left;"><b>Dept</b>: ' . $emp->department->name ?? '' . '</td>' .
+                '<td style="text-align:left; width:120px;"><b>Date: </b> ' . $start . ' to ' . $end . '</td>' .
+                // '<td style="text-align:left; width:120px;"><b>Date: </b> 1 Sep 22 to 30 Sep 22</td>' .
+                '<td style="text-align:left;"><b>Total Hrs</b>:' . $this->totalHours($row) . '</td>' .
+                '<td style="text-align:left;"><b>OT</b>:' . $this->totalOtHours($row) . '</td>' .
+                '<td style="text-align:left;color:green"><b>Present</b>:' . $row["Present"] . '</td>' .
+                '<td style="text-align:left;color:red"><b>Absent</b>:' . $row["Absent"] . '</td>' .
+                '<td style="text-align:left;"><b>Late In</b>:' . $row["Late In"] . '</td>' .
+                '<td style="text-align:left;"><b>Early Out</b>:' . $row["Early Out"] . '</td>' .
+                '</tr>' .
+                '</table>' .
+                $this->getData($row) .
+                '</div>';
         }
         return join("", $str_arr);
     }
 
     public function getData($records)
     {
-        $str_arr = [];
+
+        $str = '<table class="main-table" style="margin-top: 15px !important;  padding-bottom: 5px;">';
+
+        $dates = '<tr style="background-colorq:#A6A6A6;"><td><b>Dates</b></td>';
+        $days = '<tr style="background-colorq:#A6A6A6;"><td><b>Days</b></td>';
+        $in = '<tr style="background-colorq:#A6A6A6;"><td><b>In</b></td>';
+        $out= '<tr style="background-colorq:#A6A6A6;"><td><b>Out</b></td>';
+        $work = '<tr style="background-colorq:#A6A6A6;"><td><b>Work</b></td>';
+        $ot = '<tr style="background-colorq:#A6A6A6;"><td><b>OT</b></td>';
+        $shift = '<tr style="background-colorq:#A6A6A6;"><td><b>Shift</b></td>';
+        $shift_type = '<tr style="background-colorq:#A6A6A6;"><td><b>Shift Type</b></td>';
+        $din = '<tr style="background-colorq:#A6A6A6;"><td><b>Device In</b></td>';
+        $dout = '<tr style="background-colorq:#A6A6A6;"><td><b>Device Out</b></td>';
+        $status_tr = '<tr style="background-colorq:#A6A6A6;"><td><b>Status</b></td>';
+
+
         foreach ($records as $key => $record) {
+
+
+            $dates .= '<td style="text-align: center;"> ' . substr($key, 0, 2) .' </td>';
+            $days .= '<td style="text-align: center;"> ' . $record[0]['day'] .' </td>';
+
+            $in .= '<td style="text-align: center;"> ' . $record[0]['in'] .' </td>';
+            $out .= '<td style="text-align: center;"> ' . $record[0]['out'] .' </td>';
+
+            $work .= '<td style="text-align: center;"> ' . $record[0]['total_hrs'] .' </td>';
+            $ot .= '<td style="text-align: center;"> ' . $record[0]['ot'] .' </td>';
+
+            $shift .= '<td style="text-align: center;"> ' . $record[0]['shift_id'] .' </td>';
+            $shift_type .= '<td style="text-align: center;"> ' . $record[0]['shift_type_id'] .' </td>';
+            $din .= '<td style="text-align: center;"> ' . $record[0]['device_id_in'] .' </td>';
+            $dout .= '<td style="text-align: center;"> ' . $record[0]['device_id_out'] .' </td>';
+
             $status = $record[0]['status'] == 'A' ? 'color:red' : 'color:green';
 
-            $str_arr["dates"][] = '<td style="text-align: center;"> ' . substr($key, 0, 2) . '</td>';
-            $str_arr["days"][] = '<td style="text-align: center;"> ' . $record[0]['day'] . '</td>';
-            $str_arr["in"][] = '<td style="text-align: center;"> ' . $record[0]['in'] . '</td>';
-            $str_arr["out"][] = '<td style="text-align: center;"> ' . $record[0]['out'] . '</td>';
-            $str_arr["total_hrs"][] = '<td style="text-align: center;"> ' . $record[0]['total_hrs'] . '</td>';
-            $str_arr["ot"][] = '<td style="text-align: center;"> ' . $record[0]['ot'] . '</td>';
-            $str_arr["late_coming"][] = '<td style="text-align: center;"> ' . $record[0]['late_coming'] . '</td>';
-            $str_arr["early_going"][] = '<td style="text-align: center;"> ' . $record[0]['early_going'] . '</td>';
-            $str_arr["shift_id"][] = '<td style="text-align: center;"> ' . $record[0]['shift_id'] . '</td>';
-            $str_arr["shift_type_id"][] = '<td style="text-align: center;"> ' . $record[0]['shift_type_id'] . '</td>';
-            $str_arr["device_id_in"][] = '<td style="text-align: center;"> ' . $record[0]['device_id_in'] . '</td>';
-            $str_arr["device_id_out"][] = '<td style="text-align: center;"> ' . $record[0]['device_id_out'] . '</td>';
-            $str_arr["status"][] = '<td style="text-align: center;' . $status . '"> ' . $record[0]['status'] . '</td>';
+            $status_tr .= '<td style="text-align: center;"> ' . $status .' </td>';
         }
 
-        return [
-            join("", $str_arr["dates"]),
-            join("", $str_arr["days"]),
-            join("", $str_arr["in"]),
-            join("", $str_arr["out"]),
-            join("", $str_arr["total_hrs"]),
-            join("", $str_arr["ot"]),
-            join("", $str_arr["late_coming"]),
-            join("", $str_arr["early_going"]),
-            join("", $str_arr["shift_id"]),
-            join("", $str_arr["shift_type_id"]),
-            join("", $str_arr["device_id_in"]),
-            join("", $str_arr["device_id_out"]),
-            join("", $str_arr["status"]),
-        ];
+
+        $dates .= '</tr>';
+        $days .= '</tr>';
+        $in .= '</tr>';
+        $out.= '</tr>';
+        $work .= '</tr>';
+        $ot .= '</tr>';
+        $shift .= '</tr>';
+        $shift_type .= '</tr>';
+        $din .= '</tr>';
+        $dout .= '</tr>';
+        $status_tr .= '</tr>';
+
+        $str = $str. $dates. $days. $in. $out. $work. $ot. $shift. $shift_type. $din. $dout. $status_tr;
+
+        $str .= '</table>';
+
+
+        return $str;
     }
 
     public function getEmployee($arr)
