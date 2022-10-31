@@ -17,11 +17,11 @@ class WeeklyController extends Controller
         $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $start = $request->from_date ?? date('Y-10-01');
         $end = $request->to_date ?? date('Y-10-07');
+        $type = 'weekly';
         $model = Attendance::query();
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
         $company['end'] = $end;
-
         // $mo del->whereRaw('extract(month from date) = ?', date("m"));
         // $model->whereMonth("date", date("9"));
 
@@ -54,9 +54,6 @@ class WeeklyController extends Controller
                 'record' => $row,
             ];
         }
-
-
-
         $footer = [
             'Device' => "Main Entrance = MED, Back Entrance = BED",
             'Shift Type' => "Manual = MA, Auto = AU, NO = NO",
@@ -76,11 +73,7 @@ class WeeklyController extends Controller
         return $pdf->loadHTML($this->getHTML($collection, (object)$company))->stream();
         $pdf->stream();
     }
-    // public function weekly_summary()
-    // {
-    //     $data = Attendance::whereMonth("date", date("m"))->get()->toArray();
-    //     return Pdf::loadView('pdf.weekly_summary', ["data" => $data])->stream();
-    // }
+
 
     public function weekly_present()
     {
@@ -114,10 +107,12 @@ class WeeklyController extends Controller
 
     public function getHTML($arr, $company)
     {
-        // dd($company->name);
+        $mob = $company->contact->number ?? '';
+        $companyLogo = $company->logo ?? '';
+        // dd($company->contact->number ?? '');
         // $companyName = $request->company_name ?? "Sample Company Name";
         // $companyAddress = $request->company_address ?? "Street Address,City, State, Zip Code";
-        $companyLogo = $company->logo ?? "https://backend.ideahrms.com/upload/1664788253.jpeg";
+        // $companyLogo = $request->company_logo ?? "https://backend.ideahrms.com/upload/1664788253.jpeg";
         return '
         <!DOCTYPE html>
             <html>
@@ -168,7 +163,9 @@ class WeeklyController extends Controller
             <tr>
                 <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
                     <div style=";">
-                            <img src="' . $companyLogo . '" height="70px" width="200">
+
+                            <img src="' . $companyLogo . '" height="100px" width="100">
+
                     </div>
                 </td>
                 <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
@@ -185,7 +182,7 @@ class WeeklyController extends Controller
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span style="font-size: 11px">
-                                      ' . date('d M Y', strtotime($company->start))  . ' - ' .  date('d M Y', strtotime($company->end))  . '
+                                    ' . date('d M Y', strtotime($company->start))  . ' - ' .  date('d M Y', strtotime($company->end))  . '
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -194,35 +191,38 @@ class WeeklyController extends Controller
                     </div>
                 </td>
                 <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
+
+
                     <table class="summary-table"
                     style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: right; border :none;font-size:10px">
                             <b>
-                               ' . $company->name . '
+                            ' . $company->name . '
                             </b>
                             <br>
                         </td>
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: right; border :none;font-size:10px">
-                            <span style="margin-right: 3px">  ' . $company->p_o_box_no . ' </span>
+                            <span style="margin-right: 3px"> ' . $company->p_o_box_no . ' </span>
                             <br>
                         </td>
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: right; border :none;font-size:10px">
-                            <span style="margin-right: 3px"> ' . $company->location . ' </span>
+                            <span style="margin-right: 3px">' . $company->location . '</span>
                             <br>
                         </td>
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: right; border :none;font-size:10px">
-                            <span style="margin-right: 3px"> Tel: ' . $company->contact->number ?? ' ' . ' </span>
+                            <span style="margin-right: 3px"> Tel: ' .  $mob . ' </span>
                             <br>
                         </td>
                     </tr>
                 </table>
+
                     <br>
                 </td>
                 </td>
