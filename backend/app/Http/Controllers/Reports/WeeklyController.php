@@ -185,7 +185,7 @@ class WeeklyController extends Controller
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span style="font-size: 11px">
-                                      ' . $company->start . ' - ' . $company->end . '
+                                      ' . date('d M Y', strtotime($company->start))  . ' - ' .  date('d M Y', strtotime($company->end))  . '
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
