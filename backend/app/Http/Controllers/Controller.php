@@ -104,10 +104,10 @@ class Controller extends BaseController
 
     public function processPDF($request)
     {
-        $company = Company::whereId($request->company_id)->first(["logo", "name", "company_code", "location", "p_o_box_no"]);
+        $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $model = new ReportController;
         $info = (object) [
-            'total_employee' => Employee::whereCompanyId($request->company_id)->count(),
+            'total_employee' => Employee::whereCompanyId($request->company_id)->whereDate("created_at", "<", date("Y-m-d"))->count(),
             'total_absent' => $model->report($request)->where('status', 'A')->count(),
             'total_present' => $model->report($request)->where('status', 'P')->count(),
             'total_missing' => $model->report($request)->where('status', '---')->count(),
