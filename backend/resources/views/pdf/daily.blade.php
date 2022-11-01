@@ -11,12 +11,13 @@
                 <div style=";">
                     <br> <br> <br>
                     @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" height="70px" width="200">
+                        <img src="{{ $company->logo }}" height="120px" width="180px">
                     @else
-                        <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="70px" width="200">
+                        {{-- <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="100px" width="100"> --}}
+                        <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="120px" width="180px">
                     @endif
 
-                    <table style="text-align: right; border :none; width:200px; margin-top:5px;baczkground-color:blue">
+                    <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
                         <tr style="text-align: left; border :none;">
                             <td style="text-align: right; border :none;font-size:10px">
                                 <b>
