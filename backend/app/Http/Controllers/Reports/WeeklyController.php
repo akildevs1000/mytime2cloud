@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Models\Company;
+use App\Models\Employee;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
 
 class WeeklyController extends Controller
 {
@@ -32,6 +33,7 @@ class WeeklyController extends Controller
         $pdf = App::make('dompdf.wrapper');
 
         $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+        $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name;
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
         $company['end'] = $end;
@@ -44,7 +46,8 @@ class WeeklyController extends Controller
         $mob = $company->contact->number ?? '';
         $companyLogo = $company->logo ?? '';
 
-        // <img src="' . $companyLogo . '" height="100px" width="100">
+        //  <img src="' . getcwd() . '/upload/app-logo.jpeg" height="70px" width="200">
+        // <img src="' . $companyLogo . '" height="100px" width="100">      <img src="' . $companyLogo . '" height="100px" width="100">
 
         return '
         <!DOCTYPE html>
@@ -96,8 +99,7 @@ class WeeklyController extends Controller
             <tr>
                 <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
                     <div style="img">
-
-
+                    <img src="' . $companyLogo . '" height="100px" width="100">
                     </div>
                 </td>
                 <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
@@ -114,7 +116,8 @@ class WeeklyController extends Controller
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span style="font-size: 11px">
-                                    ' . date('d M Y', strtotime($company->start))  . ' - ' .  date('d M Y', strtotime($company->end))  . '
+                                    ' . date('d M Y', strtotime($company->start))  . ' - ' .  date('d M Y', strtotime($company->end))  . ' <br>
+                                       <small> Department : ' . $company->department_name . '</small>
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -197,30 +200,30 @@ class WeeklyController extends Controller
 
             $str .= '<table class="main-table" style="margin-top: 10px !important;">';
             $str .= '<tr style="text-align: left; border :1px solid black; width:120px;">';
-            $str .= '<td style="text-align:left;"><b>Name</b>:' . $emp->first_name ?? '' . '</td>';
-            $str .= '<td style="text-align:left;"><b>EID</b>:' . $emp->employee_id ?? '' . '</td>';
-            $str .= '<td style="text-align:left;"><b>Total Hrs</b>:' . $this->getCalculation($row)['work'] . '</td>';
-            $str .= '<td style="text-align:left;"><b>OT</b>:' . $this->getCalculation($row)['ot'] . '</td>';
-            $str .= '<td style="text-align:left;"><b>Present</b>:' . ($this->getCalculation($row)['presents']) . '</td>';
-            $str .= '<td style="text-align:left;"><b>Absent</b>:' . ($this->getCalculation($row)['absents']) . '</td>';
-            $str .= '<td style="text-align:left;"><b>Missing</b>:' . ($this->getCalculation($row)['missings']) . '</td>';
-            $str .= '<td style="text-align:left;"><b>Manual</b>:' . ($this->getCalculation($row)['manuals']) . '</td>';
+            $str .= '<td style="text-align:left;width:120px"><b>Name</b>:' . $emp->first_name ?? '' . '</td>';
+            $str .= '<td style="text-align:left;width:120px"><b>EID</b>:' . $emp->employee_id ?? '' . '</td>';
+            $str .= '<td style="text-align:left;width:120px"><b>Total Hrs</b>:' . $this->getCalculation($row)['work'] . '</td>';
+            $str .= '<td style="text-align:left;width:120px"><b>OT</b>:' . $this->getCalculation($row)['ot'] . '</td>';
+            $str .= '<td style="text-align:left;color:green;width:150px"><b>Present</b>:' . ($this->getCalculation($row)['presents']) . '</td>';
+            $str .= '<td style="text-align:left;color:red;width:150px"><b>Absent</b>:' . ($this->getCalculation($row)['absents']) . '</td>';
+            $str .= '<td style="text-align:left;color:orange"><b>Missing</b>:' . ($this->getCalculation($row)['missings']) . '</td>';
+            $str .= '<td style="text-align:left;width:120px;"><b>Manual</b>:' . ($this->getCalculation($row)['manuals']) . '</td>';
             $str .= '</tr>';
             $str .= '</table>';
 
             $str .= '<table class="main-table" style="margin-top: 5px !important;  padding-bottom: 1px;">';
 
-            $dates = '<tr style="background-colorq:#A6A6A6;"><td><b>Dates</b></td>';
-            $days = '<tr style="background-colorq:#A6A6A6;"><td><b>Days</b></td>';
-            $in = '<tr style="background-colorq:#A6A6A6;"><td><b>In</b></td>';
-            $out = '<tr style="background-colorq:#A6A6A6;"><td><b>Out</b></td>';
-            $work = '<tr style="background-colorq:#A6A6A6;"><td><b>Work</b></td>';
-            $ot = '<tr style="background-colorq:#A6A6A6;"><td><b>OT</b></td>';
-            $shift = '<tr style="background-colorq:#A6A6A6;"><td><b>Shift</b></td>';
-            $shift_type = '<tr style="background-colorq:#A6A6A6;"><td><b>Shift Type</b></td>';
-            $din = '<tr style="background-colorq:#A6A6A6;"><td><b>Device In</b></td>';
-            $dout = '<tr style="background-colorq:#A6A6A6;"><td><b>Device Out</b></td>';
-            $status_tr = '<tr style="background-colorq:#A6A6A6;"><td><b>Status</b></td>';
+            $dates = '<tr"><td><b>Dates</b></td>';
+            $days = '<tr"><td><b>Days</b></td>';
+            $in = '<tr"><td><b>In</b></td>';
+            $out = '<tr"><td><b>Out</b></td>';
+            $work = '<tr"><td><b>Work</b></td>';
+            $ot = '<tr"><td><b>OT</b></td>';
+            $shift = '<tr"><td><b>Shift</b></td>';
+            $shift_type = '<tr "><td><b>Shift Type</b></td>';
+            $din = '<tr"><td><b>Device In</b></td>';
+            $dout = '<tr"><td><b>Device Out</b></td>';
+            $status_tr = '<tr"><td><b>Status</b></td>';
 
 
             foreach ($row as $key => $record) {
@@ -286,8 +289,7 @@ class WeeklyController extends Controller
                 $absents++;
             } else if ($status == 'ME') {
                 $missings++;
-            }
-            else if ($status == '---') {
+            } else if ($status == '---') {
                 $manuals++;
             }
 
