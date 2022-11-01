@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can('master')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -134,15 +134,25 @@
       </v-card>
     </v-card>
   </div>
+  <NoAccess v-else />
 </template>
 
 <script>
 export default {
-  layout: "master",
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
   data: () => ({
     loading: false,
     upload: {
-      name: "",
+      name: ""
     },
 
     payload: {
@@ -150,7 +160,7 @@ export default {
       device_id: "",
       status_id: "",
       company_id: "",
-      location: "",
+      location: ""
     },
 
     errors: [],
@@ -158,13 +168,17 @@ export default {
     companies: [],
     data: {},
     response: "",
-    snackbar: false,
+    snackbar: false
   }),
   async created() {
     this.getCompanies();
     this.getDeviceStatus();
   },
   methods: {
+    can(per) {
+      let u = this.$auth.user;
+      return u && u.user_type == per;
+    },
     getCompanies() {
       this.$axios.get(`company`).then(({ data }) => {
         this.companies = data.data;
@@ -193,8 +207,8 @@ export default {
             setTimeout(() => this.$router.push("/master/device"), 2000);
           }
         })
-        .catch((e) => console.log(e));
-    },
-  },
+        .catch(e => console.log(e));
+    }
+  }
 };
 </script>

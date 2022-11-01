@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('company_access')">
+  <div v-if="can('master')">
     <div v-if="!preloader">
       <div class="text-center ma-2">
         <v-snackbar
@@ -740,7 +740,16 @@
 
 <script>
 export default {
-  layout: "master",
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
   data: () => ({
     show_password: false,
     show_password_confirm: false,
@@ -803,10 +812,7 @@ export default {
   methods: {
     can(per) {
       let u = this.$auth.user;
-      return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
-        u.is_master
-      );
+      return u && u.user_type == per;
     },
     getDataFromApi() {
       this.id = this.$route.params.id;
@@ -830,7 +836,7 @@ export default {
           lon: this.company_payload.lon,
           location: this.company_payload.location
         };
-        console.log(data.record);
+
         this.preloader = false;
       });
     },

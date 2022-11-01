@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can('master')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -19,9 +19,13 @@
               <div class="form-group">
                 <label class="col-form-label">Device Name </label>
                 <span class="text-danger">*</span>
-                <input v-model="payload.name" class="form-control" type="text" />
+                <input
+                  v-model="payload.name"
+                  class="form-control"
+                  type="text"
+                />
                 <span v-if="errors && errors.name" class="text-danger mt-2">{{
-                errors.name[0]
+                  errors.name[0]
                 }}</span>
               </div>
             </div>
@@ -29,21 +33,37 @@
               <div class="form-group">
                 <label class="col-form-label">Device Short Name </label>
                 <span class="text-danger">*</span>
-                <input v-model="payload.short_name" class="form-control" type="text" />
-                <span v-if="errors && errors.short_name" class="text-danger mt-2">{{ errors.short_name[0] }}</span>
+                <input
+                  v-model="payload.short_name"
+                  class="form-control"
+                  type="text"
+                />
+                <span
+                  v-if="errors && errors.short_name"
+                  class="text-danger mt-2"
+                  >{{ errors.short_name[0] }}</span
+                >
               </div>
             </div>
             <div class="col-sm-4">
               <div class="form-group">
                 <label class="col-form-label">Device Type </label>
                 <span class="text-danger">*</span>
-                <select v-model="payload.device_type" class="form-select pt-1 pb-1" aria-label="Default select">
+                <select
+                  v-model="payload.device_type"
+                  class="form-select pt-1 pb-1"
+                  aria-label="Default select"
+                >
                   <option value="">Select Device Type</option>
                   <option value="in">In</option>
                   <option value="out">Out</option>
                   <option value="auto">Auto</option>
                 </select>
-                <span v-if="errors && errors.device_type" class="text-danger mt-2">{{ errors.device_type[0] }}</span>
+                <span
+                  v-if="errors && errors.device_type"
+                  class="text-danger mt-2"
+                  >{{ errors.device_type[0] }}</span
+                >
               </div>
             </div>
 
@@ -51,8 +71,16 @@
               <div class="form-group">
                 <label class="col-form-label">Device Id </label>
                 <span class="text-danger">*</span>
-                <input v-model="payload.device_id" class="form-control" type="text" />
-                <span v-if="errors && errors.device_id" class="text-danger mt-2">{{ errors.device_id[0] }}</span>
+                <input
+                  v-model="payload.device_id"
+                  class="form-control"
+                  type="text"
+                />
+                <span
+                  v-if="errors && errors.device_id"
+                  class="text-danger mt-2"
+                  >{{ errors.device_id[0] }}</span
+                >
               </div>
             </div>
 
@@ -60,8 +88,16 @@
               <div class="form-group">
                 <label class="col-form-label">Device Model Number</label>
                 <!-- <span class="text-danger">*</span> -->
-                <input v-model="payload.model_number" class="form-control" type="text" />
-                <span v-if="errors && errors.model_number" class="text-danger mt-2">{{ errors.model_number[0] }}</span>
+                <input
+                  v-model="payload.model_number"
+                  class="form-control"
+                  type="text"
+                />
+                <span
+                  v-if="errors && errors.model_number"
+                  class="text-danger mt-2"
+                  >{{ errors.model_number[0] }}</span
+                >
               </div>
             </div>
 
@@ -90,41 +126,79 @@
               <div class="form-group">
                 <label class="col-form-label">Device Status </label>
                 <span class="text-danger">*</span>
-                <select v-model="payload.status_id" class="form-select" aria-label="Default select">
+                <select
+                  v-model="payload.status_id"
+                  class="form-select"
+                  aria-label="Default select"
+                >
                   <option value="">Select Device Status</option>
-                  <option v-for="(device_status, idx) in device_statusses" :key="idx" :value="device_status.id">
+                  <option
+                    v-for="(device_status, idx) in device_statusses"
+                    :key="idx"
+                    :value="device_status.id"
+                  >
                     {{ device_status.name }}
                   </option>
                 </select>
-                <span v-if="errors && errors.status_id" class="text-danger mt-2">{{ errors.status_id[0] }}</span>
+                <span
+                  v-if="errors && errors.status_id"
+                  class="text-danger mt-2"
+                  >{{ errors.status_id[0] }}</span
+                >
               </div>
             </div>
             <div class="col-sm-6">
               <div class="form-group">
                 <label class="col-form-label">Company List</label>
                 <span class="text-danger">*</span>
-                <select v-model="payload.company_id" class="form-select" aria-label="Default select example">
+                <select
+                  v-model="payload.company_id"
+                  class="form-select"
+                  aria-label="Default select example"
+                >
                   <option value="">Select Device Status</option>
-                  <option v-for="(company, idx) in companies" :key="idx" :value="company.id">
+                  <option
+                    v-for="(company, idx) in companies"
+                    :key="idx"
+                    :value="company.id"
+                  >
                     {{ company.name }}
                   </option>
                 </select>
-                <span v-if="errors && errors.company_id" class="text-danger mt-2">{{ errors.company_id[0] }}</span>
+                <span
+                  v-if="errors && errors.company_id"
+                  class="text-danger mt-2"
+                  >{{ errors.company_id[0] }}</span
+                >
               </div>
             </div>
 
             <div class="col-sm-12">
               <div class="form-group">
                 <label class="col-form-label">Device Location </label>
-                <textarea v-model="payload.location" class="form-control" id="textAreaExample1" rows="5"></textarea>
-                <span v-if="errors && errors.location" class="text-danger mt-2">{{ errors.location[0] }}</span>
+                <textarea
+                  v-model="payload.location"
+                  class="form-control"
+                  id="textAreaExample1"
+                  rows="5"
+                ></textarea>
+                <span
+                  v-if="errors && errors.location"
+                  class="text-danger mt-2"
+                  >{{ errors.location[0] }}</span
+                >
               </div>
             </div>
           </div>
           <v-row>
             <v-col cols="12">
               <div class="text-right">
-                <v-btn small :loading="loading" color="primary" @click="store_device">
+                <v-btn
+                  small
+                  :loading="loading"
+                  color="primary"
+                  @click="store_device"
+                >
                   Submit
                 </v-btn>
               </div>
@@ -134,11 +208,21 @@
       </v-card>
     </v-card>
   </div>
+  <NoAccess v-else />
 </template>
 
 <script>
 export default {
-  layout: "master",
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
   data: () => ({
     loading: false,
     upload: {
@@ -171,6 +255,10 @@ export default {
     this.payload.company_id = this.$route.params.id;
   },
   methods: {
+    can(per) {
+      let u = this.$auth.user;
+      return u && u.user_type == per;
+    },
     getCompanies() {
       this.$axios.get(`company`).then(({ data }) => {
         this.companies = data.data;
@@ -181,7 +269,6 @@ export default {
         this.device_statusses = data.data;
       });
     },
-
 
     store_device() {
       let payload = this.payload;

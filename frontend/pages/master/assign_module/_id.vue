@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`assign_permission_access`)">
+  <div v-if="can(`master`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ msg }}
@@ -83,7 +83,16 @@
 
 <script>
 export default {
-  layout: "master",
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
 
   data: () => ({
     company_id: "",
@@ -92,9 +101,9 @@ export default {
     msg: "",
     snackbar: false,
     just_ids: false,
-    Rules: [(v) => !!v || "This field is required"],
+    Rules: [v => !!v || "This field is required"],
     errors: [],
-    companies: [],
+    companies: []
   }),
   created() {
     this.$axios
@@ -103,38 +112,35 @@ export default {
         this.company_id = data.company_id;
         this.module_ids = data.module_ids;
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
 
     this.$axios
       .get("company")
       .then(({ data }) => {
         this.companies = data.data;
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
 
     this.$axios
       .get("module")
       .then(({ data }) => {
         this.modules = data.data;
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
   },
   methods: {
     setAllIds() {
-      this.module_ids = this.just_ids ? this.modules.map((e) => e.id) : [];
+      this.module_ids = this.just_ids ? this.modules.map(e => e.id) : [];
     },
     can(per) {
       let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
-      );
+      return u && u.user_type == per;
     },
     save() {
       this.errors = [];
       let payload = {
         company_id: this.company_id,
-        module_ids: this.module_ids,
+        module_ids: this.module_ids
       };
       this.$axios
         .put("assign-module/" + this.$route.params.id, payload)
@@ -148,7 +154,7 @@ export default {
           this.snackbar = true;
           setTimeout(() => this.$router.push("/master/assign_module"), 2000);
         });
-    },
-  },
+    }
+  }
 };
 </script>

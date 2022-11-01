@@ -14,7 +14,9 @@
       </v-row>
       <v-card elevation="0" class="pa-3">
         <v-card-title>
-          <label class="col-form-label"><b>Update Report Notification </b></label>
+          <label class="col-form-label"
+            ><b>Update Report Notification </b></label
+          >
           <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
             <v-icon>mdi-arrow-left</v-icon>
@@ -22,7 +24,7 @@
         </v-card-title>
         <v-container>
           <v-row>
-              <v-col cols="3">
+            <v-col cols="3">
               <v-text-field
                 :hide-details="!subject"
                 v-model="payload.subject"
@@ -236,12 +238,12 @@
             </v-col>
           </v-row>
           <v-divider></v-divider>
-            <v-row>
+          <v-row>
             <v-col cols="12">
               <label class="col-form-label"><h4>Mail Settings</h4></label><br />
             </v-col>
           </v-row>
-           <v-row style="margin-top:-30px;">
+          <v-row style="margin-top:-30px;">
             <v-col cols="3">
               <label class="col-form-label"><b>Subject </b></label>
 
@@ -262,7 +264,7 @@
               }}</span>
             </v-col>
           </v-row>
-           <v-row>
+          <v-row>
             <v-col cols="3">
               <label class="col-form-label pt-5"
                 ><b>To </b>(Press enter to add email address/es)</label
@@ -293,7 +295,6 @@
               }}</span>
             </v-col>
             <v-col cols="3">
-             
               <label class="col-form-label pt-5"
                 ><b>Cc </b>(Press enter to add email address/es)</label
               >
@@ -318,8 +319,6 @@
               </v-chip>
             </v-col>
             <v-col cols="3">
-           
-
               <label class="col-form-label pt-5"
                 ><b>Bcc </b>(Press enter to add email address/es)</label
               >
@@ -346,7 +345,6 @@
           </v-row>
           <v-row>
             <v-col cols="12">
-
               <ClientOnly>
                 <tiptap-vuetify
                   class="tiptap-icon"
@@ -361,7 +359,6 @@
                 <template #placeholder> Loading... </template>
               </ClientOnly>
             </v-col>
-            
           </v-row>
           <!-- <v-row>
             <v-col cols="3">
@@ -484,7 +481,7 @@ export default {
   components: { TiptapVuetify },
 
   data: () => ({
-     days: [
+    days: [
       { id: 1, name: "Monday" },
       { id: 2, name: "Tuesday" },
       { id: 3, name: "Wednesday" },
@@ -566,8 +563,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
 

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('company_access')">
+  <div v-if="can('master')">
     <div v-if="!preloader">
       <v-row class="mt-5 mb-10">
         <v-col cols="10">
@@ -387,7 +387,16 @@
 
 <script>
 export default {
-  layout: "master",
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
 
   data: () => ({
     preloader: false,
@@ -428,10 +437,7 @@ export default {
   methods: {
     can(per) {
       let u = this.$auth.user;
-      return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
-        u.is_master
-      );
+      return u && u.user_type == per;
     },
     onpick_attachment() {
       this.$refs.attachment_input.click();

@@ -96,7 +96,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
+        itemsPerPageOptions: [50, 100, 500, 1000]
       }"
       class="elevation-1"
     >
@@ -169,31 +169,31 @@ export default {
         text: "name",
         align: "left",
         sortable: false,
-        value: "first_name",
+        value: "first_name"
       },
       {
         text: "Reporter",
         align: "left",
         sortable: false,
-        value: "report_to",
+        value: "report_to"
       },
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
     editedItem: {
       employee_id: "",
-      to_report: "",
+      to_report: ""
     },
 
     response: "",
     data: [],
-    errors: [],
+    errors: []
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
+    }
   },
 
   watch: {
@@ -206,8 +206,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   mounted() {},
   created() {
@@ -215,8 +215,8 @@ export default {
     let options = {
       params: {
         per_page: this.options.itemsPerPage,
-        company_id: this.$auth.user.company.id,
-      },
+        company_id: this.$auth.user.company.id
+      }
     };
 
     this.getEmployees();
@@ -228,12 +228,12 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
       this.$axios.get(`employee`, options).then(({ data }) => {
         this.all_employees = data.data;
-        this.employees = data.data.filter((e) =>
+        this.employees = data.data.filter(e =>
           e.report_to.length == 0 ? e : null
         );
         console.log(this.employees);
@@ -244,7 +244,7 @@ export default {
       let id = this.editedItem.employee_id;
       this.$axios.get(`employee/${id}`).then(({ data }) => {
         this.employee_grade = data.grade;
-        this.employees_list = this.all_employees.filter((e) =>
+        this.employees_list = this.all_employees.filter(e =>
           e.id != this.editedItem.employee_id ? e : null
         );
       });
@@ -258,8 +258,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -272,8 +272,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -292,15 +291,15 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
+      let just_ids = this.ids.map(e => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
+            ids: just_ids
           })
-          .then((res) => {
+          .then(res => {
             if (!res.data.status) {
               this.errors = res.data.errors;
             } else {
@@ -310,7 +309,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
@@ -327,7 +326,7 @@ export default {
             this.getEmployees();
             this.getDataFromApi();
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     close() {
@@ -340,7 +339,7 @@ export default {
 
     save() {
       let payload = {
-        report_id: this.editedItem.to_report,
+        report_id: this.editedItem.to_report
       };
       let id = this.editedItem.employee_id;
 
@@ -360,8 +359,8 @@ export default {
             this.getEmployees();
           }
         })
-        .catch((res) => console.log(res));
-    },
+        .catch(res => console.log(res));
+    }
 
     // saveq() {
     //   let payload = {
@@ -407,6 +406,6 @@ export default {
     //       .catch((res) => console.log(res));
     //   }
     // },
-  },
+  }
 };
 </script>

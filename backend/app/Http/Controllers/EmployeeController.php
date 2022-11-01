@@ -41,13 +41,14 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $user = [
-            'name' => 'null',
+            'name' => $request->display_name ?? 'null',
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'employee_role_id' => $request->role_id,
         ];
         $employee = [
             // employee info
+            'display_name' => $request->display_name,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'file_no' => $request->file_no,
@@ -282,6 +283,7 @@ class EmployeeController extends Controller
         $employee = Employee::find($id);
 
         $user_arr = [
+            'name' => $request->display_name,
             'email' => $request->email,
             'employee_role_id' => $request->role_id ?? 0,
         ];

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('company_access')">
+  <div v-if="can('master')">
     <div v-if="!preloader">
       <v-row class="mt-5">
         <v-col cols="6">
@@ -25,7 +25,7 @@
             @change="getDataFromApi(endpoint)"
             outlined
             v-model="per_page"
-            :items="[50, 100, 500,1000]"
+            :items="[50, 100, 500, 1000]"
             dense
             placeholder="Per Page Records"
           ></v-select>
@@ -117,7 +117,16 @@
 
 <script>
 export default {
-  layout: "master",
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
 
   data: () => ({
     endpoint: "company",
@@ -129,7 +138,7 @@ export default {
     next_page_url: "",
     prev_page_url: "",
     current_page: 1,
-    per_page: 10,
+    per_page: 10
   }),
   async created() {
     this.getDataFromApi();
@@ -137,10 +146,7 @@ export default {
   methods: {
     can(per) {
       let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
-      );
+      return u && u.user_type == per;
     },
     goDetails(id) {
       this.$router.push(`/master/companies/details/${id}`);
@@ -157,8 +163,8 @@ export default {
     getDataFromApi(url = this.endpoint) {
       let options = {
         params: {
-          per_page: this.per_page,
-        },
+          per_page: this.per_page
+        }
       };
 
       this.$axios.get(`${url}`, options).then(({ data }) => {
@@ -177,11 +183,11 @@ export default {
     },
     deleteItem(item) {
       confirm("Are you sure you want to delete this item?") &&
-        this.$axios.delete(this.endpoint + "/" + item.id).then((res) => {
+        this.$axios.delete(this.endpoint + "/" + item.id).then(res => {
           const index = this.data.indexOf(item);
           this.data.splice(index, 1);
         });
-    },
-  },
+    }
+  }
 };
 </script>

@@ -7,8 +7,8 @@
     </div>
     <v-row class="mt-5 mb-5">
       <v-col cols="6">
-        <h3>{{Model}}</h3>
-        <div>Dashboard / {{Model}}</div>
+        <h3>{{ Model }}</h3>
+        <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="6">
         <div class="text-right">
@@ -27,7 +27,7 @@
             color="primary"
             @click="dialog = true"
             class="mb-2"
-            >{{Model}} +</v-btn
+            >{{ Model }} +</v-btn
           >
         </div>
       </v-col>
@@ -43,7 +43,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000]
+        itemsPerPageOptions: [50, 100, 500, 1000]
       }"
       class="elevation-1"
     >
@@ -63,7 +63,7 @@
           <v-dialog v-model="dialog" max-width="500px">
             <v-card>
               <v-card-title>
-                <span class="headline">{{ formTitle }} {{Model}}</span>
+                <span class="headline">{{ formTitle }} {{ Model }}</span>
               </v-card-title>
 
               <v-card-text>
@@ -74,11 +74,9 @@
                         v-model="editedItem.name"
                         label="Salary Type"
                       ></v-text-field>
-                      <span
-                        v-if="errors && errors.name"
-                        class="error--text"
-                        >{{ errors.name[0] }}</span
-                      >
+                      <span v-if="errors && errors.name" class="error--text">{{
+                        errors.name[0]
+                      }}</span>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -94,10 +92,21 @@
         </v-toolbar>
       </template>
       <template v-slot:item.action="{ item }">
-        <v-icon v-if="can(`salary_type_edit`)" color="secondary" small class="mr-2" @click="editItem(item)">
+        <v-icon
+          v-if="can(`salary_type_edit`)"
+          color="secondary"
+          small
+          class="mr-2"
+          @click="editItem(item)"
+        >
           mdi-pencil
         </v-icon>
-        <v-icon v-if="can(`salary_type_delete`)" color="error" small @click="deleteItem(item)">
+        <v-icon
+          v-if="can(`salary_type_delete`)"
+          color="error"
+          small
+          @click="deleteItem(item)"
+        >
           {{ item.role === "customer" ? "" : "mdi-delete" }}
         </v-icon>
       </template>
@@ -113,7 +122,7 @@
 export default {
   data: () => ({
     options: {},
-    Model : "Payslip",
+    Model: "Payslip",
     endpoint: "salary_type",
     search: "",
     snackbar: false,
@@ -160,8 +169,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -227,7 +235,7 @@ export default {
           .post(`${this.endpoint}/delete/selected`, {
             ids: this.ids.map(e => e.id)
           })
-          .then(({data}) => {
+          .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {
@@ -271,7 +279,7 @@ export default {
       if (this.editedIndex > -1) {
         this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, payload)
-          .then(({data}) => {
+          .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {
@@ -291,7 +299,7 @@ export default {
       } else {
         this.$axios
           .post(this.endpoint, payload)
-          .then(({data}) => {
+          .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {

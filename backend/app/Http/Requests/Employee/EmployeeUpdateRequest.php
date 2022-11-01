@@ -28,6 +28,7 @@ class EmployeeUpdateRequest extends FormRequest
         return [
             'file_no' => ['nullable', 'max:100'],
             'title' => ['nullable', 'max:100'],
+            'display_name' => ['required', 'min:3', 'max:10'],
             'first_name' => ['nullable', 'min:3', 'max:100'],
             'last_name' => ['min:3', 'nullable', 'max:100'],
             'email' => 'min:3|max:191' /*|unique:companies,email,'*//*.$this->company->id*/,
