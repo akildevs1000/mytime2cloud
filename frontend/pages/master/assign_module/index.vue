@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can('master')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -31,7 +31,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
+        itemsPerPageOptions: [50, 100, 500, 1000]
       }"
       class="elevation-1"
     >
@@ -73,10 +73,20 @@
       </template>
     </v-data-table>
   </div>
+  <NoAccess v-else />
 </template>
 <script>
 export default {
-  layout: "master",
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
 
   data: () => ({
     Module: "Assign Module",
@@ -94,33 +104,33 @@ export default {
         text: "Company Id",
         align: "left",
         sortable: false,
-        value: "company.id",
+        value: "company.id"
       },
       {
         text: "Company",
         align: "left",
         sortable: false,
-        value: "company.name",
+        value: "company.name"
       },
       {
         text: "Modules",
         align: "left",
         sortable: false,
-        value: "module_names",
+        value: "module_names"
       },
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     response: "",
     data: [],
-    errors: [],
+    errors: []
   }),
   watch: {
     options: {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
 
   created() {
@@ -128,13 +138,18 @@ export default {
   },
 
   methods: {
+    can(per) {
+      let u = this.$auth.user;
+      return u && u.user_type == per;
+    },
+
     getDataFromApi(url = this.endpoint) {
       const { page, itemsPerPage } = this.options;
 
       let options = {
         params: {
-          per_page: itemsPerPage,
-        },
+          per_page: itemsPerPage
+        }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -153,7 +168,7 @@ export default {
 
     editItem(item) {
       this.$router.push(`/master/assign_module/${item.id}`);
-    },
-  },
+    }
+  }
 };
 </script>

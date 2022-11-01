@@ -205,7 +205,7 @@ export default {
     response: "",
     editedItem: {},
     items: [{ title: "", amount: "", no_of_hours: "", no_of_days: "" }],
-    list: [],
+    list: []
   }),
   async created() {
     this.getInfo();
@@ -213,18 +213,18 @@ export default {
   watch: {
     add_popup(val) {
       val || this.close();
-    },
+    }
   },
   methods: {
     caps(str) {
-      return str.replace(/\b\w/g, (c) => c.toUpperCase());
+      return str.replace(/\b\w/g, c => c.toUpperCase());
     },
     add() {
       this.items.push({
         title: "",
         amount: "",
         no_of_hours: "",
-        no_of_days: "",
+        no_of_days: ""
       });
     },
     removeItem(index) {
@@ -235,7 +235,7 @@ export default {
       let payload = {
         items: this.items,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: this.employee_id,
+        employee_id: this.employee_id
       };
 
       this.$axios
@@ -250,14 +250,14 @@ export default {
             this.snackbar = true;
             this.response = data.message;
             this.items = [
-              { title: "", amount: "", no_of_hours: "", no_of_days: "" },
+              { title: "", amount: "", no_of_hours: "", no_of_days: "" }
             ];
 
             this.getInfo();
             this.close((this.add_popup = false));
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     update() {
@@ -280,7 +280,7 @@ export default {
             }, 2000);
           }
         })
-        .catch((e) => console.log(e));
+        .catch(e => console.log(e));
     },
 
     close(model = null) {
@@ -292,8 +292,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -311,7 +310,7 @@ export default {
       this.editedItem = {
         id: item.id,
         title: item.title,
-        amount: item.amount,
+        amount: item.amount
       };
     },
     delete_record(item) {
@@ -327,7 +326,7 @@ export default {
             this.list.splice(index, 1);
           }
         });
-    },
-  },
+    }
+  }
 };
 </script>

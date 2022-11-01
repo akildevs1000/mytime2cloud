@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('company_access')">
+  <div v-if="can('master')">
     <div v-if="!loading">
       <v-row class="mt-10 mb-10">
         <v-col cols="10">
@@ -23,7 +23,7 @@
                   {{ company_payload.name }}
                 </v-list-item-title>
                 <v-list-item-subtitle>{{
-                login_payload.email
+                  login_payload.email
                 }}</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -91,8 +91,15 @@
               </v-col>
 
               <v-col cols="4" class="text-right" style="margin: -8px">
-                <v-icon v-if="can(`company_edit`)" @click="editItem(`/master/companies/${$route.params.id}`)" small
-                  class="grey" style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
+                <v-icon
+                  v-if="can(`company_edit`)"
+                  @click="editItem(`/master/companies/${$route.params.id}`)"
+                  small
+                  class="grey"
+                  style="border-radius: 50%; padding: 5px"
+                  color="secondary"
+                  >mdi-pencil</v-icon
+                >
               </v-col>
 
               <v-col cols="4">
@@ -190,7 +197,13 @@
 
             <v-col cols="6">
               <div class="text-right">
-                <v-btn v-if="can(`branch_create`)" small color="primary" class="mb-2" @click="createBranch">+ Add Branch
+                <v-btn
+                  v-if="can(`branch_create`)"
+                  small
+                  color="primary"
+                  class="mb-2"
+                  @click="createBranch"
+                  >+ Add Branch
                 </v-btn>
               </div>
             </v-col>
@@ -200,21 +213,34 @@
             <v-col cols="3" v-for="(item, index) in data" :key="index">
               <v-card>
                 <v-toolbar flat dense small class="primary" dark>{{
-                item.name
+                  item.name
                 }}</v-toolbar>
 
                 <v-card-title>
                   <v-spacer></v-spacer>
-                  <v-icon v-if="can(`branch_edit`)" @click="editItem(`/branch/edit/${item.id}`)" color="secondary"
-                    small>mdi-pencil</v-icon>
+                  <v-icon
+                    v-if="can(`branch_edit`)"
+                    @click="editItem(`/branch/edit/${item.id}`)"
+                    color="secondary"
+                    small
+                    >mdi-pencil</v-icon
+                  >
 
-                  <v-icon v-if="can(`branch_delete`)" @click="deleteItem(item)" color="red" small>mdi-delete</v-icon>
+                  <v-icon
+                    v-if="can(`branch_delete`)"
+                    @click="deleteItem(item)"
+                    color="red"
+                    small
+                    >mdi-delete</v-icon
+                  >
                 </v-card-title>
 
                 <v-card-text class="text-center" @click="goDetails(item.id)">
                   <div>
-                    <v-img style="height: 125px; width: 50%; margin: 0 auto"
-                      :src="item.logo ? item.logo : '/no-image.PNG'">
+                    <v-img
+                      style="height: 125px; width: 50%; margin: 0 auto"
+                      :src="item.logo ? item.logo : '/no-image.PNG'"
+                    >
                     </v-img>
                   </div>
 
@@ -239,7 +265,13 @@
 
             <v-col cols="6">
               <div class="text-right">
-                <v-btn v-if="can(`device_create`)" small color="primary" class="mb-2" @click="createDevice">+ Add Device
+                <v-btn
+                  v-if="can(`device_create`)"
+                  small
+                  color="primary"
+                  class="mb-2"
+                  @click="createDevice"
+                  >+ Add Device
                 </v-btn>
               </div>
             </v-col>
@@ -249,19 +281,33 @@
             <v-col cols="3" v-for="(item, index) in devices" :key="index">
               <v-card>
                 <v-toolbar flat dense small class="primary" dark>{{
-                item.device_id
+                  item.device_id
                 }}</v-toolbar>
                 <v-card-title>
                   <span>
-                    <v-chip small :class="
-                      item.status.name == 'active' ? 'success' : 'error'
-                    ">{{ item.status.name }}</v-chip>
+                    <v-chip
+                      small
+                      :class="
+                        item.status.name == 'active' ? 'success' : 'error'
+                      "
+                      >{{ item.status.name }}</v-chip
+                    >
                   </span>
                   <v-spacer></v-spacer>
-                  <v-icon v-if="can(`device_edit`)" @click="editItem(`/master/device/${item.id}`)" color="secondary"
-                    small>mdi-pencil</v-icon>
+                  <v-icon
+                    v-if="can(`device_edit`)"
+                    @click="editItem(`/master/device/${item.id}`)"
+                    color="secondary"
+                    small
+                    >mdi-pencil</v-icon
+                  >
 
-                  <v-icon v-if="can(`device_delete`)" @click="deleteDeviceItem(item)" color="red" small>mdi-delete
+                  <v-icon
+                    v-if="can(`device_delete`)"
+                    @click="deleteDeviceItem(item)"
+                    color="red"
+                    small
+                    >mdi-delete
                   </v-icon>
                 </v-card-title>
 
@@ -292,7 +338,16 @@
 
 <script>
 export default {
-  layout: "master",
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
   data: () => ({
     loading: true,
     company_payload: {
@@ -305,38 +360,34 @@ export default {
       max_employee: "",
       max_devices: "",
       lat: "",
-      lon: "",
+      lon: ""
     },
     contact_payload: {
       contact_name: "",
       contact_no: "",
       contact_position: "",
-      contact_whatsapp: "",
+      contact_whatsapp: ""
     },
     login_payload: {
       user_name: "",
       email: "",
       password: "",
-      password_confirmation: "",
+      password_confirmation: ""
     },
     e1: 1,
     errors: [],
     data: [],
-    devices: [],
+    devices: []
   }),
   async created() {
     this.getDataFromApi();
     this.getCompanyDetails();
     this.getDevicesByCompanyId();
-
   },
   methods: {
     can(per) {
       let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
-      );
+      return u && u.user_type == per;
     },
     createBranch() {
       let { branches, max_branches } = this.company_payload;
@@ -375,7 +426,7 @@ export default {
           name: contact_name,
           number: contact_no,
           position: contact_position,
-          whatsapp: contact_whatsapp,
+          whatsapp: contact_whatsapp
         } = contact;
         let { name: user_name, email } = user;
 
@@ -383,7 +434,7 @@ export default {
           contact_name,
           contact_no,
           contact_position,
-          contact_whatsapp,
+          contact_whatsapp
         };
         this.login_payload = { user_name, email };
 
@@ -412,11 +463,11 @@ export default {
     },
     deleteDeviceItem(item) {
       confirm("Are you sure you want to delete this item?") &&
-        this.$axios.delete("device/" + item.id).then((res) => {
+        this.$axios.delete("device/" + item.id).then(res => {
           const index = this.devices.indexOf(item);
           this.devices.splice(index, 1);
         });
-    },
-  },
+    }
+  }
 };
 </script>

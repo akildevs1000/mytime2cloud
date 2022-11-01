@@ -280,7 +280,7 @@
               mdi-pencil
             </v-icon>
             <v-icon
-              v-if="can(`announcement_single_view`)"
+              v-if="can(`announcement_view`)"
               color="secondary"
               small
               class="mr-2"
@@ -456,8 +456,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
     onScroll() {

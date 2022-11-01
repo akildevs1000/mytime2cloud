@@ -24,7 +24,7 @@ class ShiftController extends Controller
 
     public function shift_by_type(Request $request)
     {
-        return Shift::with('time_table', "shift_type")->where("company_id",$request->company_id)->where("shift_type_id", $request->shift_type_id)->get();
+        return Shift::with("shift_type")->where("company_id", $request->company_id)->where("shift_type_id", $request->shift_type_id)->get();
     }
 
     /**
