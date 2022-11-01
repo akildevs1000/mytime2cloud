@@ -43,7 +43,7 @@
               >
               </v-autocomplete>
             </v-col>
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!isAuto">
               Shift Name <span class="error--text">*</span>
               <v-text-field
                 :hide-details="!errors.name"
@@ -55,7 +55,7 @@
               ></v-text-field>
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!isAuto">
               <div class="mb-1">
                 Minimum Working Hours<span class="error--text">*</span>
               </div>
@@ -73,7 +73,7 @@
               ></v-text-field>
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!isAuto">
               Overtime start after duty hours (Minutes)
               <span class="error--text">*</span>
               <v-text-field
@@ -91,7 +91,7 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!isChange">
               <v-menu
                 ref="time_in_menu_ref"
                 v-model="time_in_menu"
@@ -143,7 +143,7 @@
                 >{{ errors.on_duty_time[0] }}</span
               >
             </v-col>
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!isChange">
               <v-menu
                 ref="time_out_menu_ref"
                 v-model="time_out_menu"
@@ -195,7 +195,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!isChange">
               Late Time (Minutes)
               <v-text-field
                 v-model="payload.late_time"
@@ -213,7 +213,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!isChange">
               Early Time (Minutes)
               <v-text-field
                 v-model="payload.early_time"
@@ -231,7 +231,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3" v-if="!changeType">
+            <v-col cols="12" md="3" v-if="!isChange">
               <v-menu
                 ref="beginning_in_menu_ref"
                 v-model="beginning_in_menu"
@@ -289,7 +289,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3" v-if="!changeType">
+            <v-col cols="12" md="3" v-if="!isChange">
               <v-menu
                 ref="beginning_out_menu_ref"
                 v-model="beginning_out_menu"
@@ -347,7 +347,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3" v-if="!changeType">
+            <v-col cols="12" md="3" v-if="!isChange">
               <v-menu
                 ref="ending_in_menu_ref"
                 v-model="ending_in_menu"
@@ -403,7 +403,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3" v-if="!changeType">
+            <v-col cols="12" md="3" v-if="!isChange">
               <v-menu
                 ref="ending_out_menu_ref"
                 v-model="ending_out_menu"
@@ -459,7 +459,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3" v-if="!changeType">
+            <v-col cols="12" md="3" v-if="!isChange">
               Minutes for Absent In
               <v-text-field
                 v-model="payload.absent_min_in"
@@ -477,7 +477,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3" v-if="!changeType">
+            <v-col cols="12" md="3" v-if="!isChange">
               Minutes for Absent Out
               <v-text-field
                 v-model="payload.absent_min_out"
@@ -495,7 +495,7 @@
               >
             </v-col>
 
-            <v-col md="12" v-if="!changeType">
+            <v-col md="12" v-if="!isChange">
               <b>Holidays</b>
               <br />
               <v-checkbox
@@ -511,7 +511,7 @@
               ></v-checkbox>
             </v-col>
 
-            <v-col md="12" v-if="changeType">
+            <v-col md="12" v-if="!shiftList">
               <b>Manual Shifts</b>
               <br />
               <v-checkbox
@@ -519,7 +519,7 @@
                 class="mr-5"
                 v-for="(item, index) in shifts"
                 :key="index"
-                v-model="payload.shift_id"
+                v-model="shift_id"
                 :label="item.name"
                 :value="item.id"
                 :error-messages="errors.days && errors.days[0]"
@@ -558,7 +558,9 @@ export default {
     time_tables: [],
     shift_types: [],
     shift_last_id: "",
-    isManual: false,
+    shiftList: true,
+    isChange: false,
+    isAuto: false,
 
     week_days: [
       { label: "Sun", value: "Sun" },
@@ -597,9 +599,9 @@ export default {
     beginning_out_menu: false,
     ending_out_menu: false,
 
+    shift_id: [],
     payload: {
-      days: [],
-      shift_id: []
+      days: []
     },
 
     errors: [],
@@ -618,20 +620,32 @@ export default {
       this.shift_types = data;
     });
   },
-  watch: {},
+  watch: {
+    "payload.shift_type_id"() {
+      this.isAuto = false;
+      this.isChange = false;
+      this.shiftList = true;
+      this.changeType;
+    }
+  },
   computed: {
     changeType() {
       let type = this.payload.shift_type_id;
       if (type == 1) {
-        this.isManual = true;
+        this.isChange = true;
+        return;
       }
       if (type == 2) {
         this.getShifts();
-        return true;
+        this.isChange = true;
+        this.isAuto = true;
+        this.shiftList = false;
+        return;
       }
 
       if (type == 3) {
-        this.isManual = false;
+        this.isChange = false;
+        return;
       }
     }
   },
@@ -656,7 +670,6 @@ export default {
         .get("shift_by_type", payload)
         .then(({ data }) => {
           this.shifts = data;
-          console.log(this.shifts);
         })
         .catch(err => console.log(err));
     },

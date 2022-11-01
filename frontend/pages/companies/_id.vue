@@ -744,8 +744,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
     getDataFromApi() {
@@ -770,7 +769,6 @@ export default {
           lon: this.company_payload.lon,
           location: this.company_payload.location
         };
-        console.log(data.record);
         this.preloader = false;
       });
     },

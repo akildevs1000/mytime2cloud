@@ -76,8 +76,26 @@
                           "
                         ></v-text-field>
                       </v-col>
-
-                      <v-col md="6" cols="12" sm="12" dense>
+                      <v-col md="4" sm="12" cols="12" dense>
+                        <label class="col-form-label"
+                          >Display Name
+                          <span class="text-danger">*</span></label
+                        >
+                        <v-text-field
+                          dense
+                          outlined
+                          :hide-details="!errors.display_name"
+                          type="text"
+                          v-model="payload.display_name"
+                          :error="errors.display_name"
+                          :error-messages="
+                            errors && errors.display_name
+                              ? errors.display_name[0]
+                              : ''
+                          "
+                        ></v-text-field>
+                      </v-col>
+                      <v-col md="4" cols="12" sm="12" dense>
                         <label class="col-form-label"
                           >First Name <span class="text-danger">*</span></label
                         >
@@ -95,7 +113,7 @@
                           "
                         ></v-text-field>
                       </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
+                      <v-col md="4" cols="12" sm="12" dense>
                         <label class="col-form-label"
                           >Last Name <span class="text-danger">*</span></label
                         >
@@ -609,6 +627,7 @@ export default {
     payload: {
       first_name: "",
       last_name: "",
+      display_name: "",
       email: "",
       password: "",
       password_confirmation: "",
@@ -734,21 +753,18 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
     getDataFromApi() {
       this.preloader = true;
       this.id = this.$route.params.id;
       this.$axios.get(`employee/${this.id}`).then(({ data }) => {
-        // console.log("🚀 ~ file: _id.vue ~ line 515 ~ this.$axios.get ~ data", data)
-        // return
-
         this.payload = {
           first_name: data.first_name,
           last_name: data.last_name,
           user_name: data.user.name,
+          display_name: data.display_name,
           email: data.user.email,
           role_id: data.role_id,
           profile_picture: data.profile_picture,
@@ -816,6 +832,7 @@ export default {
       let payload = new FormData();
       payload.append("first_name", this.payload.first_name);
       payload.append("last_name", this.payload.last_name);
+      payload.append("display_name", this.payload.display_name);
       payload.append("email", this.payload.email);
       payload.append("title", this.payload.title);
       payload.append("file_no", this.payload.file_no);
