@@ -44,7 +44,16 @@ class WeeklyController extends Controller
     public function getHTML($data, $company)
     {
         $mob = $company->contact->number ?? '---';
-        $companyLogo = $company->logo ?? '';
+        $companyLogo = "";
+
+        if (env('APP_ENV') !== 'local') {
+            $companyLogo = $company->logo;
+        } else {
+            $companyLogo = getcwd() . "/upload/app-logo.jpeg";
+        }
+
+
+
 
         //  <img src="' . getcwd() . '/upload/app-logo.jpeg" height="70px" width="200">
         // <img src="' . $companyLogo . '" height="100px" width="100">      <img src="' . $companyLogo . '" height="100px" width="100">
