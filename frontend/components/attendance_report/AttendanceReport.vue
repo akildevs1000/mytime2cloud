@@ -257,7 +257,9 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="set_date_save($refs.daily_menu,payload.daily_date)"
+                      @click="
+                        set_date_save($refs.daily_menu, payload.daily_date)
+                      "
                     >
                       OK
                     </v-btn>
@@ -300,7 +302,7 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="set_date_save($refs.from_menu,payload.from_date)"
+                      @click="set_date_save($refs.from_menu, payload.from_date)"
                     >
                       OK
                     </v-btn>
@@ -332,7 +334,12 @@
                       v-on="on"
                     ></v-text-field>
                   </template>
-                  <v-date-picker v-model="payload.to_date" no-title scrollable>
+                  <v-date-picker
+                    v-model="payload.to_date"
+                    :max="max_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="to_menu = false">
                       Cancel
@@ -340,7 +347,7 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="set_date_save($refs.to_menu,payload.to_date)"
+                      @click="set_date_save($refs.to_menu, payload.to_date)"
                     >
                       OK
                     </v-btn>
@@ -797,10 +804,10 @@ export default {
     response: "",
     data: [],
     shifts: [],
-    errors: []
+    errors: [],
+    custom_options: {},
+    max_date: null
   }),
-  custom_options: {},
-  max_date: "2022-10-27",
 
   computed: {
     formTitle() {
@@ -849,7 +856,7 @@ export default {
   },
 
   methods: {
-    addSevenDays(selected_date) {
+    setSevenDays(selected_date) {
       const date = new Date(selected_date);
 
       date.setDate(date.getDate() + 7);
@@ -862,17 +869,28 @@ export default {
       let y = datetime.getFullYear();
 
       this.max_date = `${y}-${m}-${d}`;
+      this.payload.to_date = `${y}-${m}-${d}`;
     },
-    
-    set_date_save(from_menu,field) {
+
+    set_date_save(from_menu, field) {
       from_menu.save(field);
+      this.setSevenDays(field);
       this.fetch_logs();
     },
     changeReportType(report_type) {
+      let dt = new Date();
+      let y = dt.getFullYear();
+      let m = dt.getMonth() + 1;
+      m = m < 10 ? "0" + m : m;
+      this.payload.from_date = `${y}-${m}-01`;
+
       if (report_type == "Daily") {
         this.setDailyDate();
+      } else if (report_type == "Weekly") {
+        this.setSevenDays(this.payload.from_date);
       } else {
-        this.setMonthlyDateRange();
+        let d = new Date(dt.getFullYear(), m, 0);
+        this.payload.to_date = `${y}-${m}-${d.getDate()}`;
       }
       this.fetch_logs();
     },
@@ -898,19 +916,6 @@ export default {
     //     });
     //   });
     // },
-
-    setMonthlyDateRange() {
-      let dt = new Date();
-      let y = dt.getFullYear();
-      let m = dt.getMonth() + 1;
-      m = m < 10 ? "0" + m : m;
-      // delete this.payload.daily_date;
-      this.payload.from_date = `${y}-${m}-01`;
-
-      let d = new Date(dt.getFullYear(), m, 0);
-      
-      this.payload.to_date = `${y}-${m}-${d.getDate()}`;
-    },
 
     setDailyDate() {
       this.payload.daily_date = new Date().toJSON().slice(0, 10);
@@ -1060,7 +1065,6 @@ export default {
       if (u.user_type == "employee") {
         this.payload.department_id = u.employee.department_id;
       }
-      console.log(this.payload);
       let options = {
         params: {
           per_page: itemsPerPage,
@@ -1178,6 +1182,10 @@ export default {
       let { page, itemsPerPage } = this.options;
       let path = process.env.BACKEND_URL + "/" + type;
       let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
+
+      console.log(qs);
+
+      // return;
 
       let report = document.createElement("a");
       report.setAttribute("href", qs);
