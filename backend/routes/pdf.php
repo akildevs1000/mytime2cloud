@@ -18,11 +18,11 @@ Route::get('/weekly_summary', [WeeklyController::class, 'weekly_summary']);
 Route::get('/weekly_present', [WeeklyController::class, 'weekly_present']);
 Route::get('/weekly_absent', [WeeklyController::class, 'weekly_absent']);
 Route::get('/weekly_missing', [WeeklyController::class, 'weekly_missing']);
-Route::get('/weekly_details', [WeeklyController::class, 'weekly_details']);
+Route::get('/weekly', [WeeklyController::class, 'weekly_details']);
 
 
 //monthly
-Route::get('/monthly_details', [MonthlyController::class, 'monthly_details']);
+Route::get('/monthly', [MonthlyController::class, 'monthly_details']);
 Route::get('/monthly_summary', [MonthlyController::class, 'monthly_summary']);
 Route::get('/monthly_present', [MonthlyController::class, 'monthly_present']);
 Route::get('/monthly_absent', [MonthlyController::class, 'monthly_absent']);
