@@ -37,7 +37,7 @@ class WeeklyController extends Controller
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
         $company['end'] = $end;
-        return $company;
+
         return $pdf->loadHTML($this->getHTML($data, (object)$company))->stream();
     }
 
