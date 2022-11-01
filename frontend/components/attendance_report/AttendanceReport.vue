@@ -257,7 +257,7 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="daily_date_save($refs.daily_menu)"
+                      @click="set_date_save($refs.daily_menu,payload.daily_date)"
                     >
                       OK
                     </v-btn>
@@ -300,7 +300,7 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="from_date_save($refs.from_date)"
+                      @click="set_date_save($refs.from_menu,payload.from_date)"
                     >
                       OK
                     </v-btn>
@@ -340,7 +340,7 @@
                     <v-btn
                       text
                       color="primary"
-                      @click="$refs.to_menu.save(payload.to_date)"
+                      @click="set_date_save($refs.to_menu,payload.to_date)"
                     >
                       OK
                     </v-btn>
@@ -796,7 +796,6 @@ export default {
     defaultItem: { name: "" },
     response: "",
     data: [],
-    csvData: [],
     shifts: [],
     errors: []
   }),
@@ -864,13 +863,9 @@ export default {
 
       this.max_date = `${y}-${m}-${d}`;
     },
-    daily_date_save(daily_menu) {
-      daily_menu.save(this.payload.daily_date);
-      this.fetch_logs();
-    },
-    from_date_save(from_menu) {
-      this.addSevenDays(from_menu);
-      from_menu.save(this.payload.from_date);
+    
+    set_date_save(from_menu,field) {
+      from_menu.save(field);
       this.fetch_logs();
     },
     changeReportType(report_type) {
@@ -911,7 +906,10 @@ export default {
       m = m < 10 ? "0" + m : m;
       // delete this.payload.daily_date;
       this.payload.from_date = `${y}-${m}-01`;
-      this.payload.to_date = `${y}-${m}-${31}`;
+
+      let d = new Date(dt.getFullYear(), m, 0);
+      
+      this.payload.to_date = `${y}-${m}-${d.getDate()}`;
     },
 
     setDailyDate() {
@@ -1077,24 +1075,6 @@ export default {
 
       this.$axios.get(url, options).then(({ data }) => {
         this.data = data.data;
-        this.csvData = data.data.map(e => ({
-          Date: e.date,
-          "E.ID": e.employee_id,
-          "First Name": e.employee.first_name,
-          Department:
-            (e.employee.department && e.employee.department.name) || "---",
-          "Shift Type": e.shift_type && e.shift_type.name,
-          Shift: (e.shift && e.shift.name) || "---",
-          Status: e.status,
-          In: e.in,
-          Out: e.out,
-          "T.Hrs": e.total_hrs,
-          OT: e.ot,
-          "Late Coming": e.late_coming,
-          "Early Going": e.early_going,
-          "D.In": (e.device_in && e.device_in.name) || "---",
-          "D.Out": (e.device_out && e.device_out.name) || "---"
-        }));
         this.total = data.total;
         this.loading = false;
       });

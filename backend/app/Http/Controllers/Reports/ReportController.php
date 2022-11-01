@@ -53,12 +53,12 @@ class ReportController extends Controller
             $q->where('ot', "!=", "---");
         });
 
-        $model->when($request->daily_date, function ($q) use ($request) {
+        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
             $q->whereDate('date', $request->daily_date);
             $q->orderBy("id", "desc");
         });
 
-        $model->when($request->from_date && $request->to_date, function ($q) use ($request) {
+        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
             $q->orderBy("date", "asc");
         });
