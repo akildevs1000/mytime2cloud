@@ -1317,7 +1317,7 @@ export default {
       let { page, itemsPerPage } = this.options;
       let path = process.env.BACKEND_URL + "/" + type;
 
-      let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
+      let qs = `${path}?company_id=${company_id}&status=${status}&department_id=${data.department_id}&employee_id=${data.employee_id}&report_type=${data.report_type}`;
 
       qs +=
         data.report_type == "Daily"
