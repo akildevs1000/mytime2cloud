@@ -14,21 +14,14 @@ Route::get('/daily_download_pdf', [Controller::class, 'daily_download_pdf']);
 Route::get('/daily_download_csv', [Controller::class, 'daily_download_csv']);
 
 // weekly
-Route::get('/weekly_summary', [WeeklyController::class, 'weekly_summary']);
-Route::get('/weekly_present', [WeeklyController::class, 'weekly_present']);
-Route::get('/weekly_absent', [WeeklyController::class, 'weekly_absent']);
-Route::get('/weekly_missing', [WeeklyController::class, 'weekly_missing']);
-Route::get('/weekly', [WeeklyController::class, 'weekly_details']);
-
+Route::get('/weekly', [WeeklyController::class, 'weekly']);
+Route::get('/weekly_download_pdf', [WeeklyController::class, 'weekly_download_pdf']);
+Route::get('/weekly_download_csv', [WeeklyController::class, 'weekly_download_csv']);
 
 //monthly
-Route::get('/monthly', [MonthlyController::class, 'monthly_details']);
-Route::get('/monthly_summary', [MonthlyController::class, 'monthly_summary']);
-Route::get('/monthly_present', [MonthlyController::class, 'monthly_present']);
-Route::get('/monthly_absent', [MonthlyController::class, 'monthly_absent']);
-Route::get('/monthly_late_in', [MonthlyController::class, 'monthly_late_in']);
-Route::get('/monthly_early_out', [MonthlyController::class, 'monthly_early_out']);
-Route::get('/monthly_performance', [MonthlyController::class, 'monthly_performance']);
+Route::get('/monthly', [MonthlyController::class, 'monthly']);
+Route::get('/monthly_download_pdf', [MonthlyController::class, 'monthly_download_pdf']);
+Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download_csv']);
 
 
 //for testing static

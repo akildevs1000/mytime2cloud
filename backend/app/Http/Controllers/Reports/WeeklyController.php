@@ -13,8 +13,65 @@ use App\Http\Controllers\Controller;
 
 class WeeklyController extends Controller
 {
+    public function weekly(Request $request)
+    {
+        return $this->processPDF($request)->stream();
+    }
+    public function weekly_download_pdf(Request $request)
+    {
+        return $this->processPDF($request)->download();
+    }
 
-    public function weekly_details(Request $request)
+    public function weekly_download_csv(Request $request)
+    {
+        $model = new ReportController;
+
+        $data = $model->report($request)->get();
+
+        $fileName = 'report.csv';
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+
+            $i = 0;
+
+            fputcsv($file, ["#", "Date", "E.ID", "Name", "Dept", "Shift Type", "Shift", "Status", "In", "Out", "Total Hrs", "OT", "Late coming", "Early Going", "D.In", "D.Out"]);
+            foreach ($data as $col) {
+                fputcsv($file, [
+                    ++$i,
+                    $col['date'],
+                    $col['employee_id'] ?? "---",
+                    $col['employee']["first_name"] ?? "---",
+                    $col['employee']["department"]["name"] ?? "---",
+                    $col['schedule']["shift_type"]["name"] ?? "---",
+                    $col['schedule']["shift"]["name"] ?? "---",
+                    $col["status"] ?? "---",
+                    $col["in"] ?? "---",
+                    $col["out"] ?? "---",
+                    $col["total_hrs"] ?? "---",
+                    $col["ot"] ?? "---",
+                    $col["late_coming"] ?? "---",
+                    $col["early_going"] ?? "---",
+                    $col["device_in"]["short_name"] ?? "---",
+                    $col["device_out"]["short_name"] ?? "---"
+                ], ",");
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function processPDF($request)
     {
         $start = $request->from_date ?? date('Y-10-01');
         $end = $request->to_date ?? date('Y-10-07');
@@ -38,7 +95,7 @@ class WeeklyController extends Controller
         $company['start'] = $start;
         $company['end'] = $end;
 
-        return $pdf->loadHTML($this->getHTML($data, (object)$company))->stream();
+        return $pdf->loadHTML($this->getHTML($data, (object)$company));
     }
 
     public function getHTML($data, $company)
@@ -52,8 +109,9 @@ class WeeklyController extends Controller
             $companyLogo = getcwd() . "/upload/app-logo.jpeg";
         }
 
-
-
+        if($company->p_o_box_no == "null"){
+            $company->p_o_box_no = "---";
+        }
 
         //  <img src="' . getcwd() . '/upload/app-logo.jpeg" height="70px" width="200">
         // <img src="' . $companyLogo . '" height="100px" width="100">      <img src="' . $companyLogo . '" height="100px" width="100">
@@ -149,7 +207,7 @@ class WeeklyController extends Controller
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: right; border :none;font-size:10px">
-                            <span style="margin-right: 3px"> P.O.Box ' .  ($company->p_o_box_no ?? '---') . ' </span>
+                            <span style="margin-right: 3px"> P.O.Box: ' .  ($company->p_o_box_no ?? '---') . ' </span>
                             <br>
                         </td>
                     </tr>
@@ -209,7 +267,7 @@ class WeeklyController extends Controller
 
             $str .= '<table class="main-table" style="margin-top: 10px !important;">';
             $str .= '<tr style="text-align: left; border :1px solid black; width:120px;">';
-            $str .= '<td style="text-align:left;width:120px"><b>Name</b>:' . $emp->first_name ?? '' . '</td>';
+            $str .= '<td style="text-align:left;width:120px"><b>Name</b>:' . ($emp->display_name ?? ' ---') . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>EID</b>:' . $emp->employee_id ?? '' . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>Total Hrs</b>:' . $this->getCalculation($row)['work'] . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>OT</b>:' . $this->getCalculation($row)['ot'] . '</td>';

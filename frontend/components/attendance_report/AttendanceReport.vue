@@ -504,7 +504,12 @@
       </v-card>
     </v-dialog>
 
-    <v-toolbar class="background" dark flat>
+    <v-toolbar
+      class="background"
+      dark
+      flat
+      v-if="payload.report_type == 'Daily'"
+    >
       <v-spacer></v-spacer>
 
       <v-tooltip top color="primary">
@@ -549,6 +554,122 @@
             v-bind="attrs"
             v-on="on"
             @click="process_file('daily_download_csv')"
+          >
+            <v-icon class="">mdi-file-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>CSV</span>
+      </v-tooltip>
+    </v-toolbar>
+
+    <v-toolbar
+      class="background"
+      dark
+      flat
+      v-if="payload.report_type == 'Weekly'"
+    >
+      <v-spacer></v-spacer>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="ma-0"
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="process_file('weekly')"
+          >
+            <v-icon class="">mdi-printer-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>PRINT</span>
+      </v-tooltip>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="process_file('weekly_download_pdf')"
+          >
+            <v-icon class="">mdi-download-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>DOWNLOAD</span>
+      </v-tooltip>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="process_file('weekly_download_csv')"
+          >
+            <v-icon class="">mdi-file-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>CSV</span>
+      </v-tooltip>
+    </v-toolbar>
+
+    <v-toolbar
+      class="background"
+      dark
+      flat
+      v-if="payload.report_type == 'Monthly'"
+    >
+      <v-spacer></v-spacer>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="ma-0"
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="process_file('monthly')"
+          >
+            <v-icon class="">mdi-printer-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>PRINT</span>
+      </v-tooltip>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="process_file('monthly_download_pdf')"
+          >
+            <v-icon class="">mdi-download-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>DOWNLOAD</span>
+      </v-tooltip>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="process_file('monthly_download_csv')"
           >
             <v-icon class="">mdi-file-outline</v-icon>
           </v-btn>
@@ -853,19 +974,47 @@ export default {
     this.getDepartments(this.custom_options);
     this.getEmployeesByDepartment();
     this.getDeviceList();
+
+    let dt = new Date();
+    let y = dt.getFullYear();
+    let m = dt.getMonth() + 1;
+    let d = new Date(dt.getFullYear(), m, 0);
+
+    m = m < 10 ? "0" + m : m;
+
+    this.payload.from_date = `${y}-${m}-01`;
+    this.payload.to_date = `${y}-${m}-${d.getDate()}`;
   },
 
   methods: {
     setSevenDays(selected_date) {
       const date = new Date(selected_date);
 
-      date.setDate(date.getDate() + 7);
+      date.setDate(date.getDate() + 6);
 
       let datetime = new Date(date);
 
       let d = datetime.getDate();
       d = d < "10" ? "0" + d : d;
       let m = datetime.getMonth() + 1;
+      m = m < 10 ? "0" + m : m;
+      let y = datetime.getFullYear();
+
+      this.max_date = `${y}-${m}-${d}`;
+      this.payload.to_date = `${y}-${m}-${d}`;
+    },
+
+    setThirtyDays(selected_date) {
+      const date = new Date(selected_date);
+
+      date.setDate(date.getDate() + 29);
+
+      let datetime = new Date(date);
+
+      let d = datetime.getDate();
+      d = d < "10" ? "0" + d : d;
+      let m = datetime.getMonth() + 1;
+      m = m < 10 ? "0" + m : m;
       let y = datetime.getFullYear();
 
       this.max_date = `${y}-${m}-${d}`;
@@ -874,23 +1023,38 @@ export default {
 
     set_date_save(from_menu, field) {
       from_menu.save(field);
-      this.setSevenDays(field);
+
+      if (this.payload.report_type == "Daily") {
+        this.setDailyDate();
+      }
+      else if (this.payload.report_type == "Weekly") {
+        this.setSevenDays(this.payload.from_date);
+      } else {
+        this.setThirtyDays(this.payload.from_date);
+      }
+
+
       this.fetch_logs();
     },
     changeReportType(report_type) {
       let dt = new Date();
       let y = dt.getFullYear();
       let m = dt.getMonth() + 1;
+      let d = new Date(dt.getFullYear(), m, 0);
+
       m = m < 10 ? "0" + m : m;
-      this.payload.from_date = `${y}-${m}-01`;
+
+      if (this.payload.from_date == null) {
+        this.payload.from_date = `${y}-${m}-01`;
+      }
 
       if (report_type == "Daily") {
         this.setDailyDate();
-      } else if (report_type == "Weekly") {
+      }
+      else if (report_type == "Weekly") {
         this.setSevenDays(this.payload.from_date);
       } else {
-        let d = new Date(dt.getFullYear(), m, 0);
-        this.payload.to_date = `${y}-${m}-${d.getDate()}`;
+        this.setThirtyDays(this.payload.from_date);
       }
       this.fetch_logs();
     },
@@ -905,17 +1069,6 @@ export default {
         this.devices = data;
       });
     },
-
-    // getAttendanceEmployees() {
-    //   this.$axios.get(`/employees_by_departments/${-1}`).then(({ data }) => {
-    //     let res = data.map(e => e.employee_attendance);
-    //     this.scheduled_employees = data.map(e => e.employee_attendance);
-    //     this.scheduled_employees.unshift({
-    //       system_user_id: "",
-    //       name_with_user_id: "Select All"
-    //     });
-    //   });
-    // },
 
     setDailyDate() {
       this.payload.daily_date = new Date().toJSON().slice(0, 10);
@@ -1157,35 +1310,19 @@ export default {
     },
 
     process_file(type) {
-      let status = this.payload.status;
-
-      switch (status) {
-        case "Select All":
-          status = "SA";
-          break;
-
-        case "Missing":
-          status = "---";
-          break;
-
-        case "Manual Entry":
-          status = "ME";
-          break;
-
-        default:
-          status = status.charAt(0);
-          break;
-      }
+      let status = this.getStatus(this.payload.status);
 
       let data = this.payload;
       let company_id = this.$auth.user.company.id;
       let { page, itemsPerPage } = this.options;
       let path = process.env.BACKEND_URL + "/" + type;
-      let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
 
-      console.log(qs);
+      let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
 
-      // return;
+      qs +=
+        data.report_type == "Daily"
+          ? `&daily_date=${data.daily_date}`
+          : `&from_date=${data.from_date}&to_date=${data.to_date}`;
 
       let report = document.createElement("a");
       report.setAttribute("href", qs);
@@ -1194,6 +1331,20 @@ export default {
 
       this.fetch_logs();
       return;
+    },
+
+    getQueryString(type) {},
+    getStatus(status) {
+      switch (status) {
+        case "Select All":
+          return "SA";
+        case "Missing":
+          return "---";
+        case "Manual Entry":
+          return "ME";
+        default:
+          return status.charAt(0);
+      }
     }
   }
 };

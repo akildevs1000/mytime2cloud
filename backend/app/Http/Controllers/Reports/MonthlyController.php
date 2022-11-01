@@ -52,6 +52,10 @@ class MonthlyController extends Controller
             $companyLogo = getcwd() . "/upload/app-logo.jpeg";
         }
 
+        if($company->p_o_box_no == "null"){
+            $company->p_o_box_no = "---";
+        }
+
 
         //  <img src="' . getcwd() . '/upload/app-logo.jpeg" height="70px" width="200">
         // <img src="' . $companyLogo . '" height="100px" width="100">      <img src="' . $companyLogo . '" height="100px" width="100">
@@ -207,7 +211,7 @@ class MonthlyController extends Controller
 
             $str .= '<table class="main-table" style="margin-top: 10px !important;">';
             $str .= '<tr style="text-align: left; border :1px solid black; width:120px;">';
-            $str .= '<td style="text-align:left;width:120px"><b>Name</b>:' . $emp->first_name ?? '' . '</td>';
+            $str .= '<td style="text-align:left;width:120px"><b>Name</b>:' . ($emp->display_name ?? ' ---') . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>EID</b>:' . $emp->employee_id ?? '' . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>Total Hrs</b>:' . $this->getCalculation($row)['work'] . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>OT</b>:' . $this->getCalculation($row)['ot'] . '</td>';
