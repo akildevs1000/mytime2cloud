@@ -28,7 +28,7 @@ class WeeklyController extends Controller
         });
 
         $data = $model->get()->groupBy(['employee_id', 'date']);
-        
+
         $pdf = App::make('dompdf.wrapper');
 
         $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
@@ -36,39 +36,7 @@ class WeeklyController extends Controller
         $company['start'] = $start;
         $company['end'] = $end;
 
-
         return $pdf->loadHTML($this->getHTML($data, (object)$company))->stream();
-    }
-
-
-    public function weekly_present()
-    {
-        $data = Attendance::whereMonth("date", date("m"))->get()->toArray();
-        return Pdf::loadView('pdf.weekly_present', ["data" => $data])->stream();
-    }
-
-    public function weekly_absent()
-    {
-        $data = Attendance::whereMonth("date", date("m"))->get()->toArray();
-        return Pdf::loadView('pdf.weekly_absent', ["data" => $data])->stream();
-    }
-
-    public function weekly_late_in()
-    {
-        $data = Attendance::whereMonth("date", date("m"))->get()->toArray();
-        return Pdf::loadView('pdf.weekly_late_in', ["data" => $data])->stream();
-    }
-
-    public function weekly_early_out()
-    {
-        $data = Attendance::whereMonth("date", date("m"))->get()->toArray();
-        return Pdf::loadView('pdf.weekly_early_out', ["data" => $data])->stream();
-    }
-
-    public function weekly_performance()
-    {
-        $data = Attendance::whereMonth("date", date("m"))->get()->toArray();
-        return Pdf::loadView('pdf.weekly_performance', ["data" => $data])->stream();
     }
 
     public function getHTML($data, $company)
@@ -194,8 +162,7 @@ class WeeklyController extends Controller
         </table>
         <hr style="margin:0px;padding:0">
 
-            ' . $this->renderTable($data, $company) .
-            '
+            ' . $this->renderTable($data) . '
             <hr style=" bottom: 0px; position: absolute; width: 100%; margin-bottom:20px">
             <footer style="padding-top: 0px!important">
             <table class="main-table">
@@ -213,150 +180,146 @@ class WeeklyController extends Controller
                 </tr>
             </table>
         </footer>
-            </body>
-            </html>';
+        </body>
+    </html>';
     }
 
-    public function renderTable($data, $company)
+
+
+    public function renderTable($data)
     {
-        $start = date('d M Y', strtotime($company->start));
-        $end = date('d M Y', strtotime($company->enc));
+        $str = "";
+        foreach ($data as $eid => $row) {
 
-        $str_arr = [];
-        foreach ($data as $key => $row) {
-            $emp = Employee::where("employee_id", $key)->first();
+            $emp = Employee::where("employee_id", $eid)->first();
 
-            $str_arr[] = '<div class="page-breaks"><table  style="margin-top: 5px !important;">' .
-                '<tr style="text-align: left; border :1px solid black; width:120px;">' .
-                '<td style="text-align:left;"><b>Name</b>:' . $emp->first_name ?? '' . '</td>' .
-                '<td style="text-align:left;"><b>EID</b>:' . $emp->employee_id ?? '' . '</td>' .
-                '<td style="text-align:left;"><b>Dept</b>: ' . $emp->department->name ?? '' . '</td>' .
-                '<td style="text-align:left; width:120px;"><b>Date: </b> ' . $start . ' to ' . $end . '</td>' .
-                // '<td style="text-align:left; width:120px;"><b>Date: </b> 1 Sep 22 to 30 Sep 22</td>' .
-                '<td style="text-align:left;"><b>Total Hrs</b>:' . $this->totalHours($row) . '</td>' .
-                '<td style="text-align:left;"><b>OT</b>:' . $this->totalOtHours($row) . '</td>' .
-                '<td style="text-align:left;color:green"><b>Present</b>:' . $row["Present"] . '</td>' .
-                '<td style="text-align:left;color:red"><b>Absent</b>:' . $row["Absent"] . '</td>' .
-                '<td style="text-align:left;"><b>Late In</b>:' . $row["Late In"] . '</td>' .
-                '<td style="text-align:left;"><b>Early Out</b>:' . $row["Early Out"] . '</td>' .
-                '</tr>' .
-                '</table>' .
-                $this->getData($row) .
-                '</div>';
+            $str .= '<div class="page-breaks">';
+
+            $str .= '<table class="main-table" style="margin-top: 10px !important;">';
+            $str .= '<tr style="text-align: left; border :1px solid black; width:120px;">';
+            $str .= '<td style="text-align:left;"><b>Name</b>:' . $emp->first_name ?? '' . '</td>';
+            $str .= '<td style="text-align:left;"><b>EID</b>:' . $emp->employee_id ?? '' . '</td>';
+            $str .= '<td style="text-align:left;"><b>Total Hrs</b>:' . $this->getCalculation($row)['work'] . '</td>';
+            $str .= '<td style="text-align:left;"><b>OT</b>:' . $this->getCalculation($row)['ot'] . '</td>';
+            $str .= '<td style="text-align:left;"><b>Present</b>:' . ($this->getCalculation($row)['presents']) . '</td>';
+            $str .= '<td style="text-align:left;"><b>Absent</b>:' . ($this->getCalculation($row)['absents']) . '</td>';
+            $str .= '<td style="text-align:left;"><b>Missing</b>:' . ($this->getCalculation($row)['missings']) . '</td>';
+            $str .= '<td style="text-align:left;"><b>Manual</b>:' . ($this->getCalculation($row)['manuals']) . '</td>';
+            $str .= '</tr>';
+            $str .= '</table>';
+
+            $str .= '<table class="main-table" style="margin-top: 5px !important;  padding-bottom: 1px;">';
+
+            $dates = '<tr style="background-colorq:#A6A6A6;"><td><b>Dates</b></td>';
+            $days = '<tr style="background-colorq:#A6A6A6;"><td><b>Days</b></td>';
+            $in = '<tr style="background-colorq:#A6A6A6;"><td><b>In</b></td>';
+            $out = '<tr style="background-colorq:#A6A6A6;"><td><b>Out</b></td>';
+            $work = '<tr style="background-colorq:#A6A6A6;"><td><b>Work</b></td>';
+            $ot = '<tr style="background-colorq:#A6A6A6;"><td><b>OT</b></td>';
+            $shift = '<tr style="background-colorq:#A6A6A6;"><td><b>Shift</b></td>';
+            $shift_type = '<tr style="background-colorq:#A6A6A6;"><td><b>Shift Type</b></td>';
+            $din = '<tr style="background-colorq:#A6A6A6;"><td><b>Device In</b></td>';
+            $dout = '<tr style="background-colorq:#A6A6A6;"><td><b>Device Out</b></td>';
+            $status_tr = '<tr style="background-colorq:#A6A6A6;"><td><b>Status</b></td>';
+
+
+            foreach ($row as $key => $record) {
+
+                $dates .= '<td style="text-align: center;"> ' . substr($key, 0, 2) . ' </td>';
+                $days .= '<td style="text-align: center;"> ' . $record[0]['day'] . ' </td>';
+
+                $in .= '<td style="text-align: center;"> ' . $record[0]['in'] . ' </td>';
+                $out .= '<td style="text-align: center;"> ' . $record[0]['out'] . ' </td>';
+
+                $work .= '<td style="text-align: center;"> ' . $record[0]['total_hrs']  . ' </td>';
+                $ot .= '<td style="text-align: center;"> ' . $record[0]['ot'] . ' </td>';
+
+                $shift .= '<td style="text-align: center;"> ' . $record[0]['shift_id'] . ' </td>';
+                $shift_type .= '<td style="text-align: center;"> ' . $record[0]['shift_type_id'] . ' </td>';
+                $din .= '<td style="text-align: center;"> ' . $record[0]['device_id_in'] . ' </td>';
+                $dout .= '<td style="text-align: center;"> ' . $record[0]['device_id_out'] . ' </td>';
+
+                $status = $record[0]['status'] == 'A' ? 'red' : 'green';
+
+                $status_tr .= '<td style="text-align: center; color:' . $status . '"> ' . $record[0]['status'] . ' </td>';
+            }
+
+
+            $dates .= '</tr>';
+            $days .= '</tr>';
+            $in .= '</tr>';
+            $out .= '</tr>';
+            $work .= '</tr>';
+            $ot .= '</tr>';
+            $shift .= '</tr>';
+            $shift_type .= '</tr>';
+            $din .= '</tr>';
+            $dout .= '</tr>';
+            $status_tr .= '</tr>';
+
+            $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $din . $dout . $status_tr;
+
+            $str .= '</table>';
+            $str .= '</div>';
         }
-        return join("", $str_arr);
-    }
-
-    public function getData($records)
-    {
-
-        $str = '<table class="main-table" style="margin-top: 15px !important;  padding-bottom: 5px;">';
-
-        $dates = '<tr style="background-colorq:#A6A6A6;"><td><b>Dates</b></td>';
-        $days = '<tr style="background-colorq:#A6A6A6;"><td><b>Days</b></td>';
-        $in = '<tr style="background-colorq:#A6A6A6;"><td><b>In</b></td>';
-        $out= '<tr style="background-colorq:#A6A6A6;"><td><b>Out</b></td>';
-        $work = '<tr style="background-colorq:#A6A6A6;"><td><b>Work</b></td>';
-        $ot = '<tr style="background-colorq:#A6A6A6;"><td><b>OT</b></td>';
-        $shift = '<tr style="background-colorq:#A6A6A6;"><td><b>Shift</b></td>';
-        $shift_type = '<tr style="background-colorq:#A6A6A6;"><td><b>Shift Type</b></td>';
-        $din = '<tr style="background-colorq:#A6A6A6;"><td><b>Device In</b></td>';
-        $dout = '<tr style="background-colorq:#A6A6A6;"><td><b>Device Out</b></td>';
-        $status_tr = '<tr style="background-colorq:#A6A6A6;"><td><b>Status</b></td>';
-
-
-        foreach ($records as $key => $record) {
-
-
-            $dates .= '<td style="text-align: center;"> ' . substr($key, 0, 2) .' </td>';
-            $days .= '<td style="text-align: center;"> ' . $record[0]['day'] .' </td>';
-
-            $in .= '<td style="text-align: center;"> ' . $record[0]['in'] .' </td>';
-            $out .= '<td style="text-align: center;"> ' . $record[0]['out'] .' </td>';
-
-            $work .= '<td style="text-align: center;"> ' . $record[0]['total_hrs'] .' </td>';
-            $ot .= '<td style="text-align: center;"> ' . $record[0]['ot'] .' </td>';
-
-            $shift .= '<td style="text-align: center;"> ' . $record[0]['shift_id'] .' </td>';
-            $shift_type .= '<td style="text-align: center;"> ' . $record[0]['shift_type_id'] .' </td>';
-            $din .= '<td style="text-align: center;"> ' . $record[0]['device_id_in'] .' </td>';
-            $dout .= '<td style="text-align: center;"> ' . $record[0]['device_id_out'] .' </td>';
-
-            $status = $record[0]['status'] == 'A' ? 'color:red' : 'color:green';
-
-            $status_tr .= '<td style="text-align: center;"> ' . $status .' </td>';
-        }
-
-
-        $dates .= '</tr>';
-        $days .= '</tr>';
-        $in .= '</tr>';
-        $out.= '</tr>';
-        $work .= '</tr>';
-        $ot .= '</tr>';
-        $shift .= '</tr>';
-        $shift_type .= '</tr>';
-        $din .= '</tr>';
-        $dout .= '</tr>';
-        $status_tr .= '</tr>';
-
-        $str = $str. $dates. $days. $in. $out. $work. $ot. $shift. $shift_type. $din. $dout. $status_tr;
-
-        $str .= '</table>';
-
-
         return $str;
     }
 
-    public function getEmployee($arr)
+    public function getCalculation($arr)
     {
-        foreach ($arr as $a) {
-            $data = $a[0]->employeeAttendance;
-        }
-        return $data;
-    }
+        $work_minutes = 0;
+        $ot_minutes = 0;
 
-    public function totalHours($arr)
-    {
-        $times = [];
+        $presents = 0;
+        $absents = 0;
+        $missings = 0;
+        $manuals = 0;
+
         foreach ($arr as $a) {
-            $times[] = $a[0]->total_hrs;
-        }
-        $minutes = 0;
-        foreach ($times as $time) {
-            if ($time != '---') {
-                list($hour, $minute) = explode(':', $time);
-                $minutes += $hour * 60;
-                $minutes += $minute;
+            $status = $a[0]->status;
+            $work   = $a[0]->total_hrs;
+            $ot     = $a[0]->ot;
+
+            if ($status == 'P') {
+                $presents++;
+            } else if ($status == 'A') {
+                $absents++;
+            } else if ($status == 'ME') {
+                $missings++;
+            }
+            else if ($status == '---') {
+                $manuals++;
+            }
+
+            if ($work != '---') {
+                list($work_hour, $work_minute) = explode(':', $work);
+                $work_minutes += $work_hour * 60;
+                $work_minutes += $work_minute;
+            }
+
+            if ($ot != '---') {
+                list($ot_hour, $ot_minute) = explode(':', $ot);
+                $ot_minutes += $ot_hour * 60;
+                $ot_minutes += $ot_minute;
             }
         }
 
-        $hours = floor($minutes / 60);
-        $minutes -= $hours * 60;
-        return $hours . ':' . $minutes;
+        $work_hours = floor($work_minutes / 60);
+        $work_minutes -= $work_hours * 60;
+
+        $ot_hours = floor($ot_minutes / 60);
+        $ot_minutes -= $ot_hours * 60;
+
+        return [
+            'work' => $work_hours . ':' . $work_minutes,
+            'ot' => $ot_hours . ':' . $ot_minutes,
+            'presents' => $presents,
+            'absents'  => $absents,
+            'missings' => $missings,
+            'manuals'  => $manuals
+        ];
     }
 
-    public function totalOtHours($arr)
-    {
-        $times = [];
-        foreach ($arr as $a) {
-            $times[] = $a[0]->ot;
-        }
-        $minutes = 0;
-
-        foreach ($times as $time) {
-            if ($time != '---') {
-                $hour = '00';
-                $minute = '00';
-                $minutes += $hour * 60;
-                $minutes += $minute;
-            }
-        }
-
-        $hours = floor($minutes / 60);
-        $minutes -= $hours * 60;
-        return $hours . ':' . $minutes;
-    }
 
     public function weekly_html(Request $request)
     {
