@@ -74,8 +74,6 @@ export default {
         overtime: this.setting.overtime,
         mobile_application: this.setting.mobile_application
       };
-      console.log(payload);
-      // return;
 
       this.$axios
         .post(`employee/update/setting`, payload)
@@ -84,7 +82,6 @@ export default {
 
           if (data != 1) {
             this.errors = data.errors;
-            console.log("error");
           } else {
             this.errors = [];
             this.snackbar = true;

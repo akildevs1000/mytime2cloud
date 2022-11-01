@@ -314,12 +314,6 @@ export default {
   created() {
     this.initialize();
     this.first_login_auth = this.$auth.user.first_login;
-
-    // this.$axios
-    //   .get(`device/getLastRecordsByCount/${this.$auth.user.company.id}/${5}`)
-    //   .then(res => {
-    //     console.log("🚀 ~ file: index.vue ~ line 330 ~ created ~ res.data", res.data)
-    //   });
   },
   computed: {
     first_login() {

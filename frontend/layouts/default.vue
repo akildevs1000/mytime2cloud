@@ -512,7 +512,6 @@ export default {
       // if(u){
       // this.$router.push(`/empl/${this.$auth.user?.company?.id}`);
       // }
-      // console.log();
       this.$router.push(`/companies/${this.$auth.user?.company?.id}`);
     },
     getCompanyDetails() {

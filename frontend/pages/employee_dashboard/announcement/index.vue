@@ -52,7 +52,6 @@
 export default {
   layout({ $auth }) {
     let { is_master } = $auth.user;
-    console.log(is_master ? "default" : "employee");
     return is_master ? "default" : "employee";
   }
 };

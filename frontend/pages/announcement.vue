@@ -383,7 +383,7 @@ export default {
     desDate: "",
     dept: "",
     options: {},
-    Model: "announcement",
+    Model: "Announcement",
     endpoint: "announcement",
     search: "",
     snackbar: false,
@@ -495,7 +495,6 @@ export default {
 
       this.$axios.get("employeesByDepartment", options).then(({ data }) => {
         this.employees_dialog = data.data;
-        console.log(this.employees_dialog);
         this.employees_dialog.unshift({
           id: "---",
           name_with_user_id: "Select All"
@@ -611,7 +610,6 @@ export default {
           id: "---",
           name_with_user_id: "Select All"
         });
-        console.log(this.employees_dialog);
       });
     },
 

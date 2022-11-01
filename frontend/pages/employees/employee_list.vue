@@ -106,7 +106,7 @@
               >
               </v-img>
             </td>
-            <td>{{ item.first_name || "---" }}</td>
+            <td>{{ item.display_name || "---" }}</td>
             <td>{{ item.department.name || "---" }}</td>
             <td>{{ item.designation.name }}</td>
             <td>{{ (item && item.user.email) || "---" }}</td>

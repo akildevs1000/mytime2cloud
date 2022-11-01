@@ -36,81 +36,161 @@
           <v-container>
             <v-row>
               <v-col cols="12">
-                <v-text-field v-model="editedItem.title" label="Title" :error-messages="
-                  errors && errors.title ? errors.title[0] : ''
-                "></v-text-field>
+                <v-text-field
+                  v-model="editedItem.title"
+                  label="Title"
+                  :error-messages="
+                    errors && errors.title ? errors.title[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
 
               <v-col cols="12">
-                <v-select v-model="editedItem.type" :items="['annual', 'sick', 'parental', 'other']" label="Type"
-                  @change="changeType(editedItem.type)" :error-messages="errors && errors.type ? errors.type[0] : ''">
+                <v-select
+                  v-model="editedItem.type"
+                  :items="['annual', 'sick', 'parental', 'other']"
+                  label="Type"
+                  @change="changeType(editedItem.type)"
+                  :error-messages="errors && errors.type ? errors.type[0] : ''"
+                >
                 </v-select>
               </v-col>
 
               <v-col cols="12" v-if="type_manual">
-                <v-text-field v-model="editedItem.type_manual" label="Other" :error-messages="
-                  errors && errors.type_manual ? errors.type_manual[0] : ''
-                "></v-text-field>
+                <v-text-field
+                  v-model="editedItem.type_manual"
+                  label="Other"
+                  :error-messages="
+                    errors && errors.type_manual ? errors.type_manual[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
 
               <v-col cols="12">
                 {{ editedItem.supervisor }}
-                <v-autocomplete v-model="editedItem.supervisor" :items="reporters" label="Supervisor"
-                  item-text="first_name" item-value="id" chips multiple :error-messages="
+                <v-autocomplete
+                  v-model="editedItem.supervisor"
+                  :items="reporters"
+                  label="Supervisor"
+                  item-text="first_name"
+                  item-value="id"
+                  chips
+                  multiple
+                  :error-messages="
                     errors && errors.supervisor ? errors.supervisor[0] : ''
-                  "></v-autocomplete>
+                  "
+                ></v-autocomplete>
               </v-col>
 
               <v-col cols="6">
-                <v-menu ref="from_menu" v-model="start_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.start_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="from_menu"
+                  v-model="start_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.start_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">Start Date</div>
-                    <v-text-field dense v-model="editedItem.start_date" readonly v-bind="attrs" v-on="on">
+                    <v-text-field
+                      dense
+                      v-model="editedItem.start_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    >
                     </v-text-field>
                   </template>
-                  <v-date-picker v-model="editedItem.start_date" no-title scrollable>
+                  <v-date-picker
+                    v-model="editedItem.start_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="from_menu = false">
                       Reject
                     </v-btn>
-                    <v-btn text color="primary" @click="$refs.from_menu.save(editedItem.start_date)">
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.from_menu.save(editedItem.start_date)"
+                    >
                       OK
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
-                <span v-if="errors && errors.start_date" class="text-danger mt-2">{{ errors.start_date[0] }}</span>
+                <span
+                  v-if="errors && errors.start_date"
+                  class="text-danger mt-2"
+                  >{{ errors.start_date[0] }}</span
+                >
               </v-col>
               <v-col cols="6">
-                <v-menu ref="end_menu" v-model="end_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.end_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="end_menu"
+                  v-model="end_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.end_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">End Date</div>
-                    <v-text-field :hide-details="!editedItem.end_date" dense v-model="editedItem.end_date" readonly
-                      v-bind="attrs" v-on="on"></v-text-field>
+                    <v-text-field
+                      :hide-details="!editedItem.end_date"
+                      dense
+                      v-model="editedItem.end_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
                   </template>
-                  <v-date-picker v-model="editedItem.end_date" no-title scrollable>
+                  <v-date-picker
+                    v-model="editedItem.end_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="end_menu = false">
                       Reject
                     </v-btn>
-                    <v-btn text color="primary" @click="$refs.end_menu.save(editedItem.end_date)">
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.end_menu.save(editedItem.end_date)"
+                    >
                       OK
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
-                <span v-if="errors && errors.end_date" class="text-danger mt-2">{{ errors.end_date[0] }}</span>
+                <span
+                  v-if="errors && errors.end_date"
+                  class="text-danger mt-2"
+                  >{{ errors.end_date[0] }}</span
+                >
               </v-col>
               <v-col cols="12">
                 <ClientOnly>
-                  <tiptap-vuetify v-model="editedItem.description" :extensions="extensions" v-scroll.self="onScroll"
-                    max-height="300" :toolbar-attributes="{
-                      color: 'primary lighten-2 red--text text--lighten-1',
-                    }" />
+                  <tiptap-vuetify
+                    v-model="editedItem.description"
+                    :extensions="extensions"
+                    v-scroll.self="onScroll"
+                    max-height="300"
+                    :toolbar-attributes="{
+                      color: 'primary lighten-2 red--text text--lighten-1'
+                    }"
+                  />
                   <template #placeholder> Loading... </template>
                 </ClientOnly>
               </v-col>
-              <span v-if="errors && errors.description" class="text-danger mt-2">{{ errors.description[0] }}</span>
+              <span
+                v-if="errors && errors.description"
+                class="text-danger mt-2"
+                >{{ errors.description[0] }}</span
+              >
             </v-row>
           </v-container>
         </v-card-text>
@@ -127,10 +207,14 @@
       <v-card>
         <v-toolbar class="pb-0 primary" dark flat>
           <div class="w-50">
-            <span class="pb-0"><small>{{ Model }} Details</small></span>
+            <span class="pb-0"
+              ><small>{{ Model }} Details</small></span
+            >
           </div>
           <div class="w-50 text-right">
-            <span class="pb-0" v-if="desDate"><small>Created: {{ desDate }}</small></span>
+            <span class="pb-0" v-if="desDate"
+              ><small>Created: {{ desDate }}</small></span
+            >
           </div>
         </v-toolbar>
         <v-card-text>
@@ -145,7 +229,12 @@
             </div>
             <div>
               <v-divider></v-divider>
-              <v-chip v-if="leave_id && dept" class="primary pa-4" small color="primary">
+              <v-chip
+                v-if="leave_id && dept"
+                class="primary pa-4"
+                small
+                color="primary"
+              >
                 {{ dept }}
               </v-chip>
             </div>
@@ -163,17 +252,33 @@
 
     <v-row>
       <v-col md="12">
-        <v-data-table v-if="can(`leave_notification_list_view`)" v-model="ids" show-select item-key="id"
-          :headers="headers" :items="data" :server-items-length="total" :loading="loading" :options.sync="options"
+        <v-data-table
+          v-if="can(`leave_notification_list_view`)"
+          v-model="ids"
+          show-select
+          item-key="id"
+          :headers="headers"
+          :items="data"
+          :server-items-length="total"
+          :loading="loading"
+          :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [50, 100, 500,1000],
-          }" class="elevation-1">
+            itemsPerPageOptions: [50, 100, 500, 1000]
+          }"
+          class="elevation-1"
+        >
           <template v-slot:top>
             <v-toolbar flat color="">
               <v-toolbar-title>List</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
 
-              <v-text-field @input="searchIt" v-model="search" label="Search" single-line hide-details></v-text-field>
+              <v-text-field
+                @input="searchIt"
+                v-model="search"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
             </v-toolbar>
           </template>
           <template v-slot:item.action="{ item }">
@@ -186,7 +291,13 @@
             >
               mdi-pencil
             </v-icon> -->
-            <v-icon v-if="can(`leave_notification_show`)" color="secondary" small class="mr-2" @click="viewItem(item)">
+            <v-icon
+              v-if="can(`leave_notification_show`)"
+              color="secondary"
+              small
+              class="mr-2"
+              @click="viewItem(item)"
+            >
               mdi-eye
             </v-icon>
             <!-- <v-icon
@@ -211,15 +322,30 @@
           <template v-slot:item.is_approved="{ item }">
             <label for="">
               <span>
-                <v-chip v-if="item.is_approved == 0" small class="p-2 mx-1" color="primary">
+                <v-chip
+                  v-if="item.is_approved == 0"
+                  small
+                  class="p-2 mx-1"
+                  color="primary"
+                >
                   Pending
                 </v-chip>
 
-                <v-chip v-else-if="item.is_approved == 1" small class="p-2 mx-1" color="success">
+                <v-chip
+                  v-else-if="item.is_approved == 1"
+                  small
+                  class="p-2 mx-1"
+                  color="success"
+                >
                   Approved
                 </v-chip>
 
-                <v-chip v-if="item.is_approved == 2" small class="p-2 mx-1" color="error">
+                <v-chip
+                  v-if="item.is_approved == 2"
+                  small
+                  class="p-2 mx-1"
+                  color="error"
+                >
                   Reject
                 </v-chip>
               </span>
@@ -250,13 +376,13 @@ import {
   Blockquote,
   HardBreak,
   HorizontalRule,
-  History,
+  History
 } from "tiptap-vuetify";
 
 export default {
   layout: "employee",
   components: {
-    TiptapVuetify,
+    TiptapVuetify
   },
   data: () => ({
     //editor
@@ -275,16 +401,16 @@ export default {
         Heading,
         {
           options: {
-            levels: [1, 2, 3],
-          },
-        },
+            levels: [1, 2, 3]
+          }
+        }
       ],
       Bold,
       Link,
       Code,
       HorizontalRule,
       Paragraph,
-      HardBreak,
+      HardBreak
     ],
 
     //end editor
@@ -316,7 +442,7 @@ export default {
         text: "Employee Name",
         align: "left",
         sortable: false,
-        value: "employee.name_with_user_id",
+        value: "employee.name_with_user_id"
       },
 
       { text: "Title", align: "left", sortable: false, value: "title" },
@@ -324,21 +450,21 @@ export default {
         text: "From",
         align: "left",
         sortable: false,
-        value: "start_date",
+        value: "start_date"
       },
       {
         text: "To",
         align: "left",
         sortable: false,
-        value: "end_date",
+        value: "end_date"
       },
       {
         text: "Status",
         align: "left",
         sortable: false,
-        value: "is_approved",
+        value: "is_approved"
       },
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
     editedItem: {
@@ -348,7 +474,7 @@ export default {
       department: "",
       employee: "",
       start_date: null,
-      end_date: null,
+      end_date: null
     },
     defaultItem: {
       title: "",
@@ -357,7 +483,7 @@ export default {
       supervisor: "",
       company_id: "",
       start_date: null,
-      end_date: null,
+      end_date: null
     },
     response: "",
     data: [],
@@ -365,13 +491,13 @@ export default {
     errors: [],
 
     options_dialog: {},
-    employees_dialog: [],
+    employees_dialog: []
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
+    }
   },
 
   watch: {
@@ -385,8 +511,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
@@ -398,7 +524,7 @@ export default {
       return true;
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
     onScroll() {
@@ -409,7 +535,7 @@ export default {
       let payload = {
         id: this.leave_id,
         approved_by: this.$auth.user.employee.id,
-        is_approved: status,
+        is_approved: status
       };
 
       this.$axios
@@ -418,8 +544,6 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            // console.log(data.record);
-            // return;
             this.getDataFromApi();
             this.viewItem(data.record);
             this.snackbar = data.status;
@@ -429,7 +553,7 @@ export default {
             this.search = "";
           }
         })
-        .catch((res) => console.log(res));
+        .catch(res => console.log(res));
     },
 
     changeType(item) {
@@ -455,8 +579,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.employee.company_id,
-        },
+          company_id: this.$auth.user.employee.company_id
+        }
       };
 
       this.$axios.get(`${url}/${id}?page=${page}`, options).then(({ data }) => {
@@ -499,13 +623,13 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
+      let just_ids = this.ids.map(e => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
+            ids: just_ids
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -517,7 +641,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
@@ -535,7 +659,7 @@ export default {
               this.response = data.message;
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     close() {
@@ -558,7 +682,7 @@ export default {
             : this.editedItem.type,
         supervisor: this.editedItem.supervisor,
         company_id: this.$auth.user.employee.company_id,
-        employee_id: this.$auth.user.employee.employee_id,
+        employee_id: this.$auth.user.employee.employee_id
       };
 
       this.$axios
@@ -576,14 +700,13 @@ export default {
             this.type_manual = false;
           }
         })
-        .catch((res) => console.log(res));
-    },
-  },
+        .catch(res => console.log(res));
+    }
+  }
 };
 </script>
 
-
-<style >
+<style>
 .tiptap-vuetify-editor__content {
   min-height: 300px !important;
 }
@@ -592,4 +715,3 @@ export default {
   height: 400px !important;
 }
 </style>
-

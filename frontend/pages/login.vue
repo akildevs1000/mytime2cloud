@@ -155,9 +155,7 @@ export default {
 
     passwordRules: [v => !!v || "Password is required"]
   }),
-  created() {
-    // console.log(process.env.SOCKET_ENDPOINT);
-  },
+  created() {},
   methods: {
     // mxVerify(res) {
     //   this.reCaptcha = res;
@@ -172,7 +170,6 @@ export default {
         this.msg = "";
         this.loading = true;
         // const token = await this.$recaptcha.getResponse();
-        // console.log("ReCaptcha token:", token);
         let credentials = {
           email: this.email,
           password: this.password

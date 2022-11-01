@@ -90,7 +90,23 @@
                   "
                 ></v-text-field>
               </v-col>
-              <v-col md="6" sm="12" cols="12" dense>
+              <v-col md="4" sm="12" cols="12" dense>
+                <label class="col-form-label"
+                  >Display Name <span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  :hide-details="!errors.display_name"
+                  type="text"
+                  v-model="payload.display_name"
+                  :error="errors.display_name"
+                  :error-messages="
+                    errors && errors.display_name ? errors.display_name[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+              <v-col md="4" sm="12" cols="12" dense>
                 <label class="col-form-label"
                   >First Name <span class="text-danger">*</span></label
                 >
@@ -107,7 +123,7 @@
                 ></v-text-field>
               </v-col>
 
-              <v-col md="6" sm="12" cols="12" dense>
+              <v-col md="4" sm="12" cols="12" dense>
                 <label class="col-form-label"
                   >Last Name <span class="text-danger">*</span></label
                 >
@@ -597,6 +613,7 @@ export default {
     payload: {
       first_name: "",
       last_name: "",
+      display_name: "",
       user_name: "",
       email: "",
       password: "",
@@ -644,7 +661,6 @@ export default {
       };
       this.$axios.get(`role`, options).then(({ data }) => {
         this.roles = data.data;
-        console.log(data.data);
       });
     },
 
@@ -686,7 +702,6 @@ export default {
         .get(`sub-departments-by-department`, options)
         .then(({ data }) => {
           this.subDepartments = data;
-          console.log(this.subDepartments);
         });
     },
 

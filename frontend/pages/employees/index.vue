@@ -166,7 +166,7 @@
                   <div class="opener"></div>
                 </div>
                 <h2 class="name" style="font-size:15px">
-                  {{ limitName(item.first_name) }}
+                  {{ limitName(item.display_name) }}
                 </h2>
                 <div class="title" style="font-size:12px !important">
                   EID: {{ item.employee_id }}
@@ -228,7 +228,7 @@
               <v-card v-else height="700px" class="view-card mx-0 my-0 pa-0">
                 <v-toolbar color="primary " dark flat fixed max-height="55">
                   <v-toolbar-title>{{
-                    caps(ListName) || "Work Info"
+                    selectedItem == 0 ? "Work Info" : caps(ListName)
                   }}</v-toolbar-title>
                 </v-toolbar>
 
@@ -245,7 +245,7 @@
                   </div>
                   <div style="margin: 0 auto; width: 100%;">
                     <p style=" text-align: center;">
-                      <b>{{ work && caps(work.first_name) }}</b> <br />
+                      <b>{{ work && caps(work.display_name) }}</b> <br />
                       <b style="color:#A09FA0;font-size: 15px;">
                         EID: {{ work && work.employee_id }} </b
                       ><br />
@@ -278,9 +278,15 @@
                                 </td>
                               </tr>
                               <tr>
-                                <th>Name</th>
+                                <th>First Name</th>
                                 <td>
                                   {{ caps(work && work.first_name) || "---" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Last Name</th>
+                                <td>
+                                  {{ caps(work && work.last_name) || "---" }}
                                 </td>
                               </tr>
                               <tr>
@@ -542,7 +548,6 @@ export default {
     expand: false,
     expand2: false,
     boilerplate: false,
-    //////////////
     right: true,
     rightDrawer: false,
     drawer: true,
@@ -626,6 +631,7 @@ export default {
     max_employee: 0,
     payload: {},
     work: {
+      display_name: "",
       first_name: "",
       last_name: "",
       department: "",
@@ -746,11 +752,12 @@ export default {
     getListName(val) {
       this.ListName = val;
     },
-    caps(str = "---") {
-      if (str == "---") {
-        return str;
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
       } else {
-        return str.replace(/\b\w/g, c => c.toUpperCase());
+        let res = str.toString();
+        return res.replace(/\b\w/g, c => c.toUpperCase());
       }
     },
     close() {
@@ -936,8 +943,6 @@ export default {
       }
     },
     getDataFromApi(url = this.endpoint) {
-      // let p = this.per_page === "Default" ? 8 : this.per_page;
-
       let options = {
         params: {
           per_page: this.per_page === "Default" ? 8 : this.per_page,
@@ -1045,7 +1050,6 @@ body {
 }
 
 .card .banner {
-  /* background-image: url("https://images.unsplash.com/photo-1545703549-7bdb1d01b734?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ"); */
   background-color: #5fafa3;
   background-position: center;
   background-repeat: no-repeat;
