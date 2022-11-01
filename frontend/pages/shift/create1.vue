@@ -21,7 +21,6 @@
 
     <v-card>
       <v-toolbar flat dark class="primary"> Create {{ Model }} </v-toolbar>
-
       <v-card flat>
         <v-card-text>
           <v-row>
@@ -56,8 +55,6 @@
               ></v-text-field>
             </v-col>
 
-            
-
             <v-col cols="12" md="3">
               <div class="mb-1">
                 Minimum Working Hours<span class="error--text">*</span>
@@ -81,7 +78,9 @@
               <span class="error--text">*</span>
               <v-text-field
                 :hide-details="!errors.overtime_interval"
-                :error-messages="errors.overtime_interval && errors.overtime_interval[0]"
+                :error-messages="
+                  errors.overtime_interval && errors.overtime_interval[0]
+                "
                 class="mt-1"
                 outlined
                 dense
@@ -106,8 +105,8 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   On Duty Time
-                  <v-text-field 
-                    :disabled="payload.shift_type_id == 1"
+                  <v-text-field
+                    :disabled="isManual"
                     :hide-details="!errors.on_duty_time"
                     v-model="payload.on_duty_time"
                     readonly
@@ -116,7 +115,7 @@
                     dense
                     outlined
                     class="mt-2"
-                    :class="payload.shift_type_id !== 1 ? '': 'red lighten-1'"
+                    :class="payload.shift_type_id !== 1 ? '' : 'red lighten-1'"
                   ></v-text-field>
                 </template>
                 <v-time-picker
@@ -160,6 +159,7 @@
                   Off Duty Time
                   <v-text-field
                     v-model="payload.off_duty_time"
+                    :disabled="isManual"
                     readonly
                     :hide-details="!errors.off_duty_time"
                     v-bind="attrs"
@@ -201,6 +201,7 @@
                 v-model="payload.late_time"
                 :hide-details="!errors.late_time"
                 type="number"
+                :disabled="isManual"
                 dense
                 outlined
                 class="mt-2"
@@ -216,6 +217,7 @@
               Early Time (Minutes)
               <v-text-field
                 v-model="payload.early_time"
+                :disabled="isManual"
                 type="number"
                 :hide-details="!errors.early_time"
                 dense
@@ -229,7 +231,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!changeType">
               <v-menu
                 ref="beginning_in_menu_ref"
                 v-model="beginning_in_menu"
@@ -245,6 +247,7 @@
                   Beginning In
                   <v-text-field
                     v-model="payload.beginning_in"
+                    :disabled="isManual"
                     readonly
                     :hide-details="!errors.beginning_in"
                     v-bind="attrs"
@@ -286,7 +289,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!changeType">
               <v-menu
                 ref="beginning_out_menu_ref"
                 v-model="beginning_out_menu"
@@ -302,6 +305,7 @@
                   Beginning Out
                   <v-text-field
                     v-model="payload.beginning_out"
+                    :disabled="isManual"
                     readonly
                     :hide-details="!errors.beginning_out"
                     v-bind="attrs"
@@ -343,7 +347,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!changeType">
               <v-menu
                 ref="ending_in_menu_ref"
                 v-model="ending_in_menu"
@@ -359,6 +363,7 @@
                   Ending In
                   <v-text-field
                     v-model="payload.ending_in"
+                    :disabled="isManual"
                     readonly
                     :hide-details="!errors.ending_in"
                     v-bind="attrs"
@@ -398,7 +403,7 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!changeType">
               <v-menu
                 ref="ending_out_menu_ref"
                 v-model="ending_out_menu"
@@ -416,6 +421,7 @@
                     v-model="payload.ending_out"
                     :hide-details="!errors.ending_out"
                     readonly
+                    :disabled="isManual"
                     v-bind="attrs"
                     v-on="on"
                     dense
@@ -453,13 +459,14 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!changeType">
               Minutes for Absent In
               <v-text-field
                 v-model="payload.absent_min_in"
                 type="number"
                 :hide-details="!errors.absent_min_in"
                 dense
+                :disabled="isManual"
                 outlined
                 class="mt-2"
               ></v-text-field>
@@ -470,13 +477,14 @@
               >
             </v-col>
 
-            <v-col cols="12" md="3">
+            <v-col cols="12" md="3" v-if="!changeType">
               Minutes for Absent Out
               <v-text-field
                 v-model="payload.absent_min_out"
                 type="number"
                 :hide-details="!errors.absent_min_out"
                 dense
+                :disabled="isManual"
                 outlined
                 class="mt-2"
               ></v-text-field>
@@ -487,17 +495,33 @@
               >
             </v-col>
 
-            <v-col md="12">
+            <v-col md="12" v-if="!changeType">
               <b>Holidays</b>
               <br />
               <v-checkbox
                 style="float: left"
                 class="mr-5"
                 v-for="(week_day, index) in week_days"
+                :disabled="isManual"
                 :key="index"
                 v-model="payload.days"
                 :label="week_day.label"
                 :value="week_day.value"
+                :error-messages="errors.days && errors.days[0]"
+              ></v-checkbox>
+            </v-col>
+
+            <v-col md="12" v-if="changeType">
+              <b>Manual Shifts</b>
+              <br />
+              <v-checkbox
+                style="float: left"
+                class="mr-5"
+                v-for="(item, index) in shifts"
+                :key="index"
+                v-model="payload.shift_id"
+                :label="item.name"
+                :value="item.id"
                 :error-messages="errors.days && errors.days[0]"
               ></v-checkbox>
             </v-col>
@@ -534,6 +558,7 @@ export default {
     time_tables: [],
     shift_types: [],
     shift_last_id: "",
+    isManual: false,
 
     week_days: [
       { label: "Sun", value: "Sun" },
@@ -574,9 +599,11 @@ export default {
 
     payload: {
       days: [],
+      shift_id: []
     },
 
     errors: [],
+    shifts: [],
     data: [],
     response: "",
     snackbar: false
@@ -591,13 +618,47 @@ export default {
       this.shift_types = data;
     });
   },
+  watch: {},
+  computed: {
+    changeType() {
+      let type = this.payload.shift_type_id;
+      if (type == 1) {
+        this.isManual = true;
+      }
+      if (type == 2) {
+        this.getShifts();
+        return true;
+      }
+
+      if (type == 3) {
+        this.isManual = false;
+      }
+    }
+  },
   methods: {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
+    },
+
+    getShifts() {
+      let manual_shift = this.shift_types.find(e => e.slug == "manual_shift");
+      let payload = {
+        params: {
+          shift_type_id: manual_shift.id,
+          company_id: this.$auth.user.company.id
+        }
+      };
+
+      this.$axios
+        .get("shift_by_type", payload)
+        .then(({ data }) => {
+          this.shifts = data;
+          console.log(this.shifts);
+        })
+        .catch(err => console.log(err));
     },
 
     store_shift() {

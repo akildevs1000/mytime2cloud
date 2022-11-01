@@ -52,7 +52,7 @@
               ---
             </span>
             <span v-else v-for="(day, index) in item.days" :key="index">
-              {{ item.days }}
+              {{ day }}
               <span v-if="item && item.days.length - 1 !== index">, </span>
             </span>
           </td>
@@ -152,8 +152,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
 

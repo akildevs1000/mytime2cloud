@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can('master')">
     <v-row>
       <v-col cols="12">
         <v-row>
@@ -37,11 +37,21 @@
       </v-col>
     </v-row>
   </div>
+  <NoAccess v-else />
 </template>
 
 <script>
 export default {
-  layout: "master",
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
   data() {
     return {
       tota4l_items: [],
@@ -52,17 +62,22 @@ export default {
         { text: "Contact Name", value: "contact.name" },
         { text: "Max Devices", value: "max_devices" },
         { text: "Max Employees", value: "max_employee" },
-        { text: "Location", value: "location" },
+        { text: "Location", value: "location" }
       ],
       data: [],
       title: `Lattest Companies`,
-      endpoint: "company",
+      endpoint: "company"
     };
   },
   created() {
     this.initialize();
   },
   methods: {
+    can(per) {
+      let u = this.$auth.user;
+      return u && u.user_type == per;
+    },
+
     getColor(calories) {
       if (calories > 400) return "red";
       else if (calories > 200) return "orange";
@@ -73,25 +88,25 @@ export default {
         {
           title: "TOTAL COMPANIES",
           value: "254",
-          icon: "mdi-apps",
+          icon: "mdi-apps"
         },
         {
           title: "TOTAL EMPLOYEES",
           value: "267",
-          icon: "mdi-account",
+          icon: "mdi-account"
         },
         {
           title: "TOTAL UNPAID",
           value: "4000",
-          icon: "mdi-bank",
+          icon: "mdi-bank"
         },
         {
           title: "TOTAL PAID",
           value: "8000",
-          icon: "mdi-bank",
-        },
+          icon: "mdi-bank"
+        }
       ];
-    },
-  },
+    }
+  }
 };
 </script>

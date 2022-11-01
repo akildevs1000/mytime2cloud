@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('assign_module_access')">
+  <div v-if="can('master')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ msg }}
@@ -72,9 +72,7 @@
       </template>
     </v-card>
   </div>
-  <div v-else class="text-center" style="margin-top: 25%">
-    <b>Loading.....</b>
-  </div>
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -88,15 +86,19 @@ export default {
     msg: "",
     snackbar: false,
     loading: false,
-    Rules: [(v) => !!v || "This field is required"],
+    Rules: [v => !!v || "This field is required"],
     errors: [],
-    companies: [],
+    companies: []
   }),
   created() {
     this.getCompanies();
     this.getModules();
   },
   methods: {
+    can(per) {
+      let u = this.$auth.user;
+      return u && u.user_type == per;
+    },
     getCompanies() {
       this.$axios
         .get("assign-module/nacs")
@@ -104,7 +106,7 @@ export default {
           this.loading = false;
           this.companies = data;
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     getModules() {
       this.$axios
@@ -112,13 +114,12 @@ export default {
         .then(({ data }) => {
           this.modules = data.data;
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
     save() {
@@ -127,7 +128,7 @@ export default {
         this.errors = [];
         let payload = {
           company_id: this.company_id,
-          module_ids: this.module_ids,
+          module_ids: this.module_ids
         };
         this.$axios.post("assign-module", payload).then(({ data }) => {
           if (!data.status) {
@@ -141,7 +142,7 @@ export default {
           setTimeout(() => this.$router.push("/master/assign_module"), 2000);
         });
       }
-    },
-  },
+    }
+  }
 };
 </script>
