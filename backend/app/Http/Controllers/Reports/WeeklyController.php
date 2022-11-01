@@ -43,7 +43,7 @@ class WeeklyController extends Controller
 
     public function getHTML($data, $company)
     {
-        $mob = $company->contact->number ?? '';
+        $mob = $company->contact->number ?? '---';
         $companyLogo = $company->logo ?? '';
 
         //  <img src="' . getcwd() . '/upload/app-logo.jpeg" height="70px" width="200">
@@ -140,7 +140,7 @@ class WeeklyController extends Controller
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: right; border :none;font-size:10px">
-                            <span style="margin-right: 3px"> P.O.Box ' . $company->p_o_box_no . ' </span>
+                            <span style="margin-right: 3px"> P.O.Box ' .  ($company->p_o_box_no ?? '---') . ' </span>
                             <br>
                         </td>
                     </tr>
