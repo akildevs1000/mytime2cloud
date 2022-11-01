@@ -33,11 +33,11 @@ class WeeklyController extends Controller
         $pdf = App::make('dompdf.wrapper');
 
         $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-        $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name;
+        $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
         $company['end'] = $end;
-
+        return $company;
         return $pdf->loadHTML($this->getHTML($data, (object)$company))->stream();
     }
 
