@@ -1279,10 +1279,10 @@ export default {
     process_file(type) {
       let data = this.payload;
 
-      // if(data.department_id == -1) {
-      //     alert();
-      //     return false;
-      // }
+      if(data.department_id == -1) {
+          alert("Department must be selected.");
+          return false;
+      }
       let status = this.getStatus(this.payload.status);
 
       let company_id = this.$auth.user.company.id;
