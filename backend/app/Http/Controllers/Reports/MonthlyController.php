@@ -95,7 +95,7 @@ class MonthlyController extends Controller
         $company['start'] = $start;
         $company['end'] = $end;
 
-        return $pdf->loadHTML($this->getHTML($data, (object)$company))->stream();
+        return $pdf->loadHTML($this->getHTML($data, (object)$company));
     }
 
     public function getHTML($data, $company)
