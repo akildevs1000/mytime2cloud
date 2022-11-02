@@ -310,7 +310,7 @@ class MonthlyController extends Controller
                 $work_minutes += $work_minute;
             }
 
-            if ($ot != '---') {
+            if ($ot != '---' && $ot != 'NA') {
                 list($ot_hour, $ot_minute) = explode(':', $ot);
                 $ot_minutes += $ot_hour * 60;
                 $ot_minutes += $ot_minute;
