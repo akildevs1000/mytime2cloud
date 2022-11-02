@@ -933,17 +933,6 @@ export default {
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
-    changeBtnTitle() {
-      let title = "Summary";
-      let type = this.payload.report_type;
-      if (type == "Daily") {
-        return `Daily ${title}`;
-      } else if (type == "Weekly") {
-        return `Weekly ${title}`;
-      } else if (type == "Monthly") {
-        return `Monthly ${title}`;
-      }
     }
   },
 
@@ -1024,15 +1013,11 @@ export default {
     set_date_save(from_menu, field) {
       from_menu.save(field);
 
-      if (this.payload.report_type == "Daily") {
-        this.setDailyDate();
-      }
-      else if (this.payload.report_type == "Weekly") {
+      if (this.payload.report_type == "Weekly") {
         this.setSevenDays(this.payload.from_date);
-      } else {
+      } else if (this.payload.report_type == "Monthly") {
         this.setThirtyDays(this.payload.from_date);
       }
-
 
       this.fetch_logs();
     },
@@ -1181,7 +1166,7 @@ export default {
     getDataFromApi(url = this.endpoint) {
       this.loading = true;
 
-      let status = this.payload.status;
+      
       let late_early = this.payload.late_early;
 
       switch (late_early) {
@@ -1191,24 +1176,6 @@ export default {
 
         default:
           late_early = late_early.charAt(0);
-          break;
-      }
-
-      switch (status) {
-        case "Select All":
-          status = "SA";
-          break;
-
-        case "Missing":
-          status = "---";
-          break;
-
-        case "Manual Entry":
-          status = "ME";
-          break;
-
-        default:
-          status = status.charAt(0);
           break;
       }
 
@@ -1224,7 +1191,7 @@ export default {
           page: page,
           company_id: this.$auth.user.company.id,
           ...this.payload,
-          status,
+          status: this.getStatus(this.payload.status),
           late_early,
           ot: this.overtime ? 1 : 0
         }
@@ -1310,11 +1277,15 @@ export default {
     },
 
     process_file(type) {
+      let data = this.payload;
+
+      // if(data.department_id == -1) {
+      //     alert();
+      //     return false;
+      // }
       let status = this.getStatus(this.payload.status);
 
-      let data = this.payload;
       let company_id = this.$auth.user.company.id;
-      let { page, itemsPerPage } = this.options;
       let path = process.env.BACKEND_URL + "/" + type;
 
       let qs = `${path}?company_id=${company_id}&status=${status}&department_id=${data.department_id}&employee_id=${data.employee_id}&report_type=${data.report_type}`;
@@ -1333,7 +1304,6 @@ export default {
       return;
     },
 
-    getQueryString(type) {},
     getStatus(status) {
       switch (status) {
         case "Select All":
