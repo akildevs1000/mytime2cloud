@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
 <body>
-
-
     <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
         <tr>
             <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
@@ -13,8 +10,7 @@
                     @if (env('APP_ENV') !== 'local')
                         <img src="{{ $company->logo }}" height="120px" width="180px">
                     @else
-                        {{-- <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="100px" width="100"> --}}
-                        <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="120px" width="180px">
+                        <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="120px" width="180px">
                     @endif
 
                     <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
@@ -85,10 +81,10 @@
                         <th style="text-align: center; border :none">Leave</th>
                     </tr>
                     <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:green">{{ $info->total_present }}
+                        <td style="text-align: center; border :none; padding:5px;color:green">{{ $info->total_present ?? 0 }}
                         </td>
-                        <td style="text-align: center; border :none;color:red">{{ $info->total_absent }}</td>
-                        <td style="text-align: center; border :none;color:red">{{ $info->total_leave }}</td>
+                        <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
+                        <td style="text-align: center; border :none;color:red">{{ $info->total_leave ?? 0 }}</td>
                     </tr>
                     <tr class="summary-header" style="border: none;background-color:#eeeeee ">
                         <th style="text-align: center; border :none; padding:5px">Late</th>
@@ -96,10 +92,10 @@
                         <th style="text-align: center; border :none">Missing</th>
                     </tr>
                     <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:red">{{ $info->total_late }}
+                        <td style="text-align: center; border :none; padding:5px;color:red">{{ $info->total_late ?? 0 }}
                         </td>
-                        <td style="text-align: center; border :none;color:green">{{ $info->total_early }}</td>
-                        <td style="text-align: center; border :none;color:orange">{{ $info->total_missing }}</td>
+                        <td style="text-align: center; border :none;color:green">{{ $info->total_early ?? 0 }}</td>
+                        <td style="text-align: center; border :none;color:orange">{{ $info->total_missing ?? 0 }}</td>
                     </tr>
                     <tr style="border: none">
                         <th style="text-align: center; border :none" colspan="3">
@@ -153,20 +149,6 @@
                 </tr>
             </tbody>
         @endforeach
-        {{-- <tfoot>
-            <tr style="border :none">
-                <td style="text-align: left;border :none" colspan="9">
-                    <b>Device</b>:
-                    Main Entrance = MED, Back
-                    Entrance = BED
-                </td>
-                <td style="text-align: left;"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
-                <td style="text-align: left;"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2</td>
-                <td style="text-align: right;">
-                    Date : {{ date('d/M/Y H:i:s') }}
-                </td>
-            </tr>
-        </tfoot> --}}
     </table>
     <hr style=" bottom: 0px; position: absolute; width: 100%; margin-bottom:40px">
     <footer style="padding-top: 100px!important">

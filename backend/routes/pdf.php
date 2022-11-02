@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Reports\DailyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Reports\WeeklyController;
@@ -12,6 +13,9 @@ Route::get('report', [ReportController::class, 'index']);
 Route::get('/daily', [Controller::class, 'daily']);
 Route::get('/daily_download_pdf', [Controller::class, 'daily_download_pdf']);
 Route::get('/daily_download_csv', [Controller::class, 'daily_download_csv']);
+
+Route::get('/generate_daily_report', [DailyController::class, 'generateDailyReport']);
+
 
 // weekly
 Route::get('/weekly', [WeeklyController::class, 'weekly']);

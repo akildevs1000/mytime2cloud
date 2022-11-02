@@ -33,3 +33,10 @@ function saveFile($request, $destination, $attribute_name = null, $prefix = "", 
     }
     return (isset($image)) ? $image : null;
 }
+
+
+function ld($arr)
+{
+    echo "<pre>";
+    echo json_encode($arr, JSON_PRETTY_PRINT);
+}
