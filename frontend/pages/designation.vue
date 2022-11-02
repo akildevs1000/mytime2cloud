@@ -216,7 +216,9 @@
                 <b>{{ ++index }}</b>
               </td>
               <td>{{ caps(item.name || "---") }}</td>
-              <td>{{ caps(item.department.name) }}</td>
+              <td>
+                {{ caps((item.department && item.department.name) || "---") }}
+              </td>
               <td class="text-center">
                 <v-menu bottom left>
                   <template v-slot:activator="{ on, attrs }">
