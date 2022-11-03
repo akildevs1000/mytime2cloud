@@ -59,7 +59,7 @@ class DailyController extends Controller
     
     public function report($company_id, $report_type, $file_name, $status  = null)
     {
-        $date = date("Y-m-2");
+        $date = date("Y-m-d");
 
         $info = (object)[
             'total_employee' => Employee::whereCompanyId($company_id)->count(),
@@ -96,7 +96,7 @@ class DailyController extends Controller
     {
         $model = Attendance::query();
         $model->where('company_id', $company_id);
-        $model->whereDate('date', date("Y-m-2"));
+        $model->whereDate('date', date("Y-m-d"));
 
 
         $model->with([
