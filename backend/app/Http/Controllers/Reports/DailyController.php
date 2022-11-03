@@ -6,9 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\Employee;
-use App\Models\ReportNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,54 +14,61 @@ class DailyController extends Controller
 {
     public function generateDailyReport()
     {
-        $company_ids = Company::orderBy("id","asc")->pluck("id");
+        $company_ids = Company::orderBy("id", "asc")->pluck("id");
 
         foreach ($company_ids as $company_id) {
-
-            $info = (object)[
-                'total_employee' => Employee::whereCompanyId($company_id)->count(),
-                'total_early' => 0,
-                'total_late' => 0,
-                'total_leave' => 0,
-                'department' => 'All',
-                "daily_date" => date("Y-m-d"),
-                "report_type" => 'Present'
-            ];
-
-            $db = DB::table('attendances')
-                ->where('company_id', $company_id)
-                ->whereDate('date', date("Y-m-d"))
-                ->select('status', DB::raw('count(status) as count'))
-                ->groupBy('status')
-                ->get();
-
-            foreach ($db as $db) {
-                if ($db->status == "P") {
-                    $info->total_present = $db->count;
-                } else if ($db->status == "A") {
-                    $info->total_absent = $db->count;
-                } else if ($db->status == "---") {
-                    $info->total_missing = $db->count;
-                }
-            }
-
-            $payload = [
-                "company" => Company::whereId($company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]),
-                "info" => $info
-            ];
-
-            $this->report($company_id, $payload); //115
-            $this->report($company_id, $payload, "P"); // 18
-            $this->report($company_id, $payload, "A"); //0
-            $this->report($company_id, $payload, "---"); // 97
+            $this->report($company_id, "Summary", "daily_summary.pdf"); //115
+            $this->report($company_id, "Present", "daily_present.pdf", "P"); // 18
+            $this->report($company_id, "Absent", "daily_absent.pdf", "A"); //0
+            $this->report($company_id, "Manual Entery", "daily_manual_entery.pdf", "ME"); // ---
+            $this->report($company_id, "Missing", "daily_missing.pdf", "---"); // 97
         }
     }
+    
+    public function report($company_id, $report_type, $file_name, $status  = null)
+    {
+        $date = date("Y-m-2");
 
-    public function report($company_id, $payload, $status  = null)
+        $info = (object)[
+            'total_employee' => Employee::whereCompanyId($company_id)->count(),
+            'total_present' => $this->getCountByStatus($company_id,"P",$date),
+            'total_absent' => $this->getCountByStatus($company_id,"A",$date),
+            'total_missing' => $this->getCountByStatus($company_id,"---",$date),
+            'total_early' => 0,
+            'total_late' => 0,
+            'total_leave' => 0,
+            'department' => 'All',
+            "daily_date" => date("Y-m-d"),
+            'report_type' => $report_type
+        ];
+
+        $model = $this->getModel($company_id);
+
+        if ($status !== null) {
+            $model->where('status', $status);
+        }
+
+        $company = Company::whereId($company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+
+        $data = $model->get();
+
+        // $data = $model->count();
+
+        // dd($info);
+
+        $pdf = Pdf::loadView('pdf.daily', compact("company", "info", "data"));
+
+        Storage::disk('local')->put($company_id . '/' . $file_name, $pdf->output());
+
+        return "Daily report generated.";
+    }
+
+    public function getModel($company_id)
     {
         $model = Attendance::query();
-        $model->whereDate('date', date("Y-m-d"));
         $model->where('company_id', $company_id);
+        $model->whereDate('date', date("Y-m-2"));
+
 
         $model->with([
             "employee:id,system_user_id,first_name,employee_id,department_id,profile_picture",
@@ -73,17 +78,11 @@ class DailyController extends Controller
             "schedule.shift_type:id,name",
         ]);
 
-        if ($status !== null) {
-            $model->where('status', $status);
-        }
+        return $model;
+    }
 
-        $company = $payload["company"];
-        $info = $payload["info"];
-
-        $data = [$company_id, $model->count()];
-
-        $pdf = Pdf::loadView('pdf.daily', compact("company", "info", "data"));
-
-        Storage::disk('local')->put($company_id . '/' . "daily_summary.pdf", $pdf->output());
+    public function getCountByStatus($company_id,$status,$date)
+    {
+        return DB::table("attendances")->where("company_id",$company_id)->whereDate('date', $date)->where('status', $status)->count();
     }
 }
