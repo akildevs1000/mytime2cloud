@@ -43,7 +43,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
+        itemsPerPageOptions: [50, 100, 500, 1000]
       }"
       class="elevation-1"
     >
@@ -132,20 +132,20 @@ export default {
     total: 0,
     headers: [
       { text: "Salary Type", align: "left", sortable: false, value: "name" },
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "Actions", align: "center", value: "action", sortable: false }
     ],
     editedIndex: -1,
     editedItem: { name: "" },
     defaultItem: { name: "" },
     response: "",
     data: [],
-    errors: [],
+    errors: []
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    },
+    }
   },
 
   watch: {
@@ -158,8 +158,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
@@ -169,8 +169,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -182,8 +181,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -212,7 +211,7 @@ export default {
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: this.ids.map((e) => e.id),
+            ids: this.ids.map(e => e.id)
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -224,7 +223,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
@@ -242,7 +241,7 @@ export default {
               this.response = data.message;
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     close() {
@@ -256,7 +255,7 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company.id
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -266,18 +265,18 @@ export default {
               this.errors = data.errors;
             } else {
               const index = this.data.findIndex(
-                (item) => item.id == this.editedItem.id
+                item => item.id == this.editedItem.id
               );
               this.data.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name,
+                name: this.editedItem.name
               });
               this.snackbar = data.status;
               this.response = data.message;
               this.close();
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, payload)
@@ -293,9 +292,9 @@ export default {
               this.search = "";
             }
           })
-          .catch((res) => console.log(res));
+          .catch(res => console.log(res));
       }
-    },
-  },
+    }
+  }
 };
 </script>

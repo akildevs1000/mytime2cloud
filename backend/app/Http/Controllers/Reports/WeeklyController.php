@@ -100,6 +100,7 @@ class WeeklyController extends Controller
 
     public function getHTML($data, $company)
     {
+
         $mob = $company->contact->number ?? '---';
         $companyLogo = "";
 
@@ -109,7 +110,7 @@ class WeeklyController extends Controller
             $companyLogo = getcwd() . "/upload/app-logo.jpeg";
         }
 
-        if($company->p_o_box_no == "null"){
+        if ($company->p_o_box_no == "null") {
             $company->p_o_box_no = "---";
         }
 
@@ -153,15 +154,65 @@ class WeeklyController extends Controller
                 .summary-table td {
                     font-size: 9px
                 }
+
                 footer {
                     bottom: 0px;
                     position: absolute;
                     width: 100%;
                 }
+
+                #footer {
+                    position: fixed;
+                    top: 720px;
+                    right: 0px;
+                    bottom: 0px;
+                    text-align: center;
+                    font-size: 12px;
+                }
+
+                #page-bottom-line {
+                    position: fixed;
+                    right: 0px;
+                    bottom: -14px;
+                    text-align: center;
+                    font-size: 12px;
+                    counter-reset: pageTotal;
+
+                }
+
+                .pageCounter span {
+                    counter-increment: pageTotal;
+                }
+
+                #pageNumbers div:before {
+                    counter-increment: currentPage;
+                    content: "Page "counter(currentPage) " of ";
+                }
+
+                #pageNumbers div:after {
+                    content: counter(pageTotal);
+                }
+                @page {
+                    margin: 20px 30px 40px 50px;
+                }
+
+                .footer-main-table {
+                    padding-bottom: -100px;
+                    padding-top: -50px;
+                    padding-right: 15px;
+                    padding-left: 15px;
+                }
+
+                .main-table {
+                    padding-bottom: 0px;
+                    padding-top: 0px;
+                    padding-right: 15px;
+                    padding-left: 15px;
+                }
+
             </style>
             </head>
             <body>
-
             <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
             <tr>
                 <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
@@ -231,27 +282,35 @@ class WeeklyController extends Controller
             </tr>
         </table>
         <hr style="margin:0px;padding:0">
-
-            ' . $this->renderTable($data) . '
-            <hr style=" bottom: 0px; position: absolute; width: 100%; margin-bottom:20px">
-            <footer style="padding-top: 0px!important">
-            <table class="main-table">
-                <tr style="border :none">
-                    <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
-                    <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
-                    <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
-                    </td>
-                    <td style="text-align: right;border :none;">
-                        <b>Powered by</b>: <span style="color:blue"> www.ideahrms.com</span>
-                    </td>
-                    <td style="text-align: right;border :none">
-                        Printed on :  ' . date("d-M-Y ") . '
-                    </td>
-                </tr>
-            </table>
-        </footer>
-        </body>
-    </html>';
+        <div id="footer">
+        <div class="pageCounter">
+            <p></p>
+            ' . $this->getPageNumbers($data)  . '
+        </div>
+        <div id="pageNumbers" style="font-size: 9px;margin-top:5px">
+            <div class="page-number"></div>
+        </div>
+        </div>
+        <footer id="page-bottom-line" style="margin-top: 10000px!important;">
+        <hr style="width: 100%;margin-top: 10px!important">
+        <table class="footer-main-table" >
+            <tr style="border :none;">
+                <td style="text-align: left;border :none;font-size:9px"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
+                <td style="text-align: left;border :none;font-size:9px"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
+                <td style="text-align: left;border :none;font-size:9px"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
+                </td>
+                <td style="text-align: right;border :none;font-size:9px">
+                    <b>Powered by</b>: <span style="color:blue"> www.ideahrms.com</span>
+                </td>
+                <td style="text-align: right;border :none;font-size:9px">
+                    Printed on :  ' . date("d-M-Y ") . '
+                </td>
+            </tr>
+        </table>
+    </footer>
+                ' . $this->renderTable($data) . '
+    </body>
+        </html>';
     }
 
 
@@ -267,7 +326,7 @@ class WeeklyController extends Controller
 
             $str .= '<table class="main-table" style="margin-top: 10px !important;">';
             $str .= '<tr style="text-align: left; border :1px solid black; width:120px;">';
-            $str .= '<td style="text-align:left;width:120px"><b>Name</b>:' . ($emp && $emp->display_name ?? ' ---') . '</td>';
+            $str .= '<td style="text-align:left;width:120px"><b>Name</b>:' . ($emp->display_name ?? ' ---') . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>EID</b>:' . $emp &&  $emp->employee_id ?? '' . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>Total Hrs</b>:' . $this->getCalculation($row)['work'] . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>OT</b>:' . $this->getCalculation($row)['ot'] . '</td>';
@@ -278,9 +337,9 @@ class WeeklyController extends Controller
             $str .= '</tr>';
             $str .= '</table>';
 
-            $str .= '<table class="main-table" style="margin-top: 5px !important;  padding-bottom: 1px;">';
+            $str .= '<table class="main-table" style="margin-top: 5px !important;  padding-bottom: 1px; ">';
 
-            $dates = '<tr"><td><b>Dates</b></td>';
+            $dates = '<tr"><td style="text-align:left;width:100px"><b>Dates</b></td>';
             $days = '<tr"><td><b>Days</b></td>';
             $in = '<tr"><td><b>In</b></td>';
             $out = '<tr"><td><b>Out</b></td>';
@@ -390,6 +449,22 @@ class WeeklyController extends Controller
     }
 
 
+    public function getPageNumbers($data)
+    {
+        $p = count($data);
+        $str = '';
+        $l = $p / 4;
+        if ($p <= 3) {
+            $str .= '<span></span>';
+        } else if ($p <= 5) {
+            $str .= '<span></span><span></span>';
+        } else {
+            for ($a = 1; $a <= $l; $a++) {
+                $str .= '<span></span>';
+            }
+        }
+        return $str;
+    }
     public function weekly_html(Request $request)
     {
         return Pdf::loadView('pdf.html.weekly.weekly_summary')->stream();

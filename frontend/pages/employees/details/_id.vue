@@ -2889,8 +2889,6 @@ export default {
         employee_id: parseInt(this.$route.params.id),
         status: this.payload.status
       };
-      // console.log(payload);
-      // return;
 
       this.$axios
         .post(`employee/update/setting`, payload)
@@ -2899,12 +2897,10 @@ export default {
 
           if (data != 1) {
             this.errors = data.errors;
-            console.log("error");
           } else {
             this.errors = [];
             this.snackbar = true;
             this.response = "successfully updated ";
-            console.log("success");
           }
         })
         .catch(e => console.log(e));
@@ -3017,8 +3013,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) ||
-        u.is_master
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
       );
     },
 

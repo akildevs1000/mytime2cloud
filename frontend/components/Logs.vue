@@ -9,7 +9,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000]
+        itemsPerPageOptions: [50, 100, 500, 1000]
       }"
       class="elevation-1"
     ></v-data-table>
@@ -35,7 +35,7 @@ export default {
         value: "UserID"
       },
       { text: "DeviceID", align: "center", sortable: false, value: "DeviceID" },
-      { text: "LogTime", align: "center", sortable: false, value: "LogTime" },
+      { text: "LogTime", align: "center", sortable: false, value: "LogTime" }
     ],
     editedIndex: -1,
     editedItem: { name: "" },
@@ -64,9 +64,7 @@ export default {
       deep: true
     }
   },
-  mounted() {
-    // will console.log 'Hello mounted!'
-  },
+  mounted() {},
   created() {
     this.loading = true;
     let options = {
@@ -75,12 +73,6 @@ export default {
         company_id: this.$auth.user.company.id
       }
     };
-    // this.$hello(this.endpoint, options).then(res => {
-    //   console.log(
-    //     "🚀 ~ file: department.vue ~ line 179 ~ created ~ response",
-    //     res
-    //   );
-    // });
   },
 
   methods: {

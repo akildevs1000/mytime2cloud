@@ -238,6 +238,7 @@ class EmployeeController extends Controller
     {
         $model = Employee::query();
         $fields = [
+            'display_name',
             'first_name',
             'last_name',
             'phone_number',
