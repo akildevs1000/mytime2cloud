@@ -12,16 +12,48 @@ use Illuminate\Support\Facades\Storage;
 
 class DailyController extends Controller
 {
-    public function generateDailyReport()
+    public function generateSummaryReport()
     {
         $company_ids = Company::orderBy("id", "asc")->pluck("id");
 
         foreach ($company_ids as $company_id) {
-            $this->report($company_id, "Summary", "daily_summary.pdf"); //115
-            $this->report($company_id, "Present", "daily_present.pdf", "P"); // 18
-            $this->report($company_id, "Absent", "daily_absent.pdf", "A"); //0
-            $this->report($company_id, "Manual Entery", "daily_manual_entery.pdf", "ME"); // ---
-            $this->report($company_id, "Missing", "daily_missing.pdf", "---"); // 97
+            $this->report($company_id, "Summary", "daily_summary.pdf");
+        }
+    }
+
+    public function generatePresentReport()
+    {
+        $company_ids = Company::orderBy("id", "asc")->pluck("id");
+
+        foreach ($company_ids as $company_id) {
+            $this->report($company_id, "Present", "daily_present.pdf", "P");
+        }
+    }
+
+    public function generateAbsentReport()
+    {
+        $company_ids = Company::orderBy("id", "asc")->pluck("id");
+
+        foreach ($company_ids as $company_id) {
+            $this->report($company_id, "Absent", "daily_absent.pdf", "A");
+        }
+    }
+
+    public function generateMissingReport()
+    {
+        $company_ids = Company::orderBy("id", "asc")->pluck("id");
+
+        foreach ($company_ids as $company_id) {
+            $this->report($company_id, "Missing", "daily_missing.pdf", "---");
+        }
+    }
+
+    public function generateManualReport()
+    {
+        $company_ids = Company::orderBy("id", "asc")->pluck("id");
+
+        foreach ($company_ids as $company_id) {
+            $this->report($company_id, "Manual Entery", "daily_manual_entery.pdf", "ME");
         }
     }
     
@@ -42,6 +74,7 @@ class DailyController extends Controller
             'report_type' => $report_type
         ];
 
+
         $model = $this->getModel($company_id);
 
         if ($status !== null) {
@@ -51,10 +84,6 @@ class DailyController extends Controller
         $company = Company::whereId($company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
         $data = $model->get();
-
-        // $data = $model->count();
-
-        // dd($info);
 
         $pdf = Pdf::loadView('pdf.daily', compact("company", "info", "data"));
 

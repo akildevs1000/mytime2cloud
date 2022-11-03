@@ -14,8 +14,11 @@ Route::get('/daily', [Controller::class, 'daily']);
 Route::get('/daily_download_pdf', [Controller::class, 'daily_download_pdf']);
 Route::get('/daily_download_csv', [Controller::class, 'daily_download_csv']);
 
-Route::get('/generate_daily_report', [DailyController::class, 'generateDailyReport']);
-
+Route::get('/generateSummaryReport', [DailyController::class, 'generateSummaryReport']);
+Route::get('/generatePresentReport', [DailyController::class, 'generatePresentReport']);
+Route::get('/generateAbsentReport', [DailyController::class, 'generateAbsentReport']);
+Route::get('/generateMissingReport', [DailyController::class, 'generateMissingReport']);
+Route::get('/generateManualReport', [DailyController::class, 'generateManualReport']);
 
 // weekly
 Route::get('/weekly', [WeeklyController::class, 'weekly']);
