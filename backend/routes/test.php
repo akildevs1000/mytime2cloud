@@ -1,10 +1,8 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\Reports\ReportController;
-use App\Mail\TestMail;
+use App\Mail\ReportNotificationMail;
 use App\Models\Attendance;
-use App\Models\Company;
 use App\Models\Employee;
 use App\Models\ReportNotification;
 use Illuminate\Http\Request;
@@ -12,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 
 Route::get('/test', function (Request $request) {
@@ -116,16 +113,19 @@ Route::get('/test_attachment', function () {
     $models = ReportNotification::get();
 
     foreach ($models as $model) {
+
+        return $model;
+
         if ($model->frequency == "Daily") {
             if (in_array("Email", $model->mediums)) {
                 Mail::to($model->tos)
                     ->cc($model->ccs)
                     ->bcc($model->bccs)
-                    ->queue(new TestMail($model));
+                    ->queue(new ReportNotificationMail($model));
             }
-            if (in_array("Whatsapp", $model->mediums)) {
-                Mail::to($model->tos)->send(new TestMail($model));
-            }
+            // if (in_array("Whatsapp", $model->mediums)) {
+            //     Mail::to($model->tos)->send(new TestMail($model));
+            // }
         }
     }
     return "done";

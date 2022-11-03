@@ -6,11 +6,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 
-class TestMail extends Mailable implements ShouldQueue
+class ReportNotificationMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
