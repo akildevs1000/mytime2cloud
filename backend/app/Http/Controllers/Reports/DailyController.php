@@ -56,26 +56,26 @@ class DailyController extends Controller
             $this->report($company_id, "Manual Entery", "daily_manual_entery.pdf", "ME");
         }
     }
-    
+
     public function report($company_id, $report_type, $file_name, $status  = null)
     {
-        $date = date("Y-m-d");
+        $date = date("Y-m-d", strtotime("yesterday"));
 
         $info = (object)[
             'total_employee' => Employee::whereCompanyId($company_id)->count(),
-            'total_present' => $this->getCountByStatus($company_id,"P",$date),
-            'total_absent' => $this->getCountByStatus($company_id,"A",$date),
-            'total_missing' => $this->getCountByStatus($company_id,"---",$date),
+            'total_present' => $this->getCountByStatus($company_id, "P", $date),
+            'total_absent' => $this->getCountByStatus($company_id, "A", $date),
+            'total_missing' => $this->getCountByStatus($company_id, "---", $date),
             'total_early' => 0,
             'total_late' => 0,
             'total_leave' => 0,
             'department' => 'All',
-            "daily_date" => date("Y-m-d"),
+            "daily_date" => $date,
             'report_type' => $report_type
         ];
 
 
-        $model = $this->getModel($company_id);
+        $model = $this->getModel($company_id,$date);
 
         if ($status !== null) {
             $model->where('status', $status);
@@ -92,11 +92,11 @@ class DailyController extends Controller
         return "Daily report generated.";
     }
 
-    public function getModel($company_id)
+    public function getModel($company_id,$date)
     {
         $model = Attendance::query();
         $model->where('company_id', $company_id);
-        $model->whereDate('date', date("Y-m-d"));
+        $model->whereDate('date', $date);
 
 
         $model->with([
@@ -110,8 +110,8 @@ class DailyController extends Controller
         return $model;
     }
 
-    public function getCountByStatus($company_id,$status,$date)
+    public function getCountByStatus($company_id, $status, $date)
     {
-        return DB::table("attendances")->where("company_id",$company_id)->whereDate('date', $date)->where('status', $status)->count();
+        return DB::table("attendances")->where("company_id", $company_id)->whereDate('date', $date)->where('status', $status)->count();
     }
 }
