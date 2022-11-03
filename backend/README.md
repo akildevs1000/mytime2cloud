@@ -1,4 +1,5 @@
 php artisan serve --host 192.168.2.174
+return Storage::disk('local')->put($request->company_id . '/Form.pdf', $pdf->output());
 
 sqlite3 extension for ubunut
   - sudo apt-get install php-sqlite3

@@ -261,14 +261,16 @@ class WeeklyController extends Controller
         $str = "";
         foreach ($data as $eid => $row) {
 
-            $emp = Employee::where("employee_id", $eid)->first();
+            $emp = Employee::where("employee_id", $eid)->select("employee_id","display_name", "system_user_id")->first();
+
+
 
             $str .= '<div class="page-breaks">';
 
             $str .= '<table class="main-table" style="margin-top: 10px !important;">';
             $str .= '<tr style="text-align: left; border :1px solid black; width:120px;">';
             $str .= '<td style="text-align:left;width:120px"><b>Name</b>:' . ($emp && $emp->display_name ?? ' ---') . '</td>';
-            $str .= '<td style="text-align:left;width:120px"><b>EID</b>:' . $emp &&  $emp->employee_id ?? '' . '</td>';
+            $str .= '<td style="text-align:left;width:120px"><b>EID</b>:' . $emp ?? '' . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>Total Hrs</b>:' . $this->getCalculation($row)['work'] . '</td>';
             $str .= '<td style="text-align:left;width:120px"><b>OT</b>:' . $this->getCalculation($row)['ot'] . '</td>';
             $str .= '<td style="text-align:left;color:green;width:150px"><b>Present</b>:' . ($this->getCalculation($row)['presents']) . '</td>';
