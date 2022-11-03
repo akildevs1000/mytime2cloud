@@ -52,32 +52,32 @@ class Kernel extends ConsoleKernel
         // PDF
         $schedule
             ->command('task:generate_summary_report')
-            ->everyMinute()
-            // ->dailyAt('1:00')
+            // ->everyMinute()
+            ->dailyAt('2:00')
             ->appendOutputTo("pdf.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:generate_daily_present_report')
-            ->everyMinute()
-            // ->dailyAt('1:00')
+            // ->everyMinute()
+            ->dailyAt('2:00')
             ->appendOutputTo("pdf.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:generate_daily_absent_report')
-            ->everyMinute()
-            // ->dailyAt('1:00')
+            // ->everyMinute()
+            ->dailyAt('2:00')
             ->appendOutputTo("pdf.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:generate_daily_missing_report')
-            ->everyMinute()
-            // ->dailyAt('1:00')
+            // ->everyMinute()
+            ->dailyAt('2:00')
             ->appendOutputTo("pdf.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:generate_daily_manual_report')
-            ->everyMinute()
-            // ->dailyAt('1:00')
+            // ->everyMinute()
+            ->dailyAt('2:00')
             ->appendOutputTo("pdf.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             
