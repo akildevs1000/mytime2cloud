@@ -8,7 +8,7 @@ return [
          * The name of this application. You can use this name to monitor
          * the backups.
          */
-        'name' => env('APP_NAME', 'laravel-backup'),
+        'name' => 'ideahrms',
 
         'source' => [
 
@@ -170,7 +170,7 @@ return [
 
             'from' => [
                 'address' => env('ADMIN_MAIL_RECEIVERS', 'akildevs1000@gmail.com'),
-                'name' => env('APP_NAME', 'ideaHrms'),
+                'name' =>  'ideahrms',
             ],
         ],
 
