@@ -320,7 +320,9 @@ class WeeklyController extends Controller
         $str = "";
         foreach ($data as $eid => $row) {
 
-            $emp = Employee::where("employee_id", $eid)->first();
+            $emp = Employee::where("employee_id", $eid)->select("employee_id", "display_name", "system_user_id")->first();
+
+
 
             $str .= '<div class="page-breaks">';
 

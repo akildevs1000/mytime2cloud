@@ -2,12 +2,11 @@
 
 namespace App\Console;
 
-use App\Mail\TestMail;
+use App\Mail\ReportNotificationMail;
 use App\Models\ReportNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Mail;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class Kernel extends ConsoleKernel
 {
@@ -48,15 +47,75 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo("scheduler.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        // if (env("APP_ENV") == "production") {
-        //     $schedule
-        //         ->command('task:restart_sdk')
-        //         ->dailyAt('1:00')
-        //         ->appendOutputTo("sdk.log")
-        //         ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        // }
 
-        // $this->run_custom($schedule);
+        // PDF
+        $schedule
+            ->command('task:generate_summary_report')
+            // ->everyMinute()
+            ->dailyAt('2:00')
+            ->appendOutputTo("pdf.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:generate_daily_present_report')
+            // ->everyMinute()
+            ->dailyAt('2:00')
+            ->appendOutputTo("pdf.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:generate_daily_absent_report')
+            // ->everyMinute()
+            ->dailyAt('2:00')
+            ->appendOutputTo("pdf.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:generate_daily_missing_report')
+            // ->everyMinute()
+            ->dailyAt('2:00')
+            ->appendOutputTo("pdf.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:generate_daily_manual_report')
+            // ->everyMinute()
+            ->dailyAt('2:00')
+            ->appendOutputTo("pdf.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        //Backup
+        $schedule
+            ->command('task:db_backup')
+            ->hourly()
+            ->appendOutputTo("db_backup.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        // $models = ReportNotification::get();
+
+        // foreach ($models as $model) {
+
+        //     if ($model->frequency == "Daily") {
+
+        //         $schedule
+        //             ->command('task:report_notification_crons')
+        //             // ->everyMinute()
+        //             ->dailyAt($model->time)
+        //             ->appendOutputTo("custom_cron.log")
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //     } else if ($model->frequency == "Weekly") {
+
+        //         $schedule
+        //             ->command('task:report_notification_crons')
+        //             ->weeklyOn($model->day, $model->time)
+        //             ->appendOutputTo("custom_cron.log")
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //     } else if ($model->frequency == "Monthly") {
+
+        //         $schedule
+        //             ->command('task:report_notification_crons')
+        //             ->monthlyOn($model->day, $model->time)
+        //             ->appendOutputTo("custom_cron.log")
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //     }
+        // }
+        // env("APP_ENV") == "production"
     }
 
     /**
@@ -69,39 +128,5 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
-    }
-
-    public function run_custom($schedule)
-    {
-        $data["email"] = "aatmaninfotech@gmail.com";
-        $data["title"] = "From ItSolutionStuff.com";
-        $data["body"] = "This is Demo";
-  
-        $pdf = PDF::loadView('emails.myTestMail', $data);
-        
-        $models = ReportNotification::get();
-
-        foreach ($models as $model) {
-            if (in_array("Email", $model->mediums)) {
-
-                $schedule->call(function () use ($model) {
-                        Mail::to($model->tos)
-                            ->cc($model->ccs)
-                            ->bcc($model->bccs)
-                            ->queue(new TestMail($model));
-                })->everyMinute();
-
-                // if ($model->frequency == "Daily") {
-                //     Mail::to($model->tos)
-                //         ->cc($model->ccs)
-                //         ->bcc($model->bccs)
-                //         ->queue(new TestMail($model));
-                // }
-            }
-            // if (in_array("Whatsapp", $model->mediums)) {
-            //     Mail::to($model->tos)->send(new TestMail($model));
-            // }
-        }
-        return "done";
     }
 }

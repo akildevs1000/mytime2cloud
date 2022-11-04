@@ -26,7 +26,7 @@
           <v-row>
             <v-col cols="3">
               <v-text-field
-                :hide-details="!subject"
+                :hide-details="!payload.subject"
                 v-model="payload.subject"
                 placeholder="Title/Subject"
                 outlined
@@ -48,21 +48,26 @@
                 outlined
                 dense
                 placeholder="Frequency"
-                :items="['Daily', 'Weekly', 'Monthly', 'Yearly']"
+                :items="['Daily', 'Weekly', 'Monthly']"
               >
               </v-autocomplete>
               <span v-if="errors && errors.frequency" class="error--text">{{
                 errors.frequency[0]
               }}</span>
             </v-col>
-            <v-col cols="3">
+            <v-col
+              cols="3"
+              v-if="
+                payload.frequency == 'Daily' || payload.frequency == 'Weekly'
+              "
+            >
               <v-autocomplete
                 :hide-details="!payload.day"
                 v-model="payload.day"
                 outlined
                 dense
                 placeholder="Days"
-                :items="payload.frequency !== 'Daily' ? days : []"
+                :items="payload.frequency == 'Weekly' ? days : []"
                 item-text="name"
                 item-value="id"
               >
@@ -70,6 +75,51 @@
               <span v-if="errors && errors.day" class="error--text">{{
                 errors.day[0]
               }}</span>
+            </v-col>
+
+            <v-col cols="3" v-if="payload.frequency == 'Monthly'">
+             <v-menu
+                  class="mt-2"
+                  ref="menu"
+                  v-model="menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="daily_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      :hide-details="payload.daily_date"
+                      outlined
+                      dense
+                      v-model="payload.daily_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="payload.daily_date"
+                    no-title
+                    scrollable
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="menu = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        set_date_save($refs.menu, payload.daily_date)
+                      "
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
+             
             </v-col>
             <v-col cols="3">
               <v-menu
@@ -248,7 +298,7 @@
               <label class="col-form-label"><b>Subject </b></label>
 
               <v-text-field
-                :hide-details="!subject"
+                :hide-details="!payload.subject"
                 v-model="payload.subject"
                 placeholder="Subject"
                 outlined
@@ -481,6 +531,11 @@ export default {
   components: { TiptapVuetify },
 
   data: () => ({
+    daily_date: null,
+    date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+      .toISOString()
+      .substr(0, 10),
+    menu: false,
     days: [
       { id: 1, name: "Monday" },
       { id: 2, name: "Tuesday" },
@@ -534,7 +589,8 @@ export default {
       time: null,
       tos: [],
       ccs: [],
-      bccs: []
+      bccs: [],
+      daily_date: null
     },
 
     route_id: 0,
@@ -545,11 +601,15 @@ export default {
   mounted() {},
 
   created() {
+    this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.preloader = false;
     this.id = this.$auth?.user?.company?.id;
     this.getRecord();
   },
   methods: {
+    set_date_save(from_menu, field) {
+      from_menu.save(field);
+    },
     getRecord() {
       this.$axios
         .get("/report_notification/" + this.$route.params.id)
@@ -601,6 +661,8 @@ export default {
     },
 
     store() {
+      console.log(this.payload.daily_date);
+      return;
       this.$axios
         .put("/report_notification/" + this.$route.params.id, this.payload)
         .then(({ data }) => {
