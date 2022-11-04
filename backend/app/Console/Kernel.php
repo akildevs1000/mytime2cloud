@@ -85,7 +85,7 @@ class Kernel extends ConsoleKernel
             ->command('task:db_backup')
             ->everyMinute()
             ->appendOutputTo("db_backup.log")
-            ->emailOutputOnFailure('fahathammex90@gmail.com');
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         // $models = ReportNotification::get();
 
