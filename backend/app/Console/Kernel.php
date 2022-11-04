@@ -81,11 +81,11 @@ class Kernel extends ConsoleKernel
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         //Backup
-        $schedule
-            ->command('task:db_backup')
-            // ->hourly()
-            ->everyMinute()
-            ->appendOutputTo("db_backup.log");
+        // $schedule
+        // ->command('task:db_backup')
+        // ->hourly()
+        // ->everyMinute()
+        // ->appendOutputTo("db_backup.log");
         // ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         // $models = ReportNotification::get();
