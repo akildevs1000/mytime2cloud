@@ -186,8 +186,6 @@ export default {
       this.$axios.get(`reporter_by_employee/${id}`).then(({ data }) => {
         this.reporters = data;
         this.reporters_count = data.length;
-        console.log(this.reporters_count);
-
         return;
       });
     },

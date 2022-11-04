@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
 <body>
     <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
         <tr>
@@ -58,7 +59,8 @@
                         <tr style="text-align: left; border :none;">
                             <td style="text-align: center; border :none">
                                 <span style="font-size: 11px">
-                                    {{ date('d M Y', strtotime($info->daily_date)) }}
+                                    {{ date('d M Y', strtotime($info->daily_date)) }}<br>
+                                    <small>Department : {{ $info->department_name }}</small>
                                 </span>
                                 <hr style="width: 230px">
                             </td>
@@ -81,7 +83,8 @@
                         <th style="text-align: center; border :none">Leave</th>
                     </tr>
                     <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:green">{{ $info->total_present ?? 0 }}
+                        <td style="text-align: center; border :none; padding:5px;color:green">
+                            {{ $info->total_present }}
                         </td>
                         <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
                         <td style="text-align: center; border :none;color:red">{{ $info->total_leave ?? 0 }}</td>
@@ -92,7 +95,8 @@
                         <th style="text-align: center; border :none">Missing</th>
                     </tr>
                     <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:red">{{ $info->total_late ?? 0 }}
+                        <td style="text-align: center; border :none; padding:5px;color:red">
+                            {{ $info->total_late ?? 0 }}
                         </td>
                         <td style="text-align: center; border :none;color:green">{{ $info->total_early ?? 0 }}</td>
                         <td style="text-align: center; border :none;color:orange">{{ $info->total_missing ?? 0 }}</td>
@@ -109,12 +113,53 @@
         </tr>
     </table>
     <hr style="margin:0px;padding:0">
+
+    <div id="footer">
+        <div class="pageCounter">
+            {{-- <p class="page"> </p> --}}
+            <p></p>
+            @php
+                $p = count($data) / 50;
+                if ($p <= 1) {
+                    echo '<span></span>';
+                } else {
+                    for ($a = 1; $a <= $p; $a++) {
+                        echo '<span></span>';
+                    }
+                }
+            @endphp
+        </div>
+        <div id="pageNumbers">
+            <div class="page-number" style="font-size: 9px"></div>
+        </div>
+    </div>
+
+    <footer id="page-bottom-line" style="padding-top: 100px!important">
+        <hr style="width: 100%;">
+        <table class="footer-main-table">
+            <tr style="border :none">
+                <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
+                <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
+                <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
+                </td>
+                <td style="text-align: right;border :none;">
+                    <b>Powered by</b>: <span style="color:blue">
+                        <a href="https://ideahrms.com/" target="_blank">ideahrms.com</a>
+                    </span>
+                </td>
+                <td style="text-align: right;border :none">
+                    Printed on : {{ date('d-M-Y ') }}
+                </td>
+            </tr>
+        </table>
+    </footer>
     @php
         $statusColor = '';
         $i = 0;
     @endphp
     <table class="main-table">
         <tr style="text-align: left;font-weight:bold">
+            <td style="text-align:  left;"> # </td>
             <td style="text-align:  left;"> Name </td>
             <td style="text-align:  center;width:80px"> EID </td>
             <td style="text-align:  center;width:80px"> In </td>
@@ -137,6 +182,7 @@
             @endphp
             <tbody>
                 <tr style="text-align:  center;">
+                    <td>{{ ++$i }}</td>
                     <td style="text-align:  left; width:120px">{{ $data->employee->first_name ?? '---' }}</td>
                     <td style="text-align:  center;">{{ $data->employee_id ?? '---' }}</td>
                     <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
@@ -150,25 +196,54 @@
             </tbody>
         @endforeach
     </table>
-    <hr style=" bottom: 0px; position: absolute; width: 100%; margin-bottom:40px">
-    <footer style="padding-top: 100px!important">
-        <table class="main-table">
-            <tr style="border :none">
-                <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
-                <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
-                <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
-                </td>
-                <td style="text-align: right;border :none;">
-                    <b>Powered by</b>: <span style="color:blue"> www.ideahrms.com</span>
-                </td>
-                <td style="text-align: right;border :none">
-                    Printed on : {{ date('d-M-Y ') }}
-                </td>
-            </tr>
-        </table>
-    </footer>
+
+
 </body>
 <style>
+    .pageCounter span {
+        counter-increment: pageTotal;
+    }
+
+    #pageNumbers div:before {
+        counter-increment: currentPage;
+        content: "Page "counter(currentPage) " of ";
+    }
+
+    #pageNumbers div:after {
+        content: counter(pageTotal);
+    }
+
+    #footer {
+        position: fixed;
+        top: 720px;
+        right: 0px;
+        bottom: 0px;
+        text-align: center;
+        font-size: 12px;
+    }
+
+    #page-bottom-line {
+        position: fixed;
+        right: 0px;
+        bottom: -6px;
+        text-align: center;
+        font-size: 12px;
+        counter-reset: pageTotal;
+    }
+
+    #footer .page:before {
+        content: counter(page, decimal);
+    }
+
+    #footer .page:after {
+        counter-increment: counter(page, decimal);
+    }
+
+
+    @page {
+        margin: 20px 30px 40px 50px;
+    }
+
     table {
         font-family: arial, sans-serif;
         border-collapse: collapse;
@@ -209,6 +284,13 @@
     .main-table {
         padding-bottom: 20px;
         padding-top: 10px;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
+    .footer-main-table {
+        padding-bottom: 7px;
+        padding-top: 0px;
         padding-right: 15px;
         padding-left: 15px;
     }

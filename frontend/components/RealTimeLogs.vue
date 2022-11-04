@@ -71,9 +71,7 @@ export default {
         }
       };
 
-      this.$axios.post("generate_log", payload, config).then(res => {
-        console.log(res);
-      });
+      this.$axios.post("generate_log", payload, config).then(res => {});
     }
   }
 };

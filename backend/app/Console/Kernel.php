@@ -80,6 +80,13 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo("pdf.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+        //Backup
+        $schedule
+            ->command('task:db_backup')
+            ->hourly()
+            ->appendOutputTo("db_backup.log")
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
         // $models = ReportNotification::get();
 
         // foreach ($models as $model) {

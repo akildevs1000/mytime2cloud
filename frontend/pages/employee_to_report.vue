@@ -236,7 +236,6 @@ export default {
         this.employees = data.data.filter(e =>
           e.report_to.length == 0 ? e : null
         );
-        console.log(this.employees);
       });
     },
 
