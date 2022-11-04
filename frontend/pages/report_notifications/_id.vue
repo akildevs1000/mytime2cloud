@@ -43,6 +43,7 @@
             </v-col>
             <v-col cols="3">
               <v-autocomplete
+                @change="processDay"
                 :hide-details="!payload.frequency"
                 v-model="payload.frequency"
                 outlined
@@ -55,13 +56,11 @@
                 errors.frequency[0]
               }}</span>
             </v-col>
-            <v-col
-              cols="3"
-              v-if="
-                payload.frequency == 'Daily' || payload.frequency == 'Weekly'
-              "
-            >
+            <v-col cols="3">
               <v-autocomplete
+                v-if="
+                  payload.frequency == 'Daily' || payload.frequency == 'Weekly'
+                "
                 :hide-details="!payload.day"
                 v-model="payload.day"
                 outlined
@@ -72,62 +71,57 @@
                 item-value="id"
               >
               </v-autocomplete>
+              <v-menu
+                v-if="payload.frequency == 'Monthly'"
+                class="mt-2"
+                ref="menu"
+                v-model="menu"
+                :close-on-content-click="false"
+                :return-value.sync="payload.date"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    :hide-details="payload.date"
+                    outlined
+                    dense
+                    v-model="payload.date"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker v-model="payload.date" no-title scrollable>
+                  <v-spacer></v-spacer>
+                  <v-btn text color="primary" @click="menu = false">
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="set_date_save($refs.menu, payload.date)"
+                  >
+                    OK
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
               <span v-if="errors && errors.day" class="error--text">{{
                 errors.day[0]
               }}</span>
+              <span v-if="errors && errors.date" class="error--text">{{
+                errors.date[0]
+              }}</span>
             </v-col>
 
-            <v-col cols="3" v-if="payload.frequency == 'Monthly'">
-             <v-menu
-                  class="mt-2"
-                  ref="menu"
-                  v-model="menu"
-                  :close-on-content-click="false"
-                  :return-value.sync="daily_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      :hide-details="payload.daily_date"
-                      outlined
-                      dense
-                      v-model="payload.daily_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="payload.daily_date"
-                    no-title
-                    scrollable
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="menu = false">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="
-                        set_date_save($refs.menu, payload.daily_date)
-                      "
-                    >
-                      OK
-                    </v-btn>
-                  </v-date-picker>
-                </v-menu>
-             
-            </v-col>
             <v-col cols="3">
               <v-menu
-                ref="menu"
+                ref="menu2"
                 v-model="menu2"
                 :close-on-content-click="false"
                 :nudge-right="40"
-                :return-value.sync="payload.time"
+                :return-value.sync="time"
                 transition="scale-transition"
                 offset-y
                 max-width="290px"
@@ -149,7 +143,7 @@
                   v-if="menu2"
                   v-model="payload.time"
                   full-width
-                  @click:minute="$refs.menu.save(payload.time)"
+                  @click:minute="$refs.menu2.save(time)"
                 ></v-time-picker>
               </v-menu>
               <span v-if="errors && errors.time" class="text-danger mt-2">{{
@@ -409,94 +403,7 @@
                 <template #placeholder> Loading... </template>
               </ClientOnly>
             </v-col>
-          </v-row>
-          <!-- <v-row>
-            <v-col cols="3">
-              <label class="col-form-label pt-5"
-                ><b>To </b>(Press enter to add email address/es)</label
-              >
 
-              <v-text-field
-                :hide-details="!to"
-                @keyup.enter="add_to"
-                v-model="to"
-                type="email"
-                placeholder="Email"
-                outlined
-                dense
-              ></v-text-field>
-
-              <v-chip
-                color="primary"
-                class="ma-1"
-                v-for="(item, index) in payload.tos"
-                :key="index"
-              >
-                <span class="mx-1">{{ item }}</span>
-                <v-icon small @click="deleteTO(index)"
-                  >mdi-close-circle-outline</v-icon
-                >
-              </v-chip>
-              <span v-if="errors && errors.tos" class="error--text">{{
-                errors.tos[0]
-              }}</span>
-            </v-col>
-
-            <v-col cols="3">
-              <label class="col-form-label pt-5"
-                ><b>Cc </b>(Press enter to add email address/es)</label
-              >
-              <v-text-field
-                @keyup.enter="add_cc"
-                v-model="cc"
-                type="email"
-                placeholder="Email"
-                outlined
-                dense
-              ></v-text-field>
-
-              <v-chip
-                color="primary"
-                class="ma-1"
-                v-for="(item, index) in payload.ccs"
-                :key="index"
-              >
-                <span class="mx-1">{{ item }}</span>
-                <v-icon small @click="deleteCC(index)"
-                  >mdi-close-circle-outline</v-icon
-                >
-              </v-chip>
-            </v-col>
-
-            <v-col cols="3">
-              <label class="col-form-label pt-5"
-                ><b>Bcc </b>(Press enter to add email address/es)</label
-              >
-              <v-text-field
-                @keyup.enter="add_bcc"
-                v-model="bcc"
-                type="email"
-                placeholder="Email"
-                outlined
-                dense
-              ></v-text-field>
-
-              <v-chip
-                color="primary"
-                class="ma-1"
-                v-for="(item, index) in payload.bccs"
-                :key="index"
-              >
-                <span class="mx-1">{{ item }}</span>
-                <v-icon small @click="deleteBCC(index)"
-                  >mdi-close-circle-outline</v-icon
-                >
-              </v-chip>
-            </v-col>
-          </v-row> -->
-
-          <v-divider></v-divider>
-          <v-row>
             <v-col cols="12">
               <v-btn small color="primary" @click="store">
                 Submit
@@ -531,11 +438,9 @@ export default {
   components: { TiptapVuetify },
 
   data: () => ({
-    daily_date: null,
-    date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-      .toISOString()
-      .substr(0, 10),
+    time: null,
     menu: false,
+    menu2: false,
     days: [
       { id: 1, name: "Monday" },
       { id: 2, name: "Tuesday" },
@@ -583,14 +488,17 @@ export default {
     cc: "",
     bcc: "",
     payload: {
+      day: 1,
       reports: [],
       mediums: [],
-      frequency: null,
+      frequency: "Daily",
       time: null,
       tos: [],
       ccs: [],
       bccs: [],
-      daily_date: null
+      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+        .toISOString()
+        .substr(0, 10)
     },
 
     route_id: 0,
@@ -601,12 +509,21 @@ export default {
   mounted() {},
 
   created() {
-    this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.preloader = false;
     this.id = this.$auth?.user?.company?.id;
     this.getRecord();
   },
   methods: {
+    processDay() {
+      let { frequency, date } = this.payload;
+
+      this.payload.day = frequency == "Monthly" ? new Date(date).getDate() : null;
+    },
+    setDefaultDate() {
+      return new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+        .toISOString()
+        .substr(0, 10);
+    },
     set_date_save(from_menu, field) {
       from_menu.save(field);
     },
@@ -615,6 +532,11 @@ export default {
         .get("/report_notification/" + this.$route.params.id)
         .then(({ data }) => {
           this.payload = data;
+          console.log(
+            "🚀 ~ file: _id.vue ~ line 530 ~ .then ~ this.payload",
+            this.payload
+          );
+          this.payload.day = parseInt(data.day);
         });
     },
     onScroll() {
@@ -661,8 +583,8 @@ export default {
     },
 
     store() {
-      console.log(this.payload.daily_date);
-      return;
+      this.errors = [];
+
       this.$axios
         .put("/report_notification/" + this.$route.params.id, this.payload)
         .then(({ data }) => {
@@ -682,6 +604,9 @@ export default {
 };
 </script>
 <style scoped>
+div.v-date-picker-header {
+  display: none !important;
+}
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;

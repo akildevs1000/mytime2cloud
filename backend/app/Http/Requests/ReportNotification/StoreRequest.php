@@ -8,7 +8,7 @@ use App\Traits\failedValidationWithName;
 
 class StoreRequest extends FormRequest
 {
-	use failedValidationWithName; // gives response when validation failed
+    use failedValidationWithName; // gives response when validation failed
 
     public function authorize()
     {
@@ -17,7 +17,7 @@ class StoreRequest extends FormRequest
 
     public function rules()
     {
-        return [
+        $arr = [
             'subject' => 'nullable',
             'body' => 'nullable',
             'day' => 'nullable',
@@ -31,9 +31,20 @@ class StoreRequest extends FormRequest
             'ccs' => 'array|nullable',
             'bccs' => 'array|nullable',
         ];
+
+        // if weekly or monthly
+        if ($this->frequency == "Weekly") {
+            $arr['day'] = "required";
+        }
+
+        if ($this->frequency == "Monthly") {
+            $arr['date'] = "required";
+        }
+
+        return $arr;
     }
 
-	public function messages()
+    public function messages()
     {
         return [
             'company_id.required' => 'The company field is required',
@@ -42,5 +53,4 @@ class StoreRequest extends FormRequest
             'tos.min' => 'Atleast 1 Email must be selected',
         ];
     }
-
 }

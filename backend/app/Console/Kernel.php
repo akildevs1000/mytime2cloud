@@ -87,34 +87,40 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo("db_backup.log")
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        // $models = ReportNotification::get();
+        // ReportNotification
 
-        // foreach ($models as $model) {
+        $models = ReportNotification::get();
 
-        //     if ($model->frequency == "Daily") {
+        foreach ($models as $model) {
 
-        //         $schedule
-        //             ->command('task:report_notification_crons')
-        //             // ->everyMinute()
-        //             ->dailyAt($model->time)
-        //             ->appendOutputTo("custom_cron.log")
-        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        //     } else if ($model->frequency == "Weekly") {
+            
 
-        //         $schedule
-        //             ->command('task:report_notification_crons')
-        //             ->weeklyOn($model->day, $model->time)
-        //             ->appendOutputTo("custom_cron.log")
-        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        //     } else if ($model->frequency == "Monthly") {
+            if ($model->frequency == "Daily") {
 
-        //         $schedule
-        //             ->command('task:report_notification_crons')
-        //             ->monthlyOn($model->day, $model->time)
-        //             ->appendOutputTo("custom_cron.log")
-        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        //     }
-        // }
+                $schedule
+                    ->command('task:report_notification_crons')
+                    // ->everyMinute()
+                    ->dailyAt($model->time)
+                    ->appendOutputTo("custom_cron.log")
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            } else if ($model->frequency == "Weekly") {
+
+                $schedule
+                    ->command('task:report_notification_crons')
+                    // ->everyMinute()
+                    ->weeklyOn($model->day, $model->time)
+                    ->appendOutputTo("custom_cron.log")
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            } else if ($model->frequency == "Monthly") {
+
+                $schedule
+                    ->command('task:report_notification_crons')
+                    // ->everyMinute()
+                    ->monthlyOn($model->day, $model->time)
+                    ->appendOutputTo("custom_cron.log")
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            }
+        }
         // env("APP_ENV") == "production"
     }
 

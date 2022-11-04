@@ -15,7 +15,7 @@
       <v-card elevation="0" class="pa-3">
         <v-card-title>
           <label class="col-form-label"
-            ><h3>Create Report Notification</h3></label
+            ><b>Create Report Notification </b></label
           >
           <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
@@ -26,7 +26,7 @@
           <v-row>
             <v-col cols="3">
               <v-text-field
-                :hide-details="!subject"
+                :hide-details="!payload.subject"
                 v-model="payload.subject"
                 placeholder="Title/Subject"
                 outlined
@@ -43,6 +43,7 @@
             </v-col>
             <v-col cols="3">
               <v-autocomplete
+                @change="setDay"
                 :hide-details="!payload.frequency"
                 v-model="payload.frequency"
                 outlined
@@ -57,20 +58,63 @@
             </v-col>
             <v-col cols="3">
               <v-autocomplete
+                v-if="
+                  payload.frequency == 'Daily' || payload.frequency == 'Weekly'
+                "
                 :hide-details="!payload.day"
                 v-model="payload.day"
                 outlined
                 dense
                 placeholder="Days"
-                :items="payload.frequency !== 'Daily' ? days : []"
+                :items="payload.frequency == 'Weekly' ? days : []"
                 item-text="name"
                 item-value="id"
               >
               </v-autocomplete>
+              <v-menu
+                v-if="payload.frequency == 'Monthly'"
+                class="mt-2"
+                ref="menu"
+                v-model="menu"
+                :close-on-content-click="false"
+                :return-value.sync="payload.date"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    :hide-details="payload.date"
+                    outlined
+                    dense
+                    v-model="payload.date"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker v-model="payload.date" no-title scrollable>
+                  <v-spacer></v-spacer>
+                  <v-btn text color="primary" @click="menu = false">
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="set_date_save($refs.menu, payload.date)"
+                  >
+                    OK
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
               <span v-if="errors && errors.day" class="error--text">{{
                 errors.day[0]
               }}</span>
+              <span v-if="errors && errors.date" class="error--text">{{
+                errors.date[0]
+              }}</span>
             </v-col>
+
             <v-col cols="3">
               <v-menu
                 ref="menu"
@@ -240,10 +284,33 @@
           <v-divider></v-divider>
           <v-row>
             <v-col cols="12">
-              <label class="col-form-label"><h4>Email Settings</h4></label>
+              <label class="col-form-label"><h4>Mail Settings</h4></label><br />
             </v-col>
+          </v-row>
+          <v-row style="margin-top:-30px;">
             <v-col cols="3">
-              <label class="col-form-label"
+              <label class="col-form-label"><b>Subject </b></label>
+
+              <v-text-field
+                :hide-details="!payload.subject"
+                v-model="payload.subject"
+                placeholder="Subject"
+                outlined
+                dense
+              ></v-text-field>
+
+              <span v-if="errors && errors.subject" class="error--text">{{
+                errors.subject[0]
+              }}</span>
+
+              <span v-if="errors && errors.subject" class="error--text">{{
+                errors.subject[0]
+              }}</span>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="3">
+              <label class="col-form-label pt-5"
                 ><b>To </b>(Press enter to add email address/es)</label
               >
 
@@ -272,7 +339,7 @@
               }}</span>
             </v-col>
             <v-col cols="3">
-              <label class="col-form-label"
+              <label class="col-form-label pt-5"
                 ><b>Cc </b>(Press enter to add email address/es)</label
               >
               <v-text-field
@@ -296,7 +363,7 @@
               </v-chip>
             </v-col>
             <v-col cols="3">
-              <label class="col-form-label"
+              <label class="col-form-label pt-5"
                 ><b>Bcc </b>(Press enter to add email address/es)</label
               >
               <v-text-field
@@ -336,45 +403,7 @@
                 <template #placeholder> Loading... </template>
               </ClientOnly>
             </v-col>
-          </v-row>
-          <v-divider></v-divider>
-          <!-- <v-row>
-            <v-col cols="3">
-              <label class="col-form-label"><h4>Whatsapp Settings</h4></label
-              ><br />
-              <label class="col-form-label pt-5"
-                ><b>Numbers </b>(Press enter to more number)</label
-              >
 
-              <v-text-field
-                :hide-details="!to"
-                @keyup.enter="add_number"
-                type="number"
-                v-model="number"
-                placeholder="Whatsapp Number"
-                outlined
-                dense
-              ></v-text-field>
-
-              <v-chip
-                color="primary"
-                class="ma-1"
-                v-for="(item, index) in payload.numbers"
-                :key="index"
-              >
-                <span class="mx-1">{{ item }}</span>
-                <v-icon small @click="deleteNumber(index)"
-                  >mdi-close-circle-outline</v-icon
-                >
-              </v-chip>
-              <span v-if="errors && errors.tos" class="error--text">{{
-                errors.tos[0]
-              }}</span>
-            </v-col>
-          </v-row>
-          <v-divider></v-divider> -->
-
-          <v-row>
             <v-col cols="12">
               <v-btn small color="primary" @click="store">
                 Submit
@@ -409,6 +438,7 @@ export default {
   components: { TiptapVuetify },
 
   data: () => ({
+    menu: false,
     days: [
       { id: 1, name: "Monday" },
       { id: 2, name: "Tuesday" },
@@ -457,16 +487,19 @@ export default {
     cc: "",
     bcc: "",
     payload: {
-      subject: "",
-      body: "",
+      day: 1,
       reports: [],
       mediums: [],
-      frequency: null,
+      frequency: 'Daily',
       time: null,
-      numbers: [],
       tos: [],
       ccs: [],
-      bccs: []
+      bccs: [],
+      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+        .toISOString()
+        .substr(0, 10),
+      company_id: 0
+
     },
 
     errors: []
@@ -474,9 +507,18 @@ export default {
 
   created() {
     this.preloader = false;
-    this.id = this.$auth?.user?.company?.id;
+    this.payload.company_id = this.$auth?.user?.company?.id;
   },
   methods: {
+    setDay() {
+      let { frequency, day,date } = this.payload;
+
+      if (frequency == "Monthly") {
+        day = new Date(date).getDate();
+      }
+
+      this.payload.day = day;
+    },
     onScroll() {
       this.scrollInvoked++;
     },
@@ -523,7 +565,6 @@ export default {
     },
 
     store() {
-      this.payload.company_id = this.id;
       this.$axios
         .post("/report_notification", this.payload)
         .then(({ data }) => {
@@ -536,8 +577,6 @@ export default {
 
           this.snackbar = data.status;
           this.response = data.message;
-
-          console.log("🚀 ~ file: create.vue ~ line 397 ~ .then ~ data", data);
         })
         .catch(e => console.log(e));
     },

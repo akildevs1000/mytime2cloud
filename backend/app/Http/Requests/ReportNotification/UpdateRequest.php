@@ -8,7 +8,7 @@ use App\Traits\failedValidationWithName;
 
 class UpdateRequest extends FormRequest
 {
-	use failedValidationWithName; // gives response when validation failed
+    use failedValidationWithName; // gives response when validation failed
 
     public function authorize()
     {
@@ -17,11 +17,11 @@ class UpdateRequest extends FormRequest
 
     public function rules()
     {
-
-
-        return [
+        $arr = [
             'subject' => 'nullable',
             'body' => 'nullable',
+            'day' => 'nullable',
+            'date' => 'nullable',
             'frequency' => 'required',
             'time' => 'required',
             'reports' => 'array|min:1|max:5',
@@ -30,9 +30,20 @@ class UpdateRequest extends FormRequest
             'ccs' => 'array|nullable',
             'bccs' => 'array|nullable',
         ];
+
+        // if weekly or monthly
+        if ($this->frequency == "Weekly" ) {
+            $arr['day'] = "required";
+        }
+
+        if ($this->frequency == "Monthly") {
+            $arr['date'] = "required";
+        }
+
+        return $arr;
     }
 
-	public function messages()
+    public function messages()
     {
         return [
             'company_id.required' => 'The company field is required',
@@ -41,5 +52,4 @@ class UpdateRequest extends FormRequest
             'tos.min' => 'Atleast 1 Email must be selected',
         ];
     }
-
 }
