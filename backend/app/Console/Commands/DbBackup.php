@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\DbBackupMail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 // use Illuminate\Support\Facades\Log as Logger;
 // use Illuminate\Support\Facades\Mail;
 // use App\Mail\NotifyIfLogsDoesNotGenerate;
@@ -34,27 +36,13 @@ class DbBackup extends Command
     {
         echo exec("php artisan backup:run --only-db");
 
+        $data = [
+            'file' => collect(glob(storage_path("app/laravel/*.zip")))->last(),
+            'date' => date('Y-M-d'),
+            'body' => 'ideahrms Database Backup',
+        ];
 
-
-        // $data["email"] = "aatmaninfotech@gmail.com";
-        // $data["title"] = "From ItSolutionStuff.com";
-        // $data["body"] = "This is Demo";
-
-        // $files = [
-        //     public_path('files/160031367318.pdf'),
-        //     public_path('files/1599882252.png'),
-        // ];
-
-        // Mail::send('emails.myTestMail', $data, function($message)use($data, $files) {
-        //     $message->to($data["email"], $data["email"])
-        //             ->subject($data["title"]);
-
-        //     foreach ($files as $file){
-        //         $message->attach($file);
-        //     }
-
-        // });
-
-        // dd('Mail sent successfully');
+        Mail::to(env('ADMIN_MAIL_RECEIVERS'))
+            ->queue(new DbBackupMail($data));
     }
 }
