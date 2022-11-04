@@ -42,7 +42,6 @@ class DbBackup extends Command
             'body' => 'ideahrms Database Backup',
         ];
 
-        Mail::to('fahathammex90@gmail.com')
-            ->queue(new DbBackupMail($data));
+        Mail::to('fahathammex90@gmail.com')->queue(new DbBackupMail($data));
     }
 }
