@@ -119,7 +119,7 @@
 
       <v-row class="mt-15">
         <v-col md="7">
-          <v-row>
+          <v-row class="d-flex justify-space-between ">
             <v-col xs="12" sm="12" md="3" cols="12">
               <v-select
                 @change="getDataFromApi(`employee`)"
@@ -130,7 +130,29 @@
                 placeholder="Per Page Records"
               ></v-select>
             </v-col>
-            <v-col xs="12" sm="12" md="3" offset-md="6" cols="12">
+            <v-col xs="12" sm="12" md="3" cols="12">
+              <div color="pt-2" class="text-center">
+                <v-btn
+                  @click="getDataFromApi(prev_page_url)"
+                  :disabled="prev_page_url ? false : true"
+                  color="primary"
+                  small
+                  elevation="11"
+                >
+                  <v-icon dark>mdi-chevron-double-left </v-icon>
+                </v-btn>
+                <v-btn
+                  @click="getDataFromApi(next_page_url)"
+                  :disabled="next_page_url ? false : true"
+                  color="primary"
+                  small
+                  elevation="11"
+                >
+                  <v-icon dark>mdi-chevron-double-right </v-icon>
+                </v-btn>
+              </div>
+            </v-col>
+            <v-col xs="12" sm="12" md="3" cols="12">
               <v-text-field
                 outlined
                 @input="searchIt"
@@ -777,7 +799,7 @@ export default {
       let data = json.map(e => ({
         first_name: e.first_name,
         last_name: e.last_name,
-        user_name: e.user.name,
+        display_name: e.display_name,
         email: e.user.email,
         phone_number: e.phone_number,
         whatsapp_number: e.whatsapp_number,
