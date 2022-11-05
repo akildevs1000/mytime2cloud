@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NotifyIfLogsDoesNotGenerate;
-
+use Illuminate\Support\Facades\DB;
 
 class UpdateCompanyIds extends Command
 {
@@ -50,8 +50,11 @@ class UpdateCompanyIds extends Command
             return;
         }
 
+        $i = 0;
+
         foreach ($rows as $arr) {
             try {
+                $i++;
                 AttendanceLog::where("company_id", 0)->where("DeviceID", $arr["DeviceID"])->update($arr);
             } catch (\Throwable $th) {
                 Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
@@ -66,7 +69,9 @@ class UpdateCompanyIds extends Command
                 return;
             }
         }
-        echo "[".$date."] Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . json_encode($rows) . ".\n";
+        $log_details = json_encode(DB::table('attendance_logs')->orderByDesc("id")->take(5)->get(["UserID","DeviceID","SerialNumber","company_id","checked"]));
+
+        echo "[".$date."] Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . $log_details . ".\n";
         return;
     }
 }
