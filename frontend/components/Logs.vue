@@ -1,5 +1,16 @@
 <template>
   <div>
+    <v-row>
+      <v-col xs="12" sm="12" md="3" cols="12">
+        <input
+          class="form-control py-3 custom-text-box floating shadow-none"
+          placeholder="Search..."
+          @input="searchIt"
+          v-model="search"
+          type="text"
+        />
+      </v-col>
+    </v-row>
     <v-data-table
       v-model="ids"
       item-key="id"
@@ -11,7 +22,7 @@
       :footer-props="{
         itemsPerPageOptions: [50, 100, 500, 1000]
       }"
-      class="elevation-1"
+      class="elevation-1 mt-5"
     ></v-data-table>
   </div>
 </template>
@@ -85,9 +96,7 @@ export default {
     },
     getDataFromApi(url = this.endpoint) {
       this.loading = true;
-
       const { page, itemsPerPage } = this.options;
-
       let options = {
         params: {
           per_page: itemsPerPage,
@@ -101,11 +110,22 @@ export default {
         this.loading = false;
       });
     },
-    searchIt(e) {
-      if (e.length == 0) {
+
+    // searchIt(e) {
+    //   if (e.length == 0) {
+    //     this.getDataFromApi();
+    //   } else if (e.length > 2) {
+    //     this.getDataFromApi(`${this.endpoint}/search/${e}`);
+    //   }
+    // },
+
+    searchIt() {
+      let s = this.search.length;
+      let search = this.search;
+      if (s == 0) {
         this.getDataFromApi();
-      } else if (e.length > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${e}`);
+      } else if (s > 2) {
+        this.getDataFromApi(`${this.endpoint}/search/${search}`);
       }
     },
 

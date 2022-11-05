@@ -53,7 +53,7 @@ class AttendanceLogController extends Controller
             $count = count($data);
             Logger::channel("custom")->info($count . ' new logs has been inserted. Old file has been deleted.');
             return $created ?? 0;
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
 
             Logger::channel("custom")->error('Error occured while inserting logs.');
             Logger::channel("custom")->error('Error Details: ' . $th);
@@ -75,10 +75,10 @@ class AttendanceLogController extends Controller
         $model->where("company_id", ">", 0);
         $model->where("checked", false);
         $model->take(1000);
-        if($model->count() == 0){
+        if ($model->count() == 0) {
             return false;
         }
-        $logs = $model->get(["id","UserID","LogTime","DeviceID","company_id"]);
+        $logs = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
         foreach ($logs as $log) {
             $user_exist = $this->process_log($log);
             if ($user_exist) {
@@ -121,7 +121,6 @@ class AttendanceLogController extends Controller
             AttendanceLog::where("id", $log->id)->update(["checked" => true]);
 
             return $item;
- 
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -382,7 +381,7 @@ class AttendanceLogController extends Controller
                     'message' => 'Log Successfully Updated',
                 ];
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -409,7 +408,7 @@ class AttendanceLogController extends Controller
         foreach ($rows as $arr) {
             try {
                 AttendanceLog::where("company_id", 0)->where("DeviceID", $arr["DeviceID"])->update($arr);
-            } catch (\Throwable$th) {
+            } catch (\Throwable $th) {
                 Logger::channel("custom")->error('Error occured while updating company ids.');
                 Logger::channel("custom")->error('Error Details: ' . $th);
                 $th;
@@ -579,5 +578,23 @@ class AttendanceLogController extends Controller
         $h = floor($diff / 3600);
         $m = floor($diff % 3600) / 60;
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+    }
+
+
+    public function Search(Request $request, $key)
+    {
+        $model = AttendanceLog::query();
+        $model = $model->where("company_id", $request->company_id);
+
+        $fields = [
+            'DeviceID',
+            'UserID',
+            'LogTime',
+        ];
+
+        $model = $this->process_search($model, $key, $fields);
+
+
+        return $model->paginate($request->per_page ?? 100);
     }
 }

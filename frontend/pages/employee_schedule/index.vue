@@ -231,7 +231,7 @@
         <tr>
           <th>#</th>
           <th>E.ID</th>
-          <th>First Name</th>
+          <th>Name</th>
           <th>Shift Type</th>
           <th>Schedule</th>
           <th>OT</th>
@@ -249,7 +249,7 @@
             <b>{{ ++index }}</b>
           </td>
           <td>{{ caps(item.system_user_id) }}</td>
-          <td>{{ caps(item.first_name) }}</td>
+          <td>{{ caps(item.display_name) }}</td>
           <td>
             <span v-if="item.schedule && item.schedule.shift_type">
               {{ item.schedule.shift_type.name }}
@@ -424,10 +424,10 @@ export default {
         value: "system_user_id"
       },
       {
-        text: "First Name",
+        text: "Name",
         align: "left",
         sortable: false,
-        value: "first_name"
+        value: "display_name"
       },
       {
         text: "Shift Type",
@@ -484,9 +484,9 @@ export default {
         value: "system_user_id"
       },
       {
-        text: "First Name",
+        text: "Name",
         sortable: false,
-        value: "first_name"
+        value: "display_name"
       },
       // {
       //   text: "Profile Image",
@@ -591,7 +591,12 @@ export default {
     },
     getShifts(shift_type_id) {
       this.$axios
-        .get("shift_by_type", { params: { shift_type_id: shift_type_id,company_id: this.$auth.user.company.id } })
+        .get("shift_by_type", {
+          params: {
+            shift_type_id: shift_type_id,
+            company_id: this.$auth.user.company.id
+          }
+        })
         .then(({ data }) => {
           this.shifts = data;
           // this.shifts.unshift({ id: "", name: "Select Shift" });
@@ -765,7 +770,7 @@ export default {
       if (e.length == 0) {
         this.getDataFromApiForDialog();
       } else if (e.length > 2) {
-        this.employees_dialog = this.employees.filter(({ first_name: fn }) =>
+        this.employees_dialog = this.employees.filter(({ display_name: fn }) =>
           fn.includes(e)
         );
       }
