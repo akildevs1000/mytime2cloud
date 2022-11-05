@@ -81,7 +81,7 @@ class DailyController extends Controller
             'total_early' => 0,
             'total_late' => 0,
             'total_leave' => 0,
-            'department' => 'All',
+            'department_name' => 'All',
             "daily_date" => $date,
             'report_type' => $report_type
         ];

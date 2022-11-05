@@ -59,7 +59,7 @@ class DeviceController extends Controller
     {
         $model = DB::table("employees")->where("system_user_id", $request->UserCode)->first(['first_name', 'profile_picture']);
 
-        if ($model->profile_picture) {
+        if ($model && $model->profile_picture) {
             $model->profile_picture = asset('media/employee/profile_picture/' . $model->profile_picture);
         }
 
