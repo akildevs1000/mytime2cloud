@@ -378,7 +378,7 @@ class EmployeeController extends Controller
 
                 $record = User::create($iteration);
                 $arr = [
-                    'first_name' => trim($data['first_name']),
+                    'display_name' => trim($data['display_name']),
                     'phone_number' => trim($data['phone_number']),
                     'employee_id' => trim($data['employee_id']),
                     'joining_date' => trim(date('Y-m-d', strtotime($data['joining_date']))),
@@ -411,7 +411,7 @@ class EmployeeController extends Controller
         return Validator::make($data, [
             'employee_id' => ['required'],
             'employee_device_id' => ['required', 'min:1', 'max:100'],
-            'first_name' => ['required', 'min:3', 'max:100'],
+            'display_name' => ['required', 'min:3', 'max:10'],
             'email' => 'required|min:3|max:191|unique:users',
             'phone_number' => ['required', 'min:1', 'max:15'],
             'joining_date' => ['required', 'date'],
@@ -441,7 +441,7 @@ class EmployeeController extends Controller
         $columns = [
             "employee_id",
             "employee_device_id",
-            "first_name",
+            "display_name",
             "email",
             "phone_number",
             "joining_date",
