@@ -69,9 +69,11 @@ class UpdateCompanyIds extends Command
                 return;
             }
         }
-        $log_details = json_encode(DB::table('attendance_logs')->orderByDesc("id")->take(5)->get(["UserID","DeviceID","SerialNumber","company_id","checked"]));
+        $log_details = DB::table('attendance_logs')->orderByDesc("id")->take(5)->get(["UserID","DeviceID","SerialNumber","company_id","checked"])->toArray();
 
-        echo "[".$date."] Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . $log_details . ".\n";
+        $result = array_reverse($log_details);
+
+        echo "[".$date."] Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . $result . ".\n";
         return;
     }
 }
