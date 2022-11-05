@@ -7,8 +7,8 @@
       :clipped="clipped"
       fixed
       app
-      class="no_print"
       :color="sideBarcolor"
+      :style="miniVariant ? 'width: 60px' : ''"
     >
       <br />
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
@@ -30,29 +30,47 @@
         >
           <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
+            <v-icon v-if="miniVariant" small
+              >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+            </v-icon>
           </v-list-item-icon>
-          <v-list-item-title>{{ i.title }}</v-list-item-title>
+
+          <v-list-item-title>{{ i.title }} </v-list-item-title>
           <v-icon small
             >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
           </v-icon>
         </v-list-item>
         <div v-if="i.open_menu">
           <div
-            style="margin-left: 50px"
+            style="margin-left: 54px"
             v-for="(j, jdx) in i.hasChildren"
             :key="jdx"
           >
+            <!-- v-show="!miniVariant" -->
             <v-list-item style="min-height: 0" :to="j.to">
-              <v-list-item-title>{{ j.title }}</v-list-item-title>
+              <v-list-item-title v-if="!miniVariant"
+                >{{ j.title }}
+              </v-list-item-title>
 
-              <v-list-item-icon>
-                <v-icon :to="j.to">{{ j.icon }}</v-icon>
+              <v-list-item-icon
+                :style="miniVariant ? 'margin-left: -54px;' : ''"
+              >
+                <v-icon
+                  :to="j.to"
+                  :style="miniVariant ? 'margin-left: 12px;' : ''"
+                >
+                  {{ j.icon }}
+                </v-icon>
               </v-list-item-icon>
             </v-list-item>
           </div>
         </div>
       </v-list>
     </v-navigation-drawer>
+
+    <!-- style="
+    margin-left: -49px;
+" -->
 
     <v-app-bar
       :color="changeColor"
@@ -303,20 +321,20 @@ export default {
           menu: "company_access",
           hasChildren: [
             {
-              icon: "mdi-door",
+              icon: "mdi-domain",
               title: "Department",
               to: "/department",
               menu: "department_access"
             },
             {
-              icon: "mdi-door",
+              icon: "mdi-lan",
               title: "Sub Department",
               to: "/sub-department",
               menu: "sub_department_access"
             },
 
             {
-              icon: "mdi-door",
+              icon: "mdi-treasure-chest ",
               title: "Designation",
               to: "/designation",
               menu: "designation_access"
@@ -380,7 +398,7 @@ export default {
             //   menu:("employee_schedule_access")
             // },
             {
-              icon: "mdi-cash-multiple ",
+              icon: "mdi-cash ",
               title: "Salary",
               to: "/payroll/salary",
               menu: "payroll_generate_access"
@@ -401,7 +419,7 @@ export default {
           menu: "payroll_access",
           hasChildren: [
             {
-              icon: "mdi-account",
+              icon: "mdi-account-plus",
               title: "Roles",
               to: "/role",
               menu: "role_access"

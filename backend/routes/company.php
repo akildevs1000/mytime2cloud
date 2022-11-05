@@ -104,7 +104,7 @@ Route::apiResource('attendance_logs', AttendanceLogController::class);
 Route::get('attendance_logs/{key}/daily', [AttendanceLogController::class, 'AttendanceLogsDaily']);
 Route::get('attendance_logs/{key}/monthly', [AttendanceLogController::class, 'AttendanceLogsMonthly']);
 Route::post('generate_manual_log', [AttendanceLogController::class, 'GenerateManualLog']);
-
+Route::get('attendance_logs/search/{key}', [AttendanceLogController::class, 'search']);
 Route::get('attendance_logs/{id}/search/{key}', [AttendanceLogController::class, 'AttendanceLogsSearch']);
 Route::get('attendance_log_paginate/{page?}', [AttendanceLogController::class, 'AttendanceLogPaginate']);
 
@@ -234,7 +234,7 @@ Route::get('leave-notification/search/{key}/{id}', [LeaveController::class, 'sea
 Route::get('leave/search/{key}', [LeaveController::class, 'search']); // search records
 
 
-Route::post('report_notifications', function(Request $request){
+Route::post('report_notifications', function (Request $request) {
     return $request->all();
 });
 
