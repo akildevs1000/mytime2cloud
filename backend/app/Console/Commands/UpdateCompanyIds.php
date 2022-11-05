@@ -73,7 +73,7 @@ class UpdateCompanyIds extends Command
 
         $result = array_reverse($log_details);
 
-        echo "[".$date."] Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . $result . ".\n";
+        echo "[".$date."] Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . json_encode($result) . ".\n";
         return;
     }
 }
