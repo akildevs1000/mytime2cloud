@@ -15,8 +15,6 @@ class DailyController extends Controller
 {
     public function generateSummaryReport()
     {
-
-
         $company_ids = ReportNotification::distinct("company_id")->pluck("company_id");
 
         foreach ($company_ids as $company_id) {
@@ -72,7 +70,9 @@ class DailyController extends Controller
 
     public function report($company_id, $report_type, $file_name, $status  = null)
     {
-        $date = date("Y-m-d", strtotime("yesterday"));
+
+        $date = date("Y-m-d", strtotime("-2 days"));
+
 
         $info = (object)[
             // 'total_employee' => Employee::whereCompanyId($company_id)->count(),
@@ -95,28 +95,67 @@ class DailyController extends Controller
         ];
 
 
-        $model = Attendance::query();
-        $model->where('company_id', $company_id);
-        $model->whereDate('date', $date);
+        $data = $this->getModelByQuery($company_id, $date)->get();
+        // return $model = $this->getModel($company_id, $date);
 
-
-        $model = $this->getModel($company_id, $date);
-
-        if ($status !== null) {
-            $model->where('status', $status);
-        }
+        // if ($status !== null) {
+        //     $model->where('status', $status);
+        // }
 
         $company = Company::whereId($company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
-        $data = $model->get();
-
-        return $pdf = Pdf::loadHTML($this->getHTML($data, $company, $info))->stream();
-
-        // return $pdf = Pdf::loadHTML('pdf.daily', compact("company", "info", "data"))->stream();
+        $pdf = Pdf::loadView('pdf.daily', compact("company", "info", "data"))->output();
 
         Storage::disk('local')->put($company_id . '/' . $file_name, $pdf);
 
         return "Daily report generated.";
+    }
+
+    public function getModelByQuery($company_id, $date)
+    {
+        $date = date("Y-m-04");
+
+        return DB::table("attendances as a")
+            ->where('a.company_id', $company_id)
+            ->whereDate('date', $date)
+            ->join('employees as e', 'a.employee_id', '=', 'e.system_user_id')
+            // ->leftJoin('devices as d_in', 'd_in.id', '=', 'a.device_id_in')
+            // ->leftJoin('devices as d_out', 'd_out.device_id', '=', 'a.device_id_out')
+            ->select(
+                "a.date",
+                "a.device_id_in",
+                "a.shift_id",
+                "a.status",
+                "a.in",
+                "a.out",
+                "a.total_hrs",
+                "a.ot",
+                "a.late_coming",
+                "a.early_going",
+                "a.device_id_in",
+                "a.device_id_out",
+                "e.system_user_id",
+                "e.display_name",
+                "e.employee_id",
+                "e.department_id",
+                "e.profile_picture",
+                // "d_in.id",
+                // "d_in.short_name as device_in_short_name",
+                // "d_out.short_name as device_out_short_name",
+            );
+
+
+        $model = Attendance::query();
+        $model->where('company_id', 1);
+        $model->whereDate('date', $date);
+
+
+        $model->with([
+            "schedule.shift:id,name,working_hours,overtime_interval,on_duty_time,off_duty_time,late_time,early_time,beginning_in,ending_in,beginning_out,ending_out,absent_min_in,absent_min_out,days",
+            "schedule.shift_type:id,name",
+        ]);
+
+        return $model;
     }
 
     public function getModel($company_id, $date)
@@ -301,7 +340,7 @@ class DailyController extends Controller
     {
         $arr = [];
 
-        foreach($data as $value){
+        foreach ($data as $value) {
             $arr[] = [
                 "first_name" => $value->employee->first_name,
                 "employee_id" => $value->employee_id,
@@ -320,7 +359,7 @@ class DailyController extends Controller
     public function renderTable($data)
     {
 
-        $data = $this->parseData($data);
+        // $data = $this->parseData($data);
         $statusColor = '';
         $str = '';
 
@@ -346,15 +385,15 @@ class DailyController extends Controller
 
             $str .= '<tr style="text-align:  center;">';
             $str .= '<td>' . ++$i . '</td>';
-            $str .= '<td style="text-align:  left; width:120px">' . $data["first_name"] . '</td>';
-            $str .= '<td>' . $data['employee_id'] . '</td>';
-            $str .= '<td> ' . $data['in'] . ' </td>';
-            $str .= '<td> ' . $data['out'] . ' </td>';
-            $str .= '<td> ' . $data['total_hrs'] . ' </td>';
-            $str .= '<td> ' . $data['ot'] . ' </td>';
-            $str .= '<td style="text-align:  center; color:' . $statusColor  . '"> ' . $data["status"] . ' </td>';
-            $str .= '<td> ' . $data["d_in"]  . ' </td>';
-            $str .= '<td> ' .$data["d_out"] . ' </td>';
+            $str .= '<td style="text-align:  left; width:120px">' . $data->display_name . '</td>';
+            $str .= '<td>' . $data->employee_id . '</td>';
+            $str .= '<td> ' . $data->in . ' </td>';
+            $str .= '<td> ' . $data->out . ' </td>';
+            $str .= '<td> ' . $data->total_hrs . ' </td>';
+            $str .= '<td> ' . $data->ot . ' </td>';
+            $str .= '<td style="text-align:  center; color:' . $statusColor  . '"> ' . $data->status . ' </td>';
+            $str .= '<td> ' . $data->device_in_short_name  . ' </td>';
+            // $str .= '<td> ' . $data->device_out_short_name . ' </td>';
 
             $str .= '</tr>';
             $str .= '</tbody>';
