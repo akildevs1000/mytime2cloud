@@ -9,7 +9,7 @@
         <v-col cols="6">
           <div class="text-right">
             <v-btn
-              v-if="can('company_create')"
+              v-if="can('master')"
               small
               dark
               class="mb-2 primary"
@@ -41,7 +41,7 @@
           ></v-text-field>
         </v-col>
       </v-row>
-      <v-row v-if="can('company_view')">
+      <v-row v-if="can('master')">
         <v-col md="3" v-for="(item, index) in data" :key="index">
           <v-card style="min-height: 209px">
             <v-card-title>
@@ -55,7 +55,7 @@
               >
 
               <v-icon
-                v-if="can(`company_delete`)"
+                v-if="can(`master`)"
                 @click="deleteItem(item)"
                 color="red"
                 small
