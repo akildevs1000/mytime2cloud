@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`module_access`)">
+  <div v-if="can(`master`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -13,7 +13,7 @@
       <v-col cols="6">
         <div class="text-right">
           <v-btn
-            v-if="can(`module_create`)"
+            v-if="can(`master`)"
             small
             color="primary"
             @click="dialog = true"
@@ -24,7 +24,7 @@
       </v-col>
     </v-row>
     <v-data-table
-      v-if="can(`module_view`)"
+      v-if="can(`master`)"
       v-model="ids"
       show-select
       item-key="id"
@@ -34,7 +34,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
+        itemsPerPageOptions: [50, 100, 500, 1000]
       }"
       class="elevation-1"
     >
@@ -111,7 +111,7 @@ export default {
     defaultItem: { name: "" },
     response: "",
     data: [],
-    errors: [],
+    errors: []
   }),
 
   computed: {
@@ -119,7 +119,7 @@ export default {
       return this.editedIndex === -1
         ? `New ${this.Module}`
         : `Edit ${this.Module}`;
-    },
+    }
   },
 
   watch: {
@@ -133,8 +133,8 @@ export default {
         this.getDataFromApi();
         this.getHeaders();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     this.loading = true;
@@ -148,15 +148,15 @@ export default {
           text: "Created At",
           align: "left",
           sortable: false,
-          value: "created_at",
-        },
+          value: "created_at"
+        }
       ];
     },
 
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -168,8 +168,8 @@ export default {
 
       let options = {
         params: {
-          per_page: itemsPerPage,
-        },
+          per_page: itemsPerPage
+        }
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -201,18 +201,18 @@ export default {
       this.loading = true;
 
       let payload = {
-        name: this.editedItem.name.toLowerCase(),
+        name: this.editedItem.name.toLowerCase()
       };
       if (this.editedIndex > -1) {
         this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, payload)
           .then(({ data }) => this.process(data))
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, payload)
           .then(({ data }) => this.process(data))
-          .catch((res) => console.log(res));
+          .catch(res => console.log(res));
       }
     },
     process(data) {
@@ -225,7 +225,7 @@ export default {
         this.getDataFromApi();
         this.close();
       }
-    },
-  },
+    }
+  }
 };
 </script>

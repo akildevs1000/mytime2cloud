@@ -183,7 +183,7 @@
           <v-icon left> mdi-sitemap </v-icon>
           Branches
         </v-tab>
-        <v-tab v-if="can(`device_access`)">
+        <v-tab v-if="can(`master`)">
           <v-icon left> mdi-laptop </v-icon>
           Devices
         </v-tab>

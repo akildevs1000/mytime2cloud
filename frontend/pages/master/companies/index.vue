@@ -47,7 +47,7 @@
             <v-card-title>
               <v-spacer></v-spacer>
               <v-icon
-                v-if="can(`company_edit`)"
+                v-if="can(`master`)"
                 @click="editItem(item)"
                 color="secondary"
                 small
