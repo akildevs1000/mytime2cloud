@@ -278,7 +278,7 @@
                       <v-col cols="12">
                         <div class="text-right">
                           <v-btn
-                            v-if="can('company_edit')"
+                            v-if="can('master')"
                             small
                             :loading="loading"
                             color="primary"
@@ -425,7 +425,7 @@
                       <v-col cols="12">
                         <div class="text-right">
                           <v-btn
-                            v-if="can('company_edit')"
+                            v-if="can('master')"
                             small
                             :loading="loading"
                             color="primary"
@@ -521,7 +521,7 @@
                       <v-col cols="12">
                         <div class="text-right">
                           <v-btn
-                            v-if="can('company_edit')"
+                            v-if="can('master')"
                             small
                             :loading="loading"
                             color="primary"
@@ -597,7 +597,7 @@
                       <v-col cols="12">
                         <div class="text-right">
                           <v-btn
-                            v-if="can('company_edit')"
+                            v-if="can('master')"
                             small
                             :loading="loading"
                             color="primary"
@@ -714,7 +714,7 @@
                       <v-col cols="12">
                         <div class="text-right">
                           <v-btn
-                            v-if="can('company_edit')"
+                            v-if="can('master')"
                             small
                             :loading="loading"
                             color="primary"
