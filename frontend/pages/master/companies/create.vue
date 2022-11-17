@@ -212,7 +212,7 @@
               <v-col cols="12">
                 <div class="text-right">
                   <v-btn
-                    v-if="can('company_create')"
+                    v-if="can('master')"
                     dark
                     small
                     :loading="loading"
@@ -296,7 +296,7 @@
                 <div class="text-right">
                   <v-btn small color="secondary" @click="e1 = 1"> Back </v-btn>
                   <v-btn
-                    v-if="can('company_create')"
+                    v-if="can('master')"
                     dark
                     small
                     :loading="loading"
@@ -365,7 +365,7 @@
                 <div class="text-right">
                   <v-btn small color="secondary" @click="e1 = 2"> Back </v-btn>
                   <v-btn
-                    v-if="can('company_create')"
+                    v-if="can('master')"
                     small
                     :loading="loading"
                     color="primary"
@@ -437,6 +437,7 @@ export default {
   methods: {
     can(per) {
       let u = this.$auth.user;
+      console.log(u.user_type);
       return u && u.user_type == per;
     },
     onpick_attachment() {
