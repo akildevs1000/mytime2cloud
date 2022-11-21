@@ -951,7 +951,7 @@ export default {
   },
   created() {
     this.loading = true;
-
+    this.getScheduledEmployees();
     // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.custom_options = {
@@ -1035,8 +1035,7 @@ export default {
 
       if (report_type == "Daily") {
         this.setDailyDate();
-      }
-      else if (report_type == "Weekly") {
+      } else if (report_type == "Weekly") {
         this.setSevenDays(this.payload.from_date);
       } else {
         this.setThirtyDays(this.payload.from_date);
@@ -1101,9 +1100,18 @@ export default {
     },
 
     getScheduledEmployees() {
-      this.$axios.get(`/scheduled_employees_with_type`).then(({ data }) => {
-        this.scheduled_employees = data;
-      });
+      // return;
+      let payload = {
+        params: {
+          company_id: this.$auth.user.company.id
+        }
+      };
+      this.$axios
+        .get(`/scheduled_employees_with_type`, payload)
+        .then(({ data }) => {
+          console.log("gg");
+          this.scheduled_employees = data;
+        });
     },
     // getDevices(options) {
     //   this.$axios.get(`/device`, options).then(({ data }) => {
@@ -1166,7 +1174,6 @@ export default {
     getDataFromApi(url = this.endpoint) {
       this.loading = true;
 
-      
       let late_early = this.payload.late_early;
 
       switch (late_early) {
@@ -1279,9 +1286,9 @@ export default {
     process_file(type) {
       let data = this.payload;
 
-      if(data.department_id == -1) {
-          alert("Department must be selected.");
-          return false;
+      if (data.department_id == -1) {
+        alert("Department must be selected.");
+        return false;
       }
       let status = this.getStatus(this.payload.status);
 

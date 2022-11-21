@@ -18,7 +18,10 @@ class ScheduleEmployeeController extends Controller
      */
     public function index(Request $request, ScheduleEmployee $model)
     {
-        return $model->with("shift_type", "shift", "employee")->paginate($request->per_page);
+        return $model
+            ->where('company_id', $request->company_id)
+            ->with("shift_type", "shift", "employee")
+            ->paginate($request->per_page);
     }
     // public function employees_by_departments_old(Employee $employee, Request $request, $id)
     // {
@@ -30,13 +33,14 @@ class ScheduleEmployeeController extends Controller
     //         ->get(["first_name", "system_user_id", "employee_id"]);
     // }
 
-    public function employees_by_departments($id)
+    public function employees_by_departments(Request $request, $id)
     {
         return  Employee::select("first_name", "system_user_id", "employee_id", "department_id")
             ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
             ->when($id != -1, function ($q) use ($id) {
                 $q->where("department_id", $id);
             })
+            ->where('company_id', $request->company_id)
             ->get();
     }
 
