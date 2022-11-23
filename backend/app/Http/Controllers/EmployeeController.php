@@ -262,10 +262,11 @@ class EmployeeController extends Controller
 
         $model->where('company_id', $request->company_id);
         $model->where('employee_id', $key);
-
         $model->orWhere('first_name', 'LIKE', "%$key%");
-        $model->orWhereHas('user', function ($query) use ($key) {
+
+        $model->orWhereHas('user', function ($query) use ($key, $request) {
             $query->where('email', 'like', '%' . $key . '%');
+            $query->where('company_id', $request->company_id);
         });
 
         return $model
