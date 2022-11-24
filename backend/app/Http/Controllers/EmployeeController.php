@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\CompanyContact;
@@ -23,6 +22,8 @@ use App\Http\Requests\Employee\EmployeeImportRequest;
 use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Http\Requests\Employee\EmployeeContactRequest;
+
+use function GuzzleHttp\Promise\all;
 
 class EmployeeController extends Controller
 {
@@ -120,11 +121,16 @@ class EmployeeController extends Controller
     }
     public function scheduled_employees(Employee $employee, Request $request)
     {
-        return $employee->where("company_id", $request->company_id)->whereHas('schedule')->paginate($request->per_page);
+        return $employee->where("company_id", $request->company_id)->whereHas('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        })->paginate($request->per_page);
     }
     public function scheduled_employees_with_type(Employee $employee, Request $request)
     {
-        return $employee->where("company_id", $request->company_id)->whereHas('schedule')->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])->get(["first_name", "system_user_id", "employee_id"]);
+        return $employee->where("company_id", $request->company_id)
+            ->whereHas('schedule')
+            ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])
+            ->get(["first_name", "system_user_id", "employee_id"]);
 
         return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
             $q->where('slug', '=', $request->shift_type);
@@ -237,24 +243,34 @@ class EmployeeController extends Controller
     public function search(Request $request, $key)
     {
         $model = Employee::query();
-        $fields = [
-            'display_name',
-            'first_name',
-            'last_name',
-            'phone_number',
-            'whatsapp_number',
-            'phone_relative_number',
-            'whatsapp_relative_number',
-            'employee_id',
-            'joining_date',
-            'joining_date',
-            'joining_date',
-            'department' => ['name'],
-            'designation' => ['name'],
-            'user' => ['name', 'email'],
-        ];
-        $model = $this->process_search($model, $key, $fields);
-        return $model->paginate($request->perPage);
+
+
+        // $fields = [
+        //     'display_name',
+        //     'first_name',
+        //     'last_name',
+        //     'phone_number',
+        //     'whatsapp_number',
+        //     'phone_relative_number',
+        //     'whatsapp_relative_number',
+        //     'employee_id',
+        //     'joining_date',
+        //     'department' => ['name'],
+        //     'designation' => ['name'],
+        //     'user' => ['name', 'email'],
+        // ];
+
+        $model->where('company_id', $request->company_id);
+        $model->where('employee_id', $key);
+        $model->orWhere('first_name', 'LIKE', "%$key%");
+
+        $model->orWhereHas('user', function ($query) use ($key, $request) {
+            $query->where('email', 'like', '%' . $key . '%');
+            $query->where('company_id', $request->company_id);
+        });
+
+        return $model
+            ->paginate($request->perPage);
     }
     public function scheduled_employees_search(Request $request, $input)
     {

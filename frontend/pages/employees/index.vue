@@ -195,8 +195,7 @@
                 </div>
                 <div class="title" style="font-size:12px !important">
                   {{
-                    (item.designation && item.designation.name) ||
-                      "Software Developer"
+                    (item && item.designation && item.designation.name) || "---"
                   }}
                 </div>
                 <div class="actions">
@@ -272,7 +271,11 @@
                         EID: {{ work && work.employee_id }} </b
                       ><br />
                       <b style="color:#A09FA0">
-                        {{ work && caps(work.designation.name) }}</b
+                        {{
+                          work &&
+                            work.designation &&
+                            caps(work.designation.name)
+                        }}</b
                       >
                     </p>
                   </div>
@@ -314,7 +317,12 @@
                               <tr>
                                 <th>Department</th>
                                 <td>
-                                  {{ (work && work.department.name) || "----" }}
+                                  {{
+                                    (work &&
+                                      work.department &&
+                                      work.department.name) ||
+                                      "----"
+                                  }}
                                 </td>
                               </tr>
 
@@ -333,7 +341,10 @@
                               <tr>
                                 <th>Email</th>
                                 <td>
-                                  {{ (work && work.user.email) || "----" }}
+                                  {{
+                                    (work && work.user && work.user.email) ||
+                                      "----"
+                                  }}
                                 </td>
                               </tr>
                               <tr>
