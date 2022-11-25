@@ -117,6 +117,8 @@ export default {
       };
     },
     getDetails(item) {
+      item.company_id = this.$auth.user.company.id;
+      
       this.$axios.post(`/device/details`, item).then(({ data }) => {
         if (data.device.company_id == this.$auth.user.company.id) {
           this.logs.unshift(data);
