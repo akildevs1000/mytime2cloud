@@ -16,7 +16,7 @@
             v-if="can(`shift_create`)"
             small
             color="primary"
-            to="/shift/create1"
+            to="/shift/create2"
             class="mb-2"
             >{{ Model }} +</v-btn
           >
@@ -33,20 +33,26 @@
           <th v-for="(i, index) in headers" :key="index">{{ i.text }}</th>
         </tr>
         <tr v-for="(item, index) in data" :key="index">
+
           <td>{{ item && item.name }}</td>
           <td>{{ item && item.shift_type.name }}</td>
-          <td>{{ item && item.working_hours }}</td>
-          <td>{{ item && item.overtime_interval }}</td>
+
           <td>{{ item && item.on_duty_time }}</td>
-          <td>{{ item && item.off_duty_time }}</td>
-          <td>{{ item && item.late_time }}</td>
-          <td>{{ item && item.early_time }}</td>
           <td>{{ item && item.beginning_in }}</td>
-          <td>{{ item && item.beginning_out }}</td>
           <td>{{ item && item.ending_in }}</td>
+          <td>{{ item && item.late_time }}</td>
+
+          <td>{{ item && item.off_duty_time }}</td>
+          <td>{{ item && item.beginning_out }}</td>
           <td>{{ item && item.ending_out }}</td>
+          <td>{{ item && item.early_time }}</td>
+
           <td>{{ item && item.absent_min_in }}</td>
           <td>{{ item && item.absent_min_out }}</td>
+          
+          <td>{{ item && item.working_hours }}</td>
+          <td>{{ item && item.overtime_interval }}</td>
+
           <td>
             <span v-if="item && !item.days">
               ---
@@ -57,14 +63,14 @@
             </span>
           </td>
           <td style="text-align: center">
-            <v-icon
+            <!-- <v-icon
               color="secondary"
               small
               class="mr-2"
               @click="editItem(item)"
             >
               mdi-pencil
-            </v-icon>
+            </v-icon> -->
             <v-icon color="error" small @click="deleteItem(item)">
               mdi-delete
             </v-icon>
@@ -91,18 +97,18 @@ export default {
     headers: [
       { text: "Name" },
       { text: "Type" },
-      { text: "Working Hrs" },
-      { text: "OT Interval" },
       { text: "In" },
-      { text: "Out" },
-      { text: "Late In" },
-      { text: "Early Out" },
       { text: "Start In" },
-      { text: "Start Out" },
       { text: "Ending In" },
+      { text: "Late In" },
+      { text: "Out" },
+      { text: "Start Out" },
       { text: "Ending Out" },
+      { text: "Early Out" },
       { text: "Absent In" },
       { text: "Absent Out" },
+      { text: "Working Hrs" },
+      { text: "OT Interval" },
       { text: "Off Days" },
       { text: "Actions" }
     ],

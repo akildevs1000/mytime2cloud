@@ -38,30 +38,6 @@ class Attendance extends Model
     {
         return date("D", strtotime($this->date));
     }
-
-    public function getOtAttribute($value)
-    {
-        $schedule = $this->schedule;
-
-        if (!$schedule->isOverTime) {
-            return "NA";
-        }
-
-        $working_hours = $schedule->shift->working_hours ?? null;
-        $working_hours = $working_hours < 10 ? "0" . $working_hours : $working_hours;
-
-        $starttimestamp = strtotime($working_hours . ":00");
-        $endtimestamp   = strtotime($this->total_hrs);
-        $maxtimestamp   = strtotime('06:00');
-        $difference = abs($endtimestamp - $starttimestamp);
-
-        if ($endtimestamp < $starttimestamp || $maxtimestamp > $endtimestamp) {
-            return  "00:00";
-        }
-
-        return $this->getHrsMins($difference);
-    }
-
     public function getHrsMins($difference)
     {
         $h = floor($difference / 3600);
@@ -72,10 +48,10 @@ class Attendance extends Model
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 
-    public function getTotalHrsAttribute($value)
-    {
-        return strtotime($value) < strtotime('18:00') ? $value : '00:00';
-    }
+    // public function getTotalHrsAttribute($value)
+    // {
+    //     return strtotime($value) < strtotime('18:00') ? $value : '00:00';
+    // }
 
     /**
      * Get the user that owns the Attendance
@@ -84,7 +60,9 @@ class Attendance extends Model
      */
     public function device_in()
     {
-        return $this->belongsTo(Device::class, 'device_id_in');
+        return $this->belongsTo(Device::class, 'device_id_in','device_id')->withDefault([
+            'name' => '---',
+        ]);
     }
 
     /**
@@ -94,7 +72,7 @@ class Attendance extends Model
      */
     public function device_out()
     {
-        return $this->belongsTo(Device::class, 'device_id_out')->withDefault([
+        return $this->belongsTo(Device::class, 'device_id_out','device_id')->withDefault([
             'name' => '---',
         ]);
     }

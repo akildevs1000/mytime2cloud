@@ -12,16 +12,12 @@ class Shift extends Model
 
     protected $guarded = [];
 
+
     protected $with = ['shift_type'];
 
     protected $casts = [
         'days' => 'array',
     ];
-
-    public function time_table()
-    {
-        return $this->hasOne(TimeTable::class);
-    }
 
     public function shift_type()
     {
@@ -31,7 +27,7 @@ class Shift extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::addGlobalScope('order', function (Builder $builder) {
             $builder->orderBy('id', 'desc');
         });
