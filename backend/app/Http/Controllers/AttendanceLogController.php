@@ -374,8 +374,26 @@ class AttendanceLogController extends Controller
             ]);
 
             if ($created) {
-                $Attendance = new AttendanceController;
-                $Attendance->SyncAttendance();
+                // $Attendance = new AttendanceController;
+                // $Attendance->SyncAttendance();
+                return [
+                    'status' => true,
+                    'message' => 'Log Successfully Updated',
+                ];
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function GenerateLog(Request $request)
+    {
+        try {
+            $log = AttendanceLog::create($request->all());
+
+            if ($log) {
+                // $Attendance = new AttendanceController;
+                // $Attendance->SyncAttendance();
                 return [
                     'status' => true,
                     'message' => 'Log Successfully Updated',

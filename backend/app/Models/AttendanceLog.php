@@ -49,7 +49,12 @@ class AttendanceLog extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class, "UserID", "system_user_id")->withOut(["schedule","first_log","last_log","role","department","sub_department"]);
+        return $this->belongsTo(Employee::class, "UserID", "system_user_id");
+    }
+
+    public function schedule()
+    {
+        return $this->belongsTo(ScheduleEmployee::class, "UserID", "employee_id")->withOut(["shift_type", "logs", "first_log", "last_log"]);
     }
 
     public function reason()

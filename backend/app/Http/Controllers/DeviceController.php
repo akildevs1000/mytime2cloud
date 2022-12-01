@@ -57,7 +57,8 @@ class DeviceController extends Controller
 
     public function getDeviceCompany(Request $request)
     {
-        $model = DB::table("employees")->where("company_id", $request->company_id)->where("system_user_id", $request->UserCode)->first(['first_name', 'profile_picture']);
+        $device = DB::table("devices")->where("company_id", $request->company_id)->where("device_id", $request->DeviceID)->first(['name as device_name', 'short_name', 'device_id', 'location', "company_id"]);
+        $model = DB::table("employees")->where("company_id", $device->company_id)->where("system_user_id", $request->UserCode)->first(['first_name', 'profile_picture']);
 
         if ($model && $model->profile_picture) {
             $model->profile_picture = asset('media/employee/profile_picture/' . $model->profile_picture);
@@ -67,7 +68,7 @@ class DeviceController extends Controller
             "UserID" => $request->UserCode,
             "time" => date("H:i", strtotime($request->RecordDate)),
             "employee" => $model,
-            "device" => DB::table("devices")->where("company_id", $request->company_id)->where("device_id", $request->DeviceID)->first(['name as device_name', 'short_name', 'device_id', 'location', "company_id"]),
+            "device" => $device,
         ];
     }
 
@@ -77,12 +78,34 @@ class DeviceController extends Controller
         $model->where('company_id', $id);
         $model->take($count);
         $model->orderByDesc("id");
-        $model->with([
-            "device:id,company_id,name as device_name,short_name,device_id,location",
-            "employee:id,first_name,profile_picture,system_user_id",
-        ]);
-        return $model->get();
 
+        $logs = $model->get(["UserID", "LogTime", "DeviceID"]);
+
+        $arr = [];
+
+        foreach ($logs as $log) {
+
+
+            $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'first_log', 'last_log', 'user', 'role'])
+                ->where('company_id', $id)
+                ->where('system_user_id', $log->UserID)
+                ->first(['first_name', 'profile_picture', 'company_id']);
+
+            $dev =  Device::where('device_id', $log->DeviceID)
+                ->first(['name as device_name', 'short_name', 'device_id', 'location']);
+
+            if ($employee) {
+                $arr[] = [
+                    "company_id" => $employee->company_id,
+                    "UserID" => $log->UserID,
+                    "time" => date("H:i", strtotime($log->LogTime)),
+                    "device" => $dev,
+                    "employee" => $employee,
+                ];
+            }
+        }
+
+        return $arr;
 
         // Cache::forget("last-five-logs");
         return Cache::remember('last-five-logs', 300, function () use ($id, $count) {
@@ -90,13 +113,69 @@ class DeviceController extends Controller
             $model = AttendanceLog::query();
             $model->where('company_id', $id);
             $model->take($count);
-            $model->orderByDesc("id");
-            $model->with([
-                "device:id,company_id,name as device_name,short_name,device_id,location",
-                "employee:id,first_name,profile_picture,system_user_id",
-            ]);
-            return $model->get();
+
+            $logs = $model->get(["UserID", "LogTime", "DeviceID"]);
+
+            $arr = [];
+
+            foreach ($logs as $log) {
+
+
+                $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'first_log', 'last_log', 'user', 'role'])
+                    ->where('company_id', $id)
+                    ->where('system_user_id', $log->UserID)
+                    ->first(['first_name', 'profile_picture', 'company_id']);
+
+                $dev =  Device::where('device_id', $log->DeviceID)
+                    ->first(['name as device_name', 'short_name', 'device_id', 'location']);
+
+                if ($employee) {
+                    $arr[] = [
+                        "company_id" => $employee->company_id,
+                        "UserID" => $log->UserID,
+                        "time" => date("H:i", strtotime($log->LogTime)),
+                        "device" => $dev,
+                        "employee" => $employee,
+                    ];
+                }
+            }
+
+            return $arr;
         });
+    }
+
+    public function getLastRecordsByCountTEST($id, $count)
+    {
+        $model = AttendanceLog::query();
+        $model->where('company_id', $id);
+        $model->take($count);
+
+        $logs = $model->get(["UserID", "LogTime", "DeviceID"]);
+
+        $arr = [];
+
+        foreach ($logs as $log) {
+
+            $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'first_log', 'last_log', 'user', 'role'])
+                ->where('company_id', $id)
+                ->where('system_user_id', $log->UserID)
+                ->first(['first_name', 'profile_picture', 'company_id']);
+
+            $dev =  Device::where('device_id', $log->DeviceID)
+                ->first(['name as device_name', 'short_name', 'device_id', 'location']);
+
+            if ($employee) {
+                $arr[] = [
+                    "company_id" => $employee->company_id,
+                    "UserID" => $log->UserID,
+                    "time" => date("H:i", strtotime($log->LogTime)),
+                    "device" => $dev,
+                    "employee" => $employee,
+                ];
+            }
+        }
+
+        return $arr;
     }
 
     public function update(Device $Device, UpdateRequest $request)
