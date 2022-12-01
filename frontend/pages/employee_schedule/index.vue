@@ -7,7 +7,14 @@
     </div>
     <v-dialog v-model="dialog" width="1300">
       <v-card>
-        <v-card-title class="text-h5"> Schedule Employees </v-card-title>
+        <v-card-title class="text-h5">
+          Schedule Employees
+
+          <v-spacer></v-spacer>
+
+          <v-btn dark small color="grey" @click="close"> Close </v-btn> &nbsp;
+          <v-btn dark small color="primary" @click="save"> Submit </v-btn>
+        </v-card-title>
         <v-divider></v-divider>
 
         <v-card-text>
@@ -574,7 +581,7 @@ export default {
       this.isOverTime = item.schedule.isOverTime;
       this.manual_shift = item.schedule.shift_type;
       this.shift_id = item.schedule.shift_id;
-      this.getShifts(this.options);
+      this.runShiftTypeFunction();
       this.dialog = true;
       this.loading_dialog = true;
       setTimeout(() => {
@@ -590,13 +597,14 @@ export default {
       this.is_edit = false;
     },
     getShifts(shift_type_id) {
+      let options = {
+        params: {
+          shift_type_id: shift_type_id,
+          company_id: this.$auth.user.company.id
+        }
+      };
       this.$axios
-        .get("shift_by_type", {
-          params: {
-            shift_type_id: shift_type_id,
-            company_id: this.$auth.user.company.id
-          }
-        })
+        .get("shift_by_type", options)
         .then(({ data }) => {
           this.shifts = data;
           // this.shifts.unshift({ id: "", name: "Select Shift" });

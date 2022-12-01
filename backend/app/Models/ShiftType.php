@@ -31,4 +31,9 @@ class ShiftType extends Model
     protected $casts = [
         'created_at' => 'datetime:d-M-y',
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
 }
