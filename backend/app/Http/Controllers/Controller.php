@@ -137,7 +137,6 @@ class Controller extends BaseController
         $model = new ReportController;
         $deptName = '';
         $totEmployees = '';
-
         if ($request->department_id && $request->department_id == -1) {
             $deptName = 'All';
             $totEmployees = Employee::whereCompanyId($request->company_id)->whereDate("created_at", "<", date("Y-m-d"))->count();
