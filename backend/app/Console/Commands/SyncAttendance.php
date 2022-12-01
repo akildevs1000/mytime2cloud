@@ -36,21 +36,19 @@ class SyncAttendance extends Command
     public function handle()
     {
         $date = date("Y-m-d H:i:s");
+        $script_name = "SyncAttendance";
+
+        $meta = "[$date] Cron: $script_name.";
 
         try {
             $Attendance = new AttendanceController;
-            $i = $Attendance->SyncAttendance();
-
-            if (!$i) {
-                echo "[" . $date . "] Cron: SyncAttendance. No new logs found.\n";
-                return;
-            }
-
-            echo "[" . $date . "] Cron: SyncAttendance. Log processed " . $i . ".\n";
+            $result = $Attendance->SyncAttendance();
+            $message =  $meta . " " . $result . ".\n";
+            echo $message;
             return;
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncAttendance. Error Details: ' . $th);
-            echo "[" . $date . "] Cron: SyncAttendance. Error occured while inserting logs.\n";
+            echo "[$date] Cron: $script_name. Error occured while inserting logs.\n";
             return;
         }
     }

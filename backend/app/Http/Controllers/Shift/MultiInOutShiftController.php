@@ -177,7 +177,7 @@ class MultiInOutShiftController extends Controller
 
             $i++;
         }
-        return $i;
+        return "Log processed " . $i;
     }
 
     public function attendanceFound($date, $id)
