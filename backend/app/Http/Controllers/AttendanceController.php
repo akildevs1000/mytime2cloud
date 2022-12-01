@@ -32,10 +32,13 @@ class AttendanceController extends Controller
         return $multiInOut->processShift();
     }
 
-    
+
 
     public function SyncAttendance()
     {
+
+        $multiInOut = new MultiInOutShiftController;
+        return $multiInOut->processShift();
 
         $items = [];
         $model = AttendanceLog::query();

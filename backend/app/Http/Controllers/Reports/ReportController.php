@@ -64,11 +64,11 @@ class ReportController extends Controller
         });
 
         $model->with([
-            "employee:id,system_user_id,first_name,employee_id,department_id,profile_picture",
+            "employee:id,system_user_id,display_name,employee_id,department_id,profile_picture",
             "device_in:id,name,short_name,device_id,location",
             "device_out:id,name,short_name,device_id,location",
-            "schedule.shift:id,name,working_hours,overtime_interval,on_duty_time,off_duty_time,late_time,early_time,beginning_in,ending_in,beginning_out,ending_out,absent_min_in,absent_min_out,days",
-            "schedule.shift_type:id,name",
+            "shift",
+            "shift_type:id,name"
         ]);
 
         return $model;

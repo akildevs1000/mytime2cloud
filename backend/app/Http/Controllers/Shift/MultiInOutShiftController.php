@@ -26,13 +26,10 @@ class MultiInOutShiftController extends Controller
         return $i;
     }
 
-    public function processShift($start = null, $end = null)
+    public function processShift()
     {
         $model = AttendanceLog::query();
         $model->where("checked", false);
-        if (isset($start) && isset($end)) {
-            $model->whereBetween("LogTime", [$start, $end]);
-        }
         $model->take(1000);
         $model->with(["schedule"]);
 
@@ -180,7 +177,7 @@ class MultiInOutShiftController extends Controller
 
             $i++;
         }
-        return $i;
+        return "Log processed " . $i;
     }
 
     public function attendanceFound($date, $id)
