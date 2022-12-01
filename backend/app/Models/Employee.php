@@ -13,7 +13,7 @@ class Employee extends Model
 
     // protected $with = [];
 
-    protected $with = ["schedule","department"];
+    protected $with = ["schedule", "department"];
 
     protected $guarded = [];
 
@@ -110,7 +110,6 @@ class Employee extends Model
     public function attendances()
     {
         return $this->hasMany(Attendance::class, "employee_id", "employee_id");
-
     }
 
     public function logs()
@@ -146,5 +145,35 @@ class Employee extends Model
     public function leave()
     {
         return $this->hasMany(Leave::class, 'employee_id', 'employee_id');
+    }
+
+    public function scopeFilter($query,  $filter)
+    {
+        $query->when($filter ?? false, fn ($query, $search) =>
+        $query->where(
+            fn ($query) => $query
+                ->orWhere('display_name', 'Like', '%' . $search . '%')
+                ->orWhere('first_name', 'Like', '%' . $search . '%')
+                ->orWhere('last_name', 'Like', '%' . $search . '%')
+                ->orWhere('phone_number', 'Like', '%' . $search . '%')
+                ->orWhere('whatsapp_number', 'Like', '%' . $search . '%')
+                ->orWhere('phone_relative_number', 'Like', '%' . $search . '%')
+                ->orWhere('whatsapp_relative_number', 'Like', '%' . $search . '%')
+                ->orWhereHas(
+                    'user',
+                    fn ($query) =>
+                    $query->Where('email', 'Like', '%' . $search . '%')
+                )
+                ->orWhereHas(
+                    'designation',
+                    fn ($query) =>
+                    $query->Where('name', 'Like', '%' . $search . '%')
+                )
+                ->orWhereHas(
+                    'department',
+                    fn ($query) =>
+                    $query->Where('name', 'Like', '%' . $search . '%')
+                )
+        ));
     }
 }

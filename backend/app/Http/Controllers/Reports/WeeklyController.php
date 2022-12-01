@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Models\Device;
 use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Attendance;
@@ -318,6 +319,8 @@ class WeeklyController extends Controller
     public function renderTable($data)
     {
         $str = "";
+        $model = Device::query();
+
         foreach ($data as $eid => $row) {
 
             $emp = Employee::where("employee_id", $eid)->select("employee_id", "display_name", "system_user_id")->first();
@@ -355,6 +358,8 @@ class WeeklyController extends Controller
 
 
             foreach ($row as $key => $record) {
+                $device_short_name_in =  $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
+                $device_short_name_out =  $model->clone()->where("device_id", $record[0]['device_id_out'])->first()->short_name ?? '';
 
                 $dates .= '<td style="text-align: center;"> ' . substr($key, 0, 2) . ' </td>';
                 $days .= '<td style="text-align: center;"> ' . $record[0]['day'] . ' </td>';
@@ -367,8 +372,8 @@ class WeeklyController extends Controller
 
                 $shift .= '<td style="text-align: center;"> ' . $record[0]['shift_id'] . ' </td>';
                 $shift_type .= '<td style="text-align: center;"> ' . $record[0]['shift_type_id'] . ' </td>';
-                $din .= '<td style="text-align: center;"> ' . $record[0]['device_id_in'] . ' </td>';
-                $dout .= '<td style="text-align: center;"> ' . $record[0]['device_id_out'] . ' </td>';
+                $din .= '<td style="text-align: center;"> ' . $device_short_name_in . ' </td>';
+                $dout .= '<td style="text-align: center;"> ' . $device_short_name_out . ' </td>';
 
                 $status = $record[0]['status'] == 'A' ? 'red' : 'green';
 

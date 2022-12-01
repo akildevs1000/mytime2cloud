@@ -239,54 +239,17 @@ class EmployeeController extends Controller
             return Response::json(['message' => 'No such record found.'], 404);
         }
     }
+
     public function search(Request $request, $key)
     {
-        $model = Employee::query();
-
-
-        // $fields = [
-        //     'display_name',
-        //     'first_name',
-        //     'last_name',
-        //     'phone_number',
-        //     'whatsapp_number',
-        //     'phone_relative_number',
-        //     'whatsapp_relative_number',
-        //     'employee_id',
-        //     'joining_date',
-        //     'department' => ['name'],
-        //     'designation' => ['name'],
-        //     'user' => ['name', 'email'],
-        // ];
-
-        $model->where('company_id', $request->company_id);
-        $model->where('employee_id', $key);
-        $model->orWhere('display_name', 'LIKE', "%$key%");
-        $model->orWhere('first_name', 'LIKE', "%$key%");
-        $model->orWhere('last_name', 'LIKE', "%$key%");
-        $model->orWhere('phone_number', 'LIKE', "%$key%");
-        $model->orWhere('whatsapp_number', 'LIKE', "%$key%");
-        $model->orWhere('phone_relative_number', 'LIKE', "%$key%");
-        $model->orWhere('whatsapp_relative_number', 'LIKE', "%$key%");
-
-        $model->orWhereHas('user', function ($query) use ($key, $request) {
-            $query->where('email', 'like', '%' . $key . '%');
-            $query->where('company_id', $request->company_id);
-        });
-
-        $model->orWhereHas('department', function ($query) use ($key, $request) {
-            $query->where('name', 'like', '%' . $key . '%');
-            $query->where('company_id', $request->company_id);
-        });
-
-        $model->orWhereHas('designation', function ($query) use ($key, $request) {
-            $query->where('name', 'like', '%' . $key . '%');
-            $query->where('company_id', $request->company_id);
-        });
-
-        return $model
-            ->paginate($request->perPage);
+        return Employee::query()
+            ->latest()
+            ->filter($key)
+            ->with(["user", "department", "sub_department", "designation"])
+            ->where('company_id', $request->company_id)
+            ->paginate($request->perPage ?? 20);
     }
+
     public function scheduled_employees_search(Request $request, $input)
     {
         $model = Employee::query();
