@@ -112,7 +112,7 @@ class EmployeeController extends Controller
     public function index(Employee $employee, Request $request)
     {
         return $employee
-            ->with('reportTo')
+            ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
                 $q->whereHas('department',  fn (Builder $query) => $query->where('department_id', $request->department_id));
@@ -134,8 +134,7 @@ class EmployeeController extends Controller
 
         return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
             $q->where('slug', '=', $request->shift_type);
-        })
-            ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])->get(["first_name", "system_user_id", "employee_id"]);
+        })->get(["first_name", "system_user_id", "employee_id"]);
     }
 
     public function attendance_employees(Employee $employee, Request $request)
@@ -150,7 +149,7 @@ class EmployeeController extends Controller
     }
     public function show(Employee $employee)
     {
-        return $employee->whereId($employee->id)->first();
+        return $employee->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->whereId($employee->id)->first();
     }
     public function employeesByDepartment(Request $request, Employee $model)
     {
@@ -158,7 +157,7 @@ class EmployeeController extends Controller
         if (!in_array("---", $request->department_ids)) {
             $model->whereIn("department_id", $request->department_ids);
         }
-        return $model->paginate($request->per_page);
+        return $model->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->paginate($request->per_page);
     }
     public function employeesBySubDepartment(Request $request, Employee $model)
     {
@@ -166,7 +165,7 @@ class EmployeeController extends Controller
         if (!in_array("---", $request->sub_department_ids)) {
             $model->whereIn("sub_department_id", $request->sub_department_ids);
         }
-        return $model->whereIn("department_id", $request->department_ids)->paginate($request->per_page);
+        return $model->whereIn("department_id", $request->department_ids)->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->paginate($request->per_page);
     }
     public function employeesByDesignation($id, Request $request, Employee $model)
     {
@@ -262,10 +261,26 @@ class EmployeeController extends Controller
 
         $model->where('company_id', $request->company_id);
         $model->where('employee_id', $key);
+        $model->orWhere('display_name', 'LIKE', "%$key%");
         $model->orWhere('first_name', 'LIKE', "%$key%");
+        $model->orWhere('last_name', 'LIKE', "%$key%");
+        $model->orWhere('phone_number', 'LIKE', "%$key%");
+        $model->orWhere('whatsapp_number', 'LIKE', "%$key%");
+        $model->orWhere('phone_relative_number', 'LIKE', "%$key%");
+        $model->orWhere('whatsapp_relative_number', 'LIKE', "%$key%");
 
         $model->orWhereHas('user', function ($query) use ($key, $request) {
             $query->where('email', 'like', '%' . $key . '%');
+            $query->where('company_id', $request->company_id);
+        });
+
+        $model->orWhereHas('department', function ($query) use ($key, $request) {
+            $query->where('name', 'like', '%' . $key . '%');
+            $query->where('company_id', $request->company_id);
+        });
+
+        $model->orWhereHas('designation', function ($query) use ($key, $request) {
+            $query->where('name', 'like', '%' . $key . '%');
             $query->where('company_id', $request->company_id);
         });
 
@@ -291,7 +306,7 @@ class EmployeeController extends Controller
             $q->where('name', 'like', '%' . $input . '%');
         });
 
-        return $model->whereHas('schedule')->paginate($request->perPage ?? 10);
+        return $model->whereHas('schedule')->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->paginate($request->perPage ?? 10);
     }
     public function updateEmployee(EmployeeUpdateRequest $request, $id)
     {
