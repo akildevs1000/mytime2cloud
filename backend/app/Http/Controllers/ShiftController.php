@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Shift\StoreRequest;
 use App\Http\Requests\Shift\UpdateRequest;
+use App\Models\AutoShift;
 use App\Models\Shift;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,7 @@ class ShiftController extends Controller
     public function index(Request $request)
     {
         $model = Shift::query();
-        $model->with('time_table', "shift_type");
+        $model->with("shift_type");
         $model->where('company_id', $request->company_id);
         return $model->paginate($request->per_page);
     }
@@ -25,6 +26,11 @@ class ShiftController extends Controller
     public function shift_by_type(Request $request)
     {
         return Shift::with("shift_type")->where("company_id", $request->company_id)->where("shift_type_id", $request->shift_type_id)->get();
+    }
+
+    public function shift_by_types(Request $request)
+    {
+        return Shift::with("shift_type")->where("company_id", $request->company_id)->whereIn("shift_type_id", [2, 4, 5, 6])->get();
     }
 
     /**
@@ -35,8 +41,35 @@ class ShiftController extends Controller
      */
     public function store(StoreRequest $request, Shift $model)
     {
+        if ($request->shift_type_id == 3) {
+            return $this->processAutoShift($request->shift_ids);
+        }
+
         try {
             $record = $model->create($request->validated());
+
+            if ($record) {
+                return $this->response('Shift successfully added.', $record, true);
+            } else {
+                return $this->response('Shift cannot add.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function processAutoShift($shift_ids)
+    {
+        $arr = [];
+
+        foreach ($shift_ids as $shift_id) {
+            $arr[] = [
+                "shift_id" => $shift_id,
+            ];
+        }
+
+        try {
+            $record = AutoShift::insert($arr);
 
             if ($record) {
                 return $this->response('Shift successfully added.', $record, true);

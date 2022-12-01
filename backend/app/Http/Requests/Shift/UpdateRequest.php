@@ -26,6 +26,9 @@ class UpdateRequest extends FormRequest
      */
     public function rules()
     {
+        if ($this->shift_type_id == 3) {
+            return [];
+        }
         return [
             'name' => ['required', Rule::unique('shifts')->ignore($this->shift)],
             'overtime_interval' => ["required"],
@@ -43,6 +46,8 @@ class UpdateRequest extends FormRequest
             'ending_out' => 'nullable',
             'absent_min_in' => 'nullable',
             'absent_min_out' => 'nullable',
+            'gap_in' => 'nullable',
+            'gap_out' => 'nullable',
         ];
     }
 }

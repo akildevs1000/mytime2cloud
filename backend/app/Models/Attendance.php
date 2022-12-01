@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
@@ -19,14 +19,16 @@ class Attendance extends Model
         'date' => 'date',
     ];
 
-    public function schedule()
+    
+
+    public function shift()
     {
-        return $this->belongsTo(ScheduleEmployee::class, "employee_id", "employee_id")->withOut("logs")->withDefault([
-            "shift_type_id" => "---",
-            "shift_type" => [
-                "name" => "---",
-            ],
-        ]);
+        return $this->belongsTo(Shift::class)->withOut("shift_type");
+    }
+
+    public function shift_type()
+    {
+        return $this->belongsTo(ShiftType::class);
     }
 
     public function getDateAttribute($value)
@@ -60,7 +62,7 @@ class Attendance extends Model
      */
     public function device_in()
     {
-        return $this->belongsTo(Device::class, 'device_id_in','device_id')->withDefault([
+        return $this->belongsTo(Device::class, 'device_id_in', 'device_id')->withDefault([
             'name' => '---',
         ]);
     }
@@ -72,7 +74,7 @@ class Attendance extends Model
      */
     public function device_out()
     {
-        return $this->belongsTo(Device::class, 'device_id_out','device_id')->withDefault([
+        return $this->belongsTo(Device::class, 'device_id_out', 'device_id')->withDefault([
             'name' => '---',
         ]);
     }
