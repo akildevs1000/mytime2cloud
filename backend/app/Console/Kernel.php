@@ -60,31 +60,31 @@ class Kernel extends ConsoleKernel
             ->command('task:generate_summary_report')
             ->everyMinute()
             // ->dailyAt('2:00')
-            ->appendOutputTo("pdf.log")
+            ->appendOutputTo(storage_path("logs/pdf.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:generate_daily_present_report')
             ->everyMinute()
             // ->dailyAt('2:00')
-            ->appendOutputTo("pdf.log")
+            ->appendOutputTo(storage_path("logs/pdf.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:generate_daily_absent_report')
             ->everyMinute()
             // ->dailyAt('2:00')
-            ->appendOutputTo("pdf.log")
+            ->appendOutputTo(storage_path("logs/pdf.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:generate_daily_missing_report')
             ->everyMinute()
             // ->dailyAt('2:00')
-            ->appendOutputTo("pdf.log")
+            ->appendOutputTo(storage_path("logs/pdf.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:generate_daily_manual_report')
             ->everyMinute()
             // ->dailyAt('2:00')
-            ->appendOutputTo("pdf.log")
+            ->appendOutputTo(storage_path("logs/pdf.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         // ReportNotification
