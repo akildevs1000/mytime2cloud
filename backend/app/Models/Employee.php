@@ -11,7 +11,9 @@ class Employee extends Model
 {
     use HasFactory;
 
-    protected $with = ["schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"];
+    // protected $with = [];
+
+    protected $with = ["schedule","department"];
 
     protected $guarded = [];
 
