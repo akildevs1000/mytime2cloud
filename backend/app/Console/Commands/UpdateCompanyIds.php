@@ -43,10 +43,10 @@ class UpdateCompanyIds extends Command
         $free_device_ids = $model->pluck("DeviceID");
 
         // get company ids against found device ids
-        $rows = Device::whereIn("device_id", $free_device_ids)->get(["company_id", "device_id as DeviceID"])->toArray();
+        $rows = Device::whereIn("device_id", $free_device_ids)->get(["id", "company_id", "device_id as DeviceID"])->toArray();
 
         if (count($rows) == 0 || count($free_device_ids) == 0) {
-            echo "[".$date."] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n";
+            echo "[" . $date . "] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n";
             return;
         }
 
@@ -55,7 +55,10 @@ class UpdateCompanyIds extends Command
         foreach ($rows as $arr) {
             try {
                 $i++;
-                AttendanceLog::where("company_id", 0)->where("DeviceID", $arr["DeviceID"])->update($arr);
+                AttendanceLog::where("company_id", 0)
+                    ->where("id", $arr["id"])
+                    ->where("DeviceID", $arr["DeviceID"])
+                    ->update(["company_id" => 1]);
             } catch (\Throwable $th) {
                 Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
 
@@ -64,16 +67,16 @@ class UpdateCompanyIds extends Command
                     'body' => $th,
                 ];
 
-                echo "[".$date."] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
+                echo "[" . $date . "] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
                 Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
                 return;
             }
         }
-        $log_details = DB::table('attendance_logs')->orderByDesc("id")->take(5)->get(["UserID","DeviceID","SerialNumber","company_id","checked"])->toArray();
+        // $log_details = DB::table('attendance_logs')->orderByDesc("id")->take(5)->get(["UserID","DeviceID","SerialNumber","company_id","checked"])->toArray();
 
-        $result = array_reverse($log_details);
+        // $result = array_reverse($log_details);
 
-        echo "[".$date."] Cron: UpdateCompanyIds. Company IDS has been updated. Details: " . json_encode($result) . ".\n";
+        echo "[" . $date . "] Cron: UpdateCompanyIds. Company IDS has been updated."; //."Details: " . json_encode($result) . ".\n";
         return;
     }
 }

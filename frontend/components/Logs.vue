@@ -37,7 +37,6 @@ export default {
     dialog: false,
     ids: [],
     loading: false,
-    total: 0,
     headers: [
       {
         text: "UserID",
@@ -52,7 +51,6 @@ export default {
     editedItem: { name: "" },
     defaultItem: { name: "" },
     response: "",
-    data: [],
     errors: []
   }),
 
@@ -85,15 +83,7 @@ export default {
       }
     };
   },
-
   methods: {
-    can(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
-        u.is_master
-      );
-    },
     getDataFromApi(url = this.endpoint) {
       this.loading = true;
       const { page, itemsPerPage } = this.options;
@@ -105,20 +95,10 @@ export default {
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        this.data = data.data;
-        this.total = data.total;
+        this.$store.commit("logs", data);
         this.loading = false;
       });
     },
-
-    // searchIt(e) {
-    //   if (e.length == 0) {
-    //     this.getDataFromApi();
-    //   } else if (e.length > 2) {
-    //     this.getDataFromApi(`${this.endpoint}/search/${e}`);
-    //   }
-    // },
-
     searchIt() {
       let s = this.search.length;
       let search = this.search;
@@ -126,99 +106,6 @@ export default {
         this.getDataFromApi();
       } else if (s > 2) {
         this.getDataFromApi(`${this.endpoint}/search/${search}`);
-      }
-    },
-
-    editItem(item) {
-      this.editedIndex = this.data.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
-    },
-
-    delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.id);
-      confirm(
-        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids
-          })
-          .then(res => {
-            if (!res.data.status) {
-              this.errors = res.data.errors;
-            } else {
-              this.getDataFromApi();
-              this.snackbar = res.data.status;
-              this.ids = [];
-              this.response = "Selected records has been deleted";
-            }
-          })
-          .catch(err => console.log(err));
-    },
-
-    deleteItem(item) {
-      confirm(
-        "Are you sure you wish to delete , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .delete(this.endpoint + "/" + item.id)
-          .then(({ data }) => {
-            const index = this.data.indexOf(item);
-            this.data.splice(index, 1);
-            this.snackbar = data.status;
-            this.response = data.message;
-          })
-          .catch(err => console.log(err));
-    },
-
-    close() {
-      this.dialog = false;
-      setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      }, 300);
-    },
-
-    save() {
-      let payload = {
-        name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id
-      };
-      if (this.editedIndex > -1) {
-        this.$axios
-          .put(this.endpoint + "/" + this.editedItem.id, payload)
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              const index = this.data.findIndex(
-                item => item.id == this.editedItem.id
-              );
-              this.data.splice(index, 1, data.record);
-              this.snackbar = data.status;
-              this.response = data.message;
-              this.close();
-            }
-          })
-          .catch(err => console.log(err));
-      } else {
-        this.$axios
-          .post(this.endpoint, payload)
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.data.push(data.record);
-              this.snackbar = data.status;
-              this.response = data.message;
-              this.close();
-              this.errors = [];
-              this.search = "";
-              this.getDataFromApi();
-            }
-          })
-          .catch(res => console.log(res));
       }
     }
   }

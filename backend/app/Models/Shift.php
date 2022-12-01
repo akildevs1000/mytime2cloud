@@ -19,6 +19,14 @@ class Shift extends Model
         'days' => 'array',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'company_id',
+        'branch_id',
+        'shift_type_id',
+    ];
+
     public function shift_type()
     {
         return $this->belongsTo(ShiftType::class);

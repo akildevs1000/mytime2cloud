@@ -198,6 +198,7 @@ Route::get('/count', CountController::class);
 
 Route::apiResource('shift', ShiftController::class);
 Route::get('shift_by_type', [ShiftController::class, 'shift_by_type']);
+Route::get('shift_by_types', [ShiftController::class, 'shift_by_types']);
 
 Route::apiResource('time_table', TimeTableController::class);
 
@@ -237,6 +238,5 @@ Route::get('leave/search/{key}', [LeaveController::class, 'search']); // search 
 Route::post('report_notifications', function (Request $request) {
     return $request->all();
 });
-
 
 Route::apiResource('report_notification', ReportNotificationController::class);

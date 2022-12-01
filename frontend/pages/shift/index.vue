@@ -16,7 +16,7 @@
             v-if="can(`shift_create`)"
             small
             color="primary"
-            to="/shift/create2"
+            to="/shift/create"
             class="mb-2"
             >{{ Model }} +</v-btn
           >
@@ -33,7 +33,6 @@
           <th v-for="(i, index) in headers" :key="index">{{ i.text }}</th>
         </tr>
         <tr v-for="(item, index) in data" :key="index">
-
           <td>{{ item && item.name }}</td>
           <td>{{ item && item.shift_type.name }}</td>
 
@@ -41,15 +40,17 @@
           <td>{{ item && item.beginning_in }}</td>
           <td>{{ item && item.ending_in }}</td>
           <td>{{ item && item.late_time }}</td>
+          <td>{{ item && item.gap_in }}</td>
 
           <td>{{ item && item.off_duty_time }}</td>
           <td>{{ item && item.beginning_out }}</td>
           <td>{{ item && item.ending_out }}</td>
           <td>{{ item && item.early_time }}</td>
+          <td>{{ item && item.gap_out }}</td>
 
           <td>{{ item && item.absent_min_in }}</td>
           <td>{{ item && item.absent_min_out }}</td>
-          
+
           <td>{{ item && item.working_hours }}</td>
           <td>{{ item && item.overtime_interval }}</td>
 
@@ -101,10 +102,12 @@ export default {
       { text: "Start In" },
       { text: "Ending In" },
       { text: "Late In" },
+      { text: "Gap In" },
       { text: "Out" },
       { text: "Start Out" },
       { text: "Ending Out" },
       { text: "Early Out" },
+      { text: "Gap Out" },
       { text: "Absent In" },
       { text: "Absent Out" },
       { text: "Working Hrs" },

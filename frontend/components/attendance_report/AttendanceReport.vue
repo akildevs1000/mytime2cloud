@@ -510,6 +510,9 @@
       flat
       v-if="payload.report_type == 'Daily'"
     >
+      <v-btn class="ma-0" x-small text @click="ProcessAttendance">
+        <v-icon class="">mdi-history</v-icon>
+      </v-btn>
       <v-spacer></v-spacer>
 
       <v-tooltip top color="primary">
@@ -708,14 +711,14 @@
         <span v-else>{{ item.status }}</span>
       </template>
 
-      <template v-slot:item.schedule="{ item }">
-        <v-tooltip v-if="item && item.schedule" top color="primary">
+      <template v-slot:item.shift="{ item }">
+        <v-tooltip v-if="item && item.shift" top color="primary">
           <template v-slot:activator="{ on, attrs }">
             <div class="primary--text" v-bind="attrs" v-on="on">
-              {{ (item.schedule.shift && item.schedule.shift.name) || "---" }}
+              {{ (item.shift && item.shift.name) || "---" }}
             </div>
           </template>
-          <div v-for="(iterable, index) in item.schedule.shift" :key="index">
+          <div v-for="(iterable, index) in item.shift" :key="index">
             <span v-if="index !== 'id'">
               {{ caps(index) }}: {{ iterable || "---" }}</span
             >
@@ -844,7 +847,7 @@ export default {
         text: "Name",
         align: "left",
         sortable: false,
-        value: "employee.first_name"
+        value: "employee.display_name"
       },
       {
         text: "Dept",
@@ -856,13 +859,13 @@ export default {
         text: "Shift Type",
         align: "left",
         sortable: false,
-        value: "schedule.shift_type.name"
+        value: "shift_type.name"
       },
       {
         text: "Shift",
         align: "left",
         sortable: false,
-        value: "schedule"
+        value: "shift"
       },
       { text: "Status", align: "left", sortable: false, value: "status" },
       { text: "In", align: "left", sortable: false, value: "in" },
@@ -967,12 +970,12 @@ export default {
     let dt = new Date();
     let y = dt.getFullYear();
     let m = dt.getMonth() + 1;
-    let d = new Date(dt.getFullYear(), m, 0);
+    let dd = new Date(dt.getFullYear(), m, 0);
 
     m = m < 10 ? "0" + m : m;
 
     this.payload.from_date = `${y}-${m}-01`;
-    this.payload.to_date = `${y}-${m}-${d.getDate()}`;
+    this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
   },
 
   methods: {
@@ -1040,6 +1043,9 @@ export default {
       } else {
         this.setThirtyDays(this.payload.from_date);
       }
+      this.fetch_logs();
+    },
+    ProcessAttendance() {
       this.fetch_logs();
     },
 
