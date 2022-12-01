@@ -18,6 +18,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule
+            ->command('task:sync_attendance')
+            // ->everyThirtyMinutes()
+            ->everyMinute()
+            ->between('7:00', '23:59')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/scheduler.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        return;
         // //Backup
         $schedule
             ->command('task:db_backup')

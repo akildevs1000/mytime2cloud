@@ -46,7 +46,7 @@ class SyncAttendance extends Command
                 return;
             }
 
-            echo "[" . $date . "] Cron: SyncAttendance.";// Log processed " . $i . ".\n";
+            echo "[" . $date . "] Cron: SyncAttendance. Log processed " . $i . ".\n";
             return;
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncAttendance. Error Details: ' . $th);
