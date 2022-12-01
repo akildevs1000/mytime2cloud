@@ -183,7 +183,7 @@
             <tbody>
                 <tr style="text-align:  center;">
                     <td>{{ ++$i }}</td>
-                    <td style="text-align:  left; width:120px">{{ $data->employee->first_name ?? '---' }}</td>
+                    <td style="text-align:  left; width:120px">{{ $data->employee->display_name ?? '---' }}</td>
                     <td style="text-align:  center;">{{ $data->employee_id ?? '---' }}</td>
                     <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>

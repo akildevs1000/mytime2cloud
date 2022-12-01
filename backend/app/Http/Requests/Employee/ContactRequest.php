@@ -52,6 +52,9 @@ class ContactRequest extends FormRequest
             'home_email' => ['nullable', 'min:3', 'max:25'],
 
 
+            'relation' => ['nullable', 'min:3', 'max:25'],
+
+
             'company_id' => ['required'],
             'employee_id' => ['required'],
         ];
