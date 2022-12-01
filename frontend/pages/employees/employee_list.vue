@@ -108,10 +108,16 @@
             </td>
             <td>{{ item.display_name || "---" }}</td>
             <td>{{ (item.department && item.department.name) || "---" }}</td>
-            <td>{{ item.designation.name }}</td>
-            <td>{{ (item && item.user.email) || "---" }}</td>
+            <td>{{ item.designation && item.designation.name }}</td>
+            <td>{{ (item && item.user && item.user.email) || "---" }}</td>
             <td>{{ (item && item.phone_number) || "---" }}</td>
-            <td>{{ item.schedule.shift_type.name }}</td>
+            <td>
+              {{
+                item.schedule &&
+                  item.schedule.shift_type &&
+                  item.schedule.shift_type.name
+              }}
+            </td>
             <td>
               <v-menu bottom left>
                 <template v-slot:activator="{ on, attrs }">
