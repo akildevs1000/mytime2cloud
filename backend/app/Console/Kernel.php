@@ -22,7 +22,7 @@ class Kernel extends ConsoleKernel
         $schedule
             ->command('task:db_backup')
             ->dailyAt('3:00')
-            ->appendOutputTo("db_backup.log")
+            ->appendOutputTo(storage_path("logs/db_backup.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         if (env("APP_ENV") == "production") {
@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
                 // ->everyThirtyMinutes()
                 ->everyMinute()
                 ->between('7:00', '23:59')
-                ->appendOutputTo("scheduler.log")
+                ->appendOutputTo(storage_path("logs/scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             $schedule
                 ->command('task:update_company_ids')
@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->between('7:00', '23:59')
                 ->withoutOverlapping()
-                ->appendOutputTo("scheduler.log")
+                ->appendOutputTo(storage_path("logs/scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             $schedule
                 ->command('task:sync_attendance')
@@ -47,12 +47,12 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->between('7:00', '23:59')
                 ->withoutOverlapping()
-                ->appendOutputTo("scheduler.log")
+                ->appendOutputTo(storage_path("logs/scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             $schedule
                 ->command('task:sync_absent')
                 ->dailyAt('1:00')
-                ->appendOutputTo("scheduler.log")
+                ->appendOutputTo(storage_path("logs/scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
         // PDF
