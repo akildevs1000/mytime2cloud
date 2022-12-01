@@ -48,6 +48,8 @@ class MultiInOutShiftController extends Controller
         $i = 0;
         $items = [];
         $dual = false;
+        $str = "";
+
 
         $temp_arr = [];
 
@@ -169,15 +171,24 @@ class MultiInOutShiftController extends Controller
                 if (count($arr) > 0) {
                     $found ? $attendance->update($arr) : Attendance::create($arr);
 
-                    AttendanceLog::where("id", $log["id"])->update(["checked" => true]);
+                    $updated = AttendanceLog::where("id", $log["id"])->update(["checked" => true]);
+
+                    if ($updated) {
+                        $i++;
+                    }
+                } else {
+                    // $UserID = $log['UserID'];
+                    // $LogTime = $log['LogTime'];
+                    // $str .= "$UserID, $LogTime\n";
+                    // $str .= "<br>";
+
+                    $items[] = ["date" => $date, "UserID" => $log["UserID"], "LogTime" => $log["LogTime"]];
                 }
-
-                $items[] = $arr;
             }
-
-            $i++;
         }
-        return "Log processed " . $i;
+        $out_of_range = count($items);
+
+        return "Log processed count = $i, Out of range Logs = $out_of_range";
     }
 
     public function attendanceFound($date, $id)
