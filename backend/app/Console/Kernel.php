@@ -18,15 +18,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $date = date("M-Y");
+
         $schedule
             ->command('task:sync_attendance')
             // ->everyThirtyMinutes()
             ->everyMinute()
             ->between('7:00', '23:59')
             ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/scheduler.log"))
+            ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        return;
+
         // //Backup
         $schedule
             ->command('task:db_backup')
@@ -40,7 +42,7 @@ class Kernel extends ConsoleKernel
                 // ->everyThirtyMinutes()
                 ->everyMinute()
                 ->between('7:00', '23:59')
-                ->appendOutputTo(storage_path("logs/scheduler.log"))
+                ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             $schedule
                 ->command('task:update_company_ids')
@@ -48,7 +50,7 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->between('7:00', '23:59')
                 ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/scheduler.log"))
+                ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             $schedule
                 ->command('task:sync_attendance')
@@ -56,12 +58,12 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->between('7:00', '23:59')
                 ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/scheduler.log"))
+                ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             $schedule
                 ->command('task:sync_absent')
                 ->dailyAt('1:00')
-                ->appendOutputTo(storage_path("logs/scheduler.log"))
+                ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
         // PDF

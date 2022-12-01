@@ -30,6 +30,8 @@ class MultiInOutShiftController extends Controller
     {
         $model = AttendanceLog::query();
         $model->where("checked", false);
+        // $model->where("UserID", 94);
+        // $model->whereDate("LogTime", date("Y-m-d"));
         $model->take(1000);
         $model->with(["schedule"]);
 
@@ -92,7 +94,7 @@ class MultiInOutShiftController extends Controller
                         $arr["device_id_in"] = $log["DeviceID"];
                     } else {
 
-                        $arr["in"] = $time > strtotime($found->in) && $found->in !== '---' ? $log["time"] : $found->in;
+                        $arr["in"] = $time < strtotime($found->in) && $found->in !== '---' ? $log["time"] : $found->in;
 
                         $temp_arr[] = $log["time"];
 
