@@ -193,39 +193,41 @@
                   }}</a
                 >
               </v-col>
+              <v-row v-if="add_other_personal_info">
+                <v-col cols="6">
+                  <div class="form-group">
+                    <label class="col-form-label">{{
+                      caps("other text")
+                    }}</label>
+                    <input
+                      v-model="personalItem.other_text"
+                      class="form-control"
+                    />
+                    <span
+                      v-if="errors && errors.other_text"
+                      class="text-danger"
+                      >{{ errors.other_text[0] }}</span
+                    >
+                  </div>
+                </v-col>
 
-              <v-col cols="6" v-if="add_other_personal_info">
-                <div class="form-group">
-                  <label class="col-form-label">{{ caps("other text") }}</label>
-                  <input
-                    v-model="personalItem.other_text"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.other_text"
-                    class="text-danger"
-                    >{{ errors.other_text[0] }}</span
-                  >
-                </div>
-              </v-col>
-
-              <v-col cols="6" v-if="add_other_personal_info">
-                <div class="form-group">
-                  <label class="col-form-label">{{
-                    caps("other value")
-                  }}</label>
-                  <input
-                    v-model="personalItem.other_value"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.other_value"
-                    class="text-danger mt-2"
-                    >{{ errors.other_value[0] }}</span
-                  >
-                </div>
-              </v-col>
-
+                <v-col cols="6">
+                  <div class="form-group">
+                    <label class="col-form-label">{{
+                      caps("other value")
+                    }}</label>
+                    <input
+                      v-model="personalItem.other_value"
+                      class="form-control"
+                    />
+                    <span
+                      v-if="errors && errors.other_value"
+                      class="text-danger mt-2"
+                      >{{ errors.other_value[0] }}</span
+                    >
+                  </div>
+                </v-col>
+              </v-row>
               <span v-if="errors && errors.length" class="error--text">{{
                 errors
               }}</span>

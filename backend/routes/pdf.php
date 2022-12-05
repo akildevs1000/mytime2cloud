@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Reports\DailyController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TestController;
+use App\Http\Controllers\Reports\DailyController;
 use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Reports\WeeklyController;
 use App\Http\Controllers\Reports\MonthlyController;
-use App\Http\Controllers\TestController;
+use App\Http\Controllers\Reports\MonthlyMimoController;
+use App\Http\Controllers\Reports\WeeklyMimoController;
 
 Route::get('report', [ReportController::class, 'index']);
 
@@ -47,3 +49,5 @@ Route::get('/test_week', [TestController::class, 'test_week']);
 
 
 Route::get('/daily_mimo', [Controller::class, 'mimo']);
+Route::get('/weekly_mimo', [WeeklyMimoController::class, 'weekly']);
+Route::get('/monthly_mimo', [MonthlyMimoController::class, 'monthly']);

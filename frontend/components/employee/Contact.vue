@@ -1,5 +1,10 @@
 <template>
   <div>
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+        {{ response }}
+      </v-snackbar>
+    </div>
     <v-dialog v-model="contact_info" max-width="700px">
       <v-card>
         <v-card-actions>
@@ -106,7 +111,6 @@
                   >
                 </div>
               </v-col>
-
               <v-col cols="6">
                 <div class="form-group">
                   <label class="col-form-label">{{ caps("local city") }}</label>
@@ -153,7 +157,10 @@
                   }}</a
                 >
               </v-col>
-              <v-col cols="6" v-if="add_other_contact_info">
+            </v-row>
+
+            <v-row v-if="add_other_contact_info">
+              <v-col cols="6">
                 <div class="form-group">
                   <label class="col-form-label">{{ caps("  address") }}</label>
                   <input
@@ -168,7 +175,7 @@
                   >
                 </div>
               </v-col>
-              <v-col cols="6" v-if="add_other_contact_info">
+              <v-col cols="6">
                 <div class="form-group">
                   <label class="col-form-label">{{ caps("tel") }}</label>
                   <input
@@ -181,7 +188,7 @@
                   }}</span>
                 </div>
               </v-col>
-              <v-col cols="6" v-if="add_other_contact_info">
+              <v-col cols="6">
                 <div class="form-group">
                   <label class="col-form-label">{{ caps("  mobile") }}</label>
                   <input
@@ -196,7 +203,7 @@
                   >
                 </div>
               </v-col>
-              <v-col cols="6" v-if="add_other_contact_info">
+              <v-col cols="6">
                 <div class="form-group">
                   <label class="col-form-label">{{ caps("  fax") }}</label>
                   <input
@@ -209,7 +216,7 @@
                   }}</span>
                 </div>
               </v-col>
-              <v-col cols="6" v-if="add_other_contact_info">
+              <v-col cols="6">
                 <div class="form-group">
                   <label class="col-form-label">{{ caps("  city") }}</label>
                   <input
@@ -222,7 +229,7 @@
                   }}</span>
                 </div>
               </v-col>
-              <v-col cols="6" v-if="add_other_contact_info">
+              <v-col cols="6">
                 <div class="form-group">
                   <label class="col-form-label">{{ caps("state") }}</label>
                   <input
@@ -237,7 +244,7 @@
                   >
                 </div>
               </v-col>
-              <v-col cols="6" v-if="add_other_contact_info">
+              <v-col cols="6">
                 <div class="form-group">
                   <label class="col-form-label">{{ caps("  country") }}</label>
                   <input
@@ -252,7 +259,7 @@
                   >
                 </div>
               </v-col>
-              <v-col cols="6" v-if="add_other_contact_info">
+              <v-col cols="6">
                 <div class="form-group">
                   <label class="col-form-label">{{ caps("  email") }}</label>
                   <input
@@ -441,6 +448,8 @@ export default {
     return {
       add_other_contact_info: false,
       contact_info: false,
+      response: "",
+      snackbar: false,
       errors: []
     };
   },
