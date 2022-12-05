@@ -262,7 +262,7 @@ export default {
           } else {
             this.errors = [];
             this.snackbar = true;
-            this.response = data.message;
+            this.response = "Emirates Info has been added";
             this.close_emirate_info();
           }
         })

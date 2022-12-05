@@ -478,7 +478,7 @@ class EmployeeController extends Controller
     public function employeeUpdateSetting(Request $request)
     {
         $model = Employee::query();
-        return  $model
+        $model
             ->where('employee_id', $request->employee_id)
             ->where('company_id', $request->company_id)
             ->update($request->only(['status', 'overtime', 'mobile_application']));
