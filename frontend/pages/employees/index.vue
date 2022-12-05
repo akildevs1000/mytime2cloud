@@ -485,7 +485,11 @@
                       >
                         <v-expand-x-transition>
                           <section class="pridmary" v-show="selectedItem == 7">
-                            <Bank :BankInfo="BankInfo" />
+                            <!-- <Document :BankInfo="BankInfo" /> -->
+                            <Document
+                              :document_list="document_list"
+                              :employeeId="employeeId"
+                            />
                           </section>
                         </v-expand-x-transition>
                       </v-col>
@@ -586,6 +590,7 @@ import Passport from "../../components/employee/Passport.vue";
 import Emirates from "../../components/employee/Emirates.vue";
 import Visa from "../../components/employee/Visa.vue";
 import Bank from "../../components/employee/Bank.vue";
+import Document from "../../components/employee/Document.vue";
 import Qualification from "../../components/employee/Qualification.vue";
 import Setting from "../../components/employee/Setting.vue";
 export default {
@@ -650,11 +655,11 @@ export default {
         icon: "mdi-wrench",
         permission: "employee_setting_access"
       },
-      {
-        text: "Assign Reporter",
-        icon: "mdi-account",
-        permission: "employee_setting_access"
-      }
+      // {
+      //   text: "Assign Reporter",
+      //   icon: "mdi-account",
+      //   permission: "employee_setting_access"
+      // }
     ],
     color: "primary",
     files: "",
@@ -775,8 +780,10 @@ export default {
       mobile_application: "",
       employee_id: ""
     },
+    employeeId: "",
     passport_list: {},
-    qualification_list: {}
+    qualification_list: {},
+    document_list: []
   }),
   async created() {
     this.loading = false;
@@ -850,6 +857,7 @@ export default {
       window.scrollTo(0, 0);
       this.boilerplate = true;
       this.$axios.get(`employee/${id}`).then(({ data }) => {
+        this.employeeId = data.id;
         this.contactItem = {
           ...data
         };
@@ -871,16 +879,15 @@ export default {
       this.getVisaInfo(id);
       this.getBankInfo(id);
       this.getQualificationInfo(id);
+      this.getDocumentInfo(id);
     },
 
     getPersonalInfo(id) {
-      console.log(id);
       this.$axios.get(`personalinfo/${id}`).then(({ data }) => {
         this.personalItem = {
           ...data,
           employee_id: id
         };
-        console.log(data);
       });
     },
     getPassportInfo(id) {
@@ -921,6 +928,12 @@ export default {
           ...data,
           employee_id: id
         };
+      });
+    },
+    getDocumentInfo(id) {
+      this.$axios.get(`documentinfo/${id}`).then(({ data }) => {
+        this.document_list = data;
+        this.loading = false;
       });
     },
     export_submit() {
@@ -1004,8 +1017,11 @@ export default {
         }
       };
       this.$axios.get(`${url}`, options).then(({ data }) => {
+
         this.data = data.data;
         this.total = data.data.length;
+        this.employeeId = this.data[0].id;
+
         this.contactItem = {
           ...this.data[0]
         };
@@ -1045,6 +1061,7 @@ export default {
     Emirates,
     Visa,
     Bank,
+    Document,
     Qualification,
     Setting
   }

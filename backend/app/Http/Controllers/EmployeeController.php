@@ -475,10 +475,15 @@ class EmployeeController extends Controller
         // dd($data);
         return $data;
     }
-    public function employeeUpdateSetting(Employee $model, Request $request)
+    public function employeeUpdateSetting(Request $request)
     {
-        $record = $model->where('id', $request->employee_id)->update($request->only(['status', 'overtime', 'mobile_application']));
-        return response()->json($record);
+        $model = Employee::query();
+        return  $model
+            ->where('employee_id', $request->employee_id)
+            ->where('company_id', $request->company_id)
+            ->update($request->only(['status', 'overtime', 'mobile_application']));
+
+        return response()->json(['status' => true, 'message' => 'Setting successfully updated']);
     }
     public function employeeToReporter(Request $request, $id)
     {
