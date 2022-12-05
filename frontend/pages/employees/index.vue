@@ -203,7 +203,9 @@
                     <h2>
                       <v-divider class="pa-0 ma-0"></v-divider>
                       <a href="#"
-                        ><span>{{ item && item.department.name }} </span>
+                        ><span
+                          >{{ item && item.department && item.department.name }}
+                        </span>
                         <p style="font-size:12px;color:#A09FA0">Department</p>
                       </a>
                     </h2>
@@ -294,6 +296,17 @@
                                     (work && work.role && work.role.name) ||
                                       "---"
                                   }}
+                                </td>
+                                <td style="text-align: right;">
+                                  <v-icon
+                                    v-if="can(`employee_personal_edit_access`)"
+                                    @click="editItem(work)"
+                                    small
+                                    class="grey"
+                                    style="border-radius: 50%; padding: 5px"
+                                    color="secondary"
+                                    >mdi-pencil</v-icon
+                                  >
                                 </td>
                               </tr>
                               <tr>
@@ -846,7 +859,7 @@ export default {
         this.setting = {
           ...data
         };
-        this.getAllData(data.employee_id);
+        this.getAllData(data.id);
         this.boilerplate = false;
       });
     },
@@ -861,44 +874,52 @@ export default {
     },
 
     getPersonalInfo(id) {
+      console.log(id);
       this.$axios.get(`personalinfo/${id}`).then(({ data }) => {
         this.personalItem = {
-          ...data
+          ...data,
+          employee_id: id
         };
+        console.log(data);
       });
     },
     getPassportInfo(id) {
       this.$axios.get(`passport/${id}`).then(({ data }) => {
         this.passport_list = {
-          ...data
+          ...data,
+          employee_id: id
         };
       });
     },
     getEmirateInfo(id) {
       this.$axios.get(`emirate/${id}`).then(({ data }) => {
         this.emirateItems = {
-          ...data
+          ...data,
+          employee_id: id
         };
       });
     },
     getVisaInfo(id) {
       this.$axios.get(`visa/${id}`).then(({ data }) => {
         this.visaItem = {
-          ...data
+          ...data,
+          employee_id: id
         };
       });
     },
     getBankInfo(id) {
       this.$axios.get(`bankinfo/${id}`).then(({ data }) => {
         this.BankInfo = {
-          ...data
+          ...data,
+          employee_id: id
         };
       });
     },
     getQualificationInfo(id) {
       this.$axios.get(`qualification/${id}`).then(({ data }) => {
         this.qualification_list = {
-          ...data
+          ...data,
+          employee_id: id
         };
       });
     },
@@ -984,7 +1005,7 @@ export default {
       };
       this.$axios.get(`${url}`, options).then(({ data }) => {
         this.data = data.data;
-
+        this.total = data.data.length;
         this.contactItem = {
           ...this.data[0]
         };
@@ -995,7 +1016,7 @@ export default {
           ...this.data[0]
         };
 
-        this.getAllData(this.data[0].employee_id);
+        this.getAllData(this.data[0].id);
 
         this.max_employee = this.$auth.user.company.max_employee;
         this.next_page_url = data.next_page_url;
