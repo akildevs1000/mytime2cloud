@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Models\Shift;
 use App\Models\Device;
 use App\Models\Company;
 use App\Models\Employee;
+use App\Models\ShiftType;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -321,6 +323,8 @@ class MonthlyController extends Controller
     {
         $str = "";
         $model = Device::query();
+        $shiftModel = Shift::query();
+        $shiftTypeModel = ShiftType::query();
 
         foreach ($data as $eid => $row) {
 
@@ -357,6 +361,9 @@ class MonthlyController extends Controller
 
 
             foreach ($row as $key => $record) {
+                $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? '';
+                $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
+
                 $device_short_name_in =  $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
                 $device_short_name_out =  $model->clone()->where("device_id", $record[0]['device_id_out'])->first()->short_name ?? '';
 
@@ -369,8 +376,8 @@ class MonthlyController extends Controller
                 $work .= '<td style="text-align: center;"> ' . $record[0]['total_hrs']  . ' </td>';
                 $ot .= '<td style="text-align: center;"> ' . $record[0]['ot'] . ' </td>';
 
-                $shift .= '<td style="text-align: center;"> ' . $record[0]['shift_id'] . ' </td>';
-                $shift_type .= '<td style="text-align: center;"> ' . $record[0]['shift_type_id'] . ' </td>';
+                $shift .= '<td style="text-align: center;"> ' . $shift_name . ' </td>';
+                $shift_type .= '<td style="text-align: center;"> ' . $shift_type_name . ' </td>';
                 $din .= '<td style="text-align: center;"> ' . $device_short_name_in . ' </td>';
                 $dout .= '<td style="text-align: center;"> ' . $device_short_name_out . ' </td>';
 

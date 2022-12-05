@@ -11,6 +11,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
+use App\Models\Shift;
+use App\Models\ShiftType;
 
 class WeeklyController extends Controller
 {
@@ -320,6 +322,8 @@ class WeeklyController extends Controller
     {
         $str = "";
         $model = Device::query();
+        $shiftModel = Shift::query();
+        $shiftTypeModel = ShiftType::query();
 
         foreach ($data as $eid => $row) {
 
@@ -358,6 +362,9 @@ class WeeklyController extends Controller
 
 
             foreach ($row as $key => $record) {
+                $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? '';
+                $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
+
                 $device_short_name_in =  $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
                 $device_short_name_out =  $model->clone()->where("device_id", $record[0]['device_id_out'])->first()->short_name ?? '';
 
@@ -370,8 +377,8 @@ class WeeklyController extends Controller
                 $work .= '<td style="text-align: center;"> ' . $record[0]['total_hrs']  . ' </td>';
                 $ot .= '<td style="text-align: center;"> ' . $record[0]['ot'] . ' </td>';
 
-                $shift .= '<td style="text-align: center;"> ' . $record[0]['shift_id'] . ' </td>';
-                $shift_type .= '<td style="text-align: center;"> ' . $record[0]['shift_type_id'] . ' </td>';
+                $shift .= '<td style="text-align: center;"> ' . $shift_name . ' </td>';
+                $shift_type .= '<td style="text-align: center;"> ' . $shift_type_name . ' </td>';
                 $din .= '<td style="text-align: center;"> ' . $device_short_name_in . ' </td>';
                 $dout .= '<td style="text-align: center;"> ' . $device_short_name_out . ' </td>';
 

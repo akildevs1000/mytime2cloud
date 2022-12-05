@@ -44,3 +44,6 @@ Route::get('/chart_html', [Controller::class, 'chart_html']);
 Route::get('/test_chart', [TestController::class, 'index']);
 
 Route::get('/test_week', [TestController::class, 'test_week']);
+
+
+Route::get('/daily_mimo', [Controller::class, 'mimo']);
