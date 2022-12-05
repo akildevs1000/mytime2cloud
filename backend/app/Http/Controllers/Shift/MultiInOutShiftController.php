@@ -113,6 +113,7 @@ class MultiInOutShiftController extends Controller
 
                             $arr["total_hrs"] = $this->calculatedHours(strtotime($arr["in"]), $out);
                             $arr["ot"] = !$schedule["isOverTime"] ? "NA" : $this->calculatedOT($arr["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
+                            $arr["device_id_out"] = $log["DeviceID"];
                         }
                     }
                     $arr["company_id"] = $log["company_id"];
@@ -154,11 +155,11 @@ class MultiInOutShiftController extends Controller
 
                             $arr["total_hrs"] = $this->calculatedHours(strtotime($arr["in"]), $out);
                             $arr["ot"] = !$schedule["isOverTime"] ? "NA" : $this->calculatedOT($arr["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
+                            $arr["device_id_out"] = $log["DeviceID"];
                         } else {
                             $arr["status"] =  "---";
                         }
 
-                        $arr["device_id_out"] = $log["DeviceID"];
                         $arr["company_id"] = $log["company_id"];
                         $arr["employee_id"] = $UserID;
                         $arr["shift_id"] = $schedule["shift_id"];
