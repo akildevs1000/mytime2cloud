@@ -14,16 +14,15 @@ class PersonalInfoController extends Controller
 
             return response()->json([
                 "status" => true,
-                "message" => "Record has been successfully added",
+                "message" => "Personal Information has been successfully updated",
                 "record" => $record,
             ]);
-
         } catch (\Throwable $th) {
             throw $th;
         }
     }
 
-    public function show(PersonalInfo $model,$id)
+    public function show(PersonalInfo $model, $id)
     {
         return $model->whereEmployeeId($id)->first();
     }
