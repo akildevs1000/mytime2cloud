@@ -42,118 +42,118 @@ class MultiInOutShiftController extends Controller
 
         foreach ($data as $UserID => $row) {
 
-            foreach ($row as $log) {
+                foreach ($row as $log) {
 
 
-                $arr = [];
+                    $arr = [];
 
-                $time     = $log["show_log_time"];
-                $schedule = $log["schedule"];
-                $shift    = $schedule["shift"];
+                    $time     = $log["show_log_time"];
+                    $schedule = $log["schedule"];
+                    $shift    = $schedule["shift"];
 
-                $date = $log['edit_date'];
+                    $date = $log['edit_date'];
 
-                $on_duty_time = $date . " " . $shift["on_duty_time"];
-                $off_duty_time = $date . " " . $shift["off_duty_time"];
+                    $on_duty_time = $date . " " . $shift["on_duty_time"];
+                    $off_duty_time = $date . " " . $shift["off_duty_time"];
 
-                $on_duty_time_parsed = strtotime($on_duty_time);
-                $off_duty_time_parsed = strtotime($off_duty_time);
+                    $on_duty_time_parsed = strtotime($on_duty_time);
+                    $off_duty_time_parsed = strtotime($off_duty_time);
 
-                $next_day_cap = $off_duty_time_parsed; // adding 24 hours
+                    $next_day_cap = $off_duty_time_parsed; // adding 24 hours
 
-                $attendance = $this->attendanceFound($date, $UserID);
-                $found = $attendance->clone()->first();
+                    $attendance = $this->attendanceFound($date, $UserID);
+                    $found = $attendance->clone()->first();
 
-                if ($on_duty_time_parsed > $off_duty_time_parsed) {
-                    $next_day_cap  = $next_day_cap + 86400;
-                    $dual = true;
-                }
-
-                if ($time >= $on_duty_time_parsed && $time < $next_day_cap) {
-
-                    $arr["date"] = $log['edit_date'];
-
-                    if (!$found) {
-                        $arr["in"] = $log["time"];
-                        $arr["status"] = "---";
-                        $arr["device_id_in"] = $log["DeviceID"];
-                    } else {
-
-                        $arr["in"] = $time > strtotime($found->in) && $found->in !== '---' ? $log["time"] : $found->in;
-
-                        if (count($row) > 1) {
-                            $arr["out"] = end($row)["time"];
-                        }
-
-
-                        if (isset($arr["in"]) && isset($arr["out"])) {
-                            $arr["status"] = $arr["in"] !== "---" && $arr["out"] !== "---" ? "P" : "A";
-
-                            $out = strtotime($arr["out"]);
-
-                            // if ($dual) {
-                            //     $out = $out + 86400;
-                            // }
-
-                            $arr["total_hrs"] = $this->calculatedHours(strtotime($arr["in"]), $out);
-                            $arr["ot"] = !$schedule["isOverTime"] ? "NA" : $this->calculatedOT($arr["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
-                            $arr["device_id_out"] = $log["DeviceID"];
-                        }
+                    if ($on_duty_time_parsed > $off_duty_time_parsed) {
+                        $next_day_cap  = $next_day_cap + 86400;
+                        $dual = true;
                     }
-                    $arr["company_id"] = $log["company_id"];
-                    $arr["employee_id"] = $UserID;
-                    $arr["shift_id"] = $schedule["shift_id"];
-                    $arr["shift_type_id"] = $schedule["shift_type_id"];
-                } else {
 
-                    $start = $on_duty_time_parsed - 86400;
-                    $end = $next_day_cap - 86400;
+                    if ($time >= $on_duty_time_parsed && $time < $next_day_cap) {
 
-                    if ($log["show_log_time"] > $start  && $log["show_log_time"] < $end) {
+                        $arr["date"] = $log['edit_date'];
 
-                        $arr["date"] = date("Y-m-d", $log["show_log_time"] - 86400);
-                        $date = $arr["date"];
+                        if (!$found) {
+                            $arr["in"] = $log["time"];
+                            $arr["status"] = "---";
+                            $arr["device_id_in"] = $log["DeviceID"];
+                        } else {
 
-                        $attendance = $this->attendanceFound($date, $UserID);
-                        $found = $attendance->clone()->first();
+                            $arr["in"] = $time > strtotime($found->in) && $found->in !== '---' ? $log["time"] : $found->in;
 
-                        if ($found) {
-                            $arr["in"] = $found->in;
-                        }
-
-                        if (count($row) > 1) {
-                            $arr["out"] = end($row)["time"];
-                        }
-
-
-                        if (isset($arr["in"]) && isset($arr["out"])) {
-                            $arr["status"] = $arr["in"] !== "---" && $arr["out"] !== "---" ? "P" : "A";
-
-                            $out = strtotime($arr["out"]);
-
-                            if ($dual) {
-                                $out = $out + 86400;
+                            if (count($row) > 1) {
+                                $arr["out"] = end($row)["time"];
                             }
 
-                            $arr["total_hrs"] = $this->calculatedHours(strtotime($arr["in"]), $out);
-                            $arr["ot"] = !$schedule["isOverTime"] ? "NA" : $this->calculatedOT($arr["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
-                            $arr["device_id_out"] = $log["DeviceID"];
-                        } else {
-                            $arr["status"] =  "---";
-                        }
 
+                            if (isset($arr["in"]) && isset($arr["out"])) {
+                                $arr["status"] = $arr["in"] !== "---" && $arr["out"] !== "---" ? "P" : "A";
+
+                                $out = strtotime($arr["out"]);
+
+                                // if ($dual) {
+                                //     $out = $out + 86400;
+                                // }
+
+                                $arr["total_hrs"] = $this->calculatedHours(strtotime($arr["in"]), $out);
+                                $arr["ot"] = !$schedule["isOverTime"] ? "NA" : $this->calculatedOT($arr["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
+                                $arr["device_id_out"] = $log["DeviceID"];
+                            }
+                        }
                         $arr["company_id"] = $log["company_id"];
                         $arr["employee_id"] = $UserID;
                         $arr["shift_id"] = $schedule["shift_id"];
                         $arr["shift_type_id"] = $schedule["shift_type_id"];
+                    } else {
+
+                        $start = $on_duty_time_parsed - 86400;
+                        $end = $next_day_cap - 86400;
+
+                        if ($log["show_log_time"] > $start  && $log["show_log_time"] < $end) {
+
+                            $arr["date"] = date("Y-m-d", $log["show_log_time"] - 86400);
+                            $date = $arr["date"];
+
+                            $attendance = $this->attendanceFound($date, $UserID);
+                            $found = $attendance->clone()->first();
+
+                            if ($found) {
+                                $arr["in"] = $found->in;
+                            }
+
+                            if (count($row) > 1) {
+                                $arr["out"] = end($row)["time"];
+                            }
+
+
+                            if (isset($arr["in"]) && isset($arr["out"])) {
+                                $arr["status"] = $arr["in"] !== "---" && $arr["out"] !== "---" ? "P" : "A";
+
+                                $out = strtotime($arr["out"]);
+
+                                if ($dual) {
+                                    $out = $out + 86400;
+                                }
+
+                                $arr["total_hrs"] = $this->calculatedHours(strtotime($arr["in"]), $out);
+                                $arr["ot"] = !$schedule["isOverTime"] ? "NA" : $this->calculatedOT($arr["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
+                                $arr["device_id_out"] = $log["DeviceID"];
+                            } else {
+                                $arr["status"] =  "---";
+                            }
+
+                            $arr["company_id"] = $log["company_id"];
+                            $arr["employee_id"] = $UserID;
+                            $arr["shift_id"] = $schedule["shift_id"];
+                            $arr["shift_type_id"] = $schedule["shift_type_id"];
+                        }
                     }
-                }
 
-                $attendance = $this->attendanceFound($date, $UserID);
+                    $attendance = $this->attendanceFound($date, $UserID);
 
-                $found = $attendance->first();
+                    $found = $attendance->first();
 
-                if (count($arr) > 0) {
+                    if (count($arr) > 0) {
                     $found ? $attendance->update($arr) : Attendance::create($arr);
 
                     $updated = AttendanceLog::where("id", $log["id"])->update(["checked" => true]);
@@ -161,19 +161,19 @@ class MultiInOutShiftController extends Controller
                     if ($updated) {
                         $i++;
                     }
-                } else {
-                    // $UserID = $log['UserID'];
-                    // $LogTime = $log['LogTime'];
-                    // $str .= "$UserID, $LogTime\n";
-                    // $str .= "<br>";
+                    } else {
+                        // $UserID = $log['UserID'];
+                        // $LogTime = $log['LogTime'];
+                        // $str .= "$UserID, $LogTime\n";
+                        // $str .= "<br>";
 
                     $items[] = ["date" => $date, "UserID" => $log["UserID"], "LogTime" => $log["LogTime"]];
-                }
+                    }
 
                 // $items[] = $arr;
-                // $items[] = ["date" => $date, "UserID" => $log["UserID"], "LogTime" => $log["LogTime"]];
+                    // $items[] = ["date" => $date, "UserID" => $log["UserID"], "LogTime" => $log["LogTime"]];
+                }
             }
-        }
 
         // return $items;
 
@@ -188,7 +188,7 @@ class MultiInOutShiftController extends Controller
         $model->where("checked", false);
         // $model->where("UserID", 252);
         // $model->whereDate("LogTime", date("Y-11-30"));
-        $model->take(1000);
+        // $model->take(1000);
         $model->with(["schedule"]);
 
         $model->whereHas("schedule", function ($q) {
