@@ -41,7 +41,7 @@
         </td>
       </tr>
       <div class="w-100">
-        <v-btn class="primary mt-1 w-25" @click="update_setting()">Save</v-btn>
+        <v-btn class="primary mt-1 w-25" @click="update_setting">Save</v-btn>
       </div>
     </table>
   </div>
@@ -74,18 +74,20 @@ export default {
         overtime: this.setting.overtime,
         mobile_application: this.setting.mobile_application
       };
-
+      console.log(payload);
+      // return;
       this.$axios
         .post(`employee/update/setting`, payload)
         .then(({ data }) => {
           this.loading = false;
+          console.log(data);
 
           if (data != 1) {
             this.errors = data.errors;
           } else {
             this.errors = [];
             this.snackbar = true;
-            this.response = "successfully updated ";
+            this.response = "Setting has been successfully updated";
             console.log("success");
           }
         })
