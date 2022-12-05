@@ -30,8 +30,8 @@ class MultiInOutShiftController extends Controller
     {
         $model = AttendanceLog::query();
         $model->where("checked", false);
-        // $model->where("UserID", 94);
-        // $model->whereDate("LogTime", date("Y-m-d"));
+        // $model->where("UserID", 252);
+        // $model->whereDate("LogTime", date("Y-11-30"));
         $model->take(1000);
         $model->with(["schedule"]);
 
@@ -59,6 +59,7 @@ class MultiInOutShiftController extends Controller
 
             foreach ($row as $log) {
 
+
                 $arr = [];
 
                 $time     = $log["show_log_time"];
@@ -66,7 +67,6 @@ class MultiInOutShiftController extends Controller
                 $shift    = $schedule["shift"];
 
                 $date = $log['edit_date'];
-
 
                 $on_duty_time = $date . " " . $shift["on_duty_time"];
                 $off_duty_time = $date . " " . $shift["off_duty_time"];
@@ -94,13 +94,12 @@ class MultiInOutShiftController extends Controller
                         $arr["device_id_in"] = $log["DeviceID"];
                     } else {
 
-                        $arr["in"] = $time < strtotime($found->in) && $found->in !== '---' ? $log["time"] : $found->in;
+                        $arr["in"] = $time > strtotime($found->in) && $found->in !== '---' ? $log["time"] : $found->in;
 
-                        $temp_arr[] = $log["time"];
+                        if (count($row) > 1) {
+                            $arr["out"] = end($row)["time"];
+                        }
 
-                        $last = array_reverse($temp_arr)[0];
-
-                        $arr["out"] = $last;
 
                         if (isset($arr["in"]) && isset($arr["out"])) {
                             $arr["status"] = $arr["in"] !== "---" && $arr["out"] !== "---" ? "P" : "A";
@@ -137,11 +136,9 @@ class MultiInOutShiftController extends Controller
                             $arr["in"] = $found->in;
                         }
 
-                        $temp_arr[] = $log["time"];
-
-                        $last = array_reverse($temp_arr)[0];
-
-                        $arr["out"] = $last;
+                        if (count($row) > 1) {
+                            $arr["out"] = end($row)["time"];
+                        }
 
 
                         if (isset($arr["in"]) && isset($arr["out"])) {
@@ -187,8 +184,14 @@ class MultiInOutShiftController extends Controller
 
                     $items[] = ["date" => $date, "UserID" => $log["UserID"], "LogTime" => $log["LogTime"]];
                 }
+
+                // $items[] = $arr;
+                // $items[] = ["date" => $date, "UserID" => $log["UserID"], "LogTime" => $log["LogTime"]];
             }
         }
+
+        // return $items;
+
         $out_of_range = count($items);
 
         return "Log processed count = $i, Out of range Logs = $out_of_range";
