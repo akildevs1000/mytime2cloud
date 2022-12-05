@@ -15,7 +15,7 @@ class MultiInOutShiftController extends Controller
     {
         $model = AttendanceLog::query();
         $model->where("checked", false);
-        $model->where("UserID", 252);
+        // $model->where("UserID", 252);
         $model->whereDate("LogTime", date("Y-11-30"));
         $model->take(1000);
         $model->with(["schedule"]);
