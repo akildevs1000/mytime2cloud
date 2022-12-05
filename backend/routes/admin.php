@@ -59,6 +59,9 @@ Route::post('company/update/user/validate', [CompanyController::class, 'validate
 Route::get('company/search/{key}', [CompanyController::class, 'search']);
 Route::get('company/{id}/branches', [CompanyController::class, 'branches']);
 Route::get('company/{id}/devices', [CompanyController::class, 'devices']);
+Route::get('UpdateCompanyIds', [CompanyController::class, 'UpdateCompanyIds']);
+
+
 
 Route::post('company/{id}/trade-license', [TradeLicenseController::class, 'store']);
 

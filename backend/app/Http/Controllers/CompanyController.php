@@ -8,6 +8,7 @@ use App\Models\Branch;
 use App\Models\Device;
 use App\Models\Company;
 use App\Models\AssignModule;
+use App\Models\AttendanceLog;
 use Illuminate\Http\Request;
 use App\Models\CompanyContact;
 use TechTailor\RPG\Facade\RPG;
@@ -20,10 +21,13 @@ use App\Http\Requests\Company\UserRequest;
 use App\Http\Requests\Company\StoreRequest;
 use App\Http\Requests\Company\CompanyRequest;
 use App\Http\Requests\Company\ContactRequest;
+use Illuminate\Support\Facades\Log as Logger;
 use App\Http\Requests\Company\UserUpdateRequest;
 use App\Notifications\CompanyCreationNotification;
 use App\Http\Requests\Company\CompanyUpdateRequest;
 use App\Http\Requests\Company\GeographicUpdateRequest;
+use App\Mail\NotifyIfLogsDoesNotGenerate;
+use Illuminate\Support\Facades\Mail;
 
 class CompanyController extends Controller
 {
@@ -302,5 +306,46 @@ class CompanyController extends Controller
                 "errors" => ['current_password' => 'Current password does not match'],
             ];
         }
+    }
+
+    public function UpdateCompanyIds()
+    {
+        $date = date("Y-m-d H:i:s");
+
+        $model = AttendanceLog::query();
+        $model->distinct('DeviceID');
+        $model->where("company_id", 0);
+        $model->take(1000);
+        $model->with("device:device_id,company_id");
+        $rows = $model->get(["DeviceID"]);
+
+        if (count($rows) == 0) {
+            return "[" . $date . "] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n";
+        }
+
+        $i = 0;
+
+        foreach ($rows as $arr) {
+
+            if ($arr["device"]) {
+                try {
+                    $i++;
+                    AttendanceLog::where("DeviceID", $arr["DeviceID"])->update(["company_id" => $arr["device"]["company_id"] ?? 0]);
+                } catch (\Throwable $th) {
+                    Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
+
+                    $data = [
+                        'title' => 'Quick action required',
+                        'body' => $th,
+                    ];
+
+                    Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+                    return "[" . $date . "] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
+                }
+            }
+        }
+
+        return "[" . $date . "] Cron: UpdateCompanyIds. $i Logs has been merged with Company IDS.\n"; //."Details: " . json_encode($result) . ".\n";
+
     }
 }

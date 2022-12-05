@@ -58,7 +58,7 @@ class DeviceController extends Controller
     public function getDeviceCompany(Request $request)
     {
         $device = DB::table("devices")->where("company_id", $request->company_id)->where("device_id", $request->DeviceID)->first(['name as device_name', 'short_name', 'device_id', 'location', "company_id"]);
-        $model = DB::table("employees")->where("company_id", $device->company_id)->where("system_user_id", $request->UserCode)->first(['first_name', 'profile_picture']);
+        $model = DB::table("employees")->where("company_id", $request->company_id)->where("system_user_id", $request->UserCode)->first(['first_name', 'profile_picture']);
 
         if ($model && $model->profile_picture) {
             $model->profile_picture = asset('media/employee/profile_picture/' . $model->profile_picture);

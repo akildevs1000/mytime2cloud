@@ -36,6 +36,8 @@ class DbBackup extends Command
     {
         echo exec("php artisan backup:run --only-db");
 
+        echo "\n";
+
         $data = [
             'file' => collect(glob(storage_path("app/ideahrms/*.zip")))->last(),
             'date' => date('Y-M-d'),
