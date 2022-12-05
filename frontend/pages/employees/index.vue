@@ -606,37 +606,37 @@ export default {
     tab: null,
     items: [
       {
-        text: "Work info",
+        text: "Work information",
         icon: "mdi-briefcase ",
         permission: "employee_personal_access"
       },
       {
-        text: "Personal info",
+        text: "Personal information",
         icon: "mdi-account-circle ",
         permission: "employee_personal_access"
       },
       {
-        text: "Contact info",
+        text: "Contact information",
         icon: "mdi-account-box ",
         permission: "employee_contact_access"
       },
       {
-        text: "Passport info",
+        text: "Passport information",
         icon: "mdi-file-powerpoint-outline ",
         permission: "employee_passport_access"
       },
       {
-        text: "Emirates info",
+        text: "Emirates information",
         icon: "mdi-city-variant",
         permission: "employee_emirate_access"
       },
       {
-        text: "Visa info",
+        text: "Visa information",
         icon: "mdi-file-document-multiple ",
         permission: "employee_visa_access"
       },
       {
-        text: "Bank info",
+        text: "Bank information",
         icon: "mdi-bank",
         permission: "employee_bank_access"
       },
@@ -654,7 +654,7 @@ export default {
         text: "Setting",
         icon: "mdi-wrench",
         permission: "employee_setting_access"
-      },
+      }
       // {
       //   text: "Assign Reporter",
       //   icon: "mdi-account",
@@ -1017,7 +1017,6 @@ export default {
         }
       };
       this.$axios.get(`${url}`, options).then(({ data }) => {
-
         this.data = data.data;
         this.total = data.data.length;
         this.employeeId = this.data[0].id;

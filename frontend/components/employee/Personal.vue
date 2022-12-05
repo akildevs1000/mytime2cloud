@@ -246,7 +246,7 @@
     </v-dialog>
 
     <table>
-      <tr>
+      <!-- <tr>
         <th></th>
         <td style="text-align: right;">
           <v-icon
@@ -259,11 +259,22 @@
             >mdi-pencil</v-icon
           >
         </td>
-      </tr>
+      </tr> -->
       <tr>
         <th>Nationality</th>
         <td>
           {{ caps(personalItem.nationality || "---") }}
+        </td>
+        <td style="text-align: right;">
+          <v-icon
+            v-if="can(`employee_personal_edit_access`)"
+            @click="personal_info = true"
+            small
+            class="grey"
+            style="border-radius: 50%; padding: 5px"
+            color="secondary"
+            >mdi-pencil</v-icon
+          >
         </td>
       </tr>
       <tr>
@@ -328,6 +339,12 @@
         <th>Employment of Spouse</th>
         <td>
           {{ caps(personalItem.no_of_spouse || "---") }}
+        </td>
+      </tr>
+      <tr>
+        <th>{{ caps(personalItem.other_text || "---") }}</th>
+        <td>
+          {{ caps(personalItem.other_value || "---") }}
         </td>
       </tr>
     </table>

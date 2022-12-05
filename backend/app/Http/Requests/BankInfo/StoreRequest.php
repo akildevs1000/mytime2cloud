@@ -34,6 +34,9 @@ class StoreRequest extends FormRequest
             "address" => "nullable|min:1|max:24",
             "employee_id" => "required",
             "company_id" => "required",
+
+            "other_text" => "nullable",
+            "other_value" => "nullable",
         ];
     }
 }

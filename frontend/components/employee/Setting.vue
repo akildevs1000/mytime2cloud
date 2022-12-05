@@ -82,7 +82,7 @@ export default {
           this.loading = false;
           console.log(data);
 
-          if (data != 1) {
+          if (!data.status) {
             this.errors = data.errors;
           } else {
             this.errors = [];

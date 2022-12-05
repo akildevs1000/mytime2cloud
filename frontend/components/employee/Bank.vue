@@ -181,6 +181,13 @@
           {{ caps(BankInfo.address) }}
         </td>
       </tr>
+
+      <tr>
+        <th>{{ caps(BankInfo.other_text) }}</th>
+        <td>
+          {{ caps(BankInfo.other_value) }}
+        </td>
+      </tr>
     </table>
   </div>
 </template>
@@ -215,7 +222,7 @@ export default {
         company_id: this.$auth?.user?.company?.id,
         employee_id: this.BankInfo.employee_id
       };
-
+      console.log(payload);
       this.$axios
         .post(`bankinfo`, payload)
         .then(({ data }) => {
