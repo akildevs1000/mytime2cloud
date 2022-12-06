@@ -119,12 +119,12 @@ class MultiInOutShiftController extends Controller
                     $arr["shift_type_id"] = $schedule["shift_type_id"];
                 } else {
 
-                    $start = $on_duty_time_parsed - 86400;
-                    $end = $next_day_cap - 86400;
+                    $start = $on_duty_time_parsed + 86400;
+                    $end = $next_day_cap + 86400;
 
                     if ($log["show_log_time"] > $start  && $log["show_log_time"] < $end) {
 
-                        $arr["date"] = date("Y-m-d", $log["show_log_time"] - 86400);
+                        $arr["date"] = date("Y-m-d", $log["show_log_time"]);
                         $date = $arr["date"];
 
                         $attendance = $this->attendanceFound($date, $UserID);
@@ -144,9 +144,9 @@ class MultiInOutShiftController extends Controller
 
                             $out = strtotime($arr["out"]);
 
-                            if ($dual) {
-                                $out = $out + 86400;
-                            }
+                            // if ($dual) {
+                            //     $out = $out + 86400;
+                            // }
 
                             $arr["total_hrs"] = $this->calculatedHours(strtotime($arr["in"]), $out);
                             $arr["ot"] = !$schedule["isOverTime"] ? "NA" : $this->calculatedOT($arr["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
