@@ -239,8 +239,8 @@
                     <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
 
 
-                    {{-- <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td> --}}
-                    <td style="text-align:  center;"> {{ $this->calTime('hello') ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td>
+                    {{-- <td style="text-align:  center;"> {{ $this->calTime('hello') ?? '---' }} </td> --}}
                     <td style="text-align:  center;"> {{ $data->ot ?? '---' }} </td>
                     <td style="text-align:  center; color:{{ $statusColor }}"> {{ $data->status ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->device_in->short_name ?? '---' }} </td>
@@ -251,11 +251,10 @@
 
         @php
 
-            function calTime($val)
-            {
-                return $val;
-            }
-
+            // function calTime($val)
+            // {
+            //     return $val;
+            // }
         @endphp
 
     </table>
