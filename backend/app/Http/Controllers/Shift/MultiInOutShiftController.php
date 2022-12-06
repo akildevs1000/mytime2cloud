@@ -16,7 +16,7 @@ class MultiInOutShiftController extends Controller
     {
         $condition_date = DB::table('misc')->pluck("date")[0];
 
-        if ($condition_date >= date('Y-m-d')) {
+        if ($condition_date > date('Y-m-d')) {
             return "You cannot process attendance against current date or future date";
         }
 
