@@ -7,15 +7,29 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MultiInOutShiftController extends Controller
 {
 
-    public function processByManual(Request $request)
+    public function processByManual()
     {
+        $condition_date = DB::table('misc')->pluck("date")[0];
+
+        if ($condition_date >= date('Y-m-d')) {
+            return "You cannot process attendance against current date or future date";
+        }
+
+        $update_date = date("Y-m-d", strtotime($condition_date) + 86400);
+
+
+        AttendanceLog::whereDate("LogTime", $condition_date)->update([
+            "checked" => false
+        ]);
+
         $model = AttendanceLog::query();
         $model->where("checked", false);
-        $model->whereDate("LogTime", $request->date ?? date("Y-m-d"));
+        $model->whereDate("LogTime", $condition_date ?? date('Y-m-d'));
 
         $model->with(["schedule"]);
 
@@ -25,11 +39,12 @@ class MultiInOutShiftController extends Controller
 
         $model->orderBy("LogTime");
 
-        $data = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy(["UserID"])->toArray();
+        $data = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy("UserID")->toArray();
 
         // return count($data);
 
         if (count($data) == 0) {
+            DB::table('misc')->update(["date" => $update_date]);
             return "No Log found";
         }
 
@@ -177,14 +192,16 @@ class MultiInOutShiftController extends Controller
 
         $out_of_range = count($items);
 
-        return "Log processed count = $i, Out of range Logs = $out_of_range";
+        DB::table('misc')->update(["date" => $update_date]);
+
+        return "Date = $condition_date, Log processed count = $i, Out of range Logs = $out_of_range";
     }
 
-    public function processShift($date = null)
+    public function processShift()
     {
         $model = AttendanceLog::query();
         $model->where("checked", false);
-        $model->whereDate("LogTime", $date ?? date("Y-m-d"));
+        $model->whereDate("LogTime", date("Y-m-d"));
 
         $model->with(["schedule"]);
 
