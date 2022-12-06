@@ -251,7 +251,7 @@
               <v-card v-else height="700px" class="view-card mx-0 my-0 pa-0">
                 <v-toolbar color="primary " dark flat fixed max-height="55">
                   <v-toolbar-title>{{
-                    selectedItem == 0 ? "Work Info" : caps(ListName)
+                    selectedItem == 0 ? "Work Information" : caps(ListName)
                   }}</v-toolbar-title>
                 </v-toolbar>
 

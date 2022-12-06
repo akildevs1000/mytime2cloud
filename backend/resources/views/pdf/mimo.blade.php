@@ -166,27 +166,18 @@
             <td style="text-align:  center;width:80px"> Shift Type </td>
 
             <td style="text-align:  center;width:20px"> In </td>
-            <td style="text-align:  center;width:20px"> Out1 </td>
+            <td style="text-align:  center;width:20px"> Out </td>
 
-            <td style="text-align:  center;width:20px"> In2 </td>
-            <td style="text-align:  center;width:20px"> Out2 </td>
+            <td style="text-align:  center;width:20px"> In </td>
+            <td style="text-align:  center;width:20px"> Out </td>
 
-            <td style="text-align:  center;width:20px"> In3 </td>
-            <td style="text-align:  center;width:20px"> Out3 </td>
+            <td style="text-align:  center;width:20px"> In </td>
+            <td style="text-align:  center;width:20px"> Out </td>
 
-            <td style="text-align:  center;width:20px"> In4 </td>
-            <td style="text-align:  center;width:20px"> Out4 </td>
+            <td style="text-align:  center;width:20px"> In </td>
+            <td style="text-align:  center;width:20px"> Out </td>
 
-            <td style="text-align:  center;width:20px"> In5 </td>
-            <td style="text-align:  center;width:20px"> Out5 </td>
-
-            <td style="text-align:  center;width:20px"> In6 </td>
-            <td style="text-align:  center;width:20px"> Out6 </td>
-
-            <td style="text-align:  center;width:20px"> In7 </td>
-            <td style="text-align:  center;width:20px"> Out7 </td>
-
-            <td style="text-align:  center;width:20px"> In8 </td>
+            <td style="text-align:  center;width:20px"> In </td>
             <td style="text-align:  center;width:20px"> Out </td>
 
             <td style="text-align:  center;width:40px"> Total Hours </td>
@@ -214,31 +205,22 @@
                     <td style="text-align:  center;"> {{ $data->shift->name ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->shift_type->name ?? '---' }} </td>
 
-                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
+                    {{-- @dd($data->AttendanceLogs); --}}
 
-                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[0]->time ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[1]->time ?? '---' }} </td>
 
-                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[2]->time ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[3]->time ?? '---' }} </td>
 
-                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[4]->time ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[5]->time ?? '---' }} </td>
 
-                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[6]->time ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[7]->time ?? '---' }} </td>
 
-                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
-
-                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
-
-                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
-
-
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[8]->time ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[9]->time ?? '---' }} </td>
 
 
                     <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td>
