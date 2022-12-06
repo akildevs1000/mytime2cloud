@@ -211,10 +211,7 @@
                     <td style="text-align:  center;"> {{ $data->shift->name ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->shift_type->name ?? '---' }} </td>
 
-                    {{-- @dd($data->AttendanceLogs); --}}
-
                     @php
-
                         $time1 = strtotime($data->in);
                         $time2 = strtotime($data->AttendanceLogs[1]->time);
                         $difference = round(abs($time2 - $time1) / 3600, 2);
