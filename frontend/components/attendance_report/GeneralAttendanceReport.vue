@@ -153,6 +153,7 @@
           <v-row>
             <v-col md="12">
               <h5>Filters</h5>
+              general
             </v-col>
             <v-col md="3">
               Report Type
@@ -365,7 +366,7 @@
                 v-model="main_report_type"
                 x-small
                 :items="['General Report', 'Multi In/Out Report']"
-                item-text="['Daily', 'Weekly']"
+                item-text="['General Report', 'Multi In/Out Report']"
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
