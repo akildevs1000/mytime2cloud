@@ -186,9 +186,15 @@
             <td style="text-align:  center;width:50px"> Device In </td>
             <td style="text-align:  center;width:50px"> Device Out </td>
         </tr>
+        @php
+            $arr = [];
+        @endphp
         @foreach ($data as $data)
             {{-- @dd($data) --}}
+
             @php
+                $arr[] = $data->AttendanceLogs;
+
                 if ($data->status == 'P') {
                     $statusColor = 'green';
                 } elseif ($data->status == 'A') {
@@ -207,7 +213,17 @@
 
                     {{-- @dd($data->AttendanceLogs); --}}
 
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[0]->time ?? '---' }} </td>
+                    @php
+
+                        $time1 = strtotime($data->in);
+                        $time2 = strtotime($data->AttendanceLogs[1]->time);
+                        $difference = round(abs($time2 - $time1) / 3600, 2);
+
+                    @endphp
+
+
+
+                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->AttendanceLogs[1]->time ?? '---' }} </td>
 
                     <td style="text-align:  center;"> {{ $data->AttendanceLogs[2]->time ?? '---' }} </td>
@@ -220,10 +236,11 @@
                     <td style="text-align:  center;"> {{ $data->AttendanceLogs[7]->time ?? '---' }} </td>
 
                     <td style="text-align:  center;"> {{ $data->AttendanceLogs[8]->time ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[9]->time ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
 
 
-                    <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td>
+                    {{-- <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td> --}}
+                    <td style="text-align:  center;"> {{ $this->calTime('hello') ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->ot ?? '---' }} </td>
                     <td style="text-align:  center; color:{{ $statusColor }}"> {{ $data->status ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->device_in->short_name ?? '---' }} </td>
@@ -231,6 +248,16 @@
                 </tr>
             </tbody>
         @endforeach
+
+        @php
+
+            function calTime($val)
+            {
+                return $val;
+            }
+
+        @endphp
+
     </table>
 
 
