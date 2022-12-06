@@ -253,7 +253,7 @@ class Controller extends BaseController
             "report_type" => $this->getStatusText($request->status)
         ];
 
-        $nextDay =  date('Y-m-d', strtotime($request->daily_date . ' + 1 days'));
+        $nextDay =  date('Y-m-d', strtotime($request->daily_date . ' + 1 day'));
 
         $data = $model
             ->with('AttendanceLogs', function ($q) use ($request, $nextDay) {
@@ -265,10 +265,7 @@ class Controller extends BaseController
             ->get();
 
 
-
-
         // ld($data);
-
 
         return Pdf::loadView('pdf.mimo', compact("company", "info", "data"))->stream();
     }
