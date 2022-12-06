@@ -193,8 +193,10 @@
             {{-- @dd($data) --}}
 
             @php
+                
+                
                 $arr[] = $data->AttendanceLogs;
-
+                
                 if ($data->status == 'P') {
                     $statusColor = 'green';
                 } elseif ($data->status == 'A') {
@@ -202,6 +204,12 @@
                 } elseif ($data->status == '---') {
                     $statusColor = '#f34100ed';
                 }
+                ld($arr);
+                die;
+
+                $time1 = strtotime($data->in);
+                $time2 = strtotime($data->AttendanceLogs[1]->time);
+                $difference = round(abs($time2 - $time1) / 3600, 2);
             @endphp
             <tbody>
                 <tr style="text-align:  center;">
@@ -210,18 +218,6 @@
                     <td style="text-align:  center;">{{ $data->employee_id ?? '---' }}</td>
                     <td style="text-align:  center;"> {{ $data->shift->name ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->shift_type->name ?? '---' }} </td>
-
-                    {{-- @dd($data->AttendanceLogs); --}}
-
-                    @php
-
-                        $time1 = strtotime($data->in);
-                        $time2 = strtotime($data->AttendanceLogs[1]->time);
-                        $difference = round(abs($time2 - $time1) / 3600, 2);
-
-                    @endphp
-
-
 
                     <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->AttendanceLogs[1]->time ?? '---' }} </td>
@@ -250,7 +246,7 @@
         @endforeach
 
         @php
-
+            
             // function calTime($val)
             // {
             //     return $val;
