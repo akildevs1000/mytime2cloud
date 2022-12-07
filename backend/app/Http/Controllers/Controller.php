@@ -254,17 +254,20 @@ class Controller extends BaseController
         ];
 
         $nextDay =  date('Y-m-d', strtotime($request->daily_date . ' + 1 day'));
-
+        $daily_date =  $request->daily_date;
         $data = $model
-            ->with('AttendanceLogs', function ($q) use ($request, $nextDay) {
+            ->with('AttendanceLogs', function ($q) use ($daily_date, $nextDay) {
                 $q
-                    ->whereDate('LogTime', $request->daily_date)
+                    ->whereDate('LogTime', $daily_date)
                     ->orWhereDate('LogTime', $nextDay)
                     ->orderBy('LogTime', 'asc');
             })
             ->get();
 
 
+        // return $data;
+        // return  count($data);
+        // return  gettype($data);
         // ld($data);
 
         return Pdf::loadView('pdf.mimo', compact("company", "info", "data"))->stream();
