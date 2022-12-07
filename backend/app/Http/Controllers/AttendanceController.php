@@ -22,6 +22,7 @@ class AttendanceController extends Controller
 {
     public function ProcessAttendance()
     {
+
         // $night = new NightShiftController;
         // $night->processNightShift();
 
@@ -37,8 +38,7 @@ class AttendanceController extends Controller
     public function SyncAttendance()
     {
 
-        $multiInOut = new MultiInOutShiftController;
-        return $multiInOut->processShift();
+
 
         $items = [];
         $model = AttendanceLog::query();
