@@ -307,8 +307,11 @@ class MultiInOutShiftController extends Controller
 
     public function insertData($items)
     {
-        # code...
 
+        // $attendance = $this->attendanceFound($date, $UserID);
+        // $found = $attendance->clone()->first();
+
+        return $items;
     }
 
     public function getCols($log, $on_duty_time, $next_condition)
