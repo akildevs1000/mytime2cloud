@@ -28,14 +28,14 @@ class Kernel extends ConsoleKernel
 
         if (env("APP_ENV") == "production") {
 
-            $schedule
-                ->command('task:sync_attendance_manual')
-                // ->everyThirtyMinutes()
-                ->everyMinute()
-                ->between('7:00', '23:59')
-                ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/$date-scheduler_manual.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command('task:sync_attendance_manual')
+            //     // ->everyThirtyMinutes()
+            //     ->everyMinute()
+            //     ->between('7:00', '23:59')
+            //     ->withoutOverlapping()
+            //     ->appendOutputTo(storage_path("logs/$date-scheduler_manual.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command('task:sync_attendance_logs')
@@ -52,14 +52,14 @@ class Kernel extends ConsoleKernel
                 ->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            // $schedule
-            //     ->command('task:sync_attendance')
-            //     // ->everyThirtyMinutes()
-            //     ->everyMinute()
-            //     ->between('7:00', '23:59')
-            //     ->withoutOverlapping()
-            //     ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
-            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            $schedule
+                ->command('task:sync_attendance')
+                // ->everyThirtyMinutes()
+                ->everyMinute()
+                ->between('7:00', '1:00')
+                ->withoutOverlapping()
+                ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             $schedule
                 ->command('task:sync_absent')
                 ->dailyAt('1:00')

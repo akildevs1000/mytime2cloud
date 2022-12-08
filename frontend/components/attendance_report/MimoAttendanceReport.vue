@@ -772,6 +772,7 @@
         </v-tooltip>
         <span v-else>---</span>
       </template>
+
       <template v-slot:item.actions="{ item }">
         <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
           mdi-pencil
@@ -792,7 +793,7 @@
           <v-card-text>
             <div class="pt-5">
               <span v-for="(log, index) in log_list" :key="index">
-                {{ log.time }}
+                {{ log.date }} - {{ log.time }}
                 <hr />
               </span>
             </div>
@@ -819,7 +820,7 @@ export default {
     time_menu: false,
     manual_time_menu: false,
     Model: "Reports",
-    endpoint: "report",
+    endpoint: "report_multi_in_out",
     search: "",
     snackbar: false,
     add_manual_log: false,
@@ -1198,6 +1199,7 @@ export default {
 
       this.$axios.get(url, options).then(({ data }) => {
         this.data = data.data;
+        console.log(this.data);
         this.total = data.total;
         this.loading = false;
       });
