@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Shift;
 
-use App\Http\Controllers\Controller;
-
-use App\Models\AttendanceLog;
 use App\Models\Attendance;
+
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Models\AttendanceLog;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class MultiInOutShiftController extends Controller
 {
 
     public function processByManual()
     {
-        $condition_date = DB::table('misc')->pluck("date")[0];
+        $condition_date = (string) DB::table('misc')->pluck("date")[0];
 
         if ($condition_date > date('Y-m-d')) {
             return "You cannot process attendance against current date or future date";
@@ -202,23 +203,28 @@ class MultiInOutShiftController extends Controller
         $currentDate = date('Y-m-04');
         $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
 
+        // return AttendanceLog::whereDate("LogTime", $nextDate)->update([
+        //     "checked" => false
+        // ]);
+
+
         $model = AttendanceLog::query();
         $model->where("checked", false);
+        $model->where("company_id", 1);
 
         // $model->whereDate("LogTime", $currentDate);
         // $model->orWhereDate("LogTime", $nextDate);
 
 
         $model->where(function ($q) use ($currentDate) {
-            // $q->where("UserID", 645);
+            // $q->where("UserID", 515);
             $q->whereDate("LogTime", $currentDate);
         });
 
         $model->orWhere(function ($q) use ($nextDate) {
-            // $q->where("UserID", 645);
+            // $q->where("UserID", 515);
             $q->whereDate("LogTime", $nextDate);
         });
-
 
 
         $model->with(["schedule"]);
@@ -229,7 +235,7 @@ class MultiInOutShiftController extends Controller
 
         $model->orderBy("LogTime");
 
-        $data = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy(["UserID"])->toArray();
+        $data = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy(["edit_date"])->toArray();
 
         // return count($data);
 
@@ -242,61 +248,70 @@ class MultiInOutShiftController extends Controller
         $final_arr = [];
         $str = "";
 
-        foreach ($data as $UserID => $row) {
-            $arr = [];
+        $logs = [];
 
-            if (count($row) % 2 == 0) {
-                $current  = current($row);
+        foreach ($data as $date => $row) {
 
-                $arr["company_id"] = $current["company_id"];
-                $arr["employee_id"] = $UserID;
+            foreach ($row as $log) {
 
-
-                if ($current["schedule"]) {
-
-                    $schedule = $current["schedule"];
-                    $shift    = $schedule["shift"];
-                    $arr["shift_id"] = $schedule["shift_id"];
-                    $arr["shift_type_id"] = $schedule["shift_type_id"];
-                }
-                $chunks = array_chunk($row, 2);
-
-                foreach ($chunks as $chunk) {
+                if ($log["schedule"]) {
 
 
-                    if (count($chunk) % 2 == 0) {
-                        $arr["date"] = $chunk[0]["edit_date"];
+                    $time          = $log["show_log_time"];
+                    $schedule      = $log["schedule"];
+                    $shift         = $schedule["shift"];
+                    $on_duty_time  = $date . " " . $shift["on_duty_time"];
+                    $off_duty_time = $date . " " . $shift["off_duty_time"];
 
-                        $time1 = ($chunk[0]["show_log_time"] ?? 0);
-                        $time2 = ($chunk[1]["show_log_time"] ?? 0);
-                        $total_hour = date("i", $time2 - $time1);
+                    $on_duty_time_parsed = strtotime($on_duty_time);
+                    $off_duty_time_parsed = strtotime($off_duty_time);
 
-                        $arr["total_hours"][] = $total_hour;
+                    $next_day_cap = $off_duty_time_parsed; // adding 24 hours
 
 
-                        $arr["logs"][] = ["in" => $chunk[0]["time"] ?? '---', "out" => $chunk[1]["time"] ?? '---', "total_hour_min" => $this->get_total_hours($total_hour)];
+                    if ($on_duty_time_parsed > $off_duty_time_parsed) {
+                        $next_day_cap  = $next_day_cap + 86400;
+                    }
+
+                    if ($time >= $on_duty_time_parsed && $time < $next_day_cap) {
+
+                        $logs[$date][$log["UserID"]][] = $log["time"];
+
+                        $chunks = array_chunk($logs[$date][$log["UserID"]], 2);
+
+                        $items[$date][$log["UserID"]] = [
+                            "date" => $log["edit_date"],
+                            "company_id" => $log["company_id"],
+                            "UserID" => $log["UserID"],
+                        ];
+
+                        foreach ($chunks as $chunk) {
+                            $items[$date][$log["UserID"]]["logs"][] = ["in" => $chunk[0] ?? "---", "out" => $chunk[1] ?? "---"];
+                        }
                     }
                 }
-
-                $arr["total_hours"] = $this->get_total_hours(array_sum($arr["total_hours"]));
-
-                $attendance = $this->attendanceFound($arr["date"], $UserID);
-                $found = $attendance->first();
-
-
-                $found ? $attendance->update($arr) : Attendance::create($arr);
-
-                // AttendanceLog::where("id", $log["id"])->update(["checked" => true]);
-
-                $items[] = $arr;
             }
         }
 
+
+        return $this->insertData($items);
+
+
+        // return array_chunk($items, 2);
+
+        // $out_of_range = count($items);
+
+        // return "Log processed count = $i, Out of range Logs = $out_of_range";
+    }
+
+
+    public function insertData($items)
+    {
+
+        // $attendance = $this->attendanceFound($date, $UserID);
+        // $found = $attendance->clone()->first();
+
         return $items;
-
-        $out_of_range = count($items);
-
-        return "Log processed count = $i, Out of range Logs = $out_of_range";
     }
 
     public function getCols($log, $on_duty_time, $next_condition)

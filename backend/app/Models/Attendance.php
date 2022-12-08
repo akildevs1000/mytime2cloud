@@ -17,9 +17,10 @@ class Attendance extends Model
 
     protected $casts = [
         'date' => 'date',
+        'logs' => 'array',
     ];
 
-    
+
 
     public function shift()
     {

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('attendances', function (Blueprint $table) {
-            $table->json('pairs_logs')->nullable();
+            $table->json('logs')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('attendances', function (Blueprint $table) {
-            $table->dropColumn('pairs_logs');
+            $table->dropColumn('logs');
         });
     }
 };
