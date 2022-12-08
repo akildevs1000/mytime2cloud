@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- <GenerateLog /> -->
     <div v-if="this.$store.state.main_report_type == 'General Report'">
       <GeneralAttendanceReport
         :main_report_type="this.$store.state.main_report_type"

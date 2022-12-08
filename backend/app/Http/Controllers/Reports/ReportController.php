@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Http\Controllers\Controller;
-use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use App\Http\Controllers\Controller;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ReportController extends Controller
 {
@@ -13,6 +16,45 @@ class ReportController extends Controller
     {
         return $this->report($request)->paginate($request->per_page);
     }
+
+    public function multiInOut(Request $request)
+    {
+
+
+        $model = $this->report($request)->get();
+        foreach ($model as $value) {
+            $count = count($value->logs);
+
+            if ($count < 8) {
+                $diff = 7 - $count;
+                $count = $count + $diff;
+            }
+            $i = 1;
+            for ($a = 0; $a < $count; $a++) {
+
+                $holder = $a;
+                $holder_key = ++$holder;
+
+                $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
+                $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
+            }
+        }
+
+        // return $model;
+
+        return $this->paginate($model, $request->per_page);
+
+        // return $model->paginate($request->per_page);
+    }
+
+
+    public function paginate($items, $perPage = 15, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+    }
+
 
     public function report($request)
     {

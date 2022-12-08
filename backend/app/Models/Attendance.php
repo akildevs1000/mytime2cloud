@@ -13,13 +13,18 @@ class Attendance extends Model
 
     protected $guarded = [];
 
-    protected $appends = ["edit_date", "day"];
+    protected $appends = [
+        "edit_date",
+        "day",
+    ];
 
     protected $casts = [
         'date' => 'date',
         'logs' => 'array',
     ];
 
+
+    protected $hidden = ["company_id", "branch_id", "created_at", "updated_at"];
 
 
     public function shift()

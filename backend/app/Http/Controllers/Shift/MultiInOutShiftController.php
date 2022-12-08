@@ -13,15 +13,18 @@ use App\Http\Controllers\Controller;
 class MultiInOutShiftController extends Controller
 {
 
+    public $update_date;
+
     public function processByManual()
     {
+
         $condition_date = (string) DB::table('misc')->pluck("date")[0];
 
         if ($condition_date > date('Y-m-d')) {
             return "You cannot process attendance against current date or future date";
         }
 
-        $update_date = date("Y-m-d", strtotime($condition_date) + 86400);
+        $this->update_date = date("Y-m-d", strtotime($condition_date) + 86400);
 
 
         AttendanceLog::whereDate("LogTime", $condition_date)->update([
@@ -45,7 +48,7 @@ class MultiInOutShiftController extends Controller
         // return count($data);
 
         if (count($data) == 0) {
-            DB::table('misc')->update(["date" => $update_date]);
+
             return "No Log found";
         }
 
@@ -193,14 +196,27 @@ class MultiInOutShiftController extends Controller
 
         $out_of_range = count($items);
 
-        DB::table('misc')->update(["date" => $update_date]);
+        DB::table('misc')->update(["date" => $this->update_date]);
 
         return "Date = $condition_date, Log processed count = $i, Out of range Logs = $out_of_range";
     }
 
     public function processShift()
     {
-        $currentDate = date('Y-m-04');
+        // return  DB::table('misc')->update(["date" => '2022-12-03']);
+        $currentDate = (string) DB::table('misc')->pluck("date")[0];
+
+        if ($currentDate < date('Y-09-27')) {
+            return "You cannot process attendance against current date or future date";
+        }
+
+        $this->update_date = date("Y-m-d", strtotime($currentDate) - 86400);
+
+
+        AttendanceLog::whereDate("LogTime", $currentDate)->update([
+            "checked" => false
+        ]);
+
         $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
 
         // return AttendanceLog::whereDate("LogTime", $nextDate)->update([
@@ -210,28 +226,30 @@ class MultiInOutShiftController extends Controller
 
         $model = AttendanceLog::query();
         $model->where("checked", false);
-        $model->where("company_id", 1);
+        // $model->where("company_id", 1);
 
         // $model->whereDate("LogTime", $currentDate);
         // $model->orWhereDate("LogTime", $nextDate);
 
 
         $model->where(function ($q) use ($currentDate) {
-            // $q->where("UserID", 515);
+            // $q->where("UserID", 224);
             $q->whereDate("LogTime", $currentDate);
+            $q->whereHas("schedule", function ($q) {
+                $q->where('shift_type_id', 2);
+            });
         });
 
         $model->orWhere(function ($q) use ($nextDate) {
-            // $q->where("UserID", 515);
+            // $q->where("UserID", 224);
             $q->whereDate("LogTime", $nextDate);
+            $q->whereHas("schedule", function ($q) {
+                $q->where('shift_type_id', 2);
+            });
         });
 
 
         $model->with(["schedule"]);
-
-        $model->whereHas("schedule", function ($q) {
-            $q->where('shift_type_id', 2);
-        });
 
         $model->orderBy("LogTime");
 
@@ -245,7 +263,6 @@ class MultiInOutShiftController extends Controller
 
         $i = 0;
         $items = [];
-        $final_arr = [];
         $str = "";
 
         $logs = [];
@@ -279,10 +296,14 @@ class MultiInOutShiftController extends Controller
 
                         $chunks = array_chunk($logs[$date][$log["UserID"]], 2);
 
+
                         $items[$date][$log["UserID"]] = [
                             "date" => $log["edit_date"],
                             "company_id" => $log["company_id"],
                             "UserID" => $log["UserID"],
+
+                            'shift_type_id' => $log['schedule']['shift_type_id'],
+                            'shift_id' => $log['schedule']['shift_id'],
                         ];
 
                         foreach ($chunks as $chunk) {
@@ -291,16 +312,14 @@ class MultiInOutShiftController extends Controller
                     }
                 }
             }
+            // if (count($items[$date][$log["UserID"]]["logs"]) > 1) {
+            //     $items[$date][$log["UserID"]]["logs"]["status"] = "p";
+            // }
         }
-
-
         return $this->insertData($items);
 
-
         // return array_chunk($items, 2);
-
         // $out_of_range = count($items);
-
         // return "Log processed count = $i, Out of range Logs = $out_of_range";
     }
 
@@ -308,21 +327,83 @@ class MultiInOutShiftController extends Controller
     public function insertData($items)
     {
 
-        // $attendance = $this->attendanceFound($date, $UserID);
-        // $found = $attendance->clone()->first();
+        foreach ($items as $item) {
+            foreach ($item as $log) {
+                $data = $this->calTimes($log['logs']);
+                $attendance = $this->attendanceFound($log['date'], $log['UserID']);
+                $found = $attendance->first();
+                $status = "";
 
-        return $items;
+                // return count($data['logs']);
+                // return $data['logs'];
+
+                if ($data['logs'][0]['in'] != '---' and $data['logs'][0]['out'] != '---') {
+                    $status = "P";
+                } else {
+                    $status = '---';
+                }
+
+                $data = [
+                    'company_id' => $log['company_id'],
+                    'date' => $log['date'],
+                    'employee_id' => $log['UserID'],
+                    'total_hrs' => $data['total_hours'],
+                    'logs' => $data['logs'],
+                    'shift_type_id' => $log['shift_type_id'],
+                    'shift_id' => $log['shift_id'],
+                    'status' => $status,
+                ];
+                $res =   $found ? $attendance->update($data) : Attendance::create($data);
+            }
+        }
+        if (isset($res)) {
+            DB::table('misc')->update(["date" => $this->update_date]);
+        }
+        return isset($res) ? 'done' : 'something wrong';
     }
 
-    public function getCols($log, $on_duty_time, $next_condition)
+
+    public function calTimes($logs)
     {
+        $arr_logs = [];
+        $total_hours = [];
+        foreach ($logs as $log) {
+
+            if (isset($log['in']) and $log['in'] != '---' and isset($log['out']) and $log['out'] != '---') {
+                $time1 = (strtotime($log['in']) ?? 0);
+                $time2 = (strtotime($log['out']) ?? 0);
+                $diff = $time2 - $time1;
+                $minutes = floor($diff / 60);
+                $arr_logs[] = [
+                    'in' => $log['in'],
+                    'out' => $log['out'],
+                    'diff' => $this->minutesToHours($minutes),
+                ];
+                $total_hours[] = $minutes;
+            } else if ($log['in'] == '---' or $log['out'] == '---') {
+                $arr_logs[] = [
+                    'in' => $log['in'],
+                    'out' => $log['out'],
+                ];
+            }
+        }
+
+        return
+            [
+                'total_hours' => $this->minutesToHours(array_sum($total_hours)),
+                'logs' => $arr_logs,
+            ];
+    }
+
+    public function minutesToHours($minutes)
+    {
+        $hours = intdiv($minutes, 60) . ':' . ($minutes % 60);
+        return $hours;
     }
 
     public function attendanceFound($date, $id)
     {
-        $nextDate =  date('Y-m-d', strtotime($date . ' + 1 day'));
         return Attendance::whereDate("date", $date)
-            ->orWhereDate("date", $nextDate)
             ->where("employee_id", $id);
     }
 
