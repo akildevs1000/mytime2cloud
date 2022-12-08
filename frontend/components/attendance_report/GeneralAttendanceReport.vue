@@ -923,7 +923,7 @@ export default {
       employee_id: "",
       report_type: "Daily",
       department_id: -1,
-      status: "Select All",
+      status: "Present",
       late_early: "Select All"
     },
     log_payload: {

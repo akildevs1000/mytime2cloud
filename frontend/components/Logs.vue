@@ -1,7 +1,12 @@
 <template>
   <div>
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+        {{ response }}
+      </v-snackbar>
+    </div>
     <v-row>
-      <v-col xs="12" sm="12" md="3" cols="12">
+        <v-col xs="12" sm="12" md="3" cols="12">
         <input
           class="form-control py-3 custom-text-box floating shadow-none"
           placeholder="Search..."
@@ -10,33 +15,43 @@
           type="text"
         />
       </v-col>
+      <v-col cols="12">
+        <v-data-table
+          v-model="ids"
+          item-key="id"
+          :headers="headers"
+          :items="data"
+          :server-items-length="total"
+          :loading="loading"
+          :options.sync="options"
+          :footer-props="{
+            itemsPerPageOptions: [50, 100, 500, 1000]
+          }"
+          class="elevation-1 mt-5"
+        ></v-data-table>
+      </v-col>
     </v-row>
-    <v-data-table
-      v-model="ids"
-      item-key="id"
-      :headers="headers"
-      :items="data"
-      :server-items-length="total"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000]
-      }"
-      class="elevation-1 mt-5"
-    ></v-data-table>
   </div>
 </template>
+
 <script>
 export default {
   data: () => ({
-    Model: "Logs",
-    options: {},
+    Model: "Log",
     endpoint: "attendance_logs",
-    search: "",
-    snackbar: false,
-    dialog: false,
-    ids: [],
+
+    date: null,
+    menu: false,
+
     loading: false,
+    time_menu: false,
+
+    log_payload: {
+      user_id: 41,
+      device_id: "OX-8862021010100",
+      date: null,
+      time: null
+    },
     headers: [
       {
         text: "UserID",
@@ -47,33 +62,15 @@ export default {
       { text: "DeviceID", align: "center", sortable: false, value: "DeviceID" },
       { text: "LogTime", align: "center", sortable: false, value: "LogTime" }
     ],
-    editedIndex: -1,
-    editedItem: { name: "" },
-    defaultItem: { name: "" },
+    ids: [],
+
+    data: [],
+    total: 0,
+    options: {},
+    errors: [],
     response: "",
-    errors: []
+    snackbar: false
   }),
-
-  computed: {
-    formTitle() {
-      return this.editedIndex === -1 ? "New" : "Edit";
-    }
-  },
-
-  watch: {
-    dialog(val) {
-      val || this.close();
-      this.errors = [];
-      this.search = "";
-    },
-    options: {
-      handler() {
-        this.getDataFromApi();
-      },
-      deep: true
-    }
-  },
-  mounted() {},
   created() {
     this.loading = true;
     let options = {
@@ -82,6 +79,14 @@ export default {
         company_id: this.$auth.user.company.id
       }
     };
+  },
+  watch: {
+    options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true
+    }
   },
   methods: {
     getDataFromApi(url = this.endpoint) {
@@ -95,7 +100,8 @@ export default {
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        this.$store.commit("logs", data);
+        this.data = data.data;
+        this.total = data.total;
         this.loading = false;
       });
     },
@@ -107,6 +113,38 @@ export default {
       } else if (s > 2) {
         this.getDataFromApi(`${this.endpoint}/search/${search}`);
       }
+    },
+    store_schedule() {
+      let { user_id, date, time, device_id } = this.log_payload;
+      let log_payload = {
+        UserID: user_id,
+        LogTime: date + " " + time + ":00",
+        DeviceID: device_id,
+        company_id: this.$auth.user.company.id
+      };
+      this.loading = true;
+
+      this.$axios
+        .post(`/generate_log`, log_payload)
+        .then(({ data }) => {
+          this.loading = false;
+
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.getDataFromApi();
+            // this.processAttendance();
+            this.snackbar = true;
+            this.response = "Log generate successfully";
+          }
+        })
+        .catch(({ message }) => {
+          this.snackbar = true;
+          this.response = message;
+        });
+    },
+    processAttendance() {
+      this.$axios.get(`/ProcessAttendance`).then(({ data }) => {});
     }
   }
 };

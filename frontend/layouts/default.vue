@@ -432,14 +432,18 @@ export default {
             }
           ]
         },
-
         {
           icon: "mdi-clipboard-text-clock",
           title: "Reports",
           to: "/attendance_report",
           menu: "attendance_report_access"
         },
-
+        {
+          icon: "mdi-clipboard-text-clock",
+          title: "Logs",
+          to: "/logs",
+          menu: "attendance_report_access"
+        },
         {
           icon: "mdi-email",
           title: "Notification",
