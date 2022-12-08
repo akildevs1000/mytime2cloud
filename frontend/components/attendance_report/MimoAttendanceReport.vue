@@ -861,57 +861,28 @@ export default {
         sortable: false,
         value: "employee.display_name"
       },
-      {
-        text: "Dept",
-        align: "left",
-        sortable: false,
-        value: "employee.department.name"
-      },
-      {
-        text: "Shift Type",
-        align: "left",
-        sortable: false,
-        value: "shift_type.name"
-      },
-      {
-        text: "Shift",
-        align: "left",
-        sortable: false,
-        value: "shift"
-      },
+
       { text: "Status", align: "left", sortable: false, value: "status" },
-      { text: "In", align: "left", sortable: false, value: "in" },
-      { text: "Out", align: "left", sortable: false, value: "out" },
+      { text: "In1", align: "left", sortable: false, value: "in1" },
+      { text: "Out1", align: "left", sortable: false, value: "out1" },
+      { text: "In2", align: "left", sortable: false, value: "in2" },
+      { text: "Out2", align: "left", sortable: false, value: "out2" },
+      { text: "In3", align: "left", sortable: false, value: "in3" },
+      { text: "Out3", align: "left", sortable: false, value: "out3" },
+      { text: "In4", align: "left", sortable: false, value: "in4" },
+      { text: "Out4", align: "left", sortable: false, value: "out4" },
+      { text: "In5", align: "left", sortable: false, value: "in5" },
+      { text: "Out5", align: "left", sortable: false, value: "out5" },
+      { text: "In6", align: "left", sortable: false, value: "in6" },
+      { text: "Out6", align: "left", sortable: false, value: "out6" },
+      { text: "In7", align: "left", sortable: false, value: "in7" },
+      { text: "Out7", align: "left", sortable: false, value: "out7" },
+
       {
         text: "Total Hrs",
         align: "left",
         sortable: false,
         value: "total_hrs"
-      },
-      { text: "OT", align: "left", sortable: false, value: "ot" },
-      {
-        text: "Late coming",
-        align: "left",
-        sortable: false,
-        value: "late_coming"
-      },
-      {
-        text: "Early Going",
-        align: "left",
-        sortable: false,
-        value: "early_going"
-      },
-      {
-        text: "D.In",
-        align: "left",
-        sortable: false,
-        value: "device_in"
-      },
-      {
-        text: "D.Out",
-        align: "left",
-        sortable: false,
-        value: "device_out"
       },
 
       { text: "Actions", value: "actions", sortable: false }
