@@ -153,7 +153,6 @@
           <v-row>
             <v-col md="12">
               <h5>Filters</h5>
-              general
             </v-col>
             <v-col md="3">
               Report Type
@@ -355,20 +354,6 @@
                   </v-date-picker>
                 </v-menu>
               </div>
-            </v-col>
-            <v-col md="3">
-              <div>Shift Report Type</div>
-              <v-autocomplete
-                class="mt-2"
-                outlined
-                @change="change_mani_report_type(main_report_type)"
-                dense
-                v-model="main_report_type"
-                x-small
-                :items="['General Report', 'Multi In/Out Report']"
-                item-text="['General Report', 'Multi In/Out Report']"
-                :hide-details="true"
-              ></v-autocomplete>
             </v-col>
           </v-row>
         </v-card>
@@ -806,7 +791,10 @@
 </template>
 <script>
 export default {
-  props: ["main_report_type"],
+  // layout({ $auth }) {
+  //   let { is_master } = $auth.user;
+  //   return is_master ? "default" : "employee";
+  // },
   data: () => ({
     isCompany: true,
     time_table_dialog: false,
@@ -837,7 +825,7 @@ export default {
     nameRules: [v => !!v || "reason is required"],
     timeRules: [v => !!v || "time is required"],
     deviceRules: [v => !!v || "device is required"],
-    main_report_type: "",
+
     daily_menu: false,
     daily_date: null,
     dailyDate: false,
@@ -991,10 +979,6 @@ export default {
   },
 
   methods: {
-    change_mani_report_type(val) {
-      this.$store.commit("main_report_type", val);
-    },
-
     setSevenDays(selected_date) {
       const date = new Date(selected_date);
 

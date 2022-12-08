@@ -805,10 +805,8 @@
 </template>
 <script>
 export default {
-  // layout({ $auth }) {
-  //   let { is_master } = $auth.user;
-  //   return is_master ? "default" : "employee";
-  // },
+  props: ["main_report_type"],
+
   data: () => ({
     isCompany: true,
     time_table_dialog: false,
