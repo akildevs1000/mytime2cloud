@@ -298,56 +298,54 @@ class MultiInOutShiftController extends Controller
                     $current  = $data[$i];
                     $next  = $data[$i + 1] ?? "---";
 
-                    if ($current["edit_date"]  !== '2022-12-08') {
 
-                        // $items[$date][$current["UserID"]]["edit_date"] =  $current["edit_date"];
-                        // $items[$date][$current["UserID"]]["company_id"] =  $current["company_id"];
-                        // $items[$date][$current["UserID"]]["UserID"] =  $current["UserID"];
-                        // $items[$date][$current["UserID"]]["shift_type_id"] =  $current['schedule']['shift_type_id'];
-                        // $items[$date][$current["UserID"]]["shift_id"] =  $current['schedule']['shift_id'];
-
-
-
-                        $items["id"] =  $current["id"];
-                        $items["date"] =  $current["edit_date"];
-                        $items["company_id"] =  $current["company_id"];
-                        $items["employee_id"] =  $current["UserID"];
-                        $items["shift_type_id"] =  $current['schedule']['shift_type_id'];
-                        $items["shift_id"] =  $current['schedule']['shift_id'];
-
-                        if (isset($current['time']) and $current['time'] != '---' and isset($next['time']) and $next['time'] != '---') {
-
-                            $diff = strtotime($next['time']) - strtotime($current['time']);
-                            $mints =  floor($diff / 60);
-                            // $items["diff"] = $this->minutesToHours($mints);
-
-                            $total_hours[] = $mints;
-                        }
-
-
-                        // $items[$date][$current["UserID"]]["logs"][] =  [
-                        //     "in" => $current['time'],
-                        //     "out" => $next['time'],
-                        //     "diff" => $items["diff"]
-                        // ];
+                    // $items[$date][$current["UserID"]]["edit_date"] =  $current["edit_date"];
+                    // $items[$date][$current["UserID"]]["company_id"] =  $current["company_id"];
+                    // $items[$date][$current["UserID"]]["UserID"] =  $current["UserID"];
+                    // $items[$date][$current["UserID"]]["shift_type_id"] =  $current['schedule']['shift_type_id'];
+                    // $items[$date][$current["UserID"]]["shift_id"] =  $current['schedule']['shift_id'];
 
 
 
-                        $items["logs"][] = [
-                            "in" => $current['time'],
-                            "out" => $next['time'],
-                            "diff" => $this->minutesToHours($mints) ?? 0
-                        ];
+                    $items["id"] =  $current["id"];
+                    $items["date"] =  $current["edit_date"];
+                    $items["company_id"] =  $current["company_id"];
+                    $items["employee_id"] =  $current["UserID"];
+                    $items["shift_type_id"] =  $current['schedule']['shift_type_id'];
+                    $items["shift_id"] =  $current['schedule']['shift_id'];
 
-                        $items["total_hrs"] =  $this->minutesToHours(array_sum($total_hours));
+                    if (isset($current['time']) and $current['time'] != '---' and isset($next['time']) and $next['time'] != '---') {
 
-                        $res = $this->storeOrUpdate($items);
+                        $diff = strtotime($next['time']) - strtotime($current['time']);
+                        $mints =  floor($diff / 60);
+                        // $items["diff"] = $this->minutesToHours($mints);
 
-                        if ($res) {
-                            $log_ids[] = $items['id'];
-                        }
-                        $counter++;
+                        $total_hours[] = $mints;
                     }
+
+
+                    // $items[$date][$current["UserID"]]["logs"][] =  [
+                    //     "in" => $current['time'],
+                    //     "out" => $next['time'],
+                    //     "diff" => $items["diff"]
+                    // ];
+
+
+
+                    $items["logs"][] = [
+                        "in" => $current['time'],
+                        "out" => $next['time'],
+                        "diff" => $this->minutesToHours($mints) ?? 0
+                    ];
+
+                    $items["total_hrs"] =  $this->minutesToHours(array_sum($total_hours));
+
+                    $res = $this->storeOrUpdate($items);
+
+                    if ($res) {
+                        $log_ids[] = $items['id'];
+                    }
+                    $counter++;
                 } else {
                     $i--;
                     $out_of_range++;
