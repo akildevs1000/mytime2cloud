@@ -12,6 +12,8 @@ use App\Http\Controllers\Reports\WeeklyMimoController;
 
 Route::get('report', [ReportController::class, 'index']);
 
+Route::get('report_multi_in_out', [ReportController::class, 'multiInOut']);
+
 //daily
 Route::get('/daily', [Controller::class, 'daily']);
 Route::get('/daily_download_pdf', [Controller::class, 'daily_download_pdf']);
