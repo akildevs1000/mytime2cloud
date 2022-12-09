@@ -2,10 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\AttendanceLogController;
-use App\Models\AttendanceLog;
-use App\Models\Device;
+use App\Http\Controllers\Shift\MultiInOutShiftController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Mail;
@@ -41,8 +38,8 @@ class SyncAttendance extends Command
         $meta = "[$date] Cron: $script_name.";
 
         try {
-            $Attendance = new AttendanceController;
-            $result = $Attendance->SyncAttendance();
+            $Attendance = new MultiInOutShiftController;
+            $result = $Attendance->processShift();
             $message =  $meta . " " . $result . ".\n";
             echo $message;
             return;
