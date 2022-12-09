@@ -38,7 +38,7 @@ class SyncAttendanceLogs extends Command
 
         if (!file_exists($file)) {
 
-            echo "[".$date."] Cron: SyncAttendanceLogs. No new data found.\n";
+            echo "[" . $date . "] Cron: SyncAttendanceLogs. No new data found.\n";
             return;
         }
 
@@ -56,8 +56,8 @@ class SyncAttendanceLogs extends Command
             $created = AttendanceLog::insert($data);
             $created ? unlink($file) : 0;
             $count = count($data);
-            echo "[".$date."] Cron: SyncAttendanceLogs. " . $count . " new logs has been inserted. Old file has been deleted.\n";
-            echo "[".$date."] Cron: SyncAttendanceLogs. Log Details: " . json_encode($data) . "\n";
+            echo "[" . $date . "] Cron: SyncAttendanceLogs. " . $count . " new logs has been inserted. Old file has been deleted.\n";
+            // echo "[".$date."] Cron: SyncAttendanceLogs. Log Details: " . json_encode($data) . "\n";
             return;
         } catch (\Throwable $th) {
 
@@ -69,7 +69,7 @@ class SyncAttendanceLogs extends Command
             ];
 
             Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
-            echo "[".$date."] Cron: SyncAttendanceLogs. Error occured while inserting logs.\n";
+            echo "[" . $date . "] Cron: SyncAttendanceLogs. Error occured while inserting logs.\n";
             return;
         }
     }
