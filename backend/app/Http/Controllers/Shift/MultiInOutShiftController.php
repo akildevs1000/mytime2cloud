@@ -234,7 +234,7 @@ class MultiInOutShiftController extends Controller
 
 
         $model->where(function ($q) use ($currentDate) {
-            $q->where("UserID", 515);
+            // $q->where("UserID", 515);
             $q->whereDate("LogTime", $currentDate);
             $q->whereHas("schedule", function ($q) {
                 $q->where('shift_type_id', 2);
@@ -242,7 +242,7 @@ class MultiInOutShiftController extends Controller
         });
 
         $model->orWhere(function ($q) use ($nextDate) {
-            $q->where("UserID", 515);
+            // $q->where("UserID", 515);
             $q->whereDate("LogTime", $nextDate);
             $q->whereHas("schedule", function ($q) {
                 $q->where('shift_type_id', 2);
