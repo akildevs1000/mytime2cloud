@@ -101,6 +101,9 @@ class MultiInOutShiftController extends Controller
         $temp = [];
         $total_hours = [];
 
+
+        $testing = [];
+
         foreach ($data as $UserID => $data) {
             $count =  count($data);
             for ($i = 0; $i < $count; $i++) {
@@ -135,6 +138,21 @@ class MultiInOutShiftController extends Controller
                         $items["shift_type_id"] =  $current['schedule']['shift_type_id'];
                         $items["shift_id"] =  $current['schedule']['shift_id'];
 
+                        $gap = $shift["gap_in"];
+                        $ct = $current['time'];
+                        $cp = strtotime("$ct $gap minutes");
+                        $np = strtotime($next['time'] ?? 0);
+
+
+                        if ($cp > $np) {
+                            $i++;
+                            $next  = $data[$i + 1] ?? false;
+
+                            // $testing[$UserID][$date][] = [$current["time"],$next["time"] ?? "----"];
+
+                            // return [$current["time"],$next["time"]];
+                        }
+
                         $mints = 0;
                         if (isset($current['time']) and $current['time'] != '---' and isset($next['time']) and $next['time'] != '---') {
 
@@ -150,6 +168,8 @@ class MultiInOutShiftController extends Controller
 
                             $total_hours[$UserID][$date][] = $final_mints;
                         }
+
+
 
                         $logs[$UserID][$date][] =  [
                             "in" => $current['time'],
@@ -210,7 +230,7 @@ class MultiInOutShiftController extends Controller
         // $currentDate = (string) DB::table('misc')->pluck("date")[0];
         // $currentDate = date('Y-m-d');
         $currentDate = date('Y-m-d');
-        
+
 
         if ($currentDate < date('Y-09-27')) {
             return "You cannot process attendance against current date or future date";
