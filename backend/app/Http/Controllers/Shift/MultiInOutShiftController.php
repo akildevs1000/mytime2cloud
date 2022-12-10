@@ -27,9 +27,9 @@ class MultiInOutShiftController extends Controller
 
     // processByManual
 
-    public function processByManual($date)
+    public function processByManual(Request $request)
     {
-        $currentDate = $date ?? date('Y-m-d');
+        $currentDate = $request->date ?? date('Y-m-d');
         // return  DB::table('misc')->update(["date" => '2022-12-07']);
         // $currentDate = (string) DB::table('misc')->pluck("date")[0];
         // $currentDate = date('Y-m-d');
