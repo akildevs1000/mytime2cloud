@@ -20,8 +20,12 @@ class ReportController extends Controller
     public function multiInOut(Request $request)
     {
 
+        $model = $this->report($request)
+            // ->count();
+            ->get();
+        // ->paginate($request->per_page ?? 20);
 
-        $model = $this->report($request)->get();
+
         foreach ($model as $value) {
             $count = count($value->logs);
 
@@ -40,7 +44,6 @@ class ReportController extends Controller
             }
         }
 
-        // return $model;
 
         return $this->paginate($model, $request->per_page);
 
