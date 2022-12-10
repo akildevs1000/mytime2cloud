@@ -333,6 +333,22 @@ class MultiInOutShiftController extends Controller
                         $items["shift_type_id"] =  $current['schedule']['shift_type_id'];
                         $items["shift_id"] =  $current['schedule']['shift_id'];
 
+
+
+                        $gap = $shift["gap_in"];
+                        $ct = $current['time'];
+                        $cp = strtotime("$ct $gap minutes");
+                        $np = strtotime($next['time'] ?? 0);
+
+                        if ($cp > $np) {
+                            $i++;
+                            $next  = $data[$i + 1] ?? false;
+
+                            // $testing[$UserID][$date][] = [$current["time"],$next["time"] ?? "----"];
+                            // return [$current["time"],$next["time"]];
+                        }
+
+
                         $mints = 0;
                         if (isset($current['time']) and $current['time'] != '---' and isset($next['time']) and $next['time'] != '---') {
 
@@ -355,16 +371,13 @@ class MultiInOutShiftController extends Controller
                             "diff" => $this->minutesToHours($final_mints) ?? 0
 
                             // "UserID" => $next['UserID'] ?? '---',
-
                             // "range" => [$on_duty_time, $next_day_cap_display]
-
                             // "diff" => $this->minutesToHours($mints) ?? 0
                         ];
 
                         $items["logs"] = $logs[$UserID][$date];
                         $res = $total_hours[$UserID][$date] ?? [];
                         $items["total_hrs"] = $this->minutesToHours(array_sum($res));
-
 
 
                         // $items[$date][$UserID]["id"] =  $current["id"];
@@ -378,8 +391,6 @@ class MultiInOutShiftController extends Controller
 
 
                         $res = $this->storeOrUpdate($items);
-
-
 
                         if ($res ?? true) {
                             $log_ids[] = $items['id'];
