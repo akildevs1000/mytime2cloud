@@ -208,6 +208,7 @@ class MultiInOutShiftController extends Controller
     {
         // return  DB::table('misc')->update(["date" => '2022-12-07']);
         // $currentDate = (string) DB::table('misc')->pluck("date")[0];
+        // $currentDate = date('Y-m-d');
         $currentDate = date('Y-m-d');
 
         if ($currentDate < date('Y-09-27')) {
@@ -217,13 +218,13 @@ class MultiInOutShiftController extends Controller
         $this->update_date = date("Y-m-d", strtotime($currentDate));
 
 
-        AttendanceLog::whereDate("LogTime", $currentDate)->update([
-            "checked" => false
-        ]);
+        // AttendanceLog::whereDate("LogTime", $currentDate)->update([
+        //     "checked" => false
+        // ]);
 
         $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
 
-        // return AttendanceLog::whereDate("LogTime", $nextDate)->update([
+        // return AttendanceLog::whereDate("LogTime", $currentDate)->update([
         //     "checked" => false
         // ]);
 
@@ -237,7 +238,7 @@ class MultiInOutShiftController extends Controller
 
         $model->where(function ($q) use ($currentDate) {
             // $q->whereIn("UserID", [
-            //     679,
+            //     209,
             // ]);
             $q->whereDate("LogTime", $currentDate);
             $q->whereHas("schedule", function ($q) {
@@ -247,7 +248,7 @@ class MultiInOutShiftController extends Controller
 
         $model->orWhere(function ($q) use ($nextDate) {
             // $q->whereIn("UserID", [
-            //     679,
+            //     209,
             // ]);
             $q->whereDate("LogTime", $nextDate);
             $q->whereHas("schedule", function ($q) {
@@ -274,6 +275,7 @@ class MultiInOutShiftController extends Controller
         $log_ids = [];
         $logs = [];
         $str = "";
+        $temp = [];
         $total_hours = [];
 
         foreach ($data as $UserID => $data) {
@@ -301,7 +303,6 @@ class MultiInOutShiftController extends Controller
                         $next_day_cap  = $next_day_cap + 86400;
                     }
 
-
                     if (($time_in >= $on_duty_time_parsed && $time_in < $next_day_cap)) {
 
                         $items["id"] =  $current["id"];
@@ -318,13 +319,19 @@ class MultiInOutShiftController extends Controller
                             $mints =  floor($diff / 60);
                             // $items["diff"] = $this->minutesToHours($mints);
 
-                            $total_hours[] = $mints;
+                            if ($mints > 0) {
+                                $final_mints = $mints;
+                            } else {
+                                $final_mints = 0;
+                            }
+
+                            $total_hours[$UserID][$date][] = $final_mints;
                         }
 
                         $logs[$UserID][$date][] =  [
                             "in" => $current['time'],
                             "out" =>  $next && $time_out < $next_day_cap ? $next['time'] : "---",
-                            "diff" => $this->minutesToHours($mints) ?? 0
+                            "diff" => $this->minutesToHours($final_mints) ?? 0
 
                             // "UserID" => $next['UserID'] ?? '---',
 
@@ -334,6 +341,9 @@ class MultiInOutShiftController extends Controller
                         ];
 
                         $items["logs"] = $logs[$UserID][$date];
+                        $res = $total_hours[$UserID][$date] ?? [];
+                        $items["total_hrs"] = $this->minutesToHours(array_sum($res));
+
 
 
                         // $items[$date][$UserID]["id"] =  $current["id"];
@@ -343,16 +353,12 @@ class MultiInOutShiftController extends Controller
                         // $items[$date][$UserID]["shift_type_id"] =  $current['schedule']['shift_type_id'];
                         // $items[$date][$UserID]["shift_id"] =  $current['schedule']['shift_id'];
 
+                        // $items["total_hrs"] =  $this->minutesToHours($total_hours[$UserID][$date]);
 
-
-                        // $items["total_hrs"] =  $this->minutesToHours(array_sum($total_hours));
-
-                        // return $items;
 
                         $res = $this->storeOrUpdate($items);
 
 
-                        // $temp[] = $res;
 
                         if ($res ?? true) {
                             $log_ids[] = $items['id'];
@@ -366,11 +372,8 @@ class MultiInOutShiftController extends Controller
             }
         }
 
-        // return $log_ids;
 
         // AttendanceLog::whereIn("id", $log_ids)->update(["checked" => true]);
-        // return $log_ids;
-
         $logsCount = count($log_ids);
 
         return "Log processed count = $logsCount, Out of range Logs = $out_of_range";
