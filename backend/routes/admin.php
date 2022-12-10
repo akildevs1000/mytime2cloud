@@ -124,7 +124,7 @@ Route::get('SyncAbsent', [AttendanceController::class, 'SyncAbsent']);
 
 
 Route::get('ProcessAttendance', [AttendanceController::class, 'ProcessAttendance']);
-Route::get('processByManual/{date}', [MultiInOutShiftController::class, 'processByManual']);
+Route::get('processByManual', [MultiInOutShiftController::class, 'processByManual']);
 
 
 
