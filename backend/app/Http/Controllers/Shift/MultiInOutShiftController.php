@@ -34,7 +34,7 @@ class MultiInOutShiftController extends Controller
         // $currentDate = (string) DB::table('misc')->pluck("date")[0];
         // $currentDate = date('Y-m-d');
 
-        return  Attendance::whereDate("date", $currentDate)->delete();
+        // return  Attendance::whereDate("date", $currentDate)->delete();
 
         $this->update_date = date("Y-m-d", strtotime($currentDate));
 
@@ -146,6 +146,11 @@ class MultiInOutShiftController extends Controller
 
                             // $testing[$UserID][$date][] = [$current["time"],$next["time"] ?? "----"];
                             // return [$current["time"],$next["time"]];
+                        }
+
+                        if (strtotime($ct) == $np) {
+                            $i++;
+                            $next  = $data[$i + 1] ?? false;
                         }
 
                         $mints = 0;
