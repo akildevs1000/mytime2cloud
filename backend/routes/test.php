@@ -25,7 +25,7 @@ Route::get('/open_door', function (Request $request) {
 
     $device_id = $request->device_id;
 
-    $device_id = 'OX-8862021010076';
+    // $device_id = 'OX-8862021010076';
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => "http://139.59.69.241:5000/$device_id/OpenDoor",
@@ -53,7 +53,7 @@ Route::get('/open_door_always', function (Request $request) {
 
     $device_id = $request->device_id;
 
-    $device_id = 'OX-8862021010076';
+    // $device_id = 'OX-8862021010076';
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => "http://139.59.69.241:5000/$device_id/HoldDoor",
@@ -81,7 +81,7 @@ Route::get('/close_door', function (Request $request) {
 
     $device_id = $request->device_id;
 
-    $device_id = 'OX-8862021010076';
+    // $device_id = 'OX-8862021010076';
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => "http://139.59.69.241:5000/$device_id/CloseDoor",

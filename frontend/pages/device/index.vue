@@ -65,12 +65,39 @@
           <td>{{ caps(item.device_id) }}</td>
           <td>{{ caps(item.device_type) }}</td>
           <td>
-            <v-chip
+            <!-- <v-chip
               small
               class="p-2 mx-1"
               :color="item.status.name == 'active' ? 'primary' : 'error'"
             >
               {{ item.status.name == "active" ? "online" : "offline" }}
+            </v-chip> -->
+
+            <v-chip
+              small
+              class="p-2 mx-1"
+              color="primary"
+              @click="open_door(item.device_id)"
+            >
+              Open Door
+            </v-chip>
+
+            <v-chip
+              small
+              class="p-2 mx-1"
+              color="primary"
+              @click="open_door_always(item.device_id)"
+            >
+              Always Open Door
+            </v-chip>
+
+            <v-chip
+              small
+              class="p-2 mx-1"
+              color="error"
+              @click="close_door(item.device_id)"
+            >
+              Close Door
             </v-chip>
           </td>
         </tr>
@@ -140,6 +167,30 @@ export default {
   },
 
   methods: {
+    open_door(device_id) {
+      let options = {
+        params: { device_id }
+      };
+      this.$axios.get(`open_door`, options).then(({ data }) => {
+        console.log(data);
+      });
+    },
+    open_door_always(device_id) {
+      let options = {
+        params: { device_id }
+      };
+      this.$axios.get(`open_door_always`, options).then(({ data }) => {
+        console.log(data);
+      });
+    },
+    close_door(device_id) {
+      let options = {
+        params: { device_id }
+      };
+      this.$axios.get(`close_door`, options).then(({ data }) => {
+        console.log(data);
+      });
+    },
     can(permission) {
       let user = this.$auth;
       return;
