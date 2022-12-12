@@ -34,10 +34,6 @@ class MultiInOutShiftController extends Controller
         // $currentDate = (string) DB::table('misc')->pluck("date")[0];
         // $currentDate = date('Y-m-d');
 
-        if ($currentDate < date('Y-09-27')) {
-            return "You cannot process attendance against current date or future date";
-        }
-
         $this->update_date = date("Y-m-d", strtotime($currentDate));
 
 
