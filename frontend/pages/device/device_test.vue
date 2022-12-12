@@ -161,7 +161,7 @@ export default {
       let id = "OX-8862021010076";
       device_id = id;
 
-      let url = `http://139.59.69.241:5000/OX-8862021010076/OpenDoor`;
+      let url = `sdk.ideahrms.com:5000/OX-8862021010076/OpenDoor`;
 
       this.$axios.get(url).then(({ data }) => {
         console.log(data);
