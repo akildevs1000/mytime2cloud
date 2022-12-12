@@ -124,7 +124,7 @@
             >-</span
           >
           <span class="num">{{ payload.gap_in }}</span>
-          <span class="plus" @click="payload.gap_in > 59 || payload.gap_in++"
+          <span class="plus" @click="payload.gap_in >= 59 || payload.gap_in++"
             >+</span
           >
         </div>
@@ -137,13 +137,13 @@
             >-</span
           >
           <span class="num">{{ payload.gap_out }}</span>
-          <span class="plus" @click="payload.gap_out > 59 || payload.gap_out++"
+          <span class="plus" @click="payload.gap_out >= 59 || payload.gap_out++"
             >+</span
           >
         </div>
       </v-col>
 
-      <v-col cols="12" md="3">
+      <!-- <v-col cols="12" md="3">
         Gap Time For Checkin <span class="error--text">*</span>
 
         <v-menu
@@ -242,7 +242,7 @@
         <span v-if="errors && errors.gap_out" class="text-danger mt-2">{{
           errors.gap_out[0]
         }}</span>
-      </v-col>
+      </v-col> -->
 
       <v-col cols="12" md="3">
         Minimum Working Hours <span class="error--text">*</span>
@@ -487,7 +487,7 @@ export default {
 <style>
 .wrapper {
   height: 47px;
-  width: 50%;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
