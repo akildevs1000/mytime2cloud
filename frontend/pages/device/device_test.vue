@@ -165,6 +165,22 @@ export default {
         console.log(data);
       });
     },
+    open_door_always(device_id) {
+      let options = {
+        params: { device_id }
+      };
+      this.$axios.get(`open_door_always`, options).then(({ data }) => {
+        console.log(data);
+      });
+    },
+    close_door(device_id) {
+      let options = {
+        params: { device_id }
+      };
+      this.$axios.get(`close_door`, options).then(({ data }) => {
+        console.log(data);
+      });
+    },
     can(permission) {
       let user = this.$auth;
       return;
