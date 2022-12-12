@@ -806,7 +806,7 @@
 </template>
 <script>
 export default {
-  props: ["main_report_type"],
+  props: ["main_report_type_props"],
   data: () => ({
     isCompany: true,
     time_table_dialog: false,
@@ -965,6 +965,7 @@ export default {
     }
   },
   created() {
+    this.main_report_type = this.main_report_type_props;
     this.loading = true;
     this.getScheduledEmployees();
     // this.setMonthlyDateRange();

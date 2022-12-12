@@ -116,6 +116,33 @@
           errors.off_duty_time[0]
         }}</span>
       </v-col>
+
+      <v-col cols="12" md="3">
+        Gap Time For Checkin <span class="error--text">*</span>
+        <div class="wrapper">
+          <span class="minus" @click="payload.gap_in < 1 || payload.gap_in--"
+            >-</span
+          >
+          <span class="num">{{ payload.gap_in }}</span>
+          <span class="plus" @click="payload.gap_in > 59 || payload.gap_in++"
+            >+</span
+          >
+        </div>
+      </v-col>
+
+      <v-col cols="12" md="3">
+        Gap Time For Checkout <span class="error--text">*</span>
+        <div class="wrapper">
+          <span class="minus" @click="payload.gap_out < 1 || payload.gap_out--"
+            >-</span
+          >
+          <span class="num">{{ payload.gap_out }}</span>
+          <span class="plus" @click="payload.gap_out > 59 || payload.gap_out++"
+            >+</span
+          >
+        </div>
+      </v-col>
+
       <v-col cols="12" md="3">
         Gap Time For Checkin <span class="error--text">*</span>
 
@@ -166,6 +193,7 @@
           errors.gap_in[0]
         }}</span>
       </v-col>
+
       <v-col cols="12" md="3">
         Gap Time For Checkout <span class="error--text">*</span>
         <v-menu
@@ -215,9 +243,9 @@
           errors.gap_out[0]
         }}</span>
       </v-col>
+
       <v-col cols="12" md="3">
         Minimum Working Hours <span class="error--text">*</span>
-
         <v-menu
           ref="working_hours_menu_ref"
           v-model="working_hours_menu"
@@ -265,6 +293,7 @@
           errors.working_hours[0]
         }}</span>
       </v-col>
+
       <v-col cols="12" md="3">
         Overtime start after duty hours <span class="error--text">*</span>
 
@@ -405,10 +434,11 @@ export default {
       name: "Multi Shift",
       on_duty_time: "17:00",
       off_duty_time: "14:00",
-      gap_in: "00:15",
-      gap_out: "00:15",
+      gap_in: 15,
+      gap_out: 15,
       working_hours: "09:00",
       overtime_interval: "00:00"
+      // days: []
     },
 
     errors: [],
@@ -429,6 +459,7 @@ export default {
     },
 
     store_shift() {
+      this.payload.days = [this.payload.days]; //days convert string to array;
       this.payload.company_id = this.$auth.user.company.id;
       this.payload.shift_type_id = this.shift_type_id;
       this.loading = true;
@@ -452,3 +483,30 @@ export default {
   }
 };
 </script>
+
+<style>
+.wrapper {
+  height: 47px;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 5px;
+  border: 1px solid rgb(145, 140, 140);
+}
+.wrapper span {
+  width: 100%;
+  text-align: center;
+  font-size: 25px;
+  font-weight: normal;
+  cursor: pointer;
+  user-select: none;
+}
+.wrapper span.num {
+  font-size: 20px;
+  border-right: 2px solid rgba(0, 0, 0, 0.2);
+  border-left: 2px solid rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+</style>

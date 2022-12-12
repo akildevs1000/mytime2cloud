@@ -3,12 +3,12 @@
     <!-- <GenerateLog /> -->
     <div v-if="this.$store.state.main_report_type == 'General Report'">
       <GeneralAttendanceReport
-        :main_report_type="this.$store.state.main_report_type"
+        :main_report_type_props="this.$store.state.main_report_type"
       />
     </div>
     <div v-else>
       <MimoAttendanceReport
-        :main_report_type="this.$store.state.main_report_type"
+        :main_report_type_props="this.$store.state.main_report_type"
       />
     </div>
   </div>
@@ -18,22 +18,16 @@ import GeneralAttendanceReport from "../../components/attendance_report/GeneralA
 import MimoAttendanceReport from "../../components/attendance_report/MimoAttendanceReport.vue";
 export default {
   data() {
-    return {
-      txt: ""
-    };
+    return {};
   },
-  created() {
-    console.log(this.txt == "General Report");
-  },
+  created() {},
 
   computed: {
     getmeth() {
       this.txt = this.$store.state.main_report_type;
-      console.log(this.txt);
     }
   },
 
-  methods: {},
   components: { GeneralAttendanceReport, MimoAttendanceReport }
 };
 </script>

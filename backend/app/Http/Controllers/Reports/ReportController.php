@@ -27,20 +27,21 @@ class ReportController extends Controller
 
 
         foreach ($model as $value) {
-            $count = count($value->logs);
+            $count = count($value->logs ?? []);
+            if ($count > 0) {
+                if ($count < 8) {
+                    $diff = 7 - $count;
+                    $count = $count + $diff;
+                }
+                $i = 1;
+                for ($a = 0; $a < $count; $a++) {
 
-            if ($count < 8) {
-                $diff = 7 - $count;
-                $count = $count + $diff;
-            }
-            $i = 1;
-            for ($a = 0; $a < $count; $a++) {
+                    $holder = $a;
+                    $holder_key = ++$holder;
 
-                $holder = $a;
-                $holder_key = ++$holder;
-
-                $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
-                $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
+                    $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
+                    $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
+                }
             }
         }
 

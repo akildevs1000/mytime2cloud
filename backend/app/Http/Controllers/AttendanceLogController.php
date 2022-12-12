@@ -358,6 +358,7 @@ class AttendanceLogController extends Controller
             ->where('company_id', $request->company_id)
             ->whereDate('LogTime', $request->LogTime)
             ->select("LogTime")
+            ->orderBy('LogTime')
             ->paginate($request->per_page ?? 100);
     }
 
