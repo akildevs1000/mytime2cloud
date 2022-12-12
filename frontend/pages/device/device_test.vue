@@ -158,12 +158,10 @@ export default {
 
   methods: {
     open_door(device_id) {
-      let id = "OX-8862021010076";
-      device_id = id;
-
-      let url = `sdk.ideahrms.com:5000/OX-8862021010076/OpenDoor`;
-
-      this.$axios.get(url).then(({ data }) => {
+      let options = {
+        params: { device_id }
+      };
+      this.$axios.get(`open_door`, options).then(({ data }) => {
         console.log(data);
       });
     },
