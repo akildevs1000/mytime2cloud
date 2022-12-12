@@ -148,6 +148,11 @@ class MultiInOutShiftController extends Controller
                             // return [$current["time"],$next["time"]];
                         }
 
+                        if (strtotime($ct) == $np) {
+                            $i++;
+                            $next  = $data[$i + 1] ?? false;
+                        }
+
                         $mints = 0;
                         if (isset($current['time']) and $current['time'] != '---' and isset($next['time']) and $next['time'] != '---') {
 
