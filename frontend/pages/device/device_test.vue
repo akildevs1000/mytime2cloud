@@ -82,11 +82,21 @@
               Open Door
             </v-chip>
 
-            <v-chip small class="p-2 mx-1" color="primary">
+            <v-chip
+              small
+              class="p-2 mx-1"
+              color="primary"
+              @click="open_door_always(item.device_id)"
+            >
               Always Open Door
             </v-chip>
 
-            <v-chip small class="p-2 mx-1" color="error">
+            <v-chip
+              small
+              class="p-2 mx-1"
+              color="error"
+              @click="close_door(item.device_id)"
+            >
               Close Door
             </v-chip>
           </td>
