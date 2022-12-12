@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
     <v-row>
-        <v-col xs="12" sm="12" md="3" cols="12">
+      <v-col xs="12" sm="12" md="3" cols="12">
         <input
           class="form-control py-3 custom-text-box floating shadow-none"
           placeholder="Search..."
@@ -66,6 +66,7 @@ export default {
 
     data: [],
     total: 0,
+    search: "",
     options: {},
     errors: [],
     response: "",

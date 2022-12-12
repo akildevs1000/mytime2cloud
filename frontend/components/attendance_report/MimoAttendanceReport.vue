@@ -806,7 +806,7 @@
 </template>
 <script>
 export default {
-  props: ["main_report_type"],
+  props: ["main_report_type_props"],
 
   data: () => ({
     isCompany: true,
@@ -863,7 +863,6 @@ export default {
         value: "employee.display_name"
       },
 
-      { text: "Status", align: "left", sortable: false, value: "status" },
       { text: "In1", align: "left", sortable: false, value: "in1" },
       { text: "Out1", align: "left", sortable: false, value: "out1" },
       { text: "In2", align: "left", sortable: false, value: "in2" },
@@ -886,6 +885,7 @@ export default {
         value: "total_hrs"
       },
 
+      { text: "Status", align: "left", sortable: false, value: "status" },
       { text: "Actions", value: "actions", sortable: false }
     ],
     payload: {
@@ -929,6 +929,9 @@ export default {
       this.errors = [];
       this.search = "";
     },
+    main_report_type() {
+      this.getDataFromApi();
+    },
     options: {
       handler() {
         this.getDataFromApi();
@@ -937,6 +940,9 @@ export default {
     }
   },
   created() {
+    // console.log("mimo");
+
+    this.main_report_type = this.main_report_type_props;
     this.loading = true;
     this.getScheduledEmployees();
     // this.setMonthlyDateRange();
@@ -1199,7 +1205,6 @@ export default {
 
       this.$axios.get(url, options).then(({ data }) => {
         this.data = data.data;
-        console.log(this.data);
         this.total = data.total;
         this.loading = false;
       });

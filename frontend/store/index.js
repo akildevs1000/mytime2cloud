@@ -4,7 +4,6 @@ export const state = () => ({
     color: "primary",
     employee_id: "",
     main_report_type: ""
-
 });
 
 // contains your mutations
@@ -19,7 +18,7 @@ export const mutations = {
         state.employee_id = value;
     },
     main_report_type(state, value) {
-        console.log(value);
+        // console.log(value);
         state.main_report_type = value;
     }
 };
