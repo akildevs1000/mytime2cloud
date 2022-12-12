@@ -34,7 +34,7 @@ class MultiInOutShiftController extends Controller
         // $currentDate = (string) DB::table('misc')->pluck("date")[0];
         // $currentDate = date('Y-m-d');
 
-        return  Attendance::whereDate("date", $currentDate)->delete();
+        // return  Attendance::whereDate("date", $currentDate)->delete();
 
         $this->update_date = date("Y-m-d", strtotime($currentDate));
 
