@@ -98,7 +98,7 @@
             <td class="text-center">
               <b>{{ ++index }}</b>
             </td>
-            <td>{{ item.system_user_id || "---" }}</td>
+            <td>{{ item.employee_id || "---" }}</td>
             <td>
               <v-img
                 style="border-radius: 50%; height: 40px; width: 40px"
