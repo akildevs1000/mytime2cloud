@@ -256,7 +256,7 @@ class MultiInOutShiftController extends Controller
 
         $model->where(function ($q) use ($currentDate) {
             // $q->whereIn("UserID", [
-            //     264,
+            //     19,
             // ]);
             $q->whereDate("LogTime", $currentDate);
             $q->whereHas("schedule", function ($q) {
@@ -266,7 +266,7 @@ class MultiInOutShiftController extends Controller
 
         $model->orWhere(function ($q) use ($nextDate) {
             // $q->whereIn("UserID", [
-            //     264,
+            //     19,
             // ]);
             $q->whereDate("LogTime", $nextDate);
             $q->whereHas("schedule", function ($q) {
@@ -330,21 +330,22 @@ class MultiInOutShiftController extends Controller
                         $items["shift_type_id"] =  $current['schedule']['shift_type_id'];
                         $items["shift_id"] =  $current['schedule']['shift_id'];
 
-
-
                         $gap = $shift["gap_in"];
                         $ct = $current['time'];
                         $cp = strtotime("$ct $gap minutes");
                         $np = strtotime($next['time'] ?? 0);
 
-                        // $temp[] = $cp > $np;
-
                         if ($cp > $np) {
                             $i++;
                             $next  = $data[$i + 1] ?? false;
-                            // dd('gg');
+
                             // $testing[$UserID][$date][] = [$current["time"],$next["time"] ?? "----"];
                             // return [$current["time"],$next["time"]];
+                        }
+
+                        if (strtotime($ct) == $np) {
+                            $i++;
+                            $next  = $data[$i + 1] ?? false;
                         }
 
 
@@ -406,7 +407,7 @@ class MultiInOutShiftController extends Controller
 
         // return [
         //     $items,
-        //     $temp
+        // $temp
         // ];
         // AttendanceLog::whereIn("id", $log_ids)->update(["checked" => true]);
         $logsCount = count($log_ids);
@@ -544,7 +545,11 @@ class MultiInOutShiftController extends Controller
 
     public function minutesToHours($minutes)
     {
-        $hours = intdiv($minutes, 60) . ':' . ($minutes % 60);
+        $newHours = intdiv($minutes, 60);
+        $newMints = $minutes % 60;
+        $final_mints =  $newMints < 10 ? '0' . $newMints :  $newMints;
+        $final_hours =  $newHours < 10 ? '0' . $newHours :  $newHours;
+        $hours = $final_hours . ':' . ($final_mints);
         return $hours;
     }
 
