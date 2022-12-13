@@ -19,6 +19,9 @@ Route::get('/daily', [Controller::class, 'daily']);
 Route::get('/daily_download_pdf', [Controller::class, 'daily_download_pdf']);
 Route::get('/daily_download_csv', [Controller::class, 'daily_download_csv']);
 
+//multi in out
+Route::get('/multi_in_out_daily_download_csv', [Controller::class, 'multi_in_out_daily_download_csv']);
+
 Route::get('/generateSummaryReport', [DailyController::class, 'generateSummaryReport']);
 Route::get('/generatePresentReport', [DailyController::class, 'generatePresentReport']);
 Route::get('/generateAbsentReport', [DailyController::class, 'generateAbsentReport']);
@@ -30,10 +33,16 @@ Route::get('/weekly', [WeeklyController::class, 'weekly']);
 Route::get('/weekly_download_pdf', [WeeklyController::class, 'weekly_download_pdf']);
 Route::get('/weekly_download_csv', [WeeklyController::class, 'weekly_download_csv']);
 
+//multi in out
+Route::get('/multi_in_out_weekly_download_csv', [WeeklyController::class, 'multi_in_out_weekly_download_csv']);
+
 //monthly
 Route::get('/monthly', [MonthlyController::class, 'monthly']);
 Route::get('/monthly_download_pdf', [MonthlyController::class, 'monthly_download_pdf']);
 Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download_csv']);
+
+//multi in out
+Route::get('/multi_in_out_monthly_download_csv', [MonthlyController::class, 'multi_in_out_monthly_download_csv']);
 
 
 //for testing static

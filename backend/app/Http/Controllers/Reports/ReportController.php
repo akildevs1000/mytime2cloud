@@ -14,18 +14,21 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        return $this->report($request)->paginate($request->per_page);
+        return $this->report($request)
+            ->paginate($request->per_page);
     }
 
     public function multiInOut(Request $request)
     {
+        $model =  $this->processMultiInOut($request);
+        return $this->paginate($model, $request->per_page);
+    }
 
+
+    public function processMultiInOut($request)
+    {
         $model = $this->report($request)
-            // ->count();
             ->get();
-        // ->paginate($request->per_page ?? 20);
-
-
         foreach ($model as $value) {
             $count = count($value->logs ?? []);
             if ($count > 0) {
@@ -44,11 +47,7 @@ class ReportController extends Controller
                 }
             }
         }
-
-
-        return $this->paginate($model, $request->per_page);
-
-        // return $model->paginate($request->per_page);
+        return $model;
     }
 
 
@@ -59,15 +58,21 @@ class ReportController extends Controller
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 
-
     public function report($request)
     {
-
         $model = Attendance::query();
         $model->where('company_id', $request->company_id);
 
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
+        });
+
+        $model->when($request->main_shift_type && $request->main_shift_type == 2, function ($q) {
+            $q->where('shift_type_id', 2);
+        });
+
+        $model->when($request->main_shift_type && $request->main_shift_type != 2, function ($q) {
+            $q->whereNot('shift_type_id', 2);
         });
 
         $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
@@ -108,6 +113,8 @@ class ReportController extends Controller
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
             $q->orderBy("date", "asc");
         });
+
+        // dd($request->all());
 
         $model->with([
             "employee:id,system_user_id,display_name,employee_id,department_id,profile_picture",

@@ -145,7 +145,11 @@ class EmployeeController extends Controller
 
     public function not_scheduled_employees(Employee $employee, Request $request)
     {
-        return $employee->where("company_id", $request->company_id)->doesntHave('schedule')->paginate($request->per_page);
+        return $employee->where("company_id", $request->company_id)
+            ->whereDoesntHave('schedule', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            })
+            ->paginate($request->per_page);
     }
     public function show(Employee $employee)
     {
