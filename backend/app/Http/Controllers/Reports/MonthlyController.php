@@ -74,6 +74,94 @@ class MonthlyController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    public function multi_in_out_monthly_download_csv(Request $request)
+    {
+        $model = new ReportController;
+        $data = $model->processMultiInOut($request);
+
+        $fileName = 'report.csv';
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+            $i = 0;
+            fputcsv($file, [
+                "#",
+                "Date",
+                "E.ID",
+                "Name",
+                "Dept",
+                "Shift Type",
+                "Shift",
+                "Status",
+                "In1",
+                "Out1",
+                "In2",
+                "Out2",
+                "In3",
+                "Out3",
+                "In4",
+                "Out4",
+                "In5",
+                "Out5",
+                "In6",
+                "Out6",
+                "In7",
+                "Out7",
+                "Total Hrs",
+                "OT",
+                "Late coming",
+                "Early Going",
+                "D.In",
+                "D.Out"
+            ]);
+            foreach ($data as $col) {
+                fputcsv($file, [
+                    ++$i,
+                    $col['date'],
+                    $col['employee_id'] ?? "---",
+                    $col['employee']["display_name"] ?? "---",
+                    $col['employee']["department"]["name"] ?? "---",
+                    $col["shift_type"]["name"] ?? "---",
+                    $col["shift"]["name"] ?? "---",
+                    $col["status"] ?? "---",
+                    $col["in1"] ?? "---",
+                    $col["out1"] ?? "---",
+                    $col["in2"] ?? "---",
+                    $col["out2"] ?? "---",
+                    $col["in3"] ?? "---",
+                    $col["out3"] ?? "---",
+                    $col["in4"] ?? "---",
+                    $col["out4"] ?? "---",
+                    $col["in5"] ?? "---",
+                    $col["out5"] ?? "---",
+                    $col["in6"] ?? "---",
+                    $col["out6"] ?? "---",
+                    $col["in7"] ?? "---",
+                    $col["out7"] ?? "---",
+
+                    $col["total_hrs"] ?? "---",
+                    $col["ot"] ?? "---",
+                    $col["late_coming"] ?? "---",
+                    $col["early_going"] ?? "---",
+                    $col["device_in"]["short_name"] ?? "---",
+                    $col["device_out"]["short_name"] ?? "---"
+                ], ",");
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function processPDF($request)
     {
         $start = $request->from_date ?? date('Y-10-01');
