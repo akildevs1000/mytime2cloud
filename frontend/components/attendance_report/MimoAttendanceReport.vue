@@ -896,7 +896,8 @@ export default {
       report_type: "Daily",
       department_id: -1,
       status: "Select All",
-      late_early: "Select All"
+      late_early: "Select All",
+      main_shift_type: 2
     },
     log_payload: {
       user_id: null,
@@ -1284,7 +1285,6 @@ export default {
 
     process_file(type) {
       let data = this.payload;
-
       if (data.department_id == -1) {
         alert("Department must be selected.");
         return false;
@@ -1292,9 +1292,9 @@ export default {
       let status = this.getStatus(this.payload.status);
 
       let company_id = this.$auth.user.company.id;
-      let path = process.env.BACKEND_URL + "/" + type;
+      let path = process.env.BACKEND_URL + "/multi_in_out_" + type;
 
-      let qs = `${path}?company_id=${company_id}&status=${status}&department_id=${data.department_id}&employee_id=${data.employee_id}&report_type=${data.report_type}`;
+      let qs = `${path}?main_shift_type=2&company_id=${company_id}&status=${status}&department_id=${data.department_id}&employee_id=${data.employee_id}&report_type=${data.report_type}`;
 
       qs +=
         data.report_type == "Daily"
@@ -1304,6 +1304,7 @@ export default {
       let report = document.createElement("a");
       report.setAttribute("href", qs);
       report.setAttribute("target", "_blank");
+      console.log(report);
       report.click();
 
       this.fetch_logs();

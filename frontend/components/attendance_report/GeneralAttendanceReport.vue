@@ -924,7 +924,8 @@ export default {
       report_type: "Daily",
       department_id: -1,
       status: "Present",
-      late_early: "Select All"
+      late_early: "Select All",
+      main_shift_type: 1
     },
     log_payload: {
       user_id: null,
@@ -1317,7 +1318,7 @@ export default {
       let company_id = this.$auth.user.company.id;
       let path = process.env.BACKEND_URL + "/" + type;
 
-      let qs = `${path}?company_id=${company_id}&status=${status}&department_id=${data.department_id}&employee_id=${data.employee_id}&report_type=${data.report_type}`;
+      let qs = `${path}?main_shift_type=1&company_id=${company_id}&status=${status}&department_id=${data.department_id}&employee_id=${data.employee_id}&report_type=${data.report_type}`;
 
       qs +=
         data.report_type == "Daily"

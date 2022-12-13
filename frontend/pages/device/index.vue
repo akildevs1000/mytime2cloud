@@ -65,13 +65,13 @@
           <td>{{ caps(item.device_id) }}</td>
           <td>{{ caps(item.device_type) }}</td>
           <td>
-            <!-- <v-chip
+            <v-chip
               small
               class="p-2 mx-1"
               :color="item.status.name == 'active' ? 'primary' : 'error'"
             >
               {{ item.status.name == "active" ? "online" : "offline" }}
-            </v-chip> -->
+            </v-chip>
 
             <v-chip
               small
