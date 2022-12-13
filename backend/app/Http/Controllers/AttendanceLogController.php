@@ -610,6 +610,8 @@ class AttendanceLogController extends Controller
             $q->orWhere("DeviceID", $key);
         });
 
-        return $model->paginate($request->per_page ?? 100);
+        return $model
+            ->orderBy('LogTime', 'desc')
+            ->paginate($request->per_page ?? 100);
     }
 }
