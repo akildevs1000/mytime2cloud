@@ -605,15 +605,13 @@ class AttendanceLogController extends Controller
         $model = AttendanceLog::query();
         $model = $model->where("company_id", $request->company_id);
 
-        $fields = [
-            'DeviceID',
-            'UserID',
-            'LogTime',
-        ];
+        $model = $model->where(function ($q) use ($key) {
+            $q->where("UserID", $key);
+            $q->orWhere("DeviceID", $key);
+        });
 
-        $model = $this->process_search($model, $key, $fields);
-
-
-        return $model->paginate($request->per_page ?? 100);
+        return $model
+            ->orderBy('LogTime', 'desc')
+            ->paginate($request->per_page ?? 100);
     }
 }
