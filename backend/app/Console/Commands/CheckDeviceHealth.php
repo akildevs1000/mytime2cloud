@@ -69,6 +69,14 @@ class CheckDeviceHealth extends Command
             $total_iterations++;
         }
 
-        echo "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+        $date = date("Y-m-d H:i:s");
+        $script_name = "CheckDeviceHealth";
+
+        $meta = "[$date] Cron: $script_name.";
+
+        $result = "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found";
+
+        $message =  $meta . " " . $result . ".\n";
+        echo $message;
     }
 }
