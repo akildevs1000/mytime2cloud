@@ -238,4 +238,46 @@ class DeviceController extends Controller
             throw $th;
         }
     }
+
+    public function sync_device_date_time(Request $request, $device_id)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://sdk.ideahrms.com/FC-8300T20094123/SyncDateTime",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $status = json_decode($response);
+
+        return [$status, $request->sync_able_date_time];
+
+        if ($status->status !== 200) {
+            return $this->response("The device is not connected to the server or is not registered", null, false);
+        }
+
+        try {
+            $record = Device::where("device_id", $device_id)->update([
+                "sync_date_time" => $request->sync_able_date_time
+            ]);
+
+            if ($record) {
+                return $this->response('Time has been synced to the Device.', Device::where("device_id", $device_id)->first(), true);
+            } else {
+                return $this->response('Time cannot synced to the Device.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }
