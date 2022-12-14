@@ -252,6 +252,7 @@ class DeviceController extends Controller
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => '{ "dateTime": "2022-11-01 11:11:16" }',
         ));
 
         $response = curl_exec($curl);
