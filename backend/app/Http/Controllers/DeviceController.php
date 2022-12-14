@@ -242,6 +242,7 @@ class DeviceController extends Controller
     public function sync_device_date_time(Request $request, $device_id)
     {
         $curl = curl_init();
+        $dateTime = $request->sync_able_date_time;
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://sdk.ideahrms.com/FC-8300T20094123/SyncDateTime",
@@ -252,7 +253,7 @@ class DeviceController extends Controller
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => '{ "dateTime": "2022-11-01 11:11:16" }',
+            CURLOPT_POSTFIELDS => '{ "dateTime": "' . $dateTime . '" }',
         ));
 
         $response = curl_exec($curl);
