@@ -100,6 +100,21 @@
               Close Door
             </v-chip>
           </td>
+
+          <td>
+            <v-chip
+              small
+              class="p-2 mx-1"
+              @click="sync_date_time(item.device_id)"
+              :color="'primary'"
+            >
+              {{
+                item.sync_date_time == "---"
+                  ? "click to sync"
+                  : item.sync_date_time
+              }}
+            </v-chip>
+          </td>
         </tr>
       </table>
     </v-card>
@@ -141,7 +156,8 @@ export default {
       { text: "Location" },
       { text: "Device Id" },
       { text: "Type" },
-      { text: "Status" }
+      { text: "Status" },
+      { text: "Time Sync" }
     ],
     editedIndex: -1,
     response: "",
@@ -167,6 +183,55 @@ export default {
   },
 
   methods: {
+    sync_date_time(device_id) {
+      let dt = new Date();
+
+      let year = dt.getFullYear();
+      let month = dt.getMonth() + 1;
+      let day = dt.getDate();
+
+      let hours = dt.getHours();
+      hours = hours < 10 ? "0" + hours : hours;
+
+      let minutes = dt.getMinutes();
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+
+      let seconds = dt.getSeconds();
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+
+      let sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+      this.$axios
+        .get(`${process.env.SDK_ENDPOINT}/${device_id}/SyncDateTime`, options)
+        .then(({ data }) => {
+          this.snackbar = true;
+          if (data.status == 200) {
+            this.response = data.message;
+            this.getDataFromApi();
+            return;
+          }
+          this.response =
+            "The device is not connected to the server or is not registered";
+          return;
+        });
+
+      return;
+
+      let options = {
+        params: {
+          sync_able_date_time: sync_able_date_time
+        }
+      };
+
+      this.$axios
+        .get(`sync_device_date_time/${device_id}`, options)
+        .then(({ data }) => {
+          console.log(data, sync_able_date_time);
+          this.snackbar = true;
+          this.response = data.message;
+          this.getDataFromApi();
+        });
+    },
     open_door(device_id) {
       let options = {
         params: { device_id }
