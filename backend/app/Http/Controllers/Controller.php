@@ -246,10 +246,6 @@ class Controller extends BaseController
                 "Date",
                 "E.ID",
                 "Name",
-                "Dept",
-                "Shift Type",
-                "Shift",
-                "Status",
                 "In1",
                 "Out1",
                 "In2",
@@ -264,13 +260,9 @@ class Controller extends BaseController
                 "Out6",
                 "In7",
                 "Out7",
-
                 "Total Hrs",
-                "OT",
-                "Late coming",
-                "Early Going",
-                "D.In",
-                "D.Out"
+                "Status",
+
             ]);
             foreach ($data as $col) {
                 fputcsv($file, [
@@ -278,10 +270,6 @@ class Controller extends BaseController
                     $col['date'],
                     $col['employee_id'] ?? "---",
                     $col['employee']["display_name"] ?? "---",
-                    $col['employee']["department"]["name"] ?? "---",
-                    $col["shift_type"]["name"] ?? "---",
-                    $col["shift"]["name"] ?? "---",
-                    $col["status"] ?? "---",
                     $col["in1"] ?? "---",
                     $col["out1"] ?? "---",
                     $col["in2"] ?? "---",
@@ -296,13 +284,9 @@ class Controller extends BaseController
                     $col["out6"] ?? "---",
                     $col["in7"] ?? "---",
                     $col["out7"] ?? "---",
-
                     $col["total_hrs"] ?? "---",
-                    $col["ot"] ?? "---",
-                    $col["late_coming"] ?? "---",
-                    $col["early_going"] ?? "---",
-                    $col["device_in"]["short_name"] ?? "---",
-                    $col["device_out"]["short_name"] ?? "---"
+                    $col["status"] ?? "---",
+
                 ], ",");
             }
 
