@@ -245,7 +245,7 @@ class DeviceController extends Controller
         $dateTime = $request->sync_able_date_time;
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://sdk.ideahrms.com/FC-8300T20094123/SyncDateTime",
+            CURLOPT_URL => "https://sdk.ideahrms.com/$device_id/SyncDateTime",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -261,8 +261,6 @@ class DeviceController extends Controller
         curl_close($curl);
 
         $status = json_decode($response);
-
-        return [$status, $request->sync_able_date_time];
 
         if ($status->status !== 200) {
             return $this->response("The device is not connected to the server or is not registered", null, false);
