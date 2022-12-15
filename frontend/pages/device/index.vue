@@ -72,33 +72,17 @@
             >
               {{ item.status.name == "active" ? "online" : "offline" }}
             </v-chip>
-
-            <v-chip
-              small
-              class="p-2 mx-1"
-              color="primary"
-              @click="open_door(item.device_id)"
+          </td>
+          <td>
+            <v-icon color="primary" @click="open_door(item.device_id)"
+              >mdi-door</v-icon
             >
-              Open Door
-            </v-chip>
-
-            <v-chip
-              small
-              class="p-2 mx-1"
-              color="primary"
-              @click="open_door_always(item.device_id)"
+            <v-icon color="primary" @click="open_door_always(item.device_id)"
+              >mdi-door-sliding-open</v-icon
             >
-              Always Open Door
-            </v-chip>
-
-            <v-chip
-              small
-              class="p-2 mx-1"
-              color="error"
-              @click="close_door(item.device_id)"
+            <v-icon color="error" @click="close_door(item.device_id)"
+              >mdi-door-closed-lock</v-icon
             >
-              Close Door
-            </v-chip>
           </td>
 
           <td>
@@ -157,6 +141,7 @@ export default {
       { text: "Device Id" },
       { text: "Type" },
       { text: "Status" },
+      { text: "Door" },
       { text: "Time Sync" }
     ],
     editedIndex: -1,
@@ -201,22 +186,6 @@ export default {
 
       let sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-      this.$axios
-        .get(`${process.env.SDK_ENDPOINT}/${device_id}/SyncDateTime`, options)
-        .then(({ data }) => {
-          this.snackbar = true;
-          if (data.status == 200) {
-            this.response = data.message;
-            this.getDataFromApi();
-            return;
-          }
-          this.response =
-            "The device is not connected to the server or is not registered";
-          return;
-        });
-
-      return;
-
       let options = {
         params: {
           sync_able_date_time: sync_able_date_time
@@ -226,10 +195,10 @@ export default {
       this.$axios
         .get(`sync_device_date_time/${device_id}`, options)
         .then(({ data }) => {
-          console.log(data, sync_able_date_time);
+          console.log(data);
           this.snackbar = true;
           this.response = data.message;
-          this.getDataFromApi();
+          // this.getDataFromApi();
         });
     },
     open_door(device_id) {
@@ -237,7 +206,9 @@ export default {
         params: { device_id }
       };
       this.$axios.get(`open_door`, options).then(({ data }) => {
-        console.log(data);
+        this.snackbar = true;
+        this.response = data.message;
+        this.getDataFromApi();
       });
     },
     open_door_always(device_id) {
@@ -245,7 +216,9 @@ export default {
         params: { device_id }
       };
       this.$axios.get(`open_door_always`, options).then(({ data }) => {
-        console.log(data);
+        this.snackbar = true;
+        this.response = data.message;
+        this.getDataFromApi();
       });
     },
     close_door(device_id) {
@@ -253,7 +226,9 @@ export default {
         params: { device_id }
       };
       this.$axios.get(`close_door`, options).then(({ data }) => {
-        console.log(data);
+        this.snackbar = true;
+        this.response = data.message;
+        this.getDataFromApi();
       });
     },
     can(permission) {

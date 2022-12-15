@@ -246,6 +246,7 @@ class DeviceController extends Controller
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://sdk.ideahrms.com/$device_id/SyncDateTime",
+            // CURLOPT_URL => "http://139.59.69.241:5000/$device_id/SyncDateTime",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -260,24 +261,26 @@ class DeviceController extends Controller
 
         curl_close($curl);
 
-        $status = json_decode($response);
+        $result = json_decode($response);
 
-        if ($status->status !== 200) {
-            return $this->response("The device is not connected to the server or is not registered", null, false);
-        }
+        if ($result && $result->status == 200) {
+            try {
+                $record = Device::where("device_id", $device_id)->update([
+                    "sync_date_time" => $request->sync_able_date_time
+                ]);
 
-        try {
-            $record = Device::where("device_id", $device_id)->update([
-                "sync_date_time" => $request->sync_able_date_time
-            ]);
-
-            if ($record) {
-                return $this->response('Time has been synced to the Device.', Device::where("device_id", $device_id)->first(), true);
-            } else {
-                return $this->response('Time cannot synced to the Device.', null, false);
+                if ($record) {
+                    return $this->response('Time has been synced to the Device.', Device::with(['status', 'company'])->where("device_id", $device_id)->first(), true);
+                } else {
+                    return $this->response('Time cannot synced to the Device.', null, false);
+                }
+            } catch (\Throwable $th) {
+                throw $th;
             }
-        } catch (\Throwable $th) {
-            throw $th;
+        } else if ($result && $result->status == 102) {
+            return $this->response("The device is not connected to the server or is not registered", $result, false);
         }
+
+        return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
     }
 }
