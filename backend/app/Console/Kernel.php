@@ -30,7 +30,6 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command('task:check_device_health')
-                // ->everyMinute()
                 ->everyThirtyMinutes()
                 ->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
