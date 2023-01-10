@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
         ->command('task:sync_last_date_logs')
         ->dailyAt('4:00')
         // ->everyMinute()
-        ->appendOutputTo(storage_path("logs/testlogs.log"))
+        ->appendOutputTo(storage_path("logs/$date-manual-logs.log"))
         ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
