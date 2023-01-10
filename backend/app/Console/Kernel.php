@@ -20,6 +20,15 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
+
+        $schedule
+        ->command('task:sync_last_date_logs')
+        ->dailyAt('4:00')
+        // ->everyMinute()
+        ->appendOutputTo(storage_path("logs/testlogs.log"))
+        ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
         $schedule
             ->command('task:db_backup')
             ->dailyAt('3:00')
