@@ -1,21 +1,60 @@
 <?php
 
-use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\AttendanceLogController;
-use App\Mail\ReportNotificationMail;
-use App\Models\Attendance;
 use App\Models\Device;
 use App\Models\Employee;
-use App\Models\ReportNotification;
+use App\Jobs\WhatsappJob;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
+use App\Models\ReportNotification;
 use Illuminate\Support\Facades\DB;
+use App\Mail\ReportNotificationMail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\WhatsappController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceLogController;
 
 
 Route::get('/test', function (Request $request) {
-    return "Awesome APIs";
+
+
+    $data = [
+        "from" => "14157386102",
+        "to" => "971502848071",
+        "message_type" => "text",
+        "text" => "This is a WhatsApp Message sent from the ideahrms",
+        "channel" => "whatsapp"
+    ];
+
+    // return (new WhatsappController)->toSendNotification($data);
+    WhatsappJob::dispatch($data);
+    return 'done';
+    // $newLog[] = [
+    //     "out" => "01:01",
+    // ];
+
+    // $attendance = Attendance::where('date', '2022-12-19')->where('employee_id', 681);
+    // $found = $attendance->first();
+
+    // $oldLog = $found->logs;
+
+    // return [
+    //     $oldLog, $newLog
+    // ];
+
+    // $result = array_merge($oldLog, $newLog);
+
+    // $found->logs = $result;
+    // return $found->save();
+
+    // // return   $found ? $attendance->update($items) : Attendance::create($items);
+
+    // return $request->user();
+    // return $dd = Auth::user();
+    // return "Awesome APIs";
 });
 
 
@@ -278,6 +317,8 @@ Route::get('/test/whatsapp', function () {
 });
 
 Route::get('/test_attachment', function () {
+
+
 
     $models = ReportNotification::get();
 
