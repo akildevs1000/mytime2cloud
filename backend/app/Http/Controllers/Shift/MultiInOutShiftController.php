@@ -10,6 +10,7 @@ use App\Models\AttendanceLog;
 use App\Models\ScheduleEmployee;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 
 class MultiInOutShiftController extends Controller
 {
@@ -19,167 +20,189 @@ class MultiInOutShiftController extends Controller
     // processByManual
     public function processByManual(Request $request)
     {
+        $companyIds = $request->company_ids ?? [];
+
+        if (count($companyIds) == 0) {
+            return "Atleast 1 company Id is required";
+        }
+
         $currentDate = $request->date ?? date('Y-m-d');
+
         $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
 
-        $model = AttendanceLog::query();
-        $model->where("company_id", '>', 0);
-        $companyIds =  $model->clone()->pluck('company_id');
+        $output = "";
+
+        $arr = [];
 
         foreach ($companyIds as $companyId) {
 
-            $model->where(function ($q) use ($currentDate, $companyId) {
-                $q->whereDate("LogTime", $currentDate);
-                $q->where("company_id", $companyId);
-                // $q->where("UserID", 272);
-                $q->whereHas("schedule", function ($q) {
-                    $q->where('shift_type_id', 2);
-                });
-            });
+            $data = $this->getModelDataByCompanyId($currentDate, $nextDate, $companyId);
 
-            $model->orWhere(function ($q) use ($nextDate, $companyId) {
-                $q->whereDate("LogTime", $nextDate);
-                $q->where("company_id", $companyId);
-                // $q->where("UserID", 272);
-                $q->whereHas("schedule", function ($q) {
-                    $q->where('shift_type_id', 2);
-                });
-            });
-
-            $model->with("schedule", function ($q) use ($companyId) {
-                $q->where('company_id', $companyId);
-            });
-
-            $model->orderBy("LogTime");
-
-            $data = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy("UserID")->toArray();
-
-            if (count($data) == 0) {
-                return "No Log found";
-            }
-
-            $counter = 0;
-            $out_of_range = 0;
-            $items = [];
-            $temp = [];
-            $log_ids = [];
-            $logs = [];
-            $str = "";
-            $ids = [];
-            $dates = [];
-            $total_hours = [];
-
-            foreach ($data as $UserID => $data) {
-
-                $count = count($data);
-                for ($i = 0; $i < $count; $i++) {
-
-                    if ($data[$i]["schedule"]) {
-                        $current  = $data[$i];
-                        $next  = $data[$i + 1] ?? false;
-
-                        $date =          $current["edit_date"];
-                        $time_in       = $current["show_log_time"];
-                        $time_out      = $next["show_log_time"] ?? 0;
-                        $schedule      = $current["schedule"];
-                        $shift         = $schedule["shift"];
-                        $on_duty_time  = $date . " " . $shift["on_duty_time"];
-                        $off_duty_time = $date . " " . $shift["off_duty_time"];
-
-                        $on_duty_time_parsed  = strtotime($on_duty_time);
-                        $off_duty_time_parsed = strtotime($off_duty_time);
-
-                        $next_day_cap = $off_duty_time_parsed; // adding 24 hours
-
-                        if ($on_duty_time_parsed > $off_duty_time_parsed) {
-                            $next_day_cap  = $next_day_cap + 86400;
-                        }
-
-                        if (($time_in >= $on_duty_time_parsed && $time_in < $next_day_cap)) {
-
-                            $items["id"] =  $current["id"];
-                            $items["date"] =  $current["edit_date"];
-                            $items["company_id"] =  $current["company_id"];
-                            $items["employee_id"] =  $current["UserID"];
-                            $items["shift_type_id"] =  $current['schedule']['shift_type_id'];
-                            $items["shift_id"] =  $current['schedule']['shift_id'];
-
-                            $gap = $shift["gap_in"];
-                            $ct = $current['time'];
-                            $cp = strtotime("$ct $gap minutes");
-                            $np = strtotime($next['time'] ?? 0);
-
-                            if ($cp > $np || strtotime($ct) == $np) {
-                                $next  = $data[$i + 1] ?? false;
-                            }
-
-                            if ((isset($current['time']) && $current['time'] != '---') and (isset($next['time']) && $next['time'] != '---')) {
-                                $parsed_out = strtotime($next['time'] ?? 0);
-                                $parsed_in = strtotime($current['time'] ?? 0);
-
-                                if ($parsed_in > $parsed_out) {
-                                    $parsed_out += 86400;
-                                }
-
-                                $diff = $parsed_out - $parsed_in;
-
-                                $mints =  floor($diff / 60);
-
-                                $minutes = $mints > 0 ? $mints : 0;
-
-                                $total_hours[$date][$UserID][] = $minutes;
-
-                                $items["status"] =  'P';
-                            }
-
-                            $logs[$UserID][$date][] =  [
-                                "in" => $current['time'],
-                                "out" =>  $next && $time_out < $next_day_cap ? $next['time'] : "---",
-                                "diff" => $this->minutesToHoursNEW($current['time'] ?? "---", $next['time'] ?? "---"),
-                            ];
-
-                            $res = $total_hours[$date][$UserID] ?? [];
-
-                            $items["logs"] = $logs[$UserID][$date];
-
-                            $items["total_hrs"] = $this->minutesToHours(array_sum($res));
-
-                            $ids[] = $current['UserID'];
-                            $dates[] = $current['date'];
-
-                            // $temp[$date][$UserID]["id"] =  $current["id"];
-                            // $temp[$date][$UserID]["logs"] =  $logs[$UserID][$date];
-                            // $temp[$date][$UserID]["edit_date"] =  $current["edit_date"];
-                            // $temp[$date][$UserID]["company_id"] =  $current["company_id"];
-                            // $temp[$date][$UserID]["UserID"] =  $current["UserID"];
-                            // $temp[$date][$UserID]["shift_type_id"] =  $current['schedule']['shift_type_id'];
-                            // $temp[$date][$UserID]["shift_id"] =  $current['schedule']['shift_id'];
-                            // $temp[$date][$UserID]["total_hrs"] =  $this->minutesToHours(array_sum($res));
-
-                            $res = $this->storeOrUpdate($items);
-
-                            if ($res ?? true) {
-                                $log_ids[] = $items['id'];
-                            }
-                            $counter++;
-                            $i++;
-                        } else {
-                            $out_of_range++;
-                        }
-                    }
-                }
-            }
-
-            // return $temp;
-
-            // AttendanceLog::whereIn("id",  $logIds)
-            //     ->update(["checked" => true]);
-
-            $logsCount = count($log_ids);
-            return "Log processed count = $logsCount, Out of range Logs = $out_of_range";
+            $output .= $this->processData($currentDate, $nextDate, $companyId, $data);
         }
+        // return $arr;
+        return $output;
     }
 
+    public function getModelDataByCompanyId($currentDate, $nextDate, $companyId)
+    {
+        $model = AttendanceLog::query();
+
+        $model->where("company_id", '>', 0);
+
+        $model->where(function ($q) use ($currentDate, $companyId) {
+            $q->whereDate("LogTime", $currentDate);
+            $q->where("company_id", $companyId);
+            // $q->where("UserID", 272);
+            $q->whereHas("schedule", function ($q) {
+                $q->where('shift_type_id', 2);
+            });
+        });
+
+        $model->orWhere(function ($q) use ($nextDate, $companyId) {
+            $q->whereDate("LogTime", $nextDate);
+            $q->where("company_id", $companyId);
+            // $q->where("UserID", 272);
+            $q->whereHas("schedule", function ($q) {
+                $q->where('shift_type_id', 2);
+            });
+        });
+
+        $model->with("schedule", function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        });
+
+        $model->orderBy("LogTime");
+
+        return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy("UserID")->toArray();
+    }
+
+    public function processData($currentDate, $nextDate, $companyId, $data)
+    {
+        $counter = 0;
+        $processed_logs = 0;
+        $out_of_range = 0;
+        $items = [];
+        $log_ids = [];
+        $logs = [];
+        $ids = [];
+        $dates = [];
+        $total_hours = [];
+
+        $temp = [];
+
+        foreach ($data as $UserID => $data) {
+
+            $logCount = count($data);
+
+            for ($i = 0; $i < $logCount; $i++) {
+                if ($logCount > 0) {
+
+                    $current  = $data[$i];
+                    $next  = $data[$i + 1] ?? false;
+
+                    $date          = $current["edit_date"];
+                    $time_in       = $current["show_log_time"];
+                    $time_out      = $next["show_log_time"] ?? 0;
+                    $schedule      = $current["schedule"];
+                    $shift         = $schedule["shift"];
+                    $on_duty_time  = $date . " " . $shift["on_duty_time"];
+                    $off_duty_time = $date . " " . $shift["off_duty_time"];
+
+                    $on_duty_time_parsed  = strtotime($on_duty_time);
+                    $off_duty_time_parsed = strtotime($off_duty_time);
+
+                    $next_day_cap = $off_duty_time_parsed; // adding 24 hours
+
+                    if ($on_duty_time_parsed > $off_duty_time_parsed) {
+                        $next_day_cap  = $next_day_cap + 86400;
+                    }
+
+                    if (($time_in >= $on_duty_time_parsed && $time_in < $next_day_cap)) {
+                        $items["company_id"] =  $current["company_id"];
+                        $items["employee_id"] =  $current["UserID"];
+                        $items["id"] =  $current["id"];
+                        $items["date"] =  $current["edit_date"];
+
+                        $items["shift_type_id"] =  $current['schedule']['shift_type_id'];
+                        $items["shift_id"] =  $current['schedule']['shift_id'];
+
+                        $gap = $shift["gap_in"];
+                        $ct = $current['time'];
+                        $cp = strtotime("$ct $gap minutes");
+                        $np = strtotime($next['time'] ?? 0);
+
+                        if ($cp > $np || strtotime($ct) == $np) {
+                            $next  = $data[$i + 1] ?? false;
+                        }
+
+                        if ((isset($current['time']) && $current['time'] != '---') and (isset($next['time']) && $next['time'] != '---')) {
+                            $parsed_out = strtotime($next['time'] ?? 0);
+                            $parsed_in = strtotime($current['time'] ?? 0);
+
+                            if ($parsed_in > $parsed_out) {
+                                $parsed_out += 86400;
+                            }
+
+                            $diff = $parsed_out - $parsed_in;
+
+                            $mints =  floor($diff / 60);
+
+                            $minutes = $mints > 0 ? $mints : 0;
+
+                            $total_hours[$date][$UserID][] = $minutes;
+
+                            $items["status"] =  'P';
+                        }
+
+                        $logs[$UserID][$date][] =  [
+                            "in" => $current['time'],
+                            "out" =>  $next && $time_out < $next_day_cap ? $next['time'] : "---",
+                            "diff" => $this->minutesToHoursNEW($current['time'] ?? "---", $next['time'] ?? "---"),
+                        ];
+
+                        $res = $total_hours[$date][$UserID] ?? [];
+
+                        $items["logs"] = $logs[$UserID][$date];
+
+                        $items["total_hrs"] = $this->minutesToHours(array_sum($res));
+
+                        $ids[] = $current['UserID'];
+                        $dates[] = $current['date'];
+
+                        // $temp[$date][$UserID]["id"] =  $current["id"];
+                        // $temp[$date][$UserID]["logs"] =  $logs[$UserID][$date];
+                        // $temp[$date][$UserID]["edit_date"] =  $current["edit_date"];
+                        // $temp[$date][$UserID]["company_id"] =  $current["company_id"];
+                        // $temp[$date][$UserID]["UserID"] =  $current["UserID"];
+                        // $temp[$date][$UserID]["shift_type_id"] =  $current['schedule']['shift_type_id'];
+                        // $temp[$date][$UserID]["shift_id"] =  $current['schedule']['shift_id'];
+                        // $temp[$date][$UserID]["total_hrs"] =  $this->minutesToHours(array_sum($res));
+
+                        $this->storeOrUpdate($items);
+
+                        $processed_logs++;
+                        $log_ids[] = $items["id"];
+
+
+                        $i++;
+                    } else {
+                        $out_of_range++;
+                        $log_ids[] = $current["id"];
+                    }
+                }
+                $counter++;
+            }
+        }
+
+        // AttendanceLog::whereIn("id",  $logIds)
+        //     ->update(["checked" => true]);
+
+        // $logsCount = count($log_ids);
+        // return $str;
+        // return "Log processed count = $logsCount<br><br>-------------------------------<br> Out of range Logs = $out_of_range<br>-------------------------------<br>$str";
+        return "company id = $companyId, Total Logs = $counter, Proceed Logs = $processed_logs, Ignored Logs = $out_of_range<br>";
+    }
 
     public function processShift()
     {
