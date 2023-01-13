@@ -96,7 +96,7 @@ class MultiInOutShiftController extends Controller
             $logCount = count($data);
 
             for ($i = 0; $i < $logCount; $i++) {
-                if ($logCount > 0) {
+                if ($logCount > 0 && $data[$i]["schedule"]) {
 
                     $current  = $data[$i];
                     $next  = $data[$i + 1] ?? false;
