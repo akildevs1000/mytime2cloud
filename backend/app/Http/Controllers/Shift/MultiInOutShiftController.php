@@ -201,7 +201,7 @@ class MultiInOutShiftController extends Controller
         // $logsCount = count($log_ids);
         // return $str;
         // return "Log processed count = $logsCount<br><br>-------------------------------<br> Out of range Logs = $out_of_range<br>-------------------------------<br>$str";
-        return "company id = $companyId, Total Logs = $counter, Proceed Logs = $processed_logs, Ignored Logs = $out_of_range<br>";
+        return "company id = $companyId, Total Logs = $counter, Proceed Logs = $processed_logs, Ignored Logs = $out_of_range\n";
     }
 
     public function processShift()
