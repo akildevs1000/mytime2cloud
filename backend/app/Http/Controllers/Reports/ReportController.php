@@ -116,13 +116,31 @@ class ReportController extends Controller
 
         // dd($request->all());
 
-        $model->with([
-            "employee:id,system_user_id,display_name,employee_id,department_id,profile_picture",
-            "device_in:id,name,short_name,device_id,location",
-            "device_out:id,name,short_name,device_id,location",
-            "shift",
-            "shift_type:id,name"
-        ]);
+        // $model->with([
+        //     "employee:id,system_user_id,display_name,employee_id,department_id,profile_picture",
+        //     "device_in:id,name,short_name,device_id,location",
+        //     "device_out:id,name,short_name,device_id,location",
+        //     "shift",
+        //     "shift_type:id,name",
+        // ]);
+
+        $model->with('employee', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('device_in', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('device_out', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('shift', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('shift_type');
 
         return $model;
     }
