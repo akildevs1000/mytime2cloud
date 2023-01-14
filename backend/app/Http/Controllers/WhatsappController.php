@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Device;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class WhatsappController extends Controller
 {
@@ -36,12 +39,30 @@ class WhatsappController extends Controller
         return $resp;
     }
 
-    public function toSendNotification($data)
+    public function SendNotification(Request $request)
     {
-        return $this->api($data);
+
+        $device = Device::where("device_id", $request->DeviceID)->first(["company_id"]);
+
+        $data = Employee::withOut(["department"])->where("company_id", $device->company_id)->where("system_user_id", $request->UserID)->first(["display_name", "phone_number", "system_user_id", "employee_id"]);
+        $shift = $data->schedule->shift;
+        $time = date('H:i', strtotime($request->LogTime));
+        $late = $this->calculatedLateComing($time, $shift->on_duty_time, $shift->late_time);
+
+        $data = [
+            "from"          => "14157386102",
+            "message_type"  => "text",
+            "channel"       => "whatsapp",
+            "to"            => "971502848071",
+            "text"          => "testing...",
+            // "to" => $request->to,
+            // "text" => $request->text,
+        ];
+
+        return $late ? $this->api($data) : "keep sleeping";
     }
 
-    public function api($data)
+    private function api($data)
     {
         $url = env('NEXMO_URL');
         $headers = [
@@ -50,14 +71,25 @@ class WhatsappController extends Controller
             'Authorization' => env('NEXMO_AUTHORIZATION'),
         ];
 
-        return   $response = Http::withHeaders($headers)->post($url, $data);
+        $response = Http::withHeaders($headers)->post($url, $data);
+        $data = $response->body();
+        Storage::put('whatsapp.txt', $data);
+        return $data;
+    }
 
-        if ($response->successful()) {
-            $data = $response->body();
-            Log::Info('this message from whatsapp notification', [$data]);
-            return $data;
+
+    public function calculatedLateComing($time, $on_duty_time, $grace)
+    {
+        $interval_time = date("i", strtotime($grace));
+
+        $late_condition = strtotime("$on_duty_time + $interval_time minute");
+
+        $in = strtotime($time);
+
+        if ($in > $late_condition && $grace != "---") {
+            return true;
         }
-        Log::Info('this message from whatsapp notification', [$response]);
-        return 'something went wrong';
+
+        return false;
     }
 }
