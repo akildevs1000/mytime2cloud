@@ -89,6 +89,60 @@
                     item-value="id"
                     item-text="name"
                   ></v-autocomplete>
+                  <div class="mb-6">
+                    <div>From</div>
+                    <v-menu
+                      v-model="from_menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="from_date"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          outlined
+                          dense
+                          :hide-details="true"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="from_date"
+                        @input="from_menu = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </div>
+                  <div class="mb-6">
+                    <div>To</div>
+                    <v-menu
+                      v-model="to_menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="to_date"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          outlined
+                          dense
+                          :hide-details="true"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="to_date"
+                        @input="to_menu = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </div>
                   <v-checkbox
                     dense
                     v-model="isOverTime"
@@ -398,6 +452,11 @@
 <script>
 export default {
   data: () => ({
+    from_date: new Date().toJSON().slice(0, 10),
+    from_menu: false,
+    to_date: new Date().toJSON().slice(0, 10),
+    to_menu: false,
+
     pagination: {
       current: 1,
       total: 0,
