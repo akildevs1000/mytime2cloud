@@ -44,8 +44,21 @@ class WhatsappController extends Controller
 
         $device = Device::where("device_id", $request->DeviceID)->first(["company_id"]);
 
-        $data = Employee::withOut(["department"])->where("company_id", $device->company_id)->where("system_user_id", $request->UserID)->first(["display_name", "phone_number", "system_user_id", "employee_id"]);
-        $shift = $data->schedule->shift;
+        $model = Employee::query();
+
+        $model->withOut(["department"]);
+        $model->whereHas("schedule", function ($q) {
+            $q->where('shift_type_id', 6);
+        });
+        $model->where("company_id", $device->company_id);
+        $model->where("system_user_id", $request->UserID);
+        $found  = $model->first(["display_name", "phone_number", "system_user_id", "employee_id"]);
+
+        if (!$found) {
+            return response()->noContent();
+        }
+
+        $shift = $found->schedule->shift;
         $time = date('H:i', strtotime($request->LogTime));
         $late = $this->calculatedLateComing($time, $shift->on_duty_time, $shift->late_time);
 
