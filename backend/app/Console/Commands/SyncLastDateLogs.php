@@ -20,7 +20,7 @@ class SyncLastDateLogs extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_last_date_logs';
+    protected $signature = 'task:sync_logs';
 
     /**
      * The console command description.
