@@ -214,7 +214,7 @@ class MultiInOutShiftController extends Controller
                         //     $items["total_hrs"] = $this->minutesToHours(array_sum($total_hours_temp[$date][$UserID]));
                         // }
 
-                        // $this->storeOrUpdate($items);
+                        $this->storeOrUpdate($items);
 
                         $processed_logs++;
                         $log_ids[] = $items["id"];
