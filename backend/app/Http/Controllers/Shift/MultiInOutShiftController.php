@@ -116,12 +116,12 @@ class MultiInOutShiftController extends Controller
         $dates = [];
         $total_hours = [];
 
+        $total_hours_temp = [];
         $temp = [];
 
         foreach ($data as $UserID => $data) {
 
             $logCount = count($data);
-
             for ($i = 0; $i < $logCount; $i++) {
                 if ($logCount > 0 && $data[$i]["schedule"]) {
 
@@ -207,7 +207,11 @@ class MultiInOutShiftController extends Controller
                         // $temp[$date][$UserID]["UserID"] =  $current["UserID"];
                         // $temp[$date][$UserID]["shift_type_id"] =  $current['schedule']['shift_type_id'];
                         // $temp[$date][$UserID]["shift_id"] =  $current['schedule']['shift_id'];
-                        // $temp[$date][$UserID]["total_hrs"] = ($next && $time_out < $next_day_cap) ? $this->minutesToHours(array_sum($total_hours[$date][$UserID])) : "---";
+
+
+                        // if (($next && $time_out < $next_day_cap)) {
+                        //     $items["total_hrs"] = $this->minutesToHours(array_sum($total_hours_temp[$date][$UserID]));
+                        // }
 
                         $this->storeOrUpdate($items);
 
