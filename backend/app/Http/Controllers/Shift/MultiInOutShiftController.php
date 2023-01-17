@@ -71,7 +71,7 @@ class MultiInOutShiftController extends Controller
         $model = AttendanceLog::query();
 
         $model->where("company_id", '>', 0);
-        $model->where("checked", false);
+        // $model->where("checked", false);
 
         $model->where(function ($q) use ($currentDate, $companyId, $UserID) {
             $q->whereDate("LogTime", $currentDate);
@@ -192,7 +192,7 @@ class MultiInOutShiftController extends Controller
 
                         $ids[] = $current['UserID'];
                         $dates[] = $current['date'];
-                        if (($next && $time_out < $next_day_cap)) {
+                        if (($next && $time_out < $next_day_cap) && count($items["logs"]) > 0) {
                             $items["total_hrs"] = $this->minutesToHours(array_sum($total_hours[$date][$UserID]));
                         }
                         // $items["total_hrs"] = "---";
