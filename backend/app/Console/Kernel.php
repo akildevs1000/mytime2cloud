@@ -24,7 +24,9 @@ class Kernel extends ConsoleKernel
         $schedule
         ->command('task:sync_last_date_logs')
         // ->dailyAt('4:00')
-        ->hourly()
+        // ->hourly()
+        ->everyMinute()
+        ->withoutOverlapping()
         ->appendOutputTo(storage_path("logs/$date-manual-logs.log"))
         ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
