@@ -61,14 +61,14 @@ class Kernel extends ConsoleKernel
                 ->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            $schedule
-                ->command('task:sync_multiinout')
-                // ->everyThirtyMinutes()
-                ->everyMinute()
-                ->between('7:00', '23:59')
-                ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command('task:sync_multiinout')
+            //     ->everyThirtyMinutes()
+            //     ->everyMinute()
+            //     ->between('7:00', '23:59')
+            //     ->withoutOverlapping()
+            //     ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             // $schedule
             //     ->command('task:sync_attendance')
             //     // ->everyThirtyMinutes()
