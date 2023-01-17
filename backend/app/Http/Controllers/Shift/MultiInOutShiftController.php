@@ -47,7 +47,7 @@ class MultiInOutShiftController extends Controller
         $model = AttendanceLog::query();
 
         $model->where("company_id", '>', 0);
-        // $model->where("checked", false);
+        $model->where("checked", false);
 
         $model->where(function ($q) use ($currentDate, $companyId, $UserID) {
             $q->whereDate("LogTime", $currentDate);
