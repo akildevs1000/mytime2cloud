@@ -192,7 +192,9 @@ class MultiInOutShiftController extends Controller
 
                         $ids[] = $current['UserID'];
                         $dates[] = $current['date'];
-                        $items["total_hrs"] = ($next && $time_out < $next_day_cap) ? $this->minutesToHours(array_sum($total_hours[$date][$UserID])) : "---";
+                        if (($next && $time_out < $next_day_cap)) {
+                            $items["total_hrs"] = $this->minutesToHours(array_sum($total_hours[$date][$UserID]));
+                        }
                         // $items["total_hrs"] = "---";
 
                         // $temp[$date][$UserID]["id"] =  $current["id"];
