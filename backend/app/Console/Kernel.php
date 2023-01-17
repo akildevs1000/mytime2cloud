@@ -20,16 +20,31 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
+        $schedule
+            ->command('task:sync_attendance_logs')
+            // ->everyThirtyMinutes()
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->between('7:00', '23:59')
+            ->appendOutputTo(storage_path("logs/$date-logs.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:update_company_ids')
+            // ->everyThirtyMinutes()
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->between('7:00', '23:59')
+            ->appendOutputTo(storage_path("logs/$date-logs.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
-        ->command('task:sync_logs')
-        // ->dailyAt('4:00')
-        // ->hourly()
-        ->everyMinute()
-        ->withoutOverlapping()
-        ->appendOutputTo(storage_path("logs/$date-logs.log"))
-        ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
+            ->command('task:sync_logs')
+            // ->dailyAt('4:00')
+            // ->hourly()
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/$date-logs.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
             ->command('task:db_backup')
@@ -37,52 +52,18 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/db_backup.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        if (env("APP_ENV") == "production") {
+        $schedule
+            ->command('task:check_device_health')
+            ->everyThirtyMinutes()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:sync_absent')
+            ->dailyAt('1:00')
+            ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-            $schedule
-                ->command('task:check_device_health')
-                ->everyThirtyMinutes()
-                ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-            $schedule
-                ->command('task:sync_attendance_logs')
-                // ->everyThirtyMinutes()
-                ->everyMinute()
-                ->between('7:00', '23:59')
-                ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            $schedule
-                ->command('task:update_company_ids')
-                // ->everyThirtyMinutes()
-                ->everyMinute()
-                ->between('7:00', '23:59')
-                ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            // $schedule
-            //     ->command('task:sync_multiinout')
-            //     ->everyThirtyMinutes()
-            //     ->everyMinute()
-            //     ->between('7:00', '23:59')
-            //     ->withoutOverlapping()
-            //     ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
-            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            // $schedule
-            //     ->command('task:sync_attendance')
-            //     // ->everyThirtyMinutes()
-            //     ->everyMinute()
-            //     ->between('7:00', '23:59')
-            //     ->withoutOverlapping()
-            //     ->appendOutputTo(storage_path("logs/$date-scheduler-attendance.log"))
-            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            $schedule
-                ->command('task:sync_absent')
-                ->dailyAt('1:00')
-                ->appendOutputTo(storage_path("logs/$date-scheduler.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        }
         // PDF
         $schedule
             ->command('task:generate_summary_report')
