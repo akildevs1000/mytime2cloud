@@ -76,7 +76,7 @@ class MultiInOutShiftController extends Controller
 
         $model->where(function ($q) use ($currentDate, $companyId, $UserID) {
             $q->where("company_id", '>', 0);
-            $q->where("checked", false);
+            // $q->where("checked", false);
             $q->whereDate("LogTime", $currentDate);
             $q->where("company_id", $companyId);
             $q->when($UserID > 0, function ($qu) use ($UserID) {
@@ -89,7 +89,7 @@ class MultiInOutShiftController extends Controller
 
         $model->orWhere(function ($q) use ($nextDate, $companyId, $UserID) {
             $q->where("company_id", '>', 0);
-            $q->where("checked", false);
+            // $q->where("checked", false);
             $q->whereDate("LogTime", $nextDate);
             $q->where("company_id", $companyId);
             $q->when($UserID > 0, function ($qu) use ($UserID) {
