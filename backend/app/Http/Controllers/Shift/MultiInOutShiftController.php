@@ -30,13 +30,17 @@ class MultiInOutShiftController extends Controller
         $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
 
         $output = "";
+        $arr = [];
 
         foreach ($companyIds as $companyId) {
             $data = $this->getModelDataByCompanyId($currentDate, $nextDate, $companyId, $request->UserID);
-            $output .= $this->processData($companyId, $data);
+            $processed_logs = $this->processData($companyId, $data);
+            $arr[] = $processed_logs;
+            $output .= $processed_logs;
         }
 
         return $output;
+        return $arr;
     }
 
     public function processPreviousDateByManual()
@@ -70,10 +74,9 @@ class MultiInOutShiftController extends Controller
     {
         $model = AttendanceLog::query();
 
-        $model->where("company_id", '>', 0);
-        $model->where("checked", false);
-
         $model->where(function ($q) use ($currentDate, $companyId, $UserID) {
+            $q->where("company_id", '>', 0);
+            // $q->where("checked", false);
             $q->whereDate("LogTime", $currentDate);
             $q->where("company_id", $companyId);
             $q->when($UserID > 0, function ($qu) use ($UserID) {
@@ -85,6 +88,8 @@ class MultiInOutShiftController extends Controller
         });
 
         $model->orWhere(function ($q) use ($nextDate, $companyId, $UserID) {
+            $q->where("company_id", '>', 0);
+            // $q->where("checked", false);
             $q->whereDate("LogTime", $nextDate);
             $q->where("company_id", $companyId);
             $q->when($UserID > 0, function ($qu) use ($UserID) {
@@ -112,11 +117,8 @@ class MultiInOutShiftController extends Controller
         $items = [];
         $log_ids = [];
         $logs = [];
-        $ids = [];
-        $dates = [];
         $total_hours = [];
 
-        $total_hours_temp = [];
         $temp = [];
 
         foreach ($data as $UserID => $data) {
@@ -146,14 +148,6 @@ class MultiInOutShiftController extends Controller
                     }
 
                     if (($time_in >= $on_duty_time_parsed && $time_in < $next_day_cap)) {
-                        $items["company_id"] =  $current["company_id"];
-                        $items["employee_id"] =  $current["UserID"];
-                        $items["id"] =  $current["id"];
-                        $items["date"] =  $current["edit_date"];
-
-                        $items["shift_type_id"] =  $current['schedule']['shift_type_id'];
-                        $items["shift_id"] =  $current['schedule']['shift_id'];
-
                         $gap = $shift["gap_in"];
                         $ct = $current['time'];
                         $cp = strtotime("$ct $gap minutes");
@@ -186,38 +180,22 @@ class MultiInOutShiftController extends Controller
                             "diff" => $next && $time_out < $next_day_cap ? $this->minutesToHoursNEW($current['time'], $next['time']) : "---",
                         ];
 
-                        $items["logs"] = $logs[$UserID][$date];
+                        $temp[$date][$UserID]["status"] = 'P';
+                        $temp[$date][$UserID]["id"] =  $current["id"];
+                        $temp[$date][$UserID]["logs"] =  $logs[$UserID][$date];
+                        $temp[$date][$UserID]["date"] =  $date;
+                        $temp[$date][$UserID]["company_id"] =  $current["company_id"];
+                        $temp[$date][$UserID]["employee_id"] =  $current["UserID"];
+                        $temp[$date][$UserID]["shift_type_id"] =  $current['schedule']['shift_type_id'];
+                        $temp[$date][$UserID]["shift_id"] =  $current['schedule']['shift_id'];
 
-                        $items["status"] = 'P';
-
-                        $ids[] = $current['UserID'];
-                        $dates[] = $current['date'];
-
-                        $items["total_hrs"] = "---";
-
-                        // if (($next && $time_out < $next_day_cap)) {
-                        //     $items["total_hrs"] = $this->minutesToHours(array_sum($total_hours[$date][$UserID]));
-                        // } else {
-                        //     $items["total_hrs"] = "---";
-                        // }
-
-                        // $temp[$date][$UserID]["id"] =  $current["id"];
-                        // $temp[$date][$UserID]["logs"] =  $logs[$UserID][$date];
-                        // $temp[$date][$UserID]["edit_date"] =  $current["edit_date"];
-                        // $temp[$date][$UserID]["company_id"] =  $current["company_id"];
-                        // $temp[$date][$UserID]["UserID"] =  $current["UserID"];
-                        // $temp[$date][$UserID]["shift_type_id"] =  $current['schedule']['shift_type_id'];
-                        // $temp[$date][$UserID]["shift_id"] =  $current['schedule']['shift_id'];
-
-
-                        // if (($next && $time_out < $next_day_cap)) {
-                        //     $items["total_hrs"] = $this->minutesToHours(array_sum($total_hours_temp[$date][$UserID]));
-                        // }
-
-                        $this->storeOrUpdate($items);
+                        if (($next && $time_out < $next_day_cap)) {
+                            $temp[$date][$UserID]["total_hrs"] = $this->minutesToHours(array_sum($total_hours[$date][$UserID]));
+                        }
+                        $items[] = $this->storeOrUpdate($temp[$date][$UserID]);
 
                         $processed_logs++;
-                        $log_ids[] = $items["id"];
+                        $log_ids[] = $temp[$date][$UserID]["id"];
 
                         $i++;
                     } else {
@@ -228,7 +206,7 @@ class MultiInOutShiftController extends Controller
                 $counter++;
             }
         }
-        // return $temp;
+        // return $items;
 
         AttendanceLog::whereIn("id",  $log_ids)->update(["checked" => true]);
 
