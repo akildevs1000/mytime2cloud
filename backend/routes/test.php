@@ -8,18 +8,33 @@ use Illuminate\Http\Request;
 use App\Models\ReportNotification;
 use Illuminate\Support\Facades\DB;
 use App\Mail\ReportNotificationMail;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\WhatsappController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
-
+use App\Models\User;
 
 Route::get('/test', function (Request $request) {
 
+    if($request->company_id) {
+        $user_ids = Employee::where("company_id", "=",$request->company_id)->pluck("user_id");
+        return User::whereIn("id",$user_ids)->update(["company_id" => $request->company_id]);
+    }
+
+    
+
+    echo phpversion();
+
+    echo  "<br>";
+
+    $one = 1;
+    $arr1 = [&$one, 2, 3];
+    $arr2 = [0, ...$arr1];
+    var_dump($arr2);
+
+    die;
 
     $data = [
         "from" => "14157386102",
@@ -30,7 +45,7 @@ Route::get('/test', function (Request $request) {
     ];
 
     // return (new WhatsappController)->toSendNotification($data);
-    WhatsappJob::dispatch($data);
+    // WhatsappJob::dispatch($data);
     return 'done';
     // $newLog[] = [
     //     "out" => "01:01",
@@ -187,9 +202,6 @@ Route::get('/close_door', function (Request $request) {
 
 Route::post('/generate_log', [AttendanceLogController::class, 'GenerateLog']);
 
-Route::get('/reset_attendance', [AttendanceController::class, 'ResetAttendance']);
-
-
 Route::get('/generate_attendance_log', function (Request $request) {
 
     $arr = [];
@@ -244,40 +256,6 @@ Route::post('/upload', function (Request $request) {
     $data['file'] = $file;
 });
 
-Route::get('/test/whatsapp', function () {
-    $curl = curl_init();
-
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://graph.facebook.com/v14.0/102482416002121/messages',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => '{
-    "messaging_product": "whatsapp",
-    "to": "923108559858",
-    "type": "template",
-    "template": {
-        "name": "hello_world",
-        "language": {
-            "code": "en_US"
-        }
-    }
-}',
-        CURLOPT_HTTPHEADER => array(
-            'Content-Type: application/json',
-            'Authorization: Bearer EAAP9IfKKSo0BALkTWKQE6xLcyfO3eyGt69Y7SH6EfpCmKCAGb1AZCuptzmnPf5qsRZBaj4WYqSXbbxDEvaOD6WiiFwklq4P0FvASsBYOigDTrEhC3geXTNLFZCzQ1wTxNthkfzI4wSfG0KF79rrvh7cEIKdyx7mvM4ZC06MHNZBYg78yYrfGZCIcbtDUnegflDudZB5e2i9AZBDCIJ81o2xa'
-        ),
-    ));
-
-    $response = curl_exec($curl);
-
-    curl_close($curl);
-    echo $response;
-});
 
 
 
@@ -294,16 +272,16 @@ Route::get('/test/whatsapp', function () {
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS => '{
-    "messaging_product": "whatsapp",
-    "to": "923108559858",
-    "type": "template",
-    "template": {
-        "name": "hello_world",
-        "language": {
-            "code": "en_US"
-        }
-    }
-}',
+                        "messaging_product": "whatsapp",
+                        "to": "923108559858",
+                        "type": "template",
+                            "template": {
+                                "name": "hello_world",
+                                "language": {
+                                    "code": "en_US"
+                                }
+                            }
+                        }',
         CURLOPT_HTTPHEADER => array(
             'Content-Type: application/json',
             'Authorization: Bearer EAAP9IfKKSo0BALkTWKQE6xLcyfO3eyGt69Y7SH6EfpCmKCAGb1AZCuptzmnPf5qsRZBaj4WYqSXbbxDEvaOD6WiiFwklq4P0FvASsBYOigDTrEhC3geXTNLFZCzQ1wTxNthkfzI4wSfG0KF79rrvh7cEIKdyx7mvM4ZC06MHNZBYg78yYrfGZCIcbtDUnegflDudZB5e2i9AZBDCIJ81o2xa'
@@ -317,8 +295,6 @@ Route::get('/test/whatsapp', function () {
 });
 
 Route::get('/test_attachment', function () {
-
-
 
     $models = ReportNotification::get();
 
