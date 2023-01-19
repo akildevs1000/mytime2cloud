@@ -192,6 +192,12 @@ class MultiInOutShiftController extends Controller
                         if (($next && $time_out < $next_day_cap)) {
                             $temp[$date][$UserID]["total_hrs"] = $this->minutesToHours(array_sum($total_hours[$date][$UserID]));
                         }
+
+                        if ($schedule['isOverTime'] && array_key_exists("total_hrs", $temp[$date][$UserID])) {
+                            $ot = $this->calculatedOT($temp[$date][$UserID]["total_hrs"], $shift['working_hours'], $shift['overtime_interval']);
+                            $temp[$date][$UserID]["ot"] = $ot;
+                        }
+
                         $items[] = $this->storeOrUpdate($temp[$date][$UserID]);
 
                         $processed_logs++;
@@ -214,83 +220,9 @@ class MultiInOutShiftController extends Controller
     }
     public function storeOrUpdate($items)
     {
-        $attendance = $this->attendanceFound($items['date'], $items['employee_id']);
+        $attendance = Attendance::whereDate("date", $items['date'])->where("employee_id", $items['employee_id']);
         $found = $attendance->first();
         return $found ? $attendance->update($items) : Attendance::create($items);
-    }
-
-
-    public function insertData($item)
-    {
-        $testarr = [];
-
-        foreach ($item as $log) {
-            $data = $this->calTimes($log['logs']);
-            $attendance = $this->attendanceFound($log['date'], $log['UserID']);
-            $found = $attendance->first();
-            $status = "";
-
-            // return count($data['logs']);
-            // return $data['logs'];
-
-            if ($data['logs'][0]['in'] != '---' and $data['logs'][0]['out'] != '---') {
-                $status = "P";
-            } else {
-                $status = '---';
-            }
-
-            $data = [
-                'company_id' => $log['company_id'],
-                'date' => $log['date'],
-                'employee_id' => $log['UserID'],
-                'total_hrs' => $data['total_hours'],
-                'logs' => $data['logs'],
-                'shift_type_id' => $log['shift_type_id'],
-                'shift_id' => $log['shift_id'],
-                'status' => $status,
-            ];
-            // $res =   $found ? $attendance->update($data) : Attendance::create($data);
-
-            $testarr[] = $data;
-        }
-        return $testarr;
-
-        if (isset($res)) {
-            DB::table('misc')->update(["date" => $this->update_date]);
-        }
-        return isset($res) ? 'done' : 'something wrong';
-    }
-
-    public function calTimes($logs)
-    {
-        $arr_logs = [];
-        $total_hours = [];
-        foreach ($logs as $log) {
-
-            if (isset($log['in']) and $log['in'] != '---' and isset($log['out']) and $log['out'] != '---') {
-                $time1 = (strtotime($log['in']) ?? 0);
-                $time2 = (strtotime($log['out']) ?? 0);
-                $diff = $time2 - $time1;
-                $minutes = floor($diff / 60);
-                $arr_logs[] = [
-                    'in' => $log['in'],
-                    'out' => $log['out'],
-                    'diff' => $this->minutesToHours($minutes),
-                ];
-                $total_hours[] = $minutes;
-            } else if ($log['in'] == '---' or $log['out'] == '---') {
-                $arr_logs[] = [
-                    'in' => $log['in'],
-                    'out' => $log['out'],
-                ];
-            }
-        }
-
-        return
-            [
-                'total_hours' => $this->minutesToHours(array_sum($total_hours)),
-                'logs' => $arr_logs,
-            ];
     }
 
     public function minutesToHoursNEW($in, $out)
@@ -327,20 +259,6 @@ class MultiInOutShiftController extends Controller
         return $hours;
     }
 
-    public function attendanceFound($date, $id)
-    {
-        return Attendance::whereDate("date", $date)
-            ->where("employee_id", $id);
-    }
-
-    public function calculatedHours($in, $out)
-    {
-        $diff = abs($in - $out);
-        $h = floor($diff / 3600);
-        $m = floor(($diff % 3600) / 60);
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
-
     public function calculatedOT($total_hours, $working_hours, $interval_time)
     {
 
@@ -355,19 +273,12 @@ class MultiInOutShiftController extends Controller
         $working_hours_num = strtotime($working_hours_with_interval);
 
         if ($working_hours_num > $total_hours_num) {
-            return "00:00";
+            return "---";
         }
 
         $diff = abs(((strtotime($working_hours)) - (strtotime($total_hours))));
         $h = floor($diff / 3600);
         $m = floor(($diff % 3600) / 60);
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
-
-    public function get_total_hours($diff)
-    {
-        $h = floor($diff / 60);
-        $m = floor(($diff % 60));
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 }

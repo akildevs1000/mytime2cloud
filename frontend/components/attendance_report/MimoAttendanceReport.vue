@@ -884,6 +884,12 @@ export default {
         sortable: false,
         value: "total_hrs"
       },
+      {
+        text: "OT",
+        align: "left",
+        sortable: false,
+        value: "ot"
+      },
 
       { text: "Status", align: "left", sortable: false, value: "status" },
       { text: "Actions", value: "actions", sortable: false }
