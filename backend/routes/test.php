@@ -18,10 +18,10 @@ use App\Models\User;
 
 Route::get('/test', function (Request $request) {
 
-    if($request->company_id) {
-        $user_ids = Employee::where("company_id", "=",$request->company_id)->pluck("user_id");
-        return User::whereIn("id",$user_ids)->update(["company_id" => $request->company_id]);
-    }
+    // if($request->company_id) {
+    //     $user_ids = Employee::where("company_id", "=",$request->company_id)->pluck("user_id");
+    //     return User::whereIn("id",$user_ids)->update(["company_id" => $request->company_id]);
+    // }
 
     
 
