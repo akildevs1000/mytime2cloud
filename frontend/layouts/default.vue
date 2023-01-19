@@ -502,7 +502,7 @@ export default {
     },
 
     getUser() {
-      return this.$auth.user && this.$auth.user.company.name;
+      return this.$auth.user && this.$auth.user.employee ? this.$auth.user.employee.display_name : this.$auth.user.company.name;
     },
 
     getLogo() {
