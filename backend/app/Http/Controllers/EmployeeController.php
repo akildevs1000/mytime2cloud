@@ -121,9 +121,10 @@ class EmployeeController extends Controller
     }
     public function scheduled_employees(Employee $employee, Request $request)
     {
-        return $employee->where("company_id", $request->company_id)->whereHas('schedule', function ($q) use ($request) {
-            $q->where('company_id', $request->company_id);
-        })->paginate($request->per_page);
+        return $employee->where("company_id", $request->company_id)
+            ->whereHas('schedule', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            })->paginate($request->per_page);
     }
     public function scheduled_employees_with_type(Employee $employee, Request $request)
     {
@@ -136,13 +137,11 @@ class EmployeeController extends Controller
             $q->where('slug', '=', $request->shift_type);
         })->get(["first_name", "system_user_id", "employee_id"]);
     }
-
     public function attendance_employees(Employee $employee, Request $request)
     {
         //
         return Attendance::with('employeeAttendance')->get('employee_id');
     }
-
     public function not_scheduled_employees(Employee $employee, Request $request)
     {
         return $employee->where("company_id", $request->company_id)
@@ -243,7 +242,6 @@ class EmployeeController extends Controller
             return Response::json(['message' => 'No such record found.'], 404);
         }
     }
-
     public function search(Request $request, $key)
     {
         return Employee::query()
@@ -253,27 +251,18 @@ class EmployeeController extends Controller
             ->where('company_id', $request->company_id)
             ->paginate($request->perPage ?? 20);
     }
-
     public function scheduled_employees_search(Request $request, $input)
     {
         $model = Employee::query();
-        $model->where('first_name', 'LIKE', "%$input%");
-        // $model->when($input == "yes", function ($q) {
-        //     $q->where('overtime', 1);
-        // });
-        // $model->when($input == "no", function ($q) {
-        //     $q->where('overtime', 0);
-        // });
+        $model->where('employee_id', $input);
+        $model->where('company_id', $request->company_id);
 
-        // $model->whereHas("schedule.shift_type", function ($q) use ($input) {
-        //     $q->where('name', 'like', '%' . $input . '%');
-        // });
+        return $model->whereHas('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        })
+            ->paginate($request->perPage ?? 10);
 
-        $model->orWhereHas("schedule.shift", function ($q) use ($input) {
-            $q->where('name', 'like', '%' . $input . '%');
-        });
-
-        return $model->whereHas('schedule')->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->paginate($request->perPage ?? 10);
+        //  return $model->whereHas('schedule')->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->paginate($request->perPage ?? 10);
     }
     public function updateEmployee(EmployeeUpdateRequest $request, $id)
     {
