@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can(`logs_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -32,6 +32,7 @@
       </v-col>
     </v-row>
   </div>
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -90,6 +91,13 @@ export default {
     }
   },
   methods: {
+    can(per) {
+      let u = this.$auth.user;
+      return (
+        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+      );
+    },
+
     getDataFromApi(url = this.endpoint) {
       this.loading = true;
       const { page, itemsPerPage } = this.options;

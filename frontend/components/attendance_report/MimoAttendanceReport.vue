@@ -774,10 +774,22 @@
       </template>
 
       <template v-slot:item.actions="{ item }">
-        <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
+        <v-icon
+          @click="editItem(item)"
+          x-small
+          color="primary"
+          class="mr-2"
+          v-if="can('attendance_report_edit')"
+        >
           mdi-pencil
         </v-icon>
-        <v-icon @click="viewItem(item)" x-small color="primary" class="mr-2">
+        <v-icon
+          @click="viewItem(item)"
+          x-small
+          color="primary"
+          class="mr-2"
+          v-if="can('attendance_report_view')"
+        >
           mdi-eye
         </v-icon>
       </template>
@@ -1166,6 +1178,7 @@ export default {
     caps(str) {
       return str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     },
+
     can(per) {
       let u = this.$auth.user;
       return (

@@ -773,11 +773,20 @@
         </v-tooltip>
         <span v-else>---</span>
       </template>
-      <template v-slot:item.actions="{ item }">
+      <template
+        v-slot:item.actions="{ item }"
+        v-if="can('attendance_report_edit')"
+      >
         <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
           mdi-pencil
         </v-icon>
-        <v-icon @click="viewItem(item)" x-small color="primary" class="mr-2">
+        <v-icon
+          @click="viewItem(item)"
+          x-small
+          color="primary"
+          class="mr-2"
+          v-if="can('attendance_report_view')"
+        >
           mdi-eye
         </v-icon>
       </template>

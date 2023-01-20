@@ -315,6 +315,12 @@ export default {
       order_count: "",
       menus: [
         {
+          icon: "mdi-home",
+          title: "Dashboard",
+          to: "/",
+          menu: "dashboard_access"
+        },
+        {
           icon: "mdi-briefcase-outline",
           title: `Organization`,
           open_menu: false,
@@ -442,7 +448,7 @@ export default {
           icon: "mdi-clipboard-text-clock",
           title: "Logs",
           to: "/logs",
-          menu: "attendance_report_access"
+          menu: "logs_access"
         },
         {
           icon: "mdi-email",
@@ -477,14 +483,14 @@ export default {
       icon: "mdi-home",
       title: "Dashboard",
       to: "/",
-      menu: "dashboard"
+      menu: "dashboard_access"
     };
     let user = this.$auth.user;
     let permissions = user.permissions;
 
     if (user && user.is_master) {
       this.items = this.menus;
-      this.items.unshift(das);
+      // this.items.unshift(das);
       return;
     }
 
@@ -502,7 +508,9 @@ export default {
     },
 
     getUser() {
-      return this.$auth.user && this.$auth.user.employee ? this.$auth.user.employee.display_name : this.$auth.user.company.name;
+      return this.$auth.user && this.$auth.user.employee
+        ? this.$auth.user.employee.display_name
+        : this.$auth.user.company.name;
     },
 
     getLogo() {
@@ -563,7 +571,7 @@ export default {
       );
     },
 
-    async logout() {
+    logout() {
       this.$axios.get(`/logout`).then(({ res }) => {
         this.$auth.logout();
       });
