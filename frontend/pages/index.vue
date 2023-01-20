@@ -1,8 +1,9 @@
 <template>
-  <div v-if="!loading">
-    <v-row>
-      <v-col md="12">
-        <!-- <v-alert
+  <div v-if="can(`dashboard_access`)">
+    <div v-if="!loading">
+      <v-row>
+        <v-col md="12">
+          <!-- <v-alert
           v-if="first_login && first_login_auth"
           outlined
           class="error lighten-1"
@@ -21,60 +22,62 @@
             <u>click here</u>
           </nuxt-link>
         </v-alert> -->
-      </v-col>
-      <div
-        class="col-xl-3 col-lg-6 text-uppercase"
-        v-for="(i, index) in items"
-        :key="index"
-      >
-        <div class="card p-2" :class="i.color">
-          <div class="card-statistic-3">
-            <div class="card-icon card-icon-large ">
-              <i :class="i.icon"></i>
-            </div>
-            <div class="card-content">
-              <h4 class="card-title text-capitalize">{{ i.title }}</h4>
-              <span class="data-1"> {{ i.value }}</span>
-              <p class="mb-0 text-sm">
-                <span class="mr-2"
-                  ><v-icon dark small>mdi-arrow-right</v-icon></span
-                >
-                <a
-                  class="text-nowrap text-white"
-                  target="_blank"
-                  :href="i.link"
-                >
-                  <span class="text-nowrap">View Report</span>
-                </a>
-              </p>
+        </v-col>
+        <div
+          class="col-xl-3 col-lg-6 text-uppercase"
+          v-for="(i, index) in items"
+          :key="index"
+        >
+          <div class="card p-2" :class="i.color">
+            <div class="card-statistic-3">
+              <div class="card-icon card-icon-large ">
+                <i :class="i.icon"></i>
+              </div>
+              <div class="card-content">
+                <h4 class="card-title text-capitalize">{{ i.title }}</h4>
+                <span class="data-1"> {{ i.value }}</span>
+                <p class="mb-0 text-sm">
+                  <span class="mr-2"
+                    ><v-icon dark small>mdi-arrow-right</v-icon></span
+                  >
+                  <a
+                    class="text-nowrap text-white"
+                    target="_blank"
+                    :href="i.link"
+                  >
+                    <span class="text-nowrap">View Report</span>
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </v-row>
+      </v-row>
 
-    <v-row>
-      <v-col cols="12" md="8" xl="8">
-        <v-card flat>
-          <DailyLogs />
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="4" xl="4">
-        <v-card flat>
-          <PIE :items="items" />
-        </v-card>
-      </v-col>
-    </v-row>
+      <v-row>
+        <v-col cols="12" md="8" xl="8">
+          <v-card flat>
+            <DailyLogs />
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="4" xl="4">
+          <v-card flat>
+            <PIE :items="items" />
+          </v-card>
+        </v-col>
+      </v-row>
 
-    <v-row class="mt-4">
-      <v-col md="12" cols="12" sm="12">
-        <v-card elevation="0">
-          <ComboChart />
-        </v-card>
-      </v-col>
-    </v-row>
+      <v-row class="mt-4">
+        <v-col md="12" cols="12" sm="12">
+          <v-card elevation="0">
+            <ComboChart />
+          </v-card>
+        </v-col>
+      </v-row>
+    </div>
+    <Preloader v-else />
   </div>
-  <Preloader v-else />
+  <NoAccess v-else />
 </template>
 <script>
 export default {
@@ -145,6 +148,15 @@ export default {
     }
   },
   methods: {
+    can(per) {
+      let { is_master, permissions: p } =
+        this.$auth.user || this.$auth.user.permissions;
+
+      if (p.some(e => e == per) || is_master) return true;
+
+      this.$router.push(`/attendance_report`);
+    },
+
     getColor(calories) {
       if (calories > 400) return "red";
       else if (calories > 200) return "orange";
