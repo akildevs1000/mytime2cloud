@@ -261,6 +261,7 @@ class Controller extends BaseController
                 "In7",
                 "Out7",
                 "Total Hrs",
+                "OT",
                 "Status",
 
             ]);
@@ -285,6 +286,7 @@ class Controller extends BaseController
                     $col["in7"] ?? "---",
                     $col["out7"] ?? "---",
                     $col["total_hrs"] ?? "---",
+                    $col["ot"] ?? "---",
                     $col["status"] ?? "---",
 
                 ], ",");
@@ -344,5 +346,12 @@ class Controller extends BaseController
         // ld($data);
 
         return Pdf::loadView('pdf.mimo', compact("company", "info", "data"))->stream();
+    }
+
+    public function custom_with($model, $relation, $company_id)
+    {
+        return $model->with($relation, function ($q) use ($company_id) {
+            $q->where('company_id', $company_id);
+        });
     }
 }

@@ -112,6 +112,7 @@ class WeeklyController extends Controller
                 "In7",
                 "Out7",
                 "Total Hrs",
+                "OT",
                 "Status",
 
             ]);
@@ -136,6 +137,7 @@ class WeeklyController extends Controller
                     $col["in7"] ?? "---",
                     $col["out7"] ?? "---",
                     $col["total_hrs"] ?? "---",
+                    $col["ot"] ?? "---",
                     $col["status"] ?? "---",
 
                 ], ",");
