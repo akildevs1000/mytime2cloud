@@ -107,7 +107,7 @@
                       v-model="editItems.device_id"
                       :items="devices"
                       item-text="name"
-                      item-value="id"
+                      item-value="device_id"
                       :rules="deviceRules"
                     >
                     </v-autocomplete>
@@ -1233,7 +1233,6 @@ export default {
           company_id: this.$auth.user.company.id,
           reason: this.editItems.reason
         };
-
         this.$axios
           .post("/generate_manual_log", payload)
           .then(({ data }) => {
@@ -1244,13 +1243,30 @@ export default {
             } else {
               this.snackbar = true;
               this.response = data.message;
-              this.editItems = [];
-              this.getDataFromApi();
+              this.update_process_by_manual();
               this.close();
+              this.editItems = [];
             }
           })
           .catch(e => console.log(e));
       }
+    },
+
+    update_process_by_manual() {
+      let payload = {
+        params: {
+          date: this.editItems.date,
+          UserID: this.editItems.UserID,
+          company_ids: [this.$auth.user.company.id]
+        }
+      };
+      this.$axios
+        .get("/processByManual", payload)
+        .then(({ data }) => {
+          this.loading = false;
+          this.ProcessAttendance();
+        })
+        .catch(e => console.log(e));
     },
 
     viewItem(item) {
