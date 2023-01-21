@@ -23,13 +23,6 @@ socket.onmessage = ({ data }) => {
       DeviceID: DeviceID,
       LogTime: LogTime
     };
-    axios
-      .post(
-        "https://backend.ideahrms.com/api/late_employee_notification",
-        payload
-      )
-      .then(res => console.log(res.data))
-      .catch(err => console.error(err));
 
     fs.appendFileSync("/var/www/ideahrms/backend/logs/logs.csv", str + "\n");
     fs.appendFileSync(
