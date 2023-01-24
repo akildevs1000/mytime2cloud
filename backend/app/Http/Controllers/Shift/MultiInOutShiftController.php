@@ -34,9 +34,12 @@ class MultiInOutShiftController extends Controller
 
         foreach ($companyIds as $companyId) {
             $data = $this->getModelDataByCompanyId($currentDate, $nextDate, $companyId, $request->UserID);
-            $processed_logs = $this->processData($companyId, $data);
-            $arr[] = $processed_logs;
-            $output .= $processed_logs;
+
+            foreach ($data as $date) {
+                $processed_logs = $this->processData($companyId, $date);
+                $arr[] = $processed_logs;
+                $output .= $processed_logs;
+            }
         }
 
         return $output;
@@ -64,7 +67,13 @@ class MultiInOutShiftController extends Controller
 
         foreach ($companyIds as $companyId) {
             $data = $this->getModelDataByCompanyId($currentDate, $nextDate, $companyId);
-            $output .= $meta . ' ' . $this->processData($companyId, $data);
+
+            foreach ($data as $date) {
+                $processed_logs = $this->processData($companyId, $date);
+                $arr[] = $processed_logs;
+                $output .= $processed_logs;
+                $output .= $meta . ' ' . $processed_logs;
+            }
         }
 
         return $output;
@@ -106,7 +115,7 @@ class MultiInOutShiftController extends Controller
 
         $model->orderBy("LogTime");
 
-        return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy("UserID")->toArray();
+        return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy(["UserID", "edit_date"])->toArray();
     }
 
     public function processData($companyId, $data)
@@ -125,7 +134,9 @@ class MultiInOutShiftController extends Controller
 
             $logCount = count($data);
             for ($i = 0; $i < $logCount; $i++) {
-                if ($logCount > 0 && $data[$i]["schedule"]) {
+
+
+                if ($data && array_key_exists($i, $data) && $data[$i]["schedule"]) {
 
                     $current  = $data[$i];
                     $next  = $data[$i + 1] ?? false;
