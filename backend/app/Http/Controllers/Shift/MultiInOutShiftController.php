@@ -70,10 +70,9 @@ class MultiInOutShiftController extends Controller
 
             foreach ($data as $date) {
                 $processed_logs = $this->processData($companyId, $date);
-                // $arr[] = $processed_logs;
+                $arr[] = $processed_logs;
+                $output .= $meta . ' ' . $processed_logs;
             }
-
-            $output .= $meta . ' ' . $processed_logs;
         }
 
         return $output;
