@@ -76,7 +76,7 @@ class MultiInOutShiftController extends Controller
             }
         }
 
-        return count($arr);
+        return $meta . ' Logs Count' . count($arr);
     }
 
     public function getModelDataByCompanyId($currentDate, $nextDate, $companyId, $UserID = 0)
