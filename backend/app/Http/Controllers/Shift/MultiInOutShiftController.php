@@ -58,7 +58,6 @@ class MultiInOutShiftController extends Controller
 
         $nextDate = date('Y-m-d', strtotime($currentDate . ' + 1 day'));
 
-        $output = "";
         $arr = [];
 
         $date = date("Y-m-d H:i:s");
@@ -76,7 +75,7 @@ class MultiInOutShiftController extends Controller
             }
         }
 
-        return $meta . ' Logs Count' . count($arr);
+        return $meta . ' Logs Count ' . count($arr);
     }
 
     public function getModelDataByCompanyId($currentDate, $nextDate, $companyId, $UserID = 0)
