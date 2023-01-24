@@ -59,6 +59,7 @@ class MultiInOutShiftController extends Controller
         $nextDate = date('Y-m-d', strtotime($currentDate . ' + 1 day'));
 
         $output = "";
+        $arr = [];
 
         $date = date("Y-m-d H:i:s");
         $script_name = "SyncMultiInOut";
@@ -71,11 +72,11 @@ class MultiInOutShiftController extends Controller
             foreach ($data as $date) {
                 $processed_logs = $this->processData($companyId, $date);
                 $arr[] = $processed_logs;
-                $output .= $meta . ' ' . $processed_logs;
+                // $output .= $meta . ' ' . $processed_logs;
             }
         }
 
-        return $output;
+        return count($arr);
     }
 
     public function getModelDataByCompanyId($currentDate, $nextDate, $companyId, $UserID = 0)
