@@ -42,11 +42,14 @@ class MultiInOutShiftController extends Controller
 
     public function getModelDataByCompanyId($currentDate, $companyId, $UserID = 0)
     {
+        $schedule = $this->getSchedule($companyId, $currentDate);
+
+        if (!$schedule) return [];
 
         $model = AttendanceLog::query();
         // $model->where("checked", false);
         $model->where("company_id", '>', 0);
-        $model->whereBetween("LogTime", $this->getSchedule($companyId, $currentDate));
+        $model->whereBetween("LogTime", $schedule);
         $model->where("company_id", $companyId);
         $model->when($UserID > 0, function ($qu) use ($UserID) {
             $qu->where("UserID", $UserID);
@@ -73,7 +76,7 @@ class MultiInOutShiftController extends Controller
             ->first();
 
         if (!$schedule || !$schedule->shift) {
-            return [];
+            return false;
         }
 
         $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
