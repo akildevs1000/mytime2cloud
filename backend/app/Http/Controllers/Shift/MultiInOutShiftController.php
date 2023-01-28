@@ -114,7 +114,6 @@ class MultiInOutShiftController extends Controller
                 $temp[$date][$UserID]["logs"] =  $logs[$UserID][$date];
 
                 $temp[$date][$UserID]["status"] = 'P';
-                $temp[$date][$UserID]["id"] =  $currentLog["id"];
                 $temp[$date][$UserID]["logs"] =  $logs[$UserID][$date];
                 $temp[$date][$UserID]["date"] =  $date;
                 $temp[$date][$UserID]["company_id"] =  $companyId;
