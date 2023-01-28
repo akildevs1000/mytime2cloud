@@ -45,7 +45,11 @@ class MultiInOutShiftController extends Controller
     public function getModelDataByCompanyId($currentDate, $nextDate, $companyId, $UserID = 0)
     {
 
-        $schedule = $this->getSchedule($companyId, $UserID);
+        $schedule = $this->getSchedule($companyId);
+
+        if (!$schedule || !$schedule->shift) {
+            return [];
+        }
 
         $start_range = $currentDate . " " . $schedule->shift->on_duty_time;
 
@@ -112,7 +116,7 @@ class MultiInOutShiftController extends Controller
                 $temp[$date][$UserID]["id"] =  $currentLog["id"];
                 $temp[$date][$UserID]["logs"] =  $logs[$UserID][$date];
                 $temp[$date][$UserID]["date"] =  $date;
-                $temp[$date][$UserID]["company_id"] =  $currentLog["company_id"];
+                $temp[$date][$UserID]["company_id"] =  $companyId;
                 $temp[$date][$UserID]["employee_id"] =  $currentLog["UserID"];
                 $temp[$date][$UserID]["shift_type_id"] =  $schedule['shift_type_id'] ?? null;
                 $temp[$date][$UserID]["shift_id"] =  $schedule['shift_id'] ?? null;
@@ -158,7 +162,7 @@ class MultiInOutShiftController extends Controller
     }
     public function storeOrUpdate($items)
     {
-        $attendance = Attendance::whereDate("date", $items['date'])->where("employee_id", $items['employee_id']);
+        $attendance = Attendance::whereDate("date", $items['date'])->where("employee_id", $items['employee_id'])->where("company_id", $items['company_id']);
         $found = $attendance->first();
         return $found ? $attendance->update($items) : Attendance::create($items);
     }
@@ -228,7 +232,7 @@ class MultiInOutShiftController extends Controller
             return "No Company found";
         }
 
-        $currentDate = date('Y-m-d', strtotime('yesterday'));
+        $currentDate = date('Y-m-d');
 
         $nextDate = date('Y-m-d', strtotime($currentDate . ' + 1 day'));
 
