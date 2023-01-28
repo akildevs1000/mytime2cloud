@@ -43,22 +43,10 @@ class MultiInOutShiftController extends Controller
     public function getModelDataByCompanyId($currentDate, $companyId, $UserID = 0)
     {
 
-        $schedule = $this->getSchedule($companyId);
-
-        if (!$schedule || !$schedule->shift) {
-            return [];
-        }
-
-        $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
-
-        $start_range = $currentDate . " " . $schedule->shift->on_duty_time;
-
-        $end_range = $nextDate . " " . $schedule->shift->off_duty_time;
-
         $model = AttendanceLog::query();
         // $model->where("checked", false);
         $model->where("company_id", '>', 0);
-        $model->whereBetween("LogTime", [$start_range, $end_range]);
+        $model->whereBetween("LogTime", $this->getSchedule($companyId, $currentDate));
         $model->where("company_id", $companyId);
         $model->when($UserID > 0, function ($qu) use ($UserID) {
             $qu->where("UserID", $UserID);
@@ -76,12 +64,25 @@ class MultiInOutShiftController extends Controller
         return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy(["UserID"])->toArray();
     }
 
-    public function getSchedule($companyId)
+    public function getSchedule($companyId, $currentDate, $UserID = null)
     {
-        return ScheduleEmployee::withOut(["logs", "first_log", "last_log"])
+        $schedule = ScheduleEmployee::withOut(["logs", "first_log", "last_log"])
             ->where('company_id', $companyId)
             ->where("shift_type_id", 2)
+            // ->where("employee_id", $UserID)
             ->first();
+
+        if (!$schedule || !$schedule->shift) {
+            return [];
+        }
+
+        $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
+
+        $start_range = $currentDate . " " . $schedule->shift->on_duty_time;
+
+        $end_range = $nextDate . " " . $schedule->shift->off_duty_time;
+
+        return [$start_range, $end_range];
     }
 
     public function processData($companyId, $data, $date)
