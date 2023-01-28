@@ -28,21 +28,19 @@ class MultiInOutShiftController extends Controller
 
         $currentDate = $request->date ?? date('Y-m-d');
 
-        $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
-
         $arr = [];
 
         foreach ($companyIds as $companyId) {
 
-            $data = $this->getModelDataByCompanyId($currentDate, $nextDate, $companyId, $request->UserID);
+            $data = $this->getModelDataByCompanyId($currentDate, $companyId, $request->UserID);
 
             $arr[] = $this->processData($companyId, $data, $currentDate);
         }
 
-        return $arr;
+        return "Logs Count " . array_sum($arr);
     }
 
-    public function getModelDataByCompanyId($currentDate, $nextDate, $companyId, $UserID = 0)
+    public function getModelDataByCompanyId($currentDate, $companyId, $UserID = 0)
     {
 
         $schedule = $this->getSchedule($companyId);
@@ -51,23 +49,22 @@ class MultiInOutShiftController extends Controller
             return [];
         }
 
+        $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
+
         $start_range = $currentDate . " " . $schedule->shift->on_duty_time;
 
         $end_range = $nextDate . " " . $schedule->shift->off_duty_time;
 
         $model = AttendanceLog::query();
-
-        $model->where(function ($q) use ($start_range, $end_range, $companyId, $UserID) {
-            $q->where("company_id", '>', 0);
-            // $q->where("checked", false);
-            $q->whereBetween("LogTime", [$start_range, $end_range]);
-            $q->where("company_id", $companyId);
-            $q->when($UserID > 0, function ($qu) use ($UserID) {
-                $qu->where("UserID", $UserID);
-            });
-            $q->whereHas("schedule", function ($q) {
-                $q->where('shift_type_id', 2);
-            });
+        // $model->where("checked", false);
+        $model->where("company_id", '>', 0);
+        $model->whereBetween("LogTime", [$start_range, $end_range]);
+        $model->where("company_id", $companyId);
+        $model->when($UserID > 0, function ($qu) use ($UserID) {
+            $qu->where("UserID", $UserID);
+        });
+        $model->whereHas("schedule", function ($q) {
+            $q->where('shift_type_id', 2);
         });
 
         $model->with("schedule", function ($q) use ($companyId) {
@@ -234,20 +231,15 @@ class MultiInOutShiftController extends Controller
 
         $currentDate = date('Y-m-d');
 
-        $nextDate = date('Y-m-d', strtotime($currentDate . ' + 1 day'));
-
         $arr = [];
 
-        $date = date("Y-m-d H:i:s");
-        $script_name = "SyncMultiInOut";
-
-        $meta = "[$date] Cron: $script_name.";
-
         foreach ($companyIds as $companyId) {
-            $data = $this->getModelDataByCompanyId($currentDate, $nextDate, $companyId);
+
+            $data = $this->getModelDataByCompanyId($currentDate, $companyId);
+
             $arr[] = $this->processData($companyId, $data, $currentDate);
         }
 
-        return $meta . ' Logs Count ' . count($arr);
+        return "Logs Count " . array_sum($arr);
     }
 }
