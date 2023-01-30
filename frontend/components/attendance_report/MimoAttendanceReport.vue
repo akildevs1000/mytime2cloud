@@ -1269,7 +1269,7 @@ export default {
       let payload = {
         params: {
           date: this.editItems.date,
-          UserID: this.editItems.UserID,
+          UserID: [this.editItems.UserID],
           company_ids: [this.$auth.user.company.id]
         }
       };
