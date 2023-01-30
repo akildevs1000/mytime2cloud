@@ -88,7 +88,7 @@ class MultiInOutShiftController extends Controller
         ];
     }
 
-    public function getLogsWithInRange($date, $companyId, $UserID, $range)
+    public function getLogsWithInRange($companyId, $UserID, $range)
     {
         $model = AttendanceLog::query();
         $model->whereHas("schedule", function ($q) {
@@ -123,7 +123,7 @@ class MultiInOutShiftController extends Controller
 
             $UserIDs[] = $UserID;
 
-            $data = $this->getLogsWithInRange($date, $companyId, $UserID, $schedule["range"]);
+            $data = $this->getLogsWithInRange($companyId, $UserID, $schedule["range"]);
 
             $temp[$date][$UserID]["status"] = 'P';
             $temp[$date][$UserID]["shift_type_id"] = 2;
