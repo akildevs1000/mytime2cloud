@@ -48,7 +48,6 @@ class SyncAttendanceLogs extends Command
             while (($row = fgetcsv($handle, 1000, ',')) !== false) {
 
                 $data[] = array_combine(["UserID", "DeviceID", "LogTime", "SerialNumber"], $row);
-
             }
             fclose($handle);
         }
@@ -56,7 +55,7 @@ class SyncAttendanceLogs extends Command
             $created = AttendanceLog::insert($data);
             $created ? unlink($file) : 0;
             $count = count($data);
-            echo "[" . $date . "] Cron: SyncAttendanceLogs. " . $count . " new logs has been inserted. Old file has been deleted.\n";
+            echo "[" . $date . "] Cron: SyncAttendanceLogs. " . $count . " new logs has been inserted. Old file has been deleted.\n" . "Details: " . json_encode($data);
             // echo "[".$date."] Cron: SyncAttendanceLogs. Log Details: " . json_encode($data) . "\n";
             return;
         } catch (\Throwable $th) {
