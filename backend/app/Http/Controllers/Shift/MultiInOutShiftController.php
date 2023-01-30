@@ -248,7 +248,7 @@ class MultiInOutShiftController extends Controller
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 
-    public function processPreviousDateByManual()
+    public function syncLogsScript()
     {
         $companyIds = Company::pluck("id") ?? [];
 

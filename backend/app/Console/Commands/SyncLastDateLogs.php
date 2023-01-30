@@ -44,7 +44,7 @@ class SyncLastDateLogs extends Command
 
         try {
             $Attendance = new MultiInOutShiftController;
-            $result = $Attendance->processPreviousDateByManual();
+            $result = $Attendance->syncLogsScript();
             $message =  $meta . " " . $result . ".\n";
             echo $message;
             return;
