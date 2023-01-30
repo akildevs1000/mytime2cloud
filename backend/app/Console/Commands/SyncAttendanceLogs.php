@@ -55,8 +55,8 @@ class SyncAttendanceLogs extends Command
             $created = AttendanceLog::insert($data);
             $created ? unlink($file) : 0;
             $count = count($data);
-            echo "[" . $date . "] Cron: SyncAttendanceLogs. " . $count . " new logs has been inserted. Old file has been deleted.\n" . "Details: " . json_encode($data);
-            // echo "[".$date."] Cron: SyncAttendanceLogs. Log Details: " . json_encode($data) . "\n";
+            echo "[" . $date . "] Cron: SyncAttendanceLogs. " . $count . " new logs has been inserted. Old file has been deleted.\n";
+            echo "[" . $date . "] Cron: SyncAttendanceLogs. Details: " . json_encode($data) . "\n";
             return;
         } catch (\Throwable $th) {
 
