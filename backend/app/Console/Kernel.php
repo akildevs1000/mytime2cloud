@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
             // ->everyThirtyMinutes()
             ->everyMinute()
             ->withoutOverlapping()
-            ->between('7:00', '23:59')
+            // ->between('7:00', '23:59')
             ->appendOutputTo(storage_path("logs/$date-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
@@ -33,12 +33,12 @@ class Kernel extends ConsoleKernel
             // ->everyThirtyMinutes()
             ->everyMinute()
             ->withoutOverlapping()
-            ->between('7:00', '23:59')
+            // ->between('7:00', '23:59')
             ->appendOutputTo(storage_path("logs/$date-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
-            ->command('task:sync_logs')
+            ->command('task:sync_multiinout')
             // ->dailyAt('4:00')
             // ->hourly()
             ->everyMinute()

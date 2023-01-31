@@ -250,20 +250,24 @@ class MultiInOutShiftController extends Controller
     {
         $shift_type_id = 2;
 
+        $result = 0;
+
         $companyIds = Company::pluck("id") ?? [];
 
         $UserIDs = [];
 
-        $currentDate = date('Y-m-d');
+        $currentTimestamp = date('Y-m-d H:i:s');
 
-        $arr = [];
+        $condtionTimestamp = date("Y-m-d 07:00");
+
+        $currentDate = $currentTimestamp < $condtionTimestamp ? date('Y-m-d', strtotime('yesterday')) : date('Y-m-d');
 
         $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
 
         foreach ($companies as $company_id => $data) {
-            $arr[] = $this->processData($company_id, $data, $currentDate, $shift_type_id);
+            $result += $this->processData($company_id, $data, $currentDate, $shift_type_id);
         }
 
-        return "Logs Count " . array_sum($arr);
+        return "Logs Count " . $result;
     }
 }

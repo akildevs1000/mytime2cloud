@@ -39,7 +39,7 @@ class SyncMultiInOut extends Command
 
         try {
             $Attendance = new MultiInOutShiftController;
-            $result = $Attendance->processShift();
+            $result = $Attendance->syncLogsScript();
             $message =  $meta . " " . $result . ".\n";
             echo $message;
             return;
