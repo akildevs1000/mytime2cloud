@@ -156,7 +156,8 @@ class EmployeeController extends Controller
     }
     public function employeesByDepartment(Request $request, Employee $model)
     {
-        $model = $model->query();
+        $model->query();
+        $model->whereCompanyId($request->company);
         if (!in_array("---", $request->department_ids)) {
             $model->whereIn("department_id", $request->department_ids);
         }
@@ -165,6 +166,7 @@ class EmployeeController extends Controller
     public function employeesBySubDepartment(Request $request, Employee $model)
     {
         $model = $model->query();
+        $model->whereCompanyId($request->company);
         if (!in_array("---", $request->sub_department_ids)) {
             $model->whereIn("sub_department_id", $request->sub_department_ids);
         }
@@ -175,6 +177,7 @@ class EmployeeController extends Controller
         $model = $this->FilterCompanyList($model, $request);
         if ($id) {
             $model->whereDesignationId($id);
+            $model->whereCompanyId($request->company);
         }
         return $model->select('id', 'first_name', 'last_name')->get();
     }
@@ -183,6 +186,7 @@ class EmployeeController extends Controller
         $model = $this->FilterCompanyList($model, $request);
         if ($id) {
             $model->whereDepartmentId($id);
+            $model->whereCompanyId($request->company);
         }
         return $model->select('id', 'name')->get();
     }
