@@ -154,30 +154,34 @@ class EmployeeController extends Controller
     {
         return $employee->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->whereId($employee->id)->first();
     }
-    public function employeesByDepartment(Request $request, Employee $model)
+    public function employeesByDepartment(Request $request)
     {
-        $model->query();
-        $model->whereCompanyId($request->company);
+        $model = Employee::query();
+        $model->where('company_id', $request->company_id);
         if (!in_array("---", $request->department_ids)) {
             $model->whereIn("department_id", $request->department_ids);
         }
-        return $model->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->paginate($request->per_page);
+        $model->with("department", function ($q) use ($request) {
+            $q->whereCompanyId($request->company_id);
+        });
+        return $model->paginate($request->per_page);
     }
-    public function employeesBySubDepartment(Request $request, Employee $model)
+    public function employeesBySubDepartment(Request $request)
     {
-        $model = $model->query();
-        $model->whereCompanyId($request->company);
+        $model = Employee::query();
+        $model->whereCompanyId($request->company_id);
         if (!in_array("---", $request->sub_department_ids)) {
             $model->whereIn("sub_department_id", $request->sub_department_ids);
         }
-        return $model->whereIn("department_id", $request->department_ids)->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->paginate($request->per_page);
+        return $model->whereIn("department_id", $request->department_ids)->paginate($request->per_page);
     }
-    public function employeesByDesignation($id, Request $request, Employee $model)
+    public function employeesByDesignation($id, Request $request)
     {
+        $model = Employee::query();
         $model = $this->FilterCompanyList($model, $request);
         if ($id) {
             $model->whereDesignationId($id);
-            $model->whereCompanyId($request->company);
+            $model->whereCompanyId($request->company_id);
         }
         return $model->select('id', 'first_name', 'last_name')->get();
     }
@@ -186,7 +190,7 @@ class EmployeeController extends Controller
         $model = $this->FilterCompanyList($model, $request);
         if ($id) {
             $model->whereDepartmentId($id);
-            $model->whereCompanyId($request->company);
+            $model->whereCompanyId($request->company_id);
         }
         return $model->select('id', 'name')->get();
     }
