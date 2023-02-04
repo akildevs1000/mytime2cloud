@@ -110,6 +110,12 @@ class Attendance extends Model
         return $this->hasMany(AttendanceLog::class, "UserID", "employee_id");
     }
 
+    public function schedule()
+    {
+        return $this->belongsTo(ScheduleEmployee::class, "employee_id", "employee_id")->withOut(["shift_type", "logs", "first_log", "last_log"]);
+    }
+
+
     protected static function boot()
     {
         parent::boot();

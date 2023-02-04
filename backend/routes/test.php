@@ -2,7 +2,6 @@
 
 use App\Models\Device;
 use App\Models\Employee;
-use App\Jobs\WhatsappJob;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\ReportNotification;
@@ -11,19 +10,28 @@ use App\Mail\ReportNotificationMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\WhatsappController;
-use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
-use App\Models\User;
+use App\Http\Controllers\Shift\AutoShiftController;
+use App\Http\Controllers\Shift\MultiInOutShiftController;
+
+Route::get('/syncAutoLogsScript', function (Request $request) {
+    $Attendance = new AutoShiftController;
+    return $Attendance->processByManual($request);
+});
 
 Route::get('/test', function (Request $request) {
+
+    $Attendance = new MultiInOutShiftController;
+    return $result = $Attendance->syncLogsScript();
+
+    die;
 
     // if($request->company_id) {
     //     $user_ids = Employee::where("company_id", "=",$request->company_id)->pluck("user_id");
     //     return User::whereIn("id",$user_ids)->update(["company_id" => $request->company_id]);
     // }
 
-    
+
 
     echo phpversion();
 
