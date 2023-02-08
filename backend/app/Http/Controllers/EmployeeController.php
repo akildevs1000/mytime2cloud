@@ -22,6 +22,7 @@ use App\Http\Requests\Employee\EmployeeImportRequest;
 use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Http\Requests\Employee\EmployeeContactRequest;
+use App\Models\ScheduleEmployee;
 
 use function GuzzleHttp\Promise\all;
 
@@ -119,7 +120,15 @@ class EmployeeController extends Controller
             })
             ->paginate($request->per_page ?? 100);
     }
-    public function scheduled_employees(Employee $employee, Request $request)
+    public function scheduled_employees(ScheduleEmployee $employee, Request $request)
+    {
+        $model = $employee->where('company_id', $request->company_id);
+        $model = $this->custom_with($model, "shift", $request->company_id);
+        $model = $this->custom_with($model, "employee", $request->company_id);
+        return $model->paginate($request->per_page);
+    }
+
+    public function scheduled_employees_list(Employee $employee, Request $request)
     {
         return $employee->where("company_id", $request->company_id)
             ->whereHas('schedule', function ($q) use ($request) {
