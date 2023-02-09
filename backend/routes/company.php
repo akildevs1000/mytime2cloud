@@ -6,12 +6,14 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AssignPermissionController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AutoShiftController;
 use App\Http\Controllers\BankInfoController;
 use App\Http\Controllers\CommissionController;
 use App\Http\Controllers\CountController;
 use App\Http\Controllers\DeductionController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\DocumentInfoController;
 use App\Http\Controllers\DutyOrganizerController;
 use App\Http\Controllers\EmiratesController;
@@ -41,6 +43,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/get-company-id-by-device', [DeviceController::class, 'get_company_id_by_device']);
+
 
 // employee reporter
 Route::post('/employee_to_reporter/{id}', [EmployeeController::class, 'employeeToReporter']);
@@ -146,6 +151,10 @@ Route::get('employeesBySubDepartment', [EmployeeController::class, 'employeesByS
 Route::get('employeesByDesignation/{key}', [EmployeeController::class, 'employeesByDesignation']);
 Route::get('designationsByDepartment/{key}', [EmployeeController::class, 'designationsByDepartment']);
 Route::get('scheduled_employees', [EmployeeController::class, 'scheduled_employees']);
+
+Route::put('scheduled_employee/{id}', [ScheduleEmployeeController::class, 'update']);
+
+Route::get('scheduled_employees_list', [EmployeeController::class, 'scheduled_employees_list']);
 Route::get('scheduled_employees_with_type', [EmployeeController::class, 'scheduled_employees_with_type']);
 Route::get('attendance_employees', [EmployeeController::class, 'attendance_employees']);
 Route::get('scheduled_employees/search/{key}', [EmployeeController::class, 'scheduled_employees_search']);
@@ -240,3 +249,7 @@ Route::post('report_notifications', function (Request $request) {
 });
 
 Route::apiResource('report_notification', ReportNotificationController::class);
+
+
+Route::get('/auto_shift', [AutoShiftController::class, 'index']);
+Route::post('/auto_shift', [AutoShiftController::class, 'store']);

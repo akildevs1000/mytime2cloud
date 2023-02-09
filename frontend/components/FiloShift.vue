@@ -125,22 +125,6 @@
           >{{ errors.overtime_interval[0] }}</span
         >
       </v-col>
-      <v-col cols="12" md="12">
-        <b>Holidays</b>
-        <br />
-        <v-checkbox
-          style="float: left"
-          class="mr-5"
-          v-for="(week_day, index) in week_days"
-          :key="index"
-          v-model="payload.days"
-          :label="week_day.label"
-          :value="week_day.value"
-          :error-messages="errors.days && errors.days[0]"
-        ></v-checkbox>
-      </v-col>
-    </v-row>
-    <v-row>
       <v-col cols="12">
         <div class="text-left">
           <v-btn

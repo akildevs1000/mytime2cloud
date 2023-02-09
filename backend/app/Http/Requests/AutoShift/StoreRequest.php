@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Requests\ScheduleEmployee;
+namespace App\Http\Requests\AutoShift;
 
 use App\Traits\failedValidationWithName;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateRequest extends FormRequest
+class StoreRequest extends FormRequest
 {
-    use failedValidationWithName;
+    use failedValidationWithName; // gives response when validation failed
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -27,11 +27,8 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'shift_type_id' => ["required"],
-            'shift_id' => ["nullable"],
-            'from_date' => ["required"],
-            'to_date' => ["required"],
-            'isOverTime' => ["nullable"],
+            'company_id' => 'required',
+            'shift_ids' => 'required|array|min:1',
         ];
     }
 }

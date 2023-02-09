@@ -12,6 +12,7 @@ class Shift extends Model
 
     protected $guarded = [];
 
+    protected $appends = ['time_in_numbers'];
 
     protected $with = ['shift_type'];
 
@@ -39,5 +40,16 @@ class Shift extends Model
         static::addGlobalScope('order', function (Builder $builder) {
             $builder->orderBy('id', 'desc');
         });
+    }
+
+    public function autoshift()
+    {
+        return $this->hasOne(AutoShift::class);
+    }
+
+    public function getTimeInNumbersAttribute()
+    {
+        return strtotime($this->on_duty_time);
+        return date("Y-m-d H:i", strtotime($this->on_duty_time));
     }
 }

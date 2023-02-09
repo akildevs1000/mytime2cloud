@@ -142,108 +142,6 @@
           >
         </div>
       </v-col>
-
-      <!-- <v-col cols="12" md="3">
-        Gap Time For Checkin <span class="error--text">*</span>
-
-        <v-menu
-          ref="gap_in_menu_ref"
-          v-model="gap_in_menu"
-          :close-on-content-click="false"
-          :nudge-right="40"
-          :return-value.sync="payload.gap_in"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              append-icon="access_time"
-              v-model="payload.gap_in"
-              readonly
-              :hide-details="!errors.gap_in"
-              v-bind="attrs"
-              v-on="on"
-              dense
-              outlined
-              class="mt-2"
-            ></v-text-field>
-          </template>
-          <v-time-picker
-            format="24hr"
-            v-if="gap_in_menu"
-            v-model="payload.gap_in"
-            full-width
-          >
-            <v-spacer></v-spacer>
-            <v-btn x-small color="primary" @click="gap_in_menu = false">
-              Cancel
-            </v-btn>
-            <v-btn
-              x-small
-              color="primary"
-              @click="$refs.gap_in_menu_ref.save(payload.gap_in)"
-            >
-              OK
-            </v-btn>
-          </v-time-picker>
-        </v-menu>
-        <span v-if="errors && errors.gap_in" class="text-danger mt-2">{{
-          errors.gap_in[0]
-        }}</span>
-      </v-col>
-
-      <v-col cols="12" md="3">
-        Gap Time For Checkout <span class="error--text">*</span>
-        <v-menu
-          ref="gap_out_menu_ref"
-          v-model="gap_out_menu"
-          :close-on-content-click="false"
-          :nudge-right="40"
-          :return-value.sync="payload.gap_out"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              append-icon="access_time"
-              v-model="payload.gap_out"
-              readonly
-              :hide-details="!errors.gap_out"
-              v-bind="attrs"
-              v-on="on"
-              dense
-              outlined
-              class="mt-2"
-            ></v-text-field>
-          </template>
-          <v-time-picker
-            format="24hr"
-            v-if="gap_out_menu"
-            v-model="payload.gap_out"
-            full-width
-          >
-            <v-spacer></v-spacer>
-            <v-btn x-small color="primary" @click="gap_out_menu = false">
-              Cancel
-            </v-btn>
-            <v-btn
-              x-small
-              color="primary"
-              @click="$refs.gap_out_menu_ref.save(payload.gap_out)"
-            >
-              OK
-            </v-btn>
-          </v-time-picker>
-        </v-menu>
-        <span v-if="errors && errors.gap_out" class="text-danger mt-2">{{
-          errors.gap_out[0]
-        }}</span>
-      </v-col> -->
-
       <v-col cols="12" md="3">
         Minimum Working Hours <span class="error--text">*</span>
         <v-menu
@@ -353,22 +251,6 @@
         >
       </v-col>
 
-      <v-col cols="12" md="12">
-        <b>Holidays</b>
-        <br />
-        <v-checkbox
-          style="float: left"
-          class="mr-5"
-          v-for="(week_day, index) in week_days"
-          :key="index"
-          v-model="payload.days"
-          :label="week_day.label"
-          :value="week_day.value"
-          :error-messages="errors.days && errors.days[0]"
-        ></v-checkbox>
-      </v-col>
-    </v-row>
-    <v-row>
       <v-col cols="12">
         <div class="text-left">
           <v-btn
@@ -400,16 +282,6 @@ export default {
     shiftList: true,
     isChange: false,
     isAuto: false,
-
-    week_days: [
-      { label: "Sun", value: "Sun" },
-      { label: "Mon", value: "Mon" },
-      { label: "Tue", value: "Tue" },
-      { label: "Wed", value: "Wed" },
-      { label: "Thu", value: "Thu" },
-      { label: "Fri", value: "Fri" },
-      { label: "Sat", value: "Sat" }
-    ],
 
     loading: false,
     time_in_menu: false,

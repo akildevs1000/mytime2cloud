@@ -31,6 +31,8 @@ class StoreRequest extends FormRequest
             'isOverTime' => ["nullable"],
             'shift_type_id' => ["required"],
             'employee_ids' => ["required", "array", "min:1"],
+            'from_date' => ["required"],
+            'to_date' => ["required"],
             'company_id' => ["required"],
         ];
     }

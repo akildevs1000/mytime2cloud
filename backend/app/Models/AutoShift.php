@@ -10,4 +10,9 @@ class AutoShift extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class);
+    }
 }

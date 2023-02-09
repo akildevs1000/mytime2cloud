@@ -7,7 +7,7 @@
     </div>
     <v-row>
       <v-col md="12">
-        <b>Single Shifts</b>
+        <b>Shifts</b>
         <br />
         <v-skeleton-loader v-if="!shifts" type="card" />
 
@@ -22,7 +22,7 @@
           v-model="payload.shift_ids"
           :label="item.name"
           :value="item.id"
-          :error-messages="errors.days && errors.days[0]"
+          :error-messages="errors.shift_ids && errors.shift_ids[0]"
         ></v-checkbox>
       </v-col>
       <v-col cols="12">
@@ -59,7 +59,6 @@ export default {
     loading: false,
 
     payload: {
-      days: [],
       shift_ids: []
     },
 
@@ -105,7 +104,7 @@ export default {
       this.payload.shift_type_id = this.shift_type_id;
       this.loading = true;
       this.$axios
-        .post(`/shift`, this.payload)
+        .post(`/auto_shift`, this.payload)
         .then(({ data }) => {
           console.log(data);
           this.loading = false;

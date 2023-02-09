@@ -15,6 +15,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
+use App\Http\Controllers\Shift\SingleShiftController;
 use App\Http\Controllers\TradeLicenseController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -129,8 +130,7 @@ Route::get('SyncAbsent', [AttendanceController::class, 'SyncAbsent']);
 
 Route::get('ProcessAttendance', [AttendanceController::class, 'ProcessAttendance']);
 Route::get('processByManual', [MultiInOutShiftController::class, 'processByManual']);
-Route::get('processByUser', [MultiInOutShiftController::class, 'processByUser']);
-
+Route::get('processByManualForSingleShift', [SingleShiftController::class, 'processByManual']);
 
 
 // Route::get('SyncAbsentForMultipleDays', [AttendanceController::class, 'SyncAbsentForMultipleDays']);

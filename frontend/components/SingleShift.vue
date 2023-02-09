@@ -244,6 +244,8 @@
             format="24hr"
             v-if="time_out_menu"
             v-model="payload.off_duty_time"
+            :min="payload.on_duty_time"
+            max="23:59"
             full-width
           >
             <v-spacer></v-spacer>
@@ -618,22 +620,6 @@
           >{{ errors.overtime_interval[0] }}</span
         >
       </v-col>
-      <v-col cols="12" md="12">
-        <b>Holidays</b>
-        <br />
-        <v-checkbox
-          style="float: left"
-          class="mr-5"
-          v-for="(week_day, index) in week_days"
-          :key="index"
-          v-model="payload.days"
-          :label="week_day.label"
-          :value="week_day.value"
-          :error-messages="errors.days && errors.days[0]"
-        ></v-checkbox>
-      </v-col>
-    </v-row>
-    <v-row>
       <v-col cols="12">
         <div class="text-left">
           <v-btn
@@ -657,16 +643,6 @@ export default {
   data: () => ({
     date: null,
     menu: false,
-
-    week_days: [
-      { label: "Sun", value: "Sun" },
-      { label: "Mon", value: "Mon" },
-      { label: "Tue", value: "Tue" },
-      { label: "Wed", value: "Wed" },
-      { label: "Thu", value: "Thu" },
-      { label: "Fri", value: "Fri" },
-      { label: "Sat", value: "Sat" }
-    ],
 
     loading: false,
     working_hours_menu: false,

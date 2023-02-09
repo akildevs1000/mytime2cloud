@@ -22,16 +22,12 @@ class AutoShiftController extends Controller
     public function processByManual(Request $request)
     {
         $shift_type_id = 3;
-
-        $companyIds = $request->company_ids ?? [];
-
-        $UserIDs = $request->UserIDs ?? [];
-
-        $currentDate = $request->date ?? date('Y-m-d');
-
-        $checked = $request->checked;
-
         $arr = [];
+        $currentDate = $request->input('date', date('Y-m-d'));
+        $checked = $request->input('checked');
+        $companyIds = $request->input('company_ids', []);
+        $UserIDs = $request->input('UserIDs', []);
+
         $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
 
         foreach ($companies as $company_id => $data) {
@@ -47,9 +43,7 @@ class AutoShiftController extends Controller
         $model = AttendanceLog::query();
 
         $model->where(function ($q) use ($currentDate, $companyIds, $UserIDs, $shift_type_id) {
-
             $q->where("checked", false);
-
             $q->where("company_id", '>', 0);
 
             $q->whereHas("schedule", function ($q) use ($shift_type_id) {
@@ -64,7 +58,7 @@ class AutoShiftController extends Controller
                 $q->whereIn("UserID", $UserIDs);
             });
 
-            $q->whereBetween("LogTime", [$currentDate, date('Y-m-d', strtotime($currentDate . '+ 1 day'))]);
+            $q->whereDate("LogTime", $currentDate);
         });
 
         $model->orderBy("LogTime");
@@ -72,77 +66,14 @@ class AutoShiftController extends Controller
         return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy(["company_id", "UserID"])->toArray();
     }
 
-    public function getSchedule($currentDate, $companyId, $UserID, $shift_type_id)
-    {
-        $schedule = ScheduleEmployee::withOut(["logs", "first_log", "last_log"])
-            ->where('company_id', $companyId)
-            ->where("employee_id", $UserID)
-            ->where("shift_type_id", $shift_type_id)
-            ->first();
-
-        if (!$schedule || !$schedule->shift) {
-            return false;
-        }
-
-        $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
-
-        $start_range = $currentDate . " " . $schedule->shift->on_duty_time;
-
-        $end_range = $nextDate . " " . $schedule->shift->off_duty_time;
-
-        return [
-            "shift_id" => $schedule["shift_id"],
-            "range" => [$start_range, $end_range],
-            "isOverTime" => $schedule["isOverTime"],
-            "working_hours" => $schedule["shift"]["working_hours"],
-            "overtime_interval" => $schedule["shift"]["overtime_interval"],
-        ];
-    }
-
-    public function getLogsWithInRange($companyId, $UserID, $range, $shift_type_id)
-    {
-        $model = AttendanceLog::query();
-        $model->whereHas("schedule", function ($q) use ($shift_type_id) {
-            $q->where('shift_type_id', $shift_type_id);
-        });
-        $model->where("company_id", $companyId);
-        $model->where("UserID", $UserID);
-        $model->whereBetween("LogTime", $range);
-
-        $model->orderBy("LogTime");
-
-        return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
-    }
-
     public function findAttendanceByUserId($item)
     {
-        $prevDate =  date('Y-m-d', strtotime($item['date'] . ' - 1 day'));
-
         $model = Attendance::query();
+        $model->where("employee_id", $item["employee_id"]);
+        $model->where("company_id", $item["company_id"]);
+        $model->whereDate("date", $item["date"]);
 
-        $model->where(function ($q) use ($item) {
-            $q->where("employee_id", $item['employee_id']);
-            $q->where("company_id", $item['company_id']);
-            $q->where("date", $item['date']);
-        });
-
-        $model->orWhere(function ($q) use ($item, $prevDate) {
-            $q->where("employee_id", $item['employee_id']);
-            $q->where("company_id", $item['company_id']);
-            $q->where("date", $prevDate);
-        });
-
-        if (!$model->first()) {
-            return [
-                "found" => false,
-                "attendance" => $model
-            ];
-        }
-
-        return [
-            "found" => true,
-            "attendance" => $model->with(["schedule", "shift"])->first()
-        ];
+        return !$model->first() ? false : $model->with(["schedule", "shift"])->first();
     }
 
     public function getShifts($companyId)
@@ -154,107 +85,51 @@ class AutoShiftController extends Controller
 
     public function processData($companyId, $data, $date, $shift_type_id, $checked = true)
     {
-
         $counter = 0;
-
-        $temp = [];
-
         $items = [];
-
-        $UserIDs = [];
-
         $shifts = $this->getShifts($companyId);
-
-        $count = count($shifts);
+        $arr = [];
+        $arr["company_id"] = $companyId;
+        $arr["date"] = $date;
 
         foreach ($data as $UserID => $logs) {
-
             if (count($logs) == 0) {
                 continue;
             }
 
-            $UserIDs[] = $UserID;
+            $arr["employee_id"] = $UserID;
 
-            $temp["company_id"] = $companyId;
-            $temp["date"] = $date;
-            $temp["employee_id"] = $UserID;
+            $model = $this->findAttendanceByUserId($arr);
 
-            $found = $this->findAttendanceByUserId($temp);
+            if (!$model) {
+                $nearestShift = $this->findClosest($shifts, count($shifts), $logs[0]["show_log_time"], $date);
 
-
-            if ($found["found"]) {
-                $model = $found["attendance"];
-                $last = array_reverse($logs)[0];
-
-                $temp["shift_id"] = $model->shift_id;
-                $temp["date"] = $model->date;
-                $temp["out"] = $last["time"];
-                $temp["device_id_out"] = $last["DeviceID"];
-                $temp["total_hrs"] = $this->getTotalHrsMins($model->in, $last["time"]);
-
-                $schedule = $model->schedule ?? false;
-
-                $isOverTime = $schedule && $schedule->isOverTime ?? false;
-
-                if ($isOverTime) {
-                    $temp["ot"] = $this->calculatedOT($temp["total_hrs"], $schedule->working_hours, $schedule->overtime_interval);
-                }
-
-                $ifOutOfRange = $this->checkIfCurrentLogInPreviousShiftRange($model, $last, $date);
-
-                if (!$ifOutOfRange) {
-                    $model->update($temp);
-                    $items[] = $temp;
-                } else {
-                    $nearestShift = $this->findClosest($shifts, $count, $logs[0]["show_log_time"], $date);
-                    $temp["shift_type_id"] = $shift_type_id;
-                    $temp["status"] = "P";
-                    $temp["date"] = $date;
-                    $temp["shift_id"] = $nearestShift["id"];
-                    $temp["in"] = $logs[0]["time"];
-                    $temp["device_id_in"] = $logs[0]["DeviceID"];
-
-                    $items[] = $temp;
-
-                    $model = $found["attendance"];
-                    $model->create($temp);
-                }
+                $arr["shift_type_id"] = $shift_type_id;
+                $arr["status"] = "P";
+                $arr["device_id_in"] = $logs[0]["DeviceID"];
+                $arr["shift_id"] = $nearestShift["id"];
+                $arr["in"] = $logs[0]["time"];
+                $items[] = $arr;
+                Attendance::create($arr);
+                AttendanceLog::where("id",  $logs[0]["id"])->update(["checked" => $checked]);
             } else {
-
-                $nearestShift = $this->findClosest($shifts, $count, $logs[0]["show_log_time"], $date);
-                $temp["shift_type_id"] = $shift_type_id;
-                $temp["status"] = "P";
-                $temp["shift_id"] = $nearestShift["id"];
-                $temp["in"] = $logs[0]["time"];
-                $temp["device_id_in"] = $logs[0]["DeviceID"];
-
-                $items[] = $temp;
-
-                $model = $found["attendance"];
-                $model->create($temp);
+                $last = array_reverse($logs)[0];
+                $arr["out"] = $last["time"];
+                $arr["device_id_out"] = $last["DeviceID"];
+                $arr["total_hrs"] = $this->getTotalHrsMins($model->in, $last["time"]);
+                $schedule = $model->schedule ?? false;
+                $isOverTime = $schedule && $schedule->isOverTime ?? false;
+                if ($isOverTime) {
+                    $temp["ot"] = $this->calculatedOT($arr["total_hrs"], $schedule->working_hours, $schedule->overtime_interval);
+                }
+                $items[] = $arr;
+                $model->update($arr);
+                AttendanceLog::where("id",  $last["id"])->update(["checked" => $checked]);
             }
         }
-
-        AttendanceLog::whereIn("UserID",  $UserIDs)->whereDate("LogTime", $date)->update(["checked" => $checked]);
-
         return $items;
-
-        return $counter;
     }
 
-    public function checkIfCurrentLogInPreviousShiftRange($model, $last)
-    {
-
-        if (!$model || !$model->shift) return false;
-
-        $shift = $model->shift;
-
-        $eIn = strtotime($shift->ending_in);
-
-        if ($last["show_log_time"] < $eIn) return false;
-
-        return $model->date == date("Y-m-d") ? false : true;
-    }
     public function minutesToHoursNEW($in, $out)
     {
         $parsed_out = strtotime($out);
@@ -277,7 +152,6 @@ class AutoShiftController extends Controller
         $hours = $final_hours . ':' . ($final_mints);
         return $hours;
     }
-
 
     public function minutesToHours($minutes)
     {

@@ -11,6 +11,8 @@ class ScheduleEmployee extends Model
 
     protected $with = ["shift", "shift_type", "logs", "first_log", "last_log"];
 
+    protected $appends = ["show_from_date","show_to_date"];
+
     protected $guarded = [];
 
     protected $casts = [
@@ -18,6 +20,16 @@ class ScheduleEmployee extends Model
         'employee_ids' => 'array',
         'isOverTime' => 'boolean'
     ];
+
+    public function getShowFromDateAttribute(): string
+    {
+        return date('d M Y', strtotime($this->from_date));
+    }
+
+    public function getShowToDateAttribute(): string
+    {
+        return date('d M Y', strtotime($this->to_date));
+    }
 
     /**
      * Get the shift that owns the ScheduleEmployee
@@ -70,6 +82,4 @@ class ScheduleEmployee extends Model
     // {
     //     return $this->hasOneThrough(AttendanceLog::class, Device::class,"employee_id","device_id","id","id");
     // }
-
-
 }

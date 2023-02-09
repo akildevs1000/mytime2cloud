@@ -898,30 +898,30 @@ export default {
         value: "total_hrs"
       },
       { text: "OT", align: "left", sortable: false, value: "ot" },
-      {
-        text: "Late coming",
-        align: "left",
-        sortable: false,
-        value: "late_coming"
-      },
-      {
-        text: "Early Going",
-        align: "left",
-        sortable: false,
-        value: "early_going"
-      },
-      {
-        text: "D.In",
-        align: "left",
-        sortable: false,
-        value: "device_in"
-      },
-      {
-        text: "D.Out",
-        align: "left",
-        sortable: false,
-        value: "device_out"
-      },
+      // {
+      //   text: "Late coming",
+      //   align: "left",
+      //   sortable: false,
+      //   value: "late_coming"
+      // },
+      // {
+      //   text: "Early Going",
+      //   align: "left",
+      //   sortable: false,
+      //   value: "early_going"
+      // },
+      // {
+      //   text: "D.In",
+      //   align: "left",
+      //   sortable: false,
+      //   value: "device_in"
+      // },
+      // {
+      //   text: "D.Out",
+      //   align: "left",
+      //   sortable: false,
+      //   value: "device_out"
+      // },
 
       { text: "Actions", value: "actions", sortable: false }
     ],
