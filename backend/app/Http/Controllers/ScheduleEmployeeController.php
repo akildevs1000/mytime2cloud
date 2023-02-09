@@ -66,13 +66,20 @@ class ScheduleEmployeeController extends Controller
         $arr = [];
 
         foreach ($data["employee_ids"] as $item) {
-            $arr[] = [
+            $value = [
                 "shift_id" => $data["shift_id"] ?? 0,
                 "isOverTime" => $data["isOverTime"],
                 "employee_id" => $item,
                 "shift_type_id" => $data["shift_type_id"],
+                "from_date" => $data["from_date"],
+                "to_date" => $data["to_date"],
                 "company_id" => $data["company_id"],
             ];
+            $found = ScheduleEmployee::where("employee_id", $item)->where("from_date", $data["from_date"])->where("company_id", $data["company_id"])->first();
+
+            if (!$found) {
+                $arr[] = $value;
+            }
         }
 
         try {

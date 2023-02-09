@@ -33,6 +33,7 @@ class MultiInOutShiftController extends Controller
         $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
 
         foreach ($companies as $company_id => $data) {
+            // return ScheduleEmployee::where("company_id",$company_id)->delete();
             $arr[] = $this->processData($company_id, $data, $currentDate, $shift_type_id);
         }
         // return $arr;
@@ -42,22 +43,46 @@ class MultiInOutShiftController extends Controller
     public function getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id)
     {
         $model = AttendanceLog::query();
-        $model->where("checked", false);
-        $model->where("company_id", '>', 0);
 
-        $model->whereHas("schedule", function ($q) use ($shift_type_id) {
-            $q->where('shift_type_id', $shift_type_id);
+        $model->where(function ($q) use ($currentDate, $companyIds, $UserIDs, $shift_type_id) {
+            $q->where("checked", false);
+            $q->where("company_id", '>', 0);
+
+            $q->whereHas("schedule", function ($q) use ($shift_type_id) {
+                $q->where('shift_type_id', $shift_type_id);
+            });
+
+            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
+                $q->whereIn("company_id", $companyIds);
+            });
+
+            $q->when(count($UserIDs) > 0, function ($q) use ($UserIDs) {
+                $q->whereIn("UserID", $UserIDs);
+            });
+
+            $q->whereDate("LogTime", $currentDate);
         });
 
-        $model->when(count($companyIds) > 0, function ($q) use ($companyIds) {
-            $q->whereIn("company_id", $companyIds);
-        });
+        $nextDate = date('Y-m-d', strtotime($currentDate . '+ 1 day'));
 
-        $model->when(count($UserIDs) > 0, function ($q) use ($UserIDs) {
-            $q->whereIn("UserID", $UserIDs);
-        });
+        $model->orWhere(function ($q) use ($nextDate, $companyIds, $UserIDs, $shift_type_id) {
+            $q->where("checked", false);
+            $q->where("company_id", '>', 0);
 
-        $model->whereDate("LogTime", $currentDate);
+            $q->whereHas("schedule", function ($q) use ($shift_type_id) {
+                $q->where('shift_type_id', $shift_type_id);
+            });
+
+            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
+                $q->whereIn("company_id", $companyIds);
+            });
+
+            $q->when(count($UserIDs) > 0, function ($q) use ($UserIDs) {
+                $q->whereIn("UserID", $UserIDs);
+            });
+
+            $q->whereDate("LogTime", $nextDate);
+        });
 
         $model->orderBy("LogTime");
 
@@ -108,8 +133,6 @@ class MultiInOutShiftController extends Controller
 
     public function processData($companyId, $data, $date, $shift_type_id)
     {
-        $counter = 0;
-
         $temp = [];
         $items = [];
         $UserIDs = [];
@@ -137,7 +160,6 @@ class MultiInOutShiftController extends Controller
                 "total_hrs" => 0,
             ];
 
-            $counter += count($data);
             $totalMinutes = 0;
 
             for ($i = 0; $i < count($data); $i++) {
@@ -179,8 +201,10 @@ class MultiInOutShiftController extends Controller
                 $i++;
             }
         }
-        AttendanceLog::whereIn("UserID",  $UserIDs)->whereDate("LogTime", $date)->update(["checked" => true]);
-        return $counter;
+        
+        return AttendanceLog::whereIn("UserID",  $UserIDs)->whereDate("LogTime", $date)->where("company_id",$companyId)->update(["checked" => true]);
+
+        return $items;
     }
     public function storeOrUpdate($items)
     {
