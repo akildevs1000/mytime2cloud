@@ -208,20 +208,11 @@
       </v-col>
       <v-col cols="6">
         <div class="text-right">
-          <!-- <v-btn
-            v-if="can(`employee_schedule_delete`)"
-            small
-            color="error"
-            class="mr-2 mb-2"
-            @click="delteteSelectedRecords"
-            >Delete Selected Records</v-btn
-          > -->
-
           <v-btn
             v-if="can(`employee_schedule_create`)"
             small
             color="primary"
-            @click="dialog = true"
+            to="/employee_schedule/create"
             class="mb-2"
           >
             {{ Module }} +</v-btn
@@ -229,26 +220,6 @@
         </div>
       </v-col>
     </v-row>
-
-    <!-- <v-row>
-      <v-toolbar flat class="mb-5">
-        <v-col md="8">
-          <v-toolbar-title>{{ Module }}s List</v-toolbar-title>
-        </v-col>
-        <v-col>
-          <v-text-field
-            @input="searchIt"
-            v-model="search"
-            label="Search"
-            single-line
-            hide-details
-            dense
-            append-icon="mdi-magnify"
-          ></v-text-field>
-        </v-col>
-      </v-toolbar>
-    </v-row> -->
-
     <v-row>
       <v-col xs="12" sm="12" md="3" cols="12">
         <v-select
@@ -264,16 +235,6 @@
       </v-col>
 
       <v-col xs="12" sm="12" md="3" cols="12">
-        <!-- <v-text-field
-          class="form-control py-1 custom-text-box floating shadow-none"
-          placeholder="Search..."
-          @input="searchIt"
-          v-model="search"
-          :hide-details="true"
-          dense
-          solo
-          flat
-        ></v-text-field> -->
         <input
           class="form-control py-3 custom-text-box floating shadow-none"
           placeholder="Search..."
@@ -293,6 +254,8 @@
           <th>#</th>
           <th>E.ID</th>
           <th>Name</th>
+          <th>Current Schedule Start</th>
+          <th>Current Schedule End</th>
           <th>Shift Type</th>
           <th>Schedule</th>
           <th>OT</th>
@@ -309,24 +272,14 @@
           <td class="ps-3">
             <b>{{ ++index }}</b>
           </td>
-          <td>{{ caps(item.system_user_id) }}</td>
-          <td>{{ caps(item.display_name) }}</td>
+          <td>{{ caps(item.employee && item.employee.system_user_id) }}</td>
+          <td>{{ caps(item.employee && item.employee.display_name) }}</td>
+          <td>{{ item && item.show_from_date }}</td>
+          <td>{{ item && item.show_to_date }}</td>
+          <td>{{ (item && item.shift_type.name) || "---" }}</td>
+          <td>{{ caps(item.shift && item.shift.name) || "---" }}</td>
           <td>
-            <span v-if="item.schedule && item.schedule.shift_type">
-              {{ item.schedule.shift_type.name }}
-            </span>
-            <span v-else>---</span>
-          </td>
-          <td>
-            <span v-if="item.schedule && item.schedule.shift">
-              {{ item.schedule.shift.name }}
-            </span>
-            <span v-else>---</span>
-          </td>
-          <td>
-            <v-icon
-              v-if="item.schedule && item.schedule.isOverTime"
-              color="success darken-1"
+            <v-icon v-if="item && item.isOverTime" color="success darken-1"
               >mdi-check</v-icon
             >
             <v-icon v-else color="error">mdi-close</v-icon>
@@ -375,77 +328,6 @@
         </div>
       </v-col>
     </v-row>
-    <!-- <v-data-table
-      v-if="can(`employee_schedule_list_view`)"
-      v-model="ids"
-      show-select
-      item-key="id"
-      :headers="headers"
-      :items="employees"
-      :server-items-length="total"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000]
-      }"
-      class="elevation-1"
-    >
-      <template v-slot:top> </template>
-      <template v-slot:item.schedule="{ item }">
-        <span v-if="item.schedule && item.schedule.shift">
-          {{ item.schedule.shift.name }}
-        </span>
-        <span v-else>---</span>
-      </template>
-      <template v-slot:item.shift_type="{ item }">
-        <span v-if="item.schedule && item.schedule.shift_type">
-          {{ item.schedule.shift_type.name }}
-        </span>
-        <span v-else>---</span>
-      </template>
-
-      <template v-slot:item.schedule.isOverTime="{ item }">
-        <v-icon
-          v-if="item.schedule && item.schedule.isOverTime"
-          color="success darken-1"
-          >mdi-check</v-icon
-        >
-        <v-icon v-else color="error">mdi-close</v-icon>
-      </template>
-      <template v-slot:item.employee_ids="{ item }">
-        <v-chip
-          class="ma-1"
-          small
-          color="primary"
-          v-for="(pa, idx) in item.employee_ids"
-          :key="idx"
-        >
-          {{ pa.name }}
-        </v-chip>
-      </template>
-      <template v-slot:item.action="{ item }">
-        <v-icon
-          v-if="can(`assign_permission_edit`)"
-          color="secondary"
-          small
-          class="mr-2"
-          @click="editItem(item)"
-        >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          v-if="can(`assign_permission_delete`)"
-          color="error"
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
-      </template>
-      <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize">Reset</v-btn>
-      </template>
-    </v-data-table> -->
   </div>
   <NoAccess v-else />
 </template>
@@ -468,7 +350,7 @@ export default {
     options: {},
     options_dialog: {},
     endpoint: "scheduled_employees",
-    endpoint_dialog: "not_scheduled_employees",
+    endpoint_dialog: "scheduled_employees_list",
     search: "",
     shifts_for_filter: [],
     dialog_search: "",
@@ -494,6 +376,18 @@ export default {
         align: "left",
         sortable: false,
         value: "display_name"
+      },
+      {
+        text: "Schedule Start",
+        align: "left",
+        sortable: false,
+        value: "from_date"
+      },
+      {
+        text: "Schedule Start",
+        align: "left",
+        sortable: false,
+        value: "to_date"
       },
       {
         text: "Shift Type",
@@ -554,21 +448,11 @@ export default {
         sortable: false,
         value: "display_name"
       },
-      // {
-      //   text: "Profile Image",
-      //   sortable: false,
-      //   value: "profile_picture"
-      // },
       {
         text: "Department",
         sortable: false,
         value: "department.name"
       }
-      // {
-      //   text: "Sub Department",
-      //   sortable: false,
-      //   value: "sub_department.name",
-      // },
     ]
   }),
 
@@ -614,8 +498,6 @@ export default {
         company_id: this.$auth.user.company.id
       }
     };
-
-    // this.getShifts(this.options);
   },
 
   methods: {
@@ -632,14 +514,20 @@ export default {
     },
 
     editItem(item) {
+      console.log(item);
+      return;
       this.is_edit = true;
       this.total_dialog = 1;
       this.employees_dialog = [];
-      this.employees_dialog.unshift(item);
-      this.shift_type_id = item.schedule.shift_type.id;
-      this.isOverTime = item.schedule.isOverTime;
-      this.manual_shift = item.schedule.shift_type;
-      this.shift_id = item.schedule.shift_id;
+      this.employees_dialog.unshift({
+        system_user_id: item.employee.system_user_id,
+        display_name: item.employee.display_name,
+        name: item.department.name
+      });
+      this.shift_type_id = item.shift_type.id;
+      this.isOverTime = item.isOverTime;
+      this.manual_shift = item.shift_type;
+      this.shift_id = item.shift_id;
       this.runShiftTypeFunction();
       this.dialog = true;
       this.loading_dialog = true;
@@ -656,6 +544,12 @@ export default {
       this.is_edit = false;
     },
     getShifts(shift_type_id) {
+      if (this.shift_type_id == 3) {
+        this.shift_id = 0;
+        this.shifts = [];
+        return;
+      }
+
       let options = {
         params: {
           shift_type_id: shift_type_id,
@@ -815,14 +709,6 @@ export default {
         this.loading_dialog = false;
       });
     },
-    // searchIt(e) {
-    //   if (e.length == 0) {
-    //     this.getDataFromApi();
-    //   } else if (e.length > 2) {
-    //     this.getDataFromApi(`${this.endpoint}/search/${e}`);
-    //   }
-    // },
-
     searchIt() {
       let s = this.search.length;
       let search = this.search;
@@ -872,7 +758,7 @@ export default {
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
       ) &&
         this.$axios
-          .delete("schedule_employees/" + item.system_user_id)
+          .delete("schedule_employees/" + item.employee.system_user_id)
           .then(({ data }) => {
             const index = this.employees.indexOf(item);
             this.employees.splice(index, 1);
@@ -897,12 +783,18 @@ export default {
         shift_id: this.shift_id,
         company_id: this.$auth.user.company.id,
         isOverTime: this.isOverTime ? 1 : 0,
-        employee_ids: this.employee_ids.map(e => e.system_user_id)
+        employee_ids: this.employee_ids.map(e => e.system_user_id),
+
+        from_date: this.from_date,
+        to_date: this.to_date
       };
 
       if (this.is_edit) {
         this.process(
-          this.$axios.put(`schedule_employees/${payload.employee_ids}`, payload)
+          this.$axios.post(
+            `schedule_employees/${payload.employee_ids}`,
+            payload
+          )
         );
       } else {
         this.process(this.$axios.post(`schedule_employees`, payload));

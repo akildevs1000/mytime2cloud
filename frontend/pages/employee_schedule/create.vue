@@ -1,0 +1,695 @@
+<template>
+  <div v-if="can(`employee_schedule_access`)">
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+        {{ response }}
+      </v-snackbar>
+    </div>
+    <v-dialog v-model="dialog" width="900">
+      <v-card>
+        <v-card-title class="text-h5">
+          Arrange Shift(s)
+          <v-spacer></v-spacer>
+          <v-btn class="primary" small fab @click="addRow"> <b>+</b> </v-btn>
+        </v-card-title>
+
+        <v-divider></v-divider>
+
+        <v-card-text v-for="(item, i) in schedules_temp_list" :key="i">
+          <v-row>
+            <v-col md="3">
+              <div class="">
+                Schedule List
+              </div>
+              <v-autocomplete
+                outlined
+                dense
+                v-model="item.schedule_id"
+                x-small
+                :items="shifts"
+                item-value="id"
+                item-text="name"
+              ></v-autocomplete>
+            </v-col>
+            <v-col md="3">
+              <div class="mb-6">
+                <div>From</div>
+                <v-menu
+                  v-model="from_menu[i]"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="item.from_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                      :hide-details="true"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="item.from_date"
+                    @input="from_menu[i] = false"
+                  ></v-date-picker>
+                </v-menu>
+              </div>
+            </v-col>
+            <v-col md="3">
+              <div class="mb-6">
+                <div>To</div>
+                <v-menu
+                  v-model="to_menu[i]"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="item.to_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                      :hide-details="true"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="item.to_date"
+                    @input="to_menu[i] = false"
+                  ></v-date-picker>
+                </v-menu>
+              </div>
+            </v-col>
+            <v-col md="2">
+              <div>
+                Overtime Allowed
+                <v-checkbox
+                  style="margin-top:-8px;"
+                  v-model="item.is_over_time"
+                ></v-checkbox>
+              </div>
+            </v-col>
+            <v-col md="1">
+              <div></div>
+              <v-icon v-if="i" @click="removeItem(i)" color="error"
+                >mdi-delete</v-icon
+              >
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn dark small color="grey" @click="close"> Close </v-btn>
+          <v-btn dark small color="primary" @click="save"> Submit </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-row class="mt-5 mb-5">
+      <v-col cols="6">
+        <h3>{{ Module }}</h3>
+        <div>Dashboard / {{ Module }}</div>
+      </v-col>
+      <v-col cols="6">
+        <div class="text-right">
+          <v-btn small fab color="background" dark to="/employee_schedule">
+            <v-icon>mdi-arrow-left</v-icon>
+          </v-btn>
+        </div>
+      </v-col>
+    </v-row>
+    <v-card class="mb-5 rounded-md mt-3" elevation="0">
+      <v-card-title class="">
+        Schedule Employees
+      </v-card-title>
+      <v-divider></v-divider>
+
+      <v-card-text>
+        <v-row>
+          <v-col md="4">
+            <v-row>
+              <v-col md="12">
+                <div class="mb-5">
+                  <span class="text-h6">Filters</span>
+                </div>
+                <div class="mb-1">Department</div>
+
+                <v-autocomplete
+                  outlined
+                  dense
+                  @change="runMultipleFunctions"
+                  v-model="department_ids"
+                  multiple
+                  x-small
+                  :items="departments"
+                  item-value="id"
+                  item-text="name"
+                  :disabled="is_edit == true ? true : false"
+                ></v-autocomplete>
+                <div class="mb-1">Sub Department</div>
+                <v-autocomplete
+                  outlined
+                  dense
+                  @change="getEmployeesBySubDepartment"
+                  v-model="sub_department_ids"
+                  multiple
+                  x-small
+                  :items="sub_departments"
+                  item-value="id"
+                  item-text="name"
+                  :disabled="is_edit == true ? true : false"
+                ></v-autocomplete>
+              </v-col>
+            </v-row>
+          </v-col>
+
+          <v-col md="8">
+            <v-row>
+              <v-col md="6">
+                <div class="mb-5">
+                  <span class="text-h6 ">Employees List</span>
+                  &nbsp;
+                  <v-btn dark small color="primary" @click="arrangeShift">
+                    Arrange Shift(s)
+                  </v-btn>
+                </div>
+              </v-col>
+              <v-col md="6">
+                <div class="text-right">
+                  <v-text-field
+                    @input="dialogSearchIt"
+                    dense
+                    v-model="dialog_search"
+                    append-icon="mdi-magnify"
+                    single-line
+                    hide-details
+                  ></v-text-field>
+                </div>
+              </v-col>
+            </v-row>
+            <v-data-table
+              v-model="employee_ids"
+              show-select
+              item-key="id"
+              :headers="headers_dialog"
+              :items="employees_dialog"
+              :server-items-length="total_dialog"
+              :loading="loading_dialog"
+              :options.sync="options_dialog"
+              :footer-props="{
+                itemsPerPageOptions: [50, 100, 500, 1000]
+              }"
+            >
+            </v-data-table>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+  </div>
+  <NoAccess v-else />
+</template>
+<script>
+export default {
+  data: () => ({
+    from_menu: [],
+    to_menu: [],
+
+    pagination: {
+      current: 1,
+      total: 0,
+      per_page: 10
+    },
+
+    Module: "Employee Schedule",
+    schedules_temp_list: [
+      {
+        schedule_id: 1,
+        from_date: new Date().toJSON().slice(0, 10),
+        to_date: new Date().toJSON().slice(0, 10),
+        is_over_time: false
+      }
+    ],
+    options: {},
+    options_dialog: {},
+    endpoint: "scheduled_employees",
+    endpoint_dialog: "scheduled_employees_list",
+    search: "",
+    dialog_search: "",
+    snackbar: false,
+    dialog: false,
+
+    loading: false,
+    loading_dialog: false,
+    total: 0,
+    total_dialog: 0,
+
+    department_ids: ["---"],
+    sub_department_ids: ["---"],
+    employee_ids: [],
+    payload: {
+      schedule_id: [1],
+      from_date: [new Date().toJSON().slice(0, 10)],
+      to_date: [new Date().toJSON().slice(0, 10)],
+      is_over_time: [false]
+    },
+    isOverTime: false,
+    is_edit: false,
+    employees: [],
+    employees_dialog: [],
+    departments: [],
+    sub_departments: [],
+    shifts: [
+      {
+        id: 1,
+        name: "Week 1"
+      },
+      {
+        id: 2,
+        name: "Week 2"
+      }
+    ],
+    ids: [],
+    response: "",
+    data: [],
+
+    errors: [],
+    headers_ids: [],
+
+    headers_dialog: [
+      {
+        text: "E.ID",
+        align: "left",
+        sortable: false,
+        value: "system_user_id"
+      },
+      {
+        text: "Name",
+        sortable: false,
+        value: "display_name"
+      },
+      {
+        text: "Department",
+        sortable: false,
+        value: "department.name"
+      }
+    ]
+  }),
+
+  computed: {},
+
+  watch: {
+    dialog(val) {
+      val || this.close();
+      this.errors = [];
+      this.search = "";
+      if (!this.is_edit) {
+        this.getDepartments(this.options);
+        this.getDataFromApiForDialog();
+      }
+    },
+    options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true
+    },
+    options_dialog: {
+      handler() {
+        if (!this.is_edit) {
+          this.getDataFromApiForDialog();
+        }
+      },
+      deep: true
+    },
+    search() {
+      this.pagination.current = 1;
+      this.searchIt();
+    }
+  },
+  created() {
+    this.loading = true;
+    this.loading_dialog = true;
+
+    this.options = {
+      params: {
+        per_page: 1000,
+        company_id: this.$auth.user.company.id
+      }
+    };
+
+    this.getDepartments(this.options);
+    // this.getDataFromApiForDialog();
+  },
+
+  methods: {
+    arrangeShift() {
+      if (!this.employee_ids.length) {
+        alert("Atleast one employee must be selected.");
+        return;
+      }
+
+      this.dialog = true;
+    },
+    addRow() {
+      let item = {
+        schedule_id: 1,
+        from_date: new Date().toJSON().slice(0, 10),
+        to_date: new Date().toJSON().slice(0, 10),
+        is_over_time: false
+      };
+      if (this.schedules_temp_list.length < 5) {
+        this.schedules_temp_list.push(item);
+      }
+    },
+    removeItem(i) {
+      this.schedules_temp_list.splice(i, 1);
+    },
+    onPageChange() {
+      this.getDataFromApi();
+    },
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
+      } else {
+        let res = str.toString();
+        return res.replace(/\b\w/g, c => c.toUpperCase());
+      }
+    },
+
+    editItem(item) {
+      console.log(item);
+      return;
+      this.is_edit = true;
+      this.total_dialog = 1;
+      this.employees_dialog = [];
+      this.employees_dialog.unshift({
+        system_user_id: item.employee.system_user_id,
+        display_name: item.employee.display_name,
+        name: item.department.name
+      });
+      this.isOverTime = item.isOverTime;
+      this.schedule_id = item.schedule_id;
+      this.dialog = true;
+      this.loading_dialog = true;
+      setTimeout(() => {
+        this.loading_dialog = false;
+      }, 700);
+    },
+
+    close() {
+      this.dialog = false;
+      this.is_edit = false;
+    },
+
+    runShiftFunction() {
+      this.shifts = this.shifts.filter(e => e.id !== "---");
+    },
+    getDepartments(options) {
+      this.$axios
+        .get("departments", options)
+        .then(({ data }) => {
+          this.departments = data.data;
+          this.departments.unshift({ id: "---", name: "Select All" });
+        })
+        .catch(err => console.log(err));
+    },
+    employeesByDepartment() {
+      this.loading_dialog = true;
+
+      const { page, itemsPerPage } = this.options_dialog;
+
+      let options = {
+        params: {
+          department_ids: this.department_ids,
+          per_page: itemsPerPage,
+          page: page,
+          company_id: this.$auth.user.company.id
+        }
+      };
+
+      if (!this.department_ids.length) {
+        this.employees_dialog = [];
+        this.total_dialog = 0;
+        this.loading_dialog = false;
+        return;
+      }
+
+      this.$axios.get("employeesByDepartment", options).then(({ data }) => {
+        this.employees_dialog = data.data;
+        this.total_dialog = data.total;
+        this.loading_dialog = false;
+      });
+    },
+
+    getEmployeesBySubDepartment() {
+      this.loading_dialog = true;
+
+      const { page, itemsPerPage } = this.options_dialog;
+
+      let options = {
+        params: {
+          department_ids: this.department_ids,
+          sub_department_ids: this.sub_department_ids,
+          per_page: itemsPerPage,
+          page: page,
+          company_id: this.$auth.user.company.id
+        }
+      };
+
+      if (!this.sub_department_ids.length) {
+        this.loading_dialog = false;
+        return;
+      }
+
+      this.$axios
+        .get(`employeesBySubDepartment`, options)
+        .then(({ data }) => {
+          this.employees_dialog = data.data;
+          this.total_dialog = data.total;
+          this.loading_dialog = false;
+        })
+        .catch(err => console.log(err));
+    },
+    subDepartmentsByDepartment() {
+      this.options.params.department_ids = this.department_ids;
+
+      this.$axios
+        .get(`sub-departments-by-departments`, this.options)
+        .then(({ data }) => {
+          this.sub_departments = data;
+          this.sub_departments.unshift({
+            id: "---",
+            name: "Select All"
+          });
+        })
+        .catch(err => console.log(err));
+    },
+    runMultipleFunctions() {
+      this.employeesByDepartment();
+      this.subDepartmentsByDepartment();
+    },
+    can(per) {
+      let u = this.$auth.user;
+      return (
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        u.is_master
+      );
+    },
+    //main
+    getDataFromApi(url = this.endpoint) {
+      this.loading = true;
+
+      let page = this.pagination.current;
+
+      let options = {
+        params: {
+          per_page: this.pagination.per_page,
+          page: page,
+          company_id: this.$auth.user.company.id
+        }
+      };
+
+      this.$axios.get(url, options).then(({ data }) => {
+        this.employees = data.data;
+        this.pagination.current = data.current_page;
+        this.pagination.total = data.last_page;
+        this.loading = false;
+      });
+    },
+    getDataFromApiForDialog(url = this.endpoint_dialog) {
+      this.loading_dialog = true;
+
+      const { page, itemsPerPage } = this.options_dialog;
+
+      let options = {
+        params: {
+          per_page: itemsPerPage,
+          page: page,
+          company_id: this.$auth.user.company.id
+        }
+      };
+
+      this.$axios.get(url, options).then(({ data }) => {
+        this.employees_dialog = data.data;
+        this.total_dialog = data.total;
+        this.loading_dialog = false;
+      });
+    },
+    searchIt() {
+      let s = this.search.length;
+      let search = this.search;
+      if (s == 0) {
+        this.getDataFromApi();
+      } else if (s > 2) {
+        this.getDataFromApi(`${this.endpoint}/search/${search}`);
+      }
+    },
+
+    dialogSearchIt(e) {
+      if (e.length == 0) {
+        this.getDataFromApiForDialog();
+      } else if (e.length > 2) {
+        this.employees_dialog = this.employees.filter(({ display_name: fn }) =>
+          fn.includes(e)
+        );
+      }
+    },
+
+    delteteSelectedRecords() {
+      let just_ids = this.ids.map(e => e.schedule.id);
+
+      confirm(
+        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
+      ) &&
+        this.$axios
+          .post(`schedule_employee/delete/selected`, {
+            ids: just_ids
+          })
+          .then(({ data }) => {
+            if (!data.status) {
+              this.errors = data.errors;
+              alert("1");
+            } else {
+              this.getDataFromApi();
+              this.snackbar = data.status;
+              this.ids = [];
+              this.response = "Selected records has been deleted";
+            }
+          })
+          .catch(err => console.log(err));
+    },
+
+    deleteItem(item) {
+      confirm(
+        "Are you sure you wish to delete , to mitigate any inconvenience in future."
+      ) &&
+        this.$axios
+          .delete("schedule_employees/" + item.employee.system_user_id)
+          .then(({ data }) => {
+            const index = this.employees.indexOf(item);
+            this.employees.splice(index, 1);
+            this.snackbar = data.status;
+            this.response = data.message;
+            this.getDataFromApiForDialog();
+          })
+          .catch(err => console.log(err));
+    },
+
+    save() {
+      this.loading_dialog = true;
+      this.errors = [];
+
+      let payload = {
+        employee_ids: this.employee_ids.map(e => e.system_user_id),
+        schedules: this.schedules_temp_list,
+        company_id: this.$auth.user.company.id
+      };
+
+      console.log(payload);
+
+      return;
+
+      if (this.is_edit) {
+        this.process(
+          this.$axios.post(
+            `schedule_employees/${payload.employee_ids}`,
+            payload
+          )
+        );
+      } else {
+        this.process(this.$axios.post(`schedule_employees`, payload));
+      }
+    },
+    process(method) {
+      method
+        .then(({ data }) => {
+          if (!data.status) {
+            if (data?.custom_errors) {
+              this.custom_errors = data.custom_errors;
+              this.errors = [];
+            }
+            if (data?.errors) {
+              this.errors = data.errors;
+              this.custom_errors = [];
+            }
+            this.loading_dialog = false;
+            return;
+          }
+          this.response = data.message;
+          this.snackbar = true;
+          this.loading_dialog = false;
+          this.getDataFromApi();
+          this.getDataFromApiForDialog();
+        })
+        .catch(err => console.log(err));
+    }
+  }
+};
+</script>
+
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  text-align: left;
+  padding: 7px;
+}
+
+tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+
+.custom-text-box {
+  border-radius: 2px !important;
+  border: 1px solid #dbdddf !important;
+}
+input[type="text"]:focus.custom-text-box {
+  border: 2px solid #5fafa3 !important;
+}
+
+select.custom-text-box {
+  border: 2px solid #5fafa3 !important;
+}
+
+select:focus {
+  outline: none !important;
+  border-color: #5fafa3;
+  box-shadow: 0 0 0px #5fafa3;
+}
+</style>

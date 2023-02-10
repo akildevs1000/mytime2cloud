@@ -107,21 +107,21 @@
           Submit
         </v-btn>
       </v-col>
-      <v-col cols="12">
-        <v-data-table
-          v-model="ids"
-          item-key="id"
-          :headers="headers"
-          :items="data"
-          :server-items-length="total"
-          :loading="loading"
-          :options.sync="options"
-          :footer-props="{
-            itemsPerPageOptions: [50, 100, 500, 1000]
-          }"
-          class="elevation-1 mt-5"
-        ></v-data-table>
-      </v-col>
+        <!-- <v-col cols="12">
+          <v-data-table
+            v-model="ids"
+            item-key="id"
+            :headers="headers"
+            :items="data"
+            :server-items-length="total"
+            :loading="loading"
+            :options.sync="options"
+            :footer-props="{
+              itemsPerPageOptions: [50, 100, 500, 1000]
+            }"
+            class="elevation-1 mt-5"
+          ></v-data-table>
+        </v-col> -->
     </v-row>
   </div>
 </template>
@@ -139,8 +139,8 @@ export default {
     time_menu: false,
 
     log_payload: {
-      user_id: 41,
-      device_id: "OX-8862021010100",
+      user_id: 3116,
+      device_id: "OX-8662022010289",
       date: null,
       time: null
     },
