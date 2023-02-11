@@ -1,10 +1,5 @@
 <template>
   <div v-if="can(`shift_create`)">
-    <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
-        {{ response }}
-      </v-snackbar>
-    </div>
     <v-row class="mt-5 mb-10">
       <v-col md="6">
         <h3>{{ Model }}</h3>
@@ -18,11 +13,7 @@
         </div>
       </v-col>
     </v-row>
-    <!-- <GenerateLog /> -->
-
     <v-card>
-      <!-- <v-toolbar flat dark class="primary"> Create {{ Model }} </v-toolbar> -->
-
       <v-stepper v-model="e1">
         <v-stepper-header>
           <v-stepper-step :complete="e1 > 1" step="1">
@@ -47,7 +38,7 @@
                       v-if="shift_types && !shift_types.length"
                       type="card"
                     />
-                    <v-radio-group v-model="payload.shift_type_id" row>
+                    <v-radio-group v-model="shift_type_id" row>
                       <v-radio
                         v-for="(shift_type, index) in shift_types"
                         :key="index"
@@ -81,10 +72,7 @@
               <v-card-text>
                 <v-row>
                   <v-col cols="12">
-                    <component
-                      :shift_type_id="payload.shift_type_id"
-                      :is="comp"
-                    />
+                    <component :shift_type_id="shift_type_id" :is="comp" />
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -100,63 +88,14 @@
 <script>
 export default {
   data: () => ({
-    comp: null,
-    manual_shift: {},
-
-    date: null,
-    menu: false,
-
-    time_tables: [],
-    shift_types: [],
-    shift_last_id: "",
-    shiftList: true,
-    isChange: false,
-    isAuto: false,
-
-    week_days: [
-      { label: "Sun", value: "Sun" },
-      { label: "Mon", value: "Mon" },
-      { label: "Tue", value: "Tue" },
-      { label: "Wed", value: "Wed" },
-      { label: "Thu", value: "Thu" },
-      { label: "Fri", value: "Fri" },
-      { label: "Sat", value: "Sat" }
-    ],
-    errors: [],
-    data: [],
-    response: "",
-    snackbar: false,
-
     Model: "Shift",
+    comp: null,
+    shift_types: [],
     e1: 1,
-    e6: 1,
-
-    loading: false,
-    time_in_menu: false,
-    time_out_menu: false,
-    grace_time_in_menu: false,
-    grace_time_out_menu: false,
-
-    beginning_in_menu: false,
-    ending_in_menu: false,
-
-    beginning_out_menu: false,
-    ending_out_menu: false,
-
-    shift_id: [],
-    payload: {
-      shift_type_id: 6,
-      days: []
-    },
-
-    errors: [],
-    shifts: [],
-    data: [],
-    response: "",
-    snackbar: false
+    shift_type_id: 6
   }),
 
-  async created() {
+  created() {
     let options = {
       per_page: 1000,
       company_id: this.$auth.user.company.id
@@ -165,14 +104,12 @@ export default {
     this.$axios.get("shift_type", { params: options }).then(({ data }) => {
       this.shift_types = data;
     });
-
-    this.getShifts();
   },
   watch: {},
   computed: {},
   methods: {
     getComponent() {
-      switch (this.payload.shift_type_id) {
+      switch (this.shift_type_id) {
         case 6:
           this.comp = "SingleShift";
           break;
@@ -194,27 +131,14 @@ export default {
       }
     },
     can(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
-      );
-    },
+      const user = this.$auth.user;
 
-    getShifts() {
-      let payload = {
-        params: {
-          shift_type_id: 6,
-          company_id: this.$auth.user.company.id
-        }
-      };
+      if (!user) return false;
 
-      this.$axios
-        .get("shift_by_type", payload)
-        .then(({ data }) => {
-          this.shifts = data;
-        })
-        .catch(err => console.log(err));
-    },
+      if (user.is_master) return true;
+
+      return user.permissions.includes(per) || per === "/";
+    }
   }
 };
 </script>

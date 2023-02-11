@@ -16,7 +16,10 @@ socket.onmessage = ({ data }) => {
   } = JSON.parse(data).Data;
 
   if (UserID !== 0) {
-    let str = `${UserID},${DeviceID},${LogTime},${SerialNumber}`;
+    let str = `${UserID},${DeviceID},${LogTime.replace(
+      "T",
+      " "
+    )},${SerialNumber}\n`;
 
     let payload = {
       UserID: UserID,
