@@ -35,7 +35,7 @@
             <v-col md="3">
               <div class="mb-6">
                 <div>From</div>
-                <v-menu
+                <!-- <v-menu
                   v-model="from_menu[i]"
                   :close-on-content-click="false"
                   :nudge-right="40"
@@ -57,7 +57,56 @@
                   <v-date-picker
                     v-model="item.from_date"
                     @input="from_menu[i] = false"
-                  ></v-date-picker>
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="from_menu[i] = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="set_date_save($refs.from_menu[i], item.from_date)"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu> -->
+
+                <v-menu
+                  ref="from_menu"
+                  v-model="from_menu[i]"
+                  :close-on-content-click="false"
+                  :return-value.sync="item.from_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      :hide-details="true"
+                      outlined
+                      dense
+                      v-model="item.from_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker v-model="item.from_date" no-title scrollable>
+                    <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="from_menu[i] = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        set_date_save($refs.from_menu[i], item.from_date, i)
+                      "
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
                 </v-menu>
               </div>
             </v-col>
@@ -221,6 +270,9 @@
 <script>
 export default {
   data: () => ({
+    from_date: null,
+    from_menu: false,
+
     from_menu: [],
     to_menu: [],
 
@@ -387,6 +439,32 @@ export default {
         let res = str.toString();
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
+    },
+
+    set_date_save(from_menu, from, index) {
+      from_menu.save(from);
+      let toDate = this.setSevenDays(from);
+      this.schedules_temp_list[index].to_date = toDate;
+      console.log(this.schedules_temp_list);
+    },
+
+    set_to_date_save(from_menu, from, index) {
+      from_menu.save(from);
+      let toDate = this.setSevenDays(from);
+      this.schedules_temp_list[index].to_date = toDate;
+      console.log(this.schedules_temp_list);
+    },
+
+    setSevenDays(selected_date) {
+      const date = new Date(selected_date);
+      date.setDate(date.getDate() + 6);
+      let datetime = new Date(date);
+      let d = datetime.getDate();
+      d = d < "10" ? "0" + d : d;
+      let m = datetime.getMonth() + 1;
+      m = m < 10 ? "0" + m : m;
+      let y = datetime.getFullYear();
+      return `${y}-${m}-${d}`;
     },
 
     get_rosters() {

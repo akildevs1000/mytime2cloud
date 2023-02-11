@@ -9,7 +9,7 @@
     <v-dialog v-model="editDialog" width="900">
       <v-card>
         <v-card-title class="text-h5">
-          Arrange Shift(s)
+          Edit Shift(s)
           <v-spacer></v-spacer>
           <v-btn class="primary" small fab @click="addRow(rosterFirstValue)">
             <b>+</b>
@@ -34,7 +34,7 @@
             <v-col md="3">
               <div class="mb-6">
                 <div>From</div>
-                <v-menu
+                <!-- <v-menu
                   v-model="from_menu[i]"
                   :close-on-content-click="false"
                   :nudge-right="40"
@@ -57,6 +57,42 @@
                     v-model="item.from_date"
                     @input="from_menu[i] = false"
                   ></v-date-picker>
+                </v-menu> -->
+                <v-menu
+                  ref="from_menu"
+                  v-model="from_menu[i]"
+                  :close-on-content-click="false"
+                  :return-value.sync="item.from_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      :hide-details="true"
+                      outlined
+                      dense
+                      v-model="item.from_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker v-model="item.from_date" no-title scrollable>
+                    <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="from_menu[i] = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        set_date_save($refs.from_menu[i], item.from_date, i)
+                      "
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
                 </v-menu>
               </div>
             </v-col>
@@ -111,7 +147,9 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-btn dark small color="grey"> Close </v-btn>
+          <v-btn dark small color="grey" @click="editDialog = false">
+            Close
+          </v-btn>
           <v-btn dark small color="primary" @click="update"> Submit </v-btn>
         </v-card-actions>
       </v-card>
@@ -634,14 +672,26 @@ export default {
         .get(`get_roster_by_employee/${id}`, { params: options })
         .then(({ data }) => {
           this.schedules_temp_list = data;
-          console.log(this.schedules_temp_list);
           this.editDialog = true;
-          // this.rosters = data;
-          // this.addRow(data[0].schedule_id);
-          // this.rosterFirstValue = data[0].schedule_id;
-          // console.log(this.rosterFirstValue);
-          // console.log(this.rosters);
         });
+    },
+
+    set_date_save(from_menu, from, index) {
+      from_menu.save(from);
+      let toDate = this.setSevenDays(from);
+      this.schedules_temp_list[index].to_date = toDate;
+    },
+
+    setSevenDays(selected_date) {
+      const date = new Date(selected_date);
+      date.setDate(date.getDate() + 6);
+      let datetime = new Date(date);
+      let d = datetime.getDate();
+      d = d < "10" ? "0" + d : d;
+      let m = datetime.getMonth() + 1;
+      m = m < 10 ? "0" + m : m;
+      let y = datetime.getFullYear();
+      return `${y}-${m}-${d}`;
     },
 
     update() {
@@ -649,8 +699,6 @@ export default {
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company.id,
       };
-
-      console.log(payload);
 
       this.process(this.$axios.put(`schedule_update/${this.empId}`, payload));
     },
@@ -663,8 +711,6 @@ export default {
         this.rosters = data;
         this.addRow(data[0].schedule_id);
         this.rosterFirstValue = data[0].schedule_id;
-        console.log(this.rosterFirstValue);
-        console.log(this.rosters);
       });
     },
 
@@ -971,7 +1017,6 @@ export default {
             return;
           }
           this.response = data.message;
-          console.log(data);
           this.snackbar = true;
           this.loading_dialog = false;
           this.editDialog = false;

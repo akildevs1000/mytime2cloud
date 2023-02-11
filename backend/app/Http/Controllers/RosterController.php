@@ -16,6 +16,7 @@ class RosterController extends Controller
         try {
             return $model
                 ->where('company_id', $request->company_id)
+                ->orderBy('id', 'desc')
                 ->paginate($request->per_page ?? 20);
         } catch (\Throwable $th) {
             throw $th;
@@ -117,12 +118,22 @@ class RosterController extends Controller
             return $this->response('Schedule cannot add.', null, false);
         }
     }
-    // UpdateRequest
+
     public function update(UpdateRequest $request, Roster $roster)
     {
-        $json = $request->json;
+        $data = $request->json;
+        $arr = [];
+        foreach ($data as $data) {
+            $shift =  Shift::find($data['shift_id']);
+            $arr[] = [
+                "day" => $data['day'],
+                "shift_id" => $data['shift_id'],
+                "shift_name" => $shift->name ?? '',
+                "time" => isset($shift) ? ($shift->on_duty_time . " - " . $shift->off_duty_time) : "---",
+            ];
+        }
         $update = $roster->update([
-            "json" => $json,
+            "json" => $arr,
             "name" => $request->name,
             "company_id" => $request->company_id
         ]);
