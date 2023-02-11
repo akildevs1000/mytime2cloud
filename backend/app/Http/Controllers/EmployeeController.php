@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
-use App\Models\Company;
-use App\Models\CompanyContact;
-use App\Models\Designation;
-use App\Models\Employee;
+use Carbon\Carbon;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
+use App\Models\Company;
+use App\Models\Employee;
+use App\Models\Attendance;
+use App\Models\Designation;
 use Illuminate\Http\Request;
+use App\Models\CompanyContact;
+use App\Models\ScheduleEmployee;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use function GuzzleHttp\Promise\all;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,11 +23,9 @@ use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\EmployeeOtherRequest;
 use App\Http\Requests\Employee\EmployeeImportRequest;
 use App\Http\Requests\Employee\EmployeeUpdateContact;
+
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Http\Requests\Employee\EmployeeContactRequest;
-use App\Models\ScheduleEmployee;
-
-use function GuzzleHttp\Promise\all;
 
 class EmployeeController extends Controller
 {
@@ -120,12 +121,15 @@ class EmployeeController extends Controller
             })
             ->paginate($request->per_page ?? 100);
     }
-    public function scheduled_employees(ScheduleEmployee $employee, Request $request)
+    public function scheduled_employees(Request $request)
     {
+        $employee = ScheduleEmployee::query();
         $model = $employee->where('company_id', $request->company_id);
+        $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
         $model = $this->custom_with($model, "shift", $request->company_id);
+        $model = $this->custom_with($model, "roster", $request->company_id);
         $model = $this->custom_with($model, "employee", $request->company_id);
-        return $model->paginate($request->per_page);
+        return $model->paginate($request->per_page ?? 20);
     }
 
     public function scheduled_employees_list(Employee $employee, Request $request)
