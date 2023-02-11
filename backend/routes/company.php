@@ -1,48 +1,51 @@
 <?php
 
-use App\Http\Controllers\ActivityController;
-use App\Http\Controllers\AllowanceController;
-use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\AssignPermissionController;
-use App\Http\Controllers\AttendanceLogController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AutoShiftController;
-use App\Http\Controllers\BankInfoController;
-use App\Http\Controllers\CommissionController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\VisaController;
 use App\Http\Controllers\CountController;
-use App\Http\Controllers\DeductionController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\DeviceController;
-use App\Http\Controllers\DocumentInfoController;
-use App\Http\Controllers\DutyOrganizerController;
+use App\Http\Controllers\policyController;
+use App\Http\Controllers\SalaryController;
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\BankInfoController;
 use App\Http\Controllers\EmiratesController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\ExperienceController;
-use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\PassportController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\AllowanceController;
+use App\Http\Controllers\AutoShiftController;
+use App\Http\Controllers\DeductionController;
+use App\Http\Controllers\SchedulesController;
+use App\Http\Controllers\ShiftTypeController;
+use App\Http\Controllers\TimeTableController;
+use App\Http\Controllers\CommissionController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\SalaryTypeController;
+use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\DocumentInfoController;
 use App\Http\Controllers\PersonalInfoController;
-use App\Http\Controllers\policyController;
+use App\Http\Controllers\AttendanceLogController;
+use App\Http\Controllers\DutyOrganizerController;
 use App\Http\Controllers\QualificationController;
+use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\ScheduleShiftController;
+use App\Http\Controllers\SubDepartmentController;
+use App\Http\Controllers\AssignPermissionController;
+use App\Http\Controllers\ScheduleEmployeeController;
 use App\Http\Controllers\ReportNotificationController;
 use App\Http\Controllers\Reports\AutoReportController;
 use App\Http\Controllers\Reports\ManualReportController;
-use App\Http\Controllers\ResetPasswordController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SalaryController;
-use App\Http\Controllers\SalaryTypeController;
-use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\ScheduleEmployeeController;
-use App\Http\Controllers\ShiftController;
-use App\Http\Controllers\ShiftTypeController;
-use App\Http\Controllers\SubDepartmentController;
-use App\Http\Controllers\TimeTableController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\VisaController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RosterController;
 
 Route::post('/get-company-id-by-device', [DeviceController::class, 'get_company_id_by_device']);
 
@@ -206,6 +209,8 @@ Route::get('/count', CountController::class);
 // dev started
 
 Route::apiResource('shift', ShiftController::class);
+Route::get('get_shift', [ShiftController::class, 'getShift']);
+Route::post('update_single_shift', [ShiftController::class, 'updateSingleShift']);
 Route::get('shift_by_type', [ShiftController::class, 'shift_by_type']);
 Route::get('shift_by_types', [ShiftController::class, 'shift_by_types']);
 
@@ -250,6 +255,10 @@ Route::post('report_notifications', function (Request $request) {
 
 Route::apiResource('report_notification', ReportNotificationController::class);
 
-
 Route::get('/auto_shift', [AutoShiftController::class, 'index']);
 Route::post('/auto_shift', [AutoShiftController::class, 'store']);
+Route::apiResource('roster', RosterController::class);
+Route::get('/roster_list', [RosterController::class, 'getRosterList']);
+Route::post('/store_schedule_arrange', [RosterController::class, 'storeScheduleArrange']);
+Route::get('/get_roster_by_employee/{id}', [RosterController::class, 'getRosterByEmployee']);
+Route::put('/schedule_update/{id}', [RosterController::class, 'scheduleUpdateByEmployee']);
