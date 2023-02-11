@@ -357,6 +357,7 @@
                     </div>
                   </td>
                 </tr>
+                <!-- <pre>{{ scheduleData }}</pre> -->
                 <tr v-for="(item, index) in scheduleData" :key="index">
                   <td style="max-width: 10px">
                     <label class="col-form-label">{{ item.name }}</label>
@@ -367,7 +368,7 @@
                       v-for="(j, s) in item.json"
                       :key="s"
                     >
-                      {{ j.day }} {{ j.time }}
+                      {{ j.day }} {{ j.time }} {{ getShiftType(j.shift_id) }}
                     </v-chip>
                   </td>
                   <td style="width: 2px">
@@ -533,6 +534,16 @@ export default {
         .catch((err) => console.log(err));
     },
 
+    getShiftType(id) {
+      if (id == -1) {
+        return "(H)";
+      } else if (id == -2) {
+        return "(A)";
+      } else if (id == 33) {
+        return "(FL)";
+      }
+    },
+
     save() {
       this.shiftNames = [];
       for (let x in this.shift) {
@@ -564,6 +575,7 @@ export default {
           })
           .catch((err) => console.log(err));
       } else {
+        console.log(payload);
         this.$axios
           .post("/roster", payload)
           .then(({ data }) => {
