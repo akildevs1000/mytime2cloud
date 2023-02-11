@@ -11,7 +11,7 @@ class ScheduleEmployee extends Model
 
     protected $with = ["shift", "shift_type", "logs", "first_log", "last_log"];
 
-    protected $appends = ["show_from_date","show_to_date"];
+    protected $appends = ["show_from_date", "show_to_date"];
 
     protected $guarded = [];
 
@@ -82,4 +82,10 @@ class ScheduleEmployee extends Model
     // {
     //     return $this->hasOneThrough(AttendanceLog::class, Device::class,"employee_id","device_id","id","id");
     // }
+
+
+    public function roster()
+    {
+        return $this->belongsTo(Roster::class);
+    }
 }

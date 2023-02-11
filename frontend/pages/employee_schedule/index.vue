@@ -5,18 +5,127 @@
         {{ response }}
       </v-snackbar>
     </div>
+
+    <v-dialog v-model="editDialog" width="900">
+      <v-card>
+        <v-card-title class="text-h5">
+          Arrange Shift(s)
+          <v-spacer></v-spacer>
+          <v-btn class="primary" small fab @click="addRow(rosterFirstValue)">
+            <b>+</b>
+          </v-btn>
+        </v-card-title>
+
+        <v-divider></v-divider>
+        <v-card-text v-for="(item, i) in schedules_temp_list" :key="i">
+          <v-row>
+            <v-col md="3">
+              <div class="">Schedule List</div>
+              <v-autocomplete
+                outlined
+                dense
+                v-model="item.schedule_id"
+                x-small
+                :items="rosters"
+                item-value="schedule_id"
+                item-text="name"
+              ></v-autocomplete>
+            </v-col>
+            <v-col md="3">
+              <div class="mb-6">
+                <div>From</div>
+                <v-menu
+                  v-model="from_menu[i]"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="item.from_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                      :hide-details="true"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="item.from_date"
+                    @input="from_menu[i] = false"
+                  ></v-date-picker>
+                </v-menu>
+              </div>
+            </v-col>
+            <v-col md="3">
+              <div class="mb-6">
+                <div>To</div>
+                <v-menu
+                  v-model="to_menu[i]"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="item.to_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                      :hide-details="true"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="item.to_date"
+                    @input="to_menu[i] = false"
+                  ></v-date-picker>
+                </v-menu>
+              </div>
+            </v-col>
+            <v-col md="2">
+              <div>
+                Overtime Allowed
+                <v-checkbox
+                  style="margin-top: -8px"
+                  v-model="item.is_over_time"
+                ></v-checkbox>
+              </div>
+            </v-col>
+            <v-col md="1">
+              <div></div>
+              <v-icon v-if="i" @click="removeItem(i)" color="error"
+                >mdi-delete</v-icon
+              >
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn dark small color="grey"> Close </v-btn>
+          <v-btn dark small color="primary" @click="update"> Submit </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="dialog" width="1300">
       <v-card>
         <v-card-title class="text-h5">
           Schedule Employees
-
           <v-spacer></v-spacer>
-
           <v-btn dark small color="grey" @click="close"> Close </v-btn> &nbsp;
           <v-btn dark small color="primary" @click="save"> Submit </v-btn>
         </v-card-title>
         <v-divider></v-divider>
-
         <v-card-text>
           <v-row>
             <v-col md="4">
@@ -72,9 +181,7 @@
                     item-text="name"
                   ></v-autocomplete>
 
-                  <div class="mb-1">
-                    Shifts
-                  </div>
+                  <div class="mb-1">Shifts</div>
                   <v-autocomplete
                     :error="errors && errors.shift_id"
                     :error-messages="
@@ -183,7 +290,7 @@
                 :loading="loading_dialog"
                 :options.sync="options_dialog"
                 :footer-props="{
-                  itemsPerPageOptions: [50, 100, 500, 1000]
+                  itemsPerPageOptions: [50, 100, 500, 1000],
                 }"
               >
               </v-data-table>
@@ -254,10 +361,9 @@
           <th>#</th>
           <th>E.ID</th>
           <th>Name</th>
+          <th>Current Schedule Name</th>
           <th>Current Schedule Start</th>
           <th>Current Schedule End</th>
-          <th>Shift Type</th>
-          <th>Schedule</th>
           <th>OT</th>
           <th class="text-center">Actions</th>
         </tr>
@@ -274,10 +380,9 @@
           </td>
           <td>{{ caps(item.employee && item.employee.system_user_id) }}</td>
           <td>{{ caps(item.employee && item.employee.display_name) }}</td>
+          <td>{{ caps(item.roster && item.roster.name) }}</td>
           <td>{{ item && item.show_from_date }}</td>
           <td>{{ item && item.show_to_date }}</td>
-          <td>{{ (item && item.shift_type.name) || "---" }}</td>
-          <td>{{ caps(item.shift && item.shift.name) || "---" }}</td>
           <td>
             <v-icon v-if="item && item.isOverTime" color="success darken-1"
               >mdi-check</v-icon
@@ -294,19 +399,15 @@
               </template>
               <v-list width="120" dense>
                 <v-list-item @click="editItem(item)">
-                  <v-list-item-title style="cursor:pointer">
-                    <v-icon color="secondary" small>
-                      mdi-pencil
-                    </v-icon>
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="secondary" small> mdi-pencil </v-icon>
 
                     Edit
                   </v-list-item-title>
                 </v-list-item>
                 <v-list-item @click="deleteItem(item)">
-                  <v-list-item-title style="cursor:pointer">
-                    <v-icon color="error" small>
-                      mdi-delete
-                    </v-icon>
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="error" small> mdi-delete </v-icon>
                     Delete
                   </v-list-item-title>
                 </v-list-item>
@@ -339,10 +440,13 @@ export default {
     to_date: new Date().toJSON().slice(0, 10),
     to_menu: false,
 
+    from_menu: [],
+    to_menu: [],
+
     pagination: {
       current: 1,
       total: 0,
-      per_page: 10
+      per_page: 10,
     },
     Module: "Employee Schedule",
     shift_types: [],
@@ -356,6 +460,7 @@ export default {
     dialog_search: "",
     snackbar: false,
     dialog: false,
+    editDialog: false,
 
     loading: false,
     loading_dialog: false,
@@ -363,57 +468,57 @@ export default {
     total_dialog: 0,
     headers: [
       {
-        text: "#"
+        text: "#",
       },
       {
         text: "E.ID",
         align: "left",
         sortable: false,
-        value: "system_user_id"
+        value: "system_user_id",
       },
       {
         text: "Name",
         align: "left",
         sortable: false,
-        value: "display_name"
+        value: "display_name",
       },
       {
         text: "Schedule Start",
         align: "left",
         sortable: false,
-        value: "from_date"
+        value: "from_date",
       },
       {
         text: "Schedule Start",
         align: "left",
         sortable: false,
-        value: "to_date"
+        value: "to_date",
       },
       {
         text: "Shift Type",
         align: "left",
         sortable: false,
-        value: "shift_type"
+        value: "shift_type",
       },
       {
         text: "Schedule",
         align: "left",
         sortable: false,
-        value: "schedule"
+        value: "schedule",
       },
       {
         text: "OT",
         align: "left",
         sortable: false,
-        value: "schedule.isOverTime"
+        value: "schedule.isOverTime",
       },
 
       {
         text: "Actions",
         align: "center",
         value: "action",
-        sortable: false
-      }
+        sortable: false,
+      },
     ],
 
     department_ids: ["---"],
@@ -435,25 +540,29 @@ export default {
 
     errors: [],
     headers_ids: [],
-
+    rosters: [],
+    rosterFirstValue: "",
     headers_dialog: [
       {
         text: "E.ID",
         align: "left",
         sortable: false,
-        value: "system_user_id"
+        value: "system_user_id",
       },
       {
         text: "Name",
         sortable: false,
-        value: "display_name"
+        value: "display_name",
       },
       {
         text: "Department",
         sortable: false,
-        value: "department.name"
-      }
-    ]
+        value: "department.name",
+      },
+    ],
+
+    schedules_temp_list: [],
+    empId: "",
   }),
 
   computed: {},
@@ -473,7 +582,7 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
+      deep: true,
     },
     options_dialog: {
       handler() {
@@ -481,22 +590,23 @@ export default {
           this.getDataFromApiForDialog();
         }
       },
-      deep: true
+      deep: true,
     },
     search() {
       this.pagination.current = 1;
       this.searchIt();
-    }
+    },
   },
   created() {
     this.loading = true;
     this.loading_dialog = true;
+    this.get_rosters();
 
     this.options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id
-      }
+        company_id: this.$auth.user.company.id,
+      },
     };
   },
 
@@ -504,45 +614,81 @@ export default {
     onPageChange() {
       this.getDataFromApi();
     },
+
     caps(str) {
       if (str == "" || str == null) {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
 
     editItem(item) {
-      console.log(item);
-      return;
-      this.is_edit = true;
-      this.total_dialog = 1;
-      this.employees_dialog = [];
-      this.employees_dialog.unshift({
-        system_user_id: item.employee.system_user_id,
-        display_name: item.employee.display_name,
-        name: item.department.name
+      this.empId = item.employee_id;
+      let id = item.employee_id;
+      let options = {
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios
+        .get(`get_roster_by_employee/${id}`, { params: options })
+        .then(({ data }) => {
+          this.schedules_temp_list = data;
+          console.log(this.schedules_temp_list);
+          this.editDialog = true;
+          // this.rosters = data;
+          // this.addRow(data[0].schedule_id);
+          // this.rosterFirstValue = data[0].schedule_id;
+          // console.log(this.rosterFirstValue);
+          // console.log(this.rosters);
+        });
+    },
+
+    update() {
+      let payload = {
+        schedules: this.schedules_temp_list,
+        company_id: this.$auth.user.company.id,
+      };
+
+      console.log(payload);
+
+      this.process(this.$axios.put(`schedule_update/${this.empId}`, payload));
+    },
+
+    get_rosters() {
+      let options = {
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios.get("roster_list", { params: options }).then(({ data }) => {
+        this.rosters = data;
+        this.addRow(data[0].schedule_id);
+        this.rosterFirstValue = data[0].schedule_id;
+        console.log(this.rosterFirstValue);
+        console.log(this.rosters);
       });
-      this.shift_type_id = item.shift_type.id;
-      this.isOverTime = item.isOverTime;
-      this.manual_shift = item.shift_type;
-      this.shift_id = item.shift_id;
-      this.runShiftTypeFunction();
-      this.dialog = true;
-      this.loading_dialog = true;
-      setTimeout(() => {
-        this.loading_dialog = false;
-      }, 700);
+    },
+
+    addRow(id) {
+      let item = {
+        schedule_id: id,
+        from_date: new Date().toJSON().slice(0, 10),
+        to_date: new Date().toJSON().slice(0, 10),
+        is_over_time: false,
+      };
+      if (this.schedules_temp_list.length < 5) {
+        this.schedules_temp_list.push(item);
+      }
     },
 
     runShiftTypeFunction() {
       this.getShifts(this.shift_type_id);
     },
+
     close() {
       this.dialog = false;
       this.is_edit = false;
     },
+
     getShifts(shift_type_id) {
       if (this.shift_type_id == 3) {
         this.shift_id = 0;
@@ -553,8 +699,8 @@ export default {
       let options = {
         params: {
           shift_type_id: shift_type_id,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios
         .get("shift_by_type", options)
@@ -563,8 +709,9 @@ export default {
           // this.shifts.unshift({ id: "", name: "Select Shift" });
           // this.shifts_for_filter = data;
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
+
     getShiftTypes(options) {
       this.$axios
         .get("shift_type", options)
@@ -572,12 +719,13 @@ export default {
           this.shift_types = data;
           this.shift_types.unshift({ id: "", name: "Select Shift Type" });
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
 
     runShiftFunction() {
-      this.shifts = this.shifts.filter(e => e.id !== "---");
+      this.shifts = this.shifts.filter((e) => e.id !== "---");
     },
+
     getDepartments(options) {
       this.$axios
         .get("departments", options)
@@ -585,8 +733,9 @@ export default {
           this.departments = data.data;
           this.departments.unshift({ id: "---", name: "Select All" });
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
+
     employeesByDepartment() {
       this.loading_dialog = true;
 
@@ -597,8 +746,8 @@ export default {
           department_ids: this.department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       if (!this.department_ids.length) {
@@ -626,8 +775,8 @@ export default {
           sub_department_ids: this.sub_department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       if (!this.sub_department_ids.length) {
@@ -642,8 +791,9 @@ export default {
           this.total_dialog = data.total;
           this.loading_dialog = false;
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
+
     subDepartmentsByDepartment() {
       this.options.params.department_ids = this.department_ids;
 
@@ -653,19 +803,21 @@ export default {
           this.sub_departments = data;
           this.sub_departments.unshift({
             id: "---",
-            name: "Select All"
+            name: "Select All",
           });
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
+
     runMultipleFunctions() {
       this.employeesByDepartment();
       this.subDepartmentsByDepartment();
     },
+
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -679,8 +831,8 @@ export default {
         params: {
           per_page: this.pagination.per_page,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -690,6 +842,7 @@ export default {
         this.loading = false;
       });
     },
+
     getDataFromApiForDialog(url = this.endpoint_dialog) {
       this.loading_dialog = true;
 
@@ -699,8 +852,8 @@ export default {
         params: {
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -709,6 +862,7 @@ export default {
         this.loading_dialog = false;
       });
     },
+
     searchIt() {
       let s = this.search.length;
       let search = this.search;
@@ -730,14 +884,14 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.schedule.id);
+      let just_ids = this.ids.map((e) => e.schedule.id);
 
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`schedule_employee/delete/selected`, {
-            ids: just_ids
+            ids: just_ids,
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -750,7 +904,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -766,7 +920,7 @@ export default {
             this.response = data.message;
             this.getDataFromApiForDialog();
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     save() {
@@ -783,10 +937,10 @@ export default {
         shift_id: this.shift_id,
         company_id: this.$auth.user.company.id,
         isOverTime: this.isOverTime ? 1 : 0,
-        employee_ids: this.employee_ids.map(e => e.system_user_id),
+        employee_ids: this.employee_ids.map((e) => e.system_user_id),
 
         from_date: this.from_date,
-        to_date: this.to_date
+        to_date: this.to_date,
       };
 
       if (this.is_edit) {
@@ -800,6 +954,7 @@ export default {
         this.process(this.$axios.post(`schedule_employees`, payload));
       }
     },
+
     process(method) {
       method
         .then(({ data }) => {
@@ -816,14 +971,16 @@ export default {
             return;
           }
           this.response = data.message;
+          console.log(data);
           this.snackbar = true;
           this.loading_dialog = false;
+          this.editDialog = false;
           this.getDataFromApi();
           this.getDataFromApiForDialog();
         })
-        .catch(err => console.log(err));
-    }
-  }
+        .catch((err) => console.log(err));
+    },
+  },
 };
 </script>
 

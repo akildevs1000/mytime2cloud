@@ -10,24 +10,25 @@
         <v-card-title class="text-h5">
           Arrange Shift(s)
           <v-spacer></v-spacer>
-          <v-btn class="primary" small fab @click="addRow"> <b>+</b> </v-btn>
+          <v-btn class="primary" small fab @click="addRow(rosterFirstValue)">
+            <b>+</b>
+          </v-btn>
         </v-card-title>
 
         <v-divider></v-divider>
-
+        <!-- {{ schedules_temp_list }} <br /> -->
+        <!-- {{ rosters }} -->
         <v-card-text v-for="(item, i) in schedules_temp_list" :key="i">
           <v-row>
             <v-col md="3">
-              <div class="">
-                Schedule List
-              </div>
+              <div class="">Schedule List</div>
               <v-autocomplete
                 outlined
                 dense
                 v-model="item.schedule_id"
                 x-small
-                :items="shifts"
-                item-value="id"
+                :items="rosters"
+                item-value="schedule_id"
                 item-text="name"
               ></v-autocomplete>
             </v-col>
@@ -93,7 +94,7 @@
               <div>
                 Overtime Allowed
                 <v-checkbox
-                  style="margin-top:-8px;"
+                  style="margin-top: -8px"
                   v-model="item.is_over_time"
                 ></v-checkbox>
               </div>
@@ -130,9 +131,7 @@
       </v-col>
     </v-row>
     <v-card class="mb-5 rounded-md mt-3" elevation="0">
-      <v-card-title class="">
-        Schedule Employees
-      </v-card-title>
+      <v-card-title class=""> Schedule Employees </v-card-title>
       <v-divider></v-divider>
 
       <v-card-text>
@@ -178,7 +177,7 @@
             <v-row>
               <v-col md="6">
                 <div class="mb-5">
-                  <span class="text-h6 ">Employees List</span>
+                  <span class="text-h6">Employees List</span>
                   &nbsp;
                   <v-btn dark small color="primary" @click="arrangeShift">
                     Arrange Shift(s)
@@ -208,7 +207,7 @@
               :loading="loading_dialog"
               :options.sync="options_dialog"
               :footer-props="{
-                itemsPerPageOptions: [50, 100, 500, 1000]
+                itemsPerPageOptions: [50, 100, 500, 1000],
               }"
             >
             </v-data-table>
@@ -228,17 +227,17 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 10
+      per_page: 10,
     },
 
     Module: "Employee Schedule",
     schedules_temp_list: [
-      {
-        schedule_id: 1,
-        from_date: new Date().toJSON().slice(0, 10),
-        to_date: new Date().toJSON().slice(0, 10),
-        is_over_time: false
-      }
+      // {
+      //   schedule_id: 1,
+      //   from_date: new Date().toJSON().slice(0, 10),
+      //   to_date: new Date().toJSON().slice(0, 10),
+      //   is_over_time: false,
+      // },
     ],
     options: {},
     options_dialog: {},
@@ -261,7 +260,7 @@ export default {
       schedule_id: [1],
       from_date: [new Date().toJSON().slice(0, 10)],
       to_date: [new Date().toJSON().slice(0, 10)],
-      is_over_time: [false]
+      is_over_time: [false],
     },
     isOverTime: false,
     is_edit: false,
@@ -272,16 +271,18 @@ export default {
     shifts: [
       {
         id: 1,
-        name: "Week 1"
+        name: "Week 1",
       },
       {
         id: 2,
-        name: "Week 2"
-      }
+        name: "Week 2",
+      },
     ],
     ids: [],
     response: "",
     data: [],
+    rosters: [],
+    rosterFirstValue: "",
 
     errors: [],
     headers_ids: [],
@@ -291,19 +292,19 @@ export default {
         text: "E.ID",
         align: "left",
         sortable: false,
-        value: "system_user_id"
+        value: "system_user_id",
       },
       {
         text: "Name",
         sortable: false,
-        value: "display_name"
+        value: "display_name",
       },
       {
         text: "Department",
         sortable: false,
-        value: "department.name"
-      }
-    ]
+        value: "department.name",
+      },
+    ],
   }),
 
   computed: {},
@@ -322,7 +323,7 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
+      deep: true,
     },
     options_dialog: {
       handler() {
@@ -330,22 +331,22 @@ export default {
           this.getDataFromApiForDialog();
         }
       },
-      deep: true
+      deep: true,
     },
     search() {
       this.pagination.current = 1;
       this.searchIt();
-    }
+    },
   },
   created() {
     this.loading = true;
     this.loading_dialog = true;
-
+    this.get_rosters();
     this.options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id
-      }
+        company_id: this.$auth.user.company.id,
+      },
     };
 
     this.getDepartments(this.options);
@@ -361,13 +362,14 @@ export default {
 
       this.dialog = true;
     },
-    addRow() {
+    addRow(id) {
       let item = {
-        schedule_id: 1,
+        schedule_id: id,
         from_date: new Date().toJSON().slice(0, 10),
         to_date: new Date().toJSON().slice(0, 10),
-        is_over_time: false
+        is_over_time: false,
       };
+
       if (this.schedules_temp_list.length < 5) {
         this.schedules_temp_list.push(item);
       }
@@ -383,8 +385,21 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
+    },
+
+    get_rosters() {
+      let options = {
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios.get("roster_list", { params: options }).then(({ data }) => {
+        this.rosters = data;
+        this.addRow(data[0].schedule_id);
+        this.rosterFirstValue = data[0].schedule_id;
+        console.log(this.rosterFirstValue);
+        console.log(this.rosters);
+      });
     },
 
     editItem(item) {
@@ -396,7 +411,7 @@ export default {
       this.employees_dialog.unshift({
         system_user_id: item.employee.system_user_id,
         display_name: item.employee.display_name,
-        name: item.department.name
+        name: item.department.name,
       });
       this.isOverTime = item.isOverTime;
       this.schedule_id = item.schedule_id;
@@ -413,7 +428,7 @@ export default {
     },
 
     runShiftFunction() {
-      this.shifts = this.shifts.filter(e => e.id !== "---");
+      this.shifts = this.shifts.filter((e) => e.id !== "---");
     },
     getDepartments(options) {
       this.$axios
@@ -422,7 +437,7 @@ export default {
           this.departments = data.data;
           this.departments.unshift({ id: "---", name: "Select All" });
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
     employeesByDepartment() {
       this.loading_dialog = true;
@@ -434,8 +449,8 @@ export default {
           department_ids: this.department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       if (!this.department_ids.length) {
@@ -463,8 +478,8 @@ export default {
           sub_department_ids: this.sub_department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       if (!this.sub_department_ids.length) {
@@ -479,7 +494,7 @@ export default {
           this.total_dialog = data.total;
           this.loading_dialog = false;
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
     subDepartmentsByDepartment() {
       this.options.params.department_ids = this.department_ids;
@@ -490,10 +505,10 @@ export default {
           this.sub_departments = data;
           this.sub_departments.unshift({
             id: "---",
-            name: "Select All"
+            name: "Select All",
           });
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
     runMultipleFunctions() {
       this.employeesByDepartment();
@@ -502,7 +517,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -516,8 +531,8 @@ export default {
         params: {
           per_page: this.pagination.per_page,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -536,8 +551,8 @@ export default {
         params: {
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -567,14 +582,14 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.schedule.id);
+      let just_ids = this.ids.map((e) => e.schedule.id);
 
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`schedule_employee/delete/selected`, {
-            ids: just_ids
+            ids: just_ids,
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -587,7 +602,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -603,7 +618,7 @@ export default {
             this.response = data.message;
             this.getDataFromApiForDialog();
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     save() {
@@ -611,15 +626,12 @@ export default {
       this.errors = [];
 
       let payload = {
-        employee_ids: this.employee_ids.map(e => e.system_user_id),
+        employee_ids: this.employee_ids.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company.id,
       };
-
       console.log(payload);
-
-      return;
-
+      // return;
       if (this.is_edit) {
         this.process(
           this.$axios.post(
@@ -628,7 +640,7 @@ export default {
           )
         );
       } else {
-        this.process(this.$axios.post(`schedule_employees`, payload));
+        this.process(this.$axios.post(`store_schedule_arrange`, payload));
       }
     },
     process(method) {
@@ -646,15 +658,16 @@ export default {
             this.loading_dialog = false;
             return;
           }
+          this.dialog = false;
           this.response = data.message;
           this.snackbar = true;
           this.loading_dialog = false;
           this.getDataFromApi();
           this.getDataFromApiForDialog();
         })
-        .catch(err => console.log(err));
-    }
-  }
+        .catch((err) => console.log(err));
+    },
+  },
 };
 </script>
 
