@@ -635,7 +635,7 @@ export default {
         let arr = [
           {
             id: -1,
-            name: "Holiday",
+            name: "Off",
           },
           {
             id: -2,
