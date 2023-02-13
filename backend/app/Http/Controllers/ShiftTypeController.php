@@ -11,7 +11,7 @@ class ShiftTypeController extends Controller
 {
     public function index(Request $request, ShiftType $model)
     {
-        return $model->with('shift')->get();
+        return $model->whereIsEnable(1)->with('shift')->get();
     }
 
     public function store(ShiftType $model, StoreRequest $request)
@@ -26,8 +26,7 @@ class ShiftTypeController extends Controller
             } else {
                 return $this->response('ShiftType cannot add.', null, false);
             }
-
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -42,8 +41,7 @@ class ShiftTypeController extends Controller
             } else {
                 return $this->response('ShiftType cannot update.', null, false);
             }
-
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -58,10 +56,8 @@ class ShiftTypeController extends Controller
             } else {
                 return $this->response('ShiftType cannot delete.', null, false);
             }
-
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
-
 }

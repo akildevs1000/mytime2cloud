@@ -54,24 +54,22 @@
           <td>{{ item && item.working_hours }}</td>
           <td>{{ item && item.overtime_interval }}</td>
 
-          <td>
-            <span v-if="item && !item.days">
-              ---
-            </span>
+          <!-- <td>
+            <span v-if="item && !item.days"> --- </span>
             <span v-else v-for="(day, index) in item.days" :key="index">
               {{ day }}
               <span v-if="item && item.days.length - 1 !== index">, </span>
             </span>
-          </td>
+          </td> -->
           <td style="text-align: center">
-            <!-- <v-icon
+            <v-icon
               color="secondary"
               small
               class="mr-2"
               @click="editItem(item)"
             >
               mdi-pencil
-            </v-icon> -->
+            </v-icon>
             <v-icon color="error" small @click="deleteItem(item)">
               mdi-delete
             </v-icon>
@@ -112,12 +110,12 @@ export default {
       { text: "Absent Out" },
       { text: "Working Hrs" },
       { text: "OT Interval" },
-      { text: "Off Days" },
-      { text: "Actions" }
+      // { text: "Off Days" },
+      { text: "Actions" },
     ],
     response: "",
     data: [],
-    errors: []
+    errors: [],
   }),
 
   watch: {
@@ -125,8 +123,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     this.loading = true;
@@ -151,17 +149,17 @@ export default {
         beginning_out: time_table.beginning_out || "---",
         ending_out: time_table.ending_out || "---",
         absent_min_in: time_table.absent_min_in || "---",
-        absent_min_out: time_table.absent_min_out || "---"
+        absent_min_out: time_table.absent_min_out || "---",
       };
     },
 
     caps(str) {
-      return str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -174,8 +172,8 @@ export default {
         params: {
           page: page,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -202,7 +200,7 @@ export default {
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: this.ids.map(e => e.id)
+            ids: this.ids.map((e) => e.id),
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -214,7 +212,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -232,9 +230,9 @@ export default {
               this.response = data.message;
             }
           })
-          .catch(err => console.log(err));
-    }
-  }
+          .catch((err) => console.log(err));
+    },
+  },
 };
 </script>
 

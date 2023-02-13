@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Shift;
+use App\Models\AutoShift;
+use Illuminate\Http\Request;
 use App\Http\Requests\Shift\StoreRequest;
 use App\Http\Requests\Shift\UpdateRequest;
-use App\Models\AutoShift;
-use App\Models\Shift;
-use Illuminate\Http\Request;
+use App\Http\Requests\Shift\UpdateSingleShiftRequest;
 
 class ShiftController extends Controller
 {
@@ -125,6 +126,28 @@ class ShiftController extends Controller
         try {
             if ($Shift->delete()) {
                 return $this->response('Shift successfully updated.', null, true);
+            } else {
+                return $this->response('Shift cannot update.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function getShift(Request $request)
+    {
+        return  $model = Shift::where('id', $request->id)->find($request->id)->makeHidden('shift_type');
+        $model->where('company_id', $request->company_id);
+        return $model->paginate($request->per_page);
+    }
+
+    public function updateSingleShift(UpdateSingleShiftRequest $request)
+    {
+        try {
+            $model = Shift::find($request->id);
+            $record = $model->update($request->validated());
+            if ($record) {
+                return $this->response('Shift successfully updated.', $record, true);
             } else {
                 return $this->response('Shift cannot update.', null, false);
             }

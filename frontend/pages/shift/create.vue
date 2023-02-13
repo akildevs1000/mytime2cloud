@@ -13,7 +13,11 @@
         </div>
       </v-col>
     </v-row>
+    <!-- <GenerateLog /> -->
+
     <v-card>
+      <!-- <v-toolbar flat dark class="primary"> Create {{ Model }} </v-toolbar> -->
+
       <v-stepper v-model="e1">
         <v-stepper-header>
           <v-stepper-step :complete="e1 > 1" step="1">
@@ -91,14 +95,58 @@ export default {
     Model: "Shift",
     comp: null,
     shift_types: [],
+    shift_last_id: "",
+    shiftList: true,
+    isChange: false,
+    isAuto: false,
+
+    week_days: [
+      { label: "Sun", value: "Sun" },
+      { label: "Mon", value: "Mon" },
+      { label: "Tue", value: "Tue" },
+      { label: "Wed", value: "Wed" },
+      { label: "Thu", value: "Thu" },
+      { label: "Fri", value: "Fri" },
+      { label: "Sat", value: "Sat" },
+    ],
+    errors: [],
+    data: [],
+    response: "",
+    snackbar: false,
+
+    Model: "Shift",
     e1: 1,
-    shift_type_id: 6
+    e6: 1,
+
+    loading: false,
+    time_in_menu: false,
+    time_out_menu: false,
+    grace_time_in_menu: false,
+    grace_time_out_menu: false,
+
+    beginning_in_menu: false,
+    ending_in_menu: false,
+
+    beginning_out_menu: false,
+    ending_out_menu: false,
+
+    shift_id: [],
+    payload: {
+      shift_type_id: 6,
+      days: [],
+    },
+
+    errors: [],
+    shifts: [],
+    data: [],
+    response: "",
+    snackbar: false,
   }),
 
   created() {
     let options = {
       per_page: 1000,
-      company_id: this.$auth.user.company.id
+      company_id: this.$auth.user.company.id,
     };
 
     this.$axios.get("shift_type", { params: options }).then(({ data }) => {
@@ -131,14 +179,27 @@ export default {
       }
     },
     can(per) {
-      const user = this.$auth.user;
+      let u = this.$auth.user;
+      return (
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
+      );
+    },
 
-      if (!user) return false;
+    getShifts() {
+      let payload = {
+        params: {
+          shift_type_id: 6,
+          company_id: this.$auth.user.company.id,
+        },
+      };
 
-      if (user.is_master) return true;
-
-      return user.permissions.includes(per) || per === "/";
-    }
-  }
+      this.$axios
+        .get("shift_by_type", payload)
+        .then(({ data }) => {
+          this.shifts = data;
+        })
+        .catch((err) => console.log(err));
+    },
+  },
 };
 </script>

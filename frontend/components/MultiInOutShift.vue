@@ -251,6 +251,22 @@
         >
       </v-col>
 
+      <!-- <v-col cols="12" md="12">
+        <b>Holidays</b>
+        <br />
+        <v-checkbox
+          style="float: left"
+          class="mr-5"
+          v-for="(week_day, index) in week_days"
+          :key="index"
+          v-model="payload.days"
+          :label="week_day.label"
+          :value="week_day.value"
+          :error-messages="errors.days && errors.days[0]"
+        ></v-checkbox>
+      </v-col> -->
+    </v-row>
+    <v-row>
       <v-col cols="12">
         <div class="text-left">
           <v-btn
@@ -283,6 +299,16 @@ export default {
     isChange: false,
     isAuto: false,
 
+    week_days: [
+      { label: "Sun", value: "Sun" },
+      { label: "Mon", value: "Mon" },
+      { label: "Tue", value: "Tue" },
+      { label: "Wed", value: "Wed" },
+      { label: "Thu", value: "Thu" },
+      { label: "Fri", value: "Fri" },
+      { label: "Sat", value: "Sat" },
+    ],
+
     loading: false,
     time_in_menu: false,
     time_out_menu: false,
@@ -309,7 +335,7 @@ export default {
       gap_in: 15,
       gap_out: 15,
       working_hours: "09:00",
-      overtime_interval: "00:00"
+      overtime_interval: "00:00",
       // days: []
     },
 
@@ -317,7 +343,7 @@ export default {
     shifts: [],
     data: [],
     response: "",
-    snackbar: false
+    snackbar: false,
   }),
   async created() {},
   watch: {},
@@ -326,7 +352,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -351,8 +377,8 @@ export default {
           this.snackbar = true;
           this.response = message;
         });
-    }
-  }
+    },
+  },
 };
 </script>
 
