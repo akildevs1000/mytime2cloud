@@ -125,11 +125,13 @@ class EmployeeController extends Controller
     {
         $employee = ScheduleEmployee::query();
         $model = $employee->where('company_id', $request->company_id);
-        $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        $model =  $model->whereMonth('from_date', date('m'));
+        // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
         $model = $this->custom_with($model, "shift", $request->company_id);
         $model = $this->custom_with($model, "roster", $request->company_id);
         $model = $this->custom_with($model, "employee", $request->company_id);
-        return $model->paginate($request->per_page ?? 20);
+        return $model
+            ->paginate($request->per_page ?? 20);
     }
 
     public function scheduled_employees_list(Employee $employee, Request $request)

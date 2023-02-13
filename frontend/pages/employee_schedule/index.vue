@@ -703,6 +703,10 @@ export default {
       this.process(this.$axios.put(`schedule_update/${this.empId}`, payload));
     },
 
+    removeItem(i) {
+      this.schedules_temp_list.splice(i, 1);
+    },
+
     get_rosters() {
       let options = {
         company_id: this.$auth.user.company.id,

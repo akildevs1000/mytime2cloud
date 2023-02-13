@@ -23,7 +23,7 @@ class Shift extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'company_id',
+        // 'company_id',
         'branch_id',
         'shift_type_id',
     ];
