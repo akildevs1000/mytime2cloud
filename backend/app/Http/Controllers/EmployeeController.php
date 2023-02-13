@@ -173,9 +173,20 @@ class EmployeeController extends Controller
     {
         $model = Employee::query();
         $model->where('company_id', $request->company_id);
+
         if (!in_array("---", $request->department_ids)) {
             $model->whereIn("department_id", $request->department_ids);
         }
+
+        if ($request->search && $request->filled('search')) {
+            $model->where(function ($q) use ($request) {
+                $q->orWhere('employee_id', $request->search);
+                $q->orWhere('display_name', 'Like', '%' . $request->search . '%');
+                $q->orWhere('first_name', 'Like', '%' . $request->search . '%');
+            });
+        }
+
+
         $model->with("department", function ($q) use ($request) {
             $q->whereCompanyId($request->company_id);
         });
@@ -188,6 +199,15 @@ class EmployeeController extends Controller
         if (!in_array("---", $request->sub_department_ids)) {
             $model->whereIn("sub_department_id", $request->sub_department_ids);
         }
+
+        if ($request->search && $request->filled('search')) {
+            $model->where(function ($q) use ($request) {
+                $q->orWhere('employee_id', $request->search);
+                $q->orWhere('display_name', 'Like', '%' . $request->search . '%');
+                $q->orWhere('first_name', 'Like', '%' . $request->search . '%');
+            });
+        }
+
         return $model->whereIn("department_id", $request->department_ids)->paginate($request->per_page);
     }
     public function employeesByDesignation($id, Request $request)
