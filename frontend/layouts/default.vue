@@ -297,7 +297,6 @@
 
 <script>
 export default {
-  mounted() {},
   data() {
     return {
       miniVariant: false,
@@ -507,6 +506,9 @@ export default {
 
     this.getCompanyDetails();
   },
+
+  mounted() {},
+
   computed: {
     changeColor() {
       return this.$store.state.color;
@@ -637,5 +639,11 @@ export default {
 .stg-color-icon {
   width: 30px !important;
   height: 30px !important;
+}
+
+@media (min-width: 1264px) {
+  .container {
+    max-width: 100%;
+  }
 }
 </style>

@@ -93,6 +93,7 @@
                     ></v-text-field>
                   </template>
                   <v-date-picker v-model="item.from_date" no-title scrollable>
+                    <!-- :min="min_date[i]" -->
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="from_menu[i] = false">
                       Cancel
@@ -113,7 +114,7 @@
             <v-col md="3">
               <div class="mb-6">
                 <div>To</div>
-                <v-menu
+                <!-- <v-menu
                   v-model="to_menu[i]"
                   :close-on-content-click="false"
                   :nudge-right="40"
@@ -136,6 +137,43 @@
                     v-model="item.to_date"
                     @input="to_menu[i] = false"
                   ></v-date-picker>
+                </v-menu> -->
+
+                <v-menu
+                  ref="to_menu"
+                  v-model="to_menu[i]"
+                  :close-on-content-click="false"
+                  :return-value.sync="item.to_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      :hide-details="true"
+                      outlined
+                      dense
+                      v-model="item.to_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker v-model="item.to_date" no-title scrollable>
+                    <!-- :min="max_date[i]" -->
+
+                    <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="to_menu[i] = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="set_date_save($refs.to_menu[i], item.to_date, i)"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
                 </v-menu>
               </div>
             </v-col>
@@ -210,7 +248,7 @@
                   outlined
                   dense
                   @change="getEmployeesBySubDepartment"
-                  v-model="sub_department_ids"
+                  v-model="getEmployeesBySubDepartment"
                   multiple
                   x-small
                   :items="sub_departments"
@@ -218,6 +256,17 @@
                   item-text="name"
                   :disabled="is_edit == true ? true : false"
                 ></v-autocomplete>
+
+                <div class="mb-1">Search Employee</div>
+                <v-text-field
+                  outlined
+                  @input="dialogSearchIt"
+                  dense
+                  v-model="employee_search"
+                  append-icon="mdi-magnify"
+                  single-line
+                  hide-details
+                ></v-text-field>
               </v-col>
             </v-row>
           </v-col>
@@ -227,22 +276,21 @@
               <v-col md="6">
                 <div class="mb-5">
                   <span class="text-h6">Employees List</span>
-                  &nbsp;
-                  <v-btn dark small color="primary" @click="arrangeShift">
-                    Arrange Shift(s)
-                  </v-btn>
                 </div>
               </v-col>
               <v-col md="6">
                 <div class="text-right">
-                  <v-text-field
+                  <!-- <v-text-field
                     @input="dialogSearchIt"
                     dense
                     v-model="dialog_search"
                     append-icon="mdi-magnify"
                     single-line
                     hide-details
-                  ></v-text-field>
+                  ></v-text-field> -->
+                  <v-btn dark small color="primary" @click="arrangeShift">
+                    Arrange Shift(s)
+                  </v-btn>
                 </div>
               </v-col>
             </v-row>
@@ -299,7 +347,7 @@ export default {
     dialog_search: "",
     snackbar: false,
     dialog: false,
-
+    employee_search: "",
     loading: false,
     loading_dialog: false,
     total: 0,
@@ -335,7 +383,8 @@ export default {
     data: [],
     rosters: [],
     rosterFirstValue: "",
-
+    max_date: [],
+    min_date: [],
     errors: [],
     headers_ids: [],
 
@@ -368,7 +417,7 @@ export default {
       this.search = "";
       if (!this.is_edit) {
         this.getDepartments(this.options);
-        this.getDataFromApiForDialog();
+        this.getDataFromApi();
       }
     },
     options: {
@@ -380,7 +429,7 @@ export default {
     options_dialog: {
       handler() {
         if (!this.is_edit) {
-          this.getDataFromApiForDialog();
+          this.getDataFromApi();
         }
       },
       deep: true,
@@ -392,7 +441,7 @@ export default {
   },
   created() {
     this.loading = true;
-    this.loading_dialog = true;
+    // this.loading_dialog = true;
     this.get_rosters();
     this.options = {
       params: {
@@ -402,7 +451,7 @@ export default {
     };
 
     this.getDepartments(this.options);
-    // this.getDataFromApiForDialog();
+    // this.getDataFromApi();
   },
 
   methods: {
@@ -411,7 +460,6 @@ export default {
         alert("Atleast one employee must be selected.");
         return;
       }
-
       this.dialog = true;
     },
     addRow(id) {
@@ -443,7 +491,8 @@ export default {
 
     set_date_save(from_menu, from, index) {
       from_menu.save(from);
-      let toDate = this.setSevenDays(from);
+      return;
+      let toDate = this.setSevenDays(from, index);
       this.schedules_temp_list[index].to_date = toDate;
       console.log(this.schedules_temp_list);
     },
@@ -455,7 +504,7 @@ export default {
       console.log(this.schedules_temp_list);
     },
 
-    setSevenDays(selected_date) {
+    setSevenDays(selected_date, index) {
       const date = new Date(selected_date);
       date.setDate(date.getDate() + 6);
       let datetime = new Date(date);
@@ -464,6 +513,9 @@ export default {
       let m = datetime.getMonth() + 1;
       m = m < 10 ? "0" + m : m;
       let y = datetime.getFullYear();
+      this.max_date[index] = `${y}-${m}-${d}`;
+      this.min_date[index] = `${y}-${m}-${d}`;
+      console.log(this.max_date);
       return `${y}-${m}-${d}`;
     },
 
@@ -527,6 +579,7 @@ export default {
           department_ids: this.department_ids,
           per_page: itemsPerPage,
           page: page,
+          search: this.employee_search,
           company_id: this.$auth.user.company.id,
         },
       };
@@ -544,6 +597,24 @@ export default {
         this.loading_dialog = false;
       });
     },
+
+    dialogSearchIt(e) {
+      if (e.length > 0) {
+        this.employeesByDepartment();
+      } else {
+        this.employeesByDepartment();
+      }
+    },
+
+    // dialogSearchIt(e) {
+    //   if (e.length == 0) {
+    //     this.employeesByDepartment();
+    //   } else if (e.length > 2) {
+    //     this.employees_dialog = this.employees.filter(({ display_name: fn }) =>
+    //       fn.includes(e)
+    //     );
+    //   }
+    // },
 
     getEmployeesBySubDepartment() {
       this.loading_dialog = true;
@@ -601,7 +672,7 @@ export default {
     },
     //main
     getDataFromApi(url = this.endpoint) {
-      this.loading = true;
+      this.loading = false;
 
       let page = this.pagination.current;
 
@@ -620,25 +691,25 @@ export default {
         this.loading = false;
       });
     },
-    getDataFromApiForDialog(url = this.endpoint_dialog) {
-      this.loading_dialog = true;
+    // getDataFromApi(url = this.endpoint_dialog) {
+    //   this.loading_dialog = true;
 
-      const { page, itemsPerPage } = this.options_dialog;
+    //   const { page, itemsPerPage } = this.options_dialog;
 
-      let options = {
-        params: {
-          per_page: itemsPerPage,
-          page: page,
-          company_id: this.$auth.user.company.id,
-        },
-      };
+    //   let options = {
+    //     params: {
+    //       per_page: itemsPerPage,
+    //       page: page,
+    //       company_id: this.$auth.user.company.id,
+    //     },
+    //   };
 
-      this.$axios.get(url, options).then(({ data }) => {
-        this.employees_dialog = data.data;
-        this.total_dialog = data.total;
-        this.loading_dialog = false;
-      });
-    },
+    //   this.$axios.get(url, options).then(({ data }) => {
+    //     this.employees_dialog = data.data;
+    //     this.total_dialog = data.total;
+    //     this.loading_dialog = false;
+    //   });
+    // },
     searchIt() {
       let s = this.search.length;
       let search = this.search;
@@ -646,16 +717,6 @@ export default {
         this.getDataFromApi();
       } else if (s > 2) {
         this.getDataFromApi(`${this.endpoint}/search/${search}`);
-      }
-    },
-
-    dialogSearchIt(e) {
-      if (e.length == 0) {
-        this.getDataFromApiForDialog();
-      } else if (e.length > 2) {
-        this.employees_dialog = this.employees.filter(({ display_name: fn }) =>
-          fn.includes(e)
-        );
       }
     },
 
@@ -694,7 +755,7 @@ export default {
             this.employees.splice(index, 1);
             this.snackbar = data.status;
             this.response = data.message;
-            this.getDataFromApiForDialog();
+            this.getDataFromApi();
           })
           .catch((err) => console.log(err));
     },
@@ -721,6 +782,7 @@ export default {
         this.process(this.$axios.post(`store_schedule_arrange`, payload));
       }
     },
+
     process(method) {
       method
         .then(({ data }) => {
@@ -741,7 +803,7 @@ export default {
           this.snackbar = true;
           this.loading_dialog = false;
           this.getDataFromApi();
-          this.getDataFromApiForDialog();
+          this.getDataFromApi();
         })
         .catch((err) => console.log(err));
     },
