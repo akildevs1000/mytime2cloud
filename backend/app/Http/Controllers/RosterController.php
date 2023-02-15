@@ -37,11 +37,13 @@ class RosterController extends Controller
                     "day" => $days[$i],
                     "shift_id" => $shift_ids[$i],
                     "shift_name" => $shift_names[$i],
+                    "shift_type_id" => $shift->shift_type->id ?? 0,
                     "time" => isset($shift) ? ($shift->on_duty_time . " - " . $shift->off_duty_time) : "---",
                 ];
             }
 
             $created =   Roster::create([
+                "days" => $days,
                 "json" => $json,
                 "name" => $request->name,
                 "company_id" => $request->company_id
@@ -129,10 +131,13 @@ class RosterController extends Controller
                 "day" => $data['day'],
                 "shift_id" => $data['shift_id'],
                 "shift_name" => $shift->name ?? '',
+                "shift_type_id" => $shift->shift_type->id ?? 0,
                 "time" => isset($shift) ? ($shift->on_duty_time . " - " . $shift->off_duty_time) : "---",
             ];
         }
+
         $update = $roster->update([
+            "days" => array_column($arr, 'day'),
             "json" => $arr,
             "name" => $request->name,
             "company_id" => $request->company_id
@@ -206,5 +211,22 @@ class RosterController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function test(Request $request, $id)
+    {
+        $schedules = $request->schedules;
+        $ids = collect($schedules)->pluck('id');
+        $updatedSchedules = ScheduleEmployee::whereIn('id', $ids)->get();
+        $updatedSchedules->each(function ($schedule) use ($schedules) {
+            $newData = collect($schedules)->firstWhere('id', $schedule->id);
+            $schedule->update([
+                "isOverTime" => $newData['is_over_time'],
+                "roster_id" => $newData['schedule_id'],
+                "from_date" => $newData['from_date'],
+                "to_date" => $newData['to_date']
+            ]);
+        });
+        return $this->response('Schedule successfully Updated.', null, true);
     }
 }

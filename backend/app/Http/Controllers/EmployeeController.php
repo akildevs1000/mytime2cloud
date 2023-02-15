@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DateTime;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Company;
@@ -22,8 +23,8 @@ use App\Http\Requests\Employee\ContactRequest;
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\EmployeeOtherRequest;
 use App\Http\Requests\Employee\EmployeeImportRequest;
-use App\Http\Requests\Employee\EmployeeUpdateContact;
 
+use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Http\Requests\Employee\EmployeeContactRequest;
 
@@ -123,13 +124,16 @@ class EmployeeController extends Controller
     }
     public function scheduled_employees(Request $request)
     {
+        $date =  date('Y-m-d');
         $employee = ScheduleEmployee::query();
         $model = $employee->where('company_id', $request->company_id);
-        $model =  $model->whereMonth('from_date', date('m'));
         // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        $model->whereDate('from_date', '<=', $date);
+        $model->whereDate('to_date', '>=', $date);
         $model = $this->custom_with($model, "shift", $request->company_id);
         $model = $this->custom_with($model, "roster", $request->company_id);
         $model = $this->custom_with($model, "employee", $request->company_id);
+
         return $model
             ->paginate($request->per_page ?? 20);
     }
@@ -185,8 +189,6 @@ class EmployeeController extends Controller
                 $q->orWhere('first_name', 'Like', '%' . $request->search . '%');
             });
         }
-
-
         $model->with("department", function ($q) use ($request) {
             $q->whereCompanyId($request->company_id);
         });
