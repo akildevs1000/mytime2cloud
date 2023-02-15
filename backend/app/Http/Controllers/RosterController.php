@@ -201,33 +201,24 @@ class RosterController extends Controller
 
     public function scheduleUpdateByEmployee(Request $request, $id)
     {
+        ScheduleEmployee::where("company_id", $request->company_id)->where('employee_id', $id)->delete();
+        $arr = [];
+        $schedules = $request->schedules;
+        foreach ($schedules as $schedule) {
+            $arr[] = [
+                "employee_id" => $id,
+                "isOverTime" => $schedule['is_over_time'],
+                "roster_id" => $schedule['schedule_id'],
+                "from_date" => $schedule['from_date'],
+                "to_date" => $schedule['to_date'],
+                "company_id" => $request->company_id,
+                "created_at" => now(),
+                "updated_at" => now(),
+            ];
+        }
+
         try {
-            $schedules =   $request->schedules;
-            $deleteIds =   $request->deleteIds;
-            foreach ($schedules as $schedule) {
-                if ($schedule['id'] ?? false) {
-                    $res =   ScheduleEmployee::find($schedule['id'])->update([
-                        "isOverTime" => $schedule['is_over_time'],
-                        "roster_id" => $schedule['schedule_id'],
-                        "from_date" => $schedule['from_date'],
-                        "to_date" => $schedule['to_date']
-                    ]);
-                } else {
-                    $res = ScheduleEmployee::create([
-                        "employee_id" => $id,
-                        "isOverTime" => $schedule['is_over_time'],
-                        "roster_id" => $schedule['schedule_id'],
-                        "from_date" => $schedule['from_date'],
-                        "to_date" => $schedule['to_date'],
-                        "company_id" => $request->company_id
-                    ]);
-                }
-            }
-
-            if ($res) {
-                ScheduleEmployee::whereIn('id', $deleteIds)->delete();
-            }
-
+            ScheduleEmployee::insert($arr);
             return $this->response('Schedule successfully Updated.', null, true);
         } catch (\Throwable $th) {
             throw $th;
