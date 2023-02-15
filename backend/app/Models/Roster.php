@@ -16,5 +16,6 @@ class Roster extends Model
         'shift_names' => 'array',
         'days' => 'array',
         'json' => 'array',
+        'shift_type_ids' => 'array',
     ];
 }
