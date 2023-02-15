@@ -43,6 +43,7 @@ class RosterController extends Controller
             }
 
             $created =   Roster::create([
+                "shift_type_ids" => array_column($json, 'shift_type_id'),
                 "shift_ids" => $shift_ids,
                 "days" => $days,
                 "json" => $json,
@@ -138,6 +139,7 @@ class RosterController extends Controller
         }
 
         $update = $roster->update([
+            "shift_type_ids" => array_column($arr, 'shift_type_id'),
             "days" => array_column($arr, 'day'),
             "shift_ids" => array_column($arr, 'shift_id'),
             "json" => $arr,
