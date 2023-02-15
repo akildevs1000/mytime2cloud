@@ -247,8 +247,8 @@
                 <v-autocomplete
                   outlined
                   dense
-                  @change="getEmployeesBySubDepartment"
-                  v-model="getEmployeesBySubDepartment"
+                  @change="runMultipleFunctions"
+                  v-model="department_ids"
                   multiple
                   x-small
                   :items="sub_departments"
@@ -599,11 +599,8 @@ export default {
     },
 
     dialogSearchIt(e) {
-      if (e.length > 0) {
-        this.employeesByDepartment();
-      } else {
-        this.employeesByDepartment();
-      }
+      this.employeesByDepartment();
+      this.getEmployeesBySubDepartment();
     },
 
     // dialogSearchIt(e) {
@@ -626,6 +623,7 @@ export default {
           department_ids: this.department_ids,
           sub_department_ids: this.sub_department_ids,
           per_page: itemsPerPage,
+          search: this.employee_search,
           page: page,
           company_id: this.$auth.user.company.id,
         },
@@ -645,6 +643,7 @@ export default {
         })
         .catch((err) => console.log(err));
     },
+
     subDepartmentsByDepartment() {
       this.options.params.department_ids = this.department_ids;
 

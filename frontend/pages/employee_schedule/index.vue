@@ -9,9 +9,15 @@
     <v-dialog v-model="editDialog" width="900">
       <v-card>
         <v-card-title class="text-h5">
-          Edit Shift(s)
+          {{ !isEdit ? "View Shift(s)" : "Edit Shift(s)" }}
           <v-spacer></v-spacer>
-          <v-btn class="primary" small fab @click="addRow(rosterFirstValue)">
+          <v-btn
+            v-if="isEdit"
+            class="primary"
+            small
+            fab
+            @click="addRow(rosterFirstValue)"
+          >
             <b>+</b>
           </v-btn>
         </v-card-title>
@@ -23,6 +29,7 @@
               <div class="">Schedule List</div>
               <v-autocomplete
                 outlined
+                :readonly="!isEdit"
                 dense
                 v-model="item.schedule_id"
                 x-small
@@ -74,11 +81,16 @@
                       dense
                       v-model="item.from_date"
                       readonly
-                      v-bind="attrs"
-                      v-on="on"
+                      v-bind="!isEdit || attrs"
+                      v-on="!isEdit || on"
                     ></v-text-field>
                   </template>
-                  <v-date-picker v-model="item.from_date" no-title scrollable>
+                  <v-date-picker
+                    :readonly="!isEdit"
+                    v-model="item.from_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="from_menu[i] = false">
                       Cancel
@@ -87,7 +99,9 @@
                       text
                       color="primary"
                       @click="
-                        set_date_save($refs.from_menu[i], item.from_date, i)
+                        isEdit
+                          ? set_date_save($refs.from_menu[i], item.from_date, i)
+                          : ''
                       "
                     >
                       OK
@@ -106,19 +120,21 @@
                   transition="scale-transition"
                   offset-y
                   min-width="auto"
+                  :readonly="!isEdit"
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
                       v-model="item.to_date"
                       readonly
-                      v-bind="attrs"
-                      v-on="on"
+                      v-bind="!isEdit || attrs"
+                      v-on="!isEdit || on"
                       outlined
                       dense
                       :hide-details="true"
                     ></v-text-field>
                   </template>
                   <v-date-picker
+                    :readonly="!isEdit"
                     v-model="item.to_date"
                     @input="to_menu[i] = false"
                   ></v-date-picker>
@@ -129,28 +145,29 @@
               <div>
                 Overtime Allowed
                 <v-checkbox
+                  :readonly="!isEdit"
                   style="margin-top: -8px"
                   v-model="item.is_over_time"
                 ></v-checkbox>
               </div>
             </v-col>
-            <v-col md="1">
+            <v-col md="1" v-if="isEdit">
               <div></div>
-              <v-icon v-if="i" @click="removeItem(i)" color="error"
+              <v-icon @click="removeItem(i, item)" color="error"
                 >mdi-delete</v-icon
               >
             </v-col>
           </v-row>
         </v-card-text>
         <v-divider></v-divider>
-
         <v-card-actions>
           <v-spacer></v-spacer>
-
           <v-btn dark small color="grey" @click="editDialog = false">
             Close
           </v-btn>
-          <v-btn dark small color="primary" @click="update"> Submit </v-btn>
+          <v-btn v-if="isEdit" dark small color="primary" @click="update">
+            Submit
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -346,6 +363,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
     <v-row class="mt-5 mb-5">
       <v-col cols="6">
         <h3>{{ Module }}</h3>
@@ -392,10 +410,10 @@
 
     <v-card class="mb-5 rounded-md mt-3" elevation="0">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <span> Employee Schedule List</span>
+        <span>Employee Schedule List</span>
       </v-toolbar>
       <table>
-        <tr>
+        <tr style="font-size: 13px">
           <th>#</th>
           <th>E.ID</th>
           <th>Name</th>
@@ -412,7 +430,11 @@
           absolute
           color="primary"
         ></v-progress-linear>
-        <tr v-for="(item, index) in employees" :key="index">
+        <tr
+          v-for="(item, index) in employees"
+          :key="index"
+          style="font-size: 13px"
+        >
           <td class="ps-3">
             <b>{{ ++index }}</b>
           </td>
@@ -436,10 +458,15 @@
                 </v-btn>
               </template>
               <v-list width="120" dense>
-                <v-list-item @click="editItem(item)">
+                <v-list-item @click="ScheduleItem(item, 'view')">
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="secondary" small> mdi-eye </v-icon>
+                    View
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="ScheduleItem(item, 'edit')">
                   <v-list-item-title style="cursor: pointer">
                     <v-icon color="secondary" small> mdi-pencil </v-icon>
-
                     Edit
                   </v-list-item-title>
                 </v-list-item>
@@ -502,6 +529,7 @@ export default {
 
     loading: false,
     loading_dialog: false,
+    isEdit: false,
     total: 0,
     total_dialog: 0,
     headers: [
@@ -599,6 +627,7 @@ export default {
       },
     ],
 
+    deleteIds: [],
     schedules_temp_list: [],
     empId: "",
   }),
@@ -662,7 +691,7 @@ export default {
       }
     },
 
-    editItem(item) {
+    ScheduleItem(item, type) {
       this.empId = item.employee_id;
       let id = item.employee_id;
       let options = {
@@ -671,6 +700,7 @@ export default {
       this.$axios
         .get(`get_roster_by_employee/${id}`, { params: options })
         .then(({ data }) => {
+          type == "edit" ? (this.isEdit = true) : (this.isEdit = false);
           this.schedules_temp_list = data;
           this.editDialog = true;
         });
@@ -697,13 +727,16 @@ export default {
     update() {
       let payload = {
         schedules: this.schedules_temp_list,
+        deleteIds: this.deleteIds,
         company_id: this.$auth.user.company.id,
       };
-
       this.process(this.$axios.put(`schedule_update/${this.empId}`, payload));
     },
 
-    removeItem(i) {
+    removeItem(i, item) {
+      if (item.id) {
+        this.deleteIds.push(item.id);
+      }
       this.schedules_temp_list.splice(i, 1);
     },
 
