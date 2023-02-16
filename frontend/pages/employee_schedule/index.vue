@@ -421,6 +421,8 @@
           <th>Current Schedule Start</th>
           <th>Current Schedule End</th>
           <th>OT</th>
+          <th>Shift Name</th>
+          <th>Shift Type</th>
           <th class="text-center">Actions</th>
         </tr>
         <v-progress-linear
@@ -450,6 +452,10 @@
             <v-icon v-else color="error">mdi-close</v-icon>
           </td>
 
+          <td>{{ item.shift && item.shift.name }}</td>
+          <td>{{ item.shift_type && item.shift_type.name }}</td>
+
+
           <td class="text-center">
             <v-menu bottom left>
               <template v-slot:activator="{ on, attrs }">
@@ -470,12 +476,12 @@
                     Edit
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="deleteItem(item)">
+                <!-- <v-list-item @click="deleteItem(item)">
                   <v-list-item-title style="cursor: pointer">
                     <v-icon color="error" small> mdi-delete </v-icon>
                     Delete
                   </v-list-item-title>
-                </v-list-item>
+                </v-list-item> -->
               </v-list>
             </v-menu>
           </td>

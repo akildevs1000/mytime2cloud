@@ -9,7 +9,7 @@ class ScheduleEmployee extends Model
 {
     use HasFactory;
 
-    protected $with = ["shift", "shift_type", "logs", "first_log", "last_log"];
+    protected $with = ["shift", "shift_type"];
 
     protected $appends = ["show_from_date", "show_to_date"];
 
@@ -38,7 +38,9 @@ class ScheduleEmployee extends Model
      */
     public function shift()
     {
-        return $this->belongsTo(Shift::class)->withOut(["shift_type"]);
+        return $this->belongsTo(Shift::class)->withOut(["shift_type"])->withDefault([
+            'name' => '---',
+        ]);
     }
 
     public function shift_type()
@@ -51,21 +53,6 @@ class ScheduleEmployee extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class, "employee_id", "system_user_id",);
-    }
-
-    public function logs()
-    {
-        return $this->hasMany(AttendanceLog::class, "UserID", "employee_id")->orderBy("LogTime");
-    }
-
-    public function first_log()
-    {
-        return $this->hasOne(AttendanceLog::class, "UserID", "employee_id")->orderBy("LogTime");
-    }
-
-    public function last_log()
-    {
-        return $this->hasOne(AttendanceLog::class, "UserID", "employee_id")->orderByDesc("LogTime");
     }
 
     /**

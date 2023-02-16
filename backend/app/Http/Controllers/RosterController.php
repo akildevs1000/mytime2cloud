@@ -42,7 +42,7 @@ class RosterController extends Controller
                 ];
             }
 
-            $created =   Roster::create([
+            $created = Roster::create([
                 "shift_type_ids" => array_column($json, 'shift_type_id'),
                 "shift_ids" => $shift_ids,
                 "days" => $days,
@@ -84,6 +84,8 @@ class RosterController extends Controller
             // $created =   ScheduleEmployee::insert($arr);
 
             if ($created) {
+                (new ScheduleEmployeeController)->assignSchedule($request);
+
                 return $this->response('Schedule successfully added.', $created, true);
             } else {
                 return $this->response('Schedule cannot add.', null, false);
@@ -188,8 +190,9 @@ class RosterController extends Controller
             $data = $model
                 ->whereCompanyId($request->company_id)
                 ->whereEmployeeId($id)
-                ->withOut(["shift", "shift_type", "logs", "first_log", "last_log"])
+                ->withOut(["shift", "shift_type"])
                 // ->with('roster')
+                ->orderBy("from_date", "ASC")
                 ->get(['id', 'employee_id', 'isOverTime as is_over_time', 'roster_id as schedule_id', 'from_date', 'to_date'])
                 ->makeHidden(['employee_id', 'show_from_date', 'show_to_date'])
                 ->groupBy('employee_id');
@@ -219,6 +222,8 @@ class RosterController extends Controller
 
         try {
             ScheduleEmployee::insert($arr);
+            (new ScheduleEmployeeController)->assignSchedule($request);
+
             return $this->response('Schedule successfully Updated.', null, true);
         } catch (\Throwable $th) {
             throw $th;

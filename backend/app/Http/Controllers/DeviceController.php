@@ -86,7 +86,7 @@ class DeviceController extends Controller
         foreach ($logs as $log) {
 
 
-            $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'first_log', 'last_log', 'user', 'role'])
+            $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
                 ->where('company_id', $id)
                 ->where('system_user_id', $log->UserID)
                 ->first(['first_name', 'profile_picture', 'company_id']);
@@ -121,7 +121,7 @@ class DeviceController extends Controller
             foreach ($logs as $log) {
 
 
-                $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'first_log', 'last_log', 'user', 'role'])
+                $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
                     ->where('company_id', $id)
                     ->where('system_user_id', $log->UserID)
                     ->first(['first_name', 'profile_picture', 'company_id']);
@@ -156,7 +156,7 @@ class DeviceController extends Controller
 
         foreach ($logs as $log) {
 
-            $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'first_log', 'last_log', 'user', 'role'])
+            $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
                 ->where('company_id', $id)
                 ->where('system_user_id', $log->UserID)
                 ->first(['first_name', 'profile_picture', 'company_id']);

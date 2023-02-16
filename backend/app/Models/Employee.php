@@ -26,7 +26,7 @@ class Employee extends Model
 
     public function schedule()
     {
-        return $this->hasOne(ScheduleEmployee::class, "employee_id", "system_user_id")->withOut("logs", "first_log", "last_log")->withDefault([
+        return $this->hasOne(ScheduleEmployee::class, "employee_id", "system_user_id")->withDefault([
             "shift_type_id" => "---",
             "shift_type" => [
                 "name" => "---",
@@ -110,21 +110,6 @@ class Employee extends Model
     public function attendances()
     {
         return $this->hasMany(Attendance::class, "employee_id", "employee_id");
-    }
-
-    public function logs()
-    {
-        return $this->hasOne(AttendanceLog::class, "UserID", "employee_id");
-    }
-
-    public function first_log()
-    {
-        return $this->logs()->orderBy("LogTime")->whereDate("LogTime", date("Y-m-d"));
-    }
-
-    public function last_log()
-    {
-        return $this->logs()->orderByDesc("LogTime")->whereDate("LogTime", date("Y-m-d"));
     }
 
     public function announcement()

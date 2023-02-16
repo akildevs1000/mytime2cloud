@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Attendance;
@@ -13,15 +14,20 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
+use App\Http\Controllers\Shift\SingleShiftController;
 
-Route::get('/syncAutoLogsScript', function (Request $request) {
-    $Attendance = new AutoShiftController;
-    return $Attendance->processByManual($request);
+Route::get('/syncLogsScript', function (Request $request) {
+
+    return [
+        "MultiInOut" => (new MultiInOutShiftController)->processByManual($request),
+        "Single" => (new SingleShiftController)->processByManual($request),
+        // "Auto" => (new AutoShiftController)->processByManual($request)
+    ];
 });
 
 Route::get('/test', function (Request $request) {
 
-    $Attendance = new MultiInOutShiftController;
+    $Attendance = new AttendanceController;
     return $result = $Attendance->syncLogsScript();
 
     die;

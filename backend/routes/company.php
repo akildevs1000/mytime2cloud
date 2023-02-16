@@ -213,6 +213,7 @@ Route::get('get_shift', [ShiftController::class, 'getShift']);
 Route::post('update_single_shift', [ShiftController::class, 'updateSingleShift']);
 Route::get('shift_by_type', [ShiftController::class, 'shift_by_type']);
 Route::get('shift_by_types', [ShiftController::class, 'shift_by_types']);
+Route::get('list_with_out_multi_in_out', [ShiftController::class, 'list_with_out_multi_in_out']);
 
 Route::apiResource('time_table', TimeTableController::class);
 
@@ -236,6 +237,9 @@ Route::get('attendance_logs_details', [AttendanceLogController::class, 'Attendan
 
 Route::get('schedule_employees_logs', [ScheduleEmployeeController::class, 'logs']);
 Route::get('employees_by_departments/{id}', [ScheduleEmployeeController::class, 'employees_by_departments']);
+Route::get('/assignSchedule', function (Request $request) {
+    return (new ScheduleEmployeeController)->assignSchedule($request);
+});
 
 // -----------------------Employee App-------------------------------
 

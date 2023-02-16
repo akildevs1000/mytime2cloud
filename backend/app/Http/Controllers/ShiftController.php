@@ -24,6 +24,17 @@ class ShiftController extends Controller
         return $model->paginate($request->per_page);
     }
 
+    public function list_with_out_multi_in_out(Request $request)
+    {
+        $model = Shift::query();
+        $model->whereHas("shift_type", function ($q) {
+            $q->where("id", "!=", 2);
+        });
+        $model->with("shift_type");
+        $model->where('company_id', $request->company_id);
+        return $model->paginate($request->per_page);
+    }
+
     public function shift_by_type(Request $request)
     {
         return Shift::with("shift_type")->where("company_id", $request->company_id)->where("shift_type_id", $request->shift_type_id)->get();

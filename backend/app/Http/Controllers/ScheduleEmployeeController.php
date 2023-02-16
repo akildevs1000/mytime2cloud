@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
-use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\ScheduleEmployee;
 use App\Http\Requests\ScheduleEmployee\StoreRequest;
 use App\Http\Requests\ScheduleEmployee\UpdateRequest;
+use App\Models\Company;
 
 class ScheduleEmployeeController extends Controller
 {
@@ -44,21 +44,6 @@ class ScheduleEmployeeController extends Controller
             ->get();
     }
 
-    public function logs(Request $request, ScheduleEmployee $model)
-    {
-        $emps = $model->with("logs")->get();
-        foreach ($emps as $emp) {
-            $emp->new_logs = [$emp->logs->groupBy("date")];
-        }
-        return $emps;
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(StoreRequest $request, ScheduleEmployee $model)
     {
         $data = $request->validated();
@@ -95,24 +80,11 @@ class ScheduleEmployeeController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\ScheduleEmployee  $ScheduleEmployee
-     * @return \Illuminate\Http\Response
-     */
     public function show(ScheduleEmployee $ScheduleEmployee)
     {
         return $ScheduleEmployee;
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ScheduleEmployee  $ScheduleEmployee
-     * @return \Illuminate\Http\Response
-     */
     public function update(UpdateRequest $request, $id)
     {
         try {
@@ -126,13 +98,6 @@ class ScheduleEmployeeController extends Controller
             throw $th;
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\ScheduleEmployee  $ScheduleEmployee
-     * @return \Illuminate\Http\Response
-     */
 
     public function destroy($id)
     {
@@ -157,5 +122,58 @@ class ScheduleEmployeeController extends Controller
         } else {
             return response()->json(['status' => false, 'message' => 'ScheduleEmployee cannot Deleted']);
         }
+    }
+
+    public function assignSchedule(Request $request)
+    {
+        $companyIds = $request->company_ids ?? Company::pluck("id");
+
+        $currentDate = $request->date ?? date('Y-m-d');
+
+        $currentDay = date("D", strtotime($currentDate));
+
+        $items = 0;
+
+        $arrays = [];
+
+        foreach ($companyIds as $company_id) {
+            $model = ScheduleEmployee::query();
+
+            $model->where("company_id", '>', 0);
+
+            $model->when(($company_id) > 0, function ($q) use ($company_id) {
+                $q->where("company_id", $company_id);
+            });
+
+            $model->where(function ($q) use ($currentDate) {
+                $q->where('from_date', '<=', $currentDate)
+                    ->where('to_date', '>=', $currentDate);
+            });
+
+            $model->with(["roster"]);
+
+            $rows = $model->get();
+
+            if (count($rows) == 0) continue;
+
+            foreach ($rows as $row) {
+
+                $roster = $row["roster"];
+
+                $index = array_search($currentDay, $roster["days"]);
+
+                $model->where("employee_id", $row["employee_id"]);
+                $model->where("roster_id", $roster["id"]);
+
+
+                $arr = ["shift_id" => $roster["shift_ids"][$index], "shift_type_id" => $roster["shift_type_ids"][$index]];
+
+                $model->update($arr);
+                $arrays[] = $arr;
+            }
+            $items++;
+        }
+        // return $arrays;
+        return "Total $items employee(s) has been scheduled";
     }
 }

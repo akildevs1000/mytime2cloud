@@ -115,7 +115,7 @@ class EmployeeController extends Controller
     public function index(Employee $employee, Request $request)
     {
         return $employee
-            ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])
+            ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
                 $q->whereHas('department',  fn (Builder $query) => $query->where('department_id', $request->department_id));
@@ -124,7 +124,7 @@ class EmployeeController extends Controller
     }
     public function scheduled_employees(Request $request)
     {
-        $date =  date('Y-m-d');
+        $date = $request->date ?? date('Y-m-d');
         $employee = ScheduleEmployee::query();
         $model = $employee->where('company_id', $request->company_id);
         // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
@@ -171,7 +171,7 @@ class EmployeeController extends Controller
     }
     public function show(Employee $employee)
     {
-        return $employee->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->whereId($employee->id)->first();
+        return $employee->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role"])->whereId($employee->id)->first();
     }
     public function employeesByDepartment(Request $request)
     {
@@ -307,7 +307,7 @@ class EmployeeController extends Controller
         })
             ->paginate($request->perPage ?? 10);
 
-        //  return $model->whereHas('schedule')->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "first_log", "last_log"])->paginate($request->perPage ?? 10);
+        //  return $model->whereHas('schedule')->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role"])->paginate($request->perPage ?? 10);
     }
     public function updateEmployee(EmployeeUpdateRequest $request, $id)
     {

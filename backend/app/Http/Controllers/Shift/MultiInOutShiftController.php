@@ -48,8 +48,10 @@ class MultiInOutShiftController extends Controller
             $q->where("checked", false);
             $q->where("company_id", '>', 0);
 
-            $q->whereHas("schedule", function ($q) use ($shift_type_id) {
+            $q->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate) {
                 $q->where('shift_type_id', $shift_type_id);
+                $q->whereDate('from_date', "<=", $currentDate);
+                $q->whereDate('to_date', ">=", $currentDate);
             });
 
             $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
@@ -69,8 +71,10 @@ class MultiInOutShiftController extends Controller
             $q->where("checked", false);
             $q->where("company_id", '>', 0);
 
-            $q->whereHas("schedule", function ($q) use ($shift_type_id) {
+            $q->whereHas("schedule", function ($q) use ($shift_type_id, $nextDate) {
                 $q->where('shift_type_id', $shift_type_id);
+                $q->whereDate('from_date', "<=", $nextDate);
+                $q->whereDate('to_date', ">=", $nextDate);
             });
 
             $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
@@ -84,6 +88,8 @@ class MultiInOutShiftController extends Controller
             $q->whereDate("LogTime", $nextDate);
         });
 
+        // $model->with(["schedule"]);
+
         $model->orderBy("LogTime");
 
         return $model->get(["UserID", "company_id"])->groupBy(["company_id", "UserID"])->toArray();
@@ -91,8 +97,7 @@ class MultiInOutShiftController extends Controller
 
     public function getSchedule($currentDate, $companyId, $UserID, $shift_type_id)
     {
-        $schedule = ScheduleEmployee::withOut(["logs", "first_log", "last_log"])
-            ->where('company_id', $companyId)
+        $schedule = ScheduleEmployee::where('company_id', $companyId)
             ->where("employee_id", $UserID)
             ->where("shift_type_id", $shift_type_id)
             ->first();
@@ -108,6 +113,7 @@ class MultiInOutShiftController extends Controller
         $end_range = $nextDate . " " . $schedule->shift->off_duty_time;
 
         return [
+            "roster_id" => $schedule["roster_id"],
             "shift_id" => $schedule["shift_id"],
             "range" => [$start_range, $end_range],
             "isOverTime" => $schedule["isOverTime"],
@@ -155,6 +161,7 @@ class MultiInOutShiftController extends Controller
                 "date" => $date,
                 "company_id" => $companyId,
                 "shift_id" => $schedule['shift_id'],
+                "roster_id" => $schedule['roster_id'],
                 "employee_id" => $UserID,
                 "logs" => [],
                 "total_hrs" => 0,
@@ -201,8 +208,8 @@ class MultiInOutShiftController extends Controller
                 $i++;
             }
         }
-        
-        return AttendanceLog::whereIn("UserID",  $UserIDs)->whereDate("LogTime", $date)->where("company_id",$companyId)->update(["checked" => true]);
+
+        return AttendanceLog::whereIn("UserID",  $UserIDs)->whereDate("LogTime", $date)->where("company_id", $companyId)->update(["checked" => true]);
 
         return $items;
     }
