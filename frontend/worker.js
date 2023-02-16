@@ -19,7 +19,7 @@ socket.onmessage = ({ data }) => {
     let str = `${UserID},${DeviceID},${LogTime.replace(
       "T",
       " "
-    )},${SerialNumber}\n`;
+    )},${SerialNumber}`;
 
     let payload = {
       UserID: UserID,

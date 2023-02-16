@@ -23,7 +23,10 @@ socket.onmessage = ({ data }) => {
     RecordNumber: SerialNumber
   } = JSON.parse(data).Data;
 
-  let str = `${UserID},${DeviceID},${LogTime},${SerialNumber}\n`;
+  let str = `${UserID},${DeviceID},${LogTime.replace(
+    "T",
+    " "
+  )},${SerialNumber}\n`;
 
   if (UserID > 0) {
     console.log(str);
