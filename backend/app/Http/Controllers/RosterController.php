@@ -65,12 +65,11 @@ class RosterController extends Controller
     public function storeScheduleArrange(Request $request)
     {
         try {
-
             $empIds = $request->employee_ids;
 
-            $schedules = $request->schedules;
+            ScheduleEmployee::where("company_id", $request->company_id)->whereIn('employee_id', $empIds)->delete();
 
-            return $ids = Employee::where("company_id", $request->company_id)->whereIn("id", $empIds)->pluck("system_user_id");
+            $schedules = $request->schedules;
 
             $arr = array_map(function ($empId) use ($schedules, $request) {
                 return array_map(function ($schedule) use ($empId, $request) {
@@ -85,9 +84,8 @@ class RosterController extends Controller
                         'updated_at' => now(),
                     ];
                 }, $schedules);
-            }, $ids);
+            }, $empIds);
 
-            ScheduleEmployee::where("company_id", $request->company_id)->whereIn('employee_id', $ids)->delete();
 
             ScheduleEmployee::insert(array_merge(...$arr));
 
