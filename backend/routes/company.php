@@ -238,7 +238,7 @@ Route::get('attendance_logs_details', [AttendanceLogController::class, 'Attendan
 Route::get('schedule_employees_logs', [ScheduleEmployeeController::class, 'logs']);
 Route::get('employees_by_departments/{id}', [ScheduleEmployeeController::class, 'employees_by_departments']);
 Route::get('/assignSchedule', function (Request $request) {
-    return (new ScheduleEmployeeController)->assignSchedule($request);
+    return (new ScheduleEmployeeController)->assignScheduleByManual($request);
 });
 
 // -----------------------Employee App-------------------------------

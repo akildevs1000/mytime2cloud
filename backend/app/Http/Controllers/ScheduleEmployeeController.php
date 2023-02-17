@@ -124,17 +124,26 @@ class ScheduleEmployeeController extends Controller
         }
     }
 
-    public function assignSchedule(Request $request)
+    public function assignSchedule()
     {
-        $companyIds = $request->company_ids ?? Company::pluck("id");
+        $companyIds = Company::pluck("id");
 
-        $currentDate = $request->date ?? date('Y-m-d');
+        if (count($companyIds) == 0) {
+            return "No Record found.";
+        }
+
+        $currentDate = date('Y-m-d');
 
         $currentDay = date("D", strtotime($currentDate));
 
         $arrays = [];
 
         $str = "";
+
+        $date = date("Y-m-d H:i:s");
+        $script_name = "AssignScheduleToEmployee";
+
+        $meta = "[$date] Cron: $script_name.";
 
         foreach ($companyIds as $company_id) {
 
@@ -143,7 +152,7 @@ class ScheduleEmployeeController extends Controller
             $model = ScheduleEmployee::query();
 
             $model->where("company_id", '>', 0);
-            $model->where("is_week", 0);
+            // $model->where("is_week", 0);
 
             $model->where("company_id", $company_id);
 
@@ -156,7 +165,10 @@ class ScheduleEmployeeController extends Controller
 
             $rows = $model->get();
 
-            if (count($rows) == 0) continue;
+            if ($rows->isEmpty()) {
+                $str .= "$meta $no_of_employees employee(s) found for Company ID $company_id.\n";
+                continue;
+            };
 
             foreach ($rows as $row) {
 
@@ -165,7 +177,85 @@ class ScheduleEmployeeController extends Controller
                 $index = array_search($currentDay, $roster["days"]);
 
                 $model = ScheduleEmployee::query();
-                $model->where("is_week", 0);
+                // $model->where("is_week", 0);
+                $model->where("company_id", $company_id);
+
+                $model->where(function ($q) use ($currentDate) {
+                    $q->where('from_date', '<=', $currentDate)
+                        ->where('to_date', '>=', $currentDate);
+                });
+
+                $model->where("employee_id", $row["employee_id"]);
+                $model->where("roster_id", $roster["id"]);
+
+
+                $arr = [
+                    "shift_id" => $roster["shift_ids"][$index],
+                    "shift_type_id" => $roster["shift_type_ids"][$index],
+                    "is_week" => 1
+                ];
+
+                // $model->update($arr);
+                $arr["employee_id"] = $row["employee_id"];
+                $arrays[] = $arr;
+                $no_of_employees++;
+            }
+
+            $str .= "$meta Total $no_of_employees employee(s) for Company ID $company_id has been scheduled.\n";
+        }
+        return $str;
+    }
+
+    public function assignScheduleByManual(Request $request)
+    {
+        $companyIds = $request->company_ids ?? Company::pluck("id");
+
+        $currentDate = $request->date ?? date('Y-m-d');
+
+        $currentDay = date("D", strtotime($currentDate));
+
+        $arrays = [];
+
+        $str = "";
+
+        $date = date("Y-m-d H:i:s");
+        $script_name = "AssignScheduleToEmployee";
+
+        $meta = "[$date] Cron: $script_name.";
+
+        foreach ($companyIds as $company_id) {
+
+            $no_of_employees = 0;
+
+            $model = ScheduleEmployee::query();
+
+            $model->where("company_id", '>', 0);
+
+            $model->where("company_id", $company_id);
+
+            $model->where(function ($q) use ($currentDate) {
+                $q->where('from_date', '<=', $currentDate)
+                    ->where('to_date', '>=', $currentDate);
+            });
+
+            $model->with(["roster"]);
+
+            $rows = $model->get();
+
+            if ($rows->isEmpty()) {
+                $str .= "$meta $no_of_employees employee(s) found for Company ID $company_id.\n";
+                $str .= "<br>";
+
+                continue;
+            };
+
+            foreach ($rows as $row) {
+
+                $roster = $row["roster"];
+
+                $index = array_search($currentDay, $roster["days"]);
+
+                $model = ScheduleEmployee::query();
                 $model->where("company_id", $company_id);
 
                 $model->where(function ($q) use ($currentDate) {
@@ -189,7 +279,7 @@ class ScheduleEmployeeController extends Controller
                 $no_of_employees++;
             }
             $str .= "Total $no_of_employees employee(s) for Company ID $company_id has been scheduled.\n";
-            // $str .= "<br>";
+            $str .= "<br>";
         }
         return $str;
     }

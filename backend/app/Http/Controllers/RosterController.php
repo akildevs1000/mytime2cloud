@@ -64,34 +64,33 @@ class RosterController extends Controller
     public function storeScheduleArrange(Request $request)
     {
         try {
-            $arr = [];
+
             $empIds = $request->employee_ids;
             $schedules = $request->schedules;
 
-            foreach ($empIds as $empId) {
-                foreach ($schedules as $schedule) {
-                    $arr = [
+            $arr = array_map(function ($empId) use ($schedules, $request) {
+                return array_map(function ($schedule) use ($empId, $request) {
+                    return [
                         'roster_id' => $schedule['schedule_id'],
                         'employee_id' => $empId,
                         'from_date' => $schedule['from_date'],
                         'to_date' => $schedule['to_date'],
                         'isOverTime' => $schedule['is_over_time'],
                         'company_id' => $request->company_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
-                    $created =   ScheduleEmployee::create($arr);
-                }
-            }
-            // $created =   ScheduleEmployee::insert($arr);
+                }, $schedules);
+            }, $empIds);
+            
+            ScheduleEmployee::insert(array_merge(...$arr));
 
-            if ($created) {
-                (new ScheduleEmployeeController)->assignSchedule($request);
+            (new ScheduleEmployeeController)->assignScheduleByManual($request);
 
-                return $this->response('Schedule successfully added.', $created, true);
-            } else {
-                return $this->response('Schedule cannot add.', null, false);
-            }
+            return $this->response('Schedule successfully added.', null, true);
+
         } catch (\Throwable $th) {
-            throw $th;
+            return $this->response('An error occurred while adding the schedule.', null, false);
         }
     }
 

@@ -428,6 +428,7 @@ export default {
     },
     options_dialog: {
       handler() {
+        this.runMultipleFunctions();
         if (!this.is_edit) {
           this.getDataFromApi();
         }
@@ -532,34 +533,11 @@ export default {
       });
     },
 
-    editItem(item) {
-      console.log(item);
-      return;
-      this.is_edit = true;
-      this.total_dialog = 1;
-      this.employees_dialog = [];
-      this.employees_dialog.unshift({
-        system_user_id: item.employee.system_user_id,
-        display_name: item.employee.display_name,
-        name: item.department.name,
-      });
-      this.isOverTime = item.isOverTime;
-      this.schedule_id = item.schedule_id;
-      this.dialog = true;
-      this.loading_dialog = true;
-      setTimeout(() => {
-        this.loading_dialog = false;
-      }, 700);
-    },
-
     close() {
       this.dialog = false;
       this.is_edit = false;
     },
 
-    runShiftFunction() {
-      this.shifts = this.shifts.filter((e) => e.id !== "---");
-    },
     getDepartments(options) {
       this.$axios
         .get("departments", options)
@@ -801,7 +779,6 @@ export default {
           this.response = data.message;
           this.snackbar = true;
           this.loading_dialog = false;
-          this.getDataFromApi();
           this.getDataFromApi();
         })
         .catch((err) => console.log(err));
