@@ -6,6 +6,7 @@ use App\Models\Roster;
 use Illuminate\Http\Request;
 use App\Http\Requests\Roster\StoreRequest;
 use App\Http\Requests\Roster\UpdateRequest;
+use App\Models\Employee;
 use App\Models\ScheduleEmployee;
 use App\Models\Shift;
 
@@ -66,8 +67,10 @@ class RosterController extends Controller
         try {
 
             $empIds = $request->employee_ids;
+
             $schedules = $request->schedules;
 
+            $ids = Employee::where("company_id", $request->company_id)->whereIn("id", $empIds)->pluck("system_user_id");
 
             $arr = array_map(function ($empId) use ($schedules, $request) {
                 return array_map(function ($schedule) use ($empId, $request) {
@@ -82,9 +85,10 @@ class RosterController extends Controller
                         'updated_at' => now(),
                     ];
                 }, $schedules);
-            }, $empIds);
+            }, $ids);
 
-            ScheduleEmployee::where("company_id", $request->company_id)->whereIn('employee_id', $empIds)->delete();
+            ScheduleEmployee::where("company_id", $request->company_id)->whereIn('employee_id', $ids)->delete();
+            
             ScheduleEmployee::insert(array_merge(...$arr));
 
             (new ScheduleEmployeeController)->assignScheduleByManual($request);
