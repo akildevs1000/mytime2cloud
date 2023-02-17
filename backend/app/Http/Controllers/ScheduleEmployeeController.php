@@ -132,18 +132,20 @@ class ScheduleEmployeeController extends Controller
 
         $currentDay = date("D", strtotime($currentDate));
 
-        $items = 0;
-
         $arrays = [];
 
+        $str = "";
+
         foreach ($companyIds as $company_id) {
+
+            $no_of_employees = 0;
+
             $model = ScheduleEmployee::query();
 
             $model->where("company_id", '>', 0);
+            $model->where("is_week", 0);
 
-            $model->when(($company_id) > 0, function ($q) use ($company_id) {
-                $q->where("company_id", $company_id);
-            });
+            $model->where("company_id", $company_id);
 
             $model->where(function ($q) use ($currentDate) {
                 $q->where('from_date', '<=', $currentDate)
@@ -162,18 +164,33 @@ class ScheduleEmployeeController extends Controller
 
                 $index = array_search($currentDay, $roster["days"]);
 
+                $model = ScheduleEmployee::query();
+                $model->where("is_week", 0);
+                $model->where("company_id", $company_id);
+
+                $model->where(function ($q) use ($currentDate) {
+                    $q->where('from_date', '<=', $currentDate)
+                        ->where('to_date', '>=', $currentDate);
+                });
+
                 $model->where("employee_id", $row["employee_id"]);
                 $model->where("roster_id", $roster["id"]);
 
 
-                $arr = ["shift_id" => $roster["shift_ids"][$index], "shift_type_id" => $roster["shift_type_ids"][$index]];
+                $arr = [
+                    "shift_id" => $roster["shift_ids"][$index],
+                    "shift_type_id" => $roster["shift_type_ids"][$index],
+                    "is_week" => 1
+                ];
 
                 $model->update($arr);
+                $arr["employee_id"] = $row["employee_id"];
                 $arrays[] = $arr;
+                $no_of_employees++;
             }
-            $items++;
+            $str .= "Total $no_of_employees employee(s) for Company ID $company_id has been scheduled.\n";
+            // $str .= "<br>";
         }
-        // return $arrays;
-        return "Total $items employee(s) has been scheduled";
+        return $str;
     }
 }
