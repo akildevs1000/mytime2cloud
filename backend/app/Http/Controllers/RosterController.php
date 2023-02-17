@@ -96,7 +96,7 @@ class RosterController extends Controller
             return $this->response('Schedule successfully added.', null, true);
 
         } catch (\Throwable $th) {
-            return $this->response('An error occurred while adding the schedule.', null, false);
+            return $this->response($th->getMessage(), null, false);
         }
     }
 
