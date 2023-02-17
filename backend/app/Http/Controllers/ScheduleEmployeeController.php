@@ -152,8 +152,6 @@ class ScheduleEmployeeController extends Controller
             $model = ScheduleEmployee::query();
 
             $model->where("company_id", '>', 0);
-            // $model->where("is_week", 0);
-
             $model->where("company_id", $company_id);
 
             $model->where(function ($q) use ($currentDate) {
@@ -177,7 +175,6 @@ class ScheduleEmployeeController extends Controller
                 $index = array_search($currentDay, $roster["days"]);
 
                 $model = ScheduleEmployee::query();
-                // $model->where("is_week", 0);
                 $model->where("company_id", $company_id);
 
                 $model->where(function ($q) use ($currentDate) {
@@ -195,7 +192,7 @@ class ScheduleEmployeeController extends Controller
                     "is_week" => 1
                 ];
 
-                // $model->update($arr);
+                $model->update($arr);
                 $arr["employee_id"] = $row["employee_id"];
                 $arrays[] = $arr;
                 $no_of_employees++;

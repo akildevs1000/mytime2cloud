@@ -20,6 +20,17 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
+
+        $schedule
+            ->command('task:assign_schedule_to_employee')
+            // ->everyThirtyMinutes()
+            // ->everyMinute()
+            ->dailyAt('00:00')
+            ->withoutOverlapping()
+            // ->between('7:00', '23:59')
+            ->appendOutputTo(storage_path("logs/$date-assigned-schedule-emplyees.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
         $schedule
             ->command('task:sync_attendance_logs')
             // ->everyThirtyMinutes()
