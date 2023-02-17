@@ -70,7 +70,7 @@ class RosterController extends Controller
 
             $schedules = $request->schedules;
 
-            $ids = Employee::where("company_id", $request->company_id)->whereIn("id", $empIds)->pluck("system_user_id");
+            return $ids = Employee::where("company_id", $request->company_id)->whereIn("id", $empIds)->pluck("system_user_id");
 
             $arr = array_map(function ($empId) use ($schedules, $request) {
                 return array_map(function ($schedule) use ($empId, $request) {
@@ -88,7 +88,7 @@ class RosterController extends Controller
             }, $ids);
 
             ScheduleEmployee::where("company_id", $request->company_id)->whereIn('employee_id', $ids)->delete();
-            
+
             ScheduleEmployee::insert(array_merge(...$arr));
 
             (new ScheduleEmployeeController)->assignScheduleByManual($request);
