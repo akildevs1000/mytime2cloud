@@ -68,6 +68,7 @@ class RosterController extends Controller
             $empIds = $request->employee_ids;
             $schedules = $request->schedules;
 
+
             $arr = array_map(function ($empId) use ($schedules, $request) {
                 return array_map(function ($schedule) use ($empId, $request) {
                     return [
@@ -82,7 +83,8 @@ class RosterController extends Controller
                     ];
                 }, $schedules);
             }, $empIds);
-            
+
+            ScheduleEmployee::where("company_id", $request->company_id)->whereIn('employee_id', $empIds)->delete();
             ScheduleEmployee::insert(array_merge(...$arr));
 
             (new ScheduleEmployeeController)->assignScheduleByManual($request);
