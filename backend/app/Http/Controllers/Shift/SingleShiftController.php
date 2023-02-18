@@ -57,7 +57,7 @@ class SingleShiftController extends Controller
                 $arr["roster_id"] = $logs[0]["schedule"]["roster_id"];
                 $arr["in"] = $logs[0]["time"];
                 $items[] = $arr;
-                // Attendance::create($arr);
+                Attendance::create($arr);
                 $ids[] = $logs[0]["id"];
             } else {
                 $last = array_reverse($logs)[0];
@@ -70,7 +70,7 @@ class SingleShiftController extends Controller
                     $temp["ot"] = $this->calculatedOT($arr["total_hrs"], $schedule->working_hours, $schedule->overtime_interval);
                 }
                 $items[] = $arr;
-                // $model->update($arr);
+                $model->update($arr);
                 $ids[] = $last["id"];
             }
         }
