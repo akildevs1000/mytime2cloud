@@ -275,7 +275,7 @@ class ScheduleEmployeeController extends Controller
                 $arrays[] = $arr;
                 $no_of_employees++;
             }
-            $str .= "Total $no_of_employees employee(s) for Company ID $company_id has been scheduled.\n";
+            $str .= "$meta Total $no_of_employees employee(s) for Company ID $company_id has been scheduled.\n";
             $str .= "<br>";
         }
         return $str;

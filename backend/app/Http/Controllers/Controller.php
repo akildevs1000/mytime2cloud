@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\App;
 use mikehaertl\wkhtmlto\Pdf as wkh;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Controllers\Reports\ReportController;
+use App\Models\AttendanceLog;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -353,5 +354,34 @@ class Controller extends BaseController
         return $model->with($relation, function ($q) use ($company_id) {
             $q->where('company_id', $company_id);
         });
+    }
+
+    public function getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id)
+    {
+        $model = AttendanceLog::query();
+
+        $model->where("checked", false);
+        $model->where("company_id", '>', 0);
+        $model->whereDate("LogTime", $currentDate);
+
+        $model->when(count($companyIds) > 0, function ($q) use ($companyIds) {
+            $q->whereIn("company_id", $companyIds);
+        });
+
+        $model->when(count($UserIDs) > 0, function ($q) use ($UserIDs) {
+            $q->whereIn("UserID", $UserIDs);
+        });
+
+        $model->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate) {
+            $q->where('shift_type_id', $shift_type_id);
+            $q->where('from_date', "<=", $currentDate);
+            $q->where('to_date', ">=", $currentDate);
+        });
+
+        $model->with('schedule');
+
+        $model->orderBy("LogTime");
+
+        return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy(["company_id", "UserID"])->toArray();
     }
 }

@@ -20,6 +20,14 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
+        $schedule
+            ->command('task:sync_all_shifts')
+            // ->dailyAt('4:00')
+            // ->hourly()
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/$date-logs.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
             ->command('task:assign_schedule_to_employee')
