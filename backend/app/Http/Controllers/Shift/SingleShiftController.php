@@ -33,6 +33,7 @@ class SingleShiftController extends Controller
         $items = [];
         $arr = [];
         $ids = [];
+        $existing_ids = [];
         $arr["company_id"] = $companyId;
         $arr["date"] = $date;
 
@@ -57,7 +58,6 @@ class SingleShiftController extends Controller
                 $arr["roster_id"] = $logs[0]["schedule"]["roster_id"];
                 $arr["in"] = $logs[0]["time"];
                 $items[] = $arr;
-                Attendance::create($arr);
                 $ids[] = $logs[0]["id"];
             } else {
                 $last = array_reverse($logs)[0];
@@ -69,15 +69,30 @@ class SingleShiftController extends Controller
                 if ($isOverTime) {
                     $temp["ot"] = $this->calculatedOT($arr["total_hrs"], $schedule->working_hours, $schedule->overtime_interval);
                 }
-                $items[] = $arr;
+                // $items[] = $arr;
                 $model->update($arr);
-                $ids[] = $last["id"];
+                $existing_ids[] = $UserID;
             }
         }
+        $new_logs = $this->storeAttendances($items, $ids);
+        $existing_logs = $this->updateAttendances($companyId, $existing_ids);
 
-        $result = AttendanceLog::whereIn("id", $ids)->update(["checked" => $checked]);
+        $result = $new_logs + $existing_logs;
+
         $str .= "$meta Total $result Log(s) Processed against company $companyId.\n";
         return $str;
+    }
+
+    public function storeAttendances($items, $ids)
+    {
+        Attendance::insert($items);
+
+        return AttendanceLog::where("id", $ids)->update(["checked" => true]);
+    }
+
+    public function updateAttendances($companyId, $existing_ids)
+    {
+        return AttendanceLog::where("UserID", $existing_ids)->where("company_id", $companyId)->update(["checked" => true]);
     }
 
     public function minutesToHoursNEW($in, $out)
