@@ -356,42 +356,110 @@ class Controller extends BaseController
         });
     }
 
-    public function getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id)
+    public function getModelDataByCompanyId($currentDate, $companyId, $UserIDs, $shift_type_id)
     {
         $model = AttendanceLog::query();
 
         $model->where("checked", false);
         $model->where("company_id", '>', 0);
         $model->whereDate("LogTime", $currentDate);
+        $model->where("company_id", $companyId);
 
-        $model->when(count($companyIds) > 0, function ($q) use ($companyIds) {
-            $q->whereIn("company_id", $companyIds);
-        });
-
-        $model->when(count($UserIDs) > 0, function ($q) use ($UserIDs) {
+        $model->when(count($UserIDs) > 0, function ($q) use ($companyId, $UserIDs) {
+            $q->whereIn("company_id", $companyId);
             $q->whereIn("UserID", $UserIDs);
         });
 
-        $model->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate, $companyIds) {
+        $model->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate, $companyId) {
             $q->where('shift_type_id', $shift_type_id);
             $q->where('from_date', "<=", $currentDate);
             $q->where('to_date', ">=", $currentDate);
-            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
-                $q->whereIn("company_id", $companyIds);
-            });
+            $q->where("company_id", $companyId);
         });
-
-        $model->with("schedule", function ($q) use ($shift_type_id, $currentDate, $companyIds) {
+        $model->with("schedule", function ($q) use ($shift_type_id, $currentDate, $companyId) {
             $q->where('shift_type_id', $shift_type_id);
             $q->where('from_date', "<=", $currentDate);
             $q->where('to_date', ">=", $currentDate);
-            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
-                $q->whereIn("company_id", $companyIds);
-            });
+            $q->where("company_id", $companyId);
         });
 
         $model->orderBy("LogTime");
 
-        return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy(["company_id", "UserID"])->toArray();
+        return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy(["UserID"])->toArray();
+    }
+
+    public function getMeta($script_name, $msg)
+    {
+        return "[" . date("Y-m-d H:i:s") . "] Cron: " . $script_name . ". " . $msg;
+    }
+
+    public function getCurrentDate()
+    {
+        return date('Y-m-d');
+    }
+
+    public function calculatedOT($total_hours, $working_hours, $interval_time)
+    {
+
+        $interval_time_num = date("i", strtotime($interval_time));
+        $total_hours_num = strtotime($total_hours);
+
+        $date = new \DateTime($working_hours);
+        $date->add(new \DateInterval("PT{$interval_time_num}M"));
+        $working_hours_with_interval = $date->format('H:i');
+
+
+        $working_hours_num = strtotime($working_hours_with_interval);
+
+        if ($working_hours_num > $total_hours_num) {
+            return "---";
+        }
+
+        $diff = abs(((strtotime($working_hours)) - (strtotime($total_hours))));
+        $h = floor($diff / 3600);
+        $m = floor(($diff % 3600) / 60);
+        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+    }
+
+    public function minutesToHoursNEW($in, $out)
+    {
+        $parsed_out = strtotime($out);
+        $parsed_in = strtotime($in);
+
+        if ($parsed_in > $parsed_out) {
+            $parsed_out += 86400;
+        }
+
+        $diff = $parsed_out - $parsed_in;
+
+        $mints =  floor($diff / 60);
+
+        $minutes = $mints > 0 ? $mints : 0;
+
+        $newHours = intdiv($minutes, 60);
+        $newMints = $minutes % 60;
+        $final_mints =  $newMints < 10 ? '0' . $newMints :  $newMints;
+        $final_hours =  $newHours < 10 ? '0' . $newHours :  $newHours;
+        $hours = $final_hours . ':' . ($final_mints);
+        return $hours;
+    }
+
+    public function minutesToHours($minutes)
+    {
+        $newHours = intdiv($minutes, 60);
+        $newMints = $minutes % 60;
+        $final_mints =  $newMints < 10 ? '0' . $newMints :  $newMints;
+        $final_hours =  $newHours < 10 ? '0' . $newHours :  $newHours;
+        $hours = $final_hours . ':' . ($final_mints);
+        return $hours;
+    }
+
+    public function getTotalHrsMins($first, $last)
+    {
+        $diff = abs(strtotime($last) - strtotime($first));
+
+        $h = floor($diff / 3600);
+        $m = floor(($diff % 3600) / 60);
+        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 }

@@ -11,7 +11,11 @@ use App\Models\Company;
 class SingleShiftController extends Controller
 {
 
-    public $update_date;
+    public $shift_type_id = 6;
+
+    public $result = "";
+
+    public $arr = [];
 
     public function findAttendanceByUserId($item)
     {
@@ -23,19 +27,14 @@ class SingleShiftController extends Controller
         return !$model->first() ? false : $model->with(["schedule", "shift"])->first();
     }
 
-    public function processData($companyId, $data, $date, $shift_type_id, $checked = true)
+    public function processData($companyId, $data, $shift_type_id, $checked = true)
     {
-        $date = date("Y-m-d H:i:s");
-        $script_name = "SyncSingleShift";
-
-        $meta = "[$date] Cron: $script_name.";
-
         $items = [];
         $arr = [];
         $ids = [];
         $existing_ids = [];
         $arr["company_id"] = $companyId;
-        $arr["date"] = $date;
+        $arr["date"] = $this->getCurrentDate();
 
         $str = "";
 
@@ -78,8 +77,7 @@ class SingleShiftController extends Controller
         $existing_logs = $this->updateAttendances($companyId, $existing_ids);
 
         $result = $new_logs + $existing_logs;
-
-        $str .= "$meta Total $result Log(s) Processed against company $companyId.\n";
+        $str .= $this->getMeta("SyncSingleShift", "Total $result Log(s) Processed against company $companyId.\n");
         return $str;
     }
 
@@ -95,122 +93,38 @@ class SingleShiftController extends Controller
         return AttendanceLog::where("UserID", $existing_ids)->where("company_id", $companyId)->update(["checked" => true]);
     }
 
-    public function minutesToHoursNEW($in, $out)
-    {
-        $parsed_out = strtotime($out);
-        $parsed_in = strtotime($in);
-
-        if ($parsed_in > $parsed_out) {
-            $parsed_out += 86400;
-        }
-
-        $diff = $parsed_out - $parsed_in;
-
-        $mints =  floor($diff / 60);
-
-        $minutes = $mints > 0 ? $mints : 0;
-
-        $newHours = intdiv($minutes, 60);
-        $newMints = $minutes % 60;
-        $final_mints =  $newMints < 10 ? '0' . $newMints :  $newMints;
-        $final_hours =  $newHours < 10 ? '0' . $newHours :  $newHours;
-        $hours = $final_hours . ':' . ($final_mints);
-        return $hours;
-    }
-
-    public function minutesToHours($minutes)
-    {
-        $newHours = intdiv($minutes, 60);
-        $newMints = $minutes % 60;
-        $final_mints =  $newMints < 10 ? '0' . $newMints :  $newMints;
-        $final_hours =  $newHours < 10 ? '0' . $newHours :  $newHours;
-        $hours = $final_hours . ':' . ($final_mints);
-        return $hours;
-    }
-
-    public function calculatedOT($total_hours, $working_hours, $interval_time)
-    {
-
-        $interval_time_num = date("i", strtotime($interval_time));
-        $total_hours_num = strtotime($total_hours);
-
-        $date = new \DateTime($working_hours);
-        $date->add(new \DateInterval("PT{$interval_time_num}M"));
-        $working_hours_with_interval = $date->format('H:i');
-
-
-        $working_hours_num = strtotime($working_hours_with_interval);
-
-        if ($working_hours_num > $total_hours_num) {
-            return "---";
-        }
-
-        $diff = abs(((strtotime($working_hours)) - (strtotime($total_hours))));
-        $h = floor($diff / 3600);
-        $m = floor(($diff % 3600) / 60);
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
-
-    public function getTotalHrsMins($first, $last)
-    {
-        $diff = abs(strtotime($last) - strtotime($first));
-
-        $h = floor($diff / 3600);
-        $m = floor(($diff % 3600) / 60);
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
-
     public function syncLogsScript()
     {
-        $date = date("Y-m-d H:i:s");
-        $script_name = "SyncSingleShift";
-
-        $meta = "[$date] Cron: $script_name.";
-
-        $shift_type_id = 6;
-
-        $result = "";
-
         $companyIds = Company::pluck("id");
 
         if (count($companyIds) == 0) {
-            return "$meta No Company found.";
+            return $this->getMeta("SyncSingleShift", "No Company found.");
         }
 
-        $UserIDs = [];
-
-        $currentDate = date('Y-m-d');
-
-        $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
-
-        if (count($companies) == 0) {
-            return "$meta No Logs found.\n";
-        }
-
-        foreach ($companies as $company_id => $data) {
-            $result .= $this->processData($company_id, $data, $currentDate, $shift_type_id);
-        }
-
-        return $result;
+        return $this->runFunc($this->getCurrentDate(), $companyIds, []);
     }
 
     public function processByManual(Request $request)
     {
-        $shift_type_id = 6;
-
-        $arr = [];
-
-        $currentDate = $request->input('date', date('Y-m-d'));
-        $checked = $request->input('checked');
+        $currentDate = $request->input('date', $this->getCurrentDate());
         $companyIds = $request->input('company_ids', []);
         $UserIDs = $request->input('UserIDs', []);
 
-        $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
+        return $this->runFunc($currentDate, $companyIds, $UserIDs);
+    }
 
-        foreach ($companies as $company_id => $data) {
-            $arr[] = $this->processData($company_id, $data, $currentDate, $shift_type_id, $checked);
+    public function runFunc($currentDate, $companyIds, $UserIDs)
+    {
+        foreach ($companyIds as $company_id) {
+            $data = $this->getModelDataByCompanyId($currentDate, $company_id, $UserIDs, $this->shift_type_id);
+
+            if (count($data) == 0) {
+                return $this->getMeta("SyncSingleShift", "No Logs found.\n");
+            }
+
+            $row = $this->processData($company_id, $data, $this->shift_type_id);
+            $this->result .= $row;
         }
-        // return $arr;
-        return "Logs Count " . array_sum($arr);
+        return $this->result;
     }
 }
