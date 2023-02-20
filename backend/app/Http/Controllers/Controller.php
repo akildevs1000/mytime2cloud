@@ -372,10 +372,13 @@ class Controller extends BaseController
             $q->whereIn("UserID", $UserIDs);
         });
 
-        $model->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate) {
+        $model->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate, $companyIds) {
             $q->where('shift_type_id', $shift_type_id);
             $q->where('from_date', "<=", $currentDate);
             $q->where('to_date', ">=", $currentDate);
+            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
+                $q->whereIn("company_id", $companyIds);
+            });
         });
 
         $model->with('schedule');
