@@ -381,7 +381,14 @@ class Controller extends BaseController
             });
         });
 
-        $model->with('schedule');
+        $model->with("schedule", function ($q) use ($shift_type_id, $currentDate, $companyIds) {
+            $q->where('shift_type_id', $shift_type_id);
+            $q->where('from_date', "<=", $currentDate);
+            $q->where('to_date', ">=", $currentDate);
+            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
+                $q->whereIn("company_id", $companyIds);
+            });
+        });
 
         $model->orderBy("LogTime");
 
