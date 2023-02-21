@@ -196,7 +196,7 @@ class AttendanceLogController extends Controller
         $item["shift_id"] = $shift->id ?? 0;
         $item["time_table_id"] = $time_table->id ?? 0;
         $item["status"] = $this->getStatus($row, $time_table, $date);
-        $item["total_hrs"] = $this->getTotalHrsMins($row, $time_table, $date);
+        // $item["total_hrs"] = $this->getTotalHrsMins($row, $time_table, $date);
         $item["ot"] = $this->getOT($row, $time_table, $date, $shift);
         $item["device_id_in"] = $this->getDeviceIn($row, $time_table, $date);
         $item["device_id_out"] = $this->getDeviceOut($row, $time_table, $date);
@@ -251,25 +251,25 @@ class AttendanceLogController extends Controller
         return "---";
     }
 
-    public function getTotalHrsMins($row, $time_table, $date)
-    {
-        $first_log = $row->first_log()->whereDate("LogTime", $date)->first();
-        $last_log = $row->last_log()->whereDate("LogTime", $date)->first();
+    // public function getTotalHrsMins($row, $time_table, $date)
+    // {
+    //     $first_log = $row->first_log()->whereDate("LogTime", $date)->first();
+    //     $last_log = $row->last_log()->whereDate("LogTime", $date)->first();
 
-        if ((($first_log->show_log_time) > strtotime($time_table->beginning_out))) {
-            return "---";
-        }
+    //     if ((($first_log->show_log_time) > strtotime($time_table->beginning_out))) {
+    //         return "---";
+    //     }
 
-        if ((($last_log->show_log_time) < strtotime($time_table->beginning_out))) {
-            return "---";
-        }
+    //     if ((($last_log->show_log_time) < strtotime($time_table->beginning_out))) {
+    //         return "---";
+    //     }
 
-        $diff = abs(($last_log->show_log_time - $first_log->show_log_time));
+    //     $diff = abs(($last_log->show_log_time - $first_log->show_log_time));
 
-        $h = floor($diff / 3600);
-        $m = floor(($diff % 3600) / 60);
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
+    //     $h = floor($diff / 3600);
+    //     $m = floor(($diff % 3600) / 60);
+    //     return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+    // }
 
     public function getOT($row, $time_table, $date, $shift)
     {
