@@ -220,63 +220,6 @@ class MultiInOutShiftController extends Controller
         return $found ? $attendance->update($items) : Attendance::create($items);
     }
 
-    public function minutesToHoursNEW($in, $out)
-    {
-        $parsed_out = strtotime($out);
-        $parsed_in = strtotime($in);
-
-        if ($parsed_in > $parsed_out) {
-            $parsed_out += 86400;
-        }
-
-        $diff = $parsed_out - $parsed_in;
-
-        $mints =  floor($diff / 60);
-
-        $minutes = $mints > 0 ? $mints : 0;
-
-        $newHours = intdiv($minutes, 60);
-        $newMints = $minutes % 60;
-        $final_mints =  $newMints < 10 ? '0' . $newMints :  $newMints;
-        $final_hours =  $newHours < 10 ? '0' . $newHours :  $newHours;
-        $hours = $final_hours . ':' . ($final_mints);
-        return $hours;
-    }
-
-
-    public function minutesToHours($minutes)
-    {
-        $newHours = intdiv($minutes, 60);
-        $newMints = $minutes % 60;
-        $final_mints =  $newMints < 10 ? '0' . $newMints :  $newMints;
-        $final_hours =  $newHours < 10 ? '0' . $newHours :  $newHours;
-        $hours = $final_hours . ':' . ($final_mints);
-        return $hours;
-    }
-
-    public function calculatedOT($total_hours, $working_hours, $interval_time)
-    {
-
-        $interval_time_num = date("i", strtotime($interval_time));
-        $total_hours_num = strtotime($total_hours);
-
-        $date = new \DateTime($working_hours);
-        $date->add(new \DateInterval("PT{$interval_time_num}M"));
-        $working_hours_with_interval = $date->format('H:i');
-
-
-        $working_hours_num = strtotime($working_hours_with_interval);
-
-        if ($working_hours_num > $total_hours_num) {
-            return "---";
-        }
-
-        $diff = abs(((strtotime($working_hours)) - (strtotime($total_hours))));
-        $h = floor($diff / 3600);
-        $m = floor(($diff % 3600) / 60);
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
-
     public function syncLogsScript()
     {
         $shift_type_id = 2;
