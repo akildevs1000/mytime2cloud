@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Shift;
 
+use App\Models\Company;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Models\Company;
 
 class SingleShiftController extends Controller
 {
@@ -65,10 +66,11 @@ class SingleShiftController extends Controller
                 $arr["total_hrs"] = $this->getTotalHrsMins($model->in, $last["time"]);
                 $schedule = $model->schedule ?? false;
                 $isOverTime = $schedule && $schedule->isOverTime ?? false;
+                $shift = $last['schedule']['shift'];
                 if ($isOverTime) {
-                    $temp["ot"] = $this->calculatedOT($arr["total_hrs"], $schedule->working_hours, $schedule->overtime_interval);
+                    $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift['working_hours'], $shift['overtime_interval']);
                 }
-                // $items[] = $arr;
+                $items[] = $arr;
                 $model->update($arr);
                 $existing_ids[] = $UserID;
             }
@@ -101,7 +103,27 @@ class SingleShiftController extends Controller
             return $this->getMeta("SyncSingleShift", "No Company found.");
         }
 
+        $companyIds;
+
         return $this->runFunc($this->getCurrentDate(), $companyIds, []);
+    }
+
+
+    public function ClearDB($currentDate, $companyIds, $UserIDs)
+    {
+        // update attendance_logs table
+        DB::table('attendance_logs')
+            ->whereDate('LogTime', '=', $currentDate)
+            ->whereIn('company_id',  $companyIds)
+            ->whereIn('UserID', $UserIDs)
+            ->update(['checked' => false]);
+
+        // delete from attendances table
+        DB::table('attendances')
+            ->whereDate('date', '=', $currentDate)
+            ->whereIn('company_id',  $companyIds)
+            ->whereIn('employee_id',  $UserIDs)
+            ->delete();
     }
 
     public function processByManual(Request $request)
@@ -109,7 +131,7 @@ class SingleShiftController extends Controller
         $currentDate = $request->input('date', $this->getCurrentDate());
         $companyIds = $request->input('company_ids', []);
         $UserIDs = $request->input('UserIDs', []);
-
+        // $this->ClearDB($currentDate, $companyIds, $UserIDs);
         return $this->runFunc($currentDate, $companyIds, $UserIDs);
     }
 
@@ -117,9 +139,9 @@ class SingleShiftController extends Controller
     {
         foreach ($companyIds as $company_id) {
             $data = $this->getModelDataByCompanyId($currentDate, $company_id, $UserIDs, $this->shift_type_id);
-
             if (count($data) == 0) {
-                return $this->getMeta("SyncSingleShift", "No Logs found.\n");
+                $this->getMeta("SyncSingleShift", "No Logs found.\n");
+                continue;
             }
 
             $row = $this->processData($company_id, $data, $this->shift_type_id);
