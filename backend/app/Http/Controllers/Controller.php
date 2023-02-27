@@ -366,7 +366,7 @@ class Controller extends BaseController
         $model->where("company_id", $companyId);
 
         $model->when(count($UserIDs) > 0, function ($q) use ($companyId, $UserIDs) {
-            $q->whereIn("company_id", $companyId);
+            $q->where("company_id", $companyId);
             $q->whereIn("UserID", $UserIDs);
         });
 
