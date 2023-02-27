@@ -103,8 +103,6 @@ class SingleShiftController extends Controller
             return $this->getMeta("SyncSingleShift", "No Company found.");
         }
 
-        $companyIds;
-
         return $this->runFunc($this->getCurrentDate(), $companyIds, []);
     }
 
