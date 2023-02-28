@@ -40,7 +40,6 @@ class SingleShiftController extends Controller
         $str = "";
 
         foreach ($data as $UserID => $logs) {
-
             if (count($logs) == 0) {
                 $str .= "No log(s) found for Company ID $companyId.\n";
                 continue;
@@ -59,7 +58,11 @@ class SingleShiftController extends Controller
                 $arr["in"] = $logs[0]["time"];
                 $items[] = $arr;
                 $ids[] = $logs[0]["id"];
+
+                Attendance::create($arr);
+                AttendanceLog::where("id", $logs[0]["id"])->update(["checked" => true]);
             } else {
+
                 $last = array_reverse($logs)[0];
                 $arr["out"] = $last["time"];
                 $arr["device_id_out"] = $last["DeviceID"];
@@ -70,12 +73,14 @@ class SingleShiftController extends Controller
                 if ($isOverTime) {
                     $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift['working_hours'], $shift['overtime_interval']);
                 }
+
                 $items[] = $arr;
+
                 $model->update($arr);
                 $existing_ids[] = $UserID;
             }
         }
-        $new_logs = $this->storeAttendances($items, $ids);
+        $new_logs = 0; //$this->storeAttendances($items, $ids);
         $existing_logs = $this->updateAttendances($companyId, $existing_ids);
 
         $result = $new_logs + $existing_logs;
@@ -87,7 +92,7 @@ class SingleShiftController extends Controller
     {
         Attendance::insert($items);
 
-        return AttendanceLog::where("id", $ids)->update(["checked" => true]);
+        return AttendanceLog::whereIn("id", $ids)->update(["checked" => true]);
     }
 
     public function updateAttendances($companyId, $existing_ids)
