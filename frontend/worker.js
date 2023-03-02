@@ -32,8 +32,6 @@ socket.onmessage = ({ data }) => {
   if (UserID > 0) {
     let str = `${UserID},${DeviceID},${LogTime},${SerialNumber}`;
 
-    console.log(str + "\n");
-
     client.query(
       `INSERT INTO public.attendance_logs("UserID", "LogTime", "DeviceID", "SerialNumber",checked)
       VALUES ('${UserID}', '${LogTime}', '${DeviceID}', '${SerialNumber}', '${false}')`,
