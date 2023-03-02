@@ -10,6 +10,10 @@ use App\Http\Controllers\Reports\MonthlyController;
 use App\Http\Controllers\Reports\MonthlyMimoController;
 use App\Http\Controllers\Reports\WeeklyMimoController;
 
+
+Route::get('/process_reports', [DailyController::class, 'process_reports']);
+
+
 Route::get('report', [ReportController::class, 'index']);
 
 Route::get('report_multi_in_out', [ReportController::class, 'multiInOut']);
@@ -21,6 +25,7 @@ Route::get('/daily_download_csv', [Controller::class, 'daily_download_csv']);
 
 //multi in out
 Route::get('/multi_in_out_daily_download_csv', [Controller::class, 'multi_in_out_daily_download_csv']);
+Route::get('/multi_in_out_daily', [DailyController::class, 'mimo_daily']);
 
 Route::get('/generateSummaryReport', [DailyController::class, 'generateSummaryReport']);
 Route::get('/generatePresentReport', [DailyController::class, 'generatePresentReport']);
