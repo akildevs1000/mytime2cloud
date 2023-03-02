@@ -44,7 +44,7 @@ socket.onmessage = ({ data }) => {
       }
     );
 
-    // fs.appendFileSync("logs.csv", str + "\n");
+    fs.appendFileSync("logs.csv", str + "\n");
 
     // fs.appendFileSync("/var/www/ideahrms/backend/logs/logs.csv", str + "\n");
     // fs.appendFileSync(
