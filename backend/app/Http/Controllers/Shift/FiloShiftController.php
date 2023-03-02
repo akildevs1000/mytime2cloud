@@ -9,10 +9,10 @@ use App\Models\AttendanceLog;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
-class SingleShiftController extends Controller
+class FiloShiftController extends Controller
 {
 
-    public $shift_type_id = 6;
+    public $shift_type_id = 1;
 
     public $result = "";
 
@@ -105,7 +105,7 @@ class SingleShiftController extends Controller
         $companyIds = Company::pluck("id");
 
         if (count($companyIds) == 0) {
-            return $this->getMeta("SyncSingleShift", "No Company found.");
+            return $this->getMeta("SyncFiloShift", "No Company found.");
         }
 
         return $this->runFunc($this->getCurrentDate(), $companyIds, []);
@@ -143,7 +143,7 @@ class SingleShiftController extends Controller
         foreach ($companyIds as $company_id) {
             $data = $this->getModelDataByCompanyId($currentDate, $company_id, $UserIDs, $this->shift_type_id);
             if (count($data) == 0) {
-                $this->result .= $this->getMeta("SyncSingleShift", "No Logs found against $company_id Company Id.\n");
+                $this->result .= $this->getMeta("SyncFiloShift", "No Logs found against $company_id Company Id.\n");
                 continue;
             }
 

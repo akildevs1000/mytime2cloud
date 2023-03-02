@@ -30,6 +30,15 @@ class Kernel extends ConsoleKernel
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
+            ->command('task:sync_filo_shift')
+            // ->dailyAt('4:00')
+            // ->hourly()
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/$date-logs.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        $schedule
             ->command('task:assign_schedule_to_employee')
             // ->everyThirtyMinutes()
             // ->everyMinute()
