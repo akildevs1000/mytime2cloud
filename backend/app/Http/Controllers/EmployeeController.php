@@ -150,7 +150,7 @@ class EmployeeController extends Controller
         return $employee->where("company_id", $request->company_id)
             ->whereHas('schedule')
             ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])
-            ->get(["first_name", "system_user_id", "employee_id"]);
+            ->get(["first_name", "system_user_id", "employee_id", "display_name"]);
 
         return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
             $q->where('slug', '=', $request->shift_type);
