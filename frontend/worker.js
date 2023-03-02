@@ -1,9 +1,10 @@
 const WebSocket = require("ws");
-require("dotenv").config();
-const axios = require("axios");
 const fs = require("fs");
+require("dotenv").config();
 
 let { Client } = require("pg");
+const format = require('pg-format');
+
 
 const client = new Client({
   host: process.env.DB_HOST,
@@ -19,37 +20,38 @@ let socket = new WebSocket(process.env.SOCKET_ENDPOINT);
 socket.onopen = () => console.log("connected\n");
 socket.onerror = () => console.log("error\n");
 
-socket.onmessage = ({ data }) => {
-  let {
-    UserCode: UserID,
-    DeviceID,
-    RecordDate: LogTime,
-    RecordNumber: SerialNumber
-  } = JSON.parse(data).Data;
+socket.onmessage = async ({ data }) => {
+  try {
+    let { UserCode, DeviceID, RecordDate, RecordNumber } = JSON.parse(
+      data
+    ).Data;
 
-  LogTime = LogTime.replace("T", " ");
+    RecordDate = RecordDate.replace("T", " ");
 
-  if (UserID > 0) {
-    let str = `${UserID},${DeviceID},${LogTime},${SerialNumber}`;
+    if (UserCode > 0) {
+      const sanitizedValues = [
+        UserCode,
+        RecordDate,
+        DeviceID,
+        RecordNumber,
+        false
+      ];
 
-    client.query(
-      `INSERT INTO public.attendance_logs("UserID", "LogTime", "DeviceID", "SerialNumber",checked)
-      VALUES ('${UserID}', '${LogTime}', '${DeviceID}', '${SerialNumber}', '${false}')`,
-      (err, result) => {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        console.log("Data Insert. " + str);
-      }
-    );
+      const query = format(
+        'INSERT INTO attendance_logs("UserID", "LogTime", "DeviceID", "SerialNumber", checked) VALUES (%L)',
+        sanitizedValues
+      );
+      await client.query(query);
 
-    fs.appendFileSync("logs.csv", str + "\n");
+      sanitizedValues.pop()
 
-    // fs.appendFileSync("/var/www/ideahrms/backend/logs/logs.csv", str + "\n");
-    // fs.appendFileSync(
-    //   "/var/www/staging/ideahrms/backend/logs/logs.csv",
-    //   str + "\n"
-    // );
+      let str = sanitizedValues.join(",");
+
+      console.log("Data Insert. " + str);
+
+      fs.appendFileSync("logs.csv", str + "\n");
+    }
+  } catch (err) {
+    console.error(err);
   }
 };
