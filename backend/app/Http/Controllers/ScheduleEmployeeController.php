@@ -35,7 +35,7 @@ class ScheduleEmployeeController extends Controller
 
     public function employees_by_departments(Request $request, $id)
     {
-        return  Employee::select("first_name", "system_user_id", "employee_id", "department_id")
+        return  Employee::select("first_name", "system_user_id", "employee_id", "department_id", "display_name")
             ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
             ->when($id != -1, function ($q) use ($id) {
                 $q->where("department_id", $id);

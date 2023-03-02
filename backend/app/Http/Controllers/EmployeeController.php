@@ -150,7 +150,7 @@ class EmployeeController extends Controller
         return $employee->where("company_id", $request->company_id)
             ->whereHas('schedule')
             ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])
-            ->get(["first_name", "system_user_id", "employee_id"]);
+            ->get(["first_name", "system_user_id", "employee_id", "display_name"]);
 
         return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
             $q->where('slug', '=', $request->shift_type);
@@ -298,14 +298,20 @@ class EmployeeController extends Controller
     }
     public function scheduled_employees_search(Request $request, $input)
     {
-        $model = Employee::query();
+        // $model = Employee::query();
+        $model = ScheduleEmployee::query();
         $model->where('employee_id', $input);
         $model->where('company_id', $request->company_id);
 
-        return $model->whereHas('schedule', function ($q) use ($request) {
-            $q->where('company_id', $request->company_id);
-        })
-            ->paginate($request->perPage ?? 10);
+        $model = $this->custom_with($model, "shift", $request->company_id);
+        $model = $this->custom_with($model, "roster", $request->company_id);
+        $model = $this->custom_with($model, "employee", $request->company_id);
+
+        // return $model->whereHas('schedule', function ($q) use ($request) {
+        //     $q->where('company_id', $request->company_id);
+        // })
+
+        return  $model->paginate($request->perPage ?? 10);
 
         //  return $model->whereHas('schedule')->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role"])->paginate($request->perPage ?? 10);
     }

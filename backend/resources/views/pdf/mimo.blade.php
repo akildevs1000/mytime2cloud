@@ -183,30 +183,23 @@
             <td style="text-align:  center;width:40px"> Total Hours </td>
             <td style="text-align:  center;width:40px"> OT </td>
             <td style="text-align:  center;width:40px"> Status </td>
-            <td style="text-align:  center;width:50px"> Device In </td>
-            <td style="text-align:  center;width:50px"> Device Out </td>
+            {{-- <td style="text-align:  center;width:50px"> Device In </td> --}}
+            {{-- <td style="text-align:  center;width:50px"> Device Out </td> --}}
         </tr>
-        @php
-            $arr = [];
-        @endphp
-        @foreach ($data as $data)
-            {{-- @dd($data) --}}
 
+        @foreach ($data as $data)
             @php
-                
-                
-                $arr[] = $data->AttendanceLogs;
-                
                 if ($data->status == 'P') {
                     $statusColor = 'green';
                 } elseif ($data->status == 'A') {
                     $statusColor = 'red';
+                    dd($data->status);
                 } elseif ($data->status == '---') {
                     $statusColor = '#f34100ed';
                 }
-                ld($arr);
-                die;
-
+                // ld($arr);
+                // die;
+                
                 $time1 = strtotime($data->in);
                 $time2 = strtotime($data->AttendanceLogs[1]->time);
                 $difference = round(abs($time2 - $time1) / 3600, 2);
@@ -219,38 +212,28 @@
                     <td style="text-align:  center;"> {{ $data->shift->name ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->shift_type->name ?? '---' }} </td>
 
-                    <td style="text-align:  center;"> {{ $data->in ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[1]->time ?? '---' }} </td>
-
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[2]->time ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[3]->time ?? '---' }} </td>
-
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[4]->time ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[5]->time ?? '---' }} </td>
-
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[6]->time ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[7]->time ?? '---' }} </td>
-
-                    <td style="text-align:  center;"> {{ $data->AttendanceLogs[8]->time ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->out ?? '---' }} </td>
-
+                    <td style="text-align:  center;"> {{ $data->logs[0]['in'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[0]['out'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[1]['in'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[1]['out'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[2]['in'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[2]['out'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[3]['in'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[3]['out'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[4]['in'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[4]['out'] ?? '---' }} </td>
 
                     <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td>
-                    {{-- <td style="text-align:  center;"> {{ $this->calTime('hello') ?? '---' }} </td> --}}
                     <td style="text-align:  center;"> {{ $data->ot ?? '---' }} </td>
                     <td style="text-align:  center; color:{{ $statusColor }}"> {{ $data->status ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->device_in->short_name ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $data->device_out->short_name ?? '---' }} </td>
+                    {{-- <td style="text-align:  center;"> {{ $data->device_in->short_name ?? '---' }} </td> --}}
+                    {{-- <td style="text-align:  center;"> {{ $data->device_out->short_name ?? '---' }} </td> --}}
                 </tr>
             </tbody>
         @endforeach
 
         @php
             
-            // function calTime($val)
-            // {
-            //     return $val;
-            // }
         @endphp
 
     </table>

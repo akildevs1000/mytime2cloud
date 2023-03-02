@@ -136,6 +136,7 @@ class Controller extends BaseController
     {
         $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $model = new ReportController;
+        $model = $model->report($request);
         $deptName = '';
         $totEmployees = '';
         if ($request->department_id && $request->department_id == -1) {
@@ -149,20 +150,19 @@ class Controller extends BaseController
         $info = (object) [
             'department_name' => $deptName,
             'total_employee' => $totEmployees,
-            'total_absent' => $model->report($request)->where('status', 'A')->count(),
-            'total_present' => $model->report($request)->where('status', 'P')->count(),
-            'total_missing' => $model->report($request)->where('status', '---')->count(),
-            'total_early' => $model->report($request)->where('early_going', '!=', '---')->count(),
-            'total_late' => $model->report($request)->where('late_coming', '!=', '---')->count(),
+            'total_absent' => $model->clone()->where('status', 'A')->count(),
+            'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
+            'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
             'total_leave' => 0,
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
             "daily_date" => $request->daily_date,
             "report_type" => $this->getStatusText($request->status)
         ];
 
-        $data = $model->report($request)
-            ->get();
-
+        // $model->take(1);
+        $data = $model->get();
         return Pdf::loadView('pdf.daily', compact("company", "info", "data"));
     }
 
@@ -299,55 +299,7 @@ class Controller extends BaseController
         return response()->stream($callback, 200, $headers);
     }
 
-    public function mimo(Request $request)
-    {
-        $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-        $model = new ReportController;
-        $deptName = '';
-        $totEmployees = '';
-        if ($request->department_id && $request->department_id == -1) {
-            $deptName = 'All';
-            $totEmployees = Employee::whereCompanyId($request->company_id)->whereDate("created_at", "<", date("Y-m-d"))->count();
-        } else {
-            $deptName = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
-            $totEmployees = Employee::where("department_id", $request->department_id)->count();
-        }
 
-        $model = $model->report($request);
-
-        $info = (object) [
-            'department_name' => $deptName,
-            'total_employee' => $totEmployees,
-            'total_absent' => $model->clone()->where('status', 'A')->count(),
-            'total_present' => $model->clone()->where('status', 'P')->count(),
-            'total_missing' => $model->clone()->where('status', '---')->count(),
-            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
-            'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
-            'total_leave' => 0,
-            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
-            "daily_date" => $request->daily_date,
-            "report_type" => $this->getStatusText($request->status)
-        ];
-
-        $nextDay =  date('Y-m-d', strtotime($request->daily_date . ' + 1 day'));
-        $daily_date =  $request->daily_date;
-        $data = $model
-            ->with('AttendanceLogs', function ($q) use ($daily_date, $nextDay) {
-                $q
-                    ->whereDate('LogTime', $daily_date)
-                    ->orWhereDate('LogTime', $nextDay)
-                    ->orderBy('LogTime', 'asc');
-            })
-            ->get();
-
-
-        // return $data;
-        // return  count($data);
-        // return  gettype($data);
-        // ld($data);
-
-        return Pdf::loadView('pdf.mimo', compact("company", "info", "data"))->stream();
-    }
 
     public function custom_with($model, $relation, $company_id)
     {
