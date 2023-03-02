@@ -90,9 +90,9 @@ class Employee extends Model
         return $this->first_name . " " . $this->last_name;
     }
 
-    public function getNameWithUserIDAttribute(): string
+    public function getNameWithUserIDAttribute()
     {
-        return $this->first_name . " - " . $this->employee_id;
+        return $this->display_name . " - " . $this->employee_id;
     }
 
     // use Illuminate\Database\Eloquent\Builder;
