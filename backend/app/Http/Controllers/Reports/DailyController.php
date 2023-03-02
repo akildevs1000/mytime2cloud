@@ -2,23 +2,27 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Http\Controllers\Controller;
-use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\Employee;
-use App\Models\ReportNotification;
+use App\Models\Attendance;
+use App\Models\Department;
+use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\ReportNotification;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class DailyController extends Controller
 {
     public function generateSummaryReport()
     {
-        $company_ids = ReportNotification::distinct("company_id")->pluck("company_id");
+        $company_ids = $this->getNotificationCompanyIds();
 
         foreach ($company_ids as $company_id) {
-            return $this->report($company_id, "Summary", "daily_summary.pdf");
+
+            $this->processData($company_id, "daily_summary", "SA");
         }
 
         return true;
@@ -26,10 +30,10 @@ class DailyController extends Controller
 
     public function generatePresentReport()
     {
-        $company_ids = ReportNotification::distinct("company_id")->pluck("company_id");
+        $company_ids = $this->getNotificationCompanyIds();
 
         foreach ($company_ids as $company_id) {
-            return $this->report($company_id, "Present", "daily_present.pdf", "P");
+            $this->processData($company_id, "daily_present", "P");
         }
 
         return true;
@@ -37,10 +41,10 @@ class DailyController extends Controller
 
     public function generateAbsentReport()
     {
-        $company_ids = ReportNotification::distinct("company_id")->pluck("company_id");
+        $company_ids = $this->getNotificationCompanyIds();
 
         foreach ($company_ids as $company_id) {
-            $this->report($company_id, "Absent", "daily_absent.pdf", "A");
+            $this->processData($company_id, "daily_absent", "A");
         }
 
         return true;
@@ -48,10 +52,10 @@ class DailyController extends Controller
 
     public function generateMissingReport()
     {
-        $company_ids = ReportNotification::distinct("company_id")->pluck("company_id");
+        $company_ids = $this->getNotificationCompanyIds();
 
         foreach ($company_ids as $company_id) {
-            $this->report($company_id, "Missing", "daily_missing.pdf", "---");
+            $this->processData($company_id, "daily_missing", "M");
         }
 
         return true;
@@ -59,10 +63,10 @@ class DailyController extends Controller
 
     public function generateManualReport()
     {
-        $company_ids = ReportNotification::distinct("company_id")->pluck("company_id");
+        $company_ids = $this->getNotificationCompanyIds();
 
         foreach ($company_ids as $company_id) {
-            $this->report($company_id, "Manual Entery", "daily_manual.pdf", "ME");
+            $this->processData($company_id, "daily_manual", "ME");
         }
 
         return true;
@@ -431,5 +435,137 @@ class DailyController extends Controller
 
 
         return $str;
+    }
+
+    public function mimo_daily(Request $request)
+    {
+        $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+        $model = new ReportController;
+        $deptName = '';
+        $totEmployees = '';
+        if ($request->department_id && $request->department_id == -1) {
+            $deptName = 'All';
+            $totEmployees = Employee::whereCompanyId($request->company_id)->whereDate("created_at", "<", date("Y-m-d"))->count();
+        } else {
+            $deptName = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
+            $totEmployees = Employee::where("department_id", $request->department_id)->count();
+        }
+
+        $model = $model->report($request);
+
+        $info = (object) [
+            'department_name' => $deptName,
+            'total_employee' => $totEmployees,
+            'total_absent' => $model->clone()->where('status', 'A')->count(),
+            'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
+            'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
+            'total_leave' => 0,
+            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
+            "daily_date" => $request->daily_date,
+            "report_type" => $this->getStatusText($request->status)
+        ];
+
+        $nextDay =  date('Y-m-d', strtotime($request->daily_date . ' + 1 day'));
+        $daily_date =  $request->daily_date;
+
+
+        // $model->take(100);
+        $data = $model->get();
+        return Pdf::loadView('pdf.mimo', compact("company", "info", "data"))->stream();
+    }
+
+    public function process_reports()
+    {
+        return $company_ids =  Company::pluck('id');
+        $arr = [];
+        foreach ($company_ids as $company_id) {
+            $arr[] = [
+                $this->processData($company_id, "daily_summary_report", "SA"),
+                $this->processData($company_id, "daily_present_report", "P"),
+                $this->processData($company_id, "daily_absent_report", "A"),
+                $this->processData($company_id, "daily_missing_report", "M"),
+                $this->processData($company_id, "daily_manual_entry_report", "ME"),
+            ];
+        }
+        return $arr;
+    }
+
+    public function processData($company_id, $file_name, $status)
+    {
+        $deptName = '';
+        $totEmployees = '';
+        $daily_date =  date("Y-m-d");
+
+        $totEmployees = Employee::whereCompanyId($company_id)->whereDate("created_at", "<", $daily_date)->count();
+
+        $deptName = 'All';
+
+        $model = $this->cron_report($company_id, $status);
+
+        $info = (object) [
+            'department_name' => $deptName,
+            'total_employee' => $totEmployees,
+            'total_absent' => $model->clone()->where('status', 'A')->count(),
+            'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_leave' => 0,
+            'department' => $deptName,
+            "daily_date" => $daily_date,
+            "report_type" => "Daily"
+        ];
+
+        $data = $model->get();
+
+        $company = Company::whereId($company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+
+        $pdf =  Pdf::loadView('pdf.mimo', compact("company", "info", "data"))->output();
+
+        Storage::disk('local')->put("pdf/" . $company_id . '/' . $file_name . '.pdf', $pdf);
+
+        return $file_name  . ' generated successfully';
+    }
+
+    public function cron_report($company_id, $status)
+    {
+        $model = Attendance::query();
+        $model->where('company_id', $company_id);
+        $model->where('shift_type_id', 2);
+        $model = $this->getStatus($model, $status);
+        $model->whereDate('date', date("Y-m-d"));
+        $model->orderBy("id", "desc");
+
+
+        // $model->with('shift', function ($q) use ($request) {
+        //     $q->where('company_id', $request->company_id);
+        // });
+
+        // $model->with('shift_type');
+
+
+        return $model;
+    }
+
+    public function getStatus($model, $status)
+    {
+        $model->when($status == "P", function ($q) {
+            $q->where('status', "P");
+        });
+
+        $model->when($status == "A", function ($q) {
+            $q->where('status', "A");
+        });
+
+        $model->when($status == "M" || $status == "ME", function ($q) {
+            $q->where('status', "---");
+        });
+
+        return $model;
+    }
+
+    public function getNotificationCompanyIds()
+    {
+        return ReportNotification::distinct("company_id")->pluck("company_id");
     }
 }
