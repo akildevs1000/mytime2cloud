@@ -47,7 +47,7 @@ socket.onmessage = async ({ data }) => {
 
       let str = sanitizedValues.join(",");
 
-      console.log("Data Insert. " + str);
+      console.log("Data Inserted. " + str);
 
       fs.appendFileSync("logs.csv", str + "\n");
     }
