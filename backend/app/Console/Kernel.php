@@ -39,14 +39,6 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/$date-assigned-schedule-emplyees.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        // $schedule
-        //     ->command('task:sync_attendance_logs')
-        //     // ->everyThirtyMinutes()
-        //     ->everyMinute()
-        //     ->withoutOverlapping()
-        //     // ->between('7:00', '23:59')
-        //     ->appendOutputTo(storage_path("logs/$date-logs.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:update_company_ids')
             // ->everyThirtyMinutes()
