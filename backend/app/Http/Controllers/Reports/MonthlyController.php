@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Reports;
 
+use DateTime;
+use Carbon\Carbon;
 use App\Models\Shift;
 use App\Models\Device;
 use App\Models\Company;
@@ -20,9 +22,22 @@ class MonthlyController extends Controller
     {
         return $this->processPDF($request)->stream();
     }
+
     public function monthly_download_pdf(Request $request)
     {
+        $report = $this->processPDF($request);
+        return   $report->stream();
+    }
+
+    public function multi_in_out_monthly_download_pdf(Request $request)
+    {
         return $this->processPDF($request)->download();
+    }
+
+    public function multi_in_out_monthly_pdf(Request $request)
+    {
+        $report = $this->processPDF($request);
+        return $report->stream();
     }
 
     public function monthly_download_csv(Request $request)
@@ -151,6 +166,8 @@ class MonthlyController extends Controller
 
     public function processPDF($request)
     {
+
+
         $start = $request->from_date ?? date('Y-10-01');
         $end = $request->to_date ?? date('Y-10-31');
 
@@ -172,6 +189,9 @@ class MonthlyController extends Controller
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
         $company['end'] = $end;
+
+
+        // return $data;
 
         return $pdf->loadHTML($this->getHTML($data, (object)$company));
     }
@@ -322,7 +342,7 @@ class MonthlyController extends Controller
                         </table>
                     </div>
                 </td>
-                <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
+                <td style="text-align: right;width: 300px; border :none; backgrodund-color: red">
 
 
                     <table class="summary-table"
@@ -370,7 +390,9 @@ class MonthlyController extends Controller
                 <div class="page-number"></div>
             </div>
             </div>
-            <footer id="page-bottom-line" style="margin-top: 10000px!important;">
+            <br>
+            <br>
+            <footer id="page-bottom-line" style="margin-top: 20000px!important;">
             <hr style="width: 100%;margin-top: 10px!important">
             <table class="footer-main-table" >
                 <tr style="border :none;">
@@ -387,14 +409,12 @@ class MonthlyController extends Controller
                 </tr>
             </table>
         </footer>
-            ' . $this->renderTable($data) . '
+            ' . $this->renderTable($data, $company) . '
         </body>
     </html>';
     }
 
-
-
-    public function renderTable($data)
+    public function renderTable($data, $company)
     {
         $str = "";
         $model = Device::query();
@@ -403,7 +423,7 @@ class MonthlyController extends Controller
 
         foreach ($data as $eid => $row) {
 
-            $emp = Employee::where("employee_id", $eid)->first();
+            $emp = Employee::where("employee_id", $eid)->whereCompanyId($company->id)->first();
 
             $str .= '<div class="page-breaks">';
 
@@ -430,14 +450,30 @@ class MonthlyController extends Controller
             $ot = '<tr"><td><b>OT</b></td>';
             $shift = '<tr"><td><b>Shift</b></td>';
             $shift_type = '<tr "><td><b>Shift Type</b></td>';
-            $din = '<tr"><td><b>Device In</b></td>';
-            $dout = '<tr"><td><b>Device Out</b></td>';
+            // $din = '<tr"><td><b>Device In</b></td>';
+            // $dout = '<tr"><td><b>Device Out</b></td>';
             $status_tr = '<tr"><td><b>Status</b></td>';
 
 
             foreach ($row as $key => $record) {
-                $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? '';
-                $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
+
+
+
+                if ($record[0]['shift_id'] != '---') {
+                    $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? "";
+                } else {
+                    $shift_name =    '---';
+                }
+
+                if ($record[0]['shift_type_id'] != '---') {
+                    $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
+                } else {
+                    $shift_type_name =    '---';
+                }
+
+
+                // $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? '';
+                // $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
 
                 $device_short_name_in =  $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
                 $device_short_name_out =  $model->clone()->where("device_id", $record[0]['device_id_out'])->first()->short_name ?? '';
@@ -453,8 +489,8 @@ class MonthlyController extends Controller
 
                 $shift .= '<td style="text-align: center;"> ' . $shift_name . ' </td>';
                 $shift_type .= '<td style="text-align: center;"> ' . $shift_type_name . ' </td>';
-                $din .= '<td style="text-align: center;"> ' . $device_short_name_in . ' </td>';
-                $dout .= '<td style="text-align: center;"> ' . $device_short_name_out . ' </td>';
+                // $din .= '<td style="text-align: center;"> ' . $device_short_name_in . ' </td>';
+                // $dout .= '<td style="text-align: center;"> ' . $device_short_name_out . ' </td>';
 
                 $status = $record[0]['status'] == 'A' ? 'red' : 'green';
 
@@ -470,11 +506,12 @@ class MonthlyController extends Controller
             $ot .= '</tr>';
             $shift .= '</tr>';
             $shift_type .= '</tr>';
-            $din .= '</tr>';
-            $dout .= '</tr>';
+            // $din .= '</tr>';
+            // $dout .= '</tr>';
             $status_tr .= '</tr>';
 
-            $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $din . $dout . $status_tr;
+            // $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $din . $dout . $status_tr;
+            $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $status_tr;
 
             $str .= '</table>';
             $str .= '</div>';
@@ -535,7 +572,6 @@ class MonthlyController extends Controller
             'manuals'  => $manuals
         ];
     }
-
 
     public function getPageNumbers($data)
     {

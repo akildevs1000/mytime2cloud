@@ -437,7 +437,7 @@ class DailyController extends Controller
         return $str;
     }
 
-    public function mimo_daily(Request $request)
+    public function mimo_daily_process($request)
     {
         $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $model = new ReportController;
@@ -470,11 +470,23 @@ class DailyController extends Controller
         $nextDay =  date('Y-m-d', strtotime($request->daily_date . ' + 1 day'));
         $daily_date =  $request->daily_date;
 
-
         // $model->take(100);
         $data = $model->get();
-        return Pdf::loadView('pdf.mimo', compact("company", "info", "data"))->stream();
+        return Pdf::loadView('pdf.mimo', compact("company", "info", "data"));
     }
+
+    public function mimo_daily_pdf(Request $request)
+    {
+        return  $this->mimo_daily_process($request)->stream();
+    }
+
+
+    public function mimo_daily_download(Request $request)
+    {
+        return  $this->mimo_daily_process($request)->download();
+    }
+
+
 
     public function process_reports()
     {

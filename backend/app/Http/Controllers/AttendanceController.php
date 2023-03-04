@@ -98,34 +98,48 @@ class AttendanceController extends Controller
 
         return $i;
     }
-    public function SyncAbsent($no_of_day = 1)
+    public function SyncAbsent()
     {
-        $day = date('Y-m-d', strtotime('-' . $no_of_day . ' days'));
+        $previousDate = date('Y-m-d', strtotime('-1 days'));
 
-        $employees = Employee::whereDoesntHave('attendances', function ($q) use ($day) {
-            $q->whereDate('date', $day);
+        $employeesThatDoesNotExist = ScheduleEmployee::whereDoesntHave('attendances', function ($q) use ($previousDate) {
+            $q->whereDate('date', $previousDate);
         })
             ->get(["employee_id", "company_id"]);
 
-        if (count($employees) == 0) {
-            return false;
-        }
 
-        $record = [];
+        // Debug
+        // $employeesThatDoesNotExist = ScheduleEmployee::whereIn("company_id", [1, 8])->whereIn("employee_id", [1001])
+        //     ->whereDoesntHave('attendances', function ($q) use ($previousDate) {
+        //         $q->whereDate('date', $previousDate);
+        //     })
+        //     ->get(["employee_id", "company_id"]);
 
-        foreach ($employees as $employee) {
-            $record[] = [
-                "employee_id"   => $employee->employee_id,
-                "date"          => $day,
-                "status"        => "A",
-                "company_id"    => $employee->company_id
-            ];
-        }
 
-        Attendance::insert($record);
-
-        return count($record);
+        return $this->runFunc($employeesThatDoesNotExist, $previousDate);
     }
+
+
+    public function SyncAbsentByManual(Request $request)
+    {
+
+        $date = $request->input('date', date('Y-m-d'));
+        $previousDate = date('Y-m-d', strtotime($date . '-1 days'));
+        $model = ScheduleEmployee::whereIn("company_id", $request->company_ids);
+
+        $model->when(count($request->UserIDs ?? []) > 0, function ($q) use ($request) {
+            $q->whereIn("employee_id", $request->UserIDs);
+        });
+
+        $model->whereDoesntHave('attendances', function ($q) use ($previousDate) {
+            $q->whereDate('date', $previousDate);
+        });
+
+        $employeesThatDoesNotExist =  $model->get(["employee_id", "company_id", "shift_type_id"]);
+
+        return $this->runFunc($employeesThatDoesNotExist, $previousDate);
+    }
+
 
     public function SyncAbsentForMultipleDays()
     {
@@ -207,5 +221,42 @@ class AttendanceController extends Controller
         Storage::disk('local')->put($request->DeviceID . '-' . date("d-M-y") . '-reset_attendance.txt', json_encode($items));
 
         return $i;
+    }
+
+    public function runFunc($employeesThatDoesNotExist, $previousDate)
+    {
+        if (count($employeesThatDoesNotExist) == 0) {
+            return $this->getMeta('SyncAbsent', "No employee found.\n");
+        }
+
+        $record = [];
+
+        $temp = [];
+
+        $result = null;
+        foreach ($employeesThatDoesNotExist as $employee) {
+            $arr = [
+                "employee_id"   => $employee->employee_id,
+                "date"          => $previousDate,
+                "status"        => "A",
+                "company_id"    => $employee->company_id,
+                "shift_type_id"    => $employee->shift_type_id,
+                "created_at"    => now(),
+                "updated_at"    => now()
+            ];
+
+
+            $record[] = $arr;
+
+            $temp[$employee->company_id][] = $arr;
+
+            $msg = count($temp[$employee->company_id]) . " employee(s) absent against company id " . $employee->company_id . ".\n";
+
+            $result .= $this->getMeta("SyncAbsent", $msg);
+        }
+
+        Attendance::insert($record);
+
+        return $result;
     }
 }
