@@ -41,6 +41,7 @@ use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ScheduleShiftController;
 use App\Http\Controllers\SubDepartmentController;
 use App\Http\Controllers\AssignPermissionController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ScheduleEmployeeController;
 use App\Http\Controllers\ReportNotificationController;
 use App\Http\Controllers\Reports\AutoReportController;
@@ -266,3 +267,5 @@ Route::get('/roster_list', [RosterController::class, 'getRosterList']);
 Route::post('/store_schedule_arrange', [RosterController::class, 'storeScheduleArrange']);
 Route::get('/get_roster_by_employee/{id}', [RosterController::class, 'getRosterByEmployee']);
 Route::put('/schedule_update/{id}', [RosterController::class, 'scheduleUpdateByEmployee']);
+
+Route::get('/SyncAbsentByManual', [AttendanceController::class, 'SyncAbsentByManual']);

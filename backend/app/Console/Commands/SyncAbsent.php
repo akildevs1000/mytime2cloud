@@ -35,23 +35,11 @@ class SyncAbsent extends Command
      */
     public function handle()
     {
-        $date = date("Y-m-d H:i:s");
-
         try {
-            $Attendance = new AttendanceController;
-            $i = $Attendance->SyncAbsent();
-
-            if (!$i) {
-                echo "[" . $date . "] Cron: SyncAbsent. No employee found.\n";
-                return;
-            }
-
-            echo "[" . $date . "] Cron: SyncAbsent. Total " . $i . " employees absent.\n";
-            return;
+            echo (new AttendanceController)->SyncAbsent();
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncAbsent. Error Details: ' . $th);
-            echo "[" . $date . "] Cron: SyncAbsent. Error occured while inserting logs.\n";
-            return;
+            echo "[" . date("Y-m-d H:i:s") . "] Cron: SyncAbsent. Error occurred while inserting logs.\n";
         }
     }
 }
