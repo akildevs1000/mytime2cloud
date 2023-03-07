@@ -156,7 +156,9 @@ class ShiftController extends Controller
     {
         try {
             $model = Shift::find($request->id);
-            $record = $model->update($request->validated());
+            $data = $request->validated();
+            $data['shift_type_id'] = 2;
+            $record = $model->update($data);
             if ($record) {
                 return $this->response('Shift successfully updated.', $record, true);
             } else {
