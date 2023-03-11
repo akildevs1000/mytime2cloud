@@ -67,7 +67,7 @@ class RosterController extends Controller
         try {
             $empIds = $request->employee_ids;
 
-            ScheduleEmployee::where("company_id", $request->company_id)->whereIn('employee_id', $empIds)->delete();
+            // ScheduleEmployee::where("company_id", $request->company_id)->whereIn('employee_id', $empIds)->delete();
 
             $schedules = $request->schedules;
 
@@ -87,12 +87,12 @@ class RosterController extends Controller
             }, $empIds);
 
 
+
             ScheduleEmployee::insert(array_merge(...$arr));
 
             (new ScheduleEmployeeController)->assignScheduleByManual($request);
 
             return $this->response('Schedule successfully added.', null, true);
-
         } catch (\Throwable $th) {
             return $this->response($th->getMessage(), null, false);
         }
