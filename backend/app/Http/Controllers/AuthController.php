@@ -13,6 +13,13 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $user = User::where('email', $request->email)->first();
+
+        if ($user->company_id > 0 && $user->company->expiry < date('Y-m-d')) {
+            throw ValidationException::withMessages([
+                'email' => ['Your subscription has been expired.'],
+            ]);
+        }
+
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
