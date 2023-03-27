@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Models\Shift;
 use App\Models\Device;
 use App\Models\Company;
 use App\Models\Employee;
+use App\Models\ShiftType;
 use App\Models\Attendance;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
-use App\Models\Shift;
-use App\Models\ShiftType;
 
 class WeeklyController extends Controller
 {
@@ -23,6 +24,17 @@ class WeeklyController extends Controller
     public function weekly_download_pdf(Request $request)
     {
         return $this->processPDF($request)->download();
+    }
+
+    public function multi_in_out_weekly_download_pdf(Request $request)
+    {
+        return $this->processPDF($request)->download();
+    }
+
+    public function multi_in_out_weekly_pdf(Request $request)
+    {
+        // return $this->processPDF($request);
+        return $this->processPDF($request)->stream();
     }
 
     public function weekly_download_csv(Request $request)
@@ -149,21 +161,62 @@ class WeeklyController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    // public function processPDF($request)
+    // {
+    //     $start = $request->from_date ?? date('Y-10-01');
+    //     $end = $request->to_date ?? date('Y-10-07');
+
+    //     $model = Attendance::query();
+    //     $model = $model->whereBetween('date', [$start, $end]);
+    //     $model->orderBy('date', 'asc');
+
+    //     $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
+    //         $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
+    //         $q->whereIn('employee_id', $ids);
+    //     });
+
+    //     $data = $model->get()->groupBy(['employee_id', 'date']);
+
+    //     $pdf = App::make('dompdf.wrapper');
+
+    //     $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+    //     $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
+    //     $company['report_type'] = $this->getStatusText($request->status);
+    //     $company['start'] = $start;
+    //     $company['end'] = $end;
+
+
+    //     // return $company;
+
+
+    //     // return $this->getHTML($data, (object)$company);
+    //     return $pdf->loadHTML($this->getHTML($data, (object)$company));
+    // }
+
     public function processPDF($request)
     {
         $start = $request->from_date ?? date('Y-10-01');
-        $end = $request->to_date ?? date('Y-10-07');
+        $end = $request->to_date ?? date('Y-10-31');
 
         $model = Attendance::query();
         $model = $model->whereBetween('date', [$start, $end]);
         $model->orderBy('date', 'asc');
+        // return   $model->get();
+        $model->when($request->employee_id && $request->employee_id != "", function ($q) use ($request) {
+            $q->where('employee_id', $request->employee_id);
+        });
 
         $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
             $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
             $q->whereIn('employee_id', $ids);
         });
 
-        $data = $model->get()->groupBy(['employee_id', 'date']);
+        $data = $model
+            // ->with('employee:system_user_id,display_name')
+            ->with('employee', function ($q) {
+                $q->where('company_id', 1);
+            })
+            ->get()->groupBy(['employee_id', 'date']);
 
         $pdf = App::make('dompdf.wrapper');
 
@@ -172,8 +225,26 @@ class WeeklyController extends Controller
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
         $company['end'] = $end;
+        $collection = $model->clone()->get();
 
-        return $pdf->loadHTML($this->getHTML($data, (object)$company));
+        $info = (object) [
+            'total_absent' => $model->clone()->where('status', 'A')->count(),
+            'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
+            'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
+            'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
+            'report_type' => $request->report_type ?? "",
+            'total_leave' => 0,
+            'department' => Department::find($request->department_id),
+            'employee' => Employee::whereEmployeeId($request->employee_id)->first(),
+        ];
+
+        if ($request->employee_id && $request->filled('employee_id')) {
+            return Pdf::loadView('pdf.single-employee',  ['data' => $data[$request->employee_id], 'company' => $company, 'info' => $info]);
+        }
+        // return $data;
+        return Pdf::loadView('pdf.mul-weekly',  ['data' => $data->take(20), 'company' => $company, 'info' => $info]);
     }
 
     public function getHTML($data, $company)
@@ -391,8 +462,6 @@ class WeeklyController extends Controller
         </html>';
     }
 
-
-
     public function renderTable($data)
     {
         $str = "";
@@ -402,9 +471,9 @@ class WeeklyController extends Controller
 
         foreach ($data as $eid => $row) {
 
+            // return $row;
+
             $emp = Employee::where("employee_id", $eid)->select("employee_id", "display_name", "system_user_id")->first();
-
-
 
             $str .= '<div class="page-breaks">';
 
@@ -431,17 +500,28 @@ class WeeklyController extends Controller
             $ot = '<tr"><td><b>OT</b></td>';
             $shift = '<tr"><td><b>Shift</b></td>';
             $shift_type = '<tr "><td><b>Shift Type</b></td>';
-            $din = '<tr"><td><b>Device In</b></td>';
-            $dout = '<tr"><td><b>Device Out</b></td>';
+            // $din = '<tr"><td><b>Device In</b></td>';
+            // $dout = '<tr"><td><b>Device Out</b></td>';
             $status_tr = '<tr"><td><b>Status</b></td>';
 
 
             foreach ($row as $key => $record) {
-                $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? '';
-                $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
 
-                $device_short_name_in =  $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
-                $device_short_name_out =  $model->clone()->where("device_id", $record[0]['device_id_out'])->first()->short_name ?? '';
+                if ($record[0]['shift_id'] != '---') {
+                    $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? "";
+                } else {
+                    $shift_name =    '';
+                }
+
+                if ($record[0]['shift_type_id'] != '---') {
+                    $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
+                } else {
+                    $shift_type_name =    '';
+                }
+
+
+                // $device_short_name_in =  $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
+                // $device_short_name_out =  $model->clone()->where("device_id", $record[0]['device_id_out'])->first()->short_name ?? '';
 
                 $dates .= '<td style="text-align: center;"> ' . substr($key, 0, 2) . ' </td>';
                 $days .= '<td style="text-align: center;"> ' . $record[0]['day'] . ' </td>';
@@ -454,8 +534,8 @@ class WeeklyController extends Controller
 
                 $shift .= '<td style="text-align: center;"> ' . $shift_name . ' </td>';
                 $shift_type .= '<td style="text-align: center;"> ' . $shift_type_name . ' </td>';
-                $din .= '<td style="text-align: center;"> ' . $device_short_name_in . ' </td>';
-                $dout .= '<td style="text-align: center;"> ' . $device_short_name_out . ' </td>';
+                // $din .= '<td style="text-align: center;"> ' . $device_short_name_in . ' </td>';
+                // $dout .= '<td style="text-align: center;"> ' . $device_short_name_out . ' </td>';
 
                 $status = $record[0]['status'] == 'A' ? 'red' : 'green';
 
@@ -471,11 +551,12 @@ class WeeklyController extends Controller
             $ot .= '</tr>';
             $shift .= '</tr>';
             $shift_type .= '</tr>';
-            $din .= '</tr>';
-            $dout .= '</tr>';
+            // $din .= '</tr>';
+            // $dout .= '</tr>';
             $status_tr .= '</tr>';
 
-            $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $din . $dout . $status_tr;
+            // $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $din . $dout . $status_tr;
+            $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $status_tr;
 
             $str .= '</table>';
             $str .= '</div>';
@@ -537,7 +618,6 @@ class WeeklyController extends Controller
         ];
     }
 
-
     public function getPageNumbers($data)
     {
         $p = count($data);
@@ -554,8 +634,25 @@ class WeeklyController extends Controller
         }
         return $str;
     }
+
     public function weekly_html(Request $request)
     {
         return Pdf::loadView('pdf.html.weekly.weekly_summary')->stream();
+    }
+
+    public function getTotalHours($times)
+    {
+        $sum_minutes = 0;
+        foreach ($times as $time) {
+            if ($time != "---") {
+                $parts = explode(":", $time);
+                $hours = intval($parts[0]);
+                $minutes = intval($parts[1]);
+                $sum_minutes += $hours * 60 + $minutes;
+            }
+        }
+        $work_hours = floor($sum_minutes / 60);
+        $sum_minutes -= $work_hours * 60;
+        return $work_hours . ':' . $sum_minutes;
     }
 }

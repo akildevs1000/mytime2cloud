@@ -11,6 +11,10 @@ class Attendance extends Model
 {
     use HasFactory;
 
+    const ABSENT =  "A"; //1;
+    const PRESENT = "P"; //2;
+    const MISSING = "M"; //3;
+
     protected $guarded = [];
 
     protected $appends = [
@@ -24,7 +28,8 @@ class Attendance extends Model
     ];
 
 
-    protected $hidden = ["company_id", "branch_id", "created_at", "updated_at"];
+    protected $hidden = ["branch_id", "created_at", "updated_at"];
+    // protected $hidden = ["company_id", "branch_id", "created_at", "updated_at"];
 
 
     public function shift()

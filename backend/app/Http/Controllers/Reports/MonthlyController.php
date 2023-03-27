@@ -6,10 +6,12 @@ use DateTime;
 use Carbon\Carbon;
 use App\Models\Shift;
 use App\Models\Device;
+use App\Models\Roster;
 use App\Models\Company;
 use App\Models\Employee;
 use App\Models\ShiftType;
 use App\Models\Attendance;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +38,7 @@ class MonthlyController extends Controller
 
     public function multi_in_out_monthly_pdf(Request $request)
     {
+        // return   $report = $this->processPDF($request);
         $report = $this->processPDF($request);
         return $report->stream();
     }
@@ -166,8 +169,6 @@ class MonthlyController extends Controller
 
     public function processPDF($request)
     {
-
-
         $start = $request->from_date ?? date('Y-10-01');
         $end = $request->to_date ?? date('Y-10-31');
 
@@ -175,12 +176,18 @@ class MonthlyController extends Controller
         $model = $model->whereBetween('date', [$start, $end]);
         $model->orderBy('date', 'asc');
 
+        $model->when($request->employee_id && $request->employee_id != "", function ($q) use ($request) {
+            $q->where('employee_id', $request->employee_id);
+        });
+
         $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
             $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
             $q->whereIn('employee_id', $ids);
         });
 
-        $data = $model->get()->groupBy(['employee_id', 'date']);
+        $data = $model
+            ->with('employee:system_user_id,display_name')
+            ->get()->groupBy(['employee_id', 'date']);
 
         $pdf = App::make('dompdf.wrapper');
 
@@ -189,11 +196,25 @@ class MonthlyController extends Controller
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
         $company['end'] = $end;
+        $collection = $model->clone()->get();
 
+        $info = (object) [
+            'total_absent' => $model->clone()->where('status', 'A')->count(),
+            'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
+            'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
+            'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
+            'report_type' => $request->report_type ?? "",
+            'total_leave' => 0,
+            'department' => Department::find($request->department_id),
+            'employee' => Employee::whereEmployeeId($request->employee_id)->first(),
+        ];
 
-        // return $data;
-
-        return $pdf->loadHTML($this->getHTML($data, (object)$company));
+        if ($request->employee_id && $request->filled('employee_id')) {
+            return Pdf::loadView('pdf.single-employee',  ['data' => $data[$request->employee_id], 'company' => $company, 'info' => $info]);
+        }
+        return Pdf::loadView('pdf.multi-in-out',  ['data' => $data->take(20), 'company' => $company, 'info' => $info]);
     }
 
     public function getHTML($data, $company)
@@ -420,8 +441,10 @@ class MonthlyController extends Controller
         $model = Device::query();
         $shiftModel = Shift::query();
         $shiftTypeModel = ShiftType::query();
+        $rosterModel = Roster::query();
 
         foreach ($data as $eid => $row) {
+
 
             $emp = Employee::where("employee_id", $eid)->whereCompanyId($company->id)->first();
 
@@ -448,8 +471,8 @@ class MonthlyController extends Controller
             $out = '<tr"><td><b>Out</b></td>';
             $work = '<tr"><td><b>Work</b></td>';
             $ot = '<tr"><td><b>OT</b></td>';
-            $shift = '<tr"><td><b>Shift</b></td>';
-            $shift_type = '<tr "><td><b>Shift Type</b></td>';
+            $roster = '<tr"><td><b>Roster</b></td>';
+            // $shift_type = '<tr "><td><b>Shift Type</b></td>';
             // $din = '<tr"><td><b>Device In</b></td>';
             // $dout = '<tr"><td><b>Device Out</b></td>';
             $status_tr = '<tr"><td><b>Status</b></td>';
@@ -457,7 +480,12 @@ class MonthlyController extends Controller
 
             foreach ($row as $key => $record) {
 
-
+                // dd($record[0]['roster_id']);
+                if ($record[0]['roster_id'] != '---') {
+                    $roster_name =  $rosterModel->where("id", $record[0]['roster_id'])->first()->name ?? "";
+                } else {
+                    $roster_name =    '---';
+                }
 
                 if ($record[0]['shift_id'] != '---') {
                     $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? "";
@@ -487,8 +515,8 @@ class MonthlyController extends Controller
                 $work .= '<td style="text-align: center;"> ' . $record[0]['total_hrs']  . ' </td>';
                 $ot .= '<td style="text-align: center;"> ' . $record[0]['ot'] . ' </td>';
 
-                $shift .= '<td style="text-align: center;"> ' . $shift_name . ' </td>';
-                $shift_type .= '<td style="text-align: center;"> ' . $shift_type_name . ' </td>';
+                $roster .= '<td style="text-align: center;"> ' . $roster_name . ' </td>';
+                // $shift_type .= '<td style="text-align: center;"> ' . $shift_type_name . ' </td>';
                 // $din .= '<td style="text-align: center;"> ' . $device_short_name_in . ' </td>';
                 // $dout .= '<td style="text-align: center;"> ' . $device_short_name_out . ' </td>';
 
@@ -504,14 +532,14 @@ class MonthlyController extends Controller
             $out .= '</tr>';
             $work .= '</tr>';
             $ot .= '</tr>';
-            $shift .= '</tr>';
-            $shift_type .= '</tr>';
+            $roster .= '</tr>';
+            // $shift_type .= '</tr>';
             // $din .= '</tr>';
             // $dout .= '</tr>';
             $status_tr .= '</tr>';
 
             // $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $din . $dout . $status_tr;
-            $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $status_tr;
+            $str = $str . $dates . $days . $in . $out . $work . $ot . $roster  . $status_tr;
 
             $str .= '</table>';
             $str .= '</div>';
@@ -593,5 +621,68 @@ class MonthlyController extends Controller
     public function monthly_html(Request $request)
     {
         return Pdf::loadView('pdf.html.monthly.monthly_summary')->stream();
+    }
+
+    public function getTotalHours($times)
+    {
+        $sum_minutes = 0;
+        foreach ($times as $time) {
+            if ($time != "---") {
+                $parts = explode(":", $time);
+                $hours = intval($parts[0]);
+                $minutes = intval($parts[1]);
+                $sum_minutes += $hours * 60 + $minutes;
+            }
+        }
+        $work_hours = floor($sum_minutes / 60);
+        $sum_minutes -= $work_hours * 60;
+        return $work_hours . ':' . $sum_minutes;
+    }
+
+    public function csvPdf()
+    {
+        $first = true;
+        $file = fopen(public_path('transactions.csv'), 'r');
+        $data = [];
+
+
+
+
+        // 0 => "﻿Employee ID"
+        // 1 => "First Name"
+        // 2 => "Department"
+        // 3 => "Date"
+        // 4 => "Time"
+        // 5 => "Punch State"
+        // 6 => "Work Code"
+        // 7 => "Area Name"
+        // 8 => "Serial Number"
+        // 9 => "Device Name"
+        // 10 => "Upload Time"
+
+        while (($line = fgetcsv($file)) !== false) {
+            if ($first) {
+                $first = false;
+            } else {
+
+                $data[] = [
+                    'employee_id' => $line[0],
+                    'first_name' => $line[1],
+                    'department' => $line[2],
+                    'date' => $line[3],
+                    'time' => $line[4],
+                    'punch_state' => $line[5],
+                    'work_code' => $line[6],
+                    'area_name' => $line[7],
+                    'serial_no' => $line[8],
+                    'device_name' => $line[9],
+                    'upload_time' => $line[10],
+                ];
+            }
+            // $data[] = $line;
+        }
+        fclose($file);
+        // return $data;
+        return Pdf::loadView('pdf.csv', compact('data'))->stream();
     }
 }

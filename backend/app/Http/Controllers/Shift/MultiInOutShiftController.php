@@ -156,7 +156,8 @@ class MultiInOutShiftController extends Controller
             $data = $this->getLogsWithInRange($companyId, $UserID, $schedule["range"], $shift_type_id);
 
             $temp = [
-                "status" => 'P',
+                "status" => count($data) == 1 ?  Attendance::MISSING : Attendance::PRESENT,
+                // "status" => count($data)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
                 "shift_type_id" => $shift_type_id,
                 "date" => $date,
                 "company_id" => $companyId,

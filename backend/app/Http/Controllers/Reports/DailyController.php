@@ -458,7 +458,7 @@ class DailyController extends Controller
             'total_employee' => $totEmployees,
             'total_absent' => $model->clone()->where('status', 'A')->count(),
             'total_present' => $model->clone()->where('status', 'P')->count(),
-            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_missing' => $model->clone()->where('status', 'M')->count(),
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
             'total_leave' => 0,

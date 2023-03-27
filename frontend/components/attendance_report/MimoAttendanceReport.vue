@@ -715,9 +715,11 @@
       </template>
       <template v-slot:item.status="{ item }">
         <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
-
         <v-icon v-else-if="item.status == 'P'" color="success darken-1"
-          >mdi-check</v-icon
+          >mdi-check
+        </v-icon>
+        <v-icon v-else-if="item.status == 'M'" small color="orange darken-1"
+          >mdi-help</v-icon
         >
         <v-icon v-else-if="item.status == 'H'" color="grey darken-1"
           >mdi-check</v-icon
