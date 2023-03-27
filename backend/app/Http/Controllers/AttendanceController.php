@@ -107,7 +107,6 @@ class AttendanceController extends Controller
         })
             ->get(["employee_id", "company_id"]);
 
-
         // Debug
         // $employeesThatDoesNotExist = ScheduleEmployee::whereIn("company_id", [1, 8])->whereIn("employee_id", [1001])
         //     ->whereDoesntHave('attendances', function ($q) use ($previousDate) {
@@ -115,14 +114,12 @@ class AttendanceController extends Controller
         //     })
         //     ->get(["employee_id", "company_id"]);
 
-
         return $this->runFunc($employeesThatDoesNotExist, $previousDate);
     }
 
 
     public function SyncAbsentByManual(Request $request)
     {
-
         $date = $request->input('date', date('Y-m-d'));
         $previousDate = date('Y-m-d', strtotime($date . '-1 days'));
         $model = ScheduleEmployee::whereIn("company_id", $request->company_ids);
@@ -135,8 +132,7 @@ class AttendanceController extends Controller
             $q->whereDate('date', $previousDate);
         });
 
-        $employeesThatDoesNotExist =  $model->get(["employee_id", "company_id", "shift_type_id"]);
-
+        $employeesThatDoesNotExist =  $model->with('roster')->get(["employee_id", "company_id", "shift_type_id", "roster_id"]);
         return $this->runFunc($employeesThatDoesNotExist, $previousDate);
     }
 
@@ -225,27 +221,24 @@ class AttendanceController extends Controller
 
     public function runFunc($employeesThatDoesNotExist, $previousDate)
     {
+
         if (count($employeesThatDoesNotExist) == 0) {
             return $this->getMeta('SyncAbsent', "No employee found.\n");
         }
 
         $record = [];
-
         $temp = [];
-
         $result = null;
         foreach ($employeesThatDoesNotExist as $employee) {
             $arr = [
                 "employee_id"   => $employee->employee_id,
                 "date"          => $previousDate,
-                "status"        => "A",
+                "status"        => $this->getDynamicStatus($employee, $previousDate),
                 "company_id"    => $employee->company_id,
                 "shift_type_id"    => $employee->shift_type_id,
                 "created_at"    => now(),
                 "updated_at"    => now()
             ];
-
-
             $record[] = $arr;
 
             $temp[$employee->company_id][] = $arr;
@@ -256,7 +249,20 @@ class AttendanceController extends Controller
         }
 
         Attendance::insert($record);
-
+        // return $record[0];
         return $result;
+    }
+
+    public function getDynamicStatus($employee, $date)
+    {
+        $shift = array_filter($employee->roster->json, function ($shift) use ($date) {
+            return $shift['day'] ==  date('D', strtotime($date));
+        });
+
+        $obj = reset($shift);
+        if ($obj['shift_id'] == -1) {
+            return "OFF";
+        }
+        return "A";
     }
 }
