@@ -30,22 +30,34 @@
         >
           <div class="card p-2" :class="i.color">
             <div class="card-statistic-3">
-              <div class="card-icon card-icon-large ">
+              <div class="card-icon card-icon-large">
                 <i :class="i.icon"></i>
               </div>
               <div class="card-content">
                 <h4 class="card-title text-capitalize">{{ i.title }}</h4>
                 <span class="data-1"> {{ i.value }}</span>
                 <p class="mb-0 text-sm">
-                  <span class="mr-2"
-                    ><v-icon dark small>mdi-arrow-right</v-icon></span
-                  >
+                  <span class="mr-2">
+                    <v-icon dark small>mdi-arrow-right</v-icon>
+                  </span>
                   <a
                     class="text-nowrap text-white"
                     target="_blank"
                     :href="i.link"
                   >
-                    <span class="text-nowrap">View Report</span>
+                    <span class="text-nowrap">View General Report</span>
+                  </a>
+                </p>
+                <p class="mb-0 text-sm">
+                  <span class="mr-2">
+                    <v-icon dark small>mdi-arrow-right</v-icon>
+                  </span>
+                  <a
+                    class="text-nowrap text-white"
+                    target="_blank"
+                    :href="i.multi_in_out"
+                  >
+                    <span class="text-nowrap">View Multi In/Out Report</span>
                   </a>
                 </p>
               </div>
@@ -95,14 +107,14 @@ export default {
           text: "Customer",
           align: "left",
           sortable: false,
-          value: "company_name"
+          value: "company_name",
         },
         {
           text: "Order Total",
           align: "left",
           sortable: false,
-          value: "order_total"
-        }
+          value: "order_total",
+        },
       ],
       orders: "",
       products: "",
@@ -115,17 +127,17 @@ export default {
         ["Month", "On Time", "Absence", "Lates"],
         ["Apr", 33, 4, 7],
         ["Mar", 17, 6, 3],
-        ["Feb", 41, 9, 1]
+        ["Feb", 41, 9, 1],
       ],
       chartOptions: {
         chart: {
           title: "Company Performance",
-          subtitle: "Sales, Expenses, and Profit: 2014-2017"
-        }
+          subtitle: "Sales, Expenses, and Profit: 2014-2017",
+        },
       },
       BublechartOptions: {
-        colorAxis: { colors: ["yellow", "red"] }
-      }
+        colorAxis: { colors: ["yellow", "red"] },
+      },
     };
   },
   created() {
@@ -135,24 +147,24 @@ export default {
   computed: {
     first_login() {
       return this.$store.state.first_login;
-    }
+    },
   },
   filters: {
-    get_decimal_value: function(value) {
+    get_decimal_value: function (value) {
       if (!value) return "";
       return (Math.round(value * 100) / 100).toFixed(2);
     },
-    get_comma_seperator: function(x) {
+    get_comma_seperator: function (x) {
       if (!x) return "";
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
+    },
   },
   methods: {
     can(per) {
       let { is_master, permissions: p } =
         this.$auth.user || this.$auth.user.permissions;
 
-      if (p.some(e => e == per) || is_master) return true;
+      if (p.some((e) => e == per) || is_master) return true;
 
       this.$router.push(`/attendance_report`);
     },
@@ -164,7 +176,7 @@ export default {
     },
     initialize() {
       let options = {
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company.id,
       };
       this.$axios.get(`count`, { params: options }).then(({ data }) => {
         this.items = data;
@@ -173,8 +185,8 @@ export default {
           this.loading = false;
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

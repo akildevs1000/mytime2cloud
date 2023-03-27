@@ -31,17 +31,18 @@ Route::get('/multi_in_out_weekly_download_csv', [WeeklyController::class, 'multi
 // -> pdf view
 Route::get('/multi_in_out_daily', [DailyController::class, 'mimo_daily_pdf']);
 Route::get('/multi_in_out_weekly', [WeeklyController::class, 'multi_in_out_weekly_pdf']);
-Route::get('/multi_in_out_monthly', [MonthlyController::class, 'monthly_download_pdf']);
+Route::get('/multi_in_out_monthly', [MonthlyController::class, 'multi_in_out_monthly_pdf']);
 
 
 // -> pdf download
 Route::get('/multi_in_out_daily_download_pdf', [DailyController::class, 'mimo_daily_download']);
-Route::get('/multi_in_out_weekly_download_pdf', [WeeklyController::class, 'multi_in_out_weekly_download_csv']);
-Route::get('/multi_in_out_monthly_download_pdf', [MonthlyController::class, 'monthly_download_pdf']);
+Route::get('/multi_in_out_weekly_download_pdf', [WeeklyController::class, 'multi_in_out_weekly_download_pdf']);
+Route::get('/multi_in_out_monthly_download_pdf', [MonthlyController::class, 'multi_in_out_monthly_download_pdf']);
 
 
 // -> pdf cron
 Route::get('report_multi_in_out', [ReportController::class, 'multiInOut']);
+Route::get('csv_pdf', [MonthlyController::class, 'csvPdf']);
 
 
 
