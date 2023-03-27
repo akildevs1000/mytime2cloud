@@ -60,7 +60,8 @@
                     <div class="row">
                         <div class="col-5" style="background-coldor: rgb(253, 246, 246);border:1px solid black">
                             @if (env('APP_ENV') !== 'local')
-                                <img src="{{ $company->logo }}" height="120px" width="180px">
+                                <img src="{{ $company->logo }}" height="120px" width="180px"
+                                    style="margin: 0px 0px 0px -27px">
                             @else
                                 <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="120px" width="180px"
                                     style="margin: 0px 0px 0px -27px">
