@@ -9,8 +9,7 @@
                 <div class="row">
                     <div class="col-5" style="background-coldor: rgb(253, 246, 246);border:1px solid black">
                         @if (env('APP_ENV') !== 'local')
-                            <img src="{{ $company->logo }}" height="120px" width="180px"
-                                style="margin: 0px 0px 0px -27px">
+                            <img src="{{ $company->logo }}" height="10px" width="180px">
                         @else
                             <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="120px" width="180px"
                                 style="margin: 0px 0px 0px -27px">
@@ -173,20 +172,26 @@
             <td style="text-align:  center;width:50px"> EID </td>
             <td style="text-align:  center;width:80px"> Roaster </td>
 
-            <td style="text-align:  center;width:20px"> In </td>
-            <td style="text-align:  center;width:20px"> Out </td>
+            <td style="text-align:  center;width:20px"> In1 </td>
+            <td style="text-align:  center;width:20px"> Out1 </td>
 
-            <td style="text-align:  center;width:20px"> In </td>
-            <td style="text-align:  center;width:20px"> Out </td>
+            <td style="text-align:  center;width:20px"> In2 </td>
+            <td style="text-align:  center;width:20px"> Out2 </td>
 
-            <td style="text-align:  center;width:20px"> In </td>
-            <td style="text-align:  center;width:20px"> Out </td>
+            <td style="text-align:  center;width:20px"> In3 </td>
+            <td style="text-align:  center;width:20px"> Out3 </td>
 
-            <td style="text-align:  center;width:20px"> In </td>
-            <td style="text-align:  center;width:20px"> Out </td>
+            <td style="text-align:  center;width:20px"> In4 </td>
+            <td style="text-align:  center;width:20px"> Out4 </td>
 
-            <td style="text-align:  center;width:20px"> In </td>
-            <td style="text-align:  center;width:20px"> Out </td>
+            <td style="text-align:  center;width:20px"> In5 </td>
+            <td style="text-align:  center;width:20px"> Out5 </td>
+
+            <td style="text-align:  center;width:20px"> In6 </td>
+            <td style="text-align:  center;width:20px"> Out6 </td>
+
+            <td style="text-align:  center;width:20px"> In7 </td>
+            <td style="text-align:  center;width:20px"> Out7 </td>
 
             <td style="text-align:  center;width:40px"> Total Hours </td>
             <td style="text-align:  center;width:40px"> OT </td>
@@ -207,9 +212,9 @@
                 // ld($arr);
                 // die;
                 
-                $time1 = strtotime($data->in);
-                $time2 = strtotime($data->AttendanceLogs[1]->time);
-                $difference = round(abs($time2 - $time1) / 3600, 2);
+                // $time1 = strtotime($data->in);
+                // $time2 = strtotime($data->AttendanceLogs[1]->time);
+                // $difference = round(abs($time2 - $time1) / 3600, 2);
             @endphp
             <tbody>
                 <tr style="text-align:  center;">
@@ -230,6 +235,10 @@
                     <td style="text-align:  center;"> {{ $data->logs[3]['out'] ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->logs[4]['in'] ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->logs[4]['out'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[5]['in'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[5]['out'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[6]['in'] ?? '---' }} </td>
+                    <td style="text-align:  center;"> {{ $data->logs[6]['out'] ?? '---' }} </td>
 
                     <td style="text-align:  center;"> {{ $data->total_hrs ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $data->ot ?? '---' }} </td>
