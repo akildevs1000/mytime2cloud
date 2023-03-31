@@ -98,14 +98,15 @@ class AttendanceController extends Controller
 
         return $i;
     }
+
     public function SyncAbsent()
     {
         $previousDate = date('Y-m-d', strtotime('-1 days'));
 
-        $employeesThatDoesNotExist = ScheduleEmployee::whereDoesntHave('attendances', function ($q) use ($previousDate) {
+        $employeesThatDoesNotExist = ScheduleEmployee::with('roster')->whereDoesntHave('attendances', function ($q) use ($previousDate) {
             $q->whereDate('date', $previousDate);
         })
-            ->get(["employee_id", "company_id"]);
+            ->get(["employee_id", "company_id", "roster_id"]);
 
         // Debug
         // $employeesThatDoesNotExist = ScheduleEmployee::whereIn("company_id", [1, 8])->whereIn("employee_id", [1001])
