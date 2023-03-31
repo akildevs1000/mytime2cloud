@@ -176,6 +176,10 @@ class MonthlyController extends Controller
         $model = $model->whereBetween('date', [$start, $end]);
         $model->orderBy('date', 'asc');
 
+        $model->when($request->status && $request->status != "SA", function ($q) use ($request) {
+            $q->where('status', $request->status);
+        });
+
         $model->when($request->employee_id && $request->employee_id != "", function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
         });
@@ -212,9 +216,10 @@ class MonthlyController extends Controller
         ];
 
         if ($request->employee_id && $request->filled('employee_id')) {
-            return Pdf::loadView('pdf.single-employee',  ['data' => $data[$request->employee_id], 'company' => $company, 'info' => $info]);
+            $data = count($data) > 0 ?  $data[$request->employee_id] : [];
+            return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
         }
-        return Pdf::loadView('pdf.multi-in-out',  ['data' => $data->take(20), 'company' => $company, 'info' => $info]);
+        return Pdf::loadView('pdf.multi-in-out',  ['data' => $data->take(50), 'company' => $company, 'info' => $info]);
     }
 
     public function getHTML($data, $company)
