@@ -219,7 +219,7 @@ class MonthlyController extends Controller
             $data = count($data) > 0 ?  $data[$request->employee_id] : [];
             return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
         }
-        return Pdf::loadView('pdf.multi-in-out',  ['data' => $data->take(50), 'company' => $company, 'info' => $info]);
+        return Pdf::loadView('pdf.multi-in-out',  ['data' => $data->take(30), 'company' => $company, 'info' => $info]);
     }
 
     public function getHTML($data, $company)
