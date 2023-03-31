@@ -261,6 +261,7 @@ class AttendanceController extends Controller
         });
 
         $obj = reset($shift);
+
         if ($obj['shift_id'] == -1) {
             return "OFF";
         }

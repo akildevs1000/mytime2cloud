@@ -1353,7 +1353,7 @@ export default {
         case "Select All":
           return "SA";
         case "Missing":
-          return "---";
+          return "M";
         case "Manual Entry":
           return "ME";
         default:
