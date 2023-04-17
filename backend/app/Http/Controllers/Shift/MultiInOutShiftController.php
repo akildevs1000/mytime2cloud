@@ -233,7 +233,7 @@ class MultiInOutShiftController extends Controller
 
         $currentTimestamp = date('Y-m-d H:i:s');
 
-        $condtionTimestamp = date("Y-m-d 07:00");
+        $condtionTimestamp = date("Y-m-d 07:59");
 
         $currentDate = $currentTimestamp < $condtionTimestamp ? date('Y-m-d', strtotime('yesterday')) : date('Y-m-d');
 
