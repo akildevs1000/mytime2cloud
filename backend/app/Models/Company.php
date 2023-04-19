@@ -51,6 +51,16 @@ class Company extends Model
         return $this->hasOne(TradeLicense::class);
     }
 
+    public function shift()
+    {
+        return $this->hasOne(Shift::class);
+    }
+
+    public function attendancd_logs()
+    {
+        return $this->hasMany(AttendanceLog::class);
+    }
+
     public function branches()
     {
         return $this->hasMany(Branch::class);
