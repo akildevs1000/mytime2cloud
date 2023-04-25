@@ -27,14 +27,17 @@ pool.on('error', (err, client) => {
   console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });
+let { WHATSAPP_ENDPOINT, NUMBER, INSTANCE_ID, TOKEN, SOCKET_ENDPOINT } = process.env;
 
-let socket = new WebSocket(process.env.SOCKET_ENDPOINT);
+let socket = new WebSocket(SOCKET_ENDPOINT);
 socket.onopen = () => {
-  console.log("connected\n");
+  const msg = "connected to live\n";
+  axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${msg}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
+    .then(({ data }) => console.log(msg))
+    .catch(error => console.error(error));
 };
 socket.onerror = ({ message: msg }) => {
 
-  let { WHATSAPP_ENDPOINT, NUMBER, INSTANCE_ID, TOKEN } = process.env;
 
   axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${msg}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
     .then(({ data }) => console.log(msg))
