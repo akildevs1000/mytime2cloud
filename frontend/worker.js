@@ -1,24 +1,45 @@
 const WebSocket = require("ws");
 const fs = require("fs");
 require("dotenv").config();
+const { Agent } = require('https');
 
-let { Client } = require("pg");
+const axios = require("axios");
+
+const agent = new Agent({
+  rejectUnauthorized: false
+});
+
+let { Pool } = require("pg");
 const format = require('pg-format');
 
 
-const client = new Client({
+const pool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USERNAME,
   port: process.env.DB_PORT,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE
+  database: process.env.DB_DATABASE,
+  max: 100,
+  idleTimeoutMillis: 30000,
 });
 
-client.connect();
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+});
 
 let socket = new WebSocket(process.env.SOCKET_ENDPOINT);
-socket.onopen = () => console.log("connected\n");
-socket.onerror = () => console.log("error\n");
+socket.onopen = () => {
+  console.log("connected\n");
+};
+socket.onerror = ({ message: msg }) => {
+
+  let { WHATSAPP_ENDPOINT, NUMBER, INSTANCE_ID, TOKEN } = process.env;
+
+  axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${msg}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
+    .then(({ data }) => console.log(msg))
+    .catch(error => console.error(error));
+};
 
 socket.onmessage = async ({ data }) => {
   try {
@@ -41,7 +62,7 @@ socket.onmessage = async ({ data }) => {
         'INSERT INTO attendance_logs("UserID", "LogTime", "DeviceID", "SerialNumber", checked) VALUES (%L)',
         sanitizedValues
       );
-      await client.query(query);
+      await pool.query(query);
 
       sanitizedValues.pop()
 
@@ -51,7 +72,10 @@ socket.onmessage = async ({ data }) => {
 
       fs.appendFileSync("logs.csv", str + "\n");
     }
-  } catch (err) {
+  } catch ({ message }) {
+    axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${message}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
+      .then(({ data }) => console.log(msg))
+      .catch(error => console.error(error));
     console.error(err);
   }
 };
