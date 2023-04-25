@@ -32,16 +32,16 @@ let { WHATSAPP_ENDPOINT, NUMBER, INSTANCE_ID, TOKEN, SOCKET_ENDPOINT } = process
 let socket = new WebSocket(SOCKET_ENDPOINT);
 socket.onopen = () => {
   const msg = "connected to live\n";
-  axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${msg}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
-    .then(({ data }) => console.log(msg))
-    .catch(error => console.error(error));
+  // axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${msg}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
+  //   .then(({ data }) => console.log(msg))
+  //   .catch(error => console.error(error));
 };
 socket.onerror = ({ message: msg }) => {
 
 
-  axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${msg}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
-    .then(({ data }) => console.log(msg))
-    .catch(error => console.error(error));
+  // axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${msg}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
+  //   .then(({ data }) => console.log(msg))
+  //   .catch(error => console.error(error));
 };
 
 socket.onmessage = async ({ data }) => {
@@ -76,9 +76,8 @@ socket.onmessage = async ({ data }) => {
       fs.appendFileSync("logs.csv", str + "\n");
     }
   } catch ({ message }) {
-    axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${message}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
-      .then(({ data }) => console.log(msg))
-      .catch(error => console.error(error));
-    console.error(err);
+    // axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${message}message&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, { httpsAgent: agent })
+    //   .then(({ data }) => console.log(msg))
+    //   .catch(error => console.error(error));
   }
 };
