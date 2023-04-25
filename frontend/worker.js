@@ -23,8 +23,9 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
 });
 
-pool.on('error', (err, client) => {
+pool.on('error', async (err, client) => {
   console.error('Unexpected error on idle client', err);
+  await sendWhatsappMessage(err);
   process.exit(-1);
 });
 let { WHATSAPP_ENDPOINT, NUMBER, INSTANCE_ID, TOKEN, SOCKET_ENDPOINT } = process.env;
