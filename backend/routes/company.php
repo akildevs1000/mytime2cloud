@@ -150,6 +150,7 @@ Route::apiResource('no-shift-employees', DutyOrganizerController::class);
 //  Employee
 Route::apiResource('employee', EmployeeController::class);
 
+Route::get('employeesList', [EmployeeController::class, 'employeesList']);
 Route::get('employeesByDepartment', [EmployeeController::class, 'employeesByDepartment']);
 Route::get('employeesBySubDepartment', [EmployeeController::class, 'employeesBySubDepartment']);
 Route::get('employeesByDesignation/{key}', [EmployeeController::class, 'employeesByDesignation']);

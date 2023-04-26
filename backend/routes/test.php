@@ -15,12 +15,13 @@ use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\SingleShiftController;
+use Illuminate\Support\Facades\Http;
 
 Route::get('/syncLogsScript', function (Request $request) {
 
     return [
         "MultiInOut" => (new MultiInOutShiftController)->processByManual($request),
-        "Single" => (new SingleShiftController)->processByManual($request),
+        // "Single" => (new SingleShiftController)->processByManual($request),
         // "Auto" => (new AutoShiftController)->processByManual($request)
     ];
 });
@@ -116,6 +117,46 @@ Route::get('/open_door', function (Request $request) {
     // return "Awesome APIs";
 });
 
+Route::post('/upload-users', function (Request $request) {
+
+    try {
+
+        $url = "https://sdk.ideahrms.com/{$request->device_id}/AddPerson";
+
+        $request["expiry"] = "2089-12-31 23:59:59";
+
+        // make the POST request using Laravel's HTTP client
+
+
+
+        $response = Http::withoutVerifying()->withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $request->all());
+
+        // check if the request was successful
+        if ($response->ok()) {
+            $request["status"] = true;
+            $request["message"] = $request->name . " " . "has been uploaded to " . $request->device_id;
+        } else {
+            $request["status"] = false;
+            $request["message"] = $request->name . " " . "cannot upload to " . $request->device_id;
+            // ...
+        }
+    } catch (\Throwable $th) {
+        $request["status"] = false;
+        $request["message"] = $request->name . " " . "cannot upload to " . $request->device_id;
+    }
+
+    if ($response["status"] == 102 || $response["status"] == 103) {
+        $request["status"] = false;
+        $request["message"] = "The device is not connected to the server or is not registered.";
+    }
+
+    return $request->all();
+});
+
+
+
 Route::get('/open_door_always', function (Request $request) {
 
     $curl = curl_init();
@@ -156,7 +197,9 @@ Route::get('/check_device_health', function (Request $request) {
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "http://139.59.69.241:5000/CheckDeviceHealth/$device_id",
+
+            // CURLOPT_URL => "https://sdk.ideahrms.com/CheckDeviceHealth/$device_id",
+            // CURLOPT_URL => "http://139.59.69.241:5000/CheckDeviceHealth/$device_id",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,

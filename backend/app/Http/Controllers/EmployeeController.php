@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use DateTime;
-use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Employee;
@@ -14,7 +12,6 @@ use App\Models\CompanyContact;
 use App\Models\ScheduleEmployee;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use function GuzzleHttp\Promise\all;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,7 +20,6 @@ use App\Http\Requests\Employee\ContactRequest;
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\EmployeeOtherRequest;
 use App\Http\Requests\Employee\EmployeeImportRequest;
-
 use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Http\Requests\Employee\EmployeeContactRequest;
@@ -173,6 +169,23 @@ class EmployeeController extends Controller
     {
         return $employee->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role"])->whereId($employee->id)->first();
     }
+    public function employeesList(Request $request)
+    {
+        $columns = $request->columns;
+        $condition = gettype($columns) == "array" && !in_array("*", $columns) && count($columns) > 0 ? true : false;
+        
+        $model = Employee::query();
+        $model->where(function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+        $model->when($condition, function ($q) use ($columns) {
+            $q->select($columns);
+            $q->withOut(["schedule", "department"]);
+        });
+
+        return $model->paginate($request->per_page);
+    }
+
     public function employeesByDepartment(Request $request)
     {
         $model = Employee::query();
