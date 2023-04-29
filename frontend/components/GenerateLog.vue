@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
     <v-row>
-      <v-col md="2">
+      <v-col md="6">
         <v-text-field
           v-model="log_payload.user_id"
           label="User Id"
@@ -15,16 +15,28 @@
           errors.user_id[0]
         }}</span>
       </v-col>
-      <v-col md="2">
-        <v-text-field
+      <v-col md="6">
+        <!-- <v-text-field
           v-model="log_payload.device_id"
           label="Device Id"
-        ></v-text-field>
+        ></v-text-field> -->
+        <v-autocomplete
+          label="Select Device"
+          v-model="log_payload.device_id"
+          :items="devices"
+          item-text="name"
+          item-value="device_id"
+          :rules="deviceRules"
+        >
+        </v-autocomplete>
+        <span v-if="errors && errors.device_id" class="text-danger mt-2">{{
+          errors.device_id[0]
+        }}</span>
         <span v-if="errors && errors.device_id" class="text-danger mt-2">{{
           errors.device_id[0]
         }}</span>
       </v-col>
-      <v-col md="2">
+      <v-col md="6">
         <v-menu
           ref="menu"
           v-model="menu"
@@ -45,9 +57,7 @@
           </template>
           <v-date-picker v-model="log_payload.date" no-title scrollable>
             <v-spacer></v-spacer>
-            <v-btn text color="primary" @click="menu = false">
-              Cancel
-            </v-btn>
+            <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>
             <v-btn
               text
               color="primary"
@@ -58,7 +68,7 @@
           </v-date-picker>
         </v-menu>
       </v-col>
-      <v-col md="2">
+      <v-col md="6">
         <v-menu
           ref="time_menu_ref"
           v-model="time_menu"
@@ -103,11 +113,9 @@
         }}</span>
       </v-col>
       <v-col md="1">
-        <v-btn small color="primary" @click="store_schedule">
-          Submit
-        </v-btn>
+        <v-btn small color="primary" @click="store_schedule"> Submit </v-btn>
       </v-col>
-        <!-- <v-col cols="12">
+      <!-- <v-col cols="12">
           <v-data-table
             v-model="ids"
             item-key="id"
@@ -128,6 +136,7 @@
 
 <script>
 export default {
+  props: ["devices"],
   data: () => ({
     Model: "Generate Log",
     endpoint: "attendance_logs",
@@ -139,7 +148,7 @@ export default {
     time_menu: false,
 
     log_payload: {
-      user_id: 3116,
+      user_id: 1001,
       device_id: "OX-8662022010289",
       date: null,
       time: null
@@ -216,6 +225,11 @@ export default {
       };
       this.loading = true;
 
+      if (!user_id || !date || !device_id || !time) {
+        alert("Please enter required fields");
+        return;
+      }
+
       this.$axios
         .post(`/generate_log`, log_payload)
         .then(({ data }) => {
@@ -236,9 +250,8 @@ export default {
         });
     },
     processAttendance() {
-       this.$axios.get(`/ProcessAttendance`)
-        .then(({ data }) => {});
-    },
+      this.$axios.get(`/ProcessAttendance`).then(({ data }) => {});
+    }
   }
 };
 </script>
