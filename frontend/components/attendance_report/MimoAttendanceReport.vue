@@ -143,6 +143,111 @@
       </v-dialog>
     </v-row>
 
+    <v-row justify="center">
+      <v-dialog v-model="renderReportByManualDialog" max-width="700px">
+        <v-card>
+          <v-card-title class="primary darken-2">
+            <span class="headline white--text"> Render Report </span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-col md="12">
+                    <v-col md="12">
+                      <v-text-field
+                        v-model="editItems.UserID"
+                        label="User Id"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="12">
+                      <v-menu
+                        ref="menu"
+                        v-model="menu"
+                        :close-on-content-click="false"
+                        :return-value.sync="date"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="auto"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="editItems.date"
+                            label="Date"
+                            readonly
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
+                          v-model="editItems.date"
+                          no-title
+                          scrollable
+                        >
+                          <v-spacer></v-spacer>
+                          <v-btn text color="primary" @click="menu = false">
+                            Cancel
+                          </v-btn>
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="$refs.menu.save(editItems.date)"
+                          >
+                            OK
+                          </v-btn>
+                        </v-date-picker>
+                      </v-menu>
+                    </v-col>
+                  </v-col>
+                </v-form>
+              </v-row>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              class="error"
+              small
+              @click="renderReportByManualDialog = false"
+            >
+              Cancel
+            </v-btn>
+            <v-btn class="primary" small @click="update_process_by_manual"
+              >Save</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
+
+    <v-row justify="center">
+      <v-dialog v-model="generateLogsDialog" max-width="700px">
+        <v-card>
+          <v-card-title class="primary darken-2">
+            <span class="headline white--text"> Generate Log </span>
+            <v-spacer></v-spacer>
+            <v-icon dark @click="generateLogsDialog = false"
+              >mdi-close-box</v-icon
+            >
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <GenerateLog :devices="devices" />
+              </v-row>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <!-- <v-btn class="error" small @click="generateLogsDialog = false">
+              Cancel
+            </v-btn> -->
+            <!-- <v-btn class="primary" small @click="update">Save</v-btn> -->
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
+
     <v-row class="mt-5 mb-5">
       <v-col cols="6">
         <h3>{{ Model }}</h3>
@@ -577,6 +682,36 @@
         </template>
         <span>CSV</span>
       </v-tooltip>
+      <v-tooltip top color="primary" v-if="process.env.DEBUG">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="generateLogsDialog = true"
+          >
+            <v-icon class="">mdi-plus-circle-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Generate Log</span>
+      </v-tooltip>
+      <v-tooltip top color="primary" v-if="process.env.DEBUG">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+            @click="renderReportByManualDialog = true"
+          >
+            <v-icon class="">mdi-cached</v-icon>
+          </v-btn>
+        </template>
+        <span>Render Report</span>
+      </v-tooltip>
     </v-toolbar>
 
     <v-toolbar
@@ -823,6 +958,9 @@ export default {
   props: ["main_report_type_props"],
 
   data: () => ({
+    date: null,
+    menu: false,
+
     isCompany: true,
     time_table_dialog: false,
     log_details: false,
@@ -839,6 +977,8 @@ export default {
     snackbar: false,
     add_manual_log: false,
     dialog: false,
+    generateLogsDialog: false,
+    renderReportByManualDialog: false,
     from_date: null,
     from_menu: false,
     to_date: null,
@@ -1271,10 +1411,13 @@ export default {
       let payload = {
         params: {
           date: this.editItems.date,
-          UserID: [this.editItems.UserID],
+          UserIDs: [this.editItems.UserID],
           company_ids: [this.$auth.user.company.id]
         }
       };
+
+      console.log(payload);
+
       this.$axios
         .get("/processByManual", payload)
         .then(({ data }) => {
