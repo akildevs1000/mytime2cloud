@@ -29,7 +29,7 @@ class RestartSdk extends Command
     {
 
         // info('restart sdk');
-        echo exec('pm2 restart 4');
+        echo exec('pm2 restart 0');
 
         // return 0;
     }
