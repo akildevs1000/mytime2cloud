@@ -127,6 +127,27 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/pdf.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+
+        // -----------for test by shabeer -------------
+
+        $schedule
+            ->command('restart_sdk')
+            ->everyFiveMinutes();
+
+
+
+
+        // // -----------for test-------------
+
+        // $schedule
+        //     ->command('task:sync_absent')
+        //     ->everyMinute()
+        //     // ->dailyAt('1:00')
+        //     ->appendOutputTo(storage_path("logs/$date-absents.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        // return;
+
         // ReportNotification
 
         // $models = ReportNotification::get();
