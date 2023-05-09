@@ -132,8 +132,12 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('restart_sdk')
-            ->everyFiveMinutes();
-
+            // ->everyMinute()
+            // ->everyThirtyMinutes()
+            ->dailyAt('4:00')
+            //->hourly()
+            ->appendOutputTo(storage_path("logs/restart_sdk.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
 
