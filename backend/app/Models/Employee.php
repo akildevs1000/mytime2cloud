@@ -51,6 +51,11 @@ class Employee extends Model
         ]);
     }
 
+    public function payroll()
+    {
+        return $this->belongsTo(Payroll::class,"system_user_id", "employee_id");
+    }
+
     public function department()
     {
         return $this->belongsTo(Department::class);

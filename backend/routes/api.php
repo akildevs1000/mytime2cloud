@@ -4,4 +4,7 @@ include('company.php');
 include('pdf.php');
 include('sdk.php');
 include('notification.php');
+include('payroll.php');
+include('payroll_formula.php');
+include('payslip.php');
 include('test.php');

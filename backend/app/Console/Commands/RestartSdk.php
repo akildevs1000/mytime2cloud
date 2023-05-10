@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log as Logger;
+
 
 class RestartSdk extends Command
 {
@@ -27,10 +29,12 @@ class RestartSdk extends Command
      */
     public function handle()
     {
-
-        // info('restart sdk');
-        echo exec('pm2 restart 0');
-
-        // return 0;
+        try {
+            exec('pm2 restart 0');
+            echo "SDK restarted successfully\n";
+        } catch (\Throwable $th) {
+            Logger::channel("custom")->error('Cron: RestartSdk. Error Details: ' . $th);
+            echo "[" . date("Y-m-d H:i:s") . "] Cron: SyncAbsent. Error occurred while inserting logs.\n";
+        }
     }
 }

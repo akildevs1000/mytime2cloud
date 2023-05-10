@@ -9,7 +9,7 @@ Installation Guide:
       - LOCAL_PORT=3000
       - BACKEND_URL=http://localhost:8000/api
       - SOCKET_ENDPOINT=web socket endpoint
-      - Hash=you hash
   - npm run dev (dev environment)
   - npm run build && npm run start (production environment)
   - pm2 start "npm run start" --name "Nuxt"
+  - pm2 start "dotnet FCardProtocolAPI.dll" --name "sdk production"
