@@ -66,11 +66,7 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/$date-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        $schedule
-            ->command('task:db_backup')
-            ->dailyAt('3:00')
-            ->appendOutputTo(storage_path("logs/db_backup.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
 
         // $schedule
         //     ->command('task:check_device_health')
@@ -128,16 +124,23 @@ class Kernel extends ConsoleKernel
         //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
-        // -----------for test by shabeer -------------
+        if (env("APP_ENV") == "production") {
+            $schedule
+                ->command('task:db_backup')
+                ->dailyAt('3:00')
+                ->appendOutputTo(storage_path("logs/db_backup.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        $schedule
-            ->command('restart_sdk')
-            // ->everyMinute()
-            // ->everyThirtyMinutes()
-            ->dailyAt('4:00')
-            //->hourly()
-            ->appendOutputTo(storage_path("logs/restart_sdk.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            $schedule
+                ->command('restart_sdk')
+                // ->everyMinute()
+                // ->everyThirtyMinutes()
+                ->dailyAt('4:00')
+                //->hourly()
+                ->appendOutputTo(storage_path("logs/restart_sdk.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        }
+
 
 
 
