@@ -20,6 +20,14 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
+        if (env("APP_DEBUG")) {
+            $schedule
+                ->command('task:test_cron')
+                ->everyMinute()
+                ->appendOutputTo(storage_path("logs/test_cron.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        }
+
         $schedule
             ->command('task:sync_all_shifts')
             // ->dailyAt('4:00')
