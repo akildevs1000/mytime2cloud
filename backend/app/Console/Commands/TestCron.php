@@ -29,8 +29,13 @@ class TestCron extends Command
      */
     public function handle()
     {
+        $date = date("Y-m-d H:i:s");
+        $script_name = "TestCron";
+
+        $meta = "[$date] Cron: $script_name.";
+
         try {
-            echo "Testing Cron...\n";
+            echo $meta . " Testing Cron...\n.";
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: TestCron. Error Details: ' . $th);
             echo "[" . date("Y-m-d H:i:s") . "] Cron: TestCron. Error occurred while inserting logs.\n";
