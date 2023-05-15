@@ -22,7 +22,7 @@ class Kernel extends ConsoleKernel
 
         if (env("APP_DEBUG")) {
             $schedule
-                ->command('task:test_cron')
+                ->command('test_cron')
                 ->everyMinute()
                 ->appendOutputTo(storage_path("logs/test_cron.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
