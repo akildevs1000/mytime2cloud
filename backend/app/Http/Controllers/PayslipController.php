@@ -13,20 +13,21 @@ class PayslipController extends Controller
     public function show(Request $request, $id)
     {
         // $this->renderFakeData($request->company_id, $id);
-        $conditions = ["company_id" => $request->company_id, "employee_id" => $id];
 
-        $attendances = Attendance::where($conditions)
-            ->whereMonth('date', '=', date('m'))
-            ->whereIn('status', ['P', 'A'])
-            ->get();
-
-        $Payroll = Payroll::with(["payroll_formula"])->where($conditions)->first(["basic_salary", "net_salary", "earnings", "company_id"]);
+        $Payroll = Payroll::where(["employee_id" => $id])->first(["basic_salary", "net_salary", "earnings", "company_id"]);
 
         $salary_type = $Payroll->payroll_formula->salary_type;
         $Payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $Payroll->basic_salary  : $Payroll->net_salary;
 
         $Payroll->perDaySalary = $this->getPerDaySalary($Payroll->SELECTEDSALARY ?? 0);
         $Payroll->perHourSalary = $this->getPerHourSalary($Payroll->perDaySalary ?? 0);
+
+        $conditions = ["company_id" => $request->company_id, "employee_id" => $request->employee_id];
+
+        $attendances = Attendance::where($conditions)
+            ->whereMonth('date', '=', date('m'))
+            ->whereIn('status', ['P', 'A'])
+            ->get();
 
         $Payroll->present = $attendances->where('status', 'P')->count();
         $Payroll->absent = $attendances->where('status', 'A')->count();
@@ -45,7 +46,7 @@ class PayslipController extends Controller
             "value" => $Payroll->earnedSalary
         ];
 
-        $Payroll->earnings = array_merge([$extraEarnings],$Payroll->earnings);
+        $Payroll->earnings = array_merge([$extraEarnings], $Payroll->earnings);
 
         // array_push($Payroll->earnings,"s");
 

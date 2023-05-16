@@ -160,16 +160,28 @@
 
 <script>
 export default {
-  props: ["qualification_list"],
+  props: ["employeeId"],
   data() {
     return {
       qualification_info: false,
       snackbar: false,
       response: "",
-      errors: []
+      errors: [],
+      qualification_list: {}
     };
   },
+  created() {
+    this.getQualificationInfo(this.employeeId);
+  },
   methods: {
+    getQualificationInfo(id) {
+      this.$axios.get(`qualification/${id}`).then(({ data }) => {
+        this.qualification_list = {
+          ...data,
+          employee_id: id
+        };
+      });
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";

@@ -244,38 +244,24 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
+    <div class="text-right pr-5">
+      <v-icon
+        v-if="can(`employee_personal_edit_access`)"
+        @click="personal_info = true"
+        small
+        class="grey"
+        style="border-radius: 50%; padding: 5px"
+        color="secondary"
+        >mdi-pencil</v-icon
+      >
+    </div>
     <table>
-      <!-- <tr>
-        <th></th>
-        <td style="text-align: right;">
-          <v-icon
-            v-if="can(`employee_personal_edit_access`)"
-            @click="personal_info = true"
-            small
-            class="grey"
-            style="border-radius: 50%; padding: 5px"
-            color="secondary"
-            >mdi-pencil</v-icon
-          >
-        </td>
-      </tr> -->
       <tr>
         <th>Nationality</th>
         <td>
           {{ caps(personalItem.nationality || "---") }}
         </td>
-        <td style="text-align: right;">
-          <v-icon
-            v-if="can(`employee_personal_edit_access`)"
-            @click="personal_info = true"
-            small
-            class="grey"
-            style="border-radius: 50%; padding: 5px"
-            color="secondary"
-            >mdi-pencil</v-icon
-          >
-        </td>
+        <td style="text-align: right;"></td>
       </tr>
       <tr>
         <th>Religion</th>
@@ -353,18 +339,28 @@
 
 <script>
 export default {
-  props: ["personalItem"],
+  props: ["employeeId"],
   data() {
     return {
       personal_info: false,
       add_other_personal_info: false,
       snackbar: false,
       response: "",
-      errors: []
+      errors: [],
+      personalItem: {}
     };
   },
 
+  created() {
+    this.getInfo();
+  },
+
   methods: {
+    getInfo() {
+      this.$axios.get(`personalinfo/${this.employeeId}`).then(({ data }) => {
+        this.personalItem = data;
+      });
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";
@@ -385,7 +381,7 @@ export default {
       let payload = {
         ...this.personalItem,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: this.personalItem.employee_id
+        employee_id: this.employeeId
       };
 
       this.$axios

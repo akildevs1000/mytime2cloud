@@ -119,7 +119,7 @@
 
 <script>
 export default {
-  props: ["document_list", "employeeId"],
+  props: ["employeeId"],
   data() {
     return {
       snackbar: false,
@@ -136,10 +136,20 @@ export default {
       TitleRules: [v => !!v || "Title is required"],
       Document: {
         items: [{ title: "", file: "" }]
-      }
+      },
+      document_list: []
     };
   },
+  created() {
+    this.getInfo(this.employeeId);
+  },
   methods: {
+    getInfo(id) {
+      this.$axios.get(`documentinfo/${id}`).then(({ data }) => {
+        this.document_list = data;
+        this.loading = false;
+      });
+    },
     can(item) {
       return true;
     },

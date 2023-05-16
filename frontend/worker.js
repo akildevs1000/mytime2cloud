@@ -50,7 +50,7 @@ socket.onerror = ({ message: msg }) => {
 
 socket.onmessage = async ({ data }) => {
   try {
-    let { UserCode, DeviceID, RecordDate, RecordNumber } = JSON.parse(
+    let { UserCode, SN:DeviceID, RecordDate, RecordNumber } = JSON.parse(
       data
     ).Data;
 
@@ -71,7 +71,7 @@ socket.onmessage = async ({ data }) => {
       );
       await pool.query(query);
 
-      sanitizedValues.pop()
+      sanitizedValues.pop();
 
       let str = sanitizedValues.join(",");
 

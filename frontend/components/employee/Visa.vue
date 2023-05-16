@@ -296,17 +296,28 @@
 
 <script>
 export default {
-  props: ["visaItem"],
+  props: ["employeeId"],
   data() {
     return {
       visa_info: false,
       snackbar: false,
       response: "",
-      errors: []
+      errors: [],
+      visaItem:{}
     };
   },
-
+  created() {
+    this.getInfo(this.employeeId);
+  },
   methods: {
+    getInfo(id) {
+      this.$axios.get(`visa/${id}`).then(({ data }) => {
+        this.visaItem = {
+          ...data,
+          employee_id: id
+        };
+      });
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";

@@ -759,44 +759,46 @@ export default {
     getDataFromApi() {
       this.preloader = true;
       this.id = this.$route.params.id;
-      this.$axios.get(`employee/${this.id}`).then(({ data }) => {
-        this.payload = {
-          first_name: data.first_name,
-          last_name: data.last_name,
-          user_name: data.user.name,
-          display_name: data.display_name,
-          email: data.user.email,
-          role_id: data.role_id,
-          profile_picture: data.profile_picture,
-          title: data.title,
-          file_no: data.file_no == "null" ? "" : data.file_no
-        };
+      this.$axios
+        .get(`employee/${this.id}?company_id=${this.$auth.user.company.id }`)
+        .then(({ data }) => {
+          this.payload = {
+            first_name: data.first_name,
+            last_name: data.last_name,
+            user_name: data.user.name,
+            display_name: data.display_name,
+            email: data.user.email,
+            role_id: data.role_id,
+            profile_picture: data.profile_picture,
+            title: data.title,
+            file_no: data.file_no == "null" ? "" : data.file_no
+          };
 
-        this.contact = {
-          phone_number: data.phone_number,
-          whatsapp_number: data.whatsapp_number,
-          phone_relative_number: data.phone_relative_number,
-          relation: data.relation,
+          this.contact = {
+            phone_number: data.phone_number,
+            whatsapp_number: data.whatsapp_number,
+            phone_relative_number: data.phone_relative_number,
+            relation: data.relation,
 
-          local_email: data.local_email,
-          local_address: data.local_address,
-          local_country: data.local_country,
-          local_city: data.local_city
-        };
+            local_email: data.local_email,
+            local_address: data.local_address,
+            local_country: data.local_country,
+            local_city: data.local_city
+          };
 
-        this.other = {
-          designation_id: data.designation_id,
-          department_id: data.department_id,
-          joining_date: data.edit_joining_date,
-          employee_id: data.employee_id,
-          system_user_id: data.system_user_id,
-          sub_department_id: data.sub_department_id,
-          type: data.type,
-          grade: data.grade
-        };
+          this.other = {
+            designation_id: data.designation_id,
+            department_id: data.department_id,
+            joining_date: data.edit_joining_date,
+            employee_id: data.employee_id,
+            system_user_id: data.system_user_id,
+            sub_department_id: data.sub_department_id,
+            type: data.type,
+            grade: data.grade
+          };
 
-        this.preloader = false;
-      });
+          this.preloader = false;
+        });
     },
 
     onpick_attachment() {

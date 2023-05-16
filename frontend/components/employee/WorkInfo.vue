@@ -5,69 +5,64 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <table>
-      <tr>
-        <th>Status</th>
-        <td>
-          <v-switch
-            color="success"
-            class="mt-0 ml-2"
-            v-model="setting.status"
-          ></v-switch>
-        </td>
-      </tr>
+    <div style="text-align: right;" class="pr-5">
+      <v-icon
+        @click="editItem"
+        small
+        class="grey"
+        style="border-radius: 50%; padding: 5px;"
+        color="secondary"
+        >mdi-pencil</v-icon
+      >
+    </div>
 
-      <tr>
-        <th>Mobile Application</th>
-        <td>
-          <v-switch
-            color="success"
-            class="mt-0 ml-2"
-            v-model="setting.mobile_application"
-          ></v-switch>
-        </td>
-      </tr>
-
-      <tr>
-        <th>Over Time</th>
-        <td>
-          <div class="text-overline mb-1">
-            <v-switch
-              color="success"
-              class="mt-0 ml-2"
-              v-model="setting.overtime"
-            ></v-switch>
-          </div>
-        </td>
-      </tr>
-      <div class="w-100">
-        <v-btn class="primary mt-1 w-25" @click="update_setting">Save</v-btn>
-      </div>
-    </table>
+    <KeyValueTable :data="table_data" :hideEditBtn="true" />
   </div>
 </template>
 
 <script>
+import KeyValueTable from "./KeyValueTable.vue";
+
 export default {
+  components: { KeyValueTable },
   props: ["employeeId"],
   data() {
     return {
       response: "",
       snackbar: false,
-      setting: {}
+      work: {},
+      table_data: {}
     };
   },
   created() {
-    this.getInfo(this.employeeId);
+    this.getInfo();
   },
   methods: {
-    getInfo(id) {
-      this.$axios.get(`employee/${id}`).then(({ data }) => {
-        this.employeeId = data.id;
-        this.setting = {
-          ...data
-        };
-      });
+    getInfo() {
+      this.$axios
+        .get(
+          `employee/${this.employeeId}`
+        )
+        .then(async ({ data }) => {
+          
+          this.table_data = {
+            Role: await data.role.name,
+            EID: data.employee_id,
+            Name: data.display_name,
+            Department: await data.department.name,
+            "Sub Department": (await data.sub_department)
+              ? data.sub_department.name
+              : "---",
+            Email: await data.user.email,
+            "Whatsapp Number": data.whatsapp_number,
+            "Joining Date": data.joining_date
+          };
+
+          this.work = data;
+        });
+    },
+    editItem() {
+      this.$router.push(`/employees/${this.employeeId}`);
     },
     caps(str) {
       if (str == "" || str == null) {

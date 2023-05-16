@@ -74,22 +74,39 @@
             </v-chip>
           </td>
           <td>
-            <v-icon color="primary" @click="open_door(item.device_id)"
-              >mdi-door</v-icon
+            <v-chip
+              small
+              class="p-2 mx-1"
+              color="primary"
+              @click="open_door(item.device_id)"
             >
-            <v-icon color="primary" @click="open_door_always(item.device_id)"
-              >mdi-door-sliding-open</v-icon
+              Open
+            </v-chip>
+
+            <v-chip
+              small
+              class="p-2 mx-1"
+              color="primary"
+              @click="open_door_always(item.device_id)"
             >
-            <v-icon color="error" @click="close_door(item.device_id)"
-              >mdi-door-closed-lock</v-icon
+              Open Always
+            </v-chip>
+
+            <v-chip
+              small
+              class="p-2 mx-1"
+              color="error"
+              @click="open_door_always(item.device_id)"
             >
+              Close
+            </v-chip>
           </td>
 
           <td>
             <v-chip
               small
               class="p-2 mx-1"
-              @click="sync_date_time(item.device_id)"
+              @click="sync_date_time(item)"
               :color="'primary'"
             >
               {{
@@ -168,7 +185,7 @@ export default {
   },
 
   methods: {
-    sync_date_time(device_id) {
+    sync_date_time(item) {
       let dt = new Date();
 
       let year = dt.getFullYear();
@@ -193,12 +210,15 @@ export default {
       };
 
       this.$axios
-        .get(`sync_device_date_time/${device_id}`, options)
+        .get(`sync_device_date_time/${item.device_id}`, options)
         .then(({ data }) => {
-          console.log(data);
+          if (data.status) {
+            const index = this.data.findIndex(row => row.id == item.id);
+            this.data.splice(index, 1, data.record);
+          }
+
           this.snackbar = true;
           this.response = data.message;
-          // this.getDataFromApi();
         });
     },
     open_door(device_id) {
@@ -206,9 +226,10 @@ export default {
         params: { device_id }
       };
       this.$axios.get(`open_door`, options).then(({ data }) => {
+        console.log(data);
         this.snackbar = true;
-        this.response = data.message;
-        this.getDataFromApi();
+        this.response = data;
+        // this.getDataFromApi();
       });
     },
     open_door_always(device_id) {

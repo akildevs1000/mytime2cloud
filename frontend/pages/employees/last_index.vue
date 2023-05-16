@@ -12,18 +12,7 @@
           <div>Dashboard / {{ Model }}</div>
         </v-col>
         <v-col cols="6">
-          <!-- <div class="text-left">
-            <v-btn
-              small
-              class="primary--text pt-4 pb-4"
-              to="/employees/employee_list"
-            >
-              <v-icon class="pa-0">mdi-menu</v-icon>
-            </v-btn>
-            <v-btn x-small class="primary pt-4 pb-4" to="/employees">
-              <v-icon class="pa-0">mdi-grid</v-icon>
-            </v-btn>
-          </div> -->
+          <div class="text-left"></div>
           <div class="text-right mt-6">
             <v-btn
               small
@@ -250,7 +239,9 @@
 
               <v-card v-else height="700px" class="view-card mx-0 my-0 pa-0">
                 <v-toolbar color="primary " dark flat fixed max-height="55">
-                  <v-toolbar-title>{{ caps(ListName) }}</v-toolbar-title>
+                  <v-toolbar-title>{{
+                    selectedItem == 0 ? "Work Information" : caps(ListName)
+                  }}</v-toolbar-title>
                 </v-toolbar>
 
                 <v-container grid-list-xs>
@@ -280,13 +271,250 @@
                     </p>
                   </div>
                   <v-divider style="width:94%;"></v-divider>
-
+                  <!-- work info -->
                   <section style="width:94%">
                     <v-row>
-                      <v-col md="12" color="primary">
+                      <v-col md="12" v-show="selectedItem == 0" color="primary">
                         <v-expand-x-transition>
-                          <section>
-                            <component :employeeId="employeeId" :is="comp" />
+                          <section class="pridmary" v-show="selectedItem == 0">
+                            <table>
+                              <tr>
+                                <th>Role</th>
+                                <td>
+                                  {{
+                                    (work && work.role && work.role.name) ||
+                                      "---"
+                                  }}
+                                </td>
+                                <td style="text-align: right;">
+                                  <v-icon
+                                    v-if="can(`employee_personal_edit_access`)"
+                                    @click="editItem(work)"
+                                    small
+                                    class="grey"
+                                    style="border-radius: 50%; padding: 5px"
+                                    color="secondary"
+                                    >mdi-pencil</v-icon
+                                  >
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>EID</th>
+                                <td>
+                                  {{ (work && work.employee_id) || "----" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>First Name</th>
+                                <td>
+                                  {{ caps(work && work.first_name) || "---" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Last Name</th>
+                                <td>
+                                  {{ caps(work && work.last_name) || "---" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Department</th>
+                                <td>
+                                  {{
+                                    (work &&
+                                      work.department &&
+                                      work.department.name) ||
+                                      "----"
+                                  }}
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>Sub Department</th>
+                                <td>
+                                  {{
+                                    (work &&
+                                      work.sub_department &&
+                                      work.sub_department.name) ||
+                                      "----"
+                                  }}
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>Email</th>
+                                <td>
+                                  {{
+                                    (work && work.user && work.user.email) ||
+                                      "----"
+                                  }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Whatsapp Number</th>
+                                <td>
+                                  {{ (work && work.whatsapp_number) || "----" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Joining Date</th>
+                                <td>
+                                  {{ (work && work.joining_date) || "----" }}
+                                </td>
+                              </tr>
+                            </table>
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- personal info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col md="12" v-show="selectedItem == 1" color="primary">
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 1">
+                            <Personal :personalItem="personalItem" />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- contact info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-3"
+                        v-show="selectedItem == 2"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 2">
+                            <Contact :contactItem="contactItem" /></section
+                        ></v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Passport info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-6"
+                        v-show="selectedItem == 3"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 3">
+                            <Passport :passport_list="passport_list" />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Emirates info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-10"
+                        v-show="selectedItem == 4"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 4">
+                            <Emirates :emirateItems="emirateItems" />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Visa info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-10"
+                        v-show="selectedItem == 5"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 5">
+                            <Visa :visaItem="visaItem" />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Bank info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-10"
+                        v-show="selectedItem == 6"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 6">
+                            <Bank :BankInfo="BankInfo" />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Document info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-10"
+                        v-show="selectedItem == 7"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 7">
+                            <!-- <Document :BankInfo="BankInfo" /> -->
+                            <Document
+                              :document_list="document_list"
+                              :employeeId="employeeId"
+                            />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Qualification info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-10"
+                        v-show="selectedItem == 8"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 8">
+                            <Qualification
+                              :qualification_list="qualification_list"
+                            />
+                          </section>
+                        </v-expand-x-transition>
+                      </v-col>
+                    </v-row>
+                  </section>
+                  <!-- Setting info -->
+                  <section style="width:94%">
+                    <v-row>
+                      <v-col
+                        md="12"
+                        class="mt-10"
+                        v-show="selectedItem == 9"
+                        color="primary"
+                      >
+                        <v-expand-x-transition>
+                          <section class="pridmary" v-show="selectedItem == 9">
+                            <Setting :setting="setting" />
                           </section>
                         </v-expand-x-transition>
                       </v-col>
@@ -313,12 +541,12 @@
                   </v-list>
                   <!-- <v-divider></v-divider> -->
                   <v-list dense class="mt-0 pt-0">
-                    <v-list-item-group color="primary">
+                    <v-list-item-group v-model="selectedItem" color="primary">
                       <v-list-item
+                        @click="getListName(item.text)"
                         class="py-2"
                         v-for="(item, i) in items"
                         :key="i"
-                        @click="getListItem(item, i)"
                       >
                         <v-list-item-icon>
                           <v-icon>{{ item.icon }}</v-icon>
@@ -343,7 +571,6 @@
 </template>
 
 <script>
-import WorkInfo from "../../components/employee/WorkInfo.vue";
 import Personal from "../../components/employee/Personal.vue";
 import Contact from "../../components/employee/Contact.vue";
 import Passport from "../../components/employee/Passport.vue";
@@ -353,26 +580,8 @@ import Bank from "../../components/employee/Bank.vue";
 import Document from "../../components/employee/Document.vue";
 import Qualification from "../../components/employee/Qualification.vue";
 import Setting from "../../components/employee/Setting.vue";
-import Payroll from "../../components/employee/Payroll.vue";
-
-const compList = [
-  WorkInfo,
-  Personal,
-  Contact,
-  Passport,
-  Emirates,
-  Visa,
-  Bank,
-  Document,
-  Qualification,
-  Setting,
-  Payroll
-];
-
 export default {
-  components: { compList },
   data: () => ({
-    comp: "WorkInfo",
     m: false,
     expand: false,
     expand2: false,
@@ -380,6 +589,7 @@ export default {
     right: true,
     rightDrawer: false,
     drawer: true,
+    selectedItem: 0,
     tab: null,
     items: [
       {
@@ -434,7 +644,7 @@ export default {
       },
       {
         text: "Payroll",
-        icon: "mdi-cash-multiple",
+        icon: "mdi-wrench",
         permission: "employee_setting_access"
       }
       // {
@@ -463,11 +673,109 @@ export default {
     btnLoader: false,
     max_employee: 0,
     payload: {},
-    personalItem: {},
-    contactItem: {},
-    emirateItems: {},
-    setting: {},
-    employeeId: ""
+    work: {
+      display_name: "",
+      first_name: "",
+      last_name: "",
+      department: "",
+      sub_department: "",
+      designation: "",
+      role: "",
+      employee_id: "",
+      system_user_id: "",
+      user: "",
+      profile_picture: "",
+      phone_number: "",
+      whatsapp_number: "",
+      joining_date: ""
+    },
+    personalItem: {
+      passport_no: "",
+      passport_expiry: "",
+      tel: "",
+      nationality: "",
+      religion: "",
+      marital_status: "",
+      no_of_spouse: "",
+      no_of_children: "",
+      father_name: "",
+      mother_name: "",
+      gender: "",
+      date_of_birth: "",
+      company_id: "",
+      employee_id: ""
+    },
+    contactItem: {
+      local_address: "",
+      phone_number: "",
+      whatsapp_number: "",
+      phone_relative_number: "",
+      whatsapp_relative_number: "",
+      local_fax: "",
+      local_email: "",
+      local_country: "",
+      local_city: "",
+      local_residence_no: "",
+      relation: "",
+      home_address: "",
+      home_tel: "",
+      home_tel: "",
+      home_mobile: "",
+      home_fax: "",
+      home_city: "",
+      home_state: "",
+      home_country: "",
+      home_email: "",
+      other_value: "",
+      other_text: "",
+      company_id: "",
+      employee_id: ""
+    },
+    emirateItems: {
+      emirate_id: "",
+      name: "",
+      gender: "",
+      date_of_birth: "",
+      nationality: "",
+      issue: "",
+      expiry: "",
+      company_id: "",
+      employee_id: ""
+    },
+    visaItem: {
+      visa_no: "",
+      place_of_issues: "",
+      country: "",
+      issue_date: "",
+      expiry_date: "",
+      security_amount: "",
+      labour_no: "",
+      personal_no: "",
+      labour_issue_date: "",
+      labour_expiry_date: "",
+      note: "",
+      company_id: "",
+      employee_id: ""
+    },
+    BankInfo: {
+      bank_name: "",
+      account_no: "",
+      account_title: "",
+      iban: "",
+      address: "",
+      company_id: "",
+      employee_id: ""
+    },
+    setting: {
+      status: "",
+      overtime: "",
+      mobile_application: "",
+      employee_id: ""
+    },
+    employeeId: "",
+    passport_list: {},
+    qualification_list: {},
+    document_list: []
   }),
   async created() {
     this.loading = false;
@@ -486,9 +794,8 @@ export default {
     }
   },
   methods: {
-    getListItem(item, index) {
-      this.comp = compList[index];
-      this.ListName = item.text;
+    getListName(val) {
+      this.ListName = val;
     },
     caps(str) {
       if (str == "" || str == null) {
@@ -541,12 +848,84 @@ export default {
     res(id) {
       window.scrollTo(0, 0);
       this.boilerplate = true;
-      this.$axios.get(`/employee/${id}`).then(({ data }) => {
-        this.employeeId = id;
+      this.$axios.get(`employee/${id}`).then(({ data }) => {
+        this.employeeId = data.id;
+        this.contactItem = {
+          ...data
+        };
         this.work = {
           ...data
         };
+        this.setting = {
+          ...data
+        };
+        this.getAllData(data.id);
         this.boilerplate = false;
+      });
+    },
+
+    getAllData(id) {
+      this.getPersonalInfo(id);
+      this.getPassportInfo(id);
+      this.getEmirateInfo(id);
+      this.getVisaInfo(id);
+      this.getBankInfo(id);
+      this.getQualificationInfo(id);
+      this.getDocumentInfo(id);
+    },
+
+    getPersonalInfo(id) {
+      this.$axios.get(`personalinfo/${id}`).then(({ data }) => {
+        this.personalItem = {
+          ...data,
+          employee_id: id
+        };
+      });
+    },
+    getPassportInfo(id) {
+      this.$axios.get(`passport/${id}`).then(({ data }) => {
+        this.passport_list = {
+          ...data,
+          employee_id: id
+        };
+      });
+    },
+    getEmirateInfo(id) {
+      this.$axios.get(`emirate/${id}`).then(({ data }) => {
+        this.emirateItems = {
+          ...data,
+          employee_id: id
+        };
+      });
+    },
+    getVisaInfo(id) {
+      this.$axios.get(`visa/${id}`).then(({ data }) => {
+        this.visaItem = {
+          ...data,
+          employee_id: id
+        };
+      });
+    },
+    getBankInfo(id) {
+      this.$axios.get(`bankinfo/${id}`).then(({ data }) => {
+        this.BankInfo = {
+          ...data,
+          employee_id: id
+        };
+      });
+    },
+    getQualificationInfo(id) {
+      this.$axios.get(`qualification/${id}`).then(({ data }) => {
+        this.qualification_list = {
+          ...data,
+          employee_id: id
+        };
+      });
+    },
+    getDocumentInfo(id) {
+      this.$axios.get(`documentinfo/${id}`).then(({ data }) => {
+        this.document_list = data;
+        this.loading = false;
       });
     },
     export_submit() {
@@ -600,10 +979,8 @@ export default {
         });
     },
     can(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
-      );
+      const { permissions: pers, is_master } = this.$auth.user;
+      return (pers?.includes(per) || pers?.includes("/")) || is_master;
     },
     createEmployee() {
       if (this.total >= this.max_employee) {
@@ -640,7 +1017,11 @@ export default {
         this.work = {
           ...this.data[0]
         };
-        this.getListItem(this.items[0], 0);
+        this.setting = {
+          ...this.data[0]
+        };
+
+        this.getAllData(this.data[0].id);
 
         this.max_employee = this.$auth.user.company.max_employee;
         this.next_page_url = data.next_page_url;
@@ -650,6 +1031,9 @@ export default {
         this.boilerplate = false;
       });
     },
+    editItem(item) {
+      this.$router.push(`/employees/${item.id}`);
+    },
     deleteItem(item) {
       confirm("Are you sure you want to delete this item?") &&
         this.$axios.delete(this.endpoint + "/" + item.id).then(res => {
@@ -658,6 +1042,17 @@ export default {
           this.getDataFromApi();
         });
     }
+  },
+  components: {
+    Personal,
+    Contact,
+    Passport,
+    Emirates,
+    Visa,
+    Bank,
+    Document,
+    Qualification,
+    Setting
   }
 };
 </script>

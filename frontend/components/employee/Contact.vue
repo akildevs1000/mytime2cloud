@@ -295,24 +295,18 @@
       <v-responsive height="100vh" class="text-center pa-2">
         <v-responsive min-height="0vh"></v-responsive>
         <div class="text-center text-body-2 mb-12">
+          <div class="text-right">
+            <v-icon
+              v-if="can(`employee_personal_edit_access`)"
+              @click="contact_info = true"
+              small
+              class="grey"
+              style="border-radius: 50%; padding: 5px"
+              color="secondary"
+              >mdi-pencil</v-icon
+            >
+          </div>
           <table>
-            <tr>
-              <!-- <td>{{ contactItem }}</td> -->
-            </tr>
-            <tr>
-              <th></th>
-              <td style="text-align: right;">
-                <v-icon
-                  v-if="can(`employee_personal_edit_access`)"
-                  @click="contact_info = true"
-                  small
-                  class="grey"
-                  style="border-radius: 50%; padding: 5px"
-                  color="secondary"
-                  >mdi-pencil</v-icon
-                >
-              </td>
-            </tr>
             <tr>
               <th colspan="2">
                 <v-toolbar color="#E9E9E9" small dense flat rounded="2">
@@ -320,121 +314,18 @@
                 </v-toolbar>
               </th>
             </tr>
+          </table>
 
-            <tr>
-              <th>Email</th>
-              <td>
-                {{ caps(contactItem.local_email) }}
-              </td>
-            </tr>
+          <KeyValueTable :data="table_data" :hideEditBtn="true" />
 
-            <tr>
-              <th>Address</th>
-              <td>
-                {{ caps(contactItem.local_address) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Whatsapp Number</th>
-              <td>
-                {{ contactItem.whatsapp_number }}
-              </td>
-            </tr>
-            <tr>
-              <th>Phone Number</th>
-              <td>
-                {{ contactItem.phone_number }}
-              </td>
-            </tr>
-            <tr>
-              <th>Phone Relative Number</th>
-              <td>
-                {{ contactItem.phone_relative_number }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Relation</th>
-              <td>
-                {{ contactItem.relation }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>City</th>
-              <td>
-                {{ caps(contactItem.local_city) }}
-              </td>
-            </tr>
-            <tr>
-              <th>Country</th>
-              <td>
-                {{ caps(contactItem.local_country) }}
-              </td>
-            </tr>
+          <table>
             <th colspan="2">
               <v-toolbar color="#E9E9E9" small dense flat rounded="2">
                 Home Country
               </v-toolbar>
             </th>
-
-            <tr>
-              <th>Email</th>
-              <td>
-                {{ caps(contactItem.home_email) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Fax</th>
-              <td>
-                {{ caps(contactItem.home_fax) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Telephone</th>
-              <td>
-                {{ caps(contactItem.home_tel) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Phone Number</th>
-              <td>
-                {{ caps(contactItem.home_mobile) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Address</th>
-              <td>
-                {{ caps(contactItem.home_address) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>City</th>
-              <td>
-                {{ caps(contactItem.home_city) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>State</th>
-              <td>
-                {{ caps(contactItem.home_state) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Country</th>
-              <td>
-                {{ caps(contactItem.home_country) }}
-              </td>
-            </tr>
           </table>
+          <KeyValueTable :data="table_data1" :hideEditBtn="true" />
         </div>
       </v-responsive>
     </v-responsive>
@@ -442,19 +333,52 @@
 </template>
 
 <script>
+import KeyValueTable from "./KeyValueTable.vue";
+
 export default {
-  props: ["contactItem"],
+  components: { KeyValueTable },
+  props: ["employeeId"],
   data() {
     return {
       add_other_contact_info: false,
       contact_info: false,
       response: "",
       snackbar: false,
-      errors: []
+      errors: [],
+      contactItem: {},
+      table_data: {},
+      table_data1: {}
     };
   },
-
+  created() {
+    this.getInfo();
+  },
   methods: {
+    getInfo() {
+      this.$axios.get(`employee/${this.employeeId}?company_id=${this.$auth.user.company.id}`).then(async ({ data }) => {
+        this.table_data = {
+          Email: data.local_email,
+          Address: data.local_address,
+          "Whatsapp Number": data.whatsapp_number,
+          "Phone Number": data.phone_number,
+          "Phone Relative Number": data.phone_relative_number,
+          Relation: data.relation,
+          City: data.local_city,
+          Country: data.local_country
+        };
+        this.table_data1 = {
+          Email: data.home_email,
+          Fax: data.home_fax,
+          Telephone: data.home_tel,
+          "Phone Number": data.home_mobile,
+          Address: data.home_address,
+          City: data.home_city,
+          State: data.home_state,
+          Country: data.home_country
+        };
+        this.contactItem = data;
+      });
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";
@@ -478,9 +402,8 @@ export default {
       let payload = {
         ...this.contactItem,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: this.contactItem.id
+        employee_id: this.employeeId
       };
-      console.log(payload);
       this.$axios
         .post(`employee/update/contact`, payload)
         .then(({ data }) => {
@@ -492,6 +415,7 @@ export default {
             this.errors = [];
             this.snackbar = true;
             this.response = data.message;
+            this.getInfo();
             this.close_contact_info();
           }
         })

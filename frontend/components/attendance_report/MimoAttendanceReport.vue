@@ -682,7 +682,7 @@
         </template>
         <span>CSV</span>
       </v-tooltip>
-      <v-tooltip top color="primary" v-if="process.env.DEBUG">
+      <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             x-small
@@ -697,7 +697,7 @@
         </template>
         <span>Generate Log</span>
       </v-tooltip>
-      <v-tooltip top color="primary" v-if="process.env.DEBUG">
+      <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             x-small

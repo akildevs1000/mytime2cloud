@@ -12,9 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AttendanceLogController;
-use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
-use App\Http\Controllers\Shift\SingleShiftController;
 use Illuminate\Support\Facades\Http;
 
 Route::get('/syncLogsScript', function (Request $request) {
@@ -27,6 +25,46 @@ Route::get('/syncLogsScript', function (Request $request) {
 });
 
 Route::get('/test', function (Request $request) {
+
+    $filePath = Storage::path("data.csv"); // replace with the path to your CSV file
+
+    // Open the CSV file
+    $file = fopen($filePath, 'r');
+
+    // Read the CSV file and convert it to an array
+    $data = [];
+    $header = fgetcsv($file); // Get the header row
+    while (($row = fgetcsv($file)) !== false) { // Loop through the remaining rows
+        $data[] = array_combine($header, $row); // Combine the header row with the current row
+        list($num, $msg) = $row;
+        $response = Http::withoutVerifying()->withHeaders([
+            'Content-Type' => 'application/json',
+        ])->get("https://ezwhat.com/api/send.php?number={$num}&type=text&message={$msg}&instance_id=64466B01B7926&access_token=a27e1f9ca2347bb766f332b8863ebe9f");
+
+        // check if the request was successful
+        if ($response->ok()) {
+            $request["status"] = true;
+            $request["message"] = "success";
+        } else {
+            $request["status"] = false;
+            $request["message"] = "false";
+        }
+    }
+
+    // Close the CSV file
+    fclose($file);
+
+    return $data;
+
+    // Use the $data array as needed
+    foreach ($data as $row) {
+        $num = $row['number'];
+        $msg = $row['message'];
+        // Process the data
+    }
+
+
+    return;
 
     $Attendance = new AttendanceController;
     return $result = $Attendance->syncLogsScript();

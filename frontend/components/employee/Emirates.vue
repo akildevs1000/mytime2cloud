@@ -216,16 +216,28 @@
 
 <script>
 export default {
-  props: ["emirateItems"],
+  props: ["employeeId"],
   data() {
     return {
       emirate_info: false,
       errors: [],
       snackbar: false,
-      response: ""
+      response: "",
+      emirateItems: {}
     };
   },
+  created() {
+    this.getInfo(this.employeeId);
+  },
   methods: {
+    getInfo(id) {
+      this.$axios.get(`emirate/${id}`).then(({ data }) => {
+        this.emirateItems = {
+          ...data,
+          employee_id: id
+        };
+      });
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";

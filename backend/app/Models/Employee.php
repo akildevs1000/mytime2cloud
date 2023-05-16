@@ -53,7 +53,7 @@ class Employee extends Model
 
     public function payroll()
     {
-        return $this->belongsTo(Payroll::class,"system_user_id", "employee_id");
+        return $this->hasOne(Payroll::class);
     }
 
     public function department()

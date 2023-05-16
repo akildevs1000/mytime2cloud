@@ -189,16 +189,28 @@
 
 <script>
 export default {
-  props: ["passport_list"],
+  props: ["employeeId"],
   data() {
     return {
       passport_info: false,
       errors: [],
       snackbar: false,
-      response: ""
+      response: "",
+      passport_list: {}
     };
   },
+  created() {
+    this.getInfo(this.employeeId);
+  },
   methods: {
+    getInfo(id) {
+    this.$axios.get(`passport/${id}`).then(({ data }) => {
+      this.passport_list = {
+        ...data,
+        employee_id: id
+      };
+    });
+  },
     caps(str) {
       if (str == "" || str == null) {
         return "---";
