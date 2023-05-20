@@ -26,6 +26,8 @@ use App\Http\Requests\Employee\EmployeeContactRequest;
 
 class EmployeeController extends Controller
 {
+    public $company_id = null;
+
     public function validateEmployee(EmployeeRequest $request)
     {
         return ['status' => true];
@@ -111,7 +113,7 @@ class EmployeeController extends Controller
     public function index(Employee $employee, Request $request)
     {
         return $employee
-            ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role","payroll"])
+            ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "payroll"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
                 $q->whereHas('department',  fn (Builder $query) => $query->where('department_id', $request->department_id));
@@ -173,7 +175,7 @@ class EmployeeController extends Controller
     {
         $columns = $request->columns;
         $condition = gettype($columns) == "array" && !in_array("*", $columns) && count($columns) > 0 ? true : false;
-        
+
         $model = Employee::query();
         $model->where(function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
@@ -391,27 +393,34 @@ class EmployeeController extends Controller
     public function import(EmployeeImportRequest $request)
     {
         $file = $request->file('employees');
-        $rowCount = file($request->file('employees'));
-        $totoalEmployee = Employee::where('company_id', $request->company_id)->count();
-        $maxEmployee = Company::find($request->company_id)->max_employee;
-        $reminingEmployee = (int) $maxEmployee - (int) $totoalEmployee;
+        $rowCount = file($file);
 
-        if (!(count($rowCount) - 1 <= $reminingEmployee)) {
-            return ["status" => false, "errors" => ["You cannot upload limit number of employee only can add maximum employee limit is " . $maxEmployee]];
+        $this->company_id = $request->company_id ?? 0;
+
+        $company = Company::withCount('employees')->find($this->company_id);
+        $totalEmployee = $company->employees_count ?? 0;
+        $maxEmployee = $company->max_employee ?? 0;
+        $remainingEmployee = max(0, (int) $maxEmployee - (int) $totalEmployee);
+
+
+        if (!(count($rowCount) - 1 <= $remainingEmployee)) {
+            return ["status" => false, "errors" => ["Employee limit exceed. Maximum limit is " . $maxEmployee]];
         }
 
         $data = $this->saveFile($file);
+
         if (is_array($data) && !$data["status"]) {
             return ["status" => false, "errors" => $data["errors"]];
         }
+
         $data = $this->csvParser($data);
+
         if (array_key_exists("status", $data)) {
             return ["status" => false, "errors" => $data["errors"]];
         }
         $success = false;
         DB::beginTransaction();
         try {
-
             foreach ($data as $data) {
                 $validator = $this->validateImportData($data);
                 if ($validator->fails()) {
@@ -433,7 +442,7 @@ class EmployeeController extends Controller
                     'employee_id' => trim($data['employee_id']),
                     'joining_date' => trim(date('Y-m-d', strtotime($data['joining_date']))),
                     'user_id' => $record->id,
-                    'company_id' => $request->company_id,
+                    'company_id' => $this->company_id,
                     'system_user_id' => trim($data['employee_device_id']),
                     'department_id' => trim($data['department_code']),
                 ];
@@ -458,16 +467,38 @@ class EmployeeController extends Controller
     }
     public function validateImportData($data)
     {
-        return Validator::make($data, [
-            'employee_id' => ['required'],
-            'employee_device_id' => ['required', 'min:1', 'max:100'],
+        $data["system_user_id"] = $data["employee_device_id"];
+
+        $employee = [
+            "employee_id" => $data["employee_id"],
+            "company_id" => $this->company_id,
+        ];
+
+        $employeeDevice = [
+            "system_user_id" => $data["system_user_id"],
+            "company_id" => $this->company_id,
+        ];
+
+        $rules = [
+            'employee_id' => ['required', $this->uniqueRecord("employees", $employee)],
+            'system_user_id' => ['required', $this->uniqueRecord("employees", $employeeDevice)],
             'display_name' => ['required', 'min:3', 'max:10'],
             'email' => 'required|min:3|max:191|unique:users',
             'phone_number' => ['required', 'min:1', 'max:15'],
             'joining_date' => ['required', 'date'],
             'department_code' => ['required'],
-        ]);
+        ];
+
+        $messages = [
+            'system_user_id.required' => "The employee device id is required",
+            'employee_id.unique' => "The employee id (" . $data["employee_id"] . ") has already been taken",
+            'system_user_id.unique' => "The employee device id (" . $data["system_user_id"] . ") has already been taken",
+            'email.unique' => "The employee email (" . $data["email"] . ") has already been taken",
+        ];
+
+        return Validator::make($data, $rules, $messages);
     }
+
     public function saveFile($file)
     {
 
