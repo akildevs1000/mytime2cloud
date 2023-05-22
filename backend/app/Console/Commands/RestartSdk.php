@@ -30,7 +30,7 @@ class RestartSdk extends Command
     public function handle()
     {
         try {
-            exec('pm2 reload 0');
+            exec('pm2 restart all');
             echo "SDK restarted successfully\n";
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: RestartSdk. Error Details: ' . $th);
