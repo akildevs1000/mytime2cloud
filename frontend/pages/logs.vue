@@ -6,7 +6,7 @@
         <div>Dashboard / Attendances Logs</div>
       </v-col>
       <v-col cols="12">
-        <GenerateLog />
+        <!-- <GenerateLog /> -->
 
         <Logs />
       </v-col>
