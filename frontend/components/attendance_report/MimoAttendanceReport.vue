@@ -682,7 +682,7 @@
         </template>
         <span>CSV</span>
       </v-tooltip>
-      <v-tooltip top color="primary">
+      <!-- <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             x-small
@@ -711,7 +711,7 @@
           </v-btn>
         </template>
         <span>Render Report</span>
-      </v-tooltip>
+      </v-tooltip> -->
     </v-toolbar>
 
     <v-toolbar
