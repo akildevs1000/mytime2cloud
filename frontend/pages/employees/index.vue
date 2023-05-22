@@ -596,6 +596,7 @@ export default {
             this.errors = [
               "File is modified.Please cancel the current file and try again"
             ];
+            this.btnLoader = false;
           }
         });
     },

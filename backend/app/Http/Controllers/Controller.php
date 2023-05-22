@@ -17,6 +17,7 @@ use App\Models\AttendanceLog;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Validation\Rule;
 
 class Controller extends BaseController
 {
@@ -413,5 +414,12 @@ class Controller extends BaseController
         $h = floor($diff / 3600);
         $m = floor(($diff % 3600) / 60);
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+    }
+
+    public function uniqueRecord($table, $params)
+    {
+        return Rule::unique($table)->where(function ($query) use ($params) {
+            return $query->where($params);
+        });
     }
 }
