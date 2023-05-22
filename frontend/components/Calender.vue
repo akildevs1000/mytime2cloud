@@ -9,6 +9,7 @@
         :items="types"
         dense
         outlined
+        
         hide-details
         class="ma-2"
         label="type"

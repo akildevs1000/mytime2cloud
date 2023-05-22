@@ -810,6 +810,18 @@ export default {
 
       let input = this.$refs.attachment_input;
       let file = input.files;
+      console.log("file", file);
+
+      if (file && file[0].size > 1024 * 1024) {
+        e.preventDefault();
+        //alert("File too big (> 1MB). Upload less than 1MB");
+
+        this.errors["profile_picture"] = [
+          "File too big (> 1MB). Upload less than 1MB"
+        ];
+        return;
+      }
+
       if (file && file[0]) {
         let reader = new FileReader();
         reader.onload = e => {
@@ -838,6 +850,23 @@ export default {
       payload.append("email", this.payload.email);
       payload.append("title", this.payload.title);
       payload.append("file_no", this.payload.file_no);
+
+      const file = this.$refs.attachment_input.files[0];
+      console.log("file", file);
+      // if (!file) {
+      //   e.preventDefault();
+      //   alert("No file chosen");
+      //   return;
+      // }
+
+      if (file.size > 1024 * 1024) {
+        e.preventDefault();
+        // alert("File too big (> 1MB). Upload less than 1MB");
+        this.errors["profile_picture"] = [
+          "File too big (> 1MB). Upload less than 1MB"
+        ];
+        return;
+      }
 
       if (this.payload.password) {
         payload.append("password", this.payload.password);

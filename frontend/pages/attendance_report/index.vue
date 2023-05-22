@@ -1,6 +1,6 @@
 <template>
   <div>
-    <GenerateLog />
+    <!-- <GenerateLog /> -->
     <div v-if="this.$store.state.main_report_type == 'General Report'">
       <GeneralAttendanceReport
         :main_report_type_props="this.$store.state.main_report_type"
@@ -25,9 +25,9 @@ export default {
   computed: {
     getmeth() {
       this.txt = this.$store.state.main_report_type;
-    }
+    },
   },
 
-  components: { GeneralAttendanceReport, MimoAttendanceReport }
+  components: { GeneralAttendanceReport, MimoAttendanceReport },
 };
 </script>

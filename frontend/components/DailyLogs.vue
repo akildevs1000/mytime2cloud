@@ -5,7 +5,7 @@
       <v-toolbar flat>
         <h5>
           <b>
-            Recent Logs
+            Recent Logs <a href="#" @click="goToemployeelog()">Table View</a>
           </b>
         </h5>
         <v-spacer />
@@ -17,7 +17,7 @@
           class="mt-5"
           placeholder="Select Number of Records"
           :items="[10, 20, 50, 100]"
-          style="max-width: 200px !important;"
+          style="max-width: 200px !important"
         ></v-select>
       </v-toolbar>
       <v-slide-group class="px-4 pb-3" active-class="success" show-arrows>
@@ -28,23 +28,27 @@
               <v-img
                 class="gg"
                 viewBox="0 0 100 100"
-                style="border-radius: 50%;  height: 80px; max-width: 80px !important"
+                style="
+                  border-radius: 50%;
+                  height: 80px;
+                  max-width: 80px !important;
+                "
                 :src="
                   (item.employee && item.employee.profile_picture) ||
-                    '/no-profile-image.jpg'
+                  '/no-profile-image.jpg'
                 "
               ></v-img>
             </div>
             <div class="menu">
               <div class="opener"></div>
             </div>
-            <h2 class="text-center pa-1" style="font-size:15px">
+            <h2 class="text-center pa-1" style="font-size: 15px">
               {{ item.employee && item.employee.first_name }}
             </h2>
-            <div class="title" style="font-size:12px !important">
+            <div class="title" style="font-size: 12px !important">
               EID: {{ item.UserID }}
             </div>
-            <div class="title" style="font-size:12px !important"></div>
+            <div class="title" style="font-size: 12px !important"></div>
             <div class="actions">
               <div class="follow-info">
                 <h2>
@@ -76,7 +80,7 @@ export default {
       number_of_records: 10,
       logs: [],
       url: process.env.SOCKET_ENDPOINT,
-      socket: null
+      socket: null,
     };
   },
   mounted() {
@@ -93,18 +97,18 @@ export default {
         .get(
           `device/getLastRecordsByCount/${this.$auth.user.company.id}/${this.number_of_records}`
         )
-        .then(res => {
+        .then((res) => {
           this.logs = res.data;
         });
+    },
+    goToemployeelog() {
+      this.$router.push("/reportsemployeelog");
     },
     getShortName(item) {
       if (!item) {
         return false;
       }
-      return item
-        .split(" ")
-        .slice(0, 2)
-        .join(" ");
+      return item.split(" ").slice(0, 2).join(" ");
     },
     socketConnection() {
       this.socket = new WebSocket(this.url);
@@ -118,14 +122,16 @@ export default {
     },
     getDetails(item) {
       item.company_id = this.$auth.user.company.id;
-      
+
       this.$axios.post(`/device/details`, item).then(({ data }) => {
-        if (data.device.company_id == this.$auth.user.company.id) {
-          this.logs.unshift(data);
+        if (data.device) {
+          if (data.device.company_id == this.$auth.user.company.id) {
+            this.logs.unshift(data);
+          }
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
