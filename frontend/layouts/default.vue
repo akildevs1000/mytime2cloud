@@ -316,7 +316,7 @@ export default {
           icon: "mdi-home",
           title: "Dashboard",
           to: "/",
-          menu: "dashboard_access"
+          menu: "dashboard_access",
         },
         {
           icon: "mdi-briefcase-outline",
@@ -328,34 +328,34 @@ export default {
               icon: "mdi-domain",
               title: "Department",
               to: "/department",
-              menu: "department_access"
+              menu: "department_access",
             },
             {
               icon: "mdi-lan",
               title: "Sub Department",
               to: "/sub-department",
-              menu: "sub_department_access"
+              menu: "sub_department_access",
             },
 
             {
               icon: "mdi-treasure-chest ",
               title: "Designation",
               to: "/designation",
-              menu: "designation_access"
-            }
-          ]
+              menu: "designation_access",
+            },
+          ],
         },
         {
           icon: "mdi-door",
           title: "Devices",
           to: "/device",
-          menu: "device_access"
+          menu: "device_access",
         },
         {
           icon: "mdi-door",
           title: "Device Management",
           to: "/device_management",
-          menu: "device_management"
+          menu: "device_management",
         },
         // {
         //   icon: "mdi-clipboard-edit-outline",
@@ -372,28 +372,54 @@ export default {
         {
           icon: "mdi-account",
           title: "Employees",
-          to: "/employees",
-          menu: "employee_access"
+          to: "/employees/employee_list",
+          menu: "employee_access",
         },
         {
           icon: "mdi-clock",
           title: "Shift",
           to: "/shift",
-          menu: "shift_access"
+          menu: "shift_access",
         },
         {
           icon: "mdi mdi-calendar-clock",
           title: "Schedule",
           to: "/schedule",
-          menu: "schedule_access"
+          menu: "schedule_access",
         },
         {
           icon: "mdi-account",
           title: "Employee Schedule",
           to: "/employee_schedule",
-          menu: "employee_schedule_access"
+          menu: "employee_schedule_access",
+        },
+        {
+          icon: "mdi-account",
+          title: "Employee Photo Upload",
+          to: "/employee_photo_upload",
+          menu: "employee_photo_upload",
         },
 
+        {
+          icon: "mdi-account",
+          title: `Timezone Mapping`,
+          open_menu: false,
+          menu: "payroll_access",
+          hasChildren: [
+            {
+              icon: "mdi-account",
+              title: "Create New",
+              to: "/employees/timezonemapping/new",
+              menu: "payroll_generate_access",
+            },
+            {
+              icon: "mdi-account",
+              title: "View List",
+              to: "/employees/timezonemapping/list",
+              menu: "payroll_generate_access",
+            },
+          ],
+        },
         {
           icon: "mdi-cash-multiple",
           title: `Payroll`,
@@ -417,21 +443,21 @@ export default {
               icon: "mdi-cash",
               title: "Salary",
               to: "/payroll/salary",
-              menu: "payroll_generate_access"
+              menu: "payroll_generate_access",
             },
             {
               icon: "mdi-cash",
               title: "Payroll Formula",
               to: "/payroll/create",
-              menu: "payroll_generate_access"
-            }
+              menu: "payroll_generate_access",
+            },
             // {
             //   icon: "mdi-cash-multiple ",
             //   title: "Salary Advance",
             //   to: "/employee_schedule",
             //   menu:("employee_schedule_access")
             // }
-          ]
+          ],
         },
 
         {
@@ -444,45 +470,45 @@ export default {
               icon: "mdi-account-plus",
               title: "Roles",
               to: "/role",
-              menu: "role_access"
+              menu: "role_access",
             },
             {
               icon: "mdi-lock",
               title: "Assign Permissions",
               to: "/assign_permission",
-              menu: "assign_permission_access"
-            }
-          ]
+              menu: "assign_permission_access",
+            },
+          ],
         },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Reports",
           to: "/attendance_report",
-          menu: "attendance_report_access"
+          menu: "attendance_report_access",
         },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Logs",
           to: "/logs",
-          menu: "logs_access"
+          menu: "logs_access",
         },
         {
           icon: "mdi-email",
           title: "Notification",
           to: "/report_notifications",
-          menu: "notifications_access"
+          menu: "notifications_access",
         },
         {
           icon: "mdi-cog",
           title: "Setting",
           to: "/setting",
-          menu: "setting_access"
-        }
+          menu: "setting_access",
+        },
       ],
       items: [],
       modules: {
         module_ids: [],
-        module_names: []
+        module_names: [],
       },
       clipped: true,
 
@@ -490,8 +516,8 @@ export default {
       title: "ideaHRMS",
       logout_btn: {
         icon: "mdi-logout",
-        label: "Logout"
-      }
+        label: "Logout",
+      },
     };
   },
   created() {
@@ -499,7 +525,7 @@ export default {
       icon: "mdi-home",
       title: "Dashboard",
       to: "/",
-      menu: "dashboard_access"
+      menu: "dashboard_access",
     };
     let user = this.$auth.user;
     let permissions = user.permissions;
@@ -510,7 +536,7 @@ export default {
       return;
     }
 
-    this.menus.forEach(ele => {
+    this.menus.forEach((ele) => {
       if (permissions.includes(ele.menu)) {
         this.items.push(ele);
       }
@@ -534,7 +560,7 @@ export default {
 
     getLogo() {
       return this.$auth.user && this.$auth.user.company.logo;
-    }
+    },
   },
   methods: {
     changeTopBarColor(color) {
@@ -551,7 +577,7 @@ export default {
     },
 
     caps(str) {
-      return str.replace(/\b\w/g, c => c.toUpperCase());
+      return str.replace(/\b\w/g, (c) => c.toUpperCase());
     },
     goToSetting() {
       this.$router.push("/setting");
@@ -572,12 +598,12 @@ export default {
         if (modules !== null) {
           this.modules = {
             module_ids: modules.module_ids || [],
-            module_names: modules.module_names.map(e => ({
+            module_names: modules.module_names.map((e) => ({
               icon: "mdi-chart-bubble",
               title: this.caps(e),
               to: "/" + e + "_modules",
-              permission: true
-            }))
+              permission: true,
+            })),
           };
         }
       });
@@ -585,7 +611,7 @@ export default {
     can(per) {
       let user = this.$auth.user;
       return (
-        (user && user.permissions.some(e => e == per || per == "/")) ||
+        (user && user.permissions.some((e) => e == per || per == "/")) ||
         user.is_master
       );
     },
@@ -594,10 +620,15 @@ export default {
       this.$axios.get(`/logout`).then(({ res }) => {
         this.$auth.logout();
       });
-    }
-  }
+    },
+  },
 };
 </script>
+<style>
+table {
+  font-family: Roboto !important;
+}
+</style>
 <style scoped>
 .fixed-setting {
   position: fixed !important;
