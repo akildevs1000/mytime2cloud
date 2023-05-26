@@ -345,13 +345,14 @@
 </template>
 <script>
 let days = [
-  { order: "", dayWeek: "0", index: "0", name: "Sunday", short_name: "SU" },
-  { order: "", dayWeek: "1", index: "1", name: "Monday", short_name: "M" },
-  { order: "", dayWeek: "2", index: "2", name: "Tuesday", short_name: "T" },
-  { order: "", dayWeek: "3", index: "3", name: "Wednesday", short_name: "W" },
-  { order: "", dayWeek: "4", index: "4", name: "Thursday", short_name: "TH" },
-  { order: "", dayWeek: "5", index: "5", name: "Friday", short_name: "F" },
-  { order: "", dayWeek: "6", index: "6", name: "Saturday", short_name: "SA" }
+  { index: "0", name: "Monday", short_name: "M" },
+  { index: "1", name: "Tuesday", short_name: "T" },
+  { index: "2", name: "Wednesday", short_name: "W" },
+  { index: "3", name: "Thursday", short_name: "TH" },
+  { index: "4", name: "Friday", short_name: "F" },
+  { index: "5", name: "Saturday", short_name: "SA" },
+  { index: "6", name: "Sunday", short_name: "SU" },
+
 ];
 export default {
   data: () => ({
@@ -382,27 +383,13 @@ export default {
       timezone_id: "0",
       timezone_name: "Timzone Name",
       interval: {
+        "0": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         "1": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         "2": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         "3": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         "4": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         "5": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "6": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "0": { interval1: {}, interval2: {}, interval3: {}, interval4: {} }
-      }
-    },
-
-    defaultItem: {
-      timezone_id: "0",
-      timezone_name: "Timzone Name",
-      interval: {
-        "1": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "2": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "3": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "4": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "5": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "6": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "0": { interval1: {}, interval2: {}, interval3: {}, interval4: {} }
+        "6": { interval1: {}, interval2: {}, interval3: {}, interval4: {} }
       }
     },
 
@@ -526,8 +513,6 @@ export default {
 
       try {
         let endpoint = "getDevicesCountForTimezone";
-        console.log(this.editedItem);
-        return;
         const { data } = await this.$axios.post(endpoint, this.editedItem);
         this.processTimeZone(data);
       } catch (error) {
@@ -619,7 +604,6 @@ export default {
     submit() {
       let sortedDays = this.showShortDays(this.editedItem.interval);
       this.editedItem["scheduled_days"] = sortedDays;
-      // console.log(this.editedItem);
       return this.editedIndex === -1 ? this.store() : this.update();
     },
     store() {
