@@ -358,7 +358,8 @@ class EmployeeController extends Controller
         //     $arr['profile_picture'] = saveFile($request, 'media/employee/profile_picture', 'profile_picture', $request->name, 'profile_picture');
         // }
         if ($request->hasFile('profile_picture')) {
-            $profile_picture = $request->profile_picture->getClientOriginalName();
+            //$profile_picture = $request->profile_picture->getClientOriginalName();
+            $profile_picture = $id . '.jpg';
             $request->profile_picture->move(public_path('media/employee/profile_picture/'), $profile_picture);
             $product_image = url('media/employee/profile_picture/' . $profile_picture);
             $data['profile_picture'] = $profile_picture;

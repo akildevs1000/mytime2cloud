@@ -13,9 +13,19 @@ use Illuminate\Support\Facades\DB;
 
 class DeviceController extends Controller
 {
-    public function index(Device $model, Request $request)
+    public function index(Request $request)
     {
-        return $model->with(['status', 'company'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 1000);
+
+        $model = Device::query();
+        $cols = $request->cols;
+        $model->with(['status', 'company']);
+        $model->where('company_id', $request->company_id);
+        $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
+            $q->select($cols);
+        });
+        return $model->paginate($request->per_page ?? 1000);
+
+        //return $model->with(['status', 'company'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 1000);
     }
 
     public function getDeviceList(Device $model, Request $request)

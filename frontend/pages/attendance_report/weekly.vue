@@ -38,7 +38,7 @@
             <v-col md="12">
               <h5>Filters</h5>
             </v-col>
-            <v-col md="5">
+            <v-col md="3">
               Departments
               <v-autocomplete
                 @change="getEmployeesByDepartment"
@@ -53,8 +53,8 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col md="5">
-              Employee ID
+            <v-col md="3">
+              Employee Name
               <v-autocomplete
                 class="mt-2"
                 outlined
@@ -67,7 +67,7 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col md="5">
+            <v-col md="3">
               <div class="text-left">
                 <v-menu
                   ref="from_menu"
@@ -110,7 +110,7 @@
                 </v-menu>
               </div>
             </v-col>
-            <v-col md="5">
+            <v-col md="3">
               <div class="mb-1">To Date</div>
               <div class="text-left">
                 <v-menu
@@ -149,7 +149,7 @@
                 </v-menu>
               </div>
             </v-col>
-            <v-col md="5">
+            <v-col md="3">
               Status
               <v-select
                 class="mt-2"
@@ -163,7 +163,7 @@
                 :hide-details="true"
               ></v-select>
             </v-col>
-            <v-col md="5">
+            <v-col md="3">
               Late/Early
               <v-select
                 s
@@ -178,7 +178,7 @@
                 :hide-details="true"
               ></v-select>
             </v-col>
-            <v-col md="12">
+            <v-col md="3" style="margin-top: 25px" class="text-center">
               <v-checkbox
                 dense
                 v-model="overtime"
@@ -187,8 +187,8 @@
               />
             </v-col>
 
-            <v-col md="12">
-              <div class="mb-5">
+            <v-col md="3">
+              <div class="mb-12" style="margin-top: 20px">
                 <v-btn
                   small
                   :loading="loading"
@@ -372,6 +372,13 @@
         Log +
       </v-btn>
     </v-toolbar>
+    <v-progress-linear
+      v-if="linerLoading"
+      :active="linerLoading"
+      :indeterminate="linerLoading"
+      absolute
+      color="primary"
+    ></v-progress-linear>
     <v-data-table
       v-if="can(`attendance_log_view_access`)"
       :headers="headers"
@@ -380,7 +387,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500,1000],
+        itemsPerPageOptions: [50, 100, 500, 1000],
       }"
       class="elevation-1"
     >
@@ -464,6 +471,7 @@ export default {
   data: () => ({
     time_table_dialog: false,
     overtime: false,
+    linerLoading: true,
     options: {},
     date: null,
     menu: false,
@@ -595,6 +603,7 @@ export default {
   },
   created() {
     this.loading = true;
+    this.linerLoading = true;
 
     let dt = new Date();
     let y = dt.getFullYear();
@@ -610,6 +619,9 @@ export default {
       },
     };
     this.getDepartments(this.custom_options);
+
+    this.loading = false;
+    this.linerLoading = false;
   },
 
   methods: {
@@ -698,6 +710,7 @@ export default {
     },
 
     fetch_logs() {
+      this.linerLoading = false;
       this.getDataFromApi();
     },
 
@@ -768,6 +781,8 @@ export default {
         this.total = data.total;
         this.loading = false;
       });
+
+      this.loading = false;
     },
 
     getDataForToolTip(item) {

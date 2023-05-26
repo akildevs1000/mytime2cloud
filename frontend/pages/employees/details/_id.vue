@@ -13,7 +13,7 @@
         </v-col>
         <v-col cols="2">
           <div class="text-right">
-            <v-btn small to="/employees" color="primary">
+            <v-btn small to="/employees/employee_list" color="primary">
               <v-icon small>mdi-arrow-left</v-icon>&nbsp;Back
             </v-btn>
           </div>
@@ -27,58 +27,8 @@
           <v-card-text>
             <v-container>
               <v-row>
-                <!-- <v-col cols="6">
-                  <div class="form-group">
-                    <label class="col-form-label">{{
-                      caps("passport no")
-                    }}</label>
-                    <input
-                      v-model="personalItem.passport_no"
-                      class="form-control"
-                      type="number"
-                    />
-                    <span
-                      v-if="errors && errors.passport_no"
-                      class="text-danger mt-2"
-                      >{{ errors.passport_no[0] }}</span
-                    >
-                  </div>
-                </v-col>
                 <v-col cols="6">
-                  <div class="form-group">
-                    <label class="col-form-label">{{
-                      caps("passport expiry")
-                    }}</label>
-                    <input
-                      v-model="personalItem.passport_expiry"
-                      class="form-control"
-                      type="date"
-                    />
-                    <span
-                      v-if="errors && errors.passport_expiry"
-                      class="text-danger mt-2"
-                      >{{ errors.passport_expiry[0] }}</span
-                    >
-                  </div>
-                </v-col> -->
 
-                <!-- <v-col cols="6">
-                  <div class="form-group">
-                    <label class="col-form-label">{{ caps("tel") }}</label>
-                    <input
-                      v-model="personalItem.tel"
-                      class="form-control"
-                      type="tel"
-                    />
-                    <span
-                      v-if="errors && errors.tel"
-                      class="text-danger mt-2"
-                      >{{ errors.tel[0] }}</span
-                    >
-                  </div>
-                </v-col> -->
-
-                <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{
                       caps("nationality")
@@ -1419,8 +1369,266 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-card>
+        <v-row>
+          <div class="container" style="background: #ecf0f4;max-width:100%!important">
+            <div class="main-body">
+              <!-- Breadcrumb -->
+              <nav aria-label="breadcrumb" class="main-breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                  <li class="breadcrumb-item">
+                    <a href="javascript:void(0)">User</a>
+                  </li>
+                  <li class="breadcrumb-item active" aria-current="page">
+                    User Profile
+                  </li>
+                </ol>
+              </nav>
+              <!-- /Breadcrumb -->
 
-      <v-card elevation="2">
+              <div class="row gutters-sm">
+                <div class="col-md-4 mb-3 sectionheight">
+                  <div class="card">
+                    <div class="card-body">
+                      <div
+                        class="d-flex flex-column align-items-center text-center"
+                      >
+                      <div>
+                        <v-list-item-avatar tile size="120">
+                          <v-img
+                            style="
+                              border-radius: 50%;
+                              height: 125px;
+                              width: 50%;
+                              margin: 0 auto;
+                            "
+                            :src="payload.profile_picture || '/no-image.PNG'"
+                          >
+                          </v-img>
+                        </v-list-item-avatar>
+                        <v-badge
+                          class="profile-image-badge"
+                          :style="
+                            payload.profile_picture
+                              ? ''
+                              : 'top:55px; left:102px;'
+                          "
+                          bordered
+                          :color="payload.status == 1 ? 'green' : 'red'"
+                        >
+                        </v-badge>
+                      </div>
+                        <div class="mt-3">
+                          <h4 class="text-primary">  {{ payload.display_name }}</h4>
+                          <p class="text-secondary mb-1">
+                             <div class="text-overline mb-1">
+                            Employee Id :
+                            {{ (payload && payload.employee_id) || "---" }}
+                          </div>
+                        </p>
+                        <p class="text-secondary mb-1">
+                          <div class="text-overline mb-1">
+                            Employee Device Id :
+                            {{ (payload && payload.system_user_id) || "---" }}
+                          </div>
+                        </p>
+                          <div class="text-overline mb-1">
+                            <div class="d-flex flex-row">
+                              Status :
+                              <!-- <v-switch
+                      color="success"
+                      class="mt-0 ml-2"
+                      v-model="payload.status"
+                    ></v-switch> -->
+                              <!-- {{ switch_img }} -->
+
+                              <img
+                                lazy-src="https://picsum.photos/id/11/10/6"
+                                style="
+                                  max-height: 36px;
+                                  max-width: 78px;
+                                  margin: -3px 4px -15px -7px;
+                                "
+                                :src="
+                                  payload.status == true
+                                    ? '/on.png'
+                                    : '/off.png'
+                                "
+                                @click="payload.status = !payload.status"
+                              />
+                              <v-btn
+                                class="primary mt-1"
+                                x-small
+                                @click="update_setting"
+                                >{{
+                                  payload.status ? "Active" : " Inactive"
+                                }}</v-btn
+                              >
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card mb-3 sectionheight">
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">Role</h6>
+                        </div>
+                        <div class="col-sm-6 text-muted">
+                          {{ (payload.role && payload.role.name) || "---" }}
+                        </div>
+                        <div class="col-sm-3 text-muted " style="text-align:right">
+                          <v-icon
+                  v-if="can('employee_edit')"
+                  @click="editItem(`/employees/${$route.params.id}`)"
+                  small
+                  class="red"
+                  style="border-radius: 50%; padding: 5px"
+                  color="secondary"
+                  >mdi-pencil</v-icon
+                >
+              </v-col>
+                        </div>
+
+
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">First Name</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">{{ (payload.first_name && payload.first_name) || "---" }}</div>
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">Last Name</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                          {{ (payload.last_name && payload.last_name) || "---" }}
+                        </div>
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">Department</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                          {{
+                      (payload.department && payload.department.name) || "---"
+                    }}
+                        </div>
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">Sub Department</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                          {{
+                      (payload.sub_department && payload.sub_department.name) ||
+                      "---"
+                    }}
+                        </div>
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">Designation</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                          {{
+                      (payload.designation && payload.designation.name) || "---"
+                    }}
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 sectionheight" style="display:none1">
+                  <div class="card mb-3">
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0"> Phone Number</h6>
+                        </div>
+                        <div class="col-sm-6 text-muted">
+                          {{ payload.phone_number }}
+                        </div>
+                        <div class="col-sm-3 text-muted " style="text-align:right">
+                          <v-icon
+                  v-if="can('employee_edit')"
+                  @click="editItem(`/employees/${$route.params.id}`)"
+                  small
+                  class="red"
+                  style="border-radius: 50%; padding: 5px"
+                  color="secondary"
+                  >mdi-pencil</v-icon
+                >
+              </v-col>
+                        </div>
+
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">Phone Number (Relative)</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">{{ (payload && payload.phone_relative_number) || "----" }}</div>
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">Relation</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                          {{ (payload && payload.relation) || "----" }}
+                        </div>
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">Whatsapp Number</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                          {{ (payload && payload.whatsapp_number) || "----" }}
+                        </div>
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">User Email</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                          {{ (payload && payload.user.email) || "----" }}
+                        </div>
+                      </div>
+                      <hr />
+                      <div class="row">
+                        <div class="col-sm-3">
+                          <h6 class="mb-0">Joining Date</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                          {{ (payload && payload.show_joining_date) || "----" }}
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </v-row>
+      </v-card>
+      <v-card elevation="2" style="display:none">
         <v-row>
           <v-col cols="6" style="border-right: 1px dashed #808080">
             <v-list-item>
@@ -1531,7 +1739,7 @@
                   <v-col cols="8">
                     {{
                       (payload.sub_department && payload.sub_department.name) ||
-                        "---"
+                      "---"
                     }}</v-col
                   >
 
@@ -1622,32 +1830,32 @@
         <v-tabs md="12" class="mt-5 mb-5">
           <v-tab v-if="can(`employee_personal_access`)">
             <v-icon> mdi-details </v-icon>
-            Personal info
+            Personal
           </v-tab>
 
           <v-tab v-if="can(`employee_contact_access`)">
             <v-icon> mdi-details </v-icon>
-            Contact info
+            Contact
           </v-tab>
 
           <v-tab v-if="can(`employee_passport_access`)">
             <v-icon left> mdi-bank </v-icon>
-            Passport info
+            Passport
           </v-tab>
 
           <v-tab v-if="can(`employee_emirate_access`)">
             <v-icon left> mdi-bank </v-icon>
-            Emirates info
+            Emirates
           </v-tab>
 
           <v-tab v-if="can(`employee_visa_access`)">
             <v-icon left> mdi-bank </v-icon>
-            Visa info
+            Visa
           </v-tab>
 
           <v-tab v-if="can(`employee_bank_access`)">
             <v-icon left> mdi-bank </v-icon>
-            Bank info
+            Bank
           </v-tab>
 
           <v-tab v-if="can(`employee_document_access`)">
@@ -2512,7 +2720,7 @@ export default {
       no_of_spouse: "",
       no_of_children: "",
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
 
     BankInfo: {
@@ -2522,7 +2730,7 @@ export default {
       iban: "",
       address: "",
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
 
     personalItem: {
@@ -2541,7 +2749,7 @@ export default {
       date_of_birth: "",
 
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
 
     contactItem: {
@@ -2570,13 +2778,13 @@ export default {
       other_text: "",
 
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
 
     setting: {
       status: "",
       overtime: "",
-      mobile_application: ""
+      mobile_application: "",
     },
 
     emirateItems: {
@@ -2589,7 +2797,7 @@ export default {
       expiry: "",
 
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
 
     visaItem: {
@@ -2607,7 +2815,7 @@ export default {
       note: "",
 
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
 
     // passport_list: {
@@ -2623,11 +2831,11 @@ export default {
     // },
 
     Document: {
-      items: [{ title: "", file: "" }]
+      items: [{ title: "", file: "" }],
     },
     document_list: [],
     qualification_list: [],
-    passport_list: []
+    passport_list: [],
   }),
   async created() {
     this.getEmployeeDetails();
@@ -2682,13 +2890,13 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   computed: {
     getEmployeeId() {
       return this.$route.params.id;
-    }
+    },
   },
   methods: {
     mapper(obj) {
@@ -2704,12 +2912,12 @@ export default {
       return n > 10 ? n : "0" + n;
     },
     caps(str) {
-      return str.replace(/\b\w/g, c => c.toUpperCase());
+      return str.replace(/\b\w/g, (c) => c.toUpperCase());
     },
     addDocumentInfo() {
       this.Document.items.push({
         title: "",
-        file: ""
+        file: "",
       });
     },
     removeItem(index) {
@@ -2720,7 +2928,7 @@ export default {
       let payload = {
         ...this.personalItem,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id)
+        employee_id: parseInt(this.$route.params.id),
       };
 
       this.$axios
@@ -2737,14 +2945,14 @@ export default {
             this.close_personal_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     save_contact_info() {
       let payload = {
         ...this.contactItem,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id)
+        employee_id: parseInt(this.$route.params.id),
       };
 
       this.$axios
@@ -2761,14 +2969,14 @@ export default {
             this.close_contact_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     save_passport_info() {
       let payload = {
         ...this.passport_list,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id)
+        employee_id: parseInt(this.$route.params.id),
       };
 
       this.$axios
@@ -2785,14 +2993,14 @@ export default {
             this.close_passport_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     save_emirate_info() {
       let payload = {
         ...this.emirateItems,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id)
+        employee_id: parseInt(this.$route.params.id),
       };
 
       this.$axios
@@ -2809,14 +3017,14 @@ export default {
             this.close_emirate_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     save_visa_info() {
       let payload = {
         ...this.visaItem,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id)
+        employee_id: parseInt(this.$route.params.id),
       };
 
       this.$axios
@@ -2833,13 +3041,13 @@ export default {
             this.close_visa_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
     save_qualification_info() {
       let payload = {
         ...this.qualification_list,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id)
+        employee_id: parseInt(this.$route.params.id),
       };
 
       this.$axios
@@ -2856,14 +3064,14 @@ export default {
             this.close_qualification_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     save_bank_info() {
       let payload = {
         ...this.BankInfo,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: parseInt(this.$route.params.id)
+        employee_id: parseInt(this.$route.params.id),
       };
 
       this.$axios
@@ -2880,14 +3088,14 @@ export default {
             this.close_bank_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     update_setting() {
       let payload = {
         company_id: this.$auth?.user?.company?.id,
         employee_id: parseInt(this.$route.params.id),
-        status: this.payload.status
+        status: this.payload.status,
       };
 
       this.$axios
@@ -2903,7 +3111,7 @@ export default {
             this.response = "successfully updated ";
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     // update_setting() {
@@ -2939,12 +3147,12 @@ export default {
     save_document_info() {
       let options = {
         headers: {
-          "Content-Type": "multipart/form-data"
-        }
+          "Content-Type": "multipart/form-data",
+        },
       };
       let payload = new FormData();
 
-      this.Document.items.forEach(e => {
+      this.Document.items.forEach((e) => {
         payload.append(`items[][title]`, e.title);
         payload.append(`items[][file]`, e.file || {});
       });
@@ -2968,7 +3176,7 @@ export default {
             this.close_document_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
     close_personal_info() {
       this.personal_info = false;
@@ -3013,14 +3221,14 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
     getBankInfo() {
       this.$axios.get(`bankinfo/${this.$route.params.id}`).then(({ data }) => {
         this.BankInfo = {
-          ...data
+          ...data,
         };
         this.loading = false;
       });
@@ -3028,7 +3236,7 @@ export default {
     getPassportInfo() {
       this.$axios.get(`passport/${this.$route.params.id}`).then(({ data }) => {
         this.passport_list = {
-          ...data
+          ...data,
         };
         this.loading = false;
       });
@@ -3039,7 +3247,7 @@ export default {
         .get(`personalinfo/${this.$route.params.id}`)
         .then(({ data }) => {
           this.personalItem = {
-            ...data
+            ...data,
           };
           this.loading = false;
         });
@@ -3048,7 +3256,7 @@ export default {
     getVisaInfo() {
       this.$axios.get(`visa/${this.$route.params.id}`).then(({ data }) => {
         this.visaItem = {
-          ...data
+          ...data,
         };
         this.loading = false;
       });
@@ -3057,7 +3265,7 @@ export default {
     getEmirateInfo() {
       this.$axios.get(`emirate/${this.$route.params.id}`).then(({ data }) => {
         this.emirateItems = {
-          ...data
+          ...data,
         };
         this.loading = false;
       });
@@ -3077,7 +3285,7 @@ export default {
         .get(`qualification/${this.$route.params.id}`)
         .then(({ data }) => {
           this.qualification_list = {
-            ...data
+            ...data,
           };
           this.loading = false;
         });
@@ -3115,10 +3323,10 @@ export default {
             this.close_document_info();
           }
         })
-        .catch(e => console.log(e));
-    }
+        .catch((e) => console.log(e));
+    },
   },
-  components: { NoAccess, Preloader }
+  components: { NoAccess, Preloader },
 };
 </script>
 
@@ -3159,4 +3367,87 @@ export default {
   border-bottom-left-radius: 0.3rem;
   border-top-left-radius: 0.3rem;
 }
+
+.card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 0 solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+}
+
+.card-body {
+  flex: 1 1 auto;
+  min-height: 1px;
+  padding: 1rem;
+}
+
+.gutters-sm {
+  margin-right: -8px;
+  margin-left: -8px;
+}
+
+.gutters-sm > .col,
+.gutters-sm > [class*="col-"] {
+  padding-right: 8px;
+  padding-left: 8px;
+}
+.mb-3,
+.my-3 {
+  margin-bottom: 1rem !important;
+}
+
+.bg-gray-300 {
+  background-color: #e2e8f0;
+}
+.h-100 {
+  height: 100% !important;
+}
+.shadow-none {
+  box-shadow: none !important;
+}
+
+.v-tabs-bar {
+  background-color: red !important;
+}
+
+.profile-image-badge[data-v-61597e8c] {
+    position: absolute;
+    top: 44px;
+    left: 275px;
+
+}
+.theme--light.v-tabs > .v-tabs-bar {
+    background-color: #ecf0f4;
+}
+
+.v-tabs-bar
+{
+  background-color: red!important;
+}
+
+.sectionheight
+{
+  height:350px;
+  font-size:13px!important;
+}
+
+  h6
+{
+  font-size:13px!important;
+}
+
+hr
+{
+  border-top: 1px solid rgb(121 127 133)!important;
+}
+
 </style>

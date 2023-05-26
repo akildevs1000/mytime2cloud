@@ -110,230 +110,161 @@
               @click="createEmployee"
               small
               dark
-              class="primary  pt-4 pb-4"
+              class="primary pt-4 pb-4"
               >{{ Model }} +
             </v-btn>
           </div>
         </v-col>
       </v-row>
+      <v-row>
+        <v-row>
+          <v-col xs="12" sm="12" md="3" cols="12">
+            <v-select
+              class="custom-text-box shadow-none"
+              @change="getDataFromApi(`employee`)"
+              v-model="pagination.per_page"
+              :items="[50, 100, 500, 1000]"
+              placeholder="Per Page Records"
+              solo
+              flat
+              :hide-details="true"
+            ></v-select>
+          </v-col>
+          <v-col xs="12" sm="12" md="3" cols="12">
+            <v-select
+              class="custom-text-box shadow-none"
+              @change="getDataFromApi(`employee`)"
+              v-model="department_id"
+              item-text="name"
+              item-value="id"
+              :items="departments"
+              placeholder="Department"
+              solo
+              flat
+              :hide-details="true"
+            ></v-select>
+          </v-col>
+          <v-col xs="12" sm="12" md="3" cols="12">
+            <!-- <v-text-field
+          class="rounded-md custom-text-box shadow-none"
+          :hide-details="true"
+          placeholder="Search..."
+          solo
+          flat
+          @input="searchIt"
+          v-model="search"
+        ></v-text-field> -->
+            <input
+              class="form-control py-3 custom-text-box floating shadow-none"
+              placeholder="Search..."
+              @input="searchIt"
+              v-model="search"
+              type="text"
+            />
+          </v-col>
+        </v-row>
 
-      <v-row class="mt-15">
-        <v-col md="7">
-          <v-row class="d-flex justify-space-between ">
-            <v-col xs="12" sm="12" md="3" cols="12">
-              <v-select
-                @change="getDataFromApi(`employee`)"
-                outlined
-                v-model="per_page"
-                :items="['Default', 10, 25, 50, 100]"
-                dense
-                placeholder="Per Page Records"
-              ></v-select>
-            </v-col>
-            <v-col xs="12" sm="12" md="3" cols="12">
-              <div color="pt-2" class="text-center">
-                <v-btn
-                  @click="getDataFromApi(prev_page_url)"
-                  :disabled="prev_page_url ? false : true"
-                  color="primary"
-                  small
-                  elevation="11"
-                >
-                  <v-icon dark>mdi-chevron-double-left </v-icon>
-                </v-btn>
-                <v-btn
-                  @click="getDataFromApi(next_page_url)"
-                  :disabled="next_page_url ? false : true"
-                  color="primary"
-                  small
-                  elevation="11"
-                >
-                  <v-icon dark>mdi-chevron-double-right </v-icon>
-                </v-btn>
-              </div>
-            </v-col>
-            <v-col xs="12" sm="12" md="3" cols="12">
-              <v-text-field
-                outlined
-                @input="searchIt"
-                v-model="search"
-                dense
-                placeholder="Search..."
-              ></v-text-field>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              xs="12"
-              sm="6"
-              md="3"
-              v-for="(item, index) in data"
-              :key="index"
-              class="pa-xs-0  ma-xs-0"
-            >
-              <div
-                class="card mx-0 my-0 pa-0"
-                @click="res(item.id)"
-                style="cursor:pointer"
-              >
-                <div class="banner">
+        <div v-if="can(`employee_view`)">
+          <v-card class="mb-5 rounded-md mt-3" elevation="0">
+            <v-toolbar class="rounded-md" color="background" dense flat dark>
+              <span> {{ Model }} List</span>
+            </v-toolbar>
+            <table>
+              <tr>
+                <th v-for="(item, index) in headers" :key="index">
+                  {{ item.text }}
+                </th>
+              </tr>
+              <v-progress-linear
+                v-if="loading"
+                :active="loading"
+                :indeterminate="loading"
+                absolute
+                color="primary"
+              ></v-progress-linear>
+              <tr v-for="(item, index) in data" :key="index">
+                <td class="text-center">
+                  <b>{{ ++index }}</b>
+                </td>
+                <td>{{ item.employee_id || "---" }}</td>
+                <td>
                   <v-img
-                    class="gg"
-                    viewBox="0 0 100 100"
-                    style="border-radius: 50%;  height: 80px; max-width: 80px !important"
-                    :src="item.profile_picture || '/no-profile-image.jpg'"
-                  ></v-img>
-                </div>
-                <div class="menu">
-                  <div class="opener"></div>
-                </div>
-                <h2 class="name" style="font-size:15px">
-                  {{ limitName(item.display_name) }}
-                </h2>
-                <div class="title" style="font-size:12px !important">
-                  EID: {{ item.employee_id }}
-                </div>
-                <div class="title" style="font-size:12px !important">
+                    style="border-radius: 50%; height: 40px; width: 40px"
+                    :src="
+                      item.profile_picture +
+                        '?t=' +
+                        Math.ceil(Math.random() * 1000000) ||
+                      '/no-profile-image.jpg'
+                    "
+                  >
+                  </v-img>
+                </td>
+                <td>{{ item.display_name || "---" }}</td>
+                <td>
+                  {{ (item.department && item.department.name) || "---" }}
+                </td>
+                <td>{{ item.designation && item.designation.name }}</td>
+                <td>{{ (item && item.user && item.user.email) || "---" }}</td>
+                <td>{{ (item && item.phone_number) || "---" }}</td>
+                <td>
                   {{
-                    (item && item.designation && item.designation.name) || "---"
+                    item.schedule &&
+                    item.schedule.shift_type &&
+                    item.schedule.shift_type.name
                   }}
-                </div>
-                <div class="actions">
-                  <div class="follow-info">
-                    <h2>
-                      <v-divider class="pa-0 ma-0"></v-divider>
-                      <a href="#"
-                        ><span
-                          >{{ item && item.department && item.department.name }}
-                        </span>
-                        <p style="font-size:12px;color:#A09FA0">Department</p>
-                      </a>
-                    </h2>
-                  </div>
-                </div>
-              </div>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <div color="pt-2" class="text-center">
-                <v-btn
-                  @click="getDataFromApi(prev_page_url)"
-                  :disabled="prev_page_url ? false : true"
-                  color="primary"
-                  small
-                  elevation="11"
-                >
-                  <v-icon dark>mdi-chevron-double-left </v-icon>
-                </v-btn>
-                <v-btn
-                  @click="getDataFromApi(next_page_url)"
-                  :disabled="next_page_url ? false : true"
-                  color="primary"
-                  small
-                  elevation="11"
-                >
-                  <v-icon dark>mdi-chevron-double-right </v-icon>
-                </v-btn>
-              </div>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col md="5">
-          <v-row>
-            <v-col md="12">
-              <v-skeleton-loader
-                class="view-card"
-                v-if="boilerplate"
-                type="list-item-avatar-three-line, image, article,article,article"
-              ></v-skeleton-loader>
-
-              <v-card v-else height="700px" class="view-card mx-0 my-0 pa-0">
-                <v-toolbar color="primary " dark flat fixed max-height="55">
-                  <v-toolbar-title>{{ caps(ListName) }}</v-toolbar-title>
-                </v-toolbar>
-
-                <v-container grid-list-xs>
-                  <div class="" style=" margin:  4px  auto; width: 91px;">
-                    <div class="banner">
-                      <v-img
-                        class="gg"
-                        viewBox="0 0 100 100"
-                        style="border-radius: 50%;  height: 100px; min-width: 100px !important"
-                        :src="work.profile_picture || '/no-profile-image.jpg'"
-                      ></v-img>
-                    </div>
-                  </div>
-                  <div style="margin: 0 auto; width: 100%;">
-                    <p style=" text-align: center;">
-                      <b>{{ work && caps(work.display_name) }}</b> <br />
-                      <b style="color:#A09FA0;font-size: 15px;">
-                        EID: {{ work && work.employee_id }} </b
-                      ><br />
-                      <b style="color:#A09FA0">
-                        {{
-                          work &&
-                            work.designation &&
-                            caps(work.designation.name)
-                        }}</b
-                      >
-                    </p>
-                  </div>
-                  <v-divider style="width:94%;"></v-divider>
-
-                  <section style="width:94%">
-                    <v-row>
-                      <v-col md="12" color="primary">
-                        <v-expand-x-transition>
-                          <section>
-                            <component :employeeId="employeeId" :is="comp" />
-                          </section>
-                        </v-expand-x-transition>
-                      </v-col>
-                    </v-row>
-                  </section>
-                </v-container>
-                <v-navigation-drawer
-                  permanent
-                  exdpand-on-hover
-                  :mini-variant="drawer"
-                  v-model="rightDrawer"
-                  :clipped="true"
-                  :right="right"
-                  absolute
-                >
-                  <v-list class="primary" dark height="55">
-                    <v-list-item class="px-2">
-                      <v-list-item-avatar>
-                        <v-app-bar-nav-icon
-                          @click.stop="drawer = !drawer"
-                        ></v-app-bar-nav-icon>
-                      </v-list-item-avatar>
-                    </v-list-item>
-                  </v-list>
-                  <!-- <v-divider></v-divider> -->
-                  <v-list dense class="mt-0 pt-0">
-                    <v-list-item-group color="primary">
-                      <v-list-item
-                        class="py-2"
-                        v-for="(item, i) in items"
-                        :key="i"
-                        @click="getListItem(item, i)"
-                      >
-                        <v-list-item-icon>
-                          <v-icon>{{ item.icon }}</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>{{ item.text }}</v-list-item-title>
-                        </v-list-item-content>
+                </td>
+                <td>
+                  <v-menu bottom left>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                        <v-icon>mdi-dots-vertical</v-icon>
+                      </v-btn>
+                    </template>
+                    <v-list width="120" dense>
+                      <v-list-item @click="editItem(item)">
+                        <v-list-item-title style="cursor: pointer">
+                          <v-icon color="secondary" small> mdi-pencil </v-icon>
+                          Edit
+                        </v-list-item-title>
                       </v-list-item>
-                    </v-list-item-group>
-                  </v-list>
-                </v-navigation-drawer>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-col>
+                      <v-list-item @click="deleteItem(item)">
+                        <v-list-item-title style="cursor: pointer">
+                          <v-icon color="error" small> mdi-delete </v-icon>
+                          Delete
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </td>
+                <td>
+                  <v-btn
+                    dark-2
+                    icon
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="viewemployeedetails(item)"
+                  >
+                    <v-icon>info</v-icon>
+                  </v-btn>
+                </td>
+              </tr>
+            </table>
+          </v-card>
+          <div>
+            <v-row>
+              <v-col md="12" class="float-right">
+                <div class="float-right">
+                  <v-pagination
+                    v-model="pagination.current"
+                    :length="pagination.total"
+                    @input="onPageChange"
+                    :total-visible="12"
+                  ></v-pagination>
+                </div>
+              </v-col>
+            </v-row>
+          </div>
+        </div>
       </v-row>
     </div>
     <Preloader v-else />
@@ -366,12 +297,14 @@ const compList = [
   Document,
   Qualification,
   Setting,
-  Payroll
+  Payroll,
 ];
 
 export default {
   components: { compList },
   data: () => ({
+    attrs: [],
+
     comp: "WorkInfo",
     m: false,
     expand: false,
@@ -381,68 +314,70 @@ export default {
     rightDrawer: false,
     drawer: true,
     tab: null,
+    selectedItem: 1,
     items: [
       {
         text: "Work information",
         icon: "mdi-briefcase ",
-        permission: "employee_personal_access"
+        permission: "employee_personal_access",
       },
       {
         text: "Personal information",
         icon: "mdi-account-circle ",
-        permission: "employee_personal_access"
+        permission: "employee_personal_access",
       },
       {
         text: "Contact information",
         icon: "mdi-account-box ",
-        permission: "employee_contact_access"
+        permission: "employee_contact_access",
       },
       {
         text: "Passport information",
         icon: "mdi-file-powerpoint-outline ",
-        permission: "employee_passport_access"
+        permission: "employee_passport_access",
       },
       {
         text: "Emirates information",
         icon: "mdi-city-variant",
-        permission: "employee_emirate_access"
+        permission: "employee_emirate_access",
       },
       {
         text: "Visa information",
         icon: "mdi-file-document-multiple ",
-        permission: "employee_visa_access"
+        permission: "employee_visa_access",
       },
       {
         text: "Bank information",
         icon: "mdi-bank",
-        permission: "employee_bank_access"
+        permission: "employee_bank_access",
       },
       {
         text: "Documents",
         icon: "mdi-file",
-        permission: "employee_document_access"
+        permission: "employee_document_access",
       },
       {
         text: "Qualification",
         icon: "mdi-file-sign",
-        permission: "employee_qualification_access"
+        permission: "employee_qualification_access",
       },
       {
         text: "Setting",
         icon: "mdi-wrench",
-        permission: "employee_setting_access"
+        permission: "employee_setting_access",
       },
       {
         text: "Payroll",
         icon: "mdi-cash-multiple",
-        permission: "employee_setting_access"
-      }
+        permission: "employee_setting_access",
+      },
       // {
       //   text: "Assign Reporter",
       //   icon: "mdi-account",
       //   permission: "employee_setting_access"
       // }
     ],
+    on: "",
     color: "primary",
     files: "",
     dialog: false,
@@ -467,12 +402,74 @@ export default {
     contactItem: {},
     emirateItems: {},
     setting: {},
-    employeeId: ""
+    employeeId: "",
+
+    pagination: {
+      current: 1,
+      total: 0,
+      per_page: 10,
+    },
+    options: {},
+    Model: "Employee",
+    endpoint: "employee",
+    search: "",
+    snackbar: false,
+    dialog: false,
+    ids: [],
+    loading: false,
+    total: 0,
+    headers: [
+      {
+        text: "#",
+      },
+      {
+        text: "EID",
+      },
+      {
+        text: "Profile",
+      },
+      {
+        text: "Name",
+      },
+      {
+        text: "Department",
+      },
+      {
+        text: "Designation",
+      },
+      {
+        text: "Email",
+      },
+      {
+        text: "Mobile",
+      },
+      {
+        text: "Shift Type",
+      },
+      { text: "Actions", align: "center", value: "action", sortable: false },
+      {
+        text: "View Info",
+      },
+    ],
+    editedIndex: -1,
+    editedItem: { name: "" },
+    defaultItem: { name: "" },
+    response: "",
+    data: [],
+    errors: [],
+    departments: [],
+    department_id: "",
   }),
   async created() {
     this.loading = false;
     this.boilerplate = true;
     this.getDataFromApi();
+
+    this.loading = true;
+    this.getDepartments();
+  },
+  mounted() {
+    //this.getDataFromApi();
   },
   watch: {
     dialog(val) {
@@ -482,8 +479,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     getListItem(item, index) {
@@ -495,7 +492,7 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
     close() {
@@ -512,7 +509,7 @@ export default {
       return string.substring(0, length);
     },
     json_to_csv(json) {
-      let data = json.map(e => ({
+      let data = json.map((e) => ({
         first_name: e.first_name,
         last_name: e.last_name,
         display_name: e.display_name,
@@ -526,15 +523,12 @@ export default {
         department_code: e.department_id,
         designation_code: e.designation_id,
         department: e.department.name,
-        designation: e.designation.name
+        designation: e.designation.name,
       }));
       let header = Object.keys(data[0]).join(",") + "\n";
       let rows = "";
-      data.forEach(e => {
-        rows +=
-          Object.values(e)
-            .join(",")
-            .trim() + "\n";
+      data.forEach((e) => {
+        rows += Object.values(e).join(",").trim() + "\n";
       });
       return header + rows;
     },
@@ -544,7 +538,7 @@ export default {
       this.$axios.get(`/employee/${id}`).then(({ data }) => {
         this.employeeId = id;
         this.work = {
-          ...data
+          ...data,
         };
         this.boilerplate = false;
       });
@@ -555,6 +549,8 @@ export default {
         this.response = "No record to download";
         return;
       }
+
+      console.log("this.data", this.data);
       let csvData = this.json_to_csv(this.data);
       let element = document.createElement("a");
       element.setAttribute(
@@ -572,8 +568,8 @@ export default {
       payload.append("company_id", this.$auth?.user?.company?.id);
       let options = {
         headers: {
-          "Content-Type": "multipart/form-data"
-        }
+          "Content-Type": "multipart/form-data",
+        },
       };
       this.btnLoader = true;
       this.$axios
@@ -591,10 +587,10 @@ export default {
             this.close();
           }
         })
-        .catch(e => {
+        .catch((e) => {
           if (e.toString().includes("Error: Network Error")) {
             this.errors = [
-              "File is modified.Please cancel the current file and try again"
+              "File is modified.Please cancel the current file and try again",
             ];
             this.btnLoader = false;
           }
@@ -603,7 +599,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
     createEmployee() {
@@ -627,8 +623,8 @@ export default {
       let options = {
         params: {
           per_page: this.per_page === "Default" ? 8 : this.per_page,
-          company_id: this.$auth?.user?.company?.id
-        }
+          company_id: this.$auth?.user?.company?.id,
+        },
       };
       this.$axios.get(`${url}`, options).then(({ data }) => {
         this.data = data.data;
@@ -636,10 +632,10 @@ export default {
         this.employeeId = this.data[0].id;
 
         this.contactItem = {
-          ...this.data[0]
+          ...this.data[0],
         };
         this.work = {
-          ...this.data[0]
+          ...this.data[0],
         };
         this.getListItem(this.items[0], 0);
 
@@ -653,13 +649,164 @@ export default {
     },
     deleteItem(item) {
       confirm("Are you sure you want to delete this item?") &&
-        this.$axios.delete(this.endpoint + "/" + item.id).then(res => {
+        this.$axios.delete(this.endpoint + "/" + item.id).then((res) => {
           const index = this.data.indexOf(item);
           this.data.splice(index, 1);
           this.getDataFromApi();
         });
-    }
-  }
+    },
+
+    onPageChange() {
+      this.getDataFromApi();
+    },
+
+    can(per) {
+      let u = this.$auth.user;
+      return (
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        u.is_master
+      );
+    },
+    getDepartments() {
+      let options = {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company.id,
+        },
+      };
+      this.$axios.get(`departments`, options).then(({ data }) => {
+        this.departments = data.data;
+        this.departments.unshift({ name: "All", id: "" });
+      });
+    },
+    getDataFromApi(url = this.endpoint) {
+      this.loading = true;
+      let page = this.pagination.current;
+      let department_id = this.department_id;
+      let options = {
+        params: {
+          per_page: this.pagination.per_page,
+          company_id: this.$auth.user.company.id,
+          department_id: department_id,
+        },
+      };
+
+      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+        this.data = data.data;
+        this.pagination.current = data.current_page;
+        this.pagination.total = data.last_page;
+        this.loading = false;
+      });
+    },
+
+    searchIt() {
+      let s = this.search.length;
+      let search = this.search;
+      if (s == 0) {
+        this.getDataFromApi();
+      } else if (s > 2) {
+        this.getDataFromApi(`${this.endpoint}/search/${search}`);
+      }
+    },
+
+    editItem(item) {
+      this.$router.push(`/employees/${item.id}`);
+    },
+    viewemployeedetails(item) {
+      this.$router.push(`/employees/details/${item.id}`);
+    },
+    delteteSelectedRecords() {
+      let just_ids = this.ids.map((e) => e.id);
+      confirm(
+        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
+      ) &&
+        this.$axios
+          .post(`${this.endpoint}/delete/selected`, {
+            ids: just_ids,
+          })
+          .then(({ data }) => {
+            if (!data.status) {
+              this.errors = data.errors;
+            } else {
+              this.getDataFromApi();
+              this.snackbar = data.status;
+              this.ids = [];
+              this.response = "Selected records has been deleted";
+            }
+          })
+          .catch((err) => console.log(err));
+    },
+
+    deleteItem(item) {
+      confirm(
+        "Are you sure you wish to delete , to mitigate any inconvenience in future."
+      ) &&
+        this.$axios
+          .delete(this.endpoint + "/" + item.id)
+          .then(({ data }) => {
+            if (!data.status) {
+              this.errors = data.errors;
+            } else {
+              this.getDataFromApi();
+              this.snackbar = data.status;
+              this.response = data.message;
+            }
+          })
+          .catch((err) => console.log(err));
+    },
+
+    close() {
+      this.dialog = false;
+      setTimeout(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      }, 300);
+    },
+
+    save() {
+      let payload = {
+        name: this.editedItem.name.toLowerCase(),
+        company_id: this.$auth.user.company.id,
+      };
+      if (this.editedIndex > -1) {
+        this.$axios
+          .put(this.endpoint + "/" + this.editedItem.id, payload)
+          .then(({ data }) => {
+            if (!data.status) {
+              this.errors = data.errors;
+            } else {
+              const index = this.data.findIndex(
+                (item) => item.id == this.editedItem.id
+              );
+              this.data.splice(index, 1, {
+                id: this.editedItem.id,
+                name: this.editedItem.name,
+              });
+              this.snackbar = data.status;
+              this.response = data.message;
+              this.close();
+            }
+          })
+          .catch((err) => console.log(err));
+      } else {
+        this.$axios
+          .post(this.endpoint, payload)
+          .then(({ data }) => {
+            if (!data.status) {
+              this.errors = data.errors;
+            } else {
+              this.getDataFromApi();
+              this.snackbar = data.status;
+              this.response = data.message;
+              this.close();
+              this.errors = [];
+              this.search = "";
+            }
+          })
+          .catch((res) => console.log(res));
+      }
+    },
+  },
 };
 </script>
 
@@ -861,5 +1008,15 @@ body {
     height: 303px !important;
   }
   /* Styles for Desktops */
+}
+.v-list-item-group .v-list-item--active {
+  background: #5fafa3;
+  color: #fff;
+}
+
+.iconcustomcolor {
+  font-size: 15px;
+  color: #b30101;
+  margin-top: -3px;
 }
 </style>

@@ -186,6 +186,8 @@ Route::resource('emirate', EmiratesController::class);
 Route::post('employee/update/contact', [EmployeeController::class, 'employeeContactUpdate']);
 Route::post('employee/update/setting', [EmployeeController::class, 'employeeUpdateSetting']);
 
+//Route::post('employee/devicestimezone', [EmployeeController::class, 'employeeUpdateDevicestimezone']);
+
 // Salary Type
 Route::apiResource('salary_type', SalaryTypeController::class);
 Route::get('salary_type/search/{key}', [SalaryTypeController::class, 'search']);

@@ -8,4 +8,5 @@ include('payroll.php');
 include('payroll_formula.php');
 include('payslip.php');
 include('timezone.php');
+include('employee_timezone_mapping.php');
 include('test.php');

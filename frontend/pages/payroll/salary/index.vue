@@ -74,11 +74,11 @@
                 <td>{{ item.first_name || "---" }}</td>
                 <td>{{ caps(item && item.designation.name) }}</td>
                 <td>{{ caps(item.department.name) }}</td>
-                <td>{{item.payroll && item.payroll.basic_salary }}</td>
-                <td>{{item.payroll && item.payroll.net_salary }}</td>
+                <td>{{ item.payroll && item.payroll.basic_salary }}</td>
+                <td>{{ item.payroll && item.payroll.net_salary }}</td>
                 <td>
                   <v-btn
-                    :to="`/payroll/salary/${item.system_user_id}`"
+                    :to="`/payroll/salary/${item.system_user_id}_${item.id}`"
                     class="background white--text"
                     small
                     >Generate Slip</v-btn
@@ -93,10 +93,8 @@
                     </template>
                     <v-list width="120" dense>
                       <v-list-item @click="editItem(item)">
-                        <v-list-item-title style="cursor:pointer">
-                          <v-icon color="secondary" small>
-                            mdi-pencil
-                          </v-icon>
+                        <v-list-item-title style="cursor: pointer">
+                          <v-icon color="secondary" small> mdi-pencil </v-icon>
                           Edit
                         </v-list-item-title>
                       </v-list-item>
@@ -141,7 +139,7 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 10
+      per_page: 10,
     },
     options: {},
     Model: "Payroll",
@@ -160,7 +158,7 @@ export default {
       "Housing",
       "Uniform",
       "Uniform",
-      "Medical/health"
+      "Medical/health",
     ],
     headers: [
       { text: "#" },
@@ -171,7 +169,7 @@ export default {
       { text: "Basic Salary" },
       { text: "Net Salary" },
       { text: "Payslip" },
-      { text: "Actions", align: "center", value: "action", sortable: false }
+      { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     editedIndex: -1,
     editedItem: { name: "" },
@@ -194,7 +192,7 @@ export default {
       profile_picture: "",
       phone_number: "",
       whatsapp_number: "",
-      joining_date: ""
+      joining_date: "",
     },
     BankInfo: {
       bank_name: "",
@@ -204,24 +202,24 @@ export default {
       address: "",
       remark: "",
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
     salary: {
       basic_salary: "",
       payment_method: "",
-      remark: ""
+      remark: "",
     },
     allowance: {
       name: "",
       amount: "",
-      remark: ""
-    }
+      remark: "",
+    },
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    }
+    },
   },
 
   watch: {
@@ -233,7 +231,7 @@ export default {
     department_id() {
       this.pagination.current = 1;
       this.getDataFromApi();
-    }
+    },
   },
   created() {
     this.loading = true;
@@ -252,13 +250,13 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -271,7 +269,7 @@ export default {
     getBankInfo(id) {
       this.$axios.get(`bankinfo/${id}`).then(({ data }) => {
         this.BankInfo = {
-          ...data
+          ...data,
         };
       });
     },
@@ -280,8 +278,8 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
@@ -296,8 +294,8 @@ export default {
         params: {
           per_page: this.pagination.per_page,
           company_id: this.$auth.user.company.id,
-          department_id: department_id
-        }
+          department_id: department_id,
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -320,13 +318,13 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.id);
+      let just_ids = this.ids.map((e) => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids
+            ids: just_ids,
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -338,7 +336,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -356,7 +354,7 @@ export default {
               this.response = data.message;
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     close() {
@@ -370,7 +368,7 @@ export default {
     save() {
       let salary = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company.id,
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -380,18 +378,18 @@ export default {
               this.errors = data.errors;
             } else {
               const index = this.data.findIndex(
-                item => item.id == this.editedItem.id
+                (item) => item.id == this.editedItem.id
               );
               this.data.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name
+                name: this.editedItem.name,
               });
               this.snackbar = data.status;
               this.response = data.message;
               this.close();
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, salary)
@@ -407,10 +405,10 @@ export default {
               this.search = "";
             }
           })
-          .catch(res => console.log(res));
+          .catch((res) => console.log(res));
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -5,7 +5,15 @@
       <v-toolbar flat>
         <h5>
           <b>
-            Recent Logs <a href="#" @click="goToemployeelog()">Table View</a>
+            Recent Logs
+            <a href="#" class="text-decoration-none" @click="goToemployeelog()">
+              Table View
+              <i
+                data-v-0591559c=""
+                aria-hidden="true"
+                class="v-icon notranslate pa-0 mdi mdi-grid theme--light"
+              ></i
+            ></a>
           </b>
         </h5>
         <v-spacer />

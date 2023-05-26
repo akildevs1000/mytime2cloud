@@ -1,22 +1,84 @@
 <template>
-  <div class="mt-15">
+  <div class="mt-15 nopadding">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" color="background">
         {{ response }}
       </v-snackbar>
     </div>
-    <div style="text-align: right;" class="pr-5">
+    <div style="text-align: right" class="pr-5">
       <v-icon
         @click="editItem"
         small
-        class="grey"
-        style="border-radius: 50%; padding: 5px;"
+        class="red"
+        style="border-radius: 50%; padding: 5px"
         color="secondary"
         >mdi-pencil</v-icon
       >
     </div>
 
-    <KeyValueTable :data="table_data" :hideEditBtn="true" />
+    <!-- <KeyValueTable :data="table_data" :hideEditBtn="true" /> -->
+
+    <div class="card mb-3">
+      <div class="card-body" style="padding: 9px">
+        <div class="row">
+          <div class="col-sm-3 padding5">Role</div>
+          <div class="col-sm-9 padding5">
+            {{ table_data.Role }}
+          </div>
+        </div>
+        <hr />
+        <div class="row alternatebackground">
+          <div class="col-sm-3 padding5">EID</div>
+          <div class="col-sm-9 padding5">
+            {{ table_data.EID }}
+          </div>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="col-sm-3 padding5">Name</div>
+          <div class="col-sm-9 padding5">
+            {{ table_data.Name }}
+          </div>
+        </div>
+        <hr />
+        <div class="row alternatebackground">
+          <div class="col-sm-3 padding5">Department</div>
+          <div class="col-sm-9 padding5">
+            {{ table_data.Department }}
+          </div>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="col-sm-3 padding5">Sub Department</div>
+          <div class="col-sm-9 padding5">
+            {{ table_data.SubDepartment }}
+          </div>
+        </div>
+        <hr />
+        <div class="row alternatebackground">
+          <div class="col-sm-3 padding5">Email</div>
+          <div class="col-sm-9 padding5">
+            {{ table_data.Email }}
+          </div>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="col-sm-3 padding5">Whatsapp Number</div>
+          <div class="col-sm-9 padding5">
+            {{ table_data.Whatsapp_Number }}
+          </div>
+        </div>
+        <hr />
+        <div class="row alternatebackground">
+          <div class="col-sm-3 padding5">Joining Date</div>
+          <div class="col-sm-9 padding5">
+            {{ table_data.Joining_Date }}
+          </div>
+        </div>
+        <!-- -->
+        <hr />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -31,7 +93,8 @@ export default {
       response: "",
       snackbar: false,
       work: {},
-      table_data: {}
+      table_data: {},
+      table_data2: {},
     };
   },
   created() {
@@ -39,27 +102,29 @@ export default {
   },
   methods: {
     getInfo() {
-      this.$axios
-        .get(
-          `employee/${this.employeeId}`
-        )
-        .then(async ({ data }) => {
-          
-          this.table_data = {
-            Role: await data.role.name,
-            EID: data.employee_id,
-            Name: data.display_name,
-            Department: await data.department.name,
-            "Sub Department": (await data.sub_department)
-              ? data.sub_department.name
-              : "---",
-            Email: await data.user.email,
-            "Whatsapp Number": data.whatsapp_number,
-            "Joining Date": data.joining_date
-          };
+      this.$axios.get(`employee/${this.employeeId}`).then(async ({ data }) => {
+        console.log("data2", this.table_data2);
+        this.table_data2 = data;
+        this.table_data = {
+          Role: await data.role.name,
+          EID: data.employee_id,
+          Name: data.display_name,
+          Department: await data.department.name,
+          "Sub Department": (await data.sub_department)
+            ? data.sub_department.name
+            : "---",
+          SubDepartment: (await data.sub_department)
+            ? data.sub_department.name
+            : "---",
+          Email: await data.user.email,
+          "Whatsapp Number": data.whatsapp_number,
+          Whatsapp_Number: data.whatsapp_number,
+          "Joining Date": data.joining_date,
+          Joining_Date: data.joining_date,
+        };
 
-          this.work = data;
-        });
+        this.work = data;
+      });
     },
     editItem() {
       this.$router.push(`/employees/${this.employeeId}`);
@@ -69,7 +134,7 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
     update_setting() {
@@ -78,7 +143,7 @@ export default {
         employee_id: this.setting.employee_id,
         status: this.setting.status,
         overtime: this.setting.overtime,
-        mobile_application: this.setting.mobile_application
+        mobile_application: this.setting.mobile_application,
       };
       console.log(payload);
       // return;
@@ -97,13 +162,18 @@ export default {
             console.log("success");
           }
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>
 
 <style scoped>
+.padding5 {
+  padding: 1px;
+  padding-left: 13px;
+  font-size: 11px;
+}
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
@@ -118,5 +188,14 @@ th {
 
 tr:nth-child(even) {
   background-color: #fbfdff;
+}
+
+.nopadding {
+  margin-top: 0px !important;
+}
+
+.alternatebackground {
+  background: #9acdc5;
+  color: #fff;
 }
 </style>

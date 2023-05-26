@@ -9,9 +9,16 @@ use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-    public function index(Request $request, Department $model)
+    public function index(Request $request)
     {
-        return $model->with('children')->where('company_id', $request->company_id)->paginate($request->per_page);
+        $cols = $request->cols;
+
+        $model = Department::query();
+        $model->with('children');
+        $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
+            $q->select($cols);
+        });
+        return $model->paginate($request->per_page);
     }
 
     public function search(Request $request, $key)

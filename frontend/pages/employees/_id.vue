@@ -218,52 +218,160 @@
                         ></v-select>
                       </v-col>
                     </v-row>
-                    <div class="col-sm-3 pt-5">
-                      <div class="form-group">
-                        <label class="col-form-label">Profile Picture</label>
+                    <v-row>
+                      <div col="6" md="6" style="display: none">
+                        <div class="col-sm-3 pt-5">
+                          <div class="form-group">
+                            <label class="col-form-label"
+                              >Profile Picture</label
+                            >
 
-                        <v-img
-                          style="
-                            border-radius: 50%;
-                            height: 120px;
-                            width: 35%;
-                            margin: 0 auto;
-                          "
-                          :src="
-                            previewImage ||
-                              payload.profile_picture ||
-                              '/no-profile-image.jpg'
-                          "
-                        ></v-img>
+                            <v-img
+                              style="
+                                border-radius: 50%;
+                                height: 120px;
+                                width: 35%;
+                                margin: 0 auto;
+                              "
+                              :src="
+                                previewImage ||
+                                payload.profile_picture ||
+                                '/no-profile-image.jpg'
+                              "
+                            ></v-img>
 
-                        <br />
-                        <v-btn
-                          text
-                          small
-                          class="form-control primary"
-                          @click="onpick_attachment"
-                          >{{
-                            !upload.name ? "Profile Picture" : "File Uploaded"
-                          }}
-                          <v-icon right dark>mdi-cloud-upload</v-icon>
-                        </v-btn>
+                            <br />
+                            <v-btn
+                              text
+                              small
+                              class="form-control primary"
+                              @click="onpick_attachment"
+                              >{{
+                                !upload.name
+                                  ? "Profile Picture"
+                                  : "File Uploaded"
+                              }}
+                              <v-icon right dark>mdi-cloud-upload</v-icon>
+                            </v-btn>
 
-                        <input
-                          required
-                          type="file"
-                          @change="attachment"
-                          style="display: none"
-                          accept="image/*"
-                          ref="attachment_input"
-                        />
+                            <input
+                              required
+                              type="file"
+                              @change="attachment"
+                              style="display: none"
+                              accept="image/*"
+                              ref="attachment_input"
+                            />
 
-                        <span
-                          v-if="errors && errors.profile_picture"
-                          class="text-danger mt-2"
-                          >{{ errors.profile_picture[0] }}</span
-                        >
+                            <span
+                              v-if="errors && errors.profile_picture"
+                              class="text-danger mt-2"
+                              >{{ errors.profile_picture[0] }}</span
+                            >
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                      <div col="6" md="6">
+                        <div class="col-sm-3 pt-5">
+                          <div class="form-group">
+                            <label class="col-form-label"
+                              >Profile Picture</label
+                            >
+
+                            <v-img
+                              style="
+                                border-radius: 50%;
+                                height: 120px;
+                                width: 35%;
+                                margin: 0 auto;
+                              "
+                              :src="
+                                image_name ||
+                                payload.profile_picture ||
+                                '/no-profile-image.jpg'
+                              "
+                            ></v-img>
+
+                            <br />
+                            <v-btn
+                              text
+                              small
+                              class="form-control primary"
+                              @click="$refs.FileInput.click()"
+                              >{{
+                                !upload.name
+                                  ? "Profile Picture"
+                                  : "File Uploaded"
+                              }}
+                              <v-icon right dark>mdi-cloud-upload</v-icon>
+                            </v-btn>
+
+                            <input
+                              ref="FileInput"
+                              type="file"
+                              accept="image/jpeg, image/png"
+                              style="display: none"
+                              @change="onFileSelect"
+                            />
+                            <span
+                              v-if="errors && errors.profile_picture"
+                              class="text-danger mt-2"
+                              >{{ errors.profile_picture[0] }}</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+
+                      <div col="6" md="6">
+                        <div>
+                          <v-dialog v-model="dialog" width="500">
+                            <v-card style="padding-top: 20px">
+                              <v-card-text>
+                                <!-- <img :src="imageUrl" alt="Preview Image" /> -->
+                                <VueCropper
+                                  v-show="selectedFile"
+                                  ref="cropper"
+                                  :src="selectedFile"
+                                  alt="Source Image"
+                                  :aspectRatio="1"
+                                  :autoCropArea="0.9"
+                                  :viewMode="3"
+                                ></VueCropper>
+
+                                <!-- <div class="cropper-preview"></div> -->
+                              </v-card-text>
+
+                              <v-card-actions>
+                                <div
+                                  col="6"
+                                  md="6"
+                                  class="col-sm-12 col-md-6 col-12 pull-left"
+                                >
+                                  <v-btn
+                                    class="danger btn btn-danger text-left"
+                                    text
+                                    @click="closePopup()"
+                                    style="float: left"
+                                    >Cancel</v-btn
+                                  >
+                                </div>
+                                <div
+                                  col="6"
+                                  md="6"
+                                  class="col-sm-12 col-md-6 col-12 text-right"
+                                >
+                                  <v-btn
+                                    class="primary btn btn-danger text-right"
+                                    @click="saveImage(), (dialog = false)"
+                                    >Crop</v-btn
+                                  >
+                                </div>
+                              </v-card-actions>
+                            </v-card>
+                          </v-dialog>
+                        </div>
+                      </div>
+                    </v-row>
                     <v-row>
                       <v-col cols="12">
                         <div class="text-right">
@@ -604,13 +712,33 @@
 </template>
 
 <script>
+import "cropperjs/dist/cropper.css";
+import Cropper from "cropperjs";
+import VueCropper from "vue-cropperjs";
 export default {
   layout({ $auth }) {
     let { is_master } = $auth.user;
     return is_master ? "default" : "employee";
   },
-
+  //props: ["image_name"],
+  components: { VueCropper },
   data: () => ({
+    cropper: "",
+    image:
+      "https://images.pexels.com/photos/4218687/pexels-photo-4218687.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    preview: "preview",
+    mime_type: "",
+    cropedImage: "",
+    autoCrop: false,
+    selectedFile: "",
+    image: "",
+    dialog: false,
+    files: "",
+    image_name: "",
+
+    file: "",
+
+    showCropper: false,
     Model: "Employee",
     id: "",
     loading: false,
@@ -621,7 +749,7 @@ export default {
     titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
 
     upload: {
-      name: ""
+      name: "",
     },
 
     payload: {
@@ -633,7 +761,7 @@ export default {
       password_confirmation: "",
       role_id: "",
       title: "",
-      file_no: ""
+      file_no: "",
     },
     contact: {
       phone_number: "",
@@ -643,7 +771,7 @@ export default {
       local_email: "",
       local_address: "",
       local_country: "",
-      local_city: ""
+      local_city: "",
     },
     other: {
       designation_id: "",
@@ -654,7 +782,7 @@ export default {
       system_user_id: "",
       role_id: "",
       type: "",
-      grade: ""
+      grade: "",
     },
     e1: 1,
     errors: [],
@@ -663,11 +791,11 @@ export default {
     subDepartments: [],
     roles: [],
     previewImage: null,
-    Rules: [v => !!v || "This field is required"],
+    Rules: [(v) => !!v || "This field is required"],
 
     data: {},
     response: "",
-    snackbar: false
+    snackbar: false,
   }),
 
   async created() {
@@ -679,17 +807,86 @@ export default {
   computed: {
     currentUserType() {
       return this.$auth.user;
-    }
+    },
   },
-
+  mounted: function () {
+    console.log("Testing 1");
+    this.$nextTick(function () {
+      setTimeout(() => {
+        // const cropper = this.$refs.cropper.$cropper;
+        // cropper.on("crop", this.updatePreview);
+      }, 5000);
+    });
+  },
   methods: {
+    closePopup() {
+      this.$refs.FileInput.value = null;
+      this.dialog = false;
+    },
+    updatePreview() {
+      const cropper = this.$refs.cropper.$cropper;
+      const previewElement = document.querySelector(".cropper-preview");
+      const previewCanvas = cropper.getCroppedCanvas({
+        width: 200, // Adjust the width of the preview image
+        height: 200, // Adjust the height of the preview image
+      });
+
+      // Clear previous preview content
+      previewElement.innerHTML = "";
+
+      // Append the new preview image
+      previewElement.appendChild(previewCanvas);
+    },
+
+    saveImage() {
+      const userId = this.$route.params.user_id;
+      this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
+
+      this.image_name = this.cropedImage;
+      this.previewImage = this.cropedImage;
+    },
+    onFileSelect(e) {
+      this.loading = true;
+      console.log("onFileSelect 1", e.target.files);
+      const file = e.target.files[0];
+      console.log("onFileSelect 2", e.target.files);
+      if (!file) return;
+      this.mime_type = file.type;
+      console.log(this.mime_type);
+
+      if (!this.uploadFilesizevalidation(e.target.files)) return false;
+      console.log("onFileSelect 3", e.target.files);
+      if (typeof FileReader === "function") {
+        this.dialog = true;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          console.log("onFileSelect 4", e.target.files);
+          this.selectedFile = event.target.result;
+
+          this.$refs.cropper.replace(this.selectedFile);
+
+          console.log("onFileSelect 5", e.target.files);
+        };
+        reader.readAsDataURL(file);
+
+        console.log("onFileSelect 6", e.target.files);
+
+        this.loading = false;
+      } else {
+      }
+    },
+
+    handleUploaded(event) {
+      console.log("avatar uploaded", event);
+    },
+
     getRoles() {
       let options = {
         params: {
           per_page: 100,
           company_id: this.$auth.user.company.id,
-          role_type: "employee"
-        }
+          role_type: "employee",
+        },
       };
       this.$axios.get(`role`, options).then(({ data }) => {
         this.roles = data.data;
@@ -699,8 +896,8 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
@@ -712,8 +909,8 @@ export default {
         params: {
           per_page: 100,
           department_id: department_id,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios
         .get(`designations-by-department`, options)
@@ -727,8 +924,8 @@ export default {
         params: {
           per_page: 100,
           department_id: department_id,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       this.$axios
@@ -753,14 +950,14 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
     getDataFromApi() {
       this.preloader = true;
       this.id = this.$route.params.id;
       this.$axios
-        .get(`employee/${this.id}?company_id=${this.$auth.user.company.id }`)
+        .get(`employee/${this.id}?company_id=${this.$auth.user.company.id}`)
         .then(({ data }) => {
           this.payload = {
             first_name: data.first_name,
@@ -771,7 +968,7 @@ export default {
             role_id: data.role_id,
             profile_picture: data.profile_picture,
             title: data.title,
-            file_no: data.file_no == "null" ? "" : data.file_no
+            file_no: data.file_no == "null" ? "" : data.file_no,
           };
 
           this.contact = {
@@ -783,7 +980,7 @@ export default {
             local_email: data.local_email,
             local_address: data.local_address,
             local_country: data.local_country,
-            local_city: data.local_city
+            local_city: data.local_city,
           };
 
           this.other = {
@@ -794,7 +991,7 @@ export default {
             system_user_id: data.system_user_id,
             sub_department_id: data.sub_department_id,
             type: data.type,
-            grade: data.grade
+            grade: data.grade,
           };
 
           this.preloader = false;
@@ -804,7 +1001,22 @@ export default {
     onpick_attachment() {
       this.$refs.attachment_input.click();
     },
+    uploadFilesizevalidation(file) {
+      if (file) {
+        if (file && file[0].size > 1024 * 100) {
+          // e.preventDefault();
+          //alert("File too big (> 1MB). Upload less than 1MB");
 
+          this.errors["profile_picture"] = [
+            "File too big (> 100kb). Upload less than 100Kb",
+          ];
+          return false;
+        } else {
+          this.errors["profile_picture"] = "";
+          return true;
+        }
+      }
+    },
     attachment(e) {
       this.upload.name = e.target.files[0] || "";
 
@@ -812,19 +1024,11 @@ export default {
       let file = input.files;
       console.log("file", file);
 
-      if (file && file[0].size > 1024 * 1024) {
-        e.preventDefault();
-        //alert("File too big (> 1MB). Upload less than 1MB");
-
-        this.errors["profile_picture"] = [
-          "File too big (> 1MB). Upload less than 1MB"
-        ];
-        return;
-      }
+      this.uploadFilesizevalidation(e.target.files);
 
       if (file && file[0]) {
         let reader = new FileReader();
-        reader.onload = e => {
+        reader.onload = (e) => {
           this.previewImage = e.target.result;
         };
         reader.readAsDataURL(file[0]);
@@ -841,7 +1045,6 @@ export default {
 
       return payload;
     },
-
     update_employee() {
       let payload = new FormData();
       payload.append("first_name", this.payload.first_name);
@@ -850,24 +1053,53 @@ export default {
       payload.append("email", this.payload.email);
       payload.append("title", this.payload.title);
       payload.append("file_no", this.payload.file_no);
+      let file = false;
 
-      const file = this.$refs.attachment_input.files[0];
-      console.log("file", file);
+      console.log("file attachment_input object", this.$refs.attachment_input);
+      console.log("file FileInput object", this.$refs.FileInput);
+
+      if (this.$refs.attachment_input.files[0]) {
+        console.log("attachment_input");
+        file = this.$refs.attachment_input.files[0];
+      } else if (this.$refs.FileInput.files[0]) {
+        console.log("Crop Image");
+        file = this.$refs.FileInput.files[0];
+
+        this.$refs.attachment_input = this.$refs.FileInput;
+
+        // Convert the cropped canvas to a Blob
+        this.$refs.cropper.getCroppedCanvas().toBlob((blob) => {
+          // Create a FormData object and append the Blob as a file
+          //const formData = new FormData();
+          payload.append("profile_picture", blob, "cropped_image.jpg");
+          console.log("getCroppedCanvas");
+          this.updateToserver(file, payload);
+          // Make an API call to upload the image
+        }, "image/jpeg");
+      } else {
+        this.updateToserver(file, payload);
+      }
+    },
+    updateToserver(file, payload) {
+      //console.log("file object", this.$refs.FileInput);
+      console.log("file-----------", file);
       // if (!file) {
       //   e.preventDefault();
       //   alert("No file chosen");
       //   return;
       // }
-
-      if (file.size > 1024 * 1024) {
-        e.preventDefault();
-        // alert("File too big (> 1MB). Upload less than 1MB");
-        this.errors["profile_picture"] = [
-          "File too big (> 1MB). Upload less than 1MB"
-        ];
-        return;
+      if (file) {
+        if (file.size > 1024 * 100) {
+          // e.preventDefault();
+          // alert("File too big (> 1MB). Upload less than 1MB");
+          this.errors["profile_picture"] = [
+            "File too big (> 100Kb). Upload less than 100Kb",
+          ];
+          return;
+        } else {
+          this.errors["profile_picture"] = "";
+        }
       }
-
       if (this.payload.password) {
         payload.append("password", this.payload.password);
         payload.append(
@@ -885,6 +1117,73 @@ export default {
 
       this.start_process(`/employee/${this.id}/update`, payload, `Employee`);
     },
+    // async update_employee_withoutCropping() {
+    //   let payload = new FormData();
+    //   payload.append("first_name", this.payload.first_name);
+    //   payload.append("last_name", this.payload.last_name);
+    //   payload.append("display_name", this.payload.display_name);
+    //   payload.append("email", this.payload.email);
+    //   payload.append("title", this.payload.title);
+    //   payload.append("file_no", this.payload.file_no);
+    //   let file = false;
+
+    //   console.log("file attachment_input object", this.$refs.attachment_input);
+    //   console.log("file FileInput object", this.$refs.FileInput);
+
+    //   if (this.$refs.attachment_input.files[0]) {
+    //     console.log("attachment_input");
+    //     file = this.$refs.attachment_input.files[0];
+    //   } else if (this.$refs.FileInput.files[0]) {
+    //     console.log("Crop Image");
+    //     file = this.$refs.FileInput.files[0];
+
+    //     this.$refs.attachment_input = this.$refs.FileInput;
+
+    //     // Convert the cropped canvas to a Blob
+    //     await this.$refs.cropper.getCroppedCanvas().toBlob(async (blob) => {
+    //       // Create a FormData object and append the Blob as a file
+    //       //const formData = new FormData();
+    //       await payload.append("profile_picture", blob, "cropped_image.jpg");
+    //       console.log("getCroppedCanvas");
+    //       // Make an API call to upload the image
+    //     }, "image/jpeg");
+    //   }
+    //   //console.log("file object", this.$refs.FileInput);
+    //   console.log("file-----------", file);
+    //   // if (!file) {
+    //   //   e.preventDefault();
+    //   //   alert("No file chosen");
+    //   //   return;
+    //   // }
+    //   if (file) {
+    //     if (file.size > 1024 * 100) {
+    //       // e.preventDefault();
+    //       // alert("File too big (> 1MB). Upload less than 1MB");
+    //       this.errors["profile_picture"] = [
+    //         "File too big (> 100Kb). Upload less than 100Kb",
+    //       ];
+    //       return;
+    //     } else {
+    //       this.errors["profile_picture"] = "";
+    //     }
+    //   }
+    //   if (this.payload.password) {
+    //     payload.append("password", this.payload.password);
+    //     payload.append(
+    //       "password_confirmation",
+    //       this.payload.password_confirmation
+    //     );
+    //   }
+    //   if (this.upload.name) {
+    //     payload.append("profile_picture", this.upload.name);
+    //   }
+
+    //   if (this.payload.role_id) {
+    //     payload.append("role_id", this.payload.role_id);
+    //   }
+
+    //   this.start_process(`/employee/${this.id}/update`, payload, `Employee`);
+    // },
     update_contact() {
       this.start_process(
         `/employee/${this.id}/update/contact`,
@@ -915,8 +1214,37 @@ export default {
             this.response = model + " updated successfully";
           }
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>
+<style scoped>
+.user {
+  width: 140px;
+  height: 140px;
+  border-radius: 100%;
+  border: 3px solid #2e7d32;
+  position: relative;
+}
+.profile-img {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+}
+.icon {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  background: #e2e2e2;
+  border-radius: 100%;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  vertical-align: middle;
+  text-align: center;
+  color: #0000ff;
+  font-size: 14px;
+  cursor: pointer;
+}
+</style>

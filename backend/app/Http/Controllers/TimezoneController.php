@@ -107,15 +107,20 @@ class TimezoneController extends Controller
         }
         return TimezoneDefaultJson::count();
     }
+    public function GetTimezoneDefaultJson()
+    {
+
+        return TimezoneDefaultJson::get(['index', 'dayTimeList']);
+    }
 
     public function processSchedule($schedules, $isDefault)
     {
         $arr = [];
-        foreach ($schedules as $d) {
+        foreach ($schedules as $key => $d) {
             $arr[] =  [
                 "day" => $d["day"],
                 "isScheduled" => $isDefault ? false : $d["isScheduled"],
-                "dayWeek" => $d["dayWeek"],
+                "dayWeek" => $key,
             ];
         }
         return  $arr;

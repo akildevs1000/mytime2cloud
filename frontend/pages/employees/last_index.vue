@@ -99,7 +99,7 @@
               @click="createEmployee"
               small
               dark
-              class="primary  pt-4 pb-4"
+              class="primary pt-4 pb-4"
               >{{ Model }} +
             </v-btn>
           </div>
@@ -108,7 +108,7 @@
 
       <v-row class="mt-15">
         <v-col md="7">
-          <v-row class="d-flex justify-space-between ">
+          <v-row class="d-flex justify-space-between">
             <v-col xs="12" sm="12" md="3" cols="12">
               <v-select
                 @change="getDataFromApi(`employee`)"
@@ -158,31 +158,35 @@
               md="3"
               v-for="(item, index) in data"
               :key="index"
-              class="pa-xs-0  ma-xs-0"
+              class="pa-xs-0 ma-xs-0"
             >
               <div
                 class="card mx-0 my-0 pa-0"
                 @click="res(item.id)"
-                style="cursor:pointer"
+                style="cursor: pointer"
               >
                 <div class="banner">
                   <v-img
                     class="gg"
                     viewBox="0 0 100 100"
-                    style="border-radius: 50%;  height: 80px; max-width: 80px !important"
+                    style="
+                      border-radius: 50%;
+                      height: 80px;
+                      max-width: 80px !important;
+                    "
                     :src="item.profile_picture || '/no-profile-image.jpg'"
                   ></v-img>
                 </div>
                 <div class="menu">
                   <div class="opener"></div>
                 </div>
-                <h2 class="name" style="font-size:15px">
+                <h2 class="name" style="font-size: 15px">
                   {{ limitName(item.display_name) }}
                 </h2>
-                <div class="title" style="font-size:12px !important">
+                <div class="title" style="font-size: 12px !important">
                   EID: {{ item.employee_id }}
                 </div>
-                <div class="title" style="font-size:12px !important">
+                <div class="title" style="font-size: 12px !important">
                   {{
                     (item && item.designation && item.designation.name) || "---"
                   }}
@@ -195,7 +199,9 @@
                         ><span
                           >{{ item && item.department && item.department.name }}
                         </span>
-                        <p style="font-size:12px;color:#A09FA0">Department</p>
+                        <p style="font-size: 12px; color: #a09fa0">
+                          Department
+                        </p>
                       </a>
                     </h2>
                   </div>
@@ -245,34 +251,38 @@
                 </v-toolbar>
 
                 <v-container grid-list-xs>
-                  <div class="" style=" margin:  4px  auto; width: 91px;">
+                  <div class="" style="margin: 4px auto; width: 91px">
                     <div class="banner">
                       <v-img
                         class="gg"
                         viewBox="0 0 100 100"
-                        style="border-radius: 50%;  height: 100px; min-width: 100px !important"
+                        style="
+                          border-radius: 50%;
+                          height: 100px;
+                          min-width: 100px !important;
+                        "
                         :src="work.profile_picture || '/no-profile-image.jpg'"
                       ></v-img>
                     </div>
                   </div>
-                  <div style="margin: 0 auto; width: 100%;">
-                    <p style=" text-align: center;">
+                  <div style="margin: 0 auto; width: 100%">
+                    <p style="text-align: center">
                       <b>{{ work && caps(work.display_name) }}</b> <br />
-                      <b style="color:#A09FA0;font-size: 15px;">
+                      <b style="color: #a09fa0; font-size: 15px">
                         EID: {{ work && work.employee_id }} </b
                       ><br />
-                      <b style="color:#A09FA0">
+                      <b style="color: #a09fa0">
                         {{
                           work &&
-                            work.designation &&
-                            caps(work.designation.name)
+                          work.designation &&
+                          caps(work.designation.name)
                         }}</b
                       >
                     </p>
                   </div>
-                  <v-divider style="width:94%;"></v-divider>
+                  <v-divider style="width: 94%"></v-divider>
                   <!-- work info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col md="12" v-show="selectedItem == 0" color="primary">
                         <v-expand-x-transition>
@@ -283,10 +293,10 @@
                                 <td>
                                   {{
                                     (work && work.role && work.role.name) ||
-                                      "---"
+                                    "---"
                                   }}
                                 </td>
-                                <td style="text-align: right;">
+                                <td style="text-align: right">
                                   <v-icon
                                     v-if="can(`employee_personal_edit_access`)"
                                     @click="editItem(work)"
@@ -323,7 +333,7 @@
                                     (work &&
                                       work.department &&
                                       work.department.name) ||
-                                      "----"
+                                    "----"
                                   }}
                                 </td>
                               </tr>
@@ -335,7 +345,7 @@
                                     (work &&
                                       work.sub_department &&
                                       work.sub_department.name) ||
-                                      "----"
+                                    "----"
                                   }}
                                 </td>
                               </tr>
@@ -345,7 +355,7 @@
                                 <td>
                                   {{
                                     (work && work.user && work.user.email) ||
-                                      "----"
+                                    "----"
                                   }}
                                 </td>
                               </tr>
@@ -368,7 +378,7 @@
                     </v-row>
                   </section>
                   <!-- personal info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col md="12" v-show="selectedItem == 1" color="primary">
                         <v-expand-x-transition>
@@ -380,7 +390,7 @@
                     </v-row>
                   </section>
                   <!-- contact info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col
                         md="12"
@@ -396,7 +406,7 @@
                     </v-row>
                   </section>
                   <!-- Passport info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col
                         md="12"
@@ -413,7 +423,7 @@
                     </v-row>
                   </section>
                   <!-- Emirates info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col
                         md="12"
@@ -430,7 +440,7 @@
                     </v-row>
                   </section>
                   <!-- Visa info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col
                         md="12"
@@ -447,7 +457,7 @@
                     </v-row>
                   </section>
                   <!-- Bank info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col
                         md="12"
@@ -464,7 +474,7 @@
                     </v-row>
                   </section>
                   <!-- Document info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col
                         md="12"
@@ -485,7 +495,7 @@
                     </v-row>
                   </section>
                   <!-- Qualification info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col
                         md="12"
@@ -504,7 +514,7 @@
                     </v-row>
                   </section>
                   <!-- Setting info -->
-                  <section style="width:94%">
+                  <section style="width: 94%">
                     <v-row>
                       <v-col
                         md="12"
@@ -589,64 +599,64 @@ export default {
     right: true,
     rightDrawer: false,
     drawer: true,
-    selectedItem: 0,
+    selectedItem: 1,
     tab: null,
     items: [
       {
         text: "Work information",
         icon: "mdi-briefcase ",
-        permission: "employee_personal_access"
+        permission: "employee_personal_access",
       },
       {
         text: "Personal information",
         icon: "mdi-account-circle ",
-        permission: "employee_personal_access"
+        permission: "employee_personal_access",
       },
       {
         text: "Contact information",
         icon: "mdi-account-box ",
-        permission: "employee_contact_access"
+        permission: "employee_contact_access",
       },
       {
         text: "Passport information",
         icon: "mdi-file-powerpoint-outline ",
-        permission: "employee_passport_access"
+        permission: "employee_passport_access",
       },
       {
         text: "Emirates information",
         icon: "mdi-city-variant",
-        permission: "employee_emirate_access"
+        permission: "employee_emirate_access",
       },
       {
         text: "Visa information",
         icon: "mdi-file-document-multiple ",
-        permission: "employee_visa_access"
+        permission: "employee_visa_access",
       },
       {
         text: "Bank information",
         icon: "mdi-bank",
-        permission: "employee_bank_access"
+        permission: "employee_bank_access",
       },
       {
         text: "Documents",
         icon: "mdi-file",
-        permission: "employee_document_access"
+        permission: "employee_document_access",
       },
       {
         text: "Qualification",
         icon: "mdi-file-sign",
-        permission: "employee_qualification_access"
+        permission: "employee_qualification_access",
       },
       {
         text: "Setting",
         icon: "mdi-wrench",
-        permission: "employee_setting_access"
+        permission: "employee_setting_access",
       },
       {
         text: "Payroll",
         icon: "mdi-wrench",
-        permission: "employee_setting_access"
-      }
+        permission: "employee_setting_access",
+      },
       // {
       //   text: "Assign Reporter",
       //   icon: "mdi-account",
@@ -687,7 +697,7 @@ export default {
       profile_picture: "",
       phone_number: "",
       whatsapp_number: "",
-      joining_date: ""
+      joining_date: "",
     },
     personalItem: {
       passport_no: "",
@@ -703,7 +713,7 @@ export default {
       gender: "",
       date_of_birth: "",
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
     contactItem: {
       local_address: "",
@@ -729,7 +739,7 @@ export default {
       other_value: "",
       other_text: "",
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
     emirateItems: {
       emirate_id: "",
@@ -740,7 +750,7 @@ export default {
       issue: "",
       expiry: "",
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
     visaItem: {
       visa_no: "",
@@ -755,7 +765,7 @@ export default {
       labour_expiry_date: "",
       note: "",
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
     BankInfo: {
       bank_name: "",
@@ -764,18 +774,18 @@ export default {
       iban: "",
       address: "",
       company_id: "",
-      employee_id: ""
+      employee_id: "",
     },
     setting: {
       status: "",
       overtime: "",
       mobile_application: "",
-      employee_id: ""
+      employee_id: "",
     },
     employeeId: "",
     passport_list: {},
     qualification_list: {},
-    document_list: []
+    document_list: [],
   }),
   async created() {
     this.loading = false;
@@ -790,8 +800,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     getListName(val) {
@@ -802,7 +812,7 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
     close() {
@@ -819,7 +829,7 @@ export default {
       return string.substring(0, length);
     },
     json_to_csv(json) {
-      let data = json.map(e => ({
+      let data = json.map((e) => ({
         first_name: e.first_name,
         last_name: e.last_name,
         display_name: e.display_name,
@@ -833,15 +843,12 @@ export default {
         department_code: e.department_id,
         designation_code: e.designation_id,
         department: e.department.name,
-        designation: e.designation.name
+        designation: e.designation.name,
       }));
       let header = Object.keys(data[0]).join(",") + "\n";
       let rows = "";
-      data.forEach(e => {
-        rows +=
-          Object.values(e)
-            .join(",")
-            .trim() + "\n";
+      data.forEach((e) => {
+        rows += Object.values(e).join(",").trim() + "\n";
       });
       return header + rows;
     },
@@ -851,13 +858,13 @@ export default {
       this.$axios.get(`employee/${id}`).then(({ data }) => {
         this.employeeId = data.id;
         this.contactItem = {
-          ...data
+          ...data,
         };
         this.work = {
-          ...data
+          ...data,
         };
         this.setting = {
-          ...data
+          ...data,
         };
         this.getAllData(data.id);
         this.boilerplate = false;
@@ -878,7 +885,7 @@ export default {
       this.$axios.get(`personalinfo/${id}`).then(({ data }) => {
         this.personalItem = {
           ...data,
-          employee_id: id
+          employee_id: id,
         };
       });
     },
@@ -886,7 +893,7 @@ export default {
       this.$axios.get(`passport/${id}`).then(({ data }) => {
         this.passport_list = {
           ...data,
-          employee_id: id
+          employee_id: id,
         };
       });
     },
@@ -894,7 +901,7 @@ export default {
       this.$axios.get(`emirate/${id}`).then(({ data }) => {
         this.emirateItems = {
           ...data,
-          employee_id: id
+          employee_id: id,
         };
       });
     },
@@ -902,7 +909,7 @@ export default {
       this.$axios.get(`visa/${id}`).then(({ data }) => {
         this.visaItem = {
           ...data,
-          employee_id: id
+          employee_id: id,
         };
       });
     },
@@ -910,7 +917,7 @@ export default {
       this.$axios.get(`bankinfo/${id}`).then(({ data }) => {
         this.BankInfo = {
           ...data,
-          employee_id: id
+          employee_id: id,
         };
       });
     },
@@ -918,7 +925,7 @@ export default {
       this.$axios.get(`qualification/${id}`).then(({ data }) => {
         this.qualification_list = {
           ...data,
-          employee_id: id
+          employee_id: id,
         };
       });
     },
@@ -951,8 +958,8 @@ export default {
       payload.append("company_id", this.$auth?.user?.company?.id);
       let options = {
         headers: {
-          "Content-Type": "multipart/form-data"
-        }
+          "Content-Type": "multipart/form-data",
+        },
       };
       this.btnLoader = true;
       this.$axios
@@ -970,17 +977,17 @@ export default {
             this.close();
           }
         })
-        .catch(e => {
+        .catch((e) => {
           if (e.toString().includes("Error: Network Error")) {
             this.errors = [
-              "File is modified.Please cancel the current file and try again"
+              "File is modified.Please cancel the current file and try again",
             ];
           }
         });
     },
     can(per) {
       const { permissions: pers, is_master } = this.$auth.user;
-      return (pers?.includes(per) || pers?.includes("/")) || is_master;
+      return pers?.includes(per) || pers?.includes("/") || is_master;
     },
     createEmployee() {
       if (this.total >= this.max_employee) {
@@ -1003,8 +1010,8 @@ export default {
       let options = {
         params: {
           per_page: this.per_page === "Default" ? 8 : this.per_page,
-          company_id: this.$auth?.user?.company?.id
-        }
+          company_id: this.$auth?.user?.company?.id,
+        },
       };
       this.$axios.get(`${url}`, options).then(({ data }) => {
         this.data = data.data;
@@ -1012,13 +1019,13 @@ export default {
         this.employeeId = this.data[0].id;
 
         this.contactItem = {
-          ...this.data[0]
+          ...this.data[0],
         };
         this.work = {
-          ...this.data[0]
+          ...this.data[0],
         };
         this.setting = {
-          ...this.data[0]
+          ...this.data[0],
         };
 
         this.getAllData(this.data[0].id);
@@ -1036,12 +1043,12 @@ export default {
     },
     deleteItem(item) {
       confirm("Are you sure you want to delete this item?") &&
-        this.$axios.delete(this.endpoint + "/" + item.id).then(res => {
+        this.$axios.delete(this.endpoint + "/" + item.id).then((res) => {
           const index = this.data.indexOf(item);
           this.data.splice(index, 1);
           this.getDataFromApi();
         });
-    }
+    },
   },
   components: {
     Personal,
@@ -1052,8 +1059,8 @@ export default {
     Bank,
     Document,
     Qualification,
-    Setting
-  }
+    Setting,
+  },
 };
 </script>
 

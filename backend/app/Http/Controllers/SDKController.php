@@ -100,4 +100,8 @@ class SDKController extends Controller
             // You can log the error or perform any other necessary actions here
         }
     }
+    public function getDevicesCountForTimezone(Request $request)
+    {
+        return Device::where('company_id', $request->company_id)->pluck('device_id');
+    }
 }

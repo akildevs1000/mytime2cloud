@@ -227,11 +227,11 @@
                   <label class="col-form-label">Profile Picture</label>
                   <v-img
                     style="
-                    border-radius: 50%;
-                    height: 120px;
-                    width: 35%;
-                    margin: 0 auto;
-                  "
+                      border-radius: 50%;
+                      height: 120px;
+                      width: 35%;
+                      margin: 0 auto;
+                    "
                     :src="previewImage || '/no-profile-image.jpg'"
                   ></v-img>
                   <br />
@@ -608,7 +608,7 @@ export default {
     titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
 
     upload: {
-      name: ""
+      name: "",
     },
     payload: {
       first_name: "",
@@ -620,13 +620,13 @@ export default {
       role_id: "",
       password_confirmation: "",
       employee_id: "",
-      system_user_id: ""
+      system_user_id: "",
     },
     contact: {
       phone_number: "",
       whatsapp_number: "",
       phone_relative_number: "",
-      relation: ""
+      relation: "",
     },
     other: {
       designation_id: "",
@@ -634,7 +634,7 @@ export default {
       sub_department_id: "",
       joining_date: "",
       grade: "",
-      type: ""
+      type: "",
     },
     previewImage: null,
     e1: 1,
@@ -643,7 +643,7 @@ export default {
     designations: [],
     subDepartments: [],
     roles: [],
-    Rules: [v => !!v || "This field is required"]
+    Rules: [(v) => !!v || "This field is required"],
   }),
   created() {
     this.preloader = false;
@@ -656,8 +656,8 @@ export default {
         params: {
           per_page: 100,
           company_id: this.$auth.user.company.id,
-          role_type: "employee"
-        }
+          role_type: "employee",
+        },
       };
       this.$axios.get(`role`, options).then(({ data }) => {
         this.roles = data.data;
@@ -668,8 +668,8 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
@@ -680,8 +680,8 @@ export default {
         params: {
           per_page: 100,
           department_id: department_id,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios
         .get(`designations-by-department`, options)
@@ -695,8 +695,8 @@ export default {
         params: {
           per_page: 100,
           department_id: department_id,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios
         .get(`sub-departments-by-department`, options)
@@ -713,7 +713,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -732,14 +732,14 @@ export default {
       if (file[0].size > 1024 * 1024) {
         e.preventDefault();
         this.errors["profile_picture"] = [
-          "File too big (> 1MB). Upload less than 1MB"
+          "File too big (> 1MB). Upload less than 1MB",
         ];
         return;
       }
 
       if (file && file[0]) {
         let reader = new FileReader();
-        reader.onload = e => {
+        reader.onload = (e) => {
           this.previewImage = e.target.result;
         };
         reader.readAsDataURL(file[0]);
@@ -764,21 +764,22 @@ export default {
       let payload = this.mapper(this.payload);
 
       const file = this.$refs.attachment_input.files[0];
+
       console.log("file", file);
       // if (!file) {
       //   e.preventDefault();
       //   alert("No file chosen");
       //   return;
       // }
-
-      if (file.size > 1024 * 1024) {
-        e.preventDefault();
-        this.errors["profile_picture"] = [
-          "File too big (> 1MB). Upload less than 1MB"
-        ];
-        return;
+      if (file) {
+        if (file.size > 1024 * 100) {
+          e.preventDefault();
+          this.errors["profile_picture"] = [
+            "File too big (> 100Kb). Upload less than 1MB",
+          ];
+          return;
+        }
       }
-
       this.$axios
         .post("/employee/validate", payload)
         .then(({ data }) => {
@@ -790,7 +791,7 @@ export default {
           }
           this.e1 = 2;
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
     validate_contact() {
       this.loading = true;
@@ -807,7 +808,7 @@ export default {
             this.e1 = 3;
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
     validate_other() {
       this.loading = true;
@@ -823,7 +824,7 @@ export default {
             this.store_data();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     store_data() {
@@ -842,9 +843,9 @@ export default {
             this.$router.push("/employees");
           }
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>
 

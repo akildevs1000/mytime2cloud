@@ -41,11 +41,15 @@ class PayslipController extends Controller
 
         // {{ data.present }} Presents x {{ data.perDaySalary }} AED =
         // {{ data.earnedSalary }}
-        $extraEarnings = [
-            "label" => $Payroll->present . " Present x " . $Payroll->perDaySalary . " AED = ",
-            "value" => $Payroll->earnedSalary
-        ];
+        // $extraEarnings = [
+        //     "label" => $Payroll->present . " Present x " . $Payroll->perDaySalary . " AED = ",
+        //     "value" => $Payroll->earnedSalary
+        // ];
 
+        $extraEarnings = [
+            "label" => "Basic",
+            "value" =>  $Payroll->SELECTEDSALARY
+        ];
         $Payroll->earnings = array_merge([$extraEarnings], $Payroll->earnings);
 
         // array_push($Payroll->earnings,"s");

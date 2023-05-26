@@ -372,7 +372,7 @@ export default {
         {
           icon: "mdi-account",
           title: "Employees",
-          to: "/employees/employee_list",
+          to: "/employees",
           menu: "employee_access",
         },
         {
@@ -481,11 +481,44 @@ export default {
           ],
         },
         {
-          icon: "mdi-clipboard-text-clock",
-          title: "Reports",
-          to: "/attendance_report",
-          menu: "attendance_report_access",
+          icon: "mdi-account",
+          title: `Attendance`,
+          open_menu: false,
+          menu: "payroll_access",
+          hasChildren: [
+            {
+              icon: "mdi-account-plus",
+              title: "Attendance Reports",
+              to: "/attendance_report",
+              menu: "payroll_access",
+            },
+            {
+              icon: "mdi-lock",
+              title: "Leaves Report",
+              to: "/attendance_report/leaves",
+              menu: "payroll_access",
+            },
+            {
+              icon: "mdi-lock",
+              title: "Weekly Report",
+              to: "/attendance_report/weekly",
+              menu: "payroll_access",
+            },
+            {
+              icon: "mdi-lock",
+              title: "Monthly Report",
+              to: "/attendance_report/monthly",
+              menu: "payroll_access",
+            },
+            {
+              icon: "mdi-lock",
+              title: "Yearly Report",
+              to: "/attendance_report/yearly",
+              menu: "payroll_access",
+            },
+          ],
         },
+
         {
           icon: "mdi-clipboard-text-clock",
           title: "Logs",

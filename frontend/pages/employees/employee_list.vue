@@ -114,8 +114,8 @@
             <td>
               {{
                 item.schedule &&
-                  item.schedule.shift_type &&
-                  item.schedule.shift_type.name
+                item.schedule.shift_type &&
+                item.schedule.shift_type.name
               }}
             </td>
             <td>
@@ -127,23 +127,30 @@
                 </template>
                 <v-list width="120" dense>
                   <v-list-item @click="editItem(item)">
-                    <v-list-item-title style="cursor:pointer">
-                      <v-icon color="secondary" small>
-                        mdi-pencil
-                      </v-icon>
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-pencil </v-icon>
                       Edit
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
-                    <v-list-item-title style="cursor:pointer">
-                      <v-icon color="error" small>
-                        mdi-delete
-                      </v-icon>
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="error" small> mdi-delete </v-icon>
                       Delete
                     </v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
+            </td>
+            <td>
+              <v-btn
+                dark-2
+                icon
+                v-bind="attrs"
+                v-on="on"
+                @click="viewemployeedetails(item)"
+              >
+                <v-icon>info</v-icon>
+              </v-btn>
             </td>
           </tr>
         </table>
@@ -173,8 +180,10 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 10
+      per_page: 10,
     },
+    attrs: "",
+    on: "",
     options: {},
     Model: "Employee",
     endpoint: "employee",
@@ -186,33 +195,36 @@ export default {
     total: 0,
     headers: [
       {
-        text: "#"
+        text: "#",
       },
       {
-        text: "EID"
+        text: "EID",
       },
       {
-        text: "Profile"
+        text: "Profile",
       },
       {
-        text: "Name"
+        text: "Name",
       },
       {
-        text: "Department"
+        text: "Department",
       },
       {
-        text: "Designation"
+        text: "Designation",
       },
       {
-        text: "Email"
+        text: "Email",
       },
       {
-        text: "Mobile"
+        text: "Mobile",
       },
       {
-        text: "Shift Type"
+        text: "Shift Type",
       },
-      { text: "Actions", align: "center", value: "action", sortable: false }
+      { text: "Actions", align: "center", value: "action", sortable: false },
+      {
+        text: "View Info",
+      },
     ],
     editedIndex: -1,
     editedItem: { name: "" },
@@ -221,13 +233,13 @@ export default {
     data: [],
     errors: [],
     departments: [],
-    department_id: ""
+    department_id: "",
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    }
+    },
   },
 
   watch: {
@@ -239,7 +251,7 @@ export default {
     department_id() {
       this.pagination.current = 1;
       this.getDataFromApi();
-    }
+    },
   },
   created() {
     this.loading = true;
@@ -257,7 +269,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -265,8 +277,8 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
@@ -281,8 +293,8 @@ export default {
         params: {
           per_page: this.pagination.per_page,
           company_id: this.$auth.user.company.id,
-          department_id: department_id
-        }
+          department_id: department_id,
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -306,15 +318,17 @@ export default {
     editItem(item) {
       this.$router.push(`/employees/${item.id}`);
     },
-
+    viewemployeedetails(item) {
+      this.$router.push(`/employees/details/${item.id}`);
+    },
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.id);
+      let just_ids = this.ids.map((e) => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids
+            ids: just_ids,
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -326,7 +340,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -344,7 +358,7 @@ export default {
               this.response = data.message;
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     close() {
@@ -358,7 +372,7 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company.id,
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -368,18 +382,18 @@ export default {
               this.errors = data.errors;
             } else {
               const index = this.data.findIndex(
-                item => item.id == this.editedItem.id
+                (item) => item.id == this.editedItem.id
               );
               this.data.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name
+                name: this.editedItem.name,
               });
               this.snackbar = data.status;
               this.response = data.message;
               this.close();
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, payload)
@@ -395,10 +409,10 @@ export default {
               this.search = "";
             }
           })
-          .catch(res => console.log(res));
+          .catch((res) => console.log(res));
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

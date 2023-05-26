@@ -13,3 +13,9 @@ Installation Guide:
   - npm run build && npm run start (production environment)
   - pm2 start "npm run start" --name "Nuxt"
   - pm2 start "dotnet FCardProtocolAPI.dll" --name "sdk production"
+
+
+  npm install cropper
+
+
+vue.js version2 crop image file 
