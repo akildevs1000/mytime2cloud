@@ -463,16 +463,26 @@ export default {
       this.editedItem = Object.assign({}, item);
     },
     editItem(item) {
-      console.log(this.editedItem, item);
       this.dialog = true;
       this.readOnly = false;
       this.editedIndex = this.data.indexOf(item);
+      // let json = item.interval;
+      // for (let day in json) {
+      //   for (let interval in json[day]) {
+      //     if (
+      //       json[day][interval].hasOwnProperty("begin") &&
+      //       json[day][interval].hasOwnProperty("end")
+      //     ) {
+      //       this.editedItem.interval[day] = json[day];
+      //     } else {
+      //       this.editedItem.interval[day] = json[day];
+      //     }
+      //   }
+      // }
+      // console.log(this.editedItem.interval);
       this.editedItem = Object.assign({}, item);
     },
     showShortDays(days) {
-      this.editedItem.interval = days;
-      console.log(days);
-
       let arr = [];
       for (let day in days) {
         for (let interval in days[day]) {
@@ -516,6 +526,8 @@ export default {
 
       try {
         let endpoint = "getDevicesCountForTimezone";
+        console.log(this.editedItem);
+        return;
         const { data } = await this.$axios.post(endpoint, this.editedItem);
         this.processTimeZone(data);
       } catch (error) {
@@ -591,12 +603,8 @@ export default {
     setDefault(v) {
       if (v == 1) {
         this.days.forEach((e, i) => {
-          console.log(this.editedItem.interval[e.index]);
-          for (let j = 1; j <= 4; j++) {
-            this.editedItem.interval[e.index][`interval${j}`]["begin"] =
-              "00:00";
-            this.editedItem.interval[e.index][`interval${j}`]["end"] = "23:59";
-          }
+          this.editedItem.interval[e.index][`interval1`]["begin"] = "00:00";
+          this.editedItem.interval[e.index][`interval1`]["end"] = "23:59";
         });
       }
     },
@@ -611,8 +619,7 @@ export default {
     submit() {
       let sortedDays = this.showShortDays(this.editedItem.interval);
       this.editedItem["scheduled_days"] = sortedDays;
-      console.log(this.editedItem);
-      return;
+      // console.log(this.editedItem);
       return this.editedIndex === -1 ? this.store() : this.update();
     },
     store() {
