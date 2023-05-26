@@ -7,12 +7,13 @@
     </div>
     <v-dialog v-model="dialog" width="900">
       <v-card>
-        <v-card-title class="text-h5">
+        <v-card-title>
           Sync Device(s)
           <v-spacer></v-spacer>
-          <v-btn class="primary" small fab @click="addRow(rosterFirstValue)">
-            <b>+</b>
-          </v-btn>
+
+          <v-btn dark small color="grey" @click="close"> Close </v-btn>
+          &nbsp;
+          <v-btn dark small color="primary" @click="save"> Submit </v-btn>
         </v-card-title>
 
         <v-divider></v-divider>
@@ -21,24 +22,39 @@
         <v-data-table
           v-model="device_ids"
           show-select
-          item-key="id"
+          item-key="device_id"
           :headers="headerdevices_dialog"
           :items="devices_dialog"
           :server-items-length="total_dialog"
           :footer-props="{
-            itemsPerPageOptions: [50, 100, 500, 1000],
+            itemsPerPageOptions: [50, 100, 500, 1000]
           }"
         >
+          <template v-slot:item.state="{ item }">
+            <v-icon v-if="item.state == true" color="primary">mdi-check</v-icon>
+            <v-icon v-else-if="item.state == false" color="error"
+              >mdi-close</v-icon
+            >
+            <span v-else>---</span>
+          </template>
+          <template v-slot:item.message="{ item }">
+            <span v-if="item.state == true" color="primary">Success</span>
+            <span v-else-if="item.state == false" color="error">{{
+              item.message
+            }}</span>
+            <span v-else>---</span>
+          </template>
         </v-data-table>
 
         <v-divider></v-divider>
 
-        <v-card-actions>
+        <v-card-title>
           <v-spacer></v-spacer>
 
           <v-btn dark small color="grey" @click="close"> Close </v-btn>
+          &nbsp;
           <v-btn dark small color="primary" @click="save"> Submit </v-btn>
-        </v-card-actions>
+        </v-card-title>
       </v-card>
     </v-dialog>
     <v-row class="mt-5 mb-5">
@@ -138,7 +154,7 @@
               :loading="loading_dialog"
               :options.sync="options_dialog"
               :footer-props="{
-                itemsPerPageOptions: [50, 100, 500, 1000],
+                itemsPerPageOptions: [50, 100, 500, 1000]
               }"
             >
               <template v-slot:item.imgUrl="{ item }">
@@ -173,7 +189,7 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 10,
+      per_page: 10
     },
 
     Module: "Employee Photo Upload",
@@ -207,7 +223,7 @@ export default {
       schedule_id: [1],
       from_date: [new Date().toJSON().slice(0, 10)],
       to_date: [new Date().toJSON().slice(0, 10)],
-      is_over_time: [false],
+      is_over_time: [false]
     },
     isOverTime: false,
     is_edit: false,
@@ -219,12 +235,12 @@ export default {
     shifts: [
       {
         id: 1,
-        name: "Week 1",
+        name: "Week 1"
       },
       {
         id: 2,
-        name: "Week 2",
-      },
+        name: "Week 2"
+      }
     ],
     ids: [],
     response: "",
@@ -241,42 +257,52 @@ export default {
         text: "E.ID",
         align: "left",
         sortable: true,
-        value: "system_user_id",
+        value: "system_user_id"
       },
       {
         text: "Name",
         sortable: true,
-        value: "display_name",
+        value: "display_name"
       },
       {
         text: "Department",
         sortable: true,
-        value: "department.name",
+        value: "department.name"
       },
       {
         text: "Photo/Pic",
         sortable: true,
-        value: "imgUrl",
-      },
+        value: "imgUrl"
+      }
     ],
     headerdevices_dialog: [
       {
         text: "Device Id",
         align: "left",
         sortable: true,
-        value: "device_id",
+        value: "device_id"
       },
       {
         text: "Name",
         sortable: true,
-        value: "name",
+        value: "name"
       },
       {
         text: "Location",
         sortable: true,
-        value: "location",
+        value: "location"
       },
-    ],
+      {
+        text: "State",
+        sortable: true,
+        value: "state"
+      },
+      {
+        text: "Message",
+        sortable: true,
+        value: "message"
+      }
+    ]
   }),
 
   computed: {},
@@ -289,13 +315,18 @@ export default {
       if (!this.is_edit) {
         this.getDepartments(this.options);
         this.getDataFromApi();
+        
       }
+      this.devices_dialog.forEach(e => {
+          e.state = "---";
+          e.message = "---";
+        });
     },
     options: {
       handler() {
         this.getDataFromApi();
       },
-      deep: true,
+      deep: true
     },
     options_dialog: {
       handler() {
@@ -304,12 +335,12 @@ export default {
           this.getDataFromApi();
         }
       },
-      deep: true,
+      deep: true
     },
     search() {
       this.pagination.current = 1;
       this.searchIt();
-    },
+    }
   },
   created() {
     this.loading = true;
@@ -318,8 +349,8 @@ export default {
     this.options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
-      },
+        company_id: this.$auth.user.company.id
+      }
     };
 
     this.getDepartments(this.options);
@@ -334,11 +365,16 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company.id,
-          cols: ["id", "location", "name", "device_id"],
-        },
+          cols: ["id", "location", "name", "device_id"]
+        }
       };
       this.$axios.get("device", options).then(({ data }) => {
-        this.devices_dialog = data.data;
+        this.devices_dialog = data.data.map(e => ({
+          id: e.id,
+          device_id: e.device_id,
+          name: e.name,
+          location: e.location
+        }));
       });
     },
     arrangeShift() {
@@ -353,7 +389,7 @@ export default {
         schedule_id: id,
         from_date: new Date().toJSON().slice(0, 10),
         to_date: new Date().toJSON().slice(0, 10),
-        is_over_time: false,
+        is_over_time: false
       };
 
       if (this.schedules_temp_list.length < 5) {
@@ -371,7 +407,7 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, (c) => c.toUpperCase());
+        return res.replace(/\b\w/g, c => c.toUpperCase());
       }
     },
 
@@ -407,7 +443,7 @@ export default {
 
     get_rosters() {
       let options = {
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company.id
       };
       this.$axios.get("roster_list", { params: options }).then(({ data }) => {
         this.rosters = data;
@@ -430,7 +466,7 @@ export default {
           this.departments = data.data;
           this.departments.unshift({ id: "---", name: "Select All" });
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     employeesByDepartment() {
       this.loading_dialog = true;
@@ -443,8 +479,8 @@ export default {
           per_page: itemsPerPage,
           page: page,
           search: this.employee_search,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       if (!this.department_ids.length) {
@@ -488,8 +524,8 @@ export default {
           per_page: itemsPerPage,
           search: this.employee_search,
           page: page,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       if (!this.sub_department_ids.length) {
@@ -504,7 +540,7 @@ export default {
           this.total_dialog = data.total;
           this.loading_dialog = false;
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
 
     subDepartmentsByDepartment() {
@@ -516,10 +552,10 @@ export default {
           this.sub_departments = data;
           this.sub_departments.unshift({
             id: "---",
-            name: "Select All",
+            name: "Select All"
           });
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     },
     runMultipleFunctions() {
       this.employeesByDepartment();
@@ -528,7 +564,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        (u && u.permissions.some(e => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -542,8 +578,8 @@ export default {
         params: {
           per_page: this.pagination.per_page,
           page: page,
-          company_id: this.$auth.user.company.id,
-        },
+          company_id: this.$auth.user.company.id
+        }
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -583,14 +619,14 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.schedule.id);
+      let just_ids = this.ids.map(e => e.schedule.id);
 
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`schedule_employee/delete/selected`, {
-            ids: just_ids,
+            ids: just_ids
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -603,7 +639,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
     deleteItem(item) {
@@ -619,43 +655,68 @@ export default {
             this.response = data.message;
             this.getDataFromApi();
           })
-          .catch((err) => console.log(err));
+          .catch(err => console.log(err));
     },
 
-    save() {
+    async save() {
       this.loading_dialog = true;
       this.errors = [];
 
-      var personListArray = [];
+      let personListArray = [];
 
-      this.employee_ids.forEach((item) => {
+      this.employee_ids.forEach(item => {
         let person = {
           name: item.display_name,
           userCode: parseInt(item.system_user_id),
           expiry: "2089-12-31 23:59:59",
           timeGroup: 1,
-          faceImage: item.profile_picture,
+          faceImage: `https://backend.ideahrms.com/media/employee/profile_picture/WhatsApp%20Image%202022-09-16%20at%202.11.34%20PM%20(1).jpeg`
+          // faceImage: item.profile_picture
         };
         personListArray.push(person);
       });
 
       let payload = {
         personList: personListArray,
-        snList: this.device_ids.map((e) => e.device_id),
+        snList: this.device_ids.map(e => e.device_id)
       };
 
-      console.log(payload);
+      if(payload.snList && payload.snList.length === 0) {
+        alert(`Atleast one device must be selected`);
+        return false;
+      }
 
-      return;
-      if (this.is_edit) {
-        this.process(
-          this.$axios.post(
-            `schedule_employees/${payload.employee_ids}`,
-            payload
-          )
-        );
-      } else {
-        this.process(this.$axios.post(`store_schedule_arrange`, payload));
+      this.devices_dialog.forEach(e => {
+        e.state = "---";
+        e.message = "---";
+      });
+
+      try {
+        const { data } = await this.$axios.post(`/Person/AddRange`, payload);
+        if (data.status == 200) {
+          this.loading_dialog = false;
+          this.snackbar = true;
+          this.response = "Employee(s) has been upload";
+          data.data.forEach(e => {
+            const index = this.devices_dialog.findIndex(
+              item => item.device_id === e.sn
+            );
+            if (index !== -1) {
+              const updatedElement = {
+                ...this.devices_dialog[index],
+                state: e.state,
+                message: e.message || "Success"
+              };
+
+              this.devices_dialog.splice(index, 1, updatedElement);
+            }
+          });
+        }
+      } catch (error) {
+        this.loading_dialog = false;
+        this.snackbar = true;
+        this.response = error.message;
+        console.log(error.message);
       }
     },
 
@@ -680,9 +741,9 @@ export default {
           this.loading_dialog = false;
           this.getDataFromApi();
         })
-        .catch((err) => console.log(err));
-    },
-  },
+        .catch(err => console.log(err));
+    }
+  }
 };
 </script>
 

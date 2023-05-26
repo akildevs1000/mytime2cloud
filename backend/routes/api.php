@@ -7,4 +7,5 @@ include('notification.php');
 include('payroll.php');
 include('payroll_formula.php');
 include('payslip.php');
+include('timezone.php');
 include('test.php');
