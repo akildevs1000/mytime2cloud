@@ -10,3 +10,4 @@ include('payslip.php');
 include('timezone.php');
 include('employee_timezone_mapping.php');
 include('test.php');
+include('cron.php');

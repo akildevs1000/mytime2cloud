@@ -38,7 +38,7 @@ class MonthlyController extends Controller
 
     public function multi_in_out_monthly_pdf(Request $request)
     {
-        // return   $report = $this->processPDF($request);
+        // return $report = $this->processPDF($request);
         $report = $this->processPDF($request);
         return $report->stream();
     }
@@ -172,8 +172,11 @@ class MonthlyController extends Controller
         $start = $request->from_date ?? date('Y-10-01');
         $end = $request->to_date ?? date('Y-10-31');
 
+        $companyID = $request->company_id;
+
         $model = Attendance::query();
         $model = $model->whereBetween('date', [$start, $end]);
+        $model->where('company_id', $companyID);
         $model->orderBy('date', 'asc');
 
         $model->when($request->status && $request->status != "SA", function ($q) use ($request) {
@@ -189,9 +192,11 @@ class MonthlyController extends Controller
             $q->whereIn('employee_id', $ids);
         });
 
-        $data = $model
-            ->with('employee:system_user_id,display_name')
-            ->get()->groupBy(['employee_id', 'date']);
+        $data = $model->with('employee', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+            $q->select('system_user_id', 'display_name');
+        })->get()->groupBy(['employee_id', 'date']);
+
 
         $pdf = App::make('dompdf.wrapper');
 
@@ -212,7 +217,10 @@ class MonthlyController extends Controller
             'report_type' => $request->report_type ?? "",
             'total_leave' => 0,
             'department' => Department::find($request->department_id),
-            'employee' => Employee::whereEmployeeId($request->employee_id)->first(),
+            'employee' => Employee::where([
+                "employee_id" => $request->employee_id,
+                "company_id" => $companyID,
+            ])->first(),
         ];
 
         if ($request->employee_id && $request->filled('employee_id')) {
