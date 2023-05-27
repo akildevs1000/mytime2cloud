@@ -271,4 +271,3 @@ Route::post('/store_schedule_arrange', [RosterController::class, 'storeScheduleA
 Route::get('/get_roster_by_employee/{id}', [RosterController::class, 'getRosterByEmployee']);
 Route::put('/schedule_update/{id}', [RosterController::class, 'scheduleUpdateByEmployee']);
 
-Route::get('/SyncAbsentByManual', [AttendanceController::class, 'SyncAbsentByManual']);

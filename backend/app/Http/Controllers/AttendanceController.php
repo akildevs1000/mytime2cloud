@@ -106,7 +106,8 @@ class AttendanceController extends Controller
         $employeesThatDoesNotExist = ScheduleEmployee::with('roster')->whereDoesntHave('attendances', function ($q) use ($previousDate) {
             $q->whereDate('date', $previousDate);
         })
-            ->get(["employee_id", "company_id", "roster_id"]);
+            ->get(["employee_id", "company_id", "roster_id"])
+            ->groupBy("company_id");
 
         // Debug
         // $employeesThatDoesNotExist = ScheduleEmployee::whereIn("company_id", [1, 8])->whereIn("employee_id", [1001])
@@ -121,8 +122,11 @@ class AttendanceController extends Controller
 
     public function SyncAbsentByManual(Request $request)
     {
+        // return $this->SyncAbsent();
+
         $date = $request->input('date', date('Y-m-d'));
         $previousDate = date('Y-m-d', strtotime($date . '-1 days'));
+        // return [$date, $previousDate];
         $model = ScheduleEmployee::whereIn("company_id", $request->company_ids);
 
         $model->when(count($request->UserIDs ?? []) > 0, function ($q) use ($request) {
@@ -133,7 +137,9 @@ class AttendanceController extends Controller
             $q->whereDate('date', $previousDate);
         });
 
-        $employeesThatDoesNotExist =  $model->with('roster')->get(["employee_id", "company_id", "shift_type_id", "roster_id"]);
+        return $employeesThatDoesNotExist =  $model->with('roster')
+            ->get(["employee_id", "company_id", "shift_type_id", "roster_id"])
+            ->groupBy("company_id");
         return $this->runFunc($employeesThatDoesNotExist, $previousDate);
     }
 
@@ -220,34 +226,38 @@ class AttendanceController extends Controller
         return $i;
     }
 
-    public function runFunc($employeesThatDoesNotExist, $previousDate)
+    public function runFunc($companyIDs, $previousDate)
     {
-
-        if (count($employeesThatDoesNotExist) == 0) {
-            return $this->getMeta('SyncAbsent', "No employee found.\n");
-        }
-
-        $record = [];
-        $temp = [];
         $result = null;
-        foreach ($employeesThatDoesNotExist as $employee) {
-            $arr = [
-                "employee_id"   => $employee->employee_id,
-                "date"          => $previousDate,
-                "status"        => $this->getDynamicStatus($employee, $previousDate),
-                "company_id"    => $employee->company_id,
-                "shift_type_id"    => $employee->shift_type_id,
-                "created_at"    => now(),
-                "updated_at"    => now()
-            ];
-            $record[] = $arr;
 
-            $temp[$employee->company_id][] = $arr;
+        foreach ($companyIDs as $companyID => $employeesThatDoesNotExist) {
+            $NumberOfEmployee = count($employeesThatDoesNotExist);
 
-            $msg = count($temp[$employee->company_id]) . " employee(s) absent against company id " . $employee->company_id . ".\n";
+            if (!$NumberOfEmployee) {
+                $result .= $this->getMeta("SyncAbsent", "No employee(s) found against company id $companyID .\n");
+                continue;
+            }
 
-            $result .= $this->getMeta("SyncAbsent", $msg);
+            $record = [];
+            $employee_ids = [];
+            foreach ($employeesThatDoesNotExist as $employee) {
+                $arr = [
+                    "employee_id"   => $employee->employee_id,
+                    "date"          => $previousDate,
+                    "status"        => $this->getDynamicStatus($employee, $previousDate),
+                    "company_id"    => $employee->company_id,
+                    "shift_type_id"    => $employee->shift_type_id,
+                    "created_at"    => now(),
+                    "updated_at"    => now()
+                ];
+                $record[] = $arr;
+
+                $employee_ids[] = $employee->employee_id;
+            }
+
+            $result .= $this->getMeta("SyncAbsent", "$NumberOfEmployee employee(s) absent against company id $companyID.\n Employee IDs: " . json_encode($employee_ids));
         }
+
 
         Attendance::insert($record);
         // return $record[0];

@@ -9,7 +9,7 @@ class ActivityController extends Controller
 {
     public function index(Activity $model, Request $request)
     {
-        return $model->with('employee:id,first_name')->orderByDesc("id")->paginate($request->per_page ?? 10);
+        return $model->with('employee:id,display_name')->orderByDesc("id")->paginate($request->per_page ?? 10);
     }
 
     public function store(Request $request)
