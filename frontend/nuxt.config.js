@@ -262,7 +262,10 @@ export default {
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {
     manifest: {
+      name: "Idea HRMS",
+      short_name: "Idea HRMS",
       lang: "en",
+      display: "standalone",
     },
   },
 
