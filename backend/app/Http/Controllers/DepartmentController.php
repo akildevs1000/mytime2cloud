@@ -14,6 +14,7 @@ class DepartmentController extends Controller
         $cols = $request->cols;
 
         $model = Department::query();
+        $model->where('company_id', $request->company_id);
         $model->with('children');
         $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
             $q->select($cols);
