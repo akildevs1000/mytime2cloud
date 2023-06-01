@@ -78,7 +78,7 @@
                           color="primary"
                           @click="$refs.time_menu_ref.save(editItems.time)"
                         >
-                          OK
+                          OK (Filter)
                         </v-btn>
                       </v-time-picker>
                     </v-menu>
@@ -193,7 +193,7 @@
                             color="primary"
                             @click="$refs.menu.save(editItems.date)"
                           >
-                            OK
+                            OK (Filter)
                           </v-btn>
                         </v-date-picker>
                       </v-menu>
@@ -274,7 +274,7 @@
                   `Present`,
                   `Absent`,
                   `Missing`,
-                  `Manual Entry`
+                  `Manual Entry`,
                 ]"
                 item-value="id"
                 item-text="name"
@@ -321,8 +321,8 @@
                 dense
                 v-model="payload.report_type"
                 x-small
-                :items="['Daily', 'Weekly', 'Monthly']"
-                item-text="['Daily', 'Weekly']"
+                :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
+                item-text="['Custom']"
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
@@ -366,7 +366,7 @@
                         set_date_save($refs.daily_menu, payload.daily_date)
                       "
                     >
-                      OK
+                      OK (Filter)
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
@@ -409,7 +409,7 @@
                       color="primary"
                       @click="set_date_save($refs.from_menu, payload.from_date)"
                     >
-                      OK
+                      OK (Filter)
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
@@ -454,7 +454,7 @@
                       color="primary"
                       @click="set_date_save($refs.to_menu, payload.to_date)"
                     >
-                      OK
+                      OK (Filter)
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
@@ -554,7 +554,7 @@
                     color="primary"
                     @click="$refs.menu.save(log_payload.date)"
                   >
-                    OK
+                    OK (Filter)
                   </v-btn>
                 </v-date-picker>
               </v-menu>
@@ -596,7 +596,7 @@
                     color="primary"
                     @click="$refs.manual_time_menu_ref.save(log_payload.time)"
                   >
-                    OK
+                    OK (Filter)
                   </v-btn>
                 </v-time-picker>
               </v-menu>
@@ -837,7 +837,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000]
+        itemsPerPageOptions: [50, 100, 500, 1000],
       }"
       class="elevation-1"
     >
@@ -989,9 +989,9 @@ export default {
     DateRange: true,
     devices: [],
     valid: true,
-    nameRules: [v => !!v || "reason is required"],
-    timeRules: [v => !!v || "time is required"],
-    deviceRules: [v => !!v || "device is required"],
+    nameRules: [(v) => !!v || "reason is required"],
+    timeRules: [(v) => !!v || "time is required"],
+    deviceRules: [(v) => !!v || "device is required"],
     main_report_type: "",
     daily_menu: false,
     daily_date: null,
@@ -1003,7 +1003,7 @@ export default {
       user_id: "",
       reason: "",
       date: "",
-      time: null
+      time: null,
     },
     loading: false,
     total: 0,
@@ -1014,7 +1014,7 @@ export default {
         text: "Name",
         align: "left",
         sortable: false,
-        value: "employee.display_name"
+        value: "employee.display_name",
       },
 
       { text: "In1", align: "left", sortable: false, value: "in1" },
@@ -1036,34 +1036,34 @@ export default {
         text: "Total Hrs",
         align: "left",
         sortable: false,
-        value: "total_hrs"
+        value: "total_hrs",
       },
       {
         text: "OT",
         align: "left",
         sortable: false,
-        value: "ot"
+        value: "ot",
       },
 
       { text: "Status", align: "left", sortable: false, value: "status" },
-      { text: "Actions", value: "actions", sortable: false }
+      { text: "Actions", value: "actions", sortable: false },
     ],
     payload: {
       from_date: null,
       to_date: null,
       daily_date: null,
       employee_id: "",
-      report_type: "Daily",
+      report_type: "Custom",
       department_id: -1,
       status: "Select All",
       late_early: "Select All",
-      main_shift_type: 2
+      main_shift_type: 2,
     },
     log_payload: {
       user_id: null,
       device_id: "OX-8862021010011",
       date: null,
-      time: null
+      time: null,
     },
     log_list: [],
     snackbar: false,
@@ -1075,13 +1075,13 @@ export default {
     shifts: [],
     errors: [],
     custom_options: {},
-    max_date: null
+    max_date: null,
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    }
+    },
   },
 
   watch: {
@@ -1097,8 +1097,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     // console.log("mimo");
@@ -1111,8 +1111,8 @@ export default {
     this.custom_options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id
-      }
+        company_id: this.$auth.user.company.id,
+      },
     };
     this.getDepartments(this.custom_options);
     this.getEmployeesByDepartment();
@@ -1195,8 +1195,10 @@ export default {
         this.setDailyDate();
       } else if (report_type == "Weekly") {
         this.setSevenDays(this.payload.from_date);
-      } else {
+      } else if (report_type == "Monthly") {
         this.setThirtyDays(this.payload.from_date);
+      } else {
+        this.max_date = null;
       }
       this.fetch_logs();
     },
@@ -1207,8 +1209,8 @@ export default {
     getDeviceList() {
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios.get(`/device_list`, payload).then(({ data }) => {
         this.devices = data;
@@ -1227,7 +1229,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time + ":00",
         DeviceID: device_id,
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company.id,
       };
       this.loading = true;
 
@@ -1251,10 +1253,10 @@ export default {
     },
     getShift(options) {
       this.$axios.get(`/shift`, options).then(({ data }) => {
-        this.shifts = data.data.map(e => ({
+        this.shifts = data.data.map((e) => ({
           name: e.name,
           on_duty_time: (e.time_table && e.time_table.on_duty_time) || "",
-          off_duty_time: (e.time_table && e.time_table.off_duty_time) || ""
+          off_duty_time: (e.time_table && e.time_table.off_duty_time) || "",
         }));
         this.time_table_dialog = true;
       });
@@ -1264,8 +1266,8 @@ export default {
       // return;
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios
         .get(`/scheduled_employees_with_type`, payload)
@@ -1290,7 +1292,7 @@ export default {
         .then(({ data }) => {
           this.departments = [{ id: -1, name: "Select All" }].concat(data.data);
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
 
     getEmployeesByDepartment() {
@@ -1310,7 +1312,7 @@ export default {
           if (this.scheduled_employees.length > 0) {
             this.scheduled_employees.unshift({
               system_user_id: "",
-              name_with_user_id: "Select All"
+              name_with_user_id: "Select All",
             });
           }
           this.loading = false;
@@ -1318,13 +1320,13 @@ export default {
     },
 
     caps(str) {
-      return str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     },
 
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -1361,8 +1363,8 @@ export default {
           ...this.payload,
           status: this.getStatus(this.payload.status),
           late_early,
-          ot: this.overtime ? 1 : 0
-        }
+          ot: this.overtime ? 1 : 0,
+        },
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -1386,7 +1388,7 @@ export default {
           DeviceID: this.editItems.device_id,
           user_id: this.editItems.UserID,
           company_id: this.$auth.user.company.id,
-          reason: this.editItems.reason
+          reason: this.editItems.reason,
         };
         this.$axios
           .post("/generate_manual_log", payload)
@@ -1403,7 +1405,7 @@ export default {
               this.editItems = [];
             }
           })
-          .catch(e => console.log(e));
+          .catch((e) => console.log(e));
       }
     },
 
@@ -1412,8 +1414,8 @@ export default {
         params: {
           date: this.editItems.date,
           UserIDs: [this.editItems.UserID],
-          company_ids: [this.$auth.user.company.id]
-        }
+          company_ids: [this.$auth.user.company.id],
+        },
       };
 
       console.log(payload);
@@ -1424,7 +1426,7 @@ export default {
           this.loading = false;
           this.ProcessAttendance();
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     viewItem(item) {
@@ -1434,8 +1436,8 @@ export default {
           per_page: 500,
           UserID: item.employee_id,
           LogTime: item.edit_date,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.log_details = true;
 
@@ -1502,7 +1504,7 @@ export default {
         default:
           return status.charAt(0);
       }
-    }
-  }
+    },
+  },
 };
 </script>
