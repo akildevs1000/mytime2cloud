@@ -93,10 +93,12 @@
               <v-col class="col-sm-6">
                 <div
                   class="form-group pt-15"
-                  style="margin: 0 auto; width: 50%"
+                  style="margin: 0 auto; width: 200px"
                 >
                   <v-img
                     style="
+                      width: 100%;
+                      height: 200px;
                       border: 1px solid #5fafa3;
                       border-radius: 50%;
                       margin: 0 auto;
@@ -154,33 +156,84 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="editDialog" width="500">
+      <v-dialog v-model="editDialog" width="1100">
         <v-card>
           <v-tabs
             v-model="tab"
-            background-color="background"
+            background-color="primary"
             centered
             dark
             icons-and-text
           >
             <v-tabs-slider></v-tabs-slider>
 
-            <v-tab href="#tab-1">
+            <v-tab href="#tab-0">
               Profile
               <v-icon>mdi-account-box</v-icon>
             </v-tab>
 
+            <v-tab href="#tab-1">
+              Contact
+              <v-icon>mdi-phone</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-2">
+              workinfo
+              <v-icon>mdi-briefcase</v-icon>
+            </v-tab>
+
             <v-tab href="#tab-3">
-              Nearby
+              Passport
+              <v-icon>mdi-file-powerpoint-outline</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-4">
+              Emirates
+              <v-icon>mdi-city-variant</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-5">
+              Visa
+              <v-icon>mdi-file-document-multiple</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-6">
+              Bank
+              <v-icon>mdi-bank</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-7">
+              Documents
+              <v-icon>mdi-file</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-8">
+              Profile
+              <v-icon>mdi-account-box</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-9">
+              Contact
+              <v-icon>mdi-phone</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-10">
+              Profile
+              <v-icon>mdi-account-box</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-11">
+              Contact
               <v-icon>mdi-phone</v-icon>
             </v-tab>
           </v-tabs>
           <v-card-text>
             <v-tabs-items v-model="tab">
-              <v-tab-item v-for="i in 3" :key="i" :value="'tab-' + i">
-                <v-card flat>
-                  <v-card-text>{{ text }}</v-card-text>
-                </v-card>
+              <v-tab-item value="tab-0">
+                <EmployeeEdit :employeeId="employeeId" />
+              </v-tab-item>
+              <v-tab-item value="tab-1">
+                <Contact :employeeId="employeeId" />
               </v-tab-item>
             </v-tabs-items>
           </v-card-text>
@@ -487,6 +540,7 @@
 </template>
 
 <script>
+import EmployeeEdit from "../../components/employee/EmployeeEdit.vue";
 import WorkInfo from "../../components/employee/WorkInfo.vue";
 import Personal from "../../components/employee/Personal.vue";
 import Contact from "../../components/employee/Contact.vue";
@@ -500,6 +554,7 @@ import Setting from "../../components/employee/Setting.vue";
 import Payroll from "../../components/employee/Payroll.vue";
 
 const compList = [
+  EmployeeEdit,
   WorkInfo,
   Personal,
   Contact,
@@ -514,12 +569,26 @@ const compList = [
 ];
 
 export default {
-  components: { compList },
+  components: {
+    EmployeeEdit,
+    WorkInfo,
+    Personal,
+    Contact,
+    Passport,
+    Emirates,
+    Visa,
+    Bank,
+    Document,
+    Qualification,
+    Setting,
+    Payroll,
+  },
   data: () => ({
+    employeeId: 0,
     attrs: [],
     dialog: false,
     editDialog: false,
-    tab: null,
+    tab: "tab-0",
     text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     employeeDialog: false,
     comp: "WorkInfo",
@@ -595,7 +664,7 @@ export default {
       // }
     ],
     on: "",
-    color: "primary",
+    color: "background",
     files: "",
     Model: "Employee",
     endpoint: "employee",
@@ -620,13 +689,15 @@ export default {
     upload: {
       name: "",
     },
+    upload_edit: {
+      name: "",
+    },
     previewImage: null,
     payload: {},
     personalItem: {},
     contactItem: {},
     emirateItems: {},
     setting: {},
-    employeeId: "",
 
     pagination: {
       current: 1,
@@ -856,14 +927,6 @@ export default {
         this.total = data.data.length;
         this.employeeId = this.data[0].id;
 
-        this.contactItem = {
-          ...this.data[0],
-        };
-        this.work = {
-          ...this.data[0],
-        };
-        this.getListItem(this.items[0], 0);
-
         this.max_employee = this.$auth.user.company.max_employee;
         this.next_page_url = data.next_page_url;
         this.prev_page_url = data.prev_page_url;
@@ -872,15 +935,6 @@ export default {
         this.boilerplate = false;
       });
     },
-    deleteItem(item) {
-      confirm("Are you sure you want to delete this item?") &&
-        this.$axios.delete(this.endpoint + "/" + item.id).then((res) => {
-          const index = this.data.indexOf(item);
-          this.data.splice(index, 1);
-          this.getDataFromApi();
-        });
-    },
-
     onPageChange() {
       this.getDataFromApi();
     },
@@ -935,7 +989,10 @@ export default {
     },
 
     editItem(item) {
-      this.$router.push(`/employees/${item.id}`);
+      // this.previewImage = item.profile_picture;
+      this.employeeId = item.id;
+      this.editDialog = true;
+      // this.employee = item;
     },
     viewemployeedetails(item) {
       this.$router.push(`/employees/details/${item.id}`);
@@ -967,7 +1024,7 @@ export default {
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
       ) &&
         this.$axios
-          .delete(this.endpoint + "/" + item.id)
+          .post(`employee-delete/${item.id}`)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
@@ -1034,8 +1091,36 @@ export default {
     onpick_attachment() {
       this.$refs.attachment_input.click();
     },
+    onpick_attachment_edit() {
+      this.$refs.attachment_input_edit.click();
+    },
+    attachment_edit(e) {
+      this.upload_edit.name = e.target.files[0] || "";
+
+      let input = this.$refs.attachment_input_edit;
+      let file = input.files;
+
+      console.log("file", file);
+
+      if (file[0].size > 1024 * 1024) {
+        e.preventDefault();
+        this.errors["profile_picture"] = [
+          "File too big (> 1MB). Upload less than 1MB",
+        ];
+        return;
+      }
+
+      if (file && file[0]) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          this.previewImage = e.target.result;
+        };
+        reader.readAsDataURL(file[0]);
+        this.$emit("input", file[0]);
+      }
+    },
     attachment(e) {
-      this.upload.name = e.target.files[0] || "";
+      this.upload_edit.name = e.target.files[0] || "";
 
       let input = this.$refs.attachment_input;
       let file = input.files;

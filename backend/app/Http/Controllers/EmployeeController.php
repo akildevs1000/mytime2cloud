@@ -24,6 +24,7 @@ use App\Http\Requests\Employee\EmployeeImportRequest;
 use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Http\Requests\Employee\EmployeeContactRequest;
+use App\Http\Requests\Employee\UpdateRequest;
 
 class EmployeeController extends Controller
 {
@@ -41,6 +42,7 @@ class EmployeeController extends Controller
     {
         return ['status' => true];
     }
+
     public function employeeStore(StoreRequest $request)
     {
         $data = $request->validated();
@@ -64,6 +66,44 @@ class EmployeeController extends Controller
             throw $th;
         }
     }
+
+    public function employeeUpdate(UpdateRequest $request, $id)
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('profile_picture')) {
+            $file = $request->file('profile_picture');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $request->profile_picture->move(public_path('media/employee/profile_picture/'), $fileName);
+            $data['profile_picture'] = $fileName;
+        }
+
+        try {
+            $employee = Employee::where("id", $id)->update($data);
+            if (!$employee) {
+                return $this->response('Employee cannot update.', null, false);
+            }
+            $employee->profile_picture = asset('media/employee/profile_picture' . $employee->profile_picture);
+            return $this->response('Employee successfully created.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function employeeDelete($id)
+    {
+        try {
+            if (Employee::find($id)->delete()) {
+                return $this->response('Employee Successfully deleted.', null, true);
+            } else {
+                return $this->response('Employee cannot deleted.', null, false, 404);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     public function store(Request $request)
     {
         $user = [
@@ -317,9 +357,9 @@ class EmployeeController extends Controller
     public function destroy($id)
     {
         $record = Employee::find($id);
-        // $user = User::find($record->user_id);
+        $user = User::find($record->user_id);
         if ($record->delete()) {
-            // $user->delete();
+            $user->delete();
             // return Response::noContent(204);
             return Response::json(['message' => 'Employee Successfully deleted.', 'status' => true], 200);
         } else {
