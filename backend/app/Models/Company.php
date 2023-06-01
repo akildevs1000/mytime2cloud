@@ -31,6 +31,11 @@ class Company extends Model
     ];
     protected $appends = ['show_member_from', 'show_expiry'];
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
     public function contact()
     {
         return $this->hasOne(CompanyContact::class);

@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Dompdf\Options;
 use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\App;
-use mikehaertl\wkhtmlto\Pdf as wkh;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Controllers\Reports\ReportController;
 use App\Models\AttendanceLog;
@@ -93,9 +90,9 @@ class Controller extends BaseController
         return json_decode($response);
     }
 
-    public function response($msg, $record, $status)
+    public function response($msg, $record, $status, $statusCode = 200)
     {
-        return response()->json(['record' => $record, 'message' => $msg, 'status' => $status], 200);
+        return response()->json(['record' => $record, 'message' => $msg, 'status' => $status], $statusCode);
     }
 
     public function process_search($model, $input, $fields = [])
@@ -118,19 +115,18 @@ class Controller extends BaseController
 
     public function getStatusText($status)
     {
-        $report_type = "Summary";
-
-        if ($status == 'P') {
-            $report_type = "Present";
-        } else if ($status == 'A') {
-            $report_type = "Absent";
-        } else if ($status == '---') {
-            $report_type = "Missing";
-        } else if ($status == 'ME') {
-            $report_type = "Manual Entry";
+        switch ($status) {
+            case 'P':
+                return "Present";
+            case 'A':
+                return "Absent";
+            case '---':
+                return "Missing";
+            case 'ME':
+                return "Manual Entry";
+            default:
+                return "Summary";
         }
-
-        return $report_type;
     }
 
     public function processPDF($request)
@@ -421,5 +417,12 @@ class Controller extends BaseController
         return Rule::unique($table)->where(function ($query) use ($params) {
             return $query->where($params);
         });
+    }
+
+    public function processFile($file, $id)
+    {
+        $filename = $file->getClientOriginalName();
+        $file->move(public_path('documents/' . $id . "/"), $filename);
+        return $filename;
     }
 }
