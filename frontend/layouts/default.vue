@@ -551,19 +551,6 @@ export default {
               to: "/assign_permission",
               menu: "assign_permission_access",
             },
-            {
-              icon: "mdi-lan",
-              title: "Departments",
-              to: "/department",
-              menu: "department_access",
-            },
-
-            {
-              icon: "mdi-account-details ",
-              title: "Designations",
-              to: "/designation",
-              menu: "designation_access",
-            },
           ],
         },
 
