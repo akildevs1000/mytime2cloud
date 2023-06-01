@@ -6,6 +6,192 @@
       </v-snackbar>
     </div>
     <div v-if="!loading">
+      <v-dialog v-model="employeeDialog" width="900">
+        <v-card>
+          <v-card-title class="text-h5 primary mb-5 white--text">
+            Create {{ Model }}
+          </v-card-title>
+
+          <v-card-text>
+            <v-row>
+              <v-col md="6" sm="12" cols="12" dense>
+                <v-row>
+                  <v-col md="12" sm="12" cols="12">
+                    <label class="col-form-label"
+                      >Title <span class="text-danger">*</span></label
+                    >
+                    <v-select
+                      v-model="employee.title"
+                      :items="titleItems"
+                      :hide-details="!errors.title"
+                      :error="errors.title"
+                      :error-messages="
+                        errors && errors.title ? errors.title[0] : ''
+                      "
+                      dense
+                      outlined
+                    ></v-select>
+                  </v-col>
+                  <v-col md="12" sm="12" cols="12" dense>
+                    <label class="col-form-label"
+                      >Display Name <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.display_name"
+                      type="text"
+                      v-model="employee.display_name"
+                      :error="errors.display_name"
+                      :error-messages="
+                        errors && errors.display_name
+                          ? errors.display_name[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col md="12" cols="12" sm="12" dense>
+                    <label class="col-form-label"
+                      >Employee ID <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.employee_id"
+                      :hide-details="!errors.employee_id"
+                      :error="errors.employee_id"
+                      :error-messages="
+                        errors && errors.employee_id
+                          ? errors.employee_id[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col md="12" cols="12" sm="12" dense>
+                    <label class="col-form-label"
+                      >Employee Device Id<span class="text-danger"
+                        >*</span
+                      ></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.system_user_id"
+                      :hide-details="!errors.system_user_id"
+                      :error="errors.system_user_id"
+                      :error-messages="
+                        errors && errors.system_user_id
+                          ? errors.system_user_id[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-col>
+              <v-col class="col-sm-6">
+                <div
+                  class="form-group pt-15"
+                  style="margin: 0 auto; width: 50%"
+                >
+                  <v-img
+                    style="
+                      border: 1px solid #5fafa3;
+                      border-radius: 50%;
+                      margin: 0 auto;
+                    "
+                    :src="previewImage || '/no-profile-image.jpg'"
+                  ></v-img>
+                  <br />
+                  <v-btn
+                    small
+                    class="form-control primary"
+                    @click="onpick_attachment"
+                    >{{ !upload.name ? "Upload" : "Change" }} Profile Image
+                    <v-icon right dark>mdi-cloud-upload</v-icon>
+                  </v-btn>
+                  <input
+                    required
+                    type="file"
+                    @change="attachment"
+                    style="display: none"
+                    accept="image/*"
+                    ref="attachment_input"
+                  />
+
+                  <span
+                    v-if="errors && errors.profile_picture"
+                    class="text-danger mt-2"
+                    >{{ errors.profile_picture[0] }}</span
+                  >
+                </div>
+              </v-col>
+            </v-row>
+          </v-card-text>
+
+          <v-divider></v-divider>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              small
+              color="grey white--text"
+              @click="employeeDialog = false"
+            >
+              Close
+            </v-btn>
+
+            <v-btn
+              v-if="can('employee_create')"
+              small
+              :loading="loading"
+              color="primary"
+              @click="store_data"
+            >
+              Submit
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog v-model="editDialog" width="500">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
+            Click Me
+          </v-btn>
+        </template>
+
+        <v-card>
+          <v-tabs
+            v-model="tab"
+            background-color="background"
+            centered
+            dark
+            icons-and-text
+          >
+            <v-tabs-slider></v-tabs-slider>
+
+            <v-tab href="#tab-1">
+              Profile
+              <v-icon>mdi-account-box</v-icon>
+            </v-tab>
+
+            <v-tab href="#tab-3">
+              Nearby
+              <v-icon>mdi-phone</v-icon>
+            </v-tab>
+          </v-tabs>
+          <v-card-text>
+            <v-tabs-items v-model="tab">
+              <v-tab-item v-for="i in 3" :key="i" :value="'tab-' + i">
+                <v-card flat>
+                  <v-card-text>{{ text }}</v-card-text>
+                </v-card>
+              </v-tab-item>
+            </v-tabs-items>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
       <v-row class="mt-5">
         <v-col cols="6">
           <h3>{{ Model }}</h3>
@@ -113,6 +299,15 @@
               class="primary pt-4 pb-4"
               >{{ Model }} +
             </v-btn>
+
+            <v-btn
+              v-if="can('employee_create')"
+              @click="employeeDialog = true"
+              small
+              dark
+              class="primary pt-4 pb-4"
+              >{{ Model }} + (NEW)
+            </v-btn>
           </div>
         </v-col>
       </v-row>
@@ -169,9 +364,19 @@
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <span> {{ Model }} List</span>
             </v-toolbar>
-            <table>
+            <table
+              style="
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+              "
+            >
               <tr>
-                <th v-for="(item, index) in headers" :key="index">
+                <th
+                  style="text-align: left; padding: 8px"
+                  v-for="(item, index) in headers"
+                  :key="index"
+                >
                   {{ item.text }}
                 </th>
               </tr>
@@ -182,12 +387,18 @@
                 absolute
                 color="primary"
               ></v-progress-linear>
-              <tr v-for="(item, index) in data" :key="index">
-                <td class="text-center">
+              <tr
+                style="background-color: #fbfdff"
+                v-for="(item, index) in data"
+                :key="index"
+              >
+                <td style="text-align: left; padding: 8px" class="text-center">
                   <b>{{ ++index }}</b>
                 </td>
-                <td>{{ item.employee_id || "---" }}</td>
-                <td>
+                <td style="text-align: left; padding: 8px">
+                  {{ item.employee_id || "---" }}
+                </td>
+                <td style="text-align: left; padding: 8px">
                   <v-img
                     style="border-radius: 50%; height: 40px; width: 40px"
                     :src="
@@ -199,21 +410,29 @@
                   >
                   </v-img>
                 </td>
-                <td>{{ item.display_name || "---" }}</td>
-                <td>
+                <td style="text-align: left; padding: 8px">
+                  {{ item.display_name || "---" }}
+                </td>
+                <td style="text-align: left; padding: 8px">
                   {{ (item.department && item.department.name) || "---" }}
                 </td>
-                <td>{{ item.designation && item.designation.name }}</td>
-                <td>{{ (item && item.user && item.user.email) || "---" }}</td>
-                <td>{{ (item && item.phone_number) || "---" }}</td>
-                <td>
+                <td style="text-align: left; padding: 8px">
+                  {{ item.designation && item.designation.name }}
+                </td>
+                <td style="text-align: left; padding: 8px">
+                  {{ (item && item.user && item.user.email) || "---" }}
+                </td>
+                <td style="text-align: left; padding: 8px">
+                  {{ (item && item.phone_number) || "---" }}
+                </td>
+                <td style="text-align: left; padding: 8px">
                   {{
                     item.schedule &&
                     item.schedule.shift_type &&
                     item.schedule.shift_type.name
                   }}
                 </td>
-                <td>
+                <td style="text-align: left; padding: 8px">
                   <v-menu bottom left>
                     <template v-slot:activator="{ on, attrs }">
                       <v-btn dark-2 icon v-bind="attrs" v-on="on">
@@ -236,7 +455,7 @@
                     </v-list>
                   </v-menu>
                 </td>
-                <td>
+                <td style="text-align: left; padding: 8px">
                   <v-btn
                     dark-2
                     icon
@@ -304,7 +523,11 @@ export default {
   components: { compList },
   data: () => ({
     attrs: [],
-
+    dialog: false,
+    editDialog: false,
+    tab: null,
+    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    employeeDialog: false,
     comp: "WorkInfo",
     m: false,
     expand: false,
@@ -380,13 +603,10 @@ export default {
     on: "",
     color: "primary",
     files: "",
-    dialog: false,
     Model: "Employee",
     endpoint: "employee",
     search: "",
     loading: false,
-    data: [],
-    errors: [],
     total: 0,
     next_page_url: "",
     prev_page_url: "",
@@ -397,6 +617,16 @@ export default {
     snackbar: false,
     btnLoader: false,
     max_employee: 0,
+    employee: {
+      display_name: "",
+      employee_id: "",
+      system_user_id: "",
+      department_id: "",
+    },
+    upload: {
+      name: "",
+    },
+    previewImage: null,
     payload: {},
     personalItem: {},
     contactItem: {},
@@ -414,7 +644,6 @@ export default {
     endpoint: "employee",
     search: "",
     snackbar: false,
-    dialog: false,
     ids: [],
     loading: false,
     total: 0,
@@ -451,6 +680,7 @@ export default {
         text: "View Info",
       },
     ],
+    titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
     editedIndex: -1,
     editedItem: { name: "" },
     defaultItem: { name: "" },
@@ -465,7 +695,7 @@ export default {
     this.boilerplate = true;
     this.getDataFromApi();
 
-    this.loading = true;
+    // this.loading = true;
     this.getDepartments();
   },
   mounted() {
@@ -596,6 +826,7 @@ export default {
           }
         });
     },
+
     can(per) {
       let u = this.$auth.user;
       return (
@@ -806,217 +1037,65 @@ export default {
           .catch((res) => console.log(res));
       }
     },
+    onpick_attachment() {
+      this.$refs.attachment_input.click();
+    },
+    attachment(e) {
+      this.upload.name = e.target.files[0] || "";
+
+      let input = this.$refs.attachment_input;
+      let file = input.files;
+
+      console.log("file", file);
+
+      if (file[0].size > 1024 * 1024) {
+        e.preventDefault();
+        this.errors["profile_picture"] = [
+          "File too big (> 1MB). Upload less than 1MB",
+        ];
+        return;
+      }
+
+      if (file && file[0]) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          this.previewImage = e.target.result;
+        };
+        reader.readAsDataURL(file[0]);
+        this.$emit("input", file[0]);
+      }
+    },
+    mapper(obj) {
+      let employee = new FormData();
+
+      for (let x in obj) {
+        employee.append(x, obj[x]);
+      }
+      employee.append("profile_picture", this.upload.name);
+      employee.append("company_id", this.$auth.user.company.id);
+
+      return employee;
+    },
+    store_data() {
+      let final = Object.assign(this.employee);
+      let employee = this.mapper(final);
+
+      this.$axios
+        .post("/employee-store", employee)
+        .then(({ data }) => {
+          this.loading = false;
+
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.errors = [];
+            this.snackbar = true;
+            this.response = "Employees inserted successfully";
+            this.getDataFromApi();
+          }
+        })
+        .catch((e) => console.log(e));
+    },
   },
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #fbfdff;
-}
-body {
-  font-size: 16px;
-  color: #404040;
-  font-family: Montserrat, sans-serif;
-  background-image: linear-gradient(
-    to bottom right,
-    #ff9eaa 0% 65%,
-    #e860ff 95% 100%
-  );
-  background-position: center;
-  background-attachment: fixed;
-  margin: 0;
-  padding: 2rem 0;
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-}
-.card {
-  height: 285px !important;
-  background-color: #fff !important;
-  max-width: 260px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  border-radius: 2rem !important;
-}
-.view-card {
-  /* height: 285px !important; */
-  background-color: #fff !important;
-  /* max-width: 260px !important; */
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  border-radius: 1rem !important;
-}
-
-.card .banner {
-  background-color: #5fafa3;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  height: 11rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
-.card .banner .gg {
-  background-color: #fff;
-  width: 8rem;
-  height: 8rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
-  border-radius: 50%;
-  transform: translateY(50%);
-  transition: transform 200ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-.card .banner svg:hover {
-  transform: translateY(50%) scale(1.3);
-}
-.card .menu {
-  width: 100%;
-  height: 3.5rem;
-  padding: 1rem;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  position: relative;
-  box-sizing: border-box;
-}
-.card .menu .opener {
-  width: 2.5rem;
-  height: 2.5rem;
-  position: relative;
-  border-radius: 50%;
-  transition: background-color 100ms ease-in-out;
-}
-.card .menu .opener:hover {
-  background-color: #f2f2f2;
-}
-.card .menu .opener span {
-  background-color: #404040;
-  width: 0.4rem;
-  height: 0.4rem;
-  position: absolute;
-  top: 0;
-  left: calc(50% - 0.2rem);
-  border-radius: 50%;
-}
-.card .menu .opener span:nth-child(1) {
-  top: 0.45rem;
-}
-.card .menu .opener span:nth-child(2) {
-  top: 1.05rem;
-}
-.card .menu .opener span:nth-child(3) {
-  top: 1.65rem;
-}
-.card h2.name {
-  text-align: center;
-  padding: 0 2rem 0.5rem;
-  margin: 0;
-}
-.card .title {
-  color: #a0a0a0;
-  font-size: 0.85rem;
-  text-align: center;
-  /* padding: 0 0rem 1.2rem; */
-}
-.card .actions {
-  padding: 0 2rem 1.2rem;
-  display: flex;
-  flex-direction: column;
-  order: 99;
-}
-.card .actions .follow-info {
-  padding: 0 0 1rem;
-  /* display: flex; */
-}
-.card .actions .follow-info h2 {
-  text-align: center;
-  width: 100%;
-  margin: 0;
-  box-sizing: border-box;
-}
-.card .actions .follow-info h2 a {
-  text-decoration: none;
-  /* padding: 0.8rem; */
-  /* display: flex; */
-  /* flex-direction: column; */
-  border-radius: 0.8rem;
-  transition: background-color 100ms ease-in-out;
-}
-.card .actions .follow-info h2 a span {
-  color: #1c9eff;
-  font-weight: bold;
-  transform-origin: bottom;
-  transform: scaleY(1.3);
-  transition: color 100ms ease-in-out;
-  font-size: 15px;
-}
-.card .actions .follow-info h2 a small {
-  color: #afafaf;
-  font-size: 0.85rem;
-  font-weight: normal;
-}
-
-.card .actions .follow-info h2 a:hover span {
-  color: #007ad6;
-}
-.card .actions .follow-btn button {
-  color: inherit;
-  font: inherit;
-  font-weight: bold;
-  background-color: #ffd01a;
-  width: 100%;
-  border: none;
-  padding: 1rem;
-  outline: none;
-  box-sizing: border-box;
-  border-radius: 1.5rem/50%;
-  transition: background-color 100ms ease-in-out,
-    transform 200ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-.card .actions .follow-btn button:hover {
-  background-color: #efb10a;
-  transform: scale(1.1);
-}
-.card .actions .follow-btn button:active {
-  background-color: #e8a200;
-  transform: scale(1);
-}
-.card .desc {
-  text-align: justify;
-  padding: 0 2rem 2.5rem;
-  order: 100;
-}
-@media screen and (min-width: 1280px) and (max-width: 1440px) {
-  .card {
-    height: 303px !important;
-  }
-  /* Styles for Desktops */
-}
-.v-list-item-group .v-list-item--active {
-  background: #5fafa3;
-  color: #fff;
-}
-
-.iconcustomcolor {
-  font-size: 15px;
-  color: #b30101;
-  margin-top: -3px;
-}
-</style>

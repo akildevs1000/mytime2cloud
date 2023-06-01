@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Employee\StoreRequest;
 use App\Http\Requests\Employee\ContactRequest;
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\EmployeeOtherRequest;
@@ -39,6 +40,29 @@ class EmployeeController extends Controller
     public function validateOther(EmployeeOtherRequest $request)
     {
         return ['status' => true];
+    }
+    public function employeeStore(StoreRequest $request)
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('profile_picture')) {
+            $file = $request->file('profile_picture');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $request->profile_picture->move(public_path('media/employee/profile_picture/'), $fileName);
+            $data['profile_picture'] = $fileName;
+        }
+
+        try {
+            $employee = Employee::create($data);
+            if (!$employee) {
+                return $this->response('Employee cannot add.', null, false);
+            }
+            $employee->profile_picture = asset('media/employee/profile_picture' . $employee->profile_picture);
+            return $this->response('Employee successfully created.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
     public function store(Request $request)
     {
@@ -293,9 +317,9 @@ class EmployeeController extends Controller
     public function destroy($id)
     {
         $record = Employee::find($id);
-        $user = User::find($record->user_id);
+        // $user = User::find($record->user_id);
         if ($record->delete()) {
-            $user->delete();
+            // $user->delete();
             // return Response::noContent(204);
             return Response::json(['message' => 'Employee Successfully deleted.', 'status' => true], 200);
         } else {
