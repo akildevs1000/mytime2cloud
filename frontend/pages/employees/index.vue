@@ -155,12 +155,6 @@
         </v-card>
       </v-dialog>
       <v-dialog v-model="editDialog" width="500">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
-            Click Me
-          </v-btn>
-        </template>
-
         <v-card>
           <v-tabs
             v-model="tab"
