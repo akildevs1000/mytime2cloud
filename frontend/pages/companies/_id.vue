@@ -40,6 +40,9 @@
               <v-tab>
                 <v-icon> mdi-earth </v-icon>
               </v-tab>
+              <v-tab>
+                <v-icon> mdi-file </v-icon>
+              </v-tab>
               <!-- <v-tab>
                 <v-icon> mdi-lock </v-icon>
               </v-tab> -->
@@ -257,7 +260,7 @@
                               >{{
                                 !upload.name ? "Upload Logo" : "Logo Uploaded"
                               }}
-                              <v-icon right dark>mdi-cloud-upload</v-icon>
+                              <v-icon right dark> </v-icon>
                             </v-btn>
                           </v-card>
 
@@ -618,59 +621,7 @@
               </v-tab-item>
 
               <v-tab-item>
-                <v-card flat>
-                  <v-card-text>
-                    <div class="row">
-                      <div class="col-sm-6">
-                        <div class="form-group">
-                          <label class="col-form-label">Password</label>
-                          <input
-                            v-model="user_payload.password"
-                            class="form-control form-control-lg shadow-none"
-                            type="password"
-                          />
-                          <span
-                            v-if="errors && errors.password"
-                            class="text-danger mt-2"
-                            >{{ errors.password[0] }}</span
-                          >
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="form-group">
-                          <label class="col-form-label"
-                            >Confirm Password
-                          </label>
-                          <input
-                            v-model="user_payload.password_confirmation"
-                            class="form-control form-control-lg shadow-none"
-                            type="password"
-                          />
-                          <span
-                            v-if="errors && errors.password_confirmation"
-                            class="text-danger mt-2"
-                            >{{ errors.password_confirmation[0] }}</span
-                          >
-                        </div>
-                      </div>
-                    </div>
-                    <v-row>
-                      <v-col cols="12">
-                        <div class="text-right">
-                          <v-btn
-                            v-if="can('company_edit')"
-                            small
-                            :loading="loading"
-                            color="primary"
-                            @click="update_user"
-                          >
-                            Submit
-                          </v-btn>
-                        </div>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
+               <Document />
               </v-tab-item>
             </v-tabs>
           </v-card>
