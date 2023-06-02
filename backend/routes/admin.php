@@ -99,6 +99,7 @@ Route::post('device/details', [DeviceController::class, 'getDeviceCompany']);
 Route::get('device/getLastRecordsByCount/{company_id}/{count}', [DeviceController::class, 'getLastRecordsByCount']);
 Route::post('device/delete/selected', [DeviceController::class, 'deleteSelected']);
 Route::get('device_list', [DeviceController::class, 'getDeviceList']);
+Route::get('getdevicesstatuscount/{company_id}', [DeviceController::class, 'getDevicesStatuscount']);
 
 
 Route::get('sync_device_date_time/{device_id}', [DeviceController::class, "sync_device_date_time"]);

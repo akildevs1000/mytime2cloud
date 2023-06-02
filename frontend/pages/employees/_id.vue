@@ -713,7 +713,7 @@
 
 <script>
 import "cropperjs/dist/cropper.css";
-import Cropper from "cropperjs";
+// import Cropper from "cropperjs";
 import VueCropper from "vue-cropperjs";
 export default {
   layout({ $auth }) {
@@ -1077,6 +1077,7 @@ export default {
           // Make an API call to upload the image
         }, "image/jpeg");
       } else {
+        payload.delete("profile_picture");
         this.updateToserver(file, payload);
       }
     },

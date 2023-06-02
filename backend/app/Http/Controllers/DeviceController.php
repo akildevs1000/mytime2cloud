@@ -293,4 +293,20 @@ class DeviceController extends Controller
 
         return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
     }
+
+    public function getDevicesStatuscount($company_id)
+    {
+
+
+
+
+        $model = Device::where('company_id', $company_id)
+            ->whereIn('status_id', [1, 2])->get()->groupBy("status_id")->toArray();
+
+
+        return [
+            'offline' => count($model["2"]),
+            'online' => count($model["1"]),
+        ];
+    }
 }

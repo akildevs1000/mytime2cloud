@@ -71,7 +71,9 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
 
-        if ($request->hasFile('profile_picture')) {
+
+
+        if ($request->profile_picture && $request->hasFile('profile_picture')) {
             $file = $request->file('profile_picture');
             $ext = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
@@ -84,8 +86,8 @@ class EmployeeController extends Controller
             if (!$employee) {
                 return $this->response('Employee cannot update.', null, false);
             }
-            $employee->profile_picture = asset('media/employee/profile_picture' . $employee->profile_picture);
-            return $this->response('Employee successfully created.', null, true);
+            // $employee->profile_picture = asset('media/employee/profile_picture' . $request->profile_picture);
+            return $this->response('Employee Details successfully updated.', $employee, true);
         } catch (\Throwable $th) {
             throw $th;
         }

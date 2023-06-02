@@ -7,3 +7,4 @@ Route::apiResource('timezone', TimezoneController::class);
 
 Route::post('getTimezoneJson', [TimezoneController::class, 'getTimezoneJson']);
 Route::post('storeTimezoneDefaultJson', [TimezoneController::class, 'storeTimezoneDefaultJson']);
+Route::get('GetTimezoneDefaultJson', [TimezoneController::class, 'GetTimezoneDefaultJson']);

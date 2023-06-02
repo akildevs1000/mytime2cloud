@@ -6,12 +6,18 @@ use App\Http\Requests\SubDepartment\SubDepartmentRequest;
 use App\Http\Requests\SubDepartment\SubDepartmentUpdateRequest;
 use App\Models\SubDepartment;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 
 class SubDepartmentController extends Controller
 {
     public function index(Request $request, SubDepartment $model)
     {
-        return $model->with('department')->where('company_id', $request->company_id)->paginate($request->per_page);
+        return $model->with('department')
+            ->where('company_id', $request->company_id)
+            ->when($request->filled('department_id'), function ($q) use ($request) {
+                $q->whereHas('department',  fn (Builder $query) => $query->where('department_id', $request->department_id));
+            })
+            ->paginate($request->per_page);
     }
 
     public function search(SubDepartment $model, Request $request, $key)
@@ -35,7 +41,7 @@ class SubDepartmentController extends Controller
             } else {
                 return $this->response('Sub Department cannot add.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -55,7 +61,7 @@ class SubDepartmentController extends Controller
             } else {
                 return $this->response('Sub Department cannot update.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -70,7 +76,7 @@ class SubDepartmentController extends Controller
             } else {
                 return $this->response('Sub Department cannot delete.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -85,7 +91,7 @@ class SubDepartmentController extends Controller
             } else {
                 return $this->response('Sub Department cannot delete.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }

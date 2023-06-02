@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use App\Models\Leave;
+use App\Models\Timezone;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
@@ -38,7 +39,10 @@ class Employee extends Model
     {
         return $this->belongsTo(User::class);
     }
-
+    public function timezone()
+    {
+        return $this->belongsTo(Timezone::class, 'timezone_id', 'timezone_id');
+    }
     public function role()
     {
         return $this->belongsTo(Role::class);

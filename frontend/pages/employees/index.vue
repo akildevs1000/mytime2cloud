@@ -194,7 +194,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="editDialog" width="1100">
+      <v-dialog v-model="editDialog" width="1100" :key="dialogKey">
         <v-card>
           <v-tabs
             v-model="tab"
@@ -221,7 +221,11 @@
                 :key="index"
                 :value="`${index}`"
               >
-                <component :is="getComponent(tab)" :employeeId="employeeId" />
+                <component
+                  :is="getComponent(tab)"
+                  :employeeId="employeeId"
+                  @eventFromchild="getDataFromApi2"
+                />
               </v-tab-item>
             </v-tabs-items>
           </v-card-text>
@@ -428,10 +432,11 @@
                   <v-img
                     style="border-radius: 50%; height: 40px; width: 40px"
                     :src="
-                      item.profile_picture +
-                        '?t=' +
-                        Math.ceil(Math.random() * 1000000) ||
-                      '/no-profile-image.jpg'
+                      item.profile_picture
+                        ? item.profile_picture +
+                          '?t=' +
+                          Math.ceil(Math.random() * 1000000)
+                        : '/no-profile-image.jpg'
                     "
                   >
                   </v-img>
@@ -518,6 +523,8 @@ import Document from "../../components/employee/Document.vue";
 import Qualification from "../../components/employee/Qualification.vue";
 import Setting from "../../components/employee/Setting.vue";
 import Payroll from "../../components/employee/Payroll.vue";
+import WorkInfo from "../../components/employee/WorkInfo.vue";
+import Personal from "../../components/employee/Personal.vue";
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
@@ -558,7 +565,7 @@ export default {
     cropper: "",
     autoCrop: false,
     dialogCropping: false,
-
+    dialogKey: 0, // Unique key for recreating the dialog
     compList,
     comp: "EmployeeEdit",
     tabMenu: [],
@@ -634,6 +641,7 @@ export default {
     errors: [],
     departments: [],
     department_id: "",
+    dialogVisible: false,
   }),
   async created() {
     this.loading = false;
@@ -861,6 +869,25 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
+    getDataFromApi2() {
+      let url = this.endpoint;
+      let options = {
+        params: {
+          per_page: this.per_page === "Default" ? 8 : this.per_page,
+          company_id: this.$auth?.user?.company?.id,
+        },
+      };
+      this.$axios.get(`${url}`, options).then(({ data }) => {
+        this.data = data.data;
+        this.total = data.data.length;
+        this.employeeId = this.data[0].id;
+
+        this.max_employee = this.$auth.user.company.max_employee;
+        this.next_page_url = data.next_page_url;
+        this.prev_page_url = data.prev_page_url;
+        this.current_page = data.current_page;
+      });
+    },
     getDataFromApi(url = this.endpoint) {
       let options = {
         params: {
@@ -925,9 +952,11 @@ export default {
       }
     },
     editItem(item) {
-      console.log(item);
+      this.dialogKey = item.id;
+      // console.log("item", item);
       // this.previewImage = item.profile_picture;
       this.employeeId = item.id;
+      console.log("item id", item.id);
       this.editDialog = true;
     },
     deleteItem(item) {

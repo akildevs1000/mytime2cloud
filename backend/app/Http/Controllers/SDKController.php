@@ -28,6 +28,9 @@ class SDKController extends Controller
         $defaultArray = $TimezoneDefaultJson->get(["index", "dayTimeList"])->toArray();
 
         $data = array_merge($defaultArray, $jsonArray);
+        //ksort($data);
+
+        asort($data);
 
         $url = "{$this->endpoint}/{$id}/WriteTimeGroup";
         return $this->processSDKRequest($url, $data);
