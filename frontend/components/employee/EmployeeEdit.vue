@@ -154,12 +154,7 @@ export default {
     snackbar: false,
     btnLoader: false,
     max_employee: 0,
-    employee: {
-      display_name: "",
-      employee_id: "",
-      system_user_id: "",
-      department_id: "",
-    },
+    employee: {},
     upload: {
       name: "",
     },
@@ -197,7 +192,10 @@ export default {
     getInfo(id) {
       this.$axios
         .get(`employee-single/${id}`)
-        .then(({ data }) => (this.employee = data))
+        .then(({ data }) => {
+          this.employee = data;
+          this.previewImage = data.profile_picture;
+        })
         .catch((err) => console.log(err));
     },
     can() {
@@ -211,7 +209,7 @@ export default {
     },
 
     attachment(e) {
-      this.upload_edit.name = e.target.files[0] || "";
+      this.upload.name = e.target.files[0] || "";
 
       let input = this.$refs.attachment_input;
       let file = input.files;
@@ -251,7 +249,7 @@ export default {
       let employee = this.mapper(final);
 
       this.$axios
-        .post("/employee-store", employee)
+        .post(`/employee-update/${this.employeeId}`, employee)
         .then(({ data }) => {
           this.loading = false;
 

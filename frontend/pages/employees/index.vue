@@ -290,15 +290,6 @@
 
             <v-btn
               v-if="can('employee_create')"
-              @click="createEmployee"
-              small
-              dark
-              class="primary pt-4 pb-4"
-              >{{ Model }} +
-            </v-btn>
-
-            <v-btn
-              v-if="can('employee_create')"
               @click="employeeDialog = true"
               small
               dark
@@ -451,17 +442,6 @@
                       </v-list-item>
                     </v-list>
                   </v-menu>
-                </td>
-                <td style="text-align: left; padding: 8px">
-                  <v-btn
-                    dark-2
-                    icon
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="viewemployeedetails(item)"
-                  >
-                    <v-icon>info</v-icon>
-                  </v-btn>
                 </td>
               </tr>
             </table>
@@ -683,9 +663,6 @@ export default {
         text: "Shift Type",
       },
       { text: "Actions", align: "center", value: "action", sortable: false },
-      {
-        text: "View Info",
-      },
     ];
   },
   watch: {
@@ -703,26 +680,10 @@ export default {
     getComponent() {
       return this.compList[this.tab];
     },
-    caps(str) {
-      if (str == "" || str == null) {
-        return "---";
-      } else {
-        let res = str.toString();
-        return res.replace(/\b\w/g, (c) => c.toUpperCase());
-      }
-    },
     close() {
       this.dialog = false;
       this.errors = [];
       setTimeout(() => {}, 300);
-    },
-    limitName(value) {
-      if (!value) {
-        return "---";
-      }
-      var string = value;
-      var length = 14;
-      return string.substring(0, length);
     },
     json_to_csv(json) {
       let data = json.map((e) => ({
@@ -748,17 +709,6 @@ export default {
       });
       return header + rows;
     },
-    res(id) {
-      window.scrollTo(0, 0);
-      this.boilerplate = true;
-      this.$axios.get(`/employee/${id}`).then(({ data }) => {
-        this.employeeId = id;
-        this.work = {
-          ...data,
-        };
-        this.boilerplate = false;
-      });
-    },
     export_submit() {
       if (this.data.length == 0) {
         this.snackbar = true;
@@ -766,7 +716,6 @@ export default {
         return;
       }
 
-      console.log("this.data", this.data);
       let csvData = this.json_to_csv(this.data);
       let element = document.createElement("a");
       element.setAttribute(
@@ -819,13 +768,13 @@ export default {
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
-    createEmployee() {
-      if (this.total >= this.max_employee) {
-        alert(`You cannot add more than ${this.max_employee} employees`);
-        return;
-      }
-      this.$router.push(`/employees/create`);
-    },
+    // createEmployee() {
+    //   if (this.total >= this.max_employee) {
+    //     alert(`You cannot add more than ${this.max_employee} employees`);
+    //     return;
+    //   }
+    //   this.$router.push(`/employees/create`);
+    // },
     goDetails(id) {
       this.$router.push(`/employees/details/${id}`);
     },
@@ -905,31 +854,6 @@ export default {
       this.employeeId = item.id;
       this.editDialog = true;
     },
-    viewemployeedetails(item) {
-      this.$router.push(`/employees/details/${item.id}`);
-    },
-    delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
-      confirm(
-        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
-          })
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.getDataFromApi();
-              this.snackbar = data.status;
-              this.ids = [];
-              this.response = "Selected records has been deleted";
-            }
-          })
-          .catch((err) => console.log(err));
-    },
-
     deleteItem(item) {
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
@@ -947,7 +871,6 @@ export default {
           })
           .catch((err) => console.log(err));
     },
-
     close() {
       this.dialog = false;
       setTimeout(() => {
@@ -955,7 +878,6 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
