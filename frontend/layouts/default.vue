@@ -9,6 +9,7 @@
       app
       :color="sideBarcolor"
       :style="miniVariant ? 'width: 60px' : ''"
+      @transitionend="collapseSubItems"
     >
       <br />
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
@@ -352,40 +353,40 @@ export default {
         //   menu: "announcement_access"
         // },
         {
-          icon: "mdi-account",
+          icon: "mdi-account-tie",
           title: "Employees",
           to: "/employees",
           menu: "employee_access",
         },
 
         {
-          icon: "mdi-account",
+          icon: "mdi mdi-camera-account",
           title: "Employee Photo Upload",
           to: "/employee_photo_upload",
           menu: "employee_photo_upload",
         },
         {
-          icon: "mdi-account",
+          icon: "mdi mdi-clock-time-four-outline",
           title: "Timezones",
           to: "/timezone",
           menu: "timezone",
         },
 
         {
-          icon: "mdi-account",
+          icon: "mdi mdi-account-clock",
           title: `Timezone Mapping`,
           open_menu: false,
           menu: "timezone_mapping",
           hasChildren: [
             {
-              icon: "mdi-account",
+              icon: "mdi mdi-clock-plus-outline",
               title: "Create New",
               to: "/timezonemapping/new",
               menu: "timezone_mapping_list",
             },
             {
-              icon: "mdi-account",
-              title: "View List",
+              icon: "mdi mdi-credit-card-clock-outline",
+              title: "Mapped List",
               to: "/timezonemapping/list",
               menu: "timezone_mapping_list",
             },
@@ -417,7 +418,7 @@ export default {
               menu: "payroll_generate_access",
             },
             {
-              icon: "mdi-cash",
+              icon: "mdi mdi-calculator",
               title: "Payroll Formula",
               to: "/payroll/create",
               menu: "payroll_generate_access",
@@ -533,20 +534,20 @@ export default {
               menu: "setting_access",
             },
             {
-              icon: "mdi-cog",
+              icon: "mdi mdi-card-account-details",
               title: "Profile",
               to: `/companies/${this.$auth.user?.company?.id}`,
               menu: "setting_access",
             },
 
             {
-              icon: "mdi-account-plus",
+              icon: "mdi mdi-account-check-outline",
               title: "Roles",
               to: "/role",
               menu: "role_access",
             },
             {
-              icon: "mdi-lock",
+              icon: "mdi mdi-account-details",
               title: "Assign Permissions",
               to: "/assign_permission",
               menu: "assign_permission_access",
@@ -624,7 +625,9 @@ export default {
     },
 
     getUser() {
-      return this.$auth.user && this.$auth.user.employee
+      return this.$auth.user &&
+        this.$auth.user.employee &&
+        this.$auth.user.company
         ? this.$auth.user.employee.display_name
         : this.$auth.user.company.name;
     },
@@ -634,6 +637,9 @@ export default {
     },
   },
   methods: {
+    collapseSubItems() {
+      this.menus.map((item) => (item.active = false));
+    },
     changeTopBarColor(color) {
       this.color = color;
       this.$store.commit("change_color", color);

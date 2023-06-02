@@ -1,161 +1,173 @@
 <template>
-  <v-card>
-    <v-card-text>
-      <v-dialog v-model="dialogCropping" width="500">
-        <v-card style="padding-top: 20px">
-          <v-card-text>
-            <!-- <img :src="imageUrl" alt="Preview Image" /> -->
-            <!-- Cropping image step1 -->
-            <VueCropper
-              v-show="selectedFile"
-              ref="cropper"
-              :src="selectedFile"
-              alt="Source Image"
-              :aspectRatio="1"
-              :autoCropArea="0.9"
-              :viewMode="3"
-            ></VueCropper>
+  <div>
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" small top="top" :color="color">
+        {{ response }}
+      </v-snackbar>
+    </div>
+    <v-card>
+      <v-card-text>
+        <v-dialog v-model="dialogCropping" width="500">
+          <v-card style="padding-top: 20px">
+            <v-card-text>
+              <!-- <img :src="imageUrl" alt="Preview Image" /> -->
+              <!-- Cropping image step1 -->
+              <VueCropper
+                v-show="selectedFile"
+                ref="cropper"
+                :src="selectedFile"
+                alt="Source Image"
+                :aspectRatio="1"
+                :autoCropArea="0.9"
+                :viewMode="3"
+              ></VueCropper>
 
-            <!-- <div class="cropper-preview"></div> -->
-          </v-card-text>
+              <!-- <div class="cropper-preview"></div> -->
+            </v-card-text>
 
-          <v-card-actions>
-            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
+            <v-card-actions>
+              <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
+                <v-btn
+                  class="danger btn btn-danger text-left"
+                  text
+                  @click="closePopup()"
+                  style="float: left"
+                  >Cancel</v-btn
+                >
+              </div>
+              <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
+                <v-btn
+                  class="primary btn btn-danger text-right"
+                  @click="saveCroppedImageStep2(), (dialog = false)"
+                  >Crop</v-btn
+                >
+              </div>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-row>
+          <v-col md="6" sm="12" cols="12" dense>
+            <v-row>
+              <v-col md="12" sm="12" cols="12">
+                <label class="col-form-label"
+                  >Title <span class="text-danger">*</span></label
+                >
+                <v-select
+                  v-model="employee.title"
+                  :items="titleItems"
+                  :hide-details="!errors.title"
+                  :error="errors.title"
+                  :error-messages="
+                    errors && errors.title ? errors.title[0] : ''
+                  "
+                  dense
+                  outlined
+                ></v-select>
+              </v-col>
+              <v-col md="12" sm="12" cols="12" dense>
+                <label class="col-form-label"
+                  >Display Name <span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  :hide-details="!errors.display_name"
+                  type="text"
+                  v-model="employee.display_name"
+                  :error="errors.display_name"
+                  :error-messages="
+                    errors && errors.display_name ? errors.display_name[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+              <v-col md="12" cols="12" sm="12" dense>
+                <label class="col-form-label"
+                  >Employee ID <span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  type="text"
+                  v-model="employee.employee_id"
+                  :hide-details="!errors.employee_id"
+                  :error="errors.employee_id"
+                  :error-messages="
+                    errors && errors.employee_id ? errors.employee_id[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+              <v-col md="12" cols="12" sm="12" dense>
+                <label class="col-form-label"
+                  >Employee Device Id<span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  type="text"
+                  v-model="employee.system_user_id"
+                  :hide-details="!errors.system_user_id"
+                  :error="errors.system_user_id"
+                  :error-messages="
+                    errors && errors.system_user_id
+                      ? errors.system_user_id[0]
+                      : ''
+                  "
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </v-col>
+          <v-col class="col-sm-6">
+            <div class="form-group pt-15" style="margin: 0 auto; width: 200px">
+              <v-img
+                style="
+                  width: 100%;
+                  height: 200px;
+                  border: 1px solid #5fafa3;
+                  border-radius: 50%;
+                  margin: 0 auto;
+                "
+                :src="previewImage || '/no-profile-image.jpg'"
+              ></v-img>
+              <br />
               <v-btn
-                class="danger btn btn-danger text-left"
-                text
-                @click="closePopup()"
-                style="float: left"
-                >Cancel</v-btn
+                small
+                class="form-control primary"
+                @click="onpick_attachment"
+                >{{ !upload.name ? "Upload" : "Change" }}
+                Profile Image
+                <v-icon right dark>mdi-cloud-upload</v-icon>
+              </v-btn>
+              <input
+                required
+                type="file"
+                @change="attachment"
+                style="display: none"
+                accept="image/*"
+                ref="attachment_input"
+              />
+
+              <span
+                v-if="errors && errors.profile_picture"
+                class="text-danger mt-2"
+                >{{ errors.profile_picture[0] }}</span
               >
             </div>
-            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
-              <v-btn
-                class="primary btn btn-danger text-right"
-                @click="saveCroppedImageStep2(), (dialog = false)"
-                >Crop</v-btn
-              >
-            </div>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <v-row>
-        <v-col md="6" sm="12" cols="12" dense>
-          <v-row>
-            <v-col md="12" sm="12" cols="12">
-              <label class="col-form-label"
-                >Title <span class="text-danger">*</span></label
-              >
-              <v-select
-                v-model="employee.title"
-                :items="titleItems"
-                :hide-details="!errors.title"
-                :error="errors.title"
-                :error-messages="errors && errors.title ? errors.title[0] : ''"
-                dense
-                outlined
-              ></v-select>
-            </v-col>
-            <v-col md="12" sm="12" cols="12" dense>
-              <label class="col-form-label"
-                >Display Name <span class="text-danger">*</span></label
-              >
-              <v-text-field
-                dense
-                outlined
-                :hide-details="!errors.display_name"
-                type="text"
-                v-model="employee.display_name"
-                :error="errors.display_name"
-                :error-messages="
-                  errors && errors.display_name ? errors.display_name[0] : ''
-                "
-              ></v-text-field>
-            </v-col>
-            <v-col md="12" cols="12" sm="12" dense>
-              <label class="col-form-label"
-                >Employee ID <span class="text-danger">*</span></label
-              >
-              <v-text-field
-                dense
-                outlined
-                type="text"
-                v-model="employee.employee_id"
-                :hide-details="!errors.employee_id"
-                :error="errors.employee_id"
-                :error-messages="
-                  errors && errors.employee_id ? errors.employee_id[0] : ''
-                "
-              ></v-text-field>
-            </v-col>
-            <v-col md="12" cols="12" sm="12" dense>
-              <label class="col-form-label"
-                >Employee Device Id<span class="text-danger">*</span></label
-              >
-              <v-text-field
-                dense
-                outlined
-                type="text"
-                v-model="employee.system_user_id"
-                :hide-details="!errors.system_user_id"
-                :error="errors.system_user_id"
-                :error-messages="
-                  errors && errors.system_user_id
-                    ? errors.system_user_id[0]
-                    : ''
-                "
-              ></v-text-field>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col class="col-sm-6">
-          <div class="form-group pt-15" style="margin: 0 auto; width: 200px">
-            <v-img
-              style="
-                width: 100%;
-                height: 200px;
-                border: 1px solid #5fafa3;
-                border-radius: 50%;
-                margin: 0 auto;
-              "
-              :src="previewImage || '/no-profile-image.jpg'"
-            ></v-img>
-            <br />
-            <v-btn small class="form-control primary" @click="onpick_attachment"
-              >{{ !upload.name ? "Upload" : "Change" }}
-              Profile Image
-              <v-icon right dark>mdi-cloud-upload</v-icon>
-            </v-btn>
-            <input
-              required
-              type="file"
-              @change="attachment"
-              style="display: none"
-              accept="image/*"
-              ref="attachment_input"
-            />
-
-            <span
-              v-if="errors && errors.profile_picture"
-              class="text-danger mt-2"
-              >{{ errors.profile_picture[0] }}</span
+          </v-col>
+          <v-col cols="12" class="text-right">
+            <v-btn
+              v-if="can('employee_create')"
+              small
+              :loading="loading"
+              color="primary"
+              @click="store_data"
             >
-          </div>
-        </v-col>
-        <v-col cols="12">
-          <v-btn
-            v-if="can('employee_create')"
-            small
-            :loading="loading"
-            color="primary"
-            @click="store_data"
-          >
-            Submit
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-card-text>
-  </v-card>
+              Submit
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 <script>
 import "cropperjs/dist/cropper.css";
@@ -208,7 +220,13 @@ export default {
     snackbar: false,
     btnLoader: false,
     max_employee: 0,
-    employee: {},
+    employee: {
+      title: "",
+      display_name: "",
+      employee_id: "",
+      system_user_id: "",
+      profile_picture: "",
+    },
     upload: {
       name: "",
     },
@@ -225,11 +243,14 @@ export default {
     departments: [],
     department_id: "",
   }),
+
   created() {
+    console.log("Edit form id ", this.employeeId);
     this.getInfo(this.employeeId);
   },
   mounted() {
     //this.getDataFromApi();
+    console.log("Edit form id mounted", this.employeeId);
   },
   watch: {
     dialog(val) {
@@ -243,6 +264,31 @@ export default {
     },
   },
   methods: {
+    getInfo(id) {
+      this.$axios
+        .get(`employee-single/${id}`)
+        .then(({ data }) => {
+          //this.employee = data;
+
+          this.employee.title = data.title;
+          //this.employee.first_name = data.first_name;
+          this.employee.employee_id = data.employee_id;
+          this.employee.system_user_id = data.system_user_id;
+          this.employee.display_name = data.display_name;
+
+          // this.employee.id = data.id;
+          this.previewImage = data.profile_picture;
+        })
+        .catch((err) => console.log(err));
+    },
+    saveCroppedImageStep2() {
+      this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
+
+      this.image_name = this.cropedImage;
+      this.previewImage = this.cropedImage;
+
+      this.dialogCropping = false;
+    },
     can() {
       return true;
     },
@@ -286,12 +332,13 @@ export default {
       }
     },
     mapper(obj) {
+      console.log("obj", obj);
       let employee = new FormData();
 
       for (let x in obj) {
         employee.append(x, obj[x]);
       }
-      employee.append("profile_picture", this.upload.name);
+
       employee.append("company_id", this.$auth.user.company.id);
 
       return employee;
@@ -315,13 +362,11 @@ export default {
           this.saveToAPI(employee);
         }, "image/jpeg");
       } else {
+        employee.delete("profile_picture");
         this.saveToAPI(employee);
       }
     },
     saveToAPI(employee) {
-      // let final = Object.assign(this.employee);
-      // let employee = this.mapper(final);
-
       this.$axios
         .post(`/employee-update/${this.employeeId}`, employee)
         .then(({ data }) => {
@@ -330,11 +375,13 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
+            console.log("data", data);
             this.errors = [];
             this.snackbar = true;
-            this.response = "Employees inserted successfully";
+            this.response = "Employees Updated successfully";
+            this.$emit("eventFromchild");
 
-            this.employeeDialog = false;
+            //this.employeeDialog = false;
           }
         })
         .catch((e) => console.log(e));

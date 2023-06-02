@@ -116,7 +116,7 @@
         }}</span>
       </v-row>
       <v-row>
-        <v-col cols="12">
+        <v-col cols="12" class="text-right">
           <v-btn class="primary" small @click="save_emirate_info">Save</v-btn>
         </v-col>
       </v-row>

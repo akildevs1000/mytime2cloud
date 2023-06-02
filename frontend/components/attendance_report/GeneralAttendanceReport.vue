@@ -216,7 +216,7 @@
                 dense
                 v-model="payload.report_type"
                 x-small
-                :items="['Daily', 'Weekly', 'Monthly']"
+                :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
                 item-text="['Daily', 'Weekly']"
                 :hide-details="true"
               ></v-autocomplete>
@@ -1066,9 +1066,14 @@ export default {
         this.setDailyDate();
       } else if (report_type == "Weekly") {
         this.setSevenDays(this.payload.from_date);
-      } else {
+      } else if (report_type == "Monthly") {
         this.setThirtyDays(this.payload.from_date);
+      } else {
+        //this.setThirtyDays(this.payload.from_date);
+
+        this.max_date = null;
       }
+
       this.fetch_logs();
     },
     ProcessAttendance() {

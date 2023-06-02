@@ -40,8 +40,10 @@
           </div>
         </td>
       </tr>
-      <div class="w-100">
-        <v-btn small class="primary mt-1 w-25" @click="update_setting">Save</v-btn>
+      <div class="w-100 text-right">
+        <v-btn small class="primary mt-1 w-25" @click="update_setting"
+          >Save</v-btn
+        >
       </div>
     </table>
   </div>
@@ -54,7 +56,7 @@ export default {
     return {
       response: "",
       snackbar: false,
-      setting: {}
+      setting: {},
     };
   },
   created() {
@@ -65,7 +67,7 @@ export default {
       this.$axios.get(`employee/${id}`).then(({ data }) => {
         this.employeeId = data.id;
         this.setting = {
-          ...data
+          ...data,
         };
       });
     },
@@ -74,7 +76,7 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
     update_setting() {
@@ -83,7 +85,7 @@ export default {
         employee_id: this.setting.employee_id,
         status: this.setting.status,
         overtime: this.setting.overtime,
-        mobile_application: this.setting.mobile_application
+        mobile_application: this.setting.mobile_application,
       };
       console.log(payload);
       // return;
@@ -102,9 +104,9 @@ export default {
             console.log("success");
           }
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>
 

@@ -1,6 +1,10 @@
 <template>
   <div>
+    <div v-if="logs && logs.length == 0">
+      <div style="text-align: center; color: red">{{ emptyLogmessage }}</div>
+    </div>
     <v-skeleton-loader v-if="logs && !logs.length" type="card" />
+
     <div v-else>
       <v-toolbar flat>
         <h5>
@@ -17,6 +21,15 @@
           </b>
         </h5>
         <v-spacer />
+
+        <!-- <span class="text-right online-devices"
+          ><span class="mdi mdi-cellphone-sound"></span> Active Device:
+          {{ online_device_count }}</span
+        >
+        <span class="text-right offline-devices"
+          ><span class="mdi mdi-cellphone-remove"></span> Offline Device:
+          {{ offline_device_count }}</span
+        > -->
         <v-select
           @change="getRecords"
           v-model="number_of_records"
@@ -85,10 +98,13 @@
 export default {
   data() {
     return {
+      emptyLogmessage: "",
       number_of_records: 10,
       logs: [],
       url: process.env.SOCKET_ENDPOINT,
       socket: null,
+      offline_device_count: 0,
+      online_device_count: 0,
     };
   },
   mounted() {
@@ -107,7 +123,19 @@ export default {
         )
         .then((res) => {
           this.logs = res.data;
+          // console.log("this.logs", this.logs.length);
+          if (this.logs.length == 0) {
+            this.emptyLogmessage = "No Log records are available";
+          }
         });
+
+      // this.$axios
+      //   .get(`getdevicesstatuscount/${this.$auth.user.company.id}`)
+      //   .then((res) => {
+      //     //this.logs = res.data;
+      //     this.online_device_count = res.data.online;
+      //     this.offline_device_count = res.data.offline;
+      //   });
     },
     goToemployeelog() {
       this.$router.push("/reportsemployeelog");
@@ -261,5 +289,32 @@ export default {
 }
 .card .actions .follow-info h2 a:hover span {
   color: #007ad6;
+}
+
+.online-devices {
+  /* color: green;
+  font-size: 16px;
+  font-weight: bold; */
+
+  color: #fff;
+  background: green;
+  border-radius: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 4px;
+}
+.offline-devices {
+  /* color: red;
+  font-size: 16px;
+  font-weight: bold;
+  padding-left: 15px;
+  padding-right: 20px; */
+
+  color: #fff;
+  background: red;
+  border-radius: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 4px;
 }
 </style>

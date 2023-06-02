@@ -9,7 +9,13 @@
       <v-btn dark class="primary" @click="addDocumentInfo">
         Document <v-icon>mdi-plus</v-icon>
       </v-btn>
-      <v-form class="mt-5" ref="form" method="post" v-model="valid" lazy-validation>
+      <v-form
+        class="mt-5"
+        ref="form"
+        method="post"
+        v-model="valid"
+        lazy-validation
+      >
         <v-row v-for="(d, index) in Document.items" :key="index">
           <v-col cols="5">
             <label for="">Title <span color="error"></span></label>
@@ -66,7 +72,7 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col cols="12">
+          <v-col cols="12" class="text-right">
             <v-btn
               :disabled="!Document.items.length"
               class="primary"
