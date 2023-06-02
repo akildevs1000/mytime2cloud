@@ -5,292 +5,162 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="visa_info" max-width="700px">
-      <v-card>
-        <v-card-actions>
-          <span class="headline">Visa Info </span>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{ caps("Visa no") }}</label>
-                  <input
-                    v-model="visaItem.visa_no"
-                    type="text"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.visa_no"
-                    class="text-danger mt-2"
-                    >{{ errors.visa_no[0] }}</span
-                  >
-                </div>
-              </v-col>
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{ caps("note") }}</label>
-                  <input
-                    v-model="visaItem.note"
-                    type="text"
-                    class="form-control"
-                  />
-                  <span v-if="errors && errors.note" class="text-danger mt-2">{{
-                    errors.note[0]
-                  }}</span>
-                </div>
-              </v-col>
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{
-                    caps("place of issues")
-                  }}</label>
-                  <input
-                    v-model="visaItem.place_of_issues"
-                    type="text"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.place_of_issues"
-                    class="text-danger mt-2"
-                    >{{ errors.place_of_issues[0] }}</span
-                  >
-                </div>
-              </v-col>
+    <v-container>
+      <v-row>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{ caps("Visa no") }}</label>
+            <input
+              v-model="visaItem.visa_no"
+              type="text"
+              class="form-control"
+            />
+            <span v-if="errors && errors.visa_no" class="text-danger mt-2">{{
+              errors.visa_no[0]
+            }}</span>
+          </div>
+        </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{ caps("note") }}</label>
+            <input v-model="visaItem.note" type="text" class="form-control" />
+            <span v-if="errors && errors.note" class="text-danger mt-2">{{
+              errors.note[0]
+            }}</span>
+          </div>
+        </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{ caps("place of issues") }}</label>
+            <input
+              v-model="visaItem.place_of_issues"
+              type="text"
+              class="form-control"
+            />
+            <span
+              v-if="errors && errors.place_of_issues"
+              class="text-danger mt-2"
+              >{{ errors.place_of_issues[0] }}</span
+            >
+          </div>
+        </v-col>
 
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{ caps("country") }}</label>
-                  <input
-                    v-model="visaItem.country"
-                    class="form-control"
-                    type="text"
-                  />
-                  <span
-                    v-if="errors && errors.country"
-                    class="text-danger mt-2"
-                    >{{ errors.country[0] }}</span
-                  >
-                </div>
-              </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{ caps("country") }}</label>
+            <input
+              v-model="visaItem.country"
+              class="form-control"
+              type="text"
+            />
+            <span v-if="errors && errors.country" class="text-danger mt-2">{{
+              errors.country[0]
+            }}</span>
+          </div>
+        </v-col>
 
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{ caps("issue date") }}</label>
-                  <input
-                    v-model="visaItem.issue_date"
-                    type="date"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.issue_date"
-                    class="text-danger mt-2"
-                    >{{ errors.issue_date[0] }}</span
-                  >
-                </div>
-              </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{ caps("issue date") }}</label>
+            <input
+              v-model="visaItem.issue_date"
+              type="date"
+              class="form-control"
+            />
+            <span v-if="errors && errors.issue_date" class="text-danger mt-2">{{
+              errors.issue_date[0]
+            }}</span>
+          </div>
+        </v-col>
 
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{
-                    caps("expiry date")
-                  }}</label>
-                  <input
-                    v-model="visaItem.expiry_date"
-                    type="date"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.expiry_date"
-                    class="text-danger mt-2"
-                    >{{ errors.expiry_date[0] }}</span
-                  >
-                </div>
-              </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{ caps("expiry date") }}</label>
+            <input
+              v-model="visaItem.expiry_date"
+              type="date"
+              class="form-control"
+            />
+            <span
+              v-if="errors && errors.expiry_date"
+              class="text-danger mt-2"
+              >{{ errors.expiry_date[0] }}</span
+            >
+          </div>
+        </v-col>
 
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{ caps("labour no") }}</label>
-                  <input
-                    v-model="visaItem.labour_no"
-                    type="text"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.labour_no"
-                    class="text-danger mt-2"
-                    >{{ errors.labour_no[0] }}</span
-                  >
-                </div>
-              </v-col>
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{
-                    caps("expiry date")
-                  }}</label>
-                  <input
-                    v-model="visaItem.personal_no"
-                    type="text"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.personal_no"
-                    class="text-danger mt-2"
-                    >{{ errors.personal_no[0] }}</span
-                  >
-                </div>
-              </v-col>
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{
-                    caps("labour issue date")
-                  }}</label>
-                  <input
-                    v-model="visaItem.labour_issue_date"
-                    type="date"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.labour_issue_date"
-                    class="text-danger mt-2"
-                    >{{ errors.labour_issue_date[0] }}</span
-                  >
-                </div>
-              </v-col>
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">{{
-                    caps("labour expiry date")
-                  }}</label>
-                  <input
-                    v-model="visaItem.labour_expiry_date"
-                    type="date"
-                    class="form-control"
-                  />
-                  <span
-                    v-if="errors && errors.labour_expiry_date"
-                    class="text-danger mt-2"
-                    >{{ errors.labour_expiry_date[0] }}</span
-                  >
-                </div>
-              </v-col>
-              <span v-if="errors && errors.length" class="error--text">{{
-                errors
-              }}</span>
-            </v-row>
-          </v-container>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn class="error" small @click="close_visa_info"> Cancel </v-btn>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{ caps("labour no") }}</label>
+            <input
+              v-model="visaItem.labour_no"
+              type="text"
+              class="form-control"
+            />
+            <span v-if="errors && errors.labour_no" class="text-danger mt-2">{{
+              errors.labour_no[0]
+            }}</span>
+          </div>
+        </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{ caps("expiry date") }}</label>
+            <input
+              v-model="visaItem.personal_no"
+              type="text"
+              class="form-control"
+            />
+            <span
+              v-if="errors && errors.personal_no"
+              class="text-danger mt-2"
+              >{{ errors.personal_no[0] }}</span
+            >
+          </div>
+        </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{
+              caps("labour issue date")
+            }}</label>
+            <input
+              v-model="visaItem.labour_issue_date"
+              type="date"
+              class="form-control"
+            />
+            <span
+              v-if="errors && errors.labour_issue_date"
+              class="text-danger mt-2"
+              >{{ errors.labour_issue_date[0] }}</span
+            >
+          </div>
+        </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">{{
+              caps("labour expiry date")
+            }}</label>
+            <input
+              v-model="visaItem.labour_expiry_date"
+              type="date"
+              class="form-control"
+            />
+            <span
+              v-if="errors && errors.labour_expiry_date"
+              class="text-danger mt-2"
+              >{{ errors.labour_expiry_date[0] }}</span
+            >
+          </div>
+        </v-col>
+        <span v-if="errors && errors.length" class="error--text">{{
+          errors
+        }}</span>
+      </v-row>
+      <v-row>
+        <v-col cols="12">
           <v-btn class="primary" small @click="save_visa_info">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-responsive class="overflow-y-auto" max-height="700">
-      <v-responsive height="100vh" class="text-center pa-2">
-        <v-responsive min-height="0vh"></v-responsive>
-        <div class="text-center text-body-2 mb-12">
-          <table>
-            <tr>
-              <th></th>
-              <td style="text-align: right;">
-                <v-icon
-                  v-if="can(`employee_personal_edit_access`)"
-                  @click="visa_info = true"
-                  small
-                  class="grey"
-                  style="border-radius: 50%; padding: 5px"
-                  color="secondary"
-                  >mdi-pencil</v-icon
-                >
-              </td>
-            </tr>
-            <tr>
-              <th colspan="2">
-                <v-toolbar color="#E9E9E9" small dense flat rounded="2">
-                  Visa
-                </v-toolbar>
-              </th>
-            </tr>
-
-            <tr>
-              <th>Visa No</th>
-              <td>
-                {{ caps(visaItem.visa_no) }}
-              </td>
-            </tr>
-            <tr>
-              <th>Place Of Issues</th>
-              <td>
-                {{ caps(visaItem.place_of_issues) }}
-              </td>
-            </tr>
-            <tr>
-              <th>Country</th>
-              <td>
-                {{ caps(visaItem.country) }}
-              </td>
-            </tr>
-            <tr>
-              <th>Issue Date</th>
-              <td>
-                {{ caps(visaItem.issue_date) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Expiry Date</th>
-              <td>
-                {{ caps(visaItem.expiry_date) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th colspan="2">
-                <v-toolbar color="#E9E9E9" small dense flat rounded="2">
-                  Labour
-                </v-toolbar>
-              </th>
-            </tr>
-            <tr>
-              <th>Labour No</th>
-              <td>
-                {{ caps(visaItem.labour_no) }}
-              </td>
-            </tr>
-            <tr>
-              <th>Personal No</th>
-              <td>
-                {{ caps(visaItem.personal_no) }}
-              </td>
-            </tr>
-            <tr>
-              <th>Issue Date</th>
-              <td>
-                {{ caps(visaItem.labour_issue_date) }}
-              </td>
-            </tr>
-            <tr>
-              <th>Expiry Date</th>
-              <td>
-                {{ caps(visaItem.labour_expiry_date) }}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Note</th>
-              <td>
-                {{ caps(visaItem.note) }}
-              </td>
-            </tr>
-          </table>
-        </div>
-      </v-responsive>
-    </v-responsive>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -303,7 +173,7 @@ export default {
       snackbar: false,
       response: "",
       errors: [],
-      visaItem:{}
+      visaItem: {},
     };
   },
   created() {
@@ -314,7 +184,7 @@ export default {
       this.$axios.get(`visa/${id}`).then(({ data }) => {
         this.visaItem = {
           ...data,
-          employee_id: id
+          employee_id: id,
         };
       });
     },
@@ -323,7 +193,7 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
 
@@ -341,7 +211,7 @@ export default {
       let payload = {
         ...this.visaItem,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: this.visaItem.employee_id
+        employee_id: this.visaItem.employee_id,
       };
 
       this.$axios
@@ -358,9 +228,9 @@ export default {
             this.close_visa_info();
           }
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>
 

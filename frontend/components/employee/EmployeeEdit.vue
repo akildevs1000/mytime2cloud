@@ -142,27 +142,19 @@
             >
           </div>
         </v-col>
+        <v-col cols="12">
+          <v-btn
+            v-if="can('employee_create')"
+            small
+            :loading="loading"
+            color="primary"
+            @click="store_data"
+          >
+            Submit
+          </v-btn>
+        </v-col>
       </v-row>
     </v-card-text>
-
-    <v-divider></v-divider>
-
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn small color="grey white--text" @click="employeeDialog = false">
-        Close
-      </v-btn>
-
-      <v-btn
-        v-if="can('employee_create')"
-        small
-        :loading="loading"
-        color="primary"
-        @click="store_data"
-      >
-        Submit
-      </v-btn>
-    </v-card-actions>
   </v-card>
 </template>
 <script>
@@ -172,6 +164,7 @@ export default {
   components: {
     VueCropper,
   },
+  props: ["employeeId"],
   data: () => ({
     image: "",
     mime_type: "",
@@ -188,8 +181,6 @@ export default {
     dialog: false,
     editDialog: false,
     tab: null,
-    employeeDialog: false,
-    comp: "WorkInfo",
     m: false,
     expand: false,
     expand2: false,
@@ -217,37 +208,15 @@ export default {
     snackbar: false,
     btnLoader: false,
     max_employee: 0,
-    employee: {
-      display_name: "",
-      employee_id: "",
-      system_user_id: "",
-      department_id: "",
-    },
+    employee: {},
     upload: {
       name: "",
     },
     previewImage: null,
-    payload: {},
-    personalItem: {},
-    contactItem: {},
-    emirateItems: {},
-    setting: {},
-    employeeId: "",
-
-    pagination: {
-      current: 1,
-      total: 0,
-      per_page: 10,
-    },
-    options: {},
-    Model: "Employee",
-    endpoint: "employee",
-    search: "",
     snackbar: false,
     ids: [],
     loading: false,
     total: 0,
-
     titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
     editedIndex: -1,
     response: "",
@@ -256,9 +225,8 @@ export default {
     departments: [],
     department_id: "",
   }),
-  async created() {
-    // this.loading = false;
-    this.boilerplate = true;
+  created() {
+    this.getInfo(this.employeeId);
   },
   mounted() {
     //this.getDataFromApi();
@@ -275,19 +243,6 @@ export default {
     },
   },
   methods: {
-    closePopup() {
-      //croppingimagestep5
-      this.$refs.attachment_input.value = null;
-      this.dialogCropping = false;
-    },
-    saveCroppedImageStep2() {
-      this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
-
-      this.image_name = this.cropedImage;
-      this.previewImage = this.cropedImage;
-
-      this.dialogCropping = false;
-    },
     can() {
       return true;
     },
@@ -299,7 +254,7 @@ export default {
     },
 
     attachment(e) {
-      this.upload_edit.name = e.target.files[0] || "";
+      this.upload.name = e.target.files[0] || "";
 
       let input = this.$refs.attachment_input;
       let file = input.files;
@@ -368,7 +323,7 @@ export default {
       // let employee = this.mapper(final);
 
       this.$axios
-        .post("/employee-store", employee)
+        .post(`/employee-update/${this.employeeId}`, employee)
         .then(({ data }) => {
           this.loading = false;
 

@@ -250,9 +250,6 @@
 
       <v-row>
         <v-col cols="12">
-          <v-btn class="error" small @click="close_contact_info">
-            Cancel
-          </v-btn>
           <v-btn class="primary" small @click="save_contact_info">Save</v-btn>
         </v-col>
       </v-row>

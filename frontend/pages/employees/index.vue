@@ -205,73 +205,23 @@
           >
             <v-tabs-slider></v-tabs-slider>
 
-            <v-tab href="#tab-0">
-              Profile
-              <v-icon>mdi-account-box</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-1">
-              Contact
-              <v-icon>mdi-phone</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-2">
-              workinfo
-              <v-icon>mdi-briefcase</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-3">
-              Passport
-              <v-icon>mdi-file-powerpoint-outline</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-4">
-              Emirates
-              <v-icon>mdi-city-variant</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-5">
-              Visa
-              <v-icon>mdi-file-document-multiple</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-6">
-              Bank
-              <v-icon>mdi-bank</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-7">
-              Documents
-              <v-icon>mdi-file</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-8">
-              Profile
-              <v-icon>mdi-account-box</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-9">
-              Contact
-              <v-icon>mdi-phone</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-10">
-              Profile
-              <v-icon>mdi-account-box</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-11">
-              Contact
-              <v-icon>mdi-phone</v-icon>
+            <v-tab
+              v-for="(item, index) in tabMenu"
+              :key="index"
+              :href="item.value"
+            >
+              {{ item.text }}
+              <v-icon>{{ item.icon }}</v-icon>
             </v-tab>
           </v-tabs>
           <v-card-text>
             <v-tabs-items v-model="tab">
-              <v-tab-item value="tab-0">
-                <EmployeeEdit :employeeId="employeeId" />
-              </v-tab-item>
-              <v-tab-item value="tab-1">
-                <Contact :employeeId="employeeId" />
+              <v-tab-item
+                v-for="(tb, index) in tabMenu"
+                :key="index"
+                :value="`${index}`"
+              >
+                <component :is="getComponent(tab)" :employeeId="employeeId" />
               </v-tab-item>
             </v-tabs-items>
           </v-card-text>
@@ -375,15 +325,6 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-
-            <v-btn
-              v-if="can('employee_create')"
-              @click="createEmployee"
-              small
-              dark
-              class="primary pt-4 pb-4"
-              >{{ Model }} +
-            </v-btn>
 
             <v-btn
               v-if="can('employee_create')"
@@ -540,17 +481,6 @@
                     </v-list>
                   </v-menu>
                 </td>
-                <td style="text-align: left; padding: 8px">
-                  <v-btn
-                    dark-2
-                    icon
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="viewemployeedetails(item)"
-                  >
-                    <v-icon>info</v-icon>
-                  </v-btn>
-                </td>
               </tr>
             </table>
           </v-card>
@@ -579,8 +509,6 @@
 
 <script>
 import EmployeeEdit from "../../components/employee/EmployeeEdit.vue";
-import WorkInfo from "../../components/employee/WorkInfo.vue";
-import Personal from "../../components/employee/Personal.vue";
 import Contact from "../../components/employee/Contact.vue";
 import Passport from "../../components/employee/Passport.vue";
 import Emirates from "../../components/employee/Emirates.vue";
@@ -595,8 +523,6 @@ import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
 const compList = [
   EmployeeEdit,
-  WorkInfo,
-  Personal,
   Contact,
   Passport,
   Emirates,
@@ -633,15 +559,16 @@ export default {
     autoCrop: false,
     dialogCropping: false,
 
+    compList,
+    comp: "EmployeeEdit",
+    tabMenu: [],
+    tab: "0",
     employeeId: 0,
     attrs: [],
     dialog: false,
     editDialog: false,
     selectedFile: "",
-    tab: "tab-0",
-    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     employeeDialog: false,
-    comp: "WorkInfo",
     m: false,
     expand: false,
     expand2: false,
@@ -651,68 +578,6 @@ export default {
     drawer: true,
     tab: null,
     selectedItem: 1,
-    items: [
-      {
-        text: "Work information",
-        icon: "mdi-briefcase ",
-        permission: "employee_personal_access",
-      },
-      {
-        text: "Personal information",
-        icon: "mdi-account-circle ",
-        permission: "employee_personal_access",
-      },
-      {
-        text: "Contact information",
-        icon: "mdi-account-box ",
-        permission: "employee_contact_access",
-      },
-      {
-        text: "Passport information",
-        icon: "mdi-file-powerpoint-outline ",
-        permission: "employee_passport_access",
-      },
-      {
-        text: "Emirates information",
-        icon: "mdi-city-variant",
-        permission: "employee_emirate_access",
-      },
-      {
-        text: "Visa information",
-        icon: "mdi-file-document-multiple ",
-        permission: "employee_visa_access",
-      },
-      {
-        text: "Bank information",
-        icon: "mdi-bank",
-        permission: "employee_bank_access",
-      },
-      {
-        text: "Documents",
-        icon: "mdi-file",
-        permission: "employee_document_access",
-      },
-      {
-        text: "Qualification",
-        icon: "mdi-file-sign",
-        permission: "employee_qualification_access",
-      },
-      {
-        text: "Setting",
-        icon: "mdi-wrench",
-        permission: "employee_setting_access",
-      },
-      {
-        text: "Payroll",
-        icon: "mdi-cash-multiple",
-        permission: "employee_setting_access",
-      },
-      // {
-      //   text: "Assign Reporter",
-      //   icon: "mdi-account",
-      //   permission: "employee_setting_access"
-      // }
-    ],
     on: "",
     color: "background",
     files: "",
@@ -739,9 +604,6 @@ export default {
     upload: {
       name: "",
     },
-    upload_edit: {
-      name: "",
-    },
     previewImage: null,
     payload: {},
     personalItem: {},
@@ -762,7 +624,80 @@ export default {
     ids: [],
     loading: false,
     total: 0,
-    headers: [
+    headers: [],
+    titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
+    editedIndex: -1,
+    editedItem: { name: "" },
+    defaultItem: { name: "" },
+    response: "",
+    data: [],
+    errors: [],
+    departments: [],
+    department_id: "",
+  }),
+  async created() {
+    this.loading = false;
+    this.boilerplate = true;
+    this.getDataFromApi();
+
+    // this.loading = true;
+    this.getDepartments();
+  },
+  mounted() {
+    //this.getDataFromApi();
+    this.tabMenu = [
+      {
+        text: "Profile",
+        icon: "mdi-account-box",
+        value: "#0",
+      },
+      {
+        text: "Contact",
+        icon: "mdi-phone",
+        value: "#1",
+      },
+      {
+        text: "Passport",
+        icon: "mdi-file-powerpoint-outline",
+        value: "#2",
+      },
+      {
+        text: "Emirates",
+        icon: "mdi-city-variant",
+        value: "#3",
+      },
+      {
+        text: "Visa",
+        icon: "mdi-file-document-multiple",
+        value: "#4",
+      },
+      {
+        text: "Bank",
+        icon: "mdi-bank",
+        value: "#5",
+      },
+      {
+        text: "Documents",
+        icon: "mdi-file",
+        value: "#6",
+      },
+      {
+        text: "Qualification",
+        icon: "mdi-account-box",
+        value: "#7",
+      },
+      {
+        text: "Setting",
+        icon: "mdi-phone",
+        value: "#8",
+      },
+      {
+        text: "Payroll",
+        icon: "mdi-briefcase",
+        value: "#9",
+      },
+    ];
+    this.headers = [
       {
         text: "#",
       },
@@ -791,30 +726,7 @@ export default {
         text: "Shift Type",
       },
       { text: "Actions", align: "center", value: "action", sortable: false },
-      {
-        text: "View Info",
-      },
-    ],
-    titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
-    editedIndex: -1,
-    editedItem: { name: "" },
-    defaultItem: { name: "" },
-    response: "",
-    data: [],
-    errors: [],
-    departments: [],
-    department_id: "",
-  }),
-  async created() {
-    this.loading = false;
-    this.boilerplate = true;
-    this.getDataFromApi();
-
-    // this.loading = true;
-    this.getDepartments();
-  },
-  mounted() {
-    //this.getDataFromApi();
+    ];
   },
   watch: {
     dialog(val) {
@@ -841,30 +753,13 @@ export default {
 
       this.dialogCropping = false;
     },
-    getListItem(item, index) {
-      this.comp = compList[index];
-      this.ListName = item.text;
-    },
-    caps(str) {
-      if (str == "" || str == null) {
-        return "---";
-      } else {
-        let res = str.toString();
-        return res.replace(/\b\w/g, (c) => c.toUpperCase());
-      }
+    getComponent() {
+      return this.compList[this.tab];
     },
     close() {
       this.dialog = false;
       this.errors = [];
       setTimeout(() => {}, 300);
-    },
-    limitName(value) {
-      if (!value) {
-        return "---";
-      }
-      var string = value;
-      var length = 14;
-      return string.substring(0, length);
     },
     json_to_csv(json) {
       let data = json.map((e) => ({
@@ -890,17 +785,6 @@ export default {
       });
       return header + rows;
     },
-    res(id) {
-      window.scrollTo(0, 0);
-      this.boilerplate = true;
-      this.$axios.get(`/employee/${id}`).then(({ data }) => {
-        this.employeeId = id;
-        this.work = {
-          ...data,
-        };
-        this.boilerplate = false;
-      });
-    },
     export_submit() {
       if (this.data.length == 0) {
         this.snackbar = true;
@@ -908,7 +792,6 @@ export default {
         return;
       }
 
-      console.log("this.data", this.data);
       let csvData = this.json_to_csv(this.data);
       let element = document.createElement("a");
       element.setAttribute(
@@ -961,13 +844,13 @@ export default {
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
-    createEmployee() {
-      if (this.total >= this.max_employee) {
-        alert(`You cannot add more than ${this.max_employee} employees`);
-        return;
-      }
-      this.$router.push(`/employees/create`);
-    },
+    // createEmployee() {
+    //   if (this.total >= this.max_employee) {
+    //     alert(`You cannot add more than ${this.max_employee} employees`);
+    //     return;
+    //   }
+    //   this.$router.push(`/employees/create`);
+    // },
     goDetails(id) {
       this.$router.push(`/employees/details/${id}`);
     },
@@ -1001,14 +884,6 @@ export default {
     onPageChange() {
       this.getDataFromApi();
     },
-
-    can(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
-      );
-    },
     getDepartments() {
       let options = {
         params: {
@@ -1040,7 +915,6 @@ export default {
         this.loading = false;
       });
     },
-
     searchIt() {
       let s = this.search.length;
       let search = this.search;
@@ -1050,38 +924,12 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${search}`);
       }
     },
-
     editItem(item) {
+      console.log(item);
       // this.previewImage = item.profile_picture;
       this.employeeId = item.id;
       this.editDialog = true;
-      // this.employee = item;
     },
-    viewemployeedetails(item) {
-      this.$router.push(`/employees/details/${item.id}`);
-    },
-    delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
-      confirm(
-        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
-          })
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.getDataFromApi();
-              this.snackbar = data.status;
-              this.ids = [];
-              this.response = "Selected records has been deleted";
-            }
-          })
-          .catch((err) => console.log(err));
-    },
-
     deleteItem(item) {
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
@@ -1099,7 +947,6 @@ export default {
           })
           .catch((err) => console.log(err));
     },
-
     close() {
       this.dialog = false;
       setTimeout(() => {
@@ -1107,7 +954,6 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
@@ -1154,41 +1000,11 @@ export default {
     onpick_attachment() {
       this.$refs.attachment_input.click();
     },
-    onpick_attachment_edit() {
-      this.$refs.attachment_input_edit.click();
-    },
-    attachment_edit(e) {
-      this.upload_edit.name = e.target.files[0] || "";
-
-      let input = this.$refs.attachment_input_edit;
-      let file = input.files;
-
-      console.log("file", file);
-
-      if (file[0].size > 1024 * 1024) {
-        e.preventDefault();
-        this.errors["profile_picture"] = [
-          "File too big (> 1MB). Upload less than 1MB",
-        ];
-        return;
-      }
-
-      if (file && file[0]) {
-        let reader = new FileReader();
-        reader.onload = (e) => {
-          this.previewImage = e.target.result;
-        };
-        reader.readAsDataURL(file[0]);
-        this.$emit("input", file[0]);
-      }
-    },
     attachment(e) {
       this.upload.name = e.target.files[0] || "";
 
       let input = this.$refs.attachment_input;
       let file = input.files;
-
-      console.log("file", file);
 
       if (file[0].size > 1024 * 1024) {
         e.preventDefault();

@@ -5,99 +5,80 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="documents" max-width="500px">
-      <v-card>
-        <v-card-actions>
-          <span class="headline">{{ caps(`documents`) }}</span>
-          <v-spacer></v-spacer>
-          <v-btn dark class="primary" fab @click="addDocumentInfo" x-small>
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
-        </v-card-actions>
-        <v-card-text>
-          <v-container>
-            <v-form ref="form" method="post" v-model="valid" lazy-validation>
-              <v-row v-for="(d, index) in Document.items" :key="index">
-                <v-col cols="5">
-                  <v-text-field
-                    v-model="d.title"
-                    :rules="TitleRules"
-                    label="Title"
-                  ></v-text-field>
-                  <span
-                    v-if="errors && errors.title"
-                    class="text-danger mt-2"
-                    >{{ errors.title[0] }}</span
-                  >
-                </v-col>
-                <v-col cols="5">
-                  <div class="form-group">
-                    <v-file-input
-                      v-model="d.file"
-                      placeholder="Upload your file"
-                      label="Attachment"
-                      :rules="FileRules"
-                    >
-                      <template v-slot:selection="{ text }">
-                        <v-chip v-if="text" small label color="primary">
-                          {{ text }}
-                        </v-chip>
-                      </template>
-                    </v-file-input>
+    <v-container>
+      <v-btn dark class="primary" @click="addDocumentInfo">
+        Document <v-icon>mdi-plus</v-icon>
+      </v-btn>
+      <v-form class="mt-5" ref="form" method="post" v-model="valid" lazy-validation>
+        <v-row v-for="(d, index) in Document.items" :key="index">
+          <v-col cols="5">
+            <label for="">Title <span color="error"></span></label>
+            <v-text-field
+              solo
+              dense
+              outlined
+              v-model="d.title"
+              :rules="TitleRules"
+              label="Title"
+            ></v-text-field>
+            <span v-if="errors && errors.title" class="text-danger mt-2">{{
+              errors.title[0]
+            }}</span>
+          </v-col>
+          <v-col cols="5">
+            <div class="form-group">
+              <label for="">Title <span color="error"></span></label>
+              <v-file-input
+                solo
+                dense
+                outlined
+                v-model="d.file"
+                placeholder="Upload your file"
+                label="Attachment"
+                :rules="FileRules"
+              >
+                <template v-slot:selection="{ text }">
+                  <v-chip v-if="text" small label color="primary">
+                    {{ text }}
+                  </v-chip>
+                </template>
+              </v-file-input>
 
-                    <span
-                      v-if="errors && errors.attachment"
-                      class="text-danger mt-2"
-                      >{{ errors.attachment[0] }}</span
-                    >
-                  </div>
-                </v-col>
-                <v-col cols="2">
-                  <div class="form-group">
-                    <v-btn
-                      dark
-                      class="error mt-5"
-                      fab
-                      @click="removeItem(index)"
-                      x-small
-                    >
-                      <v-icon>mdi-delete</v-icon>
-                    </v-btn>
-                  </div>
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-container>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn class="error" small @click="close_document_info">
-            Cancel
-          </v-btn>
-          <v-btn
-            :disabled="!Document.items.length"
-            class="primary"
-            small
-            @click="save_document_info"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
+              <span
+                v-if="errors && errors.attachment"
+                class="text-danger mt-2"
+                >{{ errors.attachment[0] }}</span
+              >
+            </div>
+          </v-col>
+          <v-col cols="2">
+            <div class="form-group">
+              <v-btn
+                dark
+                class="error mt-5"
+                fab
+                @click="removeItem(index)"
+                x-small
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <v-btn
+              :disabled="!Document.items.length"
+              class="primary"
+              small
+              @click="save_document_info"
+              >Save</v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-form>
+    </v-container>
     <v-row class="pl-1 mt-5 mb-5">
-      <v-col cols="12" class="text-right" style="margin: -8px">
-        <v-icon
-          v-if="can(`employee_document_edit_access`)"
-          @click="documents = true"
-          small
-          class="grey"
-          style="border-radius: 50%; padding: 5px"
-          color="secondary"
-          >mdi-plus</v-icon
-        >
-      </v-col>
       <v-col cols="12">
         <v-row v-for="(d, index) in document_list" :key="index" class="pa-2">
           <v-col cols="5">
@@ -128,16 +109,16 @@ export default {
       response: "",
       errors: [],
       FileRules: [
-        value =>
+        (value) =>
           !value ||
           value.size < 200000 ||
-          "File size should be less than 200 KB!"
+          "File size should be less than 200 KB!",
       ],
-      TitleRules: [v => !!v || "Title is required"],
+      TitleRules: [(v) => !!v || "Title is required"],
       Document: {
-        items: [{ title: "", file: "" }]
+        items: [{ title: "", file: "" }],
       },
-      document_list: []
+      document_list: [],
     };
   },
   created() {
@@ -158,14 +139,14 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
 
     addDocumentInfo() {
       this.Document.items.push({
         title: "",
-        file: ""
+        file: "",
       });
     },
 
@@ -177,12 +158,12 @@ export default {
 
       let options = {
         headers: {
-          "Content-Type": "multipart/form-data"
-        }
+          "Content-Type": "multipart/form-data",
+        },
       };
       let payload = new FormData();
 
-      this.Document.items.forEach(e => {
+      this.Document.items.forEach((e) => {
         payload.append(`items[][title]`, e.title);
         payload.append(`items[][file]`, e.file || {});
       });
@@ -206,7 +187,7 @@ export default {
             this.close_document_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
 
     getDocumentInfo(id) {
@@ -244,9 +225,9 @@ export default {
               this.close_document_info();
             }
           })
-          .catch(e => console.log(e));
-    }
-  }
+          .catch((e) => console.log(e));
+    },
+  },
 };
 </script>
 
