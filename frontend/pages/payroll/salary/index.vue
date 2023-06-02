@@ -73,7 +73,7 @@
                 <td>{{ item.system_user_id || "---" }}</td>
                 <td>{{ item.first_name || "---" }}</td>
                 <td>{{ caps(item && item.designation.name) }}</td>
-                <td>{{ caps(item.department.name) }}</td>
+                <td>{{ caps(item.department && item.department.name) }}</td>
                 <td>{{ item.payroll && item.payroll.basic_salary }}</td>
                 <td>{{ item.payroll && item.payroll.net_salary }}</td>
                 <td>
@@ -247,7 +247,7 @@ export default {
     },
     caps(str) {
       if (str == "" || str == null) {
-        return "---";
+        return "";
       } else {
         let res = str.toString();
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
