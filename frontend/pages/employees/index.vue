@@ -6,6 +6,44 @@
       </v-snackbar>
     </div>
     <div v-if="!loading">
+      <v-dialog v-model="dialogCropping" width="500">
+        <v-card style="padding-top: 20px">
+          <v-card-text>
+            <!-- <img :src="imageUrl" alt="Preview Image" /> -->
+            <!-- Cropping image step1 -->
+            <VueCropper
+              v-show="selectedFile"
+              ref="cropper"
+              :src="selectedFile"
+              alt="Source Image"
+              :aspectRatio="1"
+              :autoCropArea="0.9"
+              :viewMode="3"
+            ></VueCropper>
+
+            <!-- <div class="cropper-preview"></div> -->
+          </v-card-text>
+
+          <v-card-actions>
+            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
+              <v-btn
+                class="danger btn btn-danger text-left"
+                text
+                @click="closePopup()"
+                style="float: left"
+                >Cancel</v-btn
+              >
+            </div>
+            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
+              <v-btn
+                class="primary btn btn-danger text-right"
+                @click="saveCroppedImageStep2(), (dialog = false)"
+                >Crop</v-btn
+              >
+            </div>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-dialog v-model="employeeDialog" width="900">
         <v-card>
           <v-card-title class="text-h5 primary mb-5 white--text">
@@ -553,6 +591,8 @@ import Qualification from "../../components/employee/Qualification.vue";
 import Setting from "../../components/employee/Setting.vue";
 import Payroll from "../../components/employee/Payroll.vue";
 
+import "cropperjs/dist/cropper.css";
+import VueCropper from "vue-cropperjs";
 const compList = [
   EmployeeEdit,
   WorkInfo,
@@ -582,12 +622,22 @@ export default {
     Qualification,
     Setting,
     Payroll,
+    VueCropper,
   },
+
   data: () => ({
+    image: "",
+    mime_type: "",
+    cropedImage: "",
+    cropper: "",
+    autoCrop: false,
+    dialogCropping: false,
+
     employeeId: 0,
     attrs: [],
     dialog: false,
     editDialog: false,
+    selectedFile: "",
     tab: "tab-0",
     text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     employeeDialog: false,
@@ -778,6 +828,19 @@ export default {
     },
   },
   methods: {
+    closePopup() {
+      //croppingimagestep5
+      this.$refs.attachment_input.value = null;
+      this.dialogCropping = false;
+    },
+    saveCroppedImageStep2() {
+      this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
+
+      this.image_name = this.cropedImage;
+      this.previewImage = this.cropedImage;
+
+      this.dialogCropping = false;
+    },
     getListItem(item, index) {
       this.comp = compList[index];
       this.ListName = item.text;
@@ -1120,7 +1183,7 @@ export default {
       }
     },
     attachment(e) {
-      this.upload_edit.name = e.target.files[0] || "";
+      this.upload.name = e.target.files[0] || "";
 
       let input = this.$refs.attachment_input;
       let file = input.files;
@@ -1138,10 +1201,17 @@ export default {
       if (file && file[0]) {
         let reader = new FileReader();
         reader.onload = (e) => {
-          this.previewImage = e.target.result;
+          //croppedimage step6
+          // this.previewImage = e.target.result;
+
+          this.selectedFile = event.target.result;
+
+          this.$refs.cropper.replace(this.selectedFile);
         };
         reader.readAsDataURL(file[0]);
         this.$emit("input", file[0]);
+
+        this.dialogCropping = true;
       }
     },
     mapper(obj) {
@@ -1159,10 +1229,28 @@ export default {
       let final = Object.assign(this.employee);
       let employee = this.mapper(final);
 
+      //croppedimageStep3
+      if (this.$refs.attachment_input.files[0]) {
+        this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
+
+        this.$refs.cropper.getCroppedCanvas().toBlob((blob) => {
+          // Create a FormData object and append the Blob as a file
+          //const formData = new FormData();
+          employee.append("profile_picture", blob, "cropped_image.jpg");
+          employee.append("attachment_input", blob, "cropped_image.jpg");
+
+          //croppedimagesptep4 //push to API in blob method only
+          this.saveToAPI(employee);
+        }, "image/jpeg");
+      } else {
+        this.saveToAPI(employee);
+      }
+    },
+    saveToAPI(employee) {
       this.$axios
         .post("/employee-store", employee)
         .then(({ data }) => {
-          this.loading = false;
+          //this.loading = false;
 
           if (!data.status) {
             this.errors = data.errors;
@@ -1171,6 +1259,7 @@ export default {
             this.snackbar = true;
             this.response = "Employees inserted successfully";
             this.getDataFromApi();
+            this.employeeDialog = false;
           }
         })
         .catch((e) => console.log(e));
