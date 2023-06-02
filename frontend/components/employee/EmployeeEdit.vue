@@ -104,38 +104,29 @@
             >
           </div>
         </v-col>
+        <v-col cols="12">
+          <v-btn
+            v-if="can('employee_create')"
+            small
+            :loading="loading"
+            color="primary"
+            @click="store_data"
+          >
+            Submit
+          </v-btn>
+        </v-col>
       </v-row>
     </v-card-text>
-
-    <v-divider></v-divider>
-
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn small color="grey white--text" @click="employeeDialog = false">
-        Close
-      </v-btn>
-
-      <v-btn
-        v-if="can('employee_create')"
-        small
-        :loading="loading"
-        color="primary"
-        @click="store_data"
-      >
-        Submit
-      </v-btn>
-    </v-card-actions>
   </v-card>
 </template>
 <script>
 export default {
+  props: ["employeeId"],
   data: () => ({
     attrs: [],
     dialog: false,
     editDialog: false,
     tab: null,
-    employeeDialog: false,
-    comp: "WorkInfo",
     m: false,
     expand: false,
     expand2: false,
@@ -173,27 +164,10 @@ export default {
       name: "",
     },
     previewImage: null,
-    payload: {},
-    personalItem: {},
-    contactItem: {},
-    emirateItems: {},
-    setting: {},
-    employeeId: "",
-
-    pagination: {
-      current: 1,
-      total: 0,
-      per_page: 10,
-    },
-    options: {},
-    Model: "Employee",
-    endpoint: "employee",
-    search: "",
     snackbar: false,
     ids: [],
     loading: false,
     total: 0,
-
     titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
     editedIndex: -1,
     response: "",
@@ -202,9 +176,8 @@ export default {
     departments: [],
     department_id: "",
   }),
-  async created() {
-    // this.loading = false;
-    this.boilerplate = true;
+  created() {
+    this.getInfo(this.employeeId);
   },
   mounted() {
     //this.getDataFromApi();
@@ -221,6 +194,12 @@ export default {
     },
   },
   methods: {
+    getInfo(id) {
+      this.$axios
+        .get(`employee-single/${id}`)
+        .then(({ data }) => (this.employee = data))
+        .catch((err) => console.log(err));
+    },
     can() {
       return true;
     },

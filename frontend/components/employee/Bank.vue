@@ -5,129 +5,105 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="popup" max-width="700px">
-      <v-card>
-        <v-card-actions>
-          <span class="headline">Bank Info </span>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">Bank Name</label>
-                  <input v-model="data.bank_name" class="form-control" />
-                  <span
-                    v-if="errors && errors.bank_name"
-                    class="text-danger mt-2"
-                    >{{ errors.bank_name[0] }}</span
-                  >
-                </div>
-              </v-col>
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">Bank Address</label>
-                  <input v-model="data.address" class="form-control" />
-                  <span
-                    v-if="errors && errors.address"
-                    class="text-danger mt-2"
-                    >{{ errors.address[0] }}</span
-                  >
-                </div>
-              </v-col>
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">Account No</label>
-                  <input v-model="data.account_no" class="form-control" />
-                  <span
-                    v-if="errors && errors.account_no"
-                    class="text-danger mt-2"
-                    >{{ errors.account_no[0] }}</span
-                  >
-                </div>
-              </v-col>
+    <v-container>
+      <v-row>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">Bank Name</label>
+            <input v-model="data.bank_name" class="form-control" />
+            <span v-if="errors && errors.bank_name" class="text-danger mt-2">{{
+              errors.bank_name[0]
+            }}</span>
+          </div>
+        </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">Bank Address</label>
+            <input v-model="data.address" class="form-control" />
+            <span v-if="errors && errors.address" class="text-danger mt-2">{{
+              errors.address[0]
+            }}</span>
+          </div>
+        </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">Account No</label>
+            <input v-model="data.account_no" class="form-control" />
+            <span v-if="errors && errors.account_no" class="text-danger mt-2">{{
+              errors.account_no[0]
+            }}</span>
+          </div>
+        </v-col>
 
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">Account Title</label>
-                  <input v-model="data.account_title" class="form-control" />
-                  <span
-                    v-if="errors && errors.account_title"
-                    class="text-danger mt-2"
-                    >{{ errors.account_title[0] }}</span
-                  >
-                </div>
-              </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">Account Title</label>
+            <input v-model="data.account_title" class="form-control" />
+            <span
+              v-if="errors && errors.account_title"
+              class="text-danger mt-2"
+              >{{ errors.account_title[0] }}</span
+            >
+          </div>
+        </v-col>
 
-              <v-col cols="6">
-                <div class="form-group">
-                  <label class="col-form-label">IBAN</label>
-                  <input v-model="data.iban" class="form-control" />
-                  <span v-if="errors && errors.iban" class="text-danger mt-2">{{
-                    errors.iban[0]
-                  }}</span>
-                </div>
-              </v-col>
+        <v-col cols="6">
+          <div class="form-group">
+            <label class="col-form-label">IBAN</label>
+            <input v-model="data.iban" class="form-control" />
+            <span v-if="errors && errors.iban" class="text-danger mt-2">{{
+              errors.iban[0]
+            }}</span>
+          </div>
+        </v-col>
 
-              <v-col cols="12">
-                <a
-                  href="javascrip:void(0)"
-                  @click="add_other_bank_info = !add_other_bank_info"
-                  >{{
-                    `${add_other_bank_info ? "hide" : "show"} Other Field`
-                  }}</a
-                >
-              </v-col>
-              <v-row v-if="add_other_bank_info">
-                <v-col cols="6">
-                  <div class="form-group">
-                    <label class="col-form-label">Other Text</label>
-                    <input v-model="data.other_text" class="form-control" />
-                    <span
-                      v-if="errors && errors.other_text"
-                      class="text-danger"
-                      >{{ errors.other_text[0] }}</span
-                    >
-                  </div>
-                </v-col>
-
-                <v-col cols="6">
-                  <div class="form-group">
-                    <label class="col-form-label">Other Value</label>
-                    <input v-model="data.other_value" class="form-control" />
-                    <span
-                      v-if="errors && errors.other_value"
-                      class="text-danger mt-2"
-                      >{{ errors.other_value[0] }}</span
-                    >
-                  </div>
-                </v-col>
-              </v-row>
-              <span v-if="errors && errors.length" class="error--text">{{
-                errors
+        <v-col cols="12">
+          <a
+            href="javascrip:void(0)"
+            @click="add_other_bank_info = !add_other_bank_info"
+            >{{ `${add_other_bank_info ? "hide" : "show"} Other Field` }}</a
+          >
+        </v-col>
+        <v-row v-if="add_other_bank_info">
+          <v-col cols="6">
+            <div class="form-group">
+              <label class="col-form-label">Other Text</label>
+              <input v-model="data.other_text" class="form-control" />
+              <span v-if="errors && errors.other_text" class="text-danger">{{
+                errors.other_text[0]
               }}</span>
-            </v-row>
-          </v-container>
-        </v-card-text>
+            </div>
+          </v-col>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn class="error" small @click="close_bank_info"> Cancel </v-btn>
+          <v-col cols="6">
+            <div class="form-group">
+              <label class="col-form-label">Other Value</label>
+              <input v-model="data.other_value" class="form-control" />
+              <span
+                v-if="errors && errors.other_value"
+                class="text-danger mt-2"
+                >{{ errors.other_value[0] }}</span
+              >
+            </div>
+          </v-col>
+        </v-row>
+        <span v-if="errors && errors.length" class="error--text">{{
+          errors
+        }}</span>
+      </v-row>
+      <v-row>
+        <v-col cols="12">
           <v-btn class="primary" small @click="save_bank_info">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <KeyValueTable :data="table_data" @open-edit="popup = true" />
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
-import KeyValueTable from "./KeyValueTable.vue";
 
 export default {
-  components: { KeyValueTable },
-  props: ["employeeId","hideEditBtn"],
+  props: ["employeeId", "hideEditBtn"],
   data() {
     return {
       endpoint: "bankinfo",
@@ -137,7 +113,7 @@ export default {
       response: "",
       errors: [],
       data: {},
-      table_data: {}
+      table_data: {},
     };
   },
   created() {
@@ -155,14 +131,14 @@ export default {
             "Bank Address": data.address,
             "Account No": data.account_no,
             "Account Title": data.account_title,
-            IBAN: data.iban
+            IBAN: data.iban,
           };
 
           if (data.other_text) {
             this.table_data[data.other_text] = data.other_value;
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
     },
@@ -173,7 +149,7 @@ export default {
       let payload = {
         ...this.data,
         company_id: this.$auth?.user?.company?.id,
-        employee_id: this.employeeId
+        employee_id: this.employeeId,
       };
       this.$axios
         .post(`bankinfo`, payload)
@@ -190,14 +166,14 @@ export default {
             this.close_bank_info();
           }
         })
-        .catch(e => console.log(e));
+        .catch((e) => console.log(e));
     },
     close_bank_info() {
       this.popup = false;
       this.errors = [];
       setTimeout(() => {}, 300);
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -41,7 +41,7 @@
         </td>
       </tr>
       <div class="w-100">
-        <v-btn class="primary mt-1 w-25" @click="update_setting">Save</v-btn>
+        <v-btn small class="primary mt-1 w-25" @click="update_setting">Save</v-btn>
       </div>
     </table>
   </div>

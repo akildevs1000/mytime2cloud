@@ -91,6 +91,11 @@ class EmployeeController extends Controller
         }
     }
 
+    public function employeeSingle($id)
+    {
+        return Employee::find($id);
+    }
+
     public function employeeDelete($id)
     {
         try {
