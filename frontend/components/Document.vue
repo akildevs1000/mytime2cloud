@@ -6,83 +6,133 @@
       </v-snackbar>
     </div>
 
-    <v-btn
-      v-if="can(`employee_document_edit_access`)"
-      @click="addDocumentInfo"
-      class="primary ma-2"
-      >Add Document +
-    </v-btn>
-    <v-row class="ma-2" v-for="(d, index) in Document.items" :key="index">
-      <v-col cols="3">
-        <label class="col-form-label"
-          >Title <span class="text-danger">*</span></label
-        >
-        <v-text-field solo dense outlined v-model="d.title"></v-text-field>
-        <span v-if="errors && errors.title" class="text-danger mt-2">{{
-          errors.title[0]
-        }}</span>
-      </v-col>
-      <v-col cols="3">
-        <label class="col-form-label"
-          >File <span class="text-danger">*</span></label
-        >
-        <v-file-input
-          solo
-          dense
-          outlined
-          v-model="d.file"
-          placeholder="Upload your file"
-          label="Attachment"
-        >
-          <template v-slot:selection="{ text }">
-            <v-chip v-if="text" small label color="primary">
-              {{ text }}
-            </v-chip>
-          </template>
-        </v-file-input>
+    <v-container>
+      <v-btn
+        v-if="can(`employee_document_edit_access`)"
+        @click="addDocumentInfo"
+        class="primary"
+        >Add Document +
+      </v-btn>
+      <v-row v-for="(d, index) in Document.items" :key="index">
+        <v-col cols="2">
+          <label class="col-form-label"
+            >Title <span class="text-danger">*</span></label
+          >
+          <v-text-field dense outlined v-model="d.title"></v-text-field>
+          <span v-if="errors && errors.title" class="text-danger mt-2">{{
+            errors.title[0]
+          }}</span>
+        </v-col>
+        <v-col cols="2">
+          <label class="col-form-label"
+            >File <span class="text-danger">*</span></label
+          >
+          <v-file-input dense outlined v-model="d.file">
+            <template v-slot:selection="{ text }">
+              <v-chip v-if="text" small label color="primary">
+                {{ text }}
+              </v-chip>
+            </template>
+          </v-file-input>
 
-        <span v-if="errors && errors.value" class="text-danger mt-5">{{
-          errors.value[0]
-        }}</span>
-      </v-col>
-      <v-col cols="2">
-        <div class="form-group">
-          <v-btn dark class="error mt-5" fab @click="removeItem(index)" x-small>
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
-        </div>
-      </v-col>
-    </v-row>
-    <v-row class="ma-2">
-      <v-col cols="12">
-        <v-btn class="error" small @click="close_document_info"> Cancel </v-btn>
-        <v-btn
-          :disabled="!Document.items.length"
-          class="primary"
-          small
-          @click="save_document_info"
-          >Save</v-btn
-        >
-      </v-col>
-    </v-row>
-
-    <v-row class="pl-1 ma-2">
-      <v-col cols="12">
-        <v-row v-for="(d, index) in document_list" :key="index" class="pa-2">
-          <v-col cols="3">
-            <span>{{ d.key }}</span>
-          </v-col>
-          <v-col cols="4">
-            <a :href="d.value" target="_blank">
-              <v-btn small class="primary"> open file </v-btn>
-            </a>
-            <v-icon color="error" @click="delete_document(d.id)">
-              mdi-delete
-            </v-icon>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
+          <span v-if="errors && errors.value" class="text-danger mt-5">{{
+            errors.value[0]
+          }}</span>
+        </v-col>
+        <v-col cols="2">
+          <v-icon class="error--text mt-10" @click="removeItem(index)"
+            >mdi-delete</v-icon
+          >
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12">
+          <v-btn
+            :disabled="!Document.items.length"
+            class="primary"
+            small
+            @click="save_document_info"
+            >Save</v-btn
+          >
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="6">
+          <table style="border-collapse: collapse; width: 100%">
+            <thead>
+              <tr>
+                <th
+                  style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  "
+                >
+                  Title
+                </th>
+                <th
+                  style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  "
+                >
+                  File
+                </th>
+                <th
+                  style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  "
+                >
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(d, index) in document_list" :key="index">
+                <td
+                  style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  "
+                >
+                  {{ d.key }}
+                </td>
+                <td
+                  style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  "
+                >
+                  <a :href="d.value" target="_blank">
+                    <v-btn small class="primary">
+                      open file <v-icon>mdi-open-window</v-icon>
+                    </v-btn>
+                  </a>
+                </td>
+                <td
+                  style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  "
+                >
+                  <v-icon color="error" @click="delete_document(d.id)">
+                    mdi-delete
+                  </v-icon>
+                  {{ d.key }}
+                </td>
+              </tr>
+              <!-- Add more rows as needed -->
+            </tbody>
+          </table>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -143,7 +193,6 @@ export default {
     },
 
     save_document_info() {
-
       let options = {
         headers: {
           "Content-Type": "multipart/form-data",
