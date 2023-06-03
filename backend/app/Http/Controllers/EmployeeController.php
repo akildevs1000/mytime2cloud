@@ -71,8 +71,6 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
 
-
-
         if ($request->profile_picture && $request->hasFile('profile_picture')) {
             $file = $request->file('profile_picture');
             $ext = $file->getClientOriginalExtension();
@@ -88,6 +86,36 @@ class EmployeeController extends Controller
             }
             // $employee->profile_picture = asset('media/employee/profile_picture' . $request->profile_picture);
             return $this->response('Employee Details successfully updated.', $employee, true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function employeeDepartmentUpdate(Request $request, $id)
+    {
+        try {
+            $employee = Employee::where("id", $id)->update([
+                "department_id" => $request->department_id
+            ]);
+            if (!$employee) {
+                return $this->response('Department cannot update.', null, false);
+            }
+            return $this->response('Department updated.', Employee::find($id), true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function employeeDesignationUpdate(Request $request, $id)
+    {
+        try {
+            $employee = Employee::where("id", $id)->update([
+                "designation_id" => $request->designation_id
+            ]);
+            if (!$employee) {
+                return $this->response('Designation cannot update.', null, false);
+            }
+            return $this->response('Designation updated.', Employee::find($id), true);
         } catch (\Throwable $th) {
             throw $th;
         }

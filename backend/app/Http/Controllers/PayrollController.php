@@ -10,9 +10,9 @@ use App\Http\Requests\Payroll\UpdateRequest;
 class PayrollController extends Controller
 {
     public function store(StoreRequest $request, Payroll $model)
-    {   
+    {
         $data = $request->validated();
-        
+
         $where = ["company_id" => $data['company_id'], "employee_id" => $data['employee_id']];
 
         try {
@@ -28,7 +28,7 @@ class PayrollController extends Controller
         }
     }
 
-    public function show(Payroll $model, Request $request,$id)
+    public function show(Payroll $model, Request $request, $id)
     {
         $where = ["company_id" => $request->company_id, "employee_id" => $id];
 

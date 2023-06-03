@@ -10,7 +10,7 @@
       <v-btn
         v-if="can(`employee_document_edit_access`)"
         @click="addDocumentInfo"
-        class="primary"
+        class="primary mb-2"
         >Add Document +
       </v-btn>
       <v-row v-for="(d, index) in Document.items" :key="index">
@@ -124,7 +124,6 @@
                   <v-icon color="error" @click="delete_document(d.id)">
                     mdi-delete
                   </v-icon>
-                  {{ d.key }}
                 </td>
               </tr>
               <!-- Add more rows as needed -->

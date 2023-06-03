@@ -224,7 +224,7 @@
                 <component
                   :is="getComponent(tab)"
                   :employeeId="employeeId"
-                  @eventFromchild="getDataFromApi2"
+                  @eventFromchild="getDataFromApi"
                 />
               </v-tab-item>
             </v-tabs-items>
@@ -359,10 +359,10 @@
             <v-select
               class="custom-text-box shadow-none"
               @change="getDataFromApi(`employee`)"
-              v-model="department_id"
+              v-model="department_filter_id"
               item-text="name"
               item-value="id"
-              :items="departments"
+              :items="[{ name: `All`, id: `` }, ...departments]"
               placeholder="Department"
               solo
               flat
@@ -444,14 +444,34 @@
                 <td style="text-align: left; padding: 8px">
                   {{ item.display_name || "---" }}
                 </td>
-                <td style="text-align: left; padding: 8px">
-                  {{ (item.department && item.department.name) || "---" }}
+                <td style="text-align: left; padding: 8px; width: 200px">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    v-model="item.department_id"
+                    @change="update(item)"
+                    :items="departments"
+                    item-text="name"
+                    item-value="id"
+                    placeholder="Department"
+                    :hide-details="true"
+                  ></v-autocomplete>
+                </td>
+                <td style="text-align: left; padding: 8px; width: 200px">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    v-model="item.designation_id"
+                    @change="update_department(item)"
+                    :items="designations"
+                    item-text="name"
+                    item-value="id"
+                    placeholder="Designation"
+                    :hide-details="true"
+                  ></v-autocomplete>
                 </td>
                 <td style="text-align: left; padding: 8px">
-                  {{ item.designation && item.designation.name }}
-                </td>
-                <td style="text-align: left; padding: 8px">
-                  {{ (item && item.user && item.user.email) || "---" }}
+                  {{ (item.user && item.user.email) || "---" }}
                 </td>
                 <td style="text-align: left; padding: 8px">
                   {{ (item && item.phone_number) || "---" }}
@@ -640,6 +660,7 @@ export default {
     data: [],
     errors: [],
     departments: [],
+    designations: [],
     department_id: "",
     dialogVisible: false,
   }),
@@ -647,9 +668,8 @@ export default {
     this.loading = false;
     this.boilerplate = true;
     this.getDataFromApi();
-
-    // this.loading = true;
     this.getDepartments();
+    this.getDesignations();
   },
   mounted() {
     //this.getDataFromApi();
@@ -740,14 +760,34 @@ export default {
     dialog(val) {
       val || this.close();
     },
-    options: {
-      handler() {
-        this.getDataFromApi();
-      },
-      deep: true,
-    },
   },
   methods: {
+    update_department(item) {
+      this.$axios
+        .post(`employee-department-update/${item.id}`, item)
+        .then(({ data }) => {
+          if (!data.status) {
+            this.snackbar = false;
+            this.response = "Department cannot update";
+          } else {
+            this.snackbar = true;
+            this.response = "Department has been updated";
+          }
+        });
+    },
+    update_designation(item) {
+      this.$axios
+        .post(`employee-designation-update/${item.id}`, item)
+        .then(({ data }) => {
+          if (!data.status) {
+            this.snackbar = false;
+            this.response = "Designation cannot update";
+          } else {
+            this.snackbar = true;
+            this.response = "Designation has been updated";
+          }
+        });
+    },
     closePopup() {
       //croppingimagestep5
       this.$refs.attachment_input.value = null;
@@ -845,22 +885,11 @@ export default {
           }
         });
     },
-
     can(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
-    },
-    // createEmployee() {
-    //   if (this.total >= this.max_employee) {
-    //     alert(`You cannot add more than ${this.max_employee} employees`);
-    //     return;
-    //   }
-    //   this.$router.push(`/employees/create`);
-    // },
-    goDetails(id) {
-      this.$router.push(`/employees/details/${id}`);
     },
     searchIt(e) {
       if (e.length == 0) {
@@ -869,69 +898,38 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
-    getDataFromApi2() {
-      let url = this.endpoint;
-      let options = {
-        params: {
-          per_page: this.per_page === "Default" ? 8 : this.per_page,
-          company_id: this.$auth?.user?.company?.id,
-        },
-      };
-      this.$axios.get(`${url}`, options).then(({ data }) => {
-        this.data = data.data;
-        this.total = data.data.length;
-        this.employeeId = this.data[0].id;
-
-        this.max_employee = this.$auth.user.company.max_employee;
-        this.next_page_url = data.next_page_url;
-        this.prev_page_url = data.prev_page_url;
-        this.current_page = data.current_page;
-      });
-    },
-    getDataFromApi(url = this.endpoint) {
-      let options = {
-        params: {
-          per_page: this.per_page === "Default" ? 8 : this.per_page,
-          company_id: this.$auth?.user?.company?.id,
-        },
-      };
-      this.$axios.get(`${url}`, options).then(({ data }) => {
-        this.data = data.data;
-        this.total = data.data.length;
-        this.employeeId = this.data[0].id;
-
-        this.max_employee = this.$auth.user.company.max_employee;
-        this.next_page_url = data.next_page_url;
-        this.prev_page_url = data.prev_page_url;
-        this.current_page = data.current_page;
-        this.loading = false;
-        this.boilerplate = false;
-      });
-    },
     onPageChange() {
       this.getDataFromApi();
     },
     getDepartments() {
       let options = {
         params: {
-          per_page: 100,
+          per_page: 1000,
           company_id: this.$auth.user.company.id,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
-        this.departments.unshift({ name: "All", id: "" });
+      });
+    },
+    getDesignations() {
+      let options = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company.id,
+        },
+      };
+      this.$axios.get(`designation`, options).then(({ data }) => {
+        this.designations = data.data;
       });
     },
     getDataFromApi(url = this.endpoint) {
-      this.loading = true;
       let page = this.pagination.current;
-      let department_id = this.department_id;
       let options = {
         params: {
           per_page: this.pagination.per_page,
           company_id: this.$auth.user.company.id,
-          department_id: department_id,
+          department_id: this.department_filter_id,
         },
       };
 
@@ -939,7 +937,6 @@ export default {
         this.data = data.data;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
-        this.loading = false;
       });
     },
     searchIt() {
