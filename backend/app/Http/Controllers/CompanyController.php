@@ -62,7 +62,7 @@ class CompanyController extends Controller
     }
     public function show($id): JsonResponse
     {
-        $record = Company::with(['user', 'contact', 'branches', 'modules', 'trade_license'])->withCount('employees')->where('id', $id)->first();
+        $record = Company::with(['user', 'contact', 'modules', 'trade_license'])->withCount('employees')->where('id', $id)->first();
 
         return Response::json([
             'record' => $record,

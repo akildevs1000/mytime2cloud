@@ -528,12 +528,6 @@ export default {
           menu: "company_access",
           hasChildren: [
             {
-              icon: "mdi-cog",
-              title: "Settings",
-              to: "/setting",
-              menu: "setting_access",
-            },
-            {
               icon: "mdi mdi-card-account-details",
               title: "Profile",
               to: `/companies/${this.$auth.user?.company?.id}`,

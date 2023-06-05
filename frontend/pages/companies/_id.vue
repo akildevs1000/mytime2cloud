@@ -36,9 +36,9 @@
               <v-tab>
                 <v-icon> mdi-file </v-icon>
               </v-tab>
-              <!-- <v-tab>
+              <v-tab>
                 <v-icon> mdi-lock </v-icon>
-              </v-tab> -->
+              </v-tab>
 
               <v-tab-item>
                 <v-card flat>
@@ -608,6 +608,99 @@
               <v-tab-item>
                 <Document />
               </v-tab-item>
+
+              <v-tab-item>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <label class="col-form-label"
+                        >Current Password
+                        <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        :hide-details="!errors.current_password"
+                        :append-icon="
+                          current_password_show ? 'mdi-eye' : 'mdi-eye-off'
+                        "
+                        :type="current_password_show ? 'text' : 'password'"
+                        v-model="payload.current_password"
+                        class="input-group--focused"
+                        @click:append="
+                          current_password_show = !current_password_show
+                        "
+                        :error="errors.current_password"
+                        :error-messages="
+                          errors && errors.current_password
+                            ? errors.current_password
+                            : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="12" sm="12" cols="12" dense>
+                      <label class="col-form-label"
+                        >Password <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        :hide-details="!errors.password"
+                        :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="show_password ? 'text' : 'password'"
+                        v-model="payload.password"
+                        class="input-group--focused"
+                        @click:append="show_password = !show_password"
+                        :error="errors.password"
+                        :error-messages="
+                          errors && errors.password ? errors.password[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+
+                    <v-col md="12" sm="12" cols="12" dense>
+                      <label class="col-form-label"
+                        >Confirm Password
+                        <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        :hide-details="!errors.password_confirmation"
+                        :append-icon="
+                          show_password_confirm ? 'mdi-eye' : 'mdi-eye-off'
+                        "
+                        :type="show_password_confirm ? 'text' : 'password'"
+                        v-model="payload.password_confirmation"
+                        class="input-group--focused"
+                        @click:append="
+                          show_password_confirm = !show_password_confirm
+                        "
+                        :error="errors.show_password_confirm"
+                        :error-messages="
+                          errors && errors.show_password_confirm
+                            ? errors.show_password_confirm[0]
+                            : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <div class="text-left">
+                        <v-btn
+                          v-if="can('setting_company_change_password_access')"
+                          dark
+                          small
+                          :loading="loading_password"
+                          color="primary"
+                          @click="update_setting"
+                        >
+                          Submit
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-tab-item>
             </v-tabs>
           </v-card>
         </v-col>
@@ -664,6 +757,11 @@ export default {
       password: "",
       password_confirmation: "",
     },
+    payload: {
+      password: "",
+      current_password: "",
+      password_confirmation: "",
+    },
     geographic_payload: {
       lat: "",
       lon: "",
@@ -686,6 +784,26 @@ export default {
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
+
+    update_setting() {
+      this.$axios
+        .post(
+          `/company/${this.$auth?.user?.company?.id}/update/user`,
+          this.payload
+        )
+        .then(({ data }) => {
+          this.loading = false;
+
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.snackbar = true;
+            this.response = "Setting updated successfully";
+          }
+        })
+        .catch((e) => console.log(e));
+    },
+
     getDataFromApi() {
       this.id = this.$route.params.id;
       this.$axios.get(`company/${this.id}`).then(({ data }) => {
