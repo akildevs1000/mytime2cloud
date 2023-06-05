@@ -3,6 +3,8 @@
 namespace App\Console;
 
 use App\Mail\ReportNotificationMail;
+use App\Models\Company;
+use App\Models\PayrollSetting;
 use App\Models\ReportNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -25,6 +27,19 @@ class Kernel extends ConsoleKernel
                 ->command('test_cron')
                 ->everyMinute()
                 ->appendOutputTo(storage_path("logs/test_cron.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        }
+
+        $payroll_settings = PayrollSetting::get(["id", "date", "company_id"]);
+
+        foreach ($payroll_settings as $payroll_setting) {
+
+            $payroll_date = (int) (new \DateTime($payroll_setting->date))->modify('-24 hours')->format('d');
+
+            $schedule
+                ->command("task:payslip_generation $payroll_setting->company_id")
+                ->monthlyOn((int) $payroll_date, "15:49")
+                ->appendOutputTo(storage_path("$date-payslip-generate-$payroll_setting->company_id.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 

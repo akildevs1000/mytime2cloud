@@ -8,19 +8,19 @@
     <div v-if="!preloader">
       <v-row class="mt-5 mb-5">
         <v-col cols="10">
-          <h3>Payroll Formula</h3>
-          <div>Dashboard / Payroll Formula</div>
+          <h3>Payroll Settings</h3>
+          <div>Dashboard / Payroll Settings</div>
         </v-col>
       </v-row>
-      <v-card elevation="0" class="pa-3">
+      <v-card elevation="0" class="pa-3 mb-5">
         <v-card-title>
           <label class="col-form-label pt-0 mt-5"
             ><b>Create Payroll Formula</b></label
           >
-          <v-spacer></v-spacer>
+          <!-- <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
             <v-icon>mdi-arrow-left</v-icon>
-          </v-btn>
+          </v-btn> -->
         </v-card-title>
         <v-container>
           <v-row>
@@ -30,24 +30,22 @@
               >
             </v-col>
             <v-col cols="10">
-              <div style="display: inline-flex;">
+              <div style="display: inline-flex">
                 <v-radio-group v-model="payload.salary_type" row>
                   <v-radio label="Basic Salary" value="basic_salary"></v-radio>
                   <v-radio label="Net Salary" value="net_salary"></v-radio>
                 </v-radio-group>
               </div>
-              <span
-                  v-if="errors && errors.salary_type"
-                  class="text-danger"
-                  >{{ errors.salary_type[0] }}</span
-                >
+              <span v-if="errors && errors.salary_type" class="text-danger">{{
+                errors.salary_type[0]
+              }}</span>
             </v-col>
 
             <v-col cols="2">
               <label class="col-form-label"><b>OT formula</b></label>
             </v-col>
             <v-col cols="10">
-              <div style="display: inline-flex;">
+              <div style="display: inline-flex">
                 <input
                   class="form-control"
                   type="text"
@@ -65,11 +63,9 @@
                   dense
                 />
               </div>
-              <span
-                  v-if="errors && errors.ot_value"
-                  class="text-danger"
-                  >{{ errors.ot_value[0] }}</span
-                >
+              <span v-if="errors && errors.ot_value" class="text-danger">{{
+                errors.ot_value[0]
+              }}</span>
             </v-col>
 
             <v-col cols="2">
@@ -78,7 +74,7 @@
               >
             </v-col>
             <v-col cols="8">
-              <div style="display: inline-flex;">
+              <div style="display: inline-flex">
                 <input
                   class="form-control"
                   type="text"
@@ -97,15 +93,65 @@
                 />
               </div>
               <span
-                  v-if="errors && errors.deduction_value"
-                  class="text-danger"
-                  >{{ errors.deduction_value[0] }}</span
-                >
+                v-if="errors && errors.deduction_value"
+                class="text-danger"
+                d
+                >{{ errors.deduction_value[0] }}</span
+              >
             </v-col>
             <v-col cols="12">
-              <v-btn small color="primary" @click="store">
-                Submit
-              </v-btn>
+              <v-btn small color="primary" @click="store"> Submit </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card>
+
+      <v-card elevation="0" class="pa-3">
+        <v-card-title>
+          <label class="col-form-label pt-0 mt-5"
+            ><b>Create Payroll Generation Date</b></label
+          >
+          <!-- <v-spacer></v-spacer>
+          <v-btn small fab color="background" dark to="/report_notifications">
+            <v-icon>mdi-arrow-left</v-icon>
+          </v-btn> -->
+        </v-card-title>
+        <v-container>
+          <v-row>
+            <v-col cols="2">
+              <label class="col-form-label"
+                ><b>Set date for payroll genration</b></label
+              >
+            </v-col>
+            <v-col cols="2">
+              <v-menu
+                v-model="menu"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-text-field
+                    outlined
+                    dense
+                    v-model="date"
+                    readonly
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="date"
+                  @input="menu = false"
+                ></v-date-picker>
+              </v-menu>
+              <span v-if="errors && errors.date" class="text-danger">{{
+                errors.date[0]
+              }}</span>
+            </v-col>
+            <v-col cols="12">
+              <v-btn small color="primary" @click="storeDate"> Submit </v-btn>
             </v-col>
           </v-row>
         </v-container>
@@ -121,25 +167,52 @@ export default {
   data: () => ({
     payload: {
       salary_type: "basic_salary",
-      ot_value:1.5,
-      deduction_value:1.5,
+      ot_value: 1.5,
+      deduction_value: 1.5,
     },
+    menu: false,
+    date: null,
     preloader: false,
     loading: false,
     response: false,
     snackbar: false,
-    errors: []
+    errors: [],
   }),
 
   created() {
-    this.preloader = false;
     this.payload.company_id = this.$auth?.user?.company?.id;
+
+    this.preloader = false;
+
+    this.$axios
+      .get(`/payroll_formula/${this.payload.company_id}`)
+      .then(({ data }) => {
+        if (data) {
+          console.log((this.payload = data));
+        }
+      })
+      .catch((e) => console.log(e));
+
+    this.date = this.getDate();
+
+    this.$axios
+      .get(`/payroll_generate_date/${this.payload.company_id}`)
+      .then(({ data }) => (this.date = data))
+      .catch((e) => console.log(e));
   },
+
   methods: {
+    getDate() {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -159,42 +232,31 @@ export default {
           this.snackbar = data.status;
           this.response = data.message;
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+    storeDate() {
+      this.errors = [];
+
+      let payload = {
+        company_id: this.$auth?.user?.company?.id,
+        date: this.date,
+      };
+
+      this.$axios
+        .post("/payroll_generate_date", payload)
+        .then(({ data }) => {
+          this.loading = false;
+
+          if (!data.status) {
+            this.errors = data.errors;
+            return;
+          }
+
+          this.snackbar = data.status;
+          this.response = data.message;
+        })
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
-</style>
-<style>
-.tiptap-vuetify-editor__content {
-  min-height: 400px !important;
-}
-
-.ProseMirror .ProseMirror-focused {
-  height: 400px !important;
-}
-
-.tiptap-icon .v-icon {
-  color: white !important;
-}
-.tiptap-icon .v-btn--icon {
-  color: white !important;
-}
-</style>

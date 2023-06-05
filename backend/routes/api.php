@@ -6,6 +6,7 @@ include('sdk.php');
 include('notification.php');
 include('payroll.php');
 include('payroll_formula.php');
+include('payroll_setting.php');
 include('payslip.php');
 include('timezone.php');
 include('employee_timezone_mapping.php');

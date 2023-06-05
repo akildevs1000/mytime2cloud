@@ -66,9 +66,9 @@ class Company extends Model
         return $this->hasMany(AttendanceLog::class);
     }
 
-    public function branches()
+    public function payroll_settings()
     {
-        return $this->hasMany(Branch::class);
+        return $this->hasOne(PayrollSetting::class);
     }
 
     public function employees()

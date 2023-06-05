@@ -419,7 +419,7 @@ export default {
             },
             {
               icon: "mdi mdi-calculator",
-              title: "Payroll Formula",
+              title: "Payroll Settings",
               to: "/payroll/create",
               menu: "payroll_generate_access",
             },
