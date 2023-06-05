@@ -70,6 +70,44 @@
                       outlined
                     ></v-select>
                   </v-col>
+                  <v-col md="6" cols="6" sm="6" dense>
+                    <label class="col-form-label"
+                      >Employee ID <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.employee_id"
+                      :hide-details="!errors.employee_id"
+                      :error="errors.employee_id"
+                      :error-messages="
+                        errors && errors.employee_id
+                          ? errors.employee_id[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col md="6" cols="6" sm="6" dense>
+                    <label class="col-form-label"
+                      >Employee Device Id<span class="text-danger"
+                        >*</span
+                      ></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.system_user_id"
+                      :hide-details="!errors.system_user_id"
+                      :error="errors.system_user_id"
+                      :error-messages="
+                        errors && errors.system_user_id
+                          ? errors.system_user_id[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
                   <v-col md="12" sm="12" cols="12" dense>
                     <label class="col-form-label"
                       >Display Name <span class="text-danger">*</span></label
@@ -89,40 +127,16 @@
                     ></v-text-field>
                   </v-col>
                   <v-col md="12" cols="12" sm="12" dense>
-                    <label class="col-form-label"
-                      >Employee ID <span class="text-danger">*</span></label
-                    >
+                    <label class="col-form-label">Email (optional)</label>
                     <v-text-field
                       dense
                       outlined
                       type="text"
-                      v-model="employee.employee_id"
-                      :hide-details="!errors.employee_id"
-                      :error="errors.employee_id"
+                      v-model="employee.email"
+                      :hide-details="!errors.email"
+                      :error="errors.email"
                       :error-messages="
-                        errors && errors.employee_id
-                          ? errors.employee_id[0]
-                          : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="12" cols="12" sm="12" dense>
-                    <label class="col-form-label"
-                      >Employee Device Id<span class="text-danger"
-                        >*</span
-                      ></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.system_user_id"
-                      :hide-details="!errors.system_user_id"
-                      :error="errors.system_user_id"
-                      :error-messages="
-                        errors && errors.system_user_id
-                          ? errors.system_user_id[0]
-                          : ''
+                        errors && errors.email ? errors.email[0] : ''
                       "
                     ></v-text-field>
                   </v-col>
@@ -336,7 +350,7 @@
               small
               dark
               class="primary pt-4 pb-4"
-              >{{ Model }} + (NEW)
+              >{{ Model }}
             </v-btn>
           </div>
         </v-col>
@@ -449,7 +463,7 @@
                     dense
                     outlined
                     v-model="item.department_id"
-                    @change="update(item)"
+                    @change="update_department(item)"
                     :items="departments"
                     item-text="name"
                     item-value="id"
@@ -462,7 +476,7 @@
                     dense
                     outlined
                     v-model="item.designation_id"
-                    @change="update_department(item)"
+                    @change="update_designation(item)"
                     :items="designations"
                     item-text="name"
                     item-value="id"
@@ -479,8 +493,8 @@
                 <td style="text-align: left; padding: 8px">
                   {{
                     item.schedule &&
-                    item.schedule.shift_type &&
-                    item.schedule.shift_type.name
+                    item.schedule.shift &&
+                    item.schedule.shift.name
                   }}
                 </td>
                 <td style="text-align: left; padding: 8px">
@@ -623,10 +637,10 @@ export default {
     btnLoader: false,
     max_employee: 0,
     employee: {
+      title: "Mr",
       display_name: "",
       employee_id: "",
       system_user_id: "",
-      department_id: "",
     },
     upload: {
       name: "",
@@ -661,7 +675,7 @@ export default {
     errors: [],
     departments: [],
     designations: [],
-    department_id: "",
+    department_filter_id: "",
     dialogVisible: false,
   }),
   async created() {
@@ -751,7 +765,7 @@ export default {
         text: "Mobile",
       },
       {
-        text: "Shift Type",
+        text: "Shift",
       },
       { text: "Actions", align: "center", value: "action", sortable: false },
     ];

@@ -44,6 +44,7 @@ class StoreRequest extends FormRequest
             'display_name' => ['required', 'min:3', 'max:10'],
             'title' => ['required'],
             'status' => ['nullable'],
+            'email' => 'nullable|min:3|max:191|unique:users',
             'profile_picture' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
         ];
     }

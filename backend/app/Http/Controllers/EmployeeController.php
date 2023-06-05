@@ -47,6 +47,7 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
 
+
         if ($request->hasFile('profile_picture')) {
             $file = $request->file('profile_picture');
             $ext = $file->getClientOriginalExtension();
@@ -55,14 +56,37 @@ class EmployeeController extends Controller
             $data['profile_picture'] = $fileName;
         }
 
+        DB::beginTransaction();
+
+        if ($request->email) {
+
+            $user = User::create([
+                "name" => "null",
+                "email" => $request->email,
+                "password" => Hash::make("secret"),
+            ]);
+
+            if (!$user) {
+                return $this->response('User cannot add.', null, false);
+            }
+
+            $data["user_id"] = $user->id;
+
+            unset($data['email']);
+        }
+
         try {
+
             $employee = Employee::create($data);
             if (!$employee) {
                 return $this->response('Employee cannot add.', null, false);
             }
             $employee->profile_picture = asset('media/employee/profile_picture' . $employee->profile_picture);
+
+            DB::commit();
             return $this->response('Employee successfully created.', null, true);
         } catch (\Throwable $th) {
+            DB::rollBack();
             throw $th;
         }
     }
