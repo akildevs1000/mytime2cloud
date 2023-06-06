@@ -515,15 +515,11 @@
                     dense
                     outlined
                     v-model="item.employee_role_id"
-                    @change="
-                      update(item.id, {
-                        employee_role_id: item.employee_role_id,
-                      })
-                    "
+                    @change="update_role(item)"
                     :items="roles"
                     item-text="name"
                     item-value="id"
-                    placeholder="Designation"
+                    placeholder="Roles"
                     :hide-details="true"
                   ></v-autocomplete>
                 </td>
@@ -647,7 +643,6 @@ export default {
     tab: null,
     selectedItem: 1,
     on: "",
-    color: "background",
     files: "",
     Model: "Employee",
     endpoint: "employee",
@@ -658,8 +653,9 @@ export default {
     prev_page_url: "",
     current_page: 1,
     per_page: 8,
-    response: "",
     ListName: "",
+    color: "background",
+    response: "",
     snackbar: false,
     btnLoader: false,
     max_employee: 0,
@@ -805,6 +801,27 @@ export default {
     },
   },
   methods: {
+    update_role(item) {
+      if (!item.user.id) {
+        this.color = "red lighten-2";
+        this.snackbar = true;
+        this.response = "To assign a role, you must creata an email first.";
+        return false;
+      }
+      this.$axios
+        .post(`employee-role-update/${item.user.id}`, {
+          employee_role_id: item.employee_role_id,
+        })
+        .then(({ data }) => {
+          if (!data.status) {
+            this.snackbar = false;
+            this.response = "Record cannot update";
+          } else {
+            this.snackbar = true;
+            this.response = "Record has been updated";
+          }
+        });
+    },
     update(id, column) {
       this.$axios
         .post(`employee-single-column-update/${id}`, column)
@@ -989,7 +1006,7 @@ export default {
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
       ) &&
         this.$axios
-          .post(`employee-delete/${item.id}`)
+          .delete(`/employee/${item.id}`)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;

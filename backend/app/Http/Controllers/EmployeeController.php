@@ -106,6 +106,19 @@ class EmployeeController extends Controller
         }
     }
 
+    public function employeeUpdateByRole(Request $request, $id)
+    {
+        try {
+            $employee = User::where("id", $id)->update($request->all());
+            if (!$employee) {
+                return $this->response('Record cannot update.', null, false);
+            }
+            return $this->response('Record updated.', Employee::find($id), true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     public function employeeUpdate(UpdateRequest $request, $id)
     {
         $data = $request->validated();
@@ -133,23 +146,6 @@ class EmployeeController extends Controller
     public function employeeSingle($id)
     {
         return Employee::with("user")->find($id);
-    }
-
-    public function employeeDelete($id)
-    {
-
-        try {
-            $employee = Employee::find($id);
-
-            if ($employee->delete()) {
-                User::find($employee->user_id)->delete();
-                return $this->response('Employee Successfully deleted.', null, true);
-            } else {
-                return $this->response('Employee cannot deleted.', null, false, 404);
-            }
-        } catch (\Throwable $th) {
-            throw $th;
-        }
     }
 
     public function store(Request $request)
@@ -423,14 +419,19 @@ class EmployeeController extends Controller
     }
     public function destroy($id)
     {
-        $record = Employee::find($id);
-        $user = User::find($record->user_id);
-        if ($record->delete()) {
-            $user->delete();
-            // return Response::noContent(204);
-            return Response::json(['message' => 'Employee Successfully deleted.', 'status' => true], 200);
-        } else {
-            return Response::json(['message' => 'No such record found.'], 404);
+        try {
+            $record = Employee::find($id);
+            if ($record->delete()) {
+                $user = User::find($record->user_id);
+                if ($user) {
+                    $user->delete();
+                }
+                return Response::json(['message' => 'Employee Successfully deleted.', 'status' => true], 200);
+            } else {
+                return Response::json(['message' => 'No such record found.'], 404);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
         }
     }
     public function search(Request $request, $key)
