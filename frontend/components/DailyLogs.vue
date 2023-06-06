@@ -1,25 +1,31 @@
 <template>
   <div>
-    <div v-if="logs && logs.length == 0">
+    <h5>
+      <b style="padding: 10px">
+        Recent Logs
+        <a
+          v-if="logs && logs.length > 0"
+          href="#"
+          class="text-decoration-none"
+          @click="goToemployeelog()"
+        >
+          Table View
+          <i
+            data-v-0591559c=""
+            aria-hidden="true"
+            class="v-icon notranslate pa-0 mdi mdi-grid theme--light"
+          ></i
+        ></a>
+      </b>
+    </h5>
+    <div v-if="logs && logs.length == 0" style="min-height: 400px">
       <div style="text-align: center; color: red">{{ emptyLogmessage }}</div>
     </div>
-    <v-skeleton-loader v-if="logs && !logs.length" type="card" />
+    <!-- <v-skeleton-loader v-if="logs && !logs.length" type="card">
+    </v-skeleton-loader> -->
 
     <div v-else>
       <v-toolbar flat>
-        <h5>
-          <b>
-            Recent Logs
-            <a href="#" class="text-decoration-none" @click="goToemployeelog()">
-              Table View
-              <i
-                data-v-0591559c=""
-                aria-hidden="true"
-                class="v-icon notranslate pa-0 mdi mdi-grid theme--light"
-              ></i
-            ></a>
-          </b>
-        </h5>
         <v-spacer />
 
         <!-- <span class="text-right online-devices"
@@ -128,14 +134,6 @@ export default {
             this.emptyLogmessage = "No Log records are available";
           }
         });
-
-      // this.$axios
-      //   .get(`getdevicesstatuscount/${this.$auth.user.company.id}`)
-      //   .then((res) => {
-      //     //this.logs = res.data;
-      //     this.online_device_count = res.data.online;
-      //     this.offline_device_count = res.data.offline;
-      //   });
     },
     goToemployeelog() {
       this.$router.push("/reportsemployeelog");

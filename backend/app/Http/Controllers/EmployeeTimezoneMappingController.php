@@ -4,14 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EmployeeTimezoneMapping\StoreRequest;
 use App\Http\Requests\EmployeeTimezoneMapping\UpdateRequest;
-use App\Models\EmployeeTimezoneMapping;
-use Illuminate\Http\Request;
-use Symfony\Component\Console\Helper\TableRows;
 use App\Models\Employee;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-
+use App\Models\EmployeeTimezoneMapping;
 use function PHPUnit\Framework\isJson;
+use Illuminate\Http\Request;
 
 class EmployeeTimezoneMappingController extends Controller
 {
@@ -30,17 +26,15 @@ class EmployeeTimezoneMappingController extends Controller
         try {
             $record = EmployeeTimezoneMapping::create($request->validated());
 
-
             if ($record) {
 
                 $SDKjsonRequest = $this->processSDKrequestjson($record);
 
-
                 $SDKObj = new SDKController;
-                $SDKresponse =  ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
+                $SDKresponse = ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
 
                 $finalArray['SDKRequest'] = $SDKjsonRequest;
-                $finalArray['SDKResponse'] =  json_decode($SDKresponse, true);
+                $finalArray['SDKResponse'] = json_decode($SDKresponse, true);
 
                 $finalArray['recordResponse'] = $record;
                 return $this->response('EmployeeTimezoneMapping Successfully created.', $finalArray, true);
@@ -51,7 +45,7 @@ class EmployeeTimezoneMappingController extends Controller
             throw $th;
         }
     }
-    public function filterRequestpayloadBySDKResponse($request,  $SDKresponse)
+    public function filterRequestpayloadBySDKResponse($request, $SDKresponse)
     {
         $SDKresponse = json_decode(json_encode($SDKresponse), true);
 
@@ -59,21 +53,18 @@ class EmployeeTimezoneMappingController extends Controller
 
         foreach ($request->device_id as $device) {
 
+            foreach ($SDKresponse['data'] as $responseDevice) {
 
-            foreach ($SDKresponse['data'] as   $responseDevice) {
-
-                if ($device['device_id'] == $responseDevice['sn'] &&  $responseDevice['message'] == '') {
+                if ($device['device_id'] == $responseDevice['sn'] && $responseDevice['message'] == '') {
                     $newRequestDevicesidArray[] = $device;
                 }
             }
         }
 
-
         return $newRequestDevicesidArray;
     }
     public function processSDKrequestjson($phpArray)
     {
-
 
         $finalArray = [];
         if (!isJson($phpArray)) {
@@ -82,10 +73,8 @@ class EmployeeTimezoneMappingController extends Controller
             $phpArray = $phpArray;
         }
 
-
         $personsListArray = [];
         $snListArray = array_column($phpArray['device_id'], 'device_id');
-
 
         foreach ($phpArray['employee_id'] as $list) {
 
@@ -94,11 +83,10 @@ class EmployeeTimezoneMappingController extends Controller
             $record = Employee::find($list['id']);
             $record->update($data);
 
-
             $row = [];
             $row['name'] = $list['display_name'];
             $row['userCode'] = $list['system_user_id'];
-            $row['expiry'] = "2089-12-31 23:59:59";
+            //$row['expiry'] = "2089-12-31 23:59:59";
             $row['timeGroup'] = $phpArray['timezone_id'];
             //francsis
             // $row['faceImage'] = "https://backend.ideahrms.com/media/employee/profile_picture/WhatsApp%20Image%202023-01-13%20at%201.21.40%20PM.jpeg";
@@ -115,7 +103,7 @@ class EmployeeTimezoneMappingController extends Controller
     }
     public function filterArrayByKeys(array $input, array $column_keys)
     {
-        $result      = array();
+        $result = array();
         $column_keys = array_flip($column_keys); // getting keys as values
         foreach ($input as $key => $val) {
             // getting only those key value pairs, which matches $column_keys
@@ -139,12 +127,11 @@ class EmployeeTimezoneMappingController extends Controller
 
                 $SDKjsonRequest = $this->processSDKrequestjson($request->all());
 
-
                 $SDKObj = new SDKController;
-                $SDKresponse =  ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
+                $SDKresponse = ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
 
                 $finalArray['SDKRequest'] = $SDKjsonRequest;
-                $finalArray['SDKResponse'] =  json_decode($SDKresponse, true);
+                $finalArray['SDKResponse'] = json_decode($SDKresponse, true);
 
                 $finalArray['recordResponse'] = $request->all();
                 return $this->response('EmployeeTimezoneMapping successfully updated.', $finalArray, true);
@@ -169,17 +156,13 @@ class EmployeeTimezoneMappingController extends Controller
     public function deleteTimezone(Request $request)
     {
 
-
         if ($request->timezone_id) {
             Employee::where('timezone_id', $request->timezone_id)
                 ->update(['timezone_id' => 1]);
         }
         $record = EmployeeTimezoneMapping::where('id', $request->id)->delete();
 
-
         // //updating default timezone id which are already exist in TimezoneName
-
-
 
         if ($record) {
             return $this->response('EmployeeTimezoneMapping successfully deleted.', $record, true);
@@ -192,6 +175,12 @@ class EmployeeTimezoneMappingController extends Controller
         $employees['data'] = $employee
             ->with(["timezone"])
             ->where('company_id', $request->company_id)
+            ->when($request->filled('department_id'), function ($q) use ($request) {
+                if ($request->department_id != '---') {
+                    $q->where('department_id', $request->department_id);
+                }
+
+            })
             ->get();
         return $employees;
     }

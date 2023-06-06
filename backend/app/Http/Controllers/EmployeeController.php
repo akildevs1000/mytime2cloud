@@ -13,10 +13,12 @@ use App\Models\ScheduleEmployee;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Employee\StoreRequest;
+use App\Http\Requests\Employee\UpdateRequest;
 use App\Http\Requests\Employee\ContactRequest;
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\EmployeeOtherRequest;
@@ -24,7 +26,6 @@ use App\Http\Requests\Employee\EmployeeImportRequest;
 use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Http\Requests\Employee\EmployeeContactRequest;
-use App\Http\Requests\Employee\UpdateRequest;
 
 class EmployeeController extends Controller
 {
@@ -235,13 +236,32 @@ class EmployeeController extends Controller
     }
     public function index(Employee $employee, Request $request)
     {
-        return $employee
+        $data = $employee
             ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "payroll"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
                 $q->whereHas('department',  fn (Builder $query) => $query->where('department_id', $request->department_id));
             })
             ->paginate($request->per_page ?? 100);
+        $data = $this->getPayslipstatus($data, $request);
+
+        return $data;
+    }
+    public function getPayslipstatus($data, $request)
+    {
+        if (isset($request["company_id"]) && $request["year"] &&        $request["month"]) {
+            foreach ($data as $key => $value) {
+
+                $pdfFile_name = 'payslips/' . $request["company_id"] . '/' . $request["company_id"] . '_' . $value->employee_id . '_' . $request["month"] . '_' . $request["year"] . '_payslip.pdf';
+                if (Storage::disk('local')->exists($pdfFile_name)) {
+                    $value->payslip_status = true;
+                } else {
+                    $value->payslip_status = false;
+                }
+            }
+        }
+
+        return $data;
     }
     public function scheduled_employees(Request $request)
     {
