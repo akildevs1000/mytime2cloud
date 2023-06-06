@@ -208,7 +208,9 @@
                       </v-col>
 
                       <v-col cols="3" md="3" sm="3">
-                        <label class="col-form-label">Max Devices</label>
+                        <label class="col-form-label"
+                          >Company Profile Picture</label
+                        >
                         <span class="text-danger">*</span>
                         <v-card class="ml-1 mr-1">
                           <div class="pa-5">

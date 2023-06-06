@@ -319,39 +319,7 @@ export default {
           to: "/",
           menu: "dashboard_access",
         },
-        {
-          icon: "mdi-cellphone-text",
-          title: `Devices`,
-          open_menu: false,
-          menu: "timezone_mapping",
-          hasChildren: [
-            {
-              icon: "mdi-cellphone-text",
-              title: "Devices List",
-              to: "/device",
-              menu: "device_access",
-            },
-            {
-              icon: "mdi-badge-account-outline",
-              title: "Upload Users",
-              to: "/device_management",
-              menu: "device_management",
-            },
-          ],
-        },
 
-        // {
-        //   icon: "mdi-clipboard-edit-outline",
-        //   title: "Policy",
-        //   to: "/policy",
-        //   menu: "policy_access"
-        // },
-        // {
-        //   icon: "mdi-bullhorn-variant-outline",
-        //   title: "Announcement",
-        //   to: "/announcement",
-        //   menu: "announcement_access"
-        // },
         {
           icon: "mdi-account-tie",
           title: "Employees",
@@ -359,39 +327,6 @@ export default {
           menu: "employee_access",
         },
 
-        {
-          icon: "mdi mdi-camera-account",
-          title: "Employee Photo Upload",
-          to: "/employee_photo_upload",
-          menu: "employee_photo_upload",
-        },
-        {
-          icon: "mdi mdi-clock-time-four-outline",
-          title: "Timezones",
-          to: "/timezone",
-          menu: "timezone",
-        },
-
-        {
-          icon: "mdi mdi-account-clock",
-          title: `Timezone Mapping`,
-          open_menu: false,
-          menu: "timezone_mapping",
-          hasChildren: [
-            {
-              icon: "mdi mdi-clock-plus-outline",
-              title: "Create New",
-              to: "/timezonemapping/new",
-              menu: "timezone_mapping_list",
-            },
-            {
-              icon: "mdi mdi-credit-card-clock-outline",
-              title: "Mapped List",
-              to: "/timezonemapping/list",
-              menu: "timezone_mapping_list",
-            },
-          ],
-        },
         {
           icon: "mdi-cash-multiple",
           title: `Payroll`,
@@ -423,35 +358,9 @@ export default {
               to: "/payroll/create",
               menu: "payroll_generate_access",
             },
-            // {
-            //   icon: "mdi-cash-multiple ",
-            //   title: "Salary Advance",
-            //   to: "/employee_schedule",
-            //   menu:("employee_schedule_access")
-            // }
           ],
         },
 
-        // {
-        //   icon: "mdi-account",
-        //   title: `User Management`,
-        //   open_menu: false,
-        //   menu: "payroll_access",
-        //   hasChildren: [
-        //     {
-        //       icon: "mdi-account-plus",
-        //       title: "Roles",
-        //       to: "/role",
-        //       menu: "role_access",
-        //     },
-        //     {
-        //       icon: "mdi-lock",
-        //       title: "Assign Permissions",
-        //       to: "/assign_permission",
-        //       menu: "assign_permission_access",
-        //     },
-        //   ],
-        // },
         {
           icon: "mdi-calendar-today",
           title: `Reports`,
@@ -460,16 +369,11 @@ export default {
           hasChildren: [
             {
               icon: "mdi-chart-box-outline",
-              title: "All Reports",
+              title: "Attendance Report",
               to: "/attendance_report",
               menu: "payroll_access",
             },
-            {
-              icon: "mdi-account-off",
-              title: "Leaves Report",
-              to: "/attendance_report/leaves",
-              menu: "payroll_access",
-            },
+
             {
               icon: "mdi-clock",
               title: "Shifts",
@@ -488,30 +392,12 @@ export default {
               to: "/employee_schedule",
               menu: "employee_schedule_access",
             },
-            // {
-            //   icon: "mdi-lock",
-            //   title: "Weekly Report",
-            //   to: "/attendance_report/weekly",
-            //   menu: "payroll_access",
-            // },
-            // {
-            //   icon: "mdi-lock",
-            //   title: "Monthly Report",
-            //   to: "/attendance_report/monthly",
-            //   menu: "payroll_access",
-            // },
-            // {
-            //   icon: "mdi-lock",
-            //   title: "Yearly Report",
-            //   to: "/attendance_report/yearly",
-            //   menu: "payroll_access",
-            // },
           ],
         },
 
         {
           icon: "mdi-clipboard-text-clock",
-          title: "Logs",
+          title: "Attendances Logs",
           to: "/logs",
           menu: "logs_access",
         },
@@ -545,6 +431,42 @@ export default {
               title: "Assign Permissions",
               to: "/assign_permission",
               menu: "assign_permission_access",
+            },
+            {
+              icon: "mdi-cellphone-text",
+              title: "Devices List",
+              to: "/device",
+              menu: "device_access",
+            },
+            // {
+            //   icon: "mdi-badge-account-outline",
+            //   title: "Upload Users",
+            //   to: "/device_management",
+            //   menu: "device_management",
+            // },
+            {
+              icon: "mdi mdi-camera-account",
+              title: "Employee Photo Upload",
+              to: "/employee_photo_upload",
+              menu: "employee_photo_upload",
+            },
+            // {
+            //   icon: "mdi mdi-clock-plus-outline",
+            //   title: "Create New",
+            //   to: "/timezonemapping/new",
+            //   menu: "timezone_mapping_list",
+            // },
+            {
+              icon: "mdi mdi-credit-card-clock-outline",
+              title: "Mapped List",
+              to: "/timezonemapping/list",
+              menu: "timezone_mapping_list",
+            },
+            {
+              icon: "mdi mdi-clock-time-four-outline",
+              title: "Timezones",
+              to: "/timezone",
+              menu: "timezone",
             },
           ],
         },

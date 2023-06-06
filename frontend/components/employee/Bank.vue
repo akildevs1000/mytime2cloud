@@ -40,7 +40,7 @@
 
         <v-col cols="6">
           <div class="form-group">
-            <label class="col-form-label">Account Title</label>
+            <label class="col-form-label">Account Name</label>
             <input
               type="text"
               v-model="data.account_title"

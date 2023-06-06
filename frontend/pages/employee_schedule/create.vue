@@ -218,18 +218,18 @@
       </v-col>
     </v-row>
     <v-card class="mb-5 rounded-md mt-3" elevation="0">
-      <v-card-title class=""> Schedule Employees </v-card-title>
-      <v-divider></v-divider>
-
       <v-card-text>
         <v-row>
-          <v-col md="4">
+          <v-col md="12">
             <v-row>
-              <v-col md="12">
-                <div class="mb-5">
+              <!-- <v-col md="3">
+                <v-card-title class=""> Schedule Employees</v-card-title>
+              </v-col> -->
+              <v-col md="3">
+                <!-- <span class="mb-5">
                   <span class="text-h6">Filters</span>
-                </div>
-                <div class="mb-1">Department</div>
+                </span> -->
+                <span class="mb-1">Department</span>
 
                 <v-autocomplete
                   outlined
@@ -243,7 +243,9 @@
                   item-text="name"
                   :disabled="is_edit == true ? true : false"
                 ></v-autocomplete>
-                <div class="mb-1">Sub Department</div>
+              </v-col>
+              <v-col md="3">
+                <span class="mb-1">Sub Department</span>
                 <v-autocomplete
                   outlined
                   dense
@@ -256,8 +258,9 @@
                   item-text="name"
                   :disabled="is_edit == true ? true : false"
                 ></v-autocomplete>
-
-                <div class="mb-1">Search Employee</div>
+              </v-col>
+              <v-col md="3">
+                <span class="mb-1">Search Employee</span>
                 <v-text-field
                   outlined
                   @input="dialogSearchIt"
@@ -270,29 +273,30 @@
               </v-col>
             </v-row>
           </v-col>
-
-          <v-col md="8">
+        </v-row>
+        <v-row>
+          <v-col md="12">
             <v-row>
-              <v-col md="6">
-                <div class="mb-5">
-                  <span class="text-h6">Employees List</span>
-                </div>
-              </v-col>
-              <v-col md="6">
-                <div class="text-right">
-                  <!-- <v-text-field
-                    @input="dialogSearchIt"
-                    dense
-                    v-model="dialog_search"
-                    append-icon="mdi-magnify"
-                    single-line
-                    hide-details
-                  ></v-text-field> -->
-                  <v-btn dark small color="primary" @click="arrangeShift">
-                    Arrange Shift(s)
-                  </v-btn>
-                </div>
-              </v-col>
+              <div class="mb-5">
+                <v-toolbar
+                  class="rounded-md"
+                  color="background"
+                  dense
+                  flat
+                  dark
+                >
+                  <v-toolbar-title><span>Employees List</span></v-toolbar-title>
+                  <v-spacer></v-spacer>
+                  <v-toolbar-items>
+                    <v-btn
+                      @click="arrangeShift"
+                      class="primary ms-4 pt-4 pb-4 toolbar-button-design"
+                      color="primary"
+                      >Arrange Shift(s)
+                    </v-btn>
+                  </v-toolbar-items>
+                </v-toolbar>
+              </div>
             </v-row>
             <v-data-table
               v-model="employee_ids"
@@ -820,5 +824,12 @@ select:focus {
   outline: none !important;
   border-color: #5fafa3;
   box-shadow: 0 0 0px #5fafa3;
+}
+
+.toolbar-button-design {
+  height: 38px !important;
+  /* vertical-align: bottom; */
+  margin: auto;
+  border-radius: 5px;
 }
 </style>

@@ -5,7 +5,7 @@
         <v-col cols="12">
           <v-row class="mt-5 mb-5">
             <v-col cols="4">
-              <h3>Employee Photo Upload to Device</h3>
+              <h4>Timezone Mapping - Edit/Update</h4>
               <div>Dashboard</div>
             </v-col>
           </v-row>
@@ -47,7 +47,7 @@
           ></v-select>
         </v-col>
         <v-col cols="4">
-          <!-- <v-select
+          <v-select
             v-model="timezonesselected"
             :items="timezones"
             dense
@@ -57,7 +57,8 @@
             hide-details
             label="Timezones"
             required
-          ></v-select> -->
+            disabled
+          ></v-select>
         </v-col>
         <v-col cols="4">
           <div style="width: 150px; float: right">
@@ -67,8 +68,7 @@
               id="back"
               class="btn primary btn-block white--text v-size--default"
             >
-              <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
-              View List
+              List
             </button>
           </div>
         </v-col>
@@ -79,6 +79,7 @@
             <span>All Employees List</span>
           </v-toolbar>
           <div>
+            {{ leftEmployees }}
             <v-card class="displaylist">
               <v-card-text
                 class="displaylistview"
@@ -88,26 +89,23 @@
                 v-model="leftSelectedEmp"
                 :key="user.id"
               >
-                <v-row>
-                  <v-col col="4">
-                    <span>
-                      {{ user.employee_id }}: {{ user.display_name }}</span
-                    >
-                  </v-col>
-                  <v-col col="4">
-                    <span
-                      ><v-img
-                        style="border-radius: 50%; height: 40px; width: 40px"
-                        :src="
-                          user.profile_picture
-                            ? user.profile_picture
-                            : '/no-profile-image.jpg'
-                        "
-                      >
-                      </v-img
-                    ></span>
-                  </v-col>
-                </v-row>
+                <div class="row">
+                  <div
+                    class="col-sm"
+                    :style="{
+                      color:
+                        user.timezone && user.timezone.timezone_name
+                          ? '#b4b0b0'
+                          : '#000000',
+                    }"
+                  >
+                    {{ user.employee_id }}: {{ user.display_name }}:
+                    <span v-if="user.timezone">
+                      {{ user.timezone.timezone_name }}
+                    </span>
+                  </div>
+                  <div class="col-sm"></div>
+                </div>
               </v-card-text>
             </v-card>
           </div>
@@ -235,6 +233,23 @@
                 </div>
               </v-card-text>
             </v-card>
+            <!-- <select
+              multiple
+              v-model="leftSelectedDevices"
+              @dblclick="moveRightDevices"
+              class="form-control"
+              size="13"
+            >
+              <option
+                v-for="(device, index) in leftDevices"
+                :key="index"
+                :value="device.id"
+              >
+                {{ device.name }}: {{ device.location }}(
+                {{ device.device_id }})
+                <span class="error--text">Test</span>
+              </option>
+            </select> -->
           </div>
         </v-col>
 
@@ -370,7 +385,6 @@
 export default {
   data() {
     return {
-      devices_dialog: [],
       displaybutton: true,
       progressloading: false,
       searchInput: "",
@@ -387,6 +401,7 @@ export default {
       endpointUpdatetimezoneStore: "employee_timezone_mapping",
       //endpointUpdatetimezoneUpdate: "employee_timezone_mapping",
       endpointDevise: "device",
+      endPointMapping: "employee_timezone_mapping",
       leftSelectedEmp: [],
       departmentselected: [],
       departments: [],
@@ -399,13 +414,15 @@ export default {
       rightDevices: [],
       department_ids: ["---"],
       timezones: ["Timeszones are not available"],
-      timezonesselected: [],
+      timezonesselected: parseInt(this.$route.query.id),
       options: {
         params: {
           company_id: this.$auth.user.company.id,
           cols: ["id", "name"],
         },
       },
+      mappingtId: "",
+      timezone_id: "",
     };
   },
   mounted: function () {
@@ -415,14 +432,14 @@ export default {
 
     this.$nextTick(function () {
       setTimeout(() => {
-        this.loading = false;
         //this.snackbar = false;
+
+        this.getMappeddatafromAPI();
       }, 2000);
     });
 
     setTimeout(() => {
       this.loading = false;
-      //this.snackbar = false;
     }, 2000);
   },
   created() {
@@ -433,6 +450,54 @@ export default {
   },
   methods: {
     fetch_logs() {},
+    getMappeddatafromAPI() {
+      this.mappingtId = this.$route.query.id;
+
+      let url = this.endPointMapping;
+
+      console.log("this.departmentselected", this.departmentselected);
+      let options = {
+        params: {
+          per_page: 1000, //this.pagination.per_page,
+          company_id: this.$auth.user.company.id,
+        },
+      };
+      let page = 1;
+      this.$axios.get(`${url}/${this.mappingtId}`, options).then(({ data }) => {
+        console.log("data", data);
+        this.rightEmployees = data.employee_id;
+        this.rightDevices = data.device_id;
+
+        this.timezonesselected = parseInt(data.timezone_id);
+        console.log("employee_id", data.employee_id);
+
+        // console.log(" rightEmployees ", this.rightEmployees);
+        console.log(" rightEmployees ", this.rightSelectedEmp);
+        console.log(" leftEmployees ", this.leftEmployees);
+
+        console.log("optionsRightEmp");
+
+        this.rightEmployees
+          .map((e) => ({ id: e.id }))
+          .filter((re) => {
+            let selectedindex = this.leftEmployees.findIndex(
+              (le) => re.id == le.id
+            );
+
+            this.leftEmployees.splice(selectedindex, 1);
+          });
+
+        this.rightDevices
+          .map((e) => ({ id: e.id }))
+          .filter((re) => {
+            let selectedindex = this.leftDevices.findIndex(
+              (le) => re.id == le.id
+            );
+
+            this.leftDevices.splice(selectedindex, 1);
+          });
+      });
+    },
     loadDepartmentemployees() {
       //this.loading = true;
       // let page = this.pagination.current;
@@ -455,14 +520,14 @@ export default {
 
         this.rightEmployees = [];
         this.rightSelectedEmp = [];
-      });
+      }, 1000);
     },
     getDepartmentsApi(options) {
       this.$axios
         .get("departments", options)
         .then(({ data }) => {
           this.departments = data.data;
-          this.departments.unshift({ id: "---", name: "All Departmetns" });
+          this.departments.unshift({ id: "---", name: "All Departments" });
         })
         .catch((err) => console.log(err));
     },
@@ -477,20 +542,23 @@ export default {
         .get("timezone", options)
         .then(({ data }) => {
           this.timezones = data.data;
+          console.log("this.$route.query.id", this.$route.query.id);
+          this.timezonesselected = parseInt(this.$route.query.id);
+          // this.$axios
+          //   .get("employee_timezone_mapping", options)
+          //   .then(({ data }) => {
+          //     data.data.forEach((element) => {
+          //       let selectedindex = this.timezones.findIndex(
+          //         (e) => e.timezone_id == element.timezone_id
+          //       );
 
-          this.$axios
-            .get("employee_timezone_mapping", options)
-            .then(({ data }) => {
-              data.data.forEach((element) => {
-                let selectedindex = this.timezones.findIndex(
-                  (e) => e.timezone_id == element.timezone_id
-                );
-
-                if (selectedindex >= 0) this.timezones.splice(selectedindex, 1);
-              });
-            });
+          //       if (selectedindex >= 0) this.timezones.splice(selectedindex, 1);
+          //     });
+          //   });
         })
         .catch((err) => console.log(err));
+
+      //console.log("timezonevalues", this.timezones, this.$route.query.id);
     },
     resetErrorMessages() {
       this.errors = [];
@@ -503,8 +571,7 @@ export default {
         sdkDeviceResponse: "",
       });
     },
-
-    onSubmit_old() {
+    onSubmit() {
       this.resetErrorMessages();
 
       if (this.timezonesselected == "") {
@@ -584,8 +651,9 @@ export default {
       let jsrightEmployees = this.rightEmployees;
 
       let SDKSuccessStatus = true;
-      this.$axios.post(`${url}`, options).then(({ data }) => {
-        this.displaybutton = false;
+      let idTable = this.$route.query.id;
+      this.$axios.put(`${url}/${idTable}`, options).then(({ data }) => {
+        // this.displaybutton = false;
         if (data.record.SDKResponse.data) {
           this.loading = false;
 
@@ -620,13 +688,15 @@ export default {
                 if (EmpStatusResponse != "") {
                   //Adding extra parameters for Employee object
                   if (selectedEmpobject) {
-                    $.extend(element, {
-                      sdkEmpResponse: "person info error ",
-                    });
+                    element["sdkEmpResponse"] = "person photo error ";
+                    // $.extend(element, {
+                    //   sdkEmpResponse: "person info error ",
+                    // });
                   } else {
-                    $.extend(element, {
-                      sdkEmpResponse: " Success",
-                    });
+                    // $.extend(element, {
+                    //   sdkEmpResponse: " Success",
+                    // });
+                    element["sdkEmpResponse"] = "Success";
                   }
                 }
 
@@ -636,10 +706,8 @@ export default {
             }
 
             //Adding extra parameters for Devices object
-            $.extend(rightDevicesobj, {
-              sdkDeviceResponse:
-                deviceStatusResponse != "" ? deviceStatusResponse : " Success",
-            });
+            elementDevice["sdkDeviceResponse"] =
+              deviceStatusResponse != "" ? deviceStatusResponse : " Success";
             this.errors = [];
           });
           this.rightEmployees = jsrightEmployees;
@@ -905,135 +973,6 @@ export default {
 
       this.leftSelectedDevices.pop(id);
     },
-
-    async onSubmit() {
-      if (this.rightEmployees.length == 0) {
-        this.response = this.response + " Atleast select one Employee Details";
-      } else if (this.rightDevices.length == 0) {
-        this.response = this.response + " Atleast select one Device Details";
-      }
-
-      this.loading_dialog = true;
-      this.errors = [];
-
-      let personListArray = [];
-
-      this.rightEmployees.forEach((item) => {
-        let person = {
-          name: item.display_name,
-          userCode: parseInt(item.system_user_id),
-
-          faceImage: `https://backend.ideahrms.com/media/employee/profile_picture/WhatsApp%20Image%202022-09-16%20at%202.11.34%20PM%20(1).jpeg`,
-          // faceImage: item.profile_picture
-        };
-        personListArray.push(person);
-      });
-
-      let payload = {
-        personList: personListArray,
-        snList: this.rightDevices.map((e) => e.device_id),
-      };
-
-      if (payload.snList && payload.snList.length === 0) {
-        alert(`Atleast one device must be selected`);
-        return false;
-      }
-
-      this.devices_dialog.forEach((e) => {
-        e.state = "---";
-        e.message = "---";
-      });
-
-      //try {
-      const { data } = await this.$axios.post(`/Person/AddRange`, payload);
-      if (data.status == 200) {
-        this.loading_dialog = false;
-        this.snackbar = true;
-        this.response = "Employee(s) has been upload";
-        console.log("data", data.data);
-        //console.log("data data", JSON.parse(data));
-        let jsrightEmployees = this.rightEmployees;
-        let SDKSuccessStatus = true;
-        this.rightDevices.forEach((elementDevice) => {
-          let SdkResponseDeviceobject = data.data.find(
-            (e) => e.sn == elementDevice.device_id
-          );
-
-          console.log("SdkResponseDeviceobject", SdkResponseDeviceobject);
-          let deviceStatusResponse = "";
-          let EmpStatusResponse = "";
-
-          if (SdkResponseDeviceobject.message == "") {
-            deviceStatusResponse = "Success";
-          } else if (
-            SdkResponseDeviceobject.message == "The device was not found"
-          ) {
-            deviceStatusResponse = "The device was not found or offline";
-            SDKSuccessStatus = false;
-          } else if (SdkResponseDeviceobject.message == "person info error") {
-            let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-            jsrightEmployees.forEach((element) => {
-              let systemUserid = element.system_user_id;
-              SDKSuccessStatus = false;
-              let selectedEmpobject = SDKUseridArray.find(
-                (e) => e.userCode == systemUserid
-              );
-              EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-              deviceStatusResponse = "";
-              console.log("selectedEmpobject", selectedEmpobject);
-
-              if (EmpStatusResponse != "") {
-                //Adding extra parameters for Employee object
-                if (selectedEmpobject) {
-                  element["sdkEmpResponse"] = "person photo error ";
-                  // $.extend(element, {
-                  //   sdkEmpResponse: "person info error ",
-                  // });
-                } else {
-                  // $.extend(element, {
-                  //   sdkEmpResponse: " Success",
-                  // });
-                  element["sdkEmpResponse"] = "Success";
-                }
-              }
-
-              console.log("Final - jsrightEmployees", jsrightEmployees);
-            });
-          } else {
-          }
-
-          //Adding extra parameters for Devices object
-          // $.extend(elementDevice, {
-          //   sdkDeviceResponse:
-          //     deviceStatusResponse != "" ? deviceStatusResponse : " Success",
-          // });
-          elementDevice["sdkDeviceResponse"] =
-            deviceStatusResponse != "" ? deviceStatusResponse : " Success";
-          this.errors = [];
-        });
-
-        // data.data.forEach((e) => {
-        //   const index = this.devices_dialog.findIndex(
-        //     (item) => item.device_id === e.sn
-        //   );
-        //   if (index !== -1) {
-        //     const updatedElement = {
-        //       ...this.devices_dialog[index],
-        //       state: e.state,
-        //       message: e.message || "Success",
-        //     };
-
-        //     this.devices_dialog.splice(index, 1, updatedElement);
-        //   }
-        // });
-      }
-      // } catch (error) {
-      //   this.loading_dialog = false;
-      //   this.snackbar = true;
-      //   this.response = error.message;
-      //   console.log(error.message);
-      // }
-    },
   },
 };
 </script>
@@ -1088,12 +1027,5 @@ export default {
   padding-left: 10px;
   padding-bottom: 5px;
   padding-top: 0px;
-  cursor: pointer;
-
-  border-bottom: 1px solid #ddd;
 }
-/*
-.displaylistview:nth-child(even) {
-  background-color: #e9e9e9;
-} */
 </style>
