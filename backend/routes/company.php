@@ -140,7 +140,6 @@ Route::apiResource('activity', ActivityController::class);
 // -----------------------Company App-------------------------------
 
 // Company Auth
-Route::post('/CompanyLogin', [AuthController::class, 'CompanyLogin']);
 
 Route::post('no-shift-employees/delete/selected', [DutyOrganizerController::class, 'deleteSelected']);
 Route::get('no-shift-employees/search/{key}', [DutyOrganizerController::class, 'search']);

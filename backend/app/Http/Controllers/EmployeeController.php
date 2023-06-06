@@ -65,6 +65,7 @@ class EmployeeController extends Controller
                 "name" => "null",
                 "email" => $request->email,
                 "password" => Hash::make("secret"),
+                "company_id" => $data["company_id"],
             ]);
 
             if (!$user) {
@@ -88,6 +89,19 @@ class EmployeeController extends Controller
             return $this->response('Employee successfully created.', null, true);
         } catch (\Throwable $th) {
             DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function employeeUpdateBySingleColumn(Request $request, $id)
+    {
+        try {
+            $employee = Employee::where("id", $id)->update($request->all());
+            if (!$employee) {
+                return $this->response('Record cannot update.', null, false);
+            }
+            return $this->response('Record updated.', Employee::find($id), true);
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -116,45 +130,19 @@ class EmployeeController extends Controller
         }
     }
 
-    public function employeeDepartmentUpdate(Request $request, $id)
-    {
-        try {
-            $employee = Employee::where("id", $id)->update([
-                "department_id" => $request->department_id
-            ]);
-            if (!$employee) {
-                return $this->response('Department cannot update.', null, false);
-            }
-            return $this->response('Department updated.', Employee::find($id), true);
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
-
-    public function employeeDesignationUpdate(Request $request, $id)
-    {
-        try {
-            $employee = Employee::where("id", $id)->update([
-                "designation_id" => $request->designation_id
-            ]);
-            if (!$employee) {
-                return $this->response('Designation cannot update.', null, false);
-            }
-            return $this->response('Designation updated.', Employee::find($id), true);
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
-
     public function employeeSingle($id)
     {
-        return Employee::find($id);
+        return Employee::with("user")->find($id);
     }
 
     public function employeeDelete($id)
     {
+
         try {
-            if (Employee::find($id)->delete()) {
+            $employee = Employee::find($id);
+
+            if ($employee->delete()) {
+                User::find($employee->user_id)->delete();
                 return $this->response('Employee Successfully deleted.', null, true);
             } else {
                 return $this->response('Employee cannot deleted.', null, false, 404);
@@ -514,6 +502,36 @@ class EmployeeController extends Controller
             'status' => true,
         ], 200);
     }
+
+    public function employeeLoginUpdate(Request $request, $id)
+    {
+        $arr = [];
+        $arr["name"] = "null";
+        $arr["email"] = $request->email;
+        $arr["company_id"] = $request->company_id;
+        $arr['password'] = Hash::make($request->password ?? "secret");
+
+        try {
+            if ($id > 0) {
+                $user = User::where('id', $id)->update($arr);
+            } else {
+
+                $user = User::create($arr);
+                Employee::where("id", $request->employee_id)->update(["user_id" => $user->id]);
+            }
+
+
+            if (!$user) {
+                return $this->response('Employee cannot update.', null, false);
+            }
+
+            return $this->response('Employee successfully updated.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+
     public function updateContact(Employee $model, EmployeeUpdateContact $request, $id)
     {
         // return $request->all();

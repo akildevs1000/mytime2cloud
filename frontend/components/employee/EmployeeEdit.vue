@@ -245,12 +245,10 @@ export default {
   }),
 
   created() {
-    console.log("Edit form id ", this.employeeId);
     this.getInfo(this.employeeId);
   },
   mounted() {
     //this.getDataFromApi();
-    console.log("Edit form id mounted", this.employeeId);
   },
   watch: {
     dialog(val) {
