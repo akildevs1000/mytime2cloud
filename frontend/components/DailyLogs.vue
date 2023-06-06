@@ -64,7 +64,7 @@
               <div class="opener"></div>
             </div>
             <h2 class="text-center pa-1" style="font-size: 15px">
-              {{ item.employee && item.employee.first_name }}
+              {{ item.employee && item.employee.display_name }}
             </h2>
             <div class="title" style="font-size: 12px !important">
               EID: {{ item.UserID }}

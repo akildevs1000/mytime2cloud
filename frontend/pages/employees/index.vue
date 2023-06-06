@@ -208,7 +208,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="editDialog" width="1100" :key="dialogKey">
+      <v-dialog v-model="editDialog" width="1200" :key="employeeId">
         <v-card>
           <v-tabs
             v-model="tab"
@@ -458,12 +458,17 @@
                 <td style="text-align: left; padding: 8px">
                   {{ item.display_name || "---" }}
                 </td>
+                <td style="text-align: left; padding: 8px">
+                  {{ (item.user && item.user.email) || "---" }}
+                </td>
                 <td style="text-align: left; padding: 8px; width: 200px">
                   <v-autocomplete
                     dense
                     outlined
                     v-model="item.department_id"
-                    @change="update_department(item)"
+                    @change="
+                      update(item.id, { department_id: item.department_id })
+                    "
                     :items="departments"
                     item-text="name"
                     item-value="id"
@@ -475,8 +480,29 @@
                   <v-autocomplete
                     dense
                     outlined
+                    v-model="item.sub_department_id"
+                    @change="
+                      update(item.id, {
+                        sub_department_id: item.sub_department_id,
+                      })
+                    "
+                    :items="sub_departments"
+                    item-text="name"
+                    item-value="id"
+                    placeholder="Sub Department"
+                    :hide-details="true"
+                  ></v-autocomplete>
+                </td>
+                <td style="text-align: left; padding: 8px; width: 200px">
+                  <v-autocomplete
+                    dense
+                    outlined
                     v-model="item.designation_id"
-                    @change="update_designation(item)"
+                    @change="
+                      update(item.id, {
+                        designation_id: item.designation_id,
+                      })
+                    "
                     :items="designations"
                     item-text="name"
                     item-value="id"
@@ -484,8 +510,22 @@
                     :hide-details="true"
                   ></v-autocomplete>
                 </td>
-                <td style="text-align: left; padding: 8px">
-                  {{ (item.user && item.user.email) || "---" }}
+                <td style="text-align: left; padding: 8px; width: 200px">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    v-model="item.employee_role_id"
+                    @change="
+                      update(item.id, {
+                        employee_role_id: item.employee_role_id,
+                      })
+                    "
+                    :items="roles"
+                    item-text="name"
+                    item-value="id"
+                    placeholder="Designation"
+                    :hide-details="true"
+                  ></v-autocomplete>
                 </td>
                 <td style="text-align: left; padding: 8px">
                   {{ (item && item.phone_number) || "---" }}
@@ -557,8 +597,7 @@ import Document from "../../components/employee/Document.vue";
 import Qualification from "../../components/employee/Qualification.vue";
 import Setting from "../../components/employee/Setting.vue";
 import Payroll from "../../components/employee/Payroll.vue";
-import WorkInfo from "../../components/employee/WorkInfo.vue";
-import Personal from "../../components/employee/Personal.vue";
+import Login from "../../components/employee/Login.vue";
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
@@ -573,22 +612,11 @@ const compList = [
   Qualification,
   Setting,
   Payroll,
+  Login,
 ];
 
 export default {
   components: {
-    EmployeeEdit,
-    WorkInfo,
-    Personal,
-    Contact,
-    Passport,
-    Emirates,
-    Visa,
-    Bank,
-    Document,
-    Qualification,
-    Setting,
-    Payroll,
     VueCropper,
   },
 
@@ -599,7 +627,6 @@ export default {
     cropper: "",
     autoCrop: false,
     dialogCropping: false,
-    dialogKey: 0, // Unique key for recreating the dialog
     compList,
     comp: "EmployeeEdit",
     tabMenu: [],
@@ -674,16 +701,29 @@ export default {
     data: [],
     errors: [],
     departments: [],
+    sub_departments: [],
     designations: [],
+    roles: [],
     department_filter_id: "",
     dialogVisible: false,
+    payloadOptions: {},
   }),
   async created() {
     this.loading = false;
     this.boilerplate = true;
+
+    this.payloadOptions = {
+      params: {
+        per_page: 1000,
+        company_id: this.$auth.user.company.id,
+      },
+    };
+
     this.getDataFromApi();
     this.getDepartments();
+    this.getSubDepartments();
     this.getDesignations();
+    this.getRoles();
   },
   mounted() {
     //this.getDataFromApi();
@@ -738,36 +778,25 @@ export default {
         icon: "mdi-briefcase",
         value: "#9",
       },
+      {
+        text: "Login",
+        icon: "mdi-lock",
+        value: "#10",
+      },
     ];
     this.headers = [
-      {
-        text: "#",
-      },
-      {
-        text: "EID",
-      },
-      {
-        text: "Profile",
-      },
-      {
-        text: "Name",
-      },
-      {
-        text: "Department",
-      },
-      {
-        text: "Designation",
-      },
-      {
-        text: "Email",
-      },
-      {
-        text: "Mobile",
-      },
-      {
-        text: "Shift",
-      },
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      { text: "#" },
+      { text: "EID" },
+      { text: "Profile" },
+      { text: "Name" },
+      { text: "Email" },
+      { text: "Department" },
+      { text: "Sub Department" },
+      { text: "Designation" },
+      { text: "Role" },
+      { text: "Mobile" },
+      { text: "Shift" },
+      { text: "Actions" },
     ];
   },
   watch: {
@@ -776,29 +805,16 @@ export default {
     },
   },
   methods: {
-    update_department(item) {
+    update(id, column) {
       this.$axios
-        .post(`employee-department-update/${item.id}`, item)
+        .post(`employee-single-column-update/${id}`, column)
         .then(({ data }) => {
           if (!data.status) {
             this.snackbar = false;
-            this.response = "Department cannot update";
+            this.response = "Record cannot update";
           } else {
             this.snackbar = true;
-            this.response = "Department has been updated";
-          }
-        });
-    },
-    update_designation(item) {
-      this.$axios
-        .post(`employee-designation-update/${item.id}`, item)
-        .then(({ data }) => {
-          if (!data.status) {
-            this.snackbar = false;
-            this.response = "Designation cannot update";
-          } else {
-            this.snackbar = true;
-            this.response = "Designation has been updated";
+            this.response = "Record has been updated";
           }
         });
     },
@@ -916,25 +932,27 @@ export default {
       this.getDataFromApi();
     },
     getDepartments() {
-      let options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company.id,
-        },
-      };
-      this.$axios.get(`departments`, options).then(({ data }) => {
+      this.$axios.get(`departments`, this.payloadOptions).then(({ data }) => {
         this.departments = data.data;
       });
     },
+    getSubDepartments() {
+      this.$axios
+        .get(`sub-departments`, this.payloadOptions)
+        .then(({ data }) => {
+          this.sub_departments = data.data;
+        });
+    },
     getDesignations() {
-      let options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company.id,
-        },
-      };
-      this.$axios.get(`designation`, options).then(({ data }) => {
+      this.$axios.get(`designation`, this.payloadOptions).then(({ data }) => {
         this.designations = data.data;
+      });
+    },
+    getRoles() {
+      this.payloadOptions.params.role_type = "employee";
+
+      this.$axios.get(`role`, this.payloadOptions).then(({ data }) => {
+        this.roles = data.data;
       });
     },
     getDataFromApi(url = this.endpoint) {
@@ -963,11 +981,7 @@ export default {
       }
     },
     editItem(item) {
-      this.dialogKey = item.id;
-      // console.log("item", item);
-      // this.previewImage = item.profile_picture;
       this.employeeId = item.id;
-      console.log("item id", item.id);
       this.editDialog = true;
     },
     deleteItem(item) {

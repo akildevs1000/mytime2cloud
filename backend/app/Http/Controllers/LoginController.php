@@ -30,29 +30,7 @@ class LoginController extends Controller
             'user' => $user,
         ], 200);
     }
-
-    public function CompanyLogin(Request $request)
-    {
-        $model = User::query();
-        $user = $model->whereEmail($request->email)->with('company', 'employee')->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
-        // if (!$user || $user->company->expiry <= now()) {
-        //     throw ValidationException::withMessages([
-        //         'email' => ['Your account Expired'],
-        //     ]);
-        // }
-
-        return response()->json([
-            'token' => $user->createToken('myApp')->plainTextToken,
-            'user' => $model->first(),
-        ], 200);
-    }
+    
     public function me(Request $request)
     {
         $user = User::where('email', $request->user()->email)->first();
