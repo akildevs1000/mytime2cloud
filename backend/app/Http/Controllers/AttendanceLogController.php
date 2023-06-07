@@ -17,7 +17,7 @@ class AttendanceLogController extends Controller
 {
     public function index(AttendanceLog $model, Request $request)
     {
-        return $model->where("company_id", $request->company_id)->orderByDesc("id")->paginate($request->per_page);
+        return $model->with("device")->where("company_id", $request->company_id)->orderByDesc("id")->paginate($request->per_page);
     }
     public function getAttendanceLogs(AttendanceLog $model, Request $request)
     {
@@ -368,17 +368,25 @@ class AttendanceLogController extends Controller
     }
 
 
-    public function Search(Request $request, $key)
+    public function Search(Request $request, $company_id)
     {
         $model = AttendanceLog::query();
-        $model = $model->where("company_id", $request->company_id);
 
-        $model = $model->where(function ($q) use ($key) {
-            $q->where("UserID", $key);
-            $q->orWhere("DeviceID", $key);
+        $model->where("company_id", $request->company_id);
+
+        $model->whereDate('LogTime', '>=', $request->from_date);
+        $model->whereDate('LogTime', '<=', $request->to_date);
+
+        $model->when($request->UserID, function ($query) use ($request) {
+            return $query->where('UserID', $request->UserID);
+        });
+
+        $model->when($request->DeviceID, function ($query) use ($request) {
+            return $query->where('DeviceID', $request->DeviceID);
         });
 
         return $model
+            ->with("device")
             ->orderBy('LogTime', 'desc')
             ->paginate($request->per_page ?? 100);
     }
