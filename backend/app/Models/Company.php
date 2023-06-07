@@ -76,6 +76,11 @@ class Company extends Model
         return $this->hasMany(Employee::class);
     }
 
+    public function devices()
+    {
+        return $this->hasMany(Device::class);
+    }
+
     public function getLogoAttribute($value)
     {
         if (!$value) {

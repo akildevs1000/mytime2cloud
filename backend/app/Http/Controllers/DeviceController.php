@@ -15,7 +15,6 @@ class DeviceController extends Controller
 {
     public function index(Request $request)
     {
-
         $model = Device::query();
         $cols = $request->cols;
         $model->with(['status', 'company']);
@@ -95,11 +94,10 @@ class DeviceController extends Controller
 
         foreach ($logs as $log) {
 
-
             $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
                 ->where('company_id', $id)
                 ->where('system_user_id', $log->UserID)
-                ->first(['first_name', 'profile_picture', 'company_id']);
+                ->first(['display_name', 'profile_picture', 'company_id']);
 
             $dev =  Device::where('device_id', $log->DeviceID)
                 ->first(['name as device_name', 'short_name', 'device_id', 'location']);
@@ -154,40 +152,6 @@ class DeviceController extends Controller
         });
     }
 
-    public function getLastRecordsByCountTEST($id, $count)
-    {
-        $model = AttendanceLog::query();
-        $model->where('company_id', $id);
-        $model->take($count);
-
-        $logs = $model->get(["UserID", "LogTime", "DeviceID"]);
-
-        $arr = [];
-
-        foreach ($logs as $log) {
-
-            $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
-                ->where('company_id', $id)
-                ->where('system_user_id', $log->UserID)
-                ->first(['first_name', 'profile_picture', 'company_id']);
-
-            $dev =  Device::where('device_id', $log->DeviceID)
-                ->first(['name as device_name', 'short_name', 'device_id', 'location']);
-
-            if ($employee) {
-                $arr[] = [
-                    "company_id" => $employee->company_id,
-                    "UserID" => $log->UserID,
-                    "time" => date("H:i", strtotime($log->LogTime)),
-                    "device" => $dev,
-                    "employee" => $employee,
-                ];
-            }
-        }
-
-        return $arr;
-    }
-
     public function update(Device $Device, UpdateRequest $request)
     {
         try {
@@ -234,6 +198,7 @@ class DeviceController extends Controller
 
         return $model->paginate($request->per_page);
     }
+
     public function deleteSelected(Device $model, Request $request)
     {
         try {
@@ -296,13 +261,8 @@ class DeviceController extends Controller
 
     public function getDevicesStatuscount($company_id)
     {
-
-
-
-
         $model = Device::where('company_id', $company_id)
             ->whereIn('status_id', [1, 2])->get()->groupBy("status_id")->toArray();
-
 
         return [
             'offline' => count($model["2"]),

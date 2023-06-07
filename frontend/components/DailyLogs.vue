@@ -28,14 +28,6 @@
       <v-toolbar flat>
         <v-spacer />
 
-        <!-- <span class="text-right online-devices"
-          ><span class="mdi mdi-cellphone-sound"></span> Active Device:
-          {{ online_device_count }}</span
-        >
-        <span class="text-right offline-devices"
-          ><span class="mdi mdi-cellphone-remove"></span> Offline Device:
-          {{ offline_device_count }}</span
-        > -->
         <v-select
           @change="getRecords"
           v-model="number_of_records"
@@ -109,8 +101,6 @@ export default {
       logs: [],
       url: process.env.SOCKET_ENDPOINT,
       socket: null,
-      offline_device_count: 0,
-      online_device_count: 0,
     };
   },
   mounted() {
@@ -160,6 +150,8 @@ export default {
       this.$axios.post(`/device/details`, item).then(({ data }) => {
         if (data.device) {
           if (data.device.company_id == this.$auth.user.company.id) {
+            data.employee.profile_picture =
+              "data:image;base64," + item.RecordImage;
             this.logs.unshift(data);
           }
         }
