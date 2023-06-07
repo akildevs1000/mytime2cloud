@@ -67,7 +67,8 @@
               id="back"
               class="btn primary btn-block white--text v-size--default"
             >
-              Timezone Mapping List
+              <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
+              View List
             </button>
           </div>
         </v-col>
@@ -442,9 +443,11 @@ export default {
         },
       };
       let page = 1;
+
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        this.leftEmployees = data.data;
         this.leftEmployees = [];
+        this.leftEmployees = data.data;
+        this.leftSelectedEmp = [];
 
         this.rightEmployees = [];
         this.rightSelectedEmp = [];
@@ -455,7 +458,7 @@ export default {
         .get("departments", options)
         .then(({ data }) => {
           this.departments = data.data;
-          this.departments.unshift({ id: "---", name: "Select All" });
+          this.departments.unshift({ id: "---", name: "All Departmetns" });
         })
         .catch((err) => console.log(err));
     },
@@ -520,11 +523,6 @@ export default {
 
       let columnsToFilter = ["systeM_user_id"];
       let onlyUserSystemids = {};
-      // $.each(columnsToFilter, function (index, column) {
-      //   if (this.timezonesselected.hasOwnProperty(column)) {
-      //     onlyUserSystemids[column] = jsonData[column];
-      //   }
-      // });
 
       // Define the keys you want to select
       let keysToSelect = ["system_user_id"];
@@ -612,13 +610,15 @@ export default {
                 if (EmpStatusResponse != "") {
                   //Adding extra parameters for Employee object
                   if (selectedEmpobject) {
-                    $.extend(element, {
-                      sdkEmpResponse: "person info error ",
-                    });
+                    element["sdkEmpResponse"] = "person photo error ";
+                    // $.extend(element, {
+                    //   sdkEmpResponse: "person info error ",
+                    // });
                   } else {
-                    $.extend(element, {
-                      sdkEmpResponse: " Success",
-                    });
+                    // $.extend(element, {
+                    //   sdkEmpResponse: " Success",
+                    // });
+                    element["sdkEmpResponse"] = "Success";
                   }
                 }
 
@@ -628,10 +628,8 @@ export default {
             }
 
             //Adding extra parameters for Devices object
-            $.extend(rightDevicesobj, {
-              sdkDeviceResponse:
-                deviceStatusResponse != "" ? deviceStatusResponse : " Success",
-            });
+            rightDevicesobj["sdkDeviceResponse"] =
+              deviceStatusResponse != "" ? deviceStatusResponse : " Success";
             this.errors = [];
           });
           this.rightEmployees = jsrightEmployees;
@@ -694,20 +692,22 @@ export default {
     },
     sortObject: (o) =>
       o.sort(function compareByName(a, b) {
-        let nameA = a.first_name.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
-        let nameB = b.first_name.toUpperCase();
+        if (a.first_name && b.first_name) {
+          let nameA = a.first_name.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
+          let nameB = b.first_name.toUpperCase();
 
-        if (nameA < nameB) {
-          return -1;
-        } else if (nameA > nameB) {
-          return 1;
-        } else {
-          return 0;
+          if (nameA < nameB) {
+            return -1;
+          } else if (nameA > nameB) {
+            return 1;
+          } else {
+            return 0;
+          }
         }
       }),
     sortObjectD: (o) =>
       o.sort(function compareByName(a, b) {
-        if (a) {
+        if (a.device_id && b.device_id) {
           let nameA = a.device_id.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
           let nameB = b.device_id.toUpperCase();
 
@@ -725,16 +725,17 @@ export default {
     sortObjectC: (o) =>
       o.sort(function compareByName(a, b) {
         console.log("a", a);
+        if (a.name && b.name) {
+          let nameA = a.name.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
+          let nameB = b.name.toUpperCase();
 
-        let nameA = a.name.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
-        let nameB = b.name.toUpperCase();
-
-        if (nameA < nameB) {
-          return -1;
-        } else if (nameA > nameB) {
-          return 1;
-        } else {
-          return 0;
+          if (nameA < nameB) {
+            return -1;
+          } else if (nameA > nameB) {
+            return 1;
+          } else {
+            return 0;
+          }
         }
       }),
     allmoveLeftemp() {
@@ -948,5 +949,6 @@ export default {
   padding-left: 10px;
   padding-bottom: 5px;
   padding-top: 0px;
+  cursor: pointer;
 }
 </style>

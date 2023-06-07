@@ -49,9 +49,19 @@
                 </td>
               </tr>
             </table> -->
-            <!-- <v-row>
-              <button @click="printContent">Print Page</button>
-            </v-row> -->
+            <v-row>
+              <a
+                :href="getdownloadLink"
+                style="
+                  font-size: 40px;
+                  vertical-align: inherit;
+                  cursor: pointer;
+                  text-align: right;
+                "
+              >
+                <span class="mdi mdi-download-box"></span>
+              </a>
+            </v-row>
             <v-row>
               <div class="container mt-5 mb-5" id="printMe">
                 <div class="row">
@@ -166,11 +176,13 @@
                       <div class="border col-md-12">
                         <div class="row">
                           <div class="col-md-5">
-                            <span>Present Days: {{ this.data.present }}</span>
+                            <span
+                              >Present Days: {{ this.data.presentDays }}</span
+                            >
                           </div>
 
                           <div class="col-md-5 text-right">
-                            <span>Absent Days: {{ this.data.absent }}</span>
+                            <span>Absent Days: {{ this.data.absentDays }}</span>
                           </div>
                         </div>
                       </div>
@@ -180,11 +192,9 @@
                         <div class="d-flex flex-column">
                           <span
                             ><strong
-                              >Net Salary:
-                              {{ this.data.earnedSubTotal }} </strong
-                            >(In Words : Twenty Five thousand nine hundred
-                            seventy only)</span
-                          >
+                              >Net Salary: {{ this.data.earnedSubTotal }}
+                            </strong>
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -235,6 +245,7 @@ export default {
     Model: "Payslip",
     currentYear: "",
     currentMonth: "",
+    getdownloadLink: "",
     data: {},
     empCode: "",
     countdifference: 0,
@@ -289,25 +300,43 @@ export default {
     getDataFromApi() {
       // this.loading = true;
       //let id = this.$route.params.id;
-      let [id, rowid] = this.$route.params.id.split("_");
-
+      let [id, rowid, month, year] = this.$route.params.id.split("_");
+      let employee_ids = [];
+      employee_ids.push(rowid);
       this.empCode = id;
+
       this.$axios
         .get(`/payslip/${rowid}`, {
           params: {
             company_id: this.$auth?.user?.company?.id,
             employee_id: id,
+            month: month,
+            year: year,
+            employee_ids: employee_ids,
           },
         })
         .then(({ data }) => {
           console.log("Payslip", data);
           this.data = data;
 
-          this.earnings = data.earnings;
-          this.deductions = data.deductions;
+          this.earnings = data[0].earnings;
+          this.deductions = data[0].deductions;
 
-          this.countdifference = data.earnings.length - data.deductions.length;
+          this.countdifference =
+            data[0].earnings.length - data[0].deductions.length;
           console.log("countdifference", this.countdifference);
+
+          this.getdownloadLink =
+            this.$axios.defaults.baseURL +
+            "/donwload-payslip-pdf?company_id=" +
+            this.$auth.user.company.id +
+            "&employee_id=" +
+            data.employee_id +
+            "&month=" +
+            data.month +
+            "&year=" +
+            data.year;
+
           // this.loading = false;
         });
     },

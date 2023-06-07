@@ -408,13 +408,7 @@
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <span> {{ Model }} List</span>
             </v-toolbar>
-            <table
-              style="
-                font-family: arial, sans-serif;
-                border-collapse: collapse;
-                width: 100%;
-              "
-            >
+            <table class="employee-table">
               <tr>
                 <th
                   style="text-align: left; padding: 8px"
@@ -431,11 +425,7 @@
                 absolute
                 color="primary"
               ></v-progress-linear>
-              <tr
-                style="background-color: #fbfdff"
-                v-for="(item, index) in data"
-                :key="index"
-              >
+              <tr v-for="(item, index) in data" :key="index">
                 <td style="text-align: left; padding: 8px" class="text-center">
                   <b>{{ ++index }}</b>
                 </td>
@@ -461,6 +451,10 @@
                 <td style="text-align: left; padding: 8px">
                   {{ (item.user && item.user.email) || "---" }}
                 </td>
+                <td style="text-align: left; padding: 8px">
+                  {{ item.timezone ? item.timezone.timezone_name : "---" }}
+                </td>
+
                 <td style="text-align: left; padding: 8px; width: 200px">
                   <v-autocomplete
                     dense
@@ -558,6 +552,9 @@
                 </td>
               </tr>
             </table>
+            <v-col col="12" v-if="data.length == 0" class="text-center"
+              >No Records avaialble</v-col
+            >
           </v-card>
           <div>
             <v-row>
@@ -786,6 +783,7 @@ export default {
       { text: "Profile" },
       { text: "Name" },
       { text: "Email" },
+      { text: "Timezone" },
       { text: "Department" },
       { text: "Sub Department" },
       { text: "Designation" },

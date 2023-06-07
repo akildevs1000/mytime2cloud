@@ -256,10 +256,49 @@
       <v-col cols="12">
         <v-card elevation="2" class="pa-5">
           <v-row>
-            <v-col md="12">
-              <h5>Filters</h5>
+            <v-col md="6">
+              <h5>Filters - Multi In/Out Report</h5>
             </v-col>
-            <v-col md="3">
+
+            <v-col md="6" align-self="end">
+              <v-radio-group
+                row
+                style="float: right"
+                v-model="main_report_type"
+                :items="['General Report', 'Multi In/Out Report']"
+                item-text="['Daily', 'Weekly']"
+              >
+                <v-radio
+                  @click="change_mani_report_type('')"
+                  label="Multi In/Out Report"
+                  value=""
+                ></v-radio>
+
+                <v-radio
+                  @click="change_mani_report_type('General Report')"
+                  label="General Report"
+                  value="Daily"
+                ></v-radio>
+              </v-radio-group>
+
+              <!-- <v-col md="3">
+                <div>Shift Report Type</div>
+                <v-autocomplete
+                  class="mt-2"
+                  outlined
+                  @change="change_mani_report_type(main_report_type)"
+                  dense
+                  v-model="main_report_type"
+                  x-small
+                  :items="['General Report', 'Multi In/Out Report']"
+                  item-text="['Daily', 'Weekly']"
+                  :hide-details="true"
+                ></v-autocomplete>
+              </v-col> -->
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col md="2">
               Report Type
               <v-select
                 @change="fetch_logs"
@@ -281,7 +320,7 @@
                 :hide-details="true"
               ></v-select>
             </v-col>
-            <v-col md="3" v-if="isCompany">
+            <v-col md="2" v-if="isCompany">
               Departments
               <v-autocomplete
                 @change="getEmployeesByDepartment"
@@ -296,7 +335,7 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col md="3">
+            <v-col md="2">
               Employee ID
               <v-autocomplete
                 @change="fetch_logs"
@@ -311,8 +350,8 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col md="3" v-if="isCompany"></v-col>
-            <v-col md="3">
+            <!-- <v-col md="2" v-if="isCompany"></v-col> -->
+            <v-col md="2">
               <div>Frequency</div>
               <v-autocomplete
                 class="mt-2"
@@ -326,7 +365,7 @@
                 :hide-details="true"
               ></v-autocomplete>
             </v-col>
-            <v-col md="3" v-if="payload.report_type == 'Daily'">
+            <v-col md="2" v-if="payload.report_type == 'Daily'">
               <div>Date</div>
               <div class="text-left mt-2">
                 <v-menu
@@ -372,7 +411,7 @@
                 </v-menu>
               </div>
             </v-col>
-            <v-col v-if="payload.report_type !== 'Daily'" md="3">
+            <v-col v-if="payload.report_type !== 'Daily'" md="2">
               <div class="text-left">
                 <v-menu
                   ref="from_menu"
@@ -415,7 +454,7 @@
                 </v-menu>
               </div>
             </v-col>
-            <v-col v-if="payload.report_type !== 'Daily'" md="3">
+            <v-col v-if="payload.report_type !== 'Daily'" md="2">
               <div class="mb-2">To Date</div>
 
               <div class="text-left">
@@ -459,20 +498,6 @@
                   </v-date-picker>
                 </v-menu>
               </div>
-            </v-col>
-            <v-col md="3">
-              <div>Shift Report Type</div>
-              <v-autocomplete
-                class="mt-2"
-                outlined
-                @change="change_mani_report_type(main_report_type)"
-                dense
-                v-model="main_report_type"
-                x-small
-                :items="['General Report', 'Multi In/Out Report']"
-                item-text="['Daily', 'Weekly']"
-                :hide-details="true"
-              ></v-autocomplete>
             </v-col>
           </v-row>
         </v-card>
@@ -971,7 +996,7 @@ export default {
     loading: false,
     time_menu: false,
     manual_time_menu: false,
-    Model: "Reports",
+    Model: "Attendance Reports",
     endpoint: "report_multi_in_out",
     search: "",
     snackbar: false,
@@ -992,7 +1017,7 @@ export default {
     nameRules: [(v) => !!v || "reason is required"],
     timeRules: [(v) => !!v || "time is required"],
     deviceRules: [(v) => !!v || "device is required"],
-    main_report_type: "",
+    main_report_type: "Multi In/Out Report",
     daily_menu: false,
     daily_date: null,
     dailyDate: false,

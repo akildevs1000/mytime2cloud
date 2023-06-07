@@ -1,30 +1,8 @@
 <template>
   <div v-if="can(`employee_access`)">
-    <!-- <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      crossorigin="anonymous"
-    />
-    <link
-      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
-      rel="stylesheet"
-    /> -->
-    <!-- <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
-        {{ response }}
-      </v-snackbar>
-    </div> -->
-    <!-- <div>
-      Toggle column: <a class="toggle-vis" data-column="0">Name</a> -
-      <a class="toggle-vis" data-column="1">First name</a> -
-      <a class="toggle-vis" data-column="2">Last name</a> -
-      <a class="toggle-vis" data-column="3">Position</a> -
-      <a class="toggle-vis" data-column="4">Age</a> -
-      <a class="toggle-vis" data-column="5">Start date</a>
-    </div> -->
     <v-row class="mt-5 mb-5">
       <v-col cols="8">
-        <h3>{{ Model }} : Timezone : {{ Timezone }}</h3>
+        <h3>{{ Model }} : {{ timeZoneName }}</h3>
         <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="4" class="text-right">
@@ -77,11 +55,12 @@ export default {
     return {
       name: "fahath",
       endpointUpdatetimezonelist: "employee_timezone_mapping",
-      Model: "Timezone Mapping List  ",
+      Model: "Timezone Mapping  ",
       response: "",
       tableData: [],
       tableColumns: [],
       Timezone: "",
+      timeZoneName: "",
     };
   },
   computed: {},
@@ -92,15 +71,32 @@ export default {
   mounted: function () {
     this.Timezone = this.$route.params.id;
     this.$nextTick(function () {
-      this.deviceTableContent();
-      this.employeeTableContent();
+      var options = {
+        params: {
+          per_page: 1000, //this.pagination.per_page,
+          company_id: this.$auth.user.company.id,
+          id: this.$route.params.id,
+          cols: ["id", "employee_id", "display_name"],
+        },
+      };
+      let url =
+        this.$axios.defaults.baseURL +
+        "/employee_timezone_mapping/" +
+        this.$route.params.id;
+      this.$axios.get(`${url}`, options).then(({ data }) => {
+        this.deviceTableContent(data.device_id);
+        this.employeeTableContent(data.employee_id);
+
+        this.timeZoneName = data.timezone.timezone_name;
+      });
     });
   },
   methods: {
     goToBackpage() {
       this.$router.push("/timezonemapping/list");
     },
-    deviceTableContent() {
+
+    deviceTableContent(ajaxData) {
       // Code that will run only after the
       // entire view has been rendered
       var options = {
@@ -119,8 +115,10 @@ export default {
         "/employee_timezone_mapping/" +
         this.$route.params.id;
 
+      this.loading = true;
+
       $(document).ready(() => {
-        // setTimeout(() => {
+        //setTimeout(() => {
 
         var table = $("#devicesTables").DataTable({
           responsive: true,
@@ -135,12 +133,13 @@ export default {
             [1, "asc"], // colonna index2
           ],
           stateSave: true,
-          ajax: {
-            url,
-            data: options.params,
-            dataSrc: "device_id",
-            datatype: "json",
-          },
+          data: ajaxData,
+          // ajax: {
+          //   url,
+          //   data: options.params,
+          //   dataSrc: "device_id",
+          //   datatype: "json",
+          // },
           columns: [
             {
               data: null,
@@ -178,7 +177,7 @@ export default {
         // }, 1000 * 1);
       });
     },
-    employeeTableContent() {
+    employeeTableContent(ajaxData) {
       console.log("id", this.$route.params.id);
       // Code that will run only after the
       // entire view has been rendered
@@ -215,12 +214,13 @@ export default {
             [1, "asc"], // colonna index2
           ],
           stateSave: true,
-          ajax: {
-            url,
-            data: options.params,
-            dataSrc: "employee_id",
-            datatype: "json",
-          },
+          data: ajaxData,
+          // ajax: {
+          //   url,
+          //   data: options.params,
+          //   dataSrc: "employee_id",
+          //   datatype: "json",
+          // },
           columns: [
             {
               data: null,

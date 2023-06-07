@@ -15,8 +15,7 @@ class EmployeeTimezoneMapping extends Model
         'employee_id' => "array",
         'device_id' => "array",
         'employee_ids' => "array",
-        'device_ids' => "array"
-
+        'device_ids' => "array",
 
     ];
 
@@ -24,6 +23,7 @@ class EmployeeTimezoneMapping extends Model
     {
         return $this->belongsTo(Company::class);
     }
+
     public function timezone()
     {
         return $this->belongsTo(Timezone::class, 'timezone_id', 'timezone_id');

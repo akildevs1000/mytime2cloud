@@ -48,7 +48,7 @@
             :key="jdx"
           >
             <!-- v-show="!miniVariant" -->
-            <v-list-item style="min-height: 0" :to="j.to">
+            <v-list-item style="min-height: 0" :to="j.to" class="submenutitle">
               <v-list-item-title v-if="!miniVariant"
                 >{{ j.title }}
               </v-list-item-title>
@@ -394,7 +394,32 @@ export default {
             },
           ],
         },
-
+        {
+          icon: "mdi-calendar-today",
+          title: `Access Control`,
+          open_menu: false,
+          menu: "access",
+          hasChildren: [
+            {
+              icon: "mdi mdi-clock-time-four-outline",
+              title: "Timezones",
+              to: "/timezone",
+              menu: "timezone",
+            },
+            {
+              icon: "mdi mdi-credit-card-clock-outline",
+              title: "TImezone Mapped List",
+              to: "/timezonemapping/list",
+              menu: "timezone_mapping_list",
+            },
+            {
+              icon: "mdi mdi-camera-account",
+              title: "Employee Photo Upload",
+              to: "/employee_photo_upload",
+              menu: "employee_photo_upload",
+            },
+          ],
+        },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Attendances Logs",
@@ -418,6 +443,7 @@ export default {
               title: "Profile",
               to: `/companies/${this.$auth.user?.company?.id}`,
               menu: "setting_access",
+              class: "submenutitle",
             },
 
             {
@@ -444,30 +470,13 @@ export default {
             //   to: "/device_management",
             //   menu: "device_management",
             // },
-            {
-              icon: "mdi mdi-camera-account",
-              title: "Employee Photo Upload",
-              to: "/employee_photo_upload",
-              menu: "employee_photo_upload",
-            },
+
             // {
             //   icon: "mdi mdi-clock-plus-outline",
             //   title: "Create New",
             //   to: "/timezonemapping/new",
             //   menu: "timezone_mapping_list",
             // },
-            {
-              icon: "mdi mdi-credit-card-clock-outline",
-              title: "Mapped List",
-              to: "/timezonemapping/list",
-              menu: "timezone_mapping_list",
-            },
-            {
-              icon: "mdi mdi-clock-time-four-outline",
-              title: "Timezones",
-              to: "/timezone",
-              menu: "timezone",
-            },
           ],
         },
 
@@ -622,7 +631,7 @@ table {
   font-family: Roboto !important;
 }
 </style>
-<style scoped>
+<style>
 .fixed-setting {
   position: fixed !important;
   top: 500px;
@@ -681,5 +690,63 @@ table {
   .container {
     max-width: 100%;
   }
+}
+
+.submenutitle {
+  padding-left: 5px;
+  margin-left: -15px;
+}
+
+.toolbar-button-design {
+  height: 38px !important;
+  /* vertical-align: bottom; */
+  margin: auto;
+  border-radius: 5px;
+}
+
+table.employee-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  /* border: 1px solid #dddddd; */
+  text-align: left;
+  padding: 8px;
+}
+
+table.employee-table tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+.toolbar-button-design {
+  height: 38px !important;
+  /* vertical-align: bottom; */
+  margin: auto;
+  border-radius: 5px;
+}
+
+table.employee-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  /* border: 1px solid #dddddd; */
+  text-align: left;
+  padding: 8px;
+}
+
+table.employee-table tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+.toolbar-button-design {
+  height: 38px !important;
+  /* vertical-align: bottom; */
+  margin: auto;
+  border-radius: 5px;
 }
 </style>

@@ -186,12 +186,29 @@
                 :key="user.id"
               >
                 <div class="row">
-                  <div class="col-sm">
-                    {{ user.employee_id }} : {{ user.display_name }}
-                  </div>
-                  <div class="col-sm">
-                    <span style="color: red">{{ user.sdkEmpResponse }}</span>
-                  </div>
+                  <v-col col="4">
+                    <div class="col-sm">
+                      {{ user.employee_id }} : {{ user.display_name }}
+                    </div>
+                  </v-col>
+                  <v-col col="4">
+                    <span
+                      ><v-img
+                        style="border-radius: 50%; height: 40px; width: 40px"
+                        :src="
+                          user.profile_picture
+                            ? user.profile_picture
+                            : '/no-profile-image.jpg'
+                        "
+                      >
+                      </v-img
+                    ></span>
+                  </v-col>
+                  <v-col col="4">
+                    <div class="col-sm">
+                      <span style="color: red">{{ user.sdkEmpResponse }}</span>
+                    </div>
+                  </v-col>
                 </div>
               </v-card-text>
             </v-card>
@@ -713,6 +730,8 @@ export default {
           } else {
             return 0;
           }
+        } else {
+          console.log(a, b);
         }
       }),
     sortObjectD: (o) =>
@@ -729,6 +748,7 @@ export default {
             return 0;
           }
         } else {
+          console.log(a, b);
           return 0;
         }
       }),
@@ -744,6 +764,7 @@ export default {
           } else if (nameA > nameB) {
             return 1;
           } else {
+            console.log(a, b);
             return 0;
           }
         }
@@ -754,9 +775,13 @@ export default {
       this.leftEmployees = this.sortObject(this.leftEmployees);
     },
     allmoveRightEmp() {
+      console.log("1");
       this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
+      console.log("2");
       this.leftEmployees = [];
+      console.log("3");
       this.rightEmployees = this.sortObject(this.rightEmployees);
+      console.log("4");
     },
     moveLeftemp(id) {
       this.rightSelectedEmp.push(id);
@@ -790,10 +815,13 @@ export default {
       this.rightSelectedEmp.pop(id);
     },
     moveRightEmp(id, timezone) {
-      if (timezone && timezone.timezone_name) {
-        return false;
-      }
-
+      console.log(timezone);
+      // if (!timezone) {
+      //   return false;
+      // }
+      // if (!timezone.timezone_name) {
+      //   return false;
+      // }
       this.leftSelectedEmp.push(id);
 
       console.log("Starting move right--------");

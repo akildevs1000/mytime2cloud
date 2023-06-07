@@ -2,30 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Company;
-use App\Models\Employee;
-use App\Models\Attendance;
-use App\Models\Designation;
-use Illuminate\Http\Request;
-use App\Models\CompanyContact;
-use App\Models\ScheduleEmployee;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\Employee\StoreRequest;
-use App\Http\Requests\Employee\UpdateRequest;
 use App\Http\Requests\Employee\ContactRequest;
-use App\Http\Requests\Employee\EmployeeRequest;
-use App\Http\Requests\Employee\EmployeeOtherRequest;
+use App\Http\Requests\Employee\EmployeeContactRequest;
 use App\Http\Requests\Employee\EmployeeImportRequest;
+use App\Http\Requests\Employee\EmployeeOtherRequest;
+use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
-use App\Http\Requests\Employee\EmployeeContactRequest;
+use App\Http\Requests\Employee\StoreRequest;
+use App\Http\Requests\Employee\UpdateRequest;
+use App\Models\Attendance;
+use App\Models\Company;
+use App\Models\CompanyContact;
+use App\Models\Designation;
+use App\Models\Employee;
+use App\Models\ScheduleEmployee;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
 {
@@ -47,7 +47,6 @@ class EmployeeController extends Controller
     public function employeeStore(StoreRequest $request)
     {
         $data = $request->validated();
-
 
         if ($request->hasFile('profile_picture')) {
             $file = $request->file('profile_picture');
@@ -221,10 +220,10 @@ class EmployeeController extends Controller
     public function index(Employee $employee, Request $request)
     {
         $data = $employee
-            ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "payroll"])
+            ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "payroll", "timezone"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department',  fn (Builder $query) => $query->where('department_id', $request->department_id));
+                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
             })
             ->paginate($request->per_page ?? 100);
         $data = $this->getPayslipstatus($data, $request);
@@ -233,7 +232,7 @@ class EmployeeController extends Controller
     }
     public function getPayslipstatus($data, $request)
     {
-        if (isset($request["company_id"]) && $request["year"] &&        $request["month"]) {
+        if (isset($request["company_id"]) && $request["year"] && $request["month"]) {
             foreach ($data as $key => $value) {
 
                 $pdfFile_name = 'payslips/' . $request["company_id"] . '/' . $request["company_id"] . '_' . $value->employee_id . '_' . $request["month"] . '_' . $request["year"] . '_payslip.pdf';
@@ -439,7 +438,7 @@ class EmployeeController extends Controller
         return Employee::query()
             ->latest()
             ->filter($key)
-            ->with(["user", "department", "sub_department", "designation"])
+            ->with(["user", "department", "sub_department", "designation", "timezone"])
             ->where('company_id', $request->company_id)
             ->paginate($request->perPage ?? 20);
     }
@@ -458,7 +457,7 @@ class EmployeeController extends Controller
         //     $q->where('company_id', $request->company_id);
         // })
 
-        return  $model->paginate($request->perPage ?? 10);
+        return $model->paginate($request->perPage ?? 10);
 
         //  return $model->whereHas('schedule')->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role"])->paginate($request->perPage ?? 10);
     }
@@ -521,7 +520,6 @@ class EmployeeController extends Controller
                 Employee::where("id", $request->employee_id)->update(["user_id" => $user->id]);
             }
 
-
             if (!$user) {
                 return $this->response('Employee cannot update.', null, false);
             }
@@ -531,7 +529,6 @@ class EmployeeController extends Controller
             throw $th;
         }
     }
-
 
     public function updateContact(Employee $model, EmployeeUpdateContact $request, $id)
     {
@@ -564,7 +561,6 @@ class EmployeeController extends Controller
         $totalEmployee = $company->employees_count ?? 0;
         $maxEmployee = $company->max_employee ?? 0;
         $remainingEmployee = max(0, (int) $maxEmployee - (int) $totalEmployee);
-
 
         if (!(count($rowCount) - 1 <= $remainingEmployee)) {
             return ["status" => false, "errors" => ["Employee limit exceed. Maximum limit is " . $maxEmployee]];

@@ -6,10 +6,67 @@
       </v-snackbar>
     </div>
     <v-container>
-      <v-btn dark class="primary" @click="addDocumentInfo">
-        Document <v-icon>mdi-plus</v-icon>
-      </v-btn>
+      <v-row class="pl-1 mt-0 mb-5">
+        <v-col cols="12">
+          <v-card class="mb-5 rounded-md" elevation="0">
+            <v-toolbar
+              class="rounded-md"
+              style="border-radius: 5px 5px 0px 0px"
+              color="background"
+              dense
+              flat
+              dark
+            >
+              <span> Documents List</span>
+
+              <v-spacer></v-spacer>
+              <v-toolbar-items>
+                <v-btn
+                  dark
+                  small
+                  class="primary toolbar-button-design"
+                  @click="addDocumentInfo"
+                >
+                  Document&nbsp; <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </v-toolbar-items>
+            </v-toolbar>
+
+            <table class="employee-table" style="border: 1px solid #ddd">
+              <v-progress-linear
+                v-if="loading"
+                :active="loading"
+                :indeterminate="loading"
+                absolute
+                color="primary"
+              ></v-progress-linear>
+              <tr>
+                <th>Title</th>
+                <th>Download</th>
+                <th>Delete</th>
+              </tr>
+              <tr v-for="(d, index) in document_list" :key="index">
+                <td>
+                  <span>{{ d.title }}</span>
+                </td>
+                <td>
+                  <a :href="d.attachment" download target="_blank">
+                    <v-icon color="primary"> mdi-download </v-icon>
+                  </a>
+                </td>
+                <td>
+                  <v-icon color="error" @click="delete_document(d.id)">
+                    mdi-delete
+                  </v-icon>
+                </td>
+              </tr>
+            </table>
+          </v-card>
+        </v-col>
+      </v-row>
+
       <v-form
+        v-if="displayForm"
         class="mt-5"
         ref="form"
         method="post"
@@ -84,23 +141,6 @@
         </v-row>
       </v-form>
     </v-container>
-    <v-row class="pl-1 mt-5 mb-5">
-      <v-col cols="12">
-        <v-row v-for="(d, index) in document_list" :key="index" class="pa-2">
-          <v-col cols="5">
-            <span>{{ d.title }}</span>
-          </v-col>
-          <v-col cols="4">
-            <a :href="d.attachment" target="_blank">
-              <v-btn x-small class="primary"> open file </v-btn>
-            </a>
-            <v-icon color="error" @click="delete_document(d.id)">
-              mdi-delete
-            </v-icon>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
   </div>
 </template>
 
@@ -109,8 +149,10 @@ export default {
   props: ["employeeId"],
   data() {
     return {
+      loading: false,
       snackbar: false,
-      valid: true,
+      valid: false,
+      displayForm: false,
       documents: false,
       response: "",
       errors: [],
@@ -132,6 +174,7 @@ export default {
   },
   methods: {
     getInfo(id) {
+      this.loading = true;
       this.$axios.get(`documentinfo/${id}`).then(({ data }) => {
         this.document_list = data;
         this.loading = false;
@@ -150,13 +193,17 @@ export default {
     },
 
     addDocumentInfo() {
-      this.Document.items.push({
-        title: "",
-        file: "",
-      });
+      // this.Document.items.push({
+      //   title: "",
+      //   file: "",
+      // });
+      this.valid = true;
+      this.Document.items = [{ title: "", file: "" }];
+      this.displayForm = true;
     },
 
     save_document_info() {
+      this.loading = true;
       if (!this.$refs.form.validate()) {
         alert("Enter required fields!");
         return;
@@ -189,17 +236,21 @@ export default {
             this.snackbar = true;
             this.response = data.message;
             this.getDocumentInfo(this.employeeId);
-            this.Document.items = [{ title: "", file: "" }];
+
             this.close_document_info();
+            this.displayForm = false;
+            this.loading = false;
           }
         })
         .catch((e) => console.log(e));
     },
 
     getDocumentInfo(id) {
+      this.loading = true;
       this.$axios.get(`documentinfo/${id}`).then(({ data }) => {
         this.document_list = data;
         this.documents = false;
+        this.loading = false;
       });
     },
 
@@ -209,7 +260,8 @@ export default {
     },
 
     removeItem(index) {
-      this.Document.items.splice(index, 1);
+      //this.Document.items.splice(index, 1);
+      this.displayForm = false;
     },
 
     delete_document(id) {
@@ -236,21 +288,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #fbfdff;
-}
-</style>

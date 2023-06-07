@@ -13,11 +13,14 @@ class EmployeeTimezoneMappingController extends Controller
 {
     public function index(EmployeeTimezoneMapping $model, Request $request)
     {
+
         return $model->where('company_id', $request->company_id)->paginate($request->per_page);
     }
     public function show(EmployeeTimezoneMapping $model, $id)
     {
-        return $model->where("id", $id)->first();
+
+        return $model->with(["timezone"])->where('id', $id)->first();
+        //return $model->where("id", $id)->first();
     }
 
     public function store(StoreRequest $request)
@@ -88,12 +91,7 @@ class EmployeeTimezoneMappingController extends Controller
             $row['userCode'] = $list['system_user_id'];
             //$row['expiry'] = "2089-12-31 23:59:59";
             $row['timeGroup'] = $phpArray['timezone_id'];
-            //francsis
-            // $row['faceImage'] = "https://backend.ideahrms.com/media/employee/profile_picture/WhatsApp%20Image%202023-01-13%20at%201.21.40%20PM.jpeg";
-            //Venu
-            $row['faceImage'] = "https://backend.ideahrms.com/media/employee/profile_picture/1685350538.jpeg";
 
-            // $row['faceImage']  = $list['profile_picture'];
             $personsListArray[] = $row;
         }
 

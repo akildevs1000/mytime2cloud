@@ -1,5 +1,36 @@
 <template>
   <div v-if="can(`role_access`)">
+    <v-dialog v-model="dialogNewRole" width="500">
+      <v-card>
+        <v-toolbar flat dark class="background">
+          {{ formTitle }} {{ Model }}
+        </v-toolbar>
+
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="editedItem.name"
+                  label="Role"
+                ></v-text-field>
+                <span v-if="errors && errors.name" class="error--text">
+                  {{ errors.name[0] }}</span
+                >
+              </v-col>
+              <v-col> </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn class="error" small @click="close"> Cancel </v-btn>
+          <v-btn class="background" dark small @click="save">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -15,47 +46,17 @@
           <v-btn
             v-if="can(`role_deleted`)"
             small
-            color="error"
+            color="primary"
             class="mr-2 mb-2"
-            @click="delteteSelectedRecords"
-            >Delete Selected Records</v-btn
-          >
+            @click="dispalyNewDialog()"
+            >Create New +
+          </v-btn>
         </div>
       </v-col>
     </v-row>
 
     <v-row>
-      <v-col md="4">
-        <v-card>
-          <v-toolbar flat dark class="background">
-            {{ formTitle }} {{ Model }}
-          </v-toolbar>
-
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="editedItem.name"
-                    label="Role"
-                  ></v-text-field>
-                  <span v-if="errors && errors.name" class="error--text">
-                    {{ errors.name[0] }}</span
-                  >
-                </v-col>
-                <v-col> </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn class="error" small @click="close"> Cancel </v-btn>
-            <v-btn class="background" dark small @click="save">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-      <v-col md="8">
+      <v-col md="12">
         <v-data-table
           v-if="can(`role_view`)"
           v-model="ids"
@@ -67,12 +68,36 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [50, 100, 500, 1000]
+            itemsPerPageOptions: [50, 100, 500, 1000],
           }"
           class="elevation-1"
         >
           <template v-slot:top>
-            <v-toolbar dark class="background">Roles List</v-toolbar>
+            <v-card class="mb-5 rounded-md mt-3" elevation="0">
+              <v-toolbar
+                class="rounded-md"
+                style="border-radius: 5px 5px 0px 0px"
+                color="background"
+                dense
+                flat
+                dark
+              >
+                <span> Roles List</span>
+
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-btn
+                    v-if="can(`role_deleted`)"
+                    small
+                    color="error toolbar-button-design"
+                    class="mr-2 mb-2"
+                    @click="delteteSelectedRecords"
+                    >Delete Selected Records</v-btn
+                  >
+                </v-toolbar-items>
+              </v-toolbar>
+            </v-card>
+
             <v-toolbar flat>
               <v-toolbar-title>List</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
@@ -116,6 +141,7 @@
 <script>
 export default {
   data: () => ({
+    dialogNewRole: false,
     options: {},
     Model: "Role",
     endpoint: "role",
@@ -127,20 +153,20 @@ export default {
     total: 0,
     headers: [
       { text: "Role", align: "left", sortable: false, value: "name" },
-      { text: "Actions", align: "center", value: "action", sortable: false }
+      { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     editedIndex: -1,
     editedItem: { name: "" },
     defaultItem: { name: "" },
     response: "",
     data: [],
-    errors: []
+    errors: [],
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    }
+    },
   },
 
   watch: {
@@ -153,18 +179,22 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     this.loading = true;
   },
 
   methods: {
+    dispalyNewDialog() {
+      this.dialogNewRole = true;
+    },
+
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -178,8 +208,8 @@ export default {
         params: {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
-          role_type: "employee"
-        }
+          role_type: "employee",
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -203,13 +233,13 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.id);
+      let just_ids = this.ids.map((e) => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids
+            ids: just_ids,
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -221,7 +251,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -239,11 +269,12 @@ export default {
               this.response = data.message;
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     close() {
       this.dialog = false;
+      this.dialogNewRole = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
@@ -253,7 +284,7 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company.id,
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -263,18 +294,19 @@ export default {
               this.errors = data.errors;
             } else {
               const index = this.data.findIndex(
-                item => item.id == this.editedItem.id
+                (item) => item.id == this.editedItem.id
               );
               this.data.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name
+                name: this.editedItem.name,
               });
               this.snackbar = data.status;
               this.response = data.message;
+              this.dialogNewRole = false;
               this.close();
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, payload)
@@ -290,9 +322,17 @@ export default {
               this.search = "";
             }
           })
-          .catch(res => console.log(res));
+          .catch((res) => console.log(res));
       }
-    }
-  }
+    },
+  },
 };
 </script>
+<style scoped>
+.toolbar-button-design {
+  height: 38px !important;
+  /* vertical-align: bottom; */
+  margin: auto;
+  border-radius: 5px;
+}
+</style>

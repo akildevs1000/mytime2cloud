@@ -6,99 +6,170 @@
       </v-snackbar>
     </div>
     <v-container>
-      <v-btn dark class="primary" @click="addEarning" small>
-        <v-icon small>mdi-plus</v-icon> Earnings
-      </v-btn>
-      <v-row class="mt-5">
-        <v-col cols="5">
-          <label class="mb-1">Basic Salary</label>
-          <v-text-field
-            outlined
-            dense
-            v-model="payroll.basic_salary"
-            color="primary"
-          />
-          <span v-if="errors && errors.basic_salary" class="text-danger">{{
-            errors.basic_salary[0]
-          }}</span>
-        </v-col>
+      <v-row class="pl-1 mt-0 mb-5" v-if="!displayEditform">
+        <v-col cols="12">
+          <v-card class="mb-5 rounded-md" elevation="0">
+            <v-toolbar
+              class="rounded-md"
+              style="border-radius: 5px 5px 0px 0px"
+              color="background"
+              dense
+              flat
+              dark
+            >
+              <span> Payroll Info</span>
 
-        <v-col cols="5">
-          <label class="mb-1">Effective Date</label>
-          <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            :return-value.sync="date"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                outlined
-                dense
-                v-model="payroll.effective_date"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field>
-            </template>
-            <v-date-picker v-model="payroll.effective_date" no-title scrollable>
               <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>
-              <v-btn
-                text
+              <v-toolbar-items>
+                <v-btn
+                  dark
+                  small
+                  class="primary toolbar-button-design"
+                  @click="displayEdit"
+                >
+                  Edit Details &nbsp;<v-icon small>mdi-pencil </v-icon>
+                </v-btn>
+              </v-toolbar-items>
+            </v-toolbar>
+
+            <table class="employee-table" style="border: 1px solid #ddd">
+              <v-progress-linear
+                v-if="loading"
+                :active="loading"
+                :indeterminate="loading"
+                absolute
                 color="primary"
-                @click="$refs.menu.save(payroll.effective_date)"
+              ></v-progress-linear>
+
+              <tr>
+                <th>Basic Salary</th>
+                <td>
+                  {{ payroll.basic_salary }}
+                </td>
+              </tr>
+              <tr>
+                <th>Effective</th>
+                <td>
+                  {{ payroll.effective_date_formatted }}
+                </td>
+              </tr>
+              <tr v-for="(item, index) in payroll.earnings" :key="index">
+                <th>{{ item.label }}</th>
+                <td>
+                  {{ item.value }}
+                </td>
+              </tr>
+            </table>
+          </v-card>
+        </v-col>
+      </v-row>
+      <v-row v-if="displayEditform">
+        <v-row class="mt-5">
+          <v-col cols="5">
+            <label class="mb-1">Basic Salary</label>
+            <v-text-field
+              outlined
+              dense
+              v-model="payroll.basic_salary"
+              color="primary"
+            />
+            <span v-if="errors && errors.basic_salary" class="text-danger">{{
+              errors.basic_salary[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="5">
+            <label class="mb-1">Effective Date</label>
+            <v-menu
+              ref="menu"
+              v-model="menu"
+              :close-on-content-click="false"
+              :return-value.sync="date"
+              transition="scale-transition"
+              offset-y
+              min-width="auto"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  outlined
+                  dense
+                  v-model="payroll.effective_date"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="payroll.effective_date"
+                no-title
+                scrollable
               >
-                OK
-              </v-btn>
-            </v-date-picker>
-          </v-menu>
-          <span v-if="errors && errors.effective_date" class="text-danger">{{
-            errors.effective_date[0]
-          }}</span>
-        </v-col>
-      </v-row>
-      <v-row v-for="(d, index) in payroll.earnings" :key="index">
-        <v-col cols="5">
-          <label class="mb-1">Earning Label</label>
-          <v-text-field outlined dense v-model.number="d.label" />
-          <span
-            v-if="errors && errors[`earnings.${index}.label`]"
-            class="text-danger"
-            >{{ errors[`earnings.${index}.label`][0] }}</span
-          >
-        </v-col>
-        <v-col cols="5">
-          <label class="mb-1">Earning Value</label>
-          <v-text-field outlined dense v-model="d.value" />
-          <span
-            v-if="errors && errors[`earnings.${index}.value`]"
-            class="text-danger"
-            >The earning value field is required.</span
-          >
-        </v-col>
-        <v-col cols="2">
-          <v-btn
-            dark
-            class="error"
-            fab
-            @click="removeEarningItem(index)"
-            x-small
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12" class="text-right">
-          <v-btn class="primary" small @click="save_payroll_info">Save</v-btn>
-        </v-col>
+                <v-spacer></v-spacer>
+                <v-btn text color="primary" @click="menu = false">
+                  Cancel
+                </v-btn>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="$refs.menu.save(payroll.effective_date)"
+                >
+                  OK
+                </v-btn>
+              </v-date-picker>
+            </v-menu>
+            <span v-if="errors && errors.effective_date" class="text-danger">{{
+              errors.effective_date[0]
+            }}</span>
+          </v-col>
+          <v-col cols="2" style="padding-top: 40px">
+            <label class="mb-1">&nbsp</label>
+            <v-btn dark class="primary" @click="addEarning" small>
+              <v-icon small>mdi-plus</v-icon> Earnings
+            </v-btn>
+          </v-col>
+        </v-row>
+        <v-row v-for="(d, index) in payroll.earnings" :key="index">
+          <v-col cols="5">
+            <label class="mb-1">Earning Label</label>
+            <v-text-field outlined dense v-model.number="d.label" />
+            <span
+              v-if="errors && errors[`earnings.${index}.label`]"
+              class="text-danger"
+              >{{ errors[`earnings.${index}.label`][0] }}</span
+            >
+          </v-col>
+          <v-col cols="5">
+            <label class="mb-1">Earning Value</label>
+            <v-text-field outlined dense v-model="d.value" />
+            <span
+              v-if="errors && errors[`earnings.${index}.value`]"
+              class="text-danger"
+              >The earning value field is required.</span
+            >
+          </v-col>
+          <v-col cols="2" style="padding-top: 40px">
+            <v-btn
+              dark
+              class="error"
+              fab
+              @click="removeEarningItem(index)"
+              x-small
+            >
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="10" class="text-right">
+            <v-btn class="error" small @click="cancel">Cancel</v-btn>
+          </v-col>
+          <v-col cols="2" class="text-right">
+            <v-btn class="primary" small @click="save_payroll_info">Save</v-btn>
+          </v-col>
+        </v-row>
       </v-row>
     </v-container>
-    <table>
+    <!-- <table>
       <tr>
         <th></th>
         <td style="text-align: right">
@@ -131,7 +202,7 @@
           {{ item.value }}
         </td>
       </tr>
-    </table>
+    </table> -->
   </div>
 </template>
 
@@ -140,6 +211,8 @@ export default {
   props: ["employeeId"],
   data() {
     return {
+      displayEditform: false,
+      loading: false,
       payroll_info: false,
       menu: false,
       date: false,
@@ -170,6 +243,12 @@ export default {
     },
   },
   methods: {
+    displayEdit() {
+      this.displayEditform = true;
+    },
+    cancel() {
+      this.displayEditform = false;
+    },
     removeEarningItem(index) {
       this.payroll.earnings.splice(index, 1);
     },
@@ -178,6 +257,7 @@ export default {
       this.payroll.earnings.push(obj);
     },
     getInfo() {
+      this.loading = true;
       this.$axios
         .get(`payroll/${this.employeeId}`, {
           params: {
@@ -185,6 +265,7 @@ export default {
           },
         })
         .then(({ data }) => {
+          this.loading = false;
           this.payroll = data || { earnings: [] };
         });
     },
@@ -209,7 +290,7 @@ export default {
         company_id: this.$auth?.user?.company?.id,
         employee_id: this.employeeId,
       };
-
+      this.loading = true;
       this.$axios
         .post(`/payroll`, payload)
         .then(({ data }) => {
@@ -218,9 +299,12 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
+            this.loading = true;
             this.snackbar = true;
             this.response = data.message;
             this.payroll = data.record || { earnings: [] };
+
+            this.cancel();
           }
         })
         .catch((e) => {
@@ -235,21 +319,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #fbfdff;
-}
-</style>

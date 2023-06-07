@@ -68,7 +68,8 @@
               id="back"
               class="btn primary btn-block white--text v-size--default"
             >
-              List
+              <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
+              View List
             </button>
           </div>
         </v-col>
@@ -79,7 +80,6 @@
             <span>All Employees List</span>
           </v-toolbar>
           <div>
-            {{ leftEmployees }}
             <v-card class="displaylist">
               <v-card-text
                 class="displaylistview"
@@ -706,7 +706,7 @@ export default {
             }
 
             //Adding extra parameters for Devices object
-            elementDevice["sdkDeviceResponse"] =
+            rightDevicesobj["sdkDeviceResponse"] =
               deviceStatusResponse != "" ? deviceStatusResponse : " Success";
             this.errors = [];
           });
