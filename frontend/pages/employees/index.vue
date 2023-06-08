@@ -509,7 +509,7 @@
                 <td style="text-align: left; padding: 8px; width: 200px">
                  
                   <v-autocomplete
-                    v-if="item.user && item.user.employee_role_id"
+                    v-if="item.user"
                     dense
                     outlined
                     v-model="item.user.employee_role_id"
