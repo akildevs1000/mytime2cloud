@@ -374,8 +374,16 @@ class AttendanceLogController extends Controller
 
         $model->where("company_id", $request->company_id);
 
-        $model->whereDate('LogTime', '>=', $request->from_date);
-        $model->whereDate('LogTime', '<=', $request->to_date);
+        // $model->whereDate('LogTime', '>=', $request->from_date);
+        // $model->whereDate('LogTime', '<=', $request->to_date);
+
+        $model->when($request->from_date, function ($query) use ($request) {
+            return $query->whereDate('LogTime', '>=', $request->from_date);
+        });
+
+        $model->when($request->to_date, function ($query) use ($request) {
+            return $query->whereDate('LogTime', '<=', $request->to_date);
+        });
 
         $model->when($request->UserID, function ($query) use ($request) {
             return $query->where('UserID', $request->UserID);
