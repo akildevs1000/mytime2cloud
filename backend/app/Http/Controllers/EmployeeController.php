@@ -112,7 +112,7 @@ class EmployeeController extends Controller
             if (!$employee) {
                 return $this->response('Record cannot update.', null, false);
             }
-            return $this->response('Record updated.', Employee::find($id), true);
+            return $this->response('Record updated.', User::find($id), true);
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -223,7 +223,7 @@ class EmployeeController extends Controller
             ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "payroll", "timezone"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
+                $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
             })
             ->paginate($request->per_page ?? 100);
         $data = $this->getPayslipstatus($data, $request);
