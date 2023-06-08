@@ -24,7 +24,7 @@
               </v-btn>
             </v-card-title>
             <v-card-title>
-              <table style="width: 100%;">
+              <table style="width: 100%">
                 <tr>
                   <td>
                     <label class="col-form-label"><b>Device</b></label>
@@ -34,9 +34,7 @@
                   </td>
                 </tr>
                 <tr v-for="(item, index) in data" :key="index">
-                  <td class="col-form-label">
-                    Device
-                  </td>
+                  <td class="col-form-label">Device</td>
                   <td>
                     <v-menu bottom left>
                       <template v-slot:activator="{ on, attrs }">
@@ -48,7 +46,7 @@
                       </template>
                       <v-list width="120" dense>
                         <v-list-item @click="editItem(item)">
-                          <v-list-item-title style="cursor:pointer">
+                          <v-list-item-title style="cursor: pointer">
                             <v-icon color="secondary" small>
                               mdi-pencil
                             </v-icon>
@@ -56,10 +54,8 @@
                           </v-list-item-title>
                         </v-list-item>
                         <v-list-item @click="deleteItem(item)">
-                          <v-list-item-title style="cursor:pointer">
-                            <v-icon color="error" small>
-                              mdi-delete
-                            </v-icon>
+                          <v-list-item-title style="cursor: pointer">
+                            <v-icon color="error" small> mdi-delete </v-icon>
                             Delete
                           </v-list-item-title>
                         </v-list-item>
@@ -81,7 +77,7 @@
 <script>
 export default {
   data: () => ({
-    model: "Device Management",
+    model: "Upload Users", //device management
     color: "primary",
     endpoint: "report_notification",
     e1: 1,
@@ -101,11 +97,11 @@ export default {
       time: null,
       tos: [],
       ccs: [],
-      bccs: []
+      bccs: [],
     },
     data: [],
     options: {},
-    errors: []
+    errors: [],
   }),
 
   created() {
@@ -117,7 +113,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -140,7 +136,7 @@ export default {
               this.getDataFromApi();
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     add_to() {
@@ -175,8 +171,8 @@ export default {
         params: {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
-          role_type: "employee"
-        }
+          role_type: "employee",
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -188,8 +184,8 @@ export default {
         this.total = data.total;
         this.loading = false;
       });
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>

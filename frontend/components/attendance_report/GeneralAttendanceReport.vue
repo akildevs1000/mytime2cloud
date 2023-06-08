@@ -12,8 +12,8 @@
                 {{ shift.name }}
                 {{
                   shift.on_duty_time
-                    ? `(${shift.on_duty_time} - ${shift.off_duty_time})`
-                    : ""
+                  ? `(${shift.on_duty_time} - ${shift.off_duty_time})`
+                  : ""
                 }}
               </li>
             </ol>
@@ -38,55 +38,24 @@
               <v-row>
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-col md="12">
-                    <v-menu
-                      ref="time_menu_ref"
-                      v-model="time_menu"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      :return-value.sync="payload.time"
-                      transition="scale-transition"
-                      offset-y
-                      max-width="290px"
-                      min-width="290px"
-                    >
+                    <v-menu ref="time_menu_ref" v-model="time_menu" :close-on-content-click="false" :nudge-right="40"
+                      :return-value.sync="payload.time" transition="scale-transition" offset-y max-width="290px"
+                      min-width="290px">
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="editItems.time"
-                          label="Time"
-                          readonly
-                          v-bind="attrs"
-                          :rules="timeRules"
-                          v-on="on"
-                        ></v-text-field>
+                        <v-text-field v-model="editItems.time" label="Time" readonly v-bind="attrs" :rules="timeRules"
+                          v-on="on"></v-text-field>
                       </template>
-                      <v-time-picker
-                        v-if="time_menu"
-                        v-model="editItems.time"
-                        full-width
-                        format="24hr"
-                      >
+                      <v-time-picker v-if="time_menu" v-model="editItems.time" full-width format="24hr">
                         <v-spacer></v-spacer>
-                        <v-btn
-                          x-small
-                          color="primary"
-                          @click="time_menu = false"
-                        >
+                        <v-btn x-small color="primary" @click="time_menu = false">
                           Cancel
                         </v-btn>
-                        <v-btn
-                          x-small
-                          color="primary"
-                          @click="$refs.time_menu_ref.save(editItems.time)"
-                        >
+                        <v-btn x-small color="primary" @click="$refs.time_menu_ref.save(editItems.time)">
                           OK
                         </v-btn>
                       </v-time-picker>
                     </v-menu>
-                    <span
-                      v-if="errors && errors.time"
-                      class="text-danger mt-2"
-                      >{{ errors.time[0] }}</span
-                    >
+                    <span v-if="errors && errors.time" class="text-danger mt-2">{{ errors.time[0] }}</span>
                   </v-col>
                   <!-- <v-col md="12">
                   <v-text-field
@@ -102,30 +71,14 @@
                 </v-col> -->
 
                   <v-col md="12">
-                    <v-autocomplete
-                      label="Select Device"
-                      v-model="editItems.device_id"
-                      :items="devices"
-                      item-text="name"
-                      item-value="id"
-                      :rules="deviceRules"
-                    >
+                    <v-autocomplete label="Select Device" v-model="editItems.device_id" :items="devices" item-text="name"
+                      item-value="id" :rules="deviceRules">
                     </v-autocomplete>
-                    <span
-                      v-if="errors && errors.device_id"
-                      class="text-danger mt-2"
-                      >{{ errors.device_id[0] }}</span
-                    >
+                    <span v-if="errors && errors.device_id" class="text-danger mt-2">{{ errors.device_id[0] }}</span>
                   </v-col>
                   <v-col cols="12">
-                    <v-textarea
-                      filled
-                      label="Reason"
-                      v-model="editItems.reason"
-                      auto-grow
-                      :rules="nameRules"
-                      required
-                    ></v-textarea>
+                    <v-textarea filled label="Reason" v-model="editItems.reason" auto-grow :rules="nameRules"
+                      required></v-textarea>
                     <span v-if="errors && errors.reason" class="error--text">
                       {{ errors.reason[0] }}
                     </span>
@@ -156,24 +109,11 @@
             </v-col>
             <v-col md="6">
               <!-- {{ main_report_type }} -->
-              <v-radio-group
-                style="float: right"
-                row
-                v-model="main_report_type"
-                :items="['General Report', 'Multi In/Out Report']"
-                item-text="['General Report', 'Multi In/Out Report']"
-              >
-                <v-radio
-                  @click="change_mani_report_type('')"
-                  label="Multi In/Out Report"
-                  value=""
-                ></v-radio>
-                <v-radio
-                  checked="true"
-                  @click="change_mani_report_type('General Report')"
-                  label="General Report"
-                  value="General Report"
-                ></v-radio>
+              <v-radio-group style="float: right" row v-model="main_report_type"
+                :items="['General Report', 'Multi In/Out Report']" item-text="['General Report', 'Multi In/Out Report']">
+                <v-radio @click="change_mani_report_type('')" label="Multi In/Out Report" value=""></v-radio>
+                <v-radio checked="true" @click="change_mani_report_type('General Report')" label="General Report"
+                  value="General Report"></v-radio>
               </v-radio-group>
               <!-- <v-col md="2">
               <div>Shift Report Type</div>
@@ -194,111 +134,51 @@
           <v-row>
             <v-col md="2">
               Report Type
-              <v-select
-                @change="fetch_logs"
-                class="mt-2"
-                outlined
-                dense
-                v-model="payload.status"
-                x-small
-                :items="[
-                  `Select All`,
-                  `Summary`,
-                  `Present`,
-                  `Absent`,
-                  `Missing`,
-                  `Manual Entry`,
-                ]"
-                item-value="id"
-                item-text="name"
-                :hide-details="true"
-              ></v-select>
+              <v-select @change="fetch_logs" class="mt-2" outlined dense v-model="payload.status" x-small :items="[
+                `Select All`,
+                `Summary`,
+                `Present`,
+                `Absent`,
+                `Missing`,
+                `Manual Entry`,
+              ]" item-value="id" item-text="name" :hide-details="true"></v-select>
             </v-col>
             <v-col md="2" v-if="isCompany">
               Departments
-              <v-autocomplete
-                @change="getEmployeesByDepartment"
-                class="mt-2"
-                outlined
-                dense
-                v-model="payload.department_id"
-                x-small
-                :items="departments"
-                item-value="id"
-                item-text="name"
-                :hide-details="true"
-              ></v-autocomplete>
+              <v-autocomplete @change="getEmployeesByDepartment" class="mt-2" outlined dense
+                v-model="payload.department_id" x-small :items="departments" item-value="id" item-text="name"
+                :hide-details="true"></v-autocomplete>
             </v-col>
             <v-col md="2">
               Employee ID
-              <v-autocomplete
-                @change="fetch_logs"
-                class="mt-2"
-                outlined
-                dense
-                v-model="payload.employee_id"
-                x-small
-                :items="scheduled_employees"
-                item-value="system_user_id"
-                item-text="name_with_user_id"
-                :hide-details="true"
-              ></v-autocomplete>
+              <v-autocomplete @change="fetch_logs" class="mt-2" outlined dense v-model="payload.employee_id" x-small
+                :items="scheduled_employees" item-value="system_user_id" item-text="name_with_user_id"
+                :hide-details="true"></v-autocomplete>
             </v-col>
             <!-- <v-col md="3" v-if="isCompany"></v-col> -->
             <v-col md="2">
               <div>Frequency</div>
-              <v-autocomplete
-                class="mt-2"
-                @change="changeReportType(payload.report_type)"
-                outlined
-                dense
-                v-model="payload.report_type"
-                x-small
-                :items="['Custom', 'Daily', 'Weekly', 'Monthly']"
-                item-text="['Custom']"
-                :hide-details="true"
-              ></v-autocomplete>
+              <v-autocomplete class="mt-2" @change="changeReportType(payload.report_type)" outlined dense
+                v-model="payload.report_type" x-small :items="['Custom', 'Daily', 'Weekly', 'Monthly']"
+                item-text="['Custom']" :hide-details="true"></v-autocomplete>
             </v-col>
             <v-col md="2" v-if="payload.report_type == 'Daily'">
               <div>Date</div>
               <div class="text-left mt-2">
-                <v-menu
-                  class="mt-2"
-                  ref="daily_menu"
-                  v-model="daily_menu"
-                  :close-on-content-click="false"
-                  :return-value.sync="daily_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
+                <v-menu class="mt-2" ref="daily_menu" v-model="daily_menu" :close-on-content-click="false"
+                  :return-value.sync="daily_date" transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      :hide-details="payload.daily_date"
-                      outlined
-                      dense
-                      v-model="payload.daily_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field :hide-details="payload.daily_date" outlined dense v-model="payload.daily_date" readonly
+                      v-bind="attrs" v-on="on"></v-text-field>
                   </template>
-                  <v-date-picker
-                    v-model="payload.daily_date"
-                    no-title
-                    scrollable
-                  >
+                  <v-date-picker v-model="payload.daily_date" no-title scrollable>
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="daily_menu = false">
                       Cancel
                     </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="
-                        set_date_save($refs.daily_menu, payload.daily_date)
-                      "
-                    >
+                    <v-btn text color="primary" @click="
+                      set_date_save($refs.daily_menu, payload.daily_date)
+                      ">
                       OK
                     </v-btn>
                   </v-date-picker>
@@ -307,41 +187,19 @@
             </v-col>
             <v-col v-if="payload.report_type !== 'Daily'" md="2">
               <div class="text-left">
-                <v-menu
-                  ref="from_menu"
-                  v-model="from_menu"
-                  :close-on-content-click="false"
-                  :return-value.sync="from_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
+                <v-menu ref="from_menu" v-model="from_menu" :close-on-content-click="false" :return-value.sync="from_date"
+                  transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-2">From Date</div>
-                    <v-text-field
-                      :hide-details="payload.from_date"
-                      outlined
-                      dense
-                      v-model="payload.from_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field :hide-details="payload.from_date" outlined dense v-model="payload.from_date" readonly
+                      v-bind="attrs" v-on="on"></v-text-field>
                   </template>
-                  <v-date-picker
-                    v-model="payload.from_date"
-                    no-title
-                    scrollable
-                  >
+                  <v-date-picker v-model="payload.from_date" no-title scrollable>
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="from_menu = false">
                       Cancel
                     </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="set_date_save($refs.from_menu, payload.from_date)"
-                    >
+                    <v-btn text color="primary" @click="set_date_save($refs.from_menu, payload.from_date)">
                       OK
                     </v-btn>
                   </v-date-picker>
@@ -352,41 +210,18 @@
               <div class="mb-2">To Date</div>
 
               <div class="text-left">
-                <v-menu
-                  ref="to_menu"
-                  v-model="to_menu"
-                  :close-on-content-click="false"
-                  :return-value.sync="to_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
+                <v-menu ref="to_menu" v-model="to_menu" :close-on-content-click="false" :return-value.sync="to_date"
+                  transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      :hide-details="payload.to_date"
-                      outlined
-                      dense
-                      v-model="payload.to_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field :hide-details="payload.to_date" outlined dense v-model="payload.to_date" readonly
+                      v-bind="attrs" v-on="on"></v-text-field>
                   </template>
-                  <v-date-picker
-                    v-model="payload.to_date"
-                    :max="max_date"
-                    no-title
-                    scrollable
-                  >
+                  <v-date-picker v-model="payload.to_date" :max="max_date" no-title scrollable>
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="to_menu = false">
                       Cancel
                     </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="set_date_save($refs.to_menu, payload.to_date)"
-                    >
+                    <v-btn text color="primary" @click="set_date_save($refs.to_menu, payload.to_date)">
                       OK
                     </v-btn>
                   </v-date-picker>
@@ -406,37 +241,19 @@
         <v-card-text class="pa-3">
           <v-row>
             <v-col md="12">
-              <v-text-field
-                v-model="log_payload.user_id"
-                label="User Id"
-              ></v-text-field>
+              <v-text-field v-model="log_payload.user_id" label="User Id"></v-text-field>
               <span v-if="errors && errors.user_id" class="text-danger mt-2">{{
                 errors.user_id[0]
               }}</span>
             </v-col>
             <v-col md="12">
-              <v-autocomplete
-                label="Select Device"
-                v-model="log_payload.device_id"
-                :items="devices"
-                item-text="name"
-                item-value="id"
-                :rules="deviceRules"
-              >
+              <v-autocomplete label="Select Device" v-model="log_payload.device_id" :items="devices" item-text="name"
+                item-value="id" :rules="deviceRules">
               </v-autocomplete>
-              <span
-                v-if="errors && errors.device_id"
-                class="text-danger mt-2"
-                >{{ errors.device_id[0] }}</span
-              >
+              <span v-if="errors && errors.device_id" class="text-danger mt-2">{{ errors.device_id[0] }}</span>
             </v-col>
             <v-col md="12">
-              <v-autocomplete
-                label="In/Out"
-                v-model="log_payload.log_type"
-                :items="['In', 'Out']"
-                :rules="deviceRules"
-              >
+              <v-autocomplete label="In/Out" v-model="log_payload.log_type" :items="['In', 'Out']" :rules="deviceRules">
                 {{ log_payload.log_type }}
               </v-autocomplete>
               <span v-if="errors && errors.log_type" class="text-danger mt-2">{{
@@ -444,23 +261,10 @@
               }}</span>
             </v-col>
             <v-col cols="12" md="6">
-              <v-menu
-                ref="menu"
-                v-model="menu"
-                :close-on-content-click="false"
-                :return-value.sync="date"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
+              <v-menu ref="menu" v-model="menu" :close-on-content-click="false" :return-value.sync="date"
+                transition="scale-transition" offset-y min-width="auto">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="log_payload.date"
-                    label="Date"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  >
+                  <v-text-field v-model="log_payload.date" label="Date" readonly v-bind="attrs" v-on="on">
                   </v-text-field>
                 </template>
                 <v-date-picker v-model="log_payload.date" no-title scrollable>
@@ -468,53 +272,26 @@
                   <v-btn text color="primary" @click="menu = false">
                     Cancel
                   </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="$refs.menu.save(log_payload.date)"
-                  >
+                  <v-btn text color="primary" @click="$refs.menu.save(log_payload.date)">
                     OK
                   </v-btn>
                 </v-date-picker>
               </v-menu>
             </v-col>
             <v-col cols="12" md="6">
-              <v-menu
-                ref="manual_time_menu_ref"
-                v-model="manual_time_menu"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                :return-value.sync="log_payload.time"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-width="290px"
-              >
+              <v-menu ref="manual_time_menu_ref" v-model="manual_time_menu" :close-on-content-click="false"
+                :nudge-right="40" :return-value.sync="log_payload.time" transition="scale-transition" offset-y
+                max-width="290px" min-width="290px">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="log_payload.time"
-                    label="Time"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  >
+                  <v-text-field v-model="log_payload.time" label="Time" readonly v-bind="attrs" v-on="on">
                   </v-text-field>
                 </template>
-                <v-time-picker
-                  v-if="manual_time_menu"
-                  v-model="log_payload.time"
-                  full-width
-                  format="24hr"
-                >
+                <v-time-picker v-if="manual_time_menu" v-model="log_payload.time" full-width format="24hr">
                   <v-spacer></v-spacer>
                   <v-btn x-small color="primary" @click="manual_ = false">
                     Cancel
                   </v-btn>
-                  <v-btn
-                    x-small
-                    color="primary"
-                    @click="$refs.manual_time_menu_ref.save(log_payload.time)"
-                  >
+                  <v-btn x-small color="primary" @click="$refs.manual_time_menu_ref.save(log_payload.time)">
                     OK
                   </v-btn>
                 </v-time-picker>
@@ -530,24 +307,14 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            small
-            :loading="loading"
-            color="primary"
-            @click="store_schedule"
-          >
+          <v-btn small :loading="loading" color="primary" @click="store_schedule">
             Submit
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-toolbar
-      class="background"
-      dark
-      flat
-      v-if="payload.report_type == 'Daily'"
-    >
+    <v-toolbar class="background" dark flat v-if="payload.report_type == 'Daily'">
       <v-btn class="ma-0" x-small text @click="ProcessAttendance">
         <v-icon class="">mdi-history</v-icon>
       </v-btn>
@@ -555,15 +322,7 @@
 
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            class="ma-0"
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="process_file('daily')"
-          >
+          <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('daily')">
             <v-icon class="">mdi-printer-outline</v-icon>
           </v-btn>
         </template>
@@ -572,14 +331,7 @@
 
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="process_file('daily_download_pdf')"
-          >
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('daily_download_pdf')">
             <v-icon class="">mdi-download-outline</v-icon>
           </v-btn>
         </template>
@@ -588,14 +340,7 @@
 
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="process_file('daily_download_csv')"
-          >
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('daily_download_csv')">
             <v-icon class="">mdi-file-outline</v-icon>
           </v-btn>
         </template>
@@ -603,25 +348,12 @@
       </v-tooltip>
     </v-toolbar>
 
-    <v-toolbar
-      class="background"
-      dark
-      flat
-      v-if="payload.report_type == 'Weekly'"
-    >
+    <v-toolbar class="background" dark flat v-if="payload.report_type == 'Weekly'">
       <v-spacer></v-spacer>
 
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            class="ma-0"
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="process_file('weekly')"
-          >
+          <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('weekly')">
             <v-icon class="">mdi-printer-outline</v-icon>
           </v-btn>
         </template>
@@ -630,14 +362,7 @@
 
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="process_file('weekly_download_pdf')"
-          >
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('weekly_download_pdf')">
             <v-icon class="">mdi-download-outline</v-icon>
           </v-btn>
         </template>
@@ -646,14 +371,7 @@
 
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="process_file('weekly_download_csv')"
-          >
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('weekly_download_csv')">
             <v-icon class="">mdi-file-outline</v-icon>
           </v-btn>
         </template>
@@ -661,25 +379,12 @@
       </v-tooltip>
     </v-toolbar>
 
-    <v-toolbar
-      class="background"
-      dark
-      flat
-      v-if="payload.report_type == 'Monthly'"
-    >
+    <v-toolbar class="background" dark flat v-if="payload.report_type == 'Monthly'">
       <v-spacer></v-spacer>
 
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            class="ma-0"
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="process_file('monthly')"
-          >
+          <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly')">
             <v-icon class="">mdi-printer-outline</v-icon>
           </v-btn>
         </template>
@@ -688,14 +393,7 @@
 
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="process_file('monthly_download_pdf')"
-          >
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_pdf')">
             <v-icon class="">mdi-download-outline</v-icon>
           </v-btn>
         </template>
@@ -704,32 +402,17 @@
 
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="process_file('monthly_download_csv')"
-          >
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_csv')">
             <v-icon class="">mdi-file-outline</v-icon>
           </v-btn>
         </template>
         <span>CSV</span>
       </v-tooltip>
     </v-toolbar>
-    <v-data-table
-      v-if="can(`attendance_report_view`)"
-      :headers="headers"
-      :items="data"
-      :server-items-length="total"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
+    <v-data-table v-if="can(`attendance_report_view`)" :headers="headers" :items="data" :server-items-length="total"
+      :loading="loading" :options.sync="options" :footer-props="{
         itemsPerPageOptions: [50, 100, 500, 1000],
-      }"
-      class="elevation-1"
-    >
+      }" class="elevation-1">
       <template v-slot:item.employee_id="{ item }">
         <!-- <NuxtLink :to="`/employees/details/${item.employee.id}`"
           >{{ item.employee_id
@@ -740,12 +423,8 @@
       <template v-slot:item.status="{ item }">
         <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
 
-        <v-icon v-else-if="item.status == 'P'" color="success darken-1"
-          >mdi-check</v-icon
-        >
-        <v-icon v-else-if="item.status == 'H'" color="grey darken-1"
-          >mdi-check</v-icon
-        >
+        <v-icon v-else-if="item.status == 'P'" color="success darken-1">mdi-check</v-icon>
+        <v-icon v-else-if="item.status == 'H'" color="grey darken-1">mdi-check</v-icon>
         <span v-else>{{ item.status }}</span>
       </template>
 
@@ -758,8 +437,7 @@
           </template>
           <div v-for="(iterable, index) in item.shift" :key="index">
             <span v-if="index !== 'id'">
-              {{ caps(index) }}: {{ iterable || "---" }}</span
-            >
+              {{ caps(index) }}: {{ iterable || "---" }}</span>
           </div>
         </v-tooltip>
         <span v-else>---</span>
@@ -774,8 +452,7 @@
           </template>
           <div v-for="(iterable, index) in item.device_in" :key="index">
             <span v-if="index !== 'id'">
-              {{ caps(index) }}: {{ iterable || "---" }}</span
-            >
+              {{ caps(index) }}: {{ iterable || "---" }}</span>
           </div>
         </v-tooltip>
         <span v-else>---</span>
@@ -790,26 +467,16 @@
           </template>
           <div v-for="(iterable, index) in item.device_out" :key="index">
             <span v-if="index !== 'id'">
-              {{ caps(index) }}: {{ iterable || "---" }}</span
-            >
+              {{ caps(index) }}: {{ iterable || "---" }}</span>
           </div>
         </v-tooltip>
         <span v-else>---</span>
       </template>
-      <template
-        v-slot:item.actions="{ item }"
-        v-if="can('attendance_report_edit')"
-      >
+      <template v-slot:item.actions="{ item }" v-if="can('attendance_report_edit')">
         <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
           mdi-pencil
         </v-icon>
-        <v-icon
-          @click="viewItem(item)"
-          x-small
-          color="primary"
-          class="mr-2"
-          v-if="can('attendance_report_view')"
-        >
+        <v-icon @click="viewItem(item)" x-small color="primary" class="mr-2" v-if="can('attendance_report_view')">
           mdi-eye
         </v-icon>
       </template>

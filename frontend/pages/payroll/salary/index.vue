@@ -24,39 +24,25 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    :style="{
-                      color: item.status ? '' : 'red',
-                    }"
-                    v-for="(item, index) in payslipsResultsmessages"
-                    :key="item.id"
-                  >
+                  <tr :style="{
+                    color: item.status ? '' : 'red',
+                  }" v-for="(item, index) in payslipsResultsmessages" :key="item.id">
                     <td>{{ index + 1 }}</td>
 
                     <td>{{ item.status_message }}</td>
                     <td class="text-right">
-                      <a
-                        v-if="item.status"
-                        :href="getdownloadLink(item.employee_id)"
-                        style="
+                      <a v-if="item.status" :href="getdownloadLink(item.employee_id)" style="
                           font-size: 25px;
                           vertical-align: inherit;
                           cursor: pointer;
-                        "
-                      >
-                        <v-icon small class="primary--text"
-                          >mdi-download</v-icon
-                        >
+                        ">
+                        <v-icon small class="primary--text">mdi-download</v-icon>
                       </a>
-                      <a
-                        v-if="!item.status"
-                        @click="navigatetoEmployeepage()"
-                        style="
+                      <a v-if="!item.status" @click="navigatetoEmployeepage()" style="
                           font-size: 14px;
                           vertical-align: inherit;
                           cursor: pointer;
-                        "
-                      >
+                        ">
                         Go to Employee Page
                       </a>
                     </td>
@@ -94,36 +80,20 @@
           <v-container>
             <v-row class="mt-4">
               <v-col cols="5">
-                <v-select
-                  v-model="department_idPopup"
-                  item-text="name"
-                  item-value="id"
-                  :items="departments"
-                  placeholder="Department"
-                  solo
-                  flat
-                ></v-select>
+                <div class="">Departments</div>
+                <v-select outlined dense x-small v-model="department_idPopup" item-text="name" item-value="id"
+                  :items="departments" placeholder="Department" solo flat></v-select>
               </v-col>
 
               <v-col cols="3">
-                <v-select
-                  v-model="payslip_year"
-                  :items="[2023]"
-                  placeholder="Year"
-                  solo
-                  flat
-                ></v-select>
+                <div class="">Year</div>
+                <v-select outlined dense x-small v-model="payslip_year_Popup" :items="dataYears" placeholder="Year" solo
+                  flat></v-select>
               </v-col>
               <v-col cols="3">
-                <v-select
-                  v-model="payslip_month"
-                  :items="monthNames"
-                  item-text="label"
-                  item-value="value"
-                  placeholder="Month"
-                  solo
-                  flat
-                ></v-select>
+                <div class="">Month</div>
+                <v-select outlined dense x-small v-model="payslip_month_Popup" :items="monthNames" item-text="label"
+                  item-value="value" placeholder="Month" solo flat></v-select>
               </v-col>
 
               <v-card-actions>
@@ -133,12 +103,7 @@
                   </v-btn>-->
                 </v-col>
                 <v-col md="6" lg="6" class="text-right" style="padding: 0px">
-                  <v-btn
-                    class="primary"
-                    @click="generateNewpayslipsByDepartment"
-                    style
-                    >Generate Payslips</v-btn
-                  >
+                  <v-btn class="primary" @click="generateNewpayslipsByDepartment" style>Generate Payslips</v-btn>
                 </v-col>
               </v-card-actions>
             </v-row>
@@ -154,66 +119,28 @@
     </v-row>
     <v-row>
       <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-select
-          @change="getDataFromApi(`employee`)"
-          v-model="pagination.per_page"
-          :items="[50, 100, 500, 1000]"
-          placeholder="Per Page Records"
-          solo
-          flat
-        ></v-select>
+        <v-select @change="getDataFromApi(`employee`)" v-model="pagination.per_page" :items="[50, 100, 500, 1000]"
+          placeholder="Per Page Records" solo flat></v-select>
       </v-col>
       <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-select
-          @change="getDataFromApi(`employee`)"
-          v-model="department_id"
-          item-text="name"
-          item-value="id"
-          :items="departments"
-          placeholder="Department"
-          solo
-          flat
-        ></v-select>
+        <v-select @change="getDataFromApi(`employee`)" v-model="department_id" item-text="name" item-value="id"
+          :items="departments" placeholder="Department" solo flat></v-select>
       </v-col>
       <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-text-field
-          class=""
-          placeholder="Employee Search..."
-          solo
-          flat
-          @input="searchIt"
-          v-model="search"
-        ></v-text-field>
+        <v-text-field class="" placeholder="Employee Search..." solo flat @input="searchIt"
+          v-model="search"></v-text-field>
       </v-col>
 
       <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-select
-          v-model="payslip_year"
-          :items="dataYears"
-          placeholder="Year"
-          solo
-          flat
-        ></v-select>
+        <v-select v-model="payslip_year" :items="dataYears" placeholder="Year" solo flat></v-select>
       </v-col>
       <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-select
-          v-model="payslip_month"
-          :items="monthNames"
-          item-text="label"
-          item-value="value"
-          placeholder="Month"
-          solo
-          flat
-        ></v-select>
+        <v-select v-model="payslip_month" :items="monthNames" item-text="label" item-value="value" placeholder="Month"
+          solo flat></v-select>
       </v-col>
       <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-btn
-          class="primary btn btn-primary text-left"
-          text
-          @click="filterSubmitaction"
-          style="float: left"
-          >Show Payslips</v-btn
-        >
+        <v-btn class="primary btn btn-primary text-left" text @click="filterSubmitaction" style="float: left">Show
+          Payslips</v-btn>
       </v-col>
     </v-row>
 
@@ -222,51 +149,51 @@
         <v-col>
           <v-card class="mb-5" elevation="0">
             <v-toolbar class="rounded-md" color="background" dense flat dark>
-              <v-toolbar-title
-                ><span> Salary/Payslip List</span></v-toolbar-title
-              >
+              <v-toolbar-title><span> Salary/Payslip List</span></v-toolbar-title>
               <v-toolbar-items>
-                <v-btn
-                  v-if="selectedItems.length"
-                  @click="generateNewpayslipsSelected"
-                  class="primary ms-4 pt-4 pb-4 toolbar-button-design"
-                  color="primary"
-                  >Generate For selected only
-                </v-btn>
+                <v-col class="toolbaritems-button-design">
+                  <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected"
+                    class="primary ms-4 pt-4 pb-4 toolbar-button-design" color="primary">Generate Payslips
+                  </v-btn>
+                </v-col>
               </v-toolbar-items>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <a
-                  v-if="downloadAllDisplayStatus"
-                  title="Download All Payslips"
-                  download
-                  :href="payslipsDownloadAllURL"
+                <v-col class="toolbaritems-button-design">
+                  <v-btn @click="openPayslipDialog" class="primary ms-4 pt-4 pb-4 toolbar-button-design"
+                    color="primary">Generate New Payslips
+                  </v-btn>
+                </v-col>
+                <a v-if="downloadAllDisplayStatus" title="Download All Payslips" download :href="payslipsDownloadAllURL"
                   style="
-                    font-size: 35px;
+                    font-size: 38px;
                     vertical-align: inherit;
-                    padding-right: 56px;
-                  "
-                  ><span class="mdi mdi-download-box"></span
-                ></a>
-                <a
-                  v-if="!downloadAllDisplayStatus"
-                  title="Download All Payslips"
-                  download
-                  style="
-                    font-size: 35px;
+                    padding-left: 10px;    margin-top: -5px;
+                  "><span class="mdi mdi-download-box"></span></a>
+                <a v-if="!downloadAllDisplayStatus" title="Download All Payslips" download style="
+                    font-size: 38px;
                     vertical-align: inherit;
-                    padding-right: 56px;
-                  "
-                  @click="downloadAllPayslipsError"
-                  ><span class="mdi mdi-download-box"></span
-                ></a>
-                <v-btn
-                  @click="openPayslipDialog"
-                  class="primary ms-4 pt-4 pb-4 toolbar-button-design"
-                  color="primary"
-                  >Generate New Payslips
-                </v-btn>
+                    padding-left: 10px;    margin-top: -5px;
+                  " @click="downloadAllPayslipsError"><span class="mdi mdi-download-box"></span></a>
+
               </v-toolbar-items>
+              <!-- <v-toolbar-items>
+                <a v-if="downloadAllDisplayStatus" title="Download All Payslips" download :href="payslipsDownloadAllURL"
+                  style="
+                    font-size: 35px;
+                    vertical-align: inherit;
+                    padding-right: 56px;
+                  "><span class="mdi mdi-download-box"></span></a>
+                <a v-if="!downloadAllDisplayStatus" title="Download All Payslips" download style="
+                    font-size: 35px;
+                    vertical-align: inherit;
+                    padding-right: 56px;
+                  " @click="downloadAllPayslipsError"><span class="mdi mdi-download-box"></span></a>
+                <v-btn @click="openPayslipDialog" class="primary ms-4 pt-4 pb-4 toolbar-button-design"
+                  color="primary">Generate
+                  New Payslips
+                </v-btn>
+              </v-toolbar-items> -->
             </v-toolbar>
             <!-- <v-data-table
               v-model="data"
@@ -302,34 +229,17 @@
             <table class="employee-table">
               <tr>
                 <th>
-                  <v-checkbox
-                    :input-value="selectAll"
-                    v-model="allSelected"
-                    primary
-                    hide-details
-                    @click="toggleSelectAll"
-                  ></v-checkbox>
+                  <v-checkbox v-model="allSelected" primary hide-details @click="toggleSelectAll"></v-checkbox>
                 </th>
                 <th v-for="(item, index) in headers" :key="index">
                   {{ item.text }}
                 </th>
               </tr>
-              <v-progress-linear
-                v-if="loading"
-                :active="loading"
-                :indeterminate="loading"
-                absolute
-                color="primary"
-              ></v-progress-linear>
+              <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
+                color="primary"></v-progress-linear>
               <tr v-for="(item, index) in data" :key="index">
                 <td>
-                  <v-checkbox
-                    v-model="selectedItems"
-                    :value="item.id"
-                    :key="item.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
+                  <v-checkbox v-model="selectedItems" :value="item.id" :key="item.id" primary hide-details></v-checkbox>
                 </td>
                 <td class="text-center">
                   <b>{{ ++index }}</b>
@@ -353,25 +263,18 @@
                     <span class="mdi mdi-info-box"></span>
                   </v-btn> -->
 
-                  <span
-                    @click="navigateToViewPDF(item.system_user_id, item.id)"
-                    style="
+                  <span @click="navigateToViewPDF(item.system_user_id, item.id)" style="
                       font-size: 25px;
                       vertical-align: inherit;
                       cursor: pointer;
-                    "
-                  >
+                    ">
                     <v-icon small class="primary--text">mdi-eye</v-icon>
                   </span>
-                  <a
-                    v-if="item.payslip_status"
-                    :href="getdownloadLink(item.employee_id)"
-                    style="
+                  <a v-if="item.payslip_status" :href="getdownloadLink(item.employee_id)" style="
                       font-size: 25px;
                       vertical-align: inherit;
                       cursor: pointer;
-                    "
-                  >
+                    ">
                     <v-icon small class="primary--text">mdi-download</v-icon>
                   </a>
                 </td>
@@ -406,12 +309,8 @@
           <v-row>
             <v-col lg="12" class="float-right">
               <div class="float-right">
-                <v-pagination
-                  v-model="pagination.current"
-                  :length="pagination.total"
-                  @input="onPageChange"
-                  :total-visible="5"
-                ></v-pagination>
+                <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
+                  :total-visible="5"></v-pagination>
               </div>
             </v-col>
           </v-row>
@@ -547,7 +446,7 @@ export default {
     payslip_month: "",
 
     selectedItems: [],
-    allSelected: "",
+    allSelected: false,
     monthNames: [],
   }),
 
@@ -584,6 +483,9 @@ export default {
     this.lastTenYears();
     this.payslip_year = new Date().getFullYear();
     this.payslip_month = new Date().getMonth();
+
+    this.payslip_year_Popup = new Date().getFullYear();
+    this.payslip_month_Popup = new Date().getMonth();
   },
   mounted() {
     this.getDataFromApi();
@@ -662,17 +564,11 @@ export default {
       }
     },
     toggleSelectAll() {
-      // if (this.selectedItems.length === this.data.length) {
-      //   this.selectedItems = [];
-      // } else {
-      //   this.selectedItems = this.data.map((item) => item.id);
-      // }
 
-      if (this.allSelected) {
-        this.selectedItems = this.data.map((item) => item.id);
-      } else {
-        this.selectedItems = [];
-      }
+
+      this.selectedItems = this.allSelected ? this.data.map(e => e.id) : [];
+
+
     },
     onPageChange() {
       this.getDataFromApi();
@@ -726,8 +622,8 @@ export default {
           company_id: this.$auth.user.company.id,
           department_id: this.department_idPopup,
 
-          month: this.payslip_month,
-          year: this.payslip_year,
+          month: this.payslip_month_Popup,
+          year: this.payslip_year_Popup,
         },
       };
       //localhost:8001/api/payslip-by-department/80
@@ -797,8 +693,8 @@ export default {
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
-
-        this.allSelected = [];
+        this.toggleSelectAll();
+        //this.allSelected = [];
         this.selectedItems = [];
         this.payslipsDownloadAllEmployeeidsArray = [];
         this.data.forEach((element) => {
@@ -949,32 +845,7 @@ export default {
     openPayslipDialog() {
       this.generatePayslipDialog = true;
     },
-    closePopup() {},
+    closePopup() { },
   },
 };
 </script>
-
-<style scoped>
-table.employee-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  /* border: 1px solid #dddddd; */
-  text-align: left;
-  padding: 8px;
-}
-
-table.employee-table tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-.toolbar-button-design {
-  height: 38px !important;
-  /* vertical-align: bottom; */
-  margin: auto;
-  border-radius: 5px;
-}
-</style>

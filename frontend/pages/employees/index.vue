@@ -408,7 +408,15 @@
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <span> {{ Model }} List</span>
             </v-toolbar>
+
             <table class="employee-table">
+              <v-progress-linear
+                v-if="loadinglinear"
+                :active="loadinglinear"
+                :indeterminate="loadinglinear"
+                absolute
+                color="primary"
+              ></v-progress-linear>
               <tr>
                 <th
                   style="text-align: left; padding: 8px"
@@ -418,13 +426,7 @@
                   {{ item.text }}
                 </th>
               </tr>
-              <v-progress-linear
-                v-if="loading"
-                :active="loading"
-                :indeterminate="loading"
-                absolute
-                color="primary"
-              ></v-progress-linear>
+
               <tr v-for="(item, index) in data" :key="index">
                 <td style="text-align: left; padding: 8px" class="text-center">
                   <b>{{ ++index }}</b>
@@ -552,7 +554,7 @@
                 </td>
               </tr>
             </table>
-            <v-col col="12" v-if="data.length == 0" class="text-center"
+            <v-col col="12" v-if="displayErrormsg" class="text-center"
               >No Records avaialble</v-col
             >
           </v-card>
@@ -614,6 +616,8 @@ export default {
   },
 
   data: () => ({
+    loadinglinear: true,
+    displayErrormsg: false,
     image: "",
     mime_type: "",
     cropedImage: "",
@@ -971,6 +975,8 @@ export default {
       });
     },
     getDataFromApi(url = this.endpoint) {
+      //this.loading = true;
+      this.loadinglinear = true;
       let page = this.pagination.current;
       let options = {
         params: {
@@ -984,6 +990,12 @@ export default {
         this.data = data.data;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
+
+        this.data.length == 0
+          ? (this.displayErrormsg = true)
+          : (this.displayErrormsg = false);
+
+        this.loadinglinear = false;
       });
     },
     searchIt() {

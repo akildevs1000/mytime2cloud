@@ -9,52 +9,38 @@
       <v-row class="pl-1 mt-0 mb-5">
         <v-col cols="12">
           <v-card class="mb-5 rounded-md" elevation="0">
-            <v-toolbar
-              class="rounded-md"
-              style="border-radius: 5px 5px 0px 0px"
-              color="background"
-              dense
-              flat
-              dark
-            >
+            <v-toolbar class="rounded-md" style="border-radius: 5px 5px 0px 0px" color="background" dense flat dark>
               <span> Documents List</span>
 
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn
-                  dark
-                  small
-                  class="primary toolbar-button-design"
-                  @click="addDocumentInfo"
-                >
-                  Document&nbsp; <v-icon>mdi-plus</v-icon>
-                </v-btn>
+                <v-col   class="toolbaritems-button-design">
+
+                  <v-btn dark small class="primary " @click="addDocumentInfo">
+                    Document&nbsp; <v-icon>mdi-plus</v-icon>
+                  </v-btn>
+                </v-col>
               </v-toolbar-items>
             </v-toolbar>
 
             <table class="employee-table" style="border: 1px solid #ddd">
-              <v-progress-linear
-                v-if="loading"
-                :active="loading"
-                :indeterminate="loading"
-                absolute
-                color="primary"
-              ></v-progress-linear>
+              <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
+                color="primary"></v-progress-linear>
               <tr>
                 <th>Title</th>
-                <th>Download</th>
-                <th>Delete</th>
+                <th class="text-center">Download</th>
+                <th class="text-center">Delete</th>
               </tr>
               <tr v-for="(d, index) in document_list" :key="index">
                 <td>
                   <span>{{ d.title }}</span>
                 </td>
-                <td>
+                <td class="text-center">
                   <a :href="d.attachment" download target="_blank">
                     <v-icon color="primary"> mdi-download </v-icon>
                   </a>
                 </td>
-                <td>
+                <td class="text-center">
                   <v-icon color="error" @click="delete_document(d.id)">
                     mdi-delete
                   </v-icon>
@@ -65,25 +51,11 @@
         </v-col>
       </v-row>
 
-      <v-form
-        v-if="displayForm"
-        class="mt-5"
-        ref="form"
-        method="post"
-        v-model="valid"
-        lazy-validation
-      >
+      <v-form v-if="displayForm" class="mt-5" ref="form" method="post" v-model="valid" lazy-validation>
         <v-row v-for="(d, index) in Document.items" :key="index">
           <v-col cols="5">
             <label for="">Title <span color="error"></span></label>
-            <v-text-field
-              solo
-              dense
-              outlined
-              v-model="d.title"
-              :rules="TitleRules"
-              label="Title"
-            ></v-text-field>
+            <v-text-field solo dense outlined v-model="d.title" :rules="TitleRules" label="Title"></v-text-field>
             <span v-if="errors && errors.title" class="text-danger mt-2">{{
               errors.title[0]
             }}</span>
@@ -91,15 +63,8 @@
           <v-col cols="5">
             <div class="form-group">
               <label for="">Title <span color="error"></span></label>
-              <v-file-input
-                solo
-                dense
-                outlined
-                v-model="d.file"
-                placeholder="Upload your file"
-                label="Attachment"
-                :rules="FileRules"
-              >
+              <v-file-input solo dense outlined v-model="d.file" placeholder="Upload your file" label="Attachment"
+                :rules="FileRules">
                 <template v-slot:selection="{ text }">
                   <v-chip v-if="text" small label color="primary">
                     {{ text }}
@@ -107,22 +72,12 @@
                 </template>
               </v-file-input>
 
-              <span
-                v-if="errors && errors.attachment"
-                class="text-danger mt-2"
-                >{{ errors.attachment[0] }}</span
-              >
+              <span v-if="errors && errors.attachment" class="text-danger mt-2">{{ errors.attachment[0] }}</span>
             </div>
           </v-col>
           <v-col cols="2">
             <div class="form-group">
-              <v-btn
-                dark
-                class="error mt-5"
-                fab
-                @click="removeItem(index)"
-                x-small
-              >
+              <v-btn dark class="error mt-5" fab @click="removeItem(index)" x-small>
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </div>
@@ -130,13 +85,7 @@
         </v-row>
         <v-row>
           <v-col cols="12" class="text-right">
-            <v-btn
-              :disabled="!Document.items.length"
-              class="primary"
-              small
-              @click="save_document_info"
-              >Save</v-btn
-            >
+            <v-btn :disabled="!Document.items.length" class="primary" small @click="save_document_info">Save</v-btn>
           </v-col>
         </v-row>
       </v-form>
@@ -287,4 +236,4 @@ export default {
     },
   },
 };
-</script>
+</script> 
