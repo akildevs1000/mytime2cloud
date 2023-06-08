@@ -516,7 +516,8 @@ class EmployeeController extends Controller
                 $user = User::where('id', $id)->update($arr);
             } else {
 
-                $user = User::create($arr);
+                $user = User::updateOrCreate(['email' => $request->email], $arr);
+
                 Employee::where("id", $request->employee_id)->update(["user_id" => $user->id]);
             }
 
