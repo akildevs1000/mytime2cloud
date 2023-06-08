@@ -63,9 +63,7 @@
         </v-row>
         <v-row>
           <v-col md="4" sm="4" cols="4" dense>
-            <label class="col-form-label"
-              >Password <span class="text-danger">*</span></label
-            >
+            <label class="col-form-label">Password</label>
             <v-text-field
               dense
               outlined
@@ -81,9 +79,7 @@
         </v-row>
         <v-row>
           <v-col md="4" sm="4" cols="4" dense>
-            <label class="col-form-label"
-              >Confirm Password <span class="text-danger">*</span></label
-            >
+            <label class="col-form-label">Confirm Password</label>
             <v-text-field
               dense
               outlined
