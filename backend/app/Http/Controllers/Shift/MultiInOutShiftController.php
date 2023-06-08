@@ -4,90 +4,102 @@ namespace App\Http\Controllers\Shift;
 
 use App\Models\Attendance;
 
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Models\ScheduleEmployee;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Models\Schedule;
 
 class MultiInOutShiftController extends Controller
 {
-    private const SHIFT_TYPE = 2;
+
+    public $update_date;
 
     public function processByManual(Request $request)
     {
-        $result = 0;
+        $shift_type_id = 2;
 
-        $companyIds = $request->input('company_ids', []);
-        $userIds = $request->input('userIds', []);
-        $currentDate = $request->input('date', date('Y-m-d'));
+        $companyIds = $request->company_ids ?? [];
 
-        $companies = Company::with(["shift" => function ($q) {
-            $q->where("shift_type_id", self::SHIFT_TYPE);
-            $q->select(["on_duty_time", "off_duty_time", "company_id"]);
-        }])->whereIn("id", $companyIds)->get("id");
+        $UserIDs = $request->UserIDs ?? [];
 
-        foreach ($companies as $company) {
-            $result += $this->getModelData($currentDate, $company, $userIds);
+        $currentDate = $request->date ?? date('Y-m-d');
+
+        $arr = [];
+
+        $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
+
+        foreach ($companies as $company_id => $data) {
+            // return ScheduleEmployee::where("company_id",$company_id)->delete();
+            $arr[] = $this->processData($company_id, $data, $currentDate, $shift_type_id);
         }
-
-        return "Logs Count " . $result;
+        // return $arr;
+        return "Logs Count " . array_sum($arr);
     }
 
-    public function getModelData($currentDate, $company, $userIds)
+    public function getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id)
     {
-        $id = $company->id;
-        if ($company->shift) {
-            $in = $company->shift->on_duty_time;
-            $out = $company->shift->off_duty_time;
+        $model = AttendanceLog::query();
 
-            $currentDate = $in < $out ? date('Y-m-d', strtotime('yesterday')) : date('Y-m-d');
+        $model->where(function ($q) use ($currentDate, $companyIds, $UserIDs, $shift_type_id) {
+            $q->where("checked", false);
+            $q->where("company_id", '>', 0);
 
-            $model = AttendanceLog::query();
-
-            $model->where(function ($q) use ($currentDate, $id, $userIds) {
-                $q->where("checked", false);
-                $q->where("company_id", '>', 0);
-                $q->whereHas("schedule", function ($q) use ($currentDate) {
-                    $q->where('shift_type_id', self::SHIFT_TYPE);
-                    $q->whereDate('from_date', "<=", $currentDate);
-                    $q->whereDate('to_date', ">=", $currentDate);
-                });
-                $q->where("company_id", $id);
-                $q->whereIn("UserID", $userIds);
-
-                $q->whereDate("LogTime", $currentDate);
+            $q->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate) {
+                $q->where('shift_type_id', $shift_type_id);
+                $q->whereDate('from_date', "<=", $currentDate);
+                $q->whereDate('to_date', ">=", $currentDate);
             });
 
-            $nextDate = date('Y-m-d', strtotime($currentDate . '+ 1 day'));
-
-            $model->orWhere(function ($q) use ($nextDate, $id, $userIds) {
-                $q->where("checked", false);
-                $q->where("company_id", '>', 0);
-                $q->whereHas("schedule", function ($q) use ($nextDate) {
-                    $q->where('shift_type_id', self::SHIFT_TYPE);
-                    $q->whereDate('from_date', "<=", $nextDate);
-                    $q->whereDate('to_date', ">=", $nextDate);
-                });
-                $q->where("company_id", $id);
-                $q->whereIn("UserID", $userIds);
-
-                $q->whereDate("LogTime", $nextDate);
+            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
+                $q->whereIn("company_id", $companyIds);
             });
 
-            $model->orderBy("LogTime");
+            $q->when(count($UserIDs) > 0, function ($q) use ($UserIDs) {
+                $q->whereIn("UserID", $UserIDs);
+            });
 
-            $data = $model->get(["UserID"])->groupBy(["UserID"])->toArray();
+            $q->whereDate("LogTime", $currentDate);
+        });
 
-            return $this->processData($currentDate, $company->id, $data);
-        }
+        $nextDate = date('Y-m-d', strtotime($currentDate . '+ 1 day'));
+
+        $model->orWhere(function ($q) use ($nextDate, $companyIds, $UserIDs, $shift_type_id) {
+            $q->where("checked", false);
+            $q->where("company_id", '>', 0);
+
+            $q->whereHas("schedule", function ($q) use ($shift_type_id, $nextDate) {
+                $q->where('shift_type_id', $shift_type_id);
+                $q->whereDate('from_date', "<=", $nextDate);
+                $q->whereDate('to_date', ">=", $nextDate);
+            });
+
+            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
+                $q->whereIn("company_id", $companyIds);
+            });
+
+            $q->when(count($UserIDs) > 0, function ($q) use ($UserIDs) {
+                $q->whereIn("UserID", $UserIDs);
+            });
+
+            $q->whereDate("LogTime", $nextDate);
+        });
+
+        // $model->with(["schedule"]);
+
+        $model->orderBy("LogTime");
+
+        return $model->get(["UserID", "company_id"])->groupBy(["company_id", "UserID"])->toArray();
     }
 
-    public function getSchedule($currentDate, $companyId, $UserID)
+    public function getSchedule($currentDate, $companyId, $UserID, $shift_type_id)
     {
         $schedule = ScheduleEmployee::where('company_id', $companyId)
             ->where("employee_id", $UserID)
-            ->where("shift_type_id", self::SHIFT_TYPE)
+            ->where("shift_type_id", $shift_type_id)
             ->first();
 
         if (!$schedule || !$schedule->shift) {
@@ -110,11 +122,11 @@ class MultiInOutShiftController extends Controller
         ];
     }
 
-    public function getLogsWithInRange($companyId, $UserID, $range)
+    public function getLogsWithInRange($companyId, $UserID, $range, $shift_type_id)
     {
         $model = AttendanceLog::query();
-        $model->whereHas("schedule", function ($q) {
-            $q->where('shift_type_id', self::SHIFT_TYPE);
+        $model->whereHas("schedule", function ($q) use ($shift_type_id) {
+            $q->where('shift_type_id', $shift_type_id);
         });
         $model->where("company_id", $companyId);
         $model->where("UserID", $UserID);
@@ -125,14 +137,15 @@ class MultiInOutShiftController extends Controller
         return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
     }
 
-    public function processData($date, $companyId, $data)
+    public function processData($companyId, $data, $date, $shift_type_id)
     {
         $temp = [];
         $items = [];
         $UserIDs = [];
 
         foreach ($data as $UserID => $data) {
-            $schedule = $this->getSchedule($date, $companyId, $UserID);
+
+            $schedule = $this->getSchedule($date, $companyId, $UserID, $shift_type_id);
 
             if (!$schedule) {
                 continue;
@@ -140,12 +153,12 @@ class MultiInOutShiftController extends Controller
 
             $UserIDs[] = $UserID;
 
-            $data = $this->getLogsWithInRange($companyId, $UserID, $schedule["range"]);
+            $data = $this->getLogsWithInRange($companyId, $UserID, $schedule["range"], $shift_type_id);
 
             $temp = [
                 "status" => count($data) == 1 ?  Attendance::MISSING : Attendance::PRESENT,
                 // "status" => count($data)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
-                "shift_type_id" => self::SHIFT_TYPE,
+                "shift_type_id" => $shift_type_id,
                 "date" => $date,
                 "company_id" => $companyId,
                 "shift_id" => $schedule['shift_id'],
@@ -210,19 +223,24 @@ class MultiInOutShiftController extends Controller
 
     public function syncLogsScript()
     {
+        $shift_type_id = 2;
+
         $result = 0;
 
         $companyIds = Company::pluck("id") ?? [];
-        $userIds = [];
-        $currentDate = date('Y-m-d');
 
-        $companies = Company::with(["shift" => function ($q) {
-            $q->where("shift_type_id", self::SHIFT_TYPE);
-            $q->select(["on_duty_time", "off_duty_time", "company_id"]);
-        }])->whereIn("id", $companyIds)->get("id");
+        $UserIDs = [];
 
-        foreach ($companies as $company) {
-            $result += $this->getModelData($currentDate, $company, $userIds);
+        $currentTimestamp = date('Y-m-d H:i:s');
+
+        $condtionTimestamp = date("Y-m-d 07:59");
+
+        $currentDate = $currentTimestamp < $condtionTimestamp ? date('Y-m-d', strtotime('yesterday')) : date('Y-m-d');
+
+        $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
+
+        foreach ($companies as $company_id => $data) {
+            $result += $this->processData($company_id, $data, $currentDate, $shift_type_id);
         }
 
         return "Logs Count " . $result;
