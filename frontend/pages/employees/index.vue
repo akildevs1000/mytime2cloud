@@ -507,10 +507,12 @@
                   ></v-autocomplete>
                 </td>
                 <td style="text-align: left; padding: 8px; width: 200px">
+                 
                   <v-autocomplete
+                    v-if="item.user && item.user.employee_role_id"
                     dense
                     outlined
-                    v-model="item.employee_role_id"
+                    v-model="item.user.employee_role_id"
                     @change="update_role(item)"
                     :items="roles"
                     item-text="name"
@@ -804,6 +806,8 @@ export default {
   },
   methods: {
     update_role(item) {
+      console.log(item.employee_role_id);
+      // return;
       if (!item.user.id) {
         this.color = "red lighten-2";
         this.snackbar = true;
@@ -972,6 +976,7 @@ export default {
 
       this.$axios.get(`role`, this.payloadOptions).then(({ data }) => {
         this.roles = data.data;
+        console.log(this.roles);
       });
     },
     getDataFromApi(url = this.endpoint) {
