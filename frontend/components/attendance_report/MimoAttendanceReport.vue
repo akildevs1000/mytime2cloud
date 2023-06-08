@@ -516,6 +516,36 @@
         <span>CSV</span>
       </v-tooltip>
     </v-toolbar>
+    <v-toolbar class="background" dark flat v-if="payload.report_type == 'Custom'">
+      <v-spacer></v-spacer>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly')">
+            <v-icon class="">mdi-printer-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>PRINT</span>
+      </v-tooltip>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_pdf')">
+            <v-icon class="">mdi-download-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>DOWNLOAD</span>
+      </v-tooltip>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_csv')">
+            <v-icon class="">mdi-file-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>CSV</span>
+      </v-tooltip>
+    </v-toolbar>
     <v-data-table v-if="can(`attendance_report_view`)" :headers="headers" :items="data" :server-items-length="total"
       :loading="loading" :options.sync="options" :footer-props="{
         itemsPerPageOptions: [50, 100, 500, 1000],
