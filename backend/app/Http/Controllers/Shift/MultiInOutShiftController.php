@@ -37,48 +37,50 @@ class MultiInOutShiftController extends Controller
     public function getModelData($currentDate, $company, $userIds)
     {
         $id = $company->id;
-        $in = $company->shift->on_duty_time;
-        $out = $company->shift->off_duty_time;
+        if ($company->shift) {
+            $in = $company->shift->on_duty_time;
+            $out = $company->shift->off_duty_time;
 
-        $currentDate = date("$currentDate $in") < date("$currentDate $out") ? date('Y-m-d', strtotime('yesterday')) : date('Y-m-d');
+            $currentDate = $in < $out ? date('Y-m-d', strtotime('yesterday')) : date('Y-m-d');
 
-        $model = AttendanceLog::query();
+            $model = AttendanceLog::query();
 
-        $model->where(function ($q) use ($currentDate, $id, $userIds) {
-            $q->where("checked", false);
-            $q->where("company_id", '>', 0);
-            $q->whereHas("schedule", function ($q) use ($currentDate) {
-                $q->where('shift_type_id', self::SHIFT_TYPE);
-                $q->whereDate('from_date', "<=", $currentDate);
-                $q->whereDate('to_date', ">=", $currentDate);
+            $model->where(function ($q) use ($currentDate, $id, $userIds) {
+                $q->where("checked", false);
+                $q->where("company_id", '>', 0);
+                $q->whereHas("schedule", function ($q) use ($currentDate) {
+                    $q->where('shift_type_id', self::SHIFT_TYPE);
+                    $q->whereDate('from_date', "<=", $currentDate);
+                    $q->whereDate('to_date', ">=", $currentDate);
+                });
+                $q->where("company_id", $id);
+                $q->whereIn("UserID", $userIds);
+
+                $q->whereDate("LogTime", $currentDate);
             });
-            $q->where("company_id", $id);
-            $q->whereIn("UserID", $userIds);
 
-            $q->whereDate("LogTime", $currentDate);
-        });
+            $nextDate = date('Y-m-d', strtotime($currentDate . '+ 1 day'));
 
-        $nextDate = date('Y-m-d', strtotime($currentDate . '+ 1 day'));
+            $model->orWhere(function ($q) use ($nextDate, $id, $userIds) {
+                $q->where("checked", false);
+                $q->where("company_id", '>', 0);
+                $q->whereHas("schedule", function ($q) use ($nextDate) {
+                    $q->where('shift_type_id', self::SHIFT_TYPE);
+                    $q->whereDate('from_date', "<=", $nextDate);
+                    $q->whereDate('to_date', ">=", $nextDate);
+                });
+                $q->where("company_id", $id);
+                $q->whereIn("UserID", $userIds);
 
-        $model->orWhere(function ($q) use ($nextDate, $id, $userIds) {
-            $q->where("checked", false);
-            $q->where("company_id", '>', 0);
-            $q->whereHas("schedule", function ($q) use ($nextDate) {
-                $q->where('shift_type_id', self::SHIFT_TYPE);
-                $q->whereDate('from_date', "<=", $nextDate);
-                $q->whereDate('to_date', ">=", $nextDate);
+                $q->whereDate("LogTime", $nextDate);
             });
-            $q->where("company_id", $id);
-            $q->whereIn("UserID", $userIds);
 
-            $q->whereDate("LogTime", $nextDate);
-        });
+            $model->orderBy("LogTime");
 
-        $model->orderBy("LogTime");
+            $data = $model->get(["UserID"])->groupBy(["UserID"])->toArray();
 
-        $data = $model->get(["UserID"])->groupBy(["UserID"])->toArray();
-
-        return $this->processData($currentDate, $company->id, $data);
+            return $this->processData($currentDate, $company->id, $data);
+        }
     }
 
     public function getSchedule($currentDate, $companyId, $UserID)
