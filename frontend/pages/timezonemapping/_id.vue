@@ -6,8 +6,7 @@
         <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="4" class="text-right">
-        <v-btn @click="goToBackpage()" small dark class="primary pt-4 pb-4"
-          >Back
+        <v-btn @click="goToBackpage()" small dark class="primary pt-4 pb-4">Back
         </v-btn>
       </v-col>
       <v-col cols="6">
@@ -272,11 +271,4 @@ export default {
   },
 };
 </script>
-<style scoped>
-div.dataTables_wrapper div.dataTables_filter {
-  float: left !important;
-}
-.dt-buttons {
-  float: right !important;
-}
-</style>
+ 

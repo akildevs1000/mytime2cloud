@@ -20,8 +20,7 @@
         <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="4" class="text-right">
-        <v-btn @click="goToCreatePage()" small dark class="primary pt-4 pb-4"
-          >Create New +
+        <v-btn @click="goToCreatePage()" small dark class="primary pt-4 pb-4">Create New +
         </v-btn>
       </v-col>
 
@@ -42,13 +41,8 @@
               <th>Employees</th>
               <th class="text-right">Options</th>
             </tr>
-            <v-progress-linear
-              v-if="loading"
-              :active="loading"
-              :indeterminate="loading"
-              absolute
-              color="primary"
-            ></v-progress-linear>
+            <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
+              color="primary"></v-progress-linear>
             <tr v-for="(item, index) in data" :key="index">
               <td style="text-align: left; padding: 8px" class="text-center">
                 <b>{{ ++index }}</b>
@@ -57,24 +51,24 @@
                 {{ item.timezone.timezone_name }}
               </td>
               <td style="text-align: left; padding: 8px">
-                <v-chip
-                  small
-                  class="primary ma-1"
-                  v-for="(subitem, index) in item.device_id"
-                  :key="index"
-                >
+                <v-chip small class="primary ma-1" v-for="(subitem, index) in item.device_id.slice(0, 4)" :key="index">
                   {{ caps(subitem.location + " : " + subitem.name) }}
+
                 </v-chip>
+                <v-btn small warning @click="displayView(item.id)" v-if="item.device_id.length > 4">
+                  All Devices
+                </v-btn>
+                <span v-if="item.employee_id.length > 5">More</span>
               </td>
               <td style="text-align: left; padding: 8px">
-                <v-chip
-                  small
-                  class="primary ma-1"
-                  v-for="(subitem, index) in item.employee_id"
-                  :key="index"
-                >
+                <v-chip small class="primary ma-1" v-for="(subitem, index) in item.employee_id.slice(0, 4)" :key="index">
                   {{ caps(subitem.display_name + " : " + subitem.employee_id) }}
+
                 </v-chip>
+                <v-btn small warning @click="displayView(item.id)" v-if="item.employee_id.length > 4">
+                  All Employees
+                </v-btn>
+
               </td>
               <td>
                 <v-menu bottom left>

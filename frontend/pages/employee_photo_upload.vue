@@ -9,42 +9,21 @@
               <div>Dashboard</div>
             </v-col>
           </v-row>
-          <v-progress-linear
-            v-if="progressloading"
-            :active="loading"
-            :indeterminate="loading"
-            absolute
-            color="primary"
-          ></v-progress-linear>
+          <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
+            color="primary"></v-progress-linear>
         </v-col>
       </v-row>
       <v-row>
         <div class="text-center ma-2">
-          <v-snackbar
-            :color="snackbar.color"
-            v-model="snackbar.show"
-            small
-            top="top"
-            :timeout="3000"
-          >
+          <v-snackbar :color="snackbar.color" v-model="snackbar.show" small top="top" :timeout="3000">
             {{ response }}
           </v-snackbar>
         </div>
       </v-row>
       <v-row>
         <v-col cols="4">
-          <v-select
-            @change="loadDepartmentemployees"
-            v-model="departmentselected"
-            :items="departments"
-            dense
-            outlined
-            item-value="id"
-            item-text="name"
-            hide-details
-            label="Department"
-            :search-input.sync="searchInput"
-          ></v-select>
+          <v-select @change="loadDepartmentemployees" v-model="departmentselected" :items="departments" dense outlined
+            item-value="id" item-text="name" hide-details label="Department" :search-input.sync="searchInput"></v-select>
         </v-col>
         <v-col cols="4">
           <!-- <v-select
@@ -61,12 +40,7 @@
         </v-col>
         <v-col cols="4">
           <div style="width: 150px; float: right">
-            <button
-              @click="goback()"
-              type="button"
-              id="back"
-              class="btn primary btn-block white--text v-size--default"
-            >
+            <button @click="goback()" type="button" id="back" class="btn primary btn-block white--text v-size--default">
               <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
               View List
             </button>
@@ -80,32 +54,19 @@
           </v-toolbar>
           <div>
             <v-card class="displaylist">
-              <v-card-text
-                class="displaylistview"
-                v-for="(user, index) in leftEmployees"
-                :id="user.id"
-                @click="moveRightEmp(user.id, user.timezone)"
-                v-model="leftSelectedEmp"
-                :key="user.id"
-              >
+              <v-card-text class="displaylistview" v-for="(user, index) in leftEmployees" :id="user.id"
+                @click="moveRightEmp(user.id, user.timezone)" v-model="leftSelectedEmp" :key="user.id">
                 <v-row>
-                  <v-col col="4">
+                  <v-col col="4" style="padding: 21px;">
                     <span>
-                      {{ user.employee_id }}: {{ user.display_name }}</span
-                    >
+                      {{ user.employee_id }}: {{ user.display_name }}</span>
                   </v-col>
                   <v-col col="4">
-                    <span
-                      ><v-img
-                        style="border-radius: 50%; height: 40px; width: 40px"
-                        :src="
-                          user.profile_picture
-                            ? user.profile_picture
-                            : '/no-profile-image.jpg'
-                        "
-                      >
-                      </v-img
-                    ></span>
+                    <span><v-img style="border-radius: 50%;   width: 40px" :src="user.profile_picture
+                      ? user.profile_picture
+                      : '/no-profile-image.jpg'
+                      ">
+                      </v-img></span>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -115,58 +76,22 @@
 
         <v-col cols="2">
           <div style="text-align: -webkit-center">
-            <button
-              type="button"
-              id="undo_redo_undo"
-              class="btn primary btn-block white--text"
-            >
+            <button type="button" id="undo_redo_undo" class="btn primary btn-block white--text">
               Options
             </button>
 
-            <button
-              @click="moveRightEmp"
-              type="button"
-              id="undo_redo_rightSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--red"
-              ></i>
+            <button @click="moveRightEmp" type="button" id="undo_redo_rightSelected" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
             </button>
 
-            <button
-              @click="allmoveRightEmp"
-              type="button"
-              id="undo_redo_rightAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-              ></i>
+            <button @click="allmoveRightEmp" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
             </button>
-            <button
-              @click="moveLeftemp"
-              type="button"
-              id="undo_redo_leftSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--red"
-              ></i>
+            <button @click="moveLeftemp" type="button" id="undo_redo_leftSelected" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
             </button>
-            <button
-              @click="allmoveLeftemp"
-              type="button"
-              id="undo_redo_leftAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-              ></i>
+            <button @click="allmoveLeftemp" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
             </button>
           </div>
         </v-col>
@@ -177,32 +102,20 @@
           </v-toolbar>
           <div>
             <v-card class="displaylist">
-              <v-card-text
-                class="displaylistview"
-                v-for="(user, index) in rightEmployees"
-                :id="user.id"
-                @click="moveLeftemp(user.id)"
-                v-model="rightSelectedEmp"
-                :key="user.id"
-              >
+              <v-card-text class="displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
+                @click="moveLeftemp(user.id)" v-model="rightSelectedEmp" :key="user.id">
                 <div class="row">
-                  <v-col col="4">
+                  <v-col col="4" style="padding: 9px;">
                     <div class="col-sm">
                       {{ user.employee_id }} : {{ user.display_name }}
                     </div>
                   </v-col>
                   <v-col col="4">
-                    <span
-                      ><v-img
-                        style="border-radius: 50%; height: 40px; width: 40px"
-                        :src="
-                          user.profile_picture
-                            ? user.profile_picture
-                            : '/no-profile-image.jpg'
-                        "
-                      >
-                      </v-img
-                    ></span>
+                    <span><v-img style="border-radius: 50%;   width: 40px" :src="user.profile_picture
+                      ? user.profile_picture
+                      : '/no-profile-image.jpg'
+                      ">
+                      </v-img></span>
                   </v-col>
                   <v-col col="4">
                     <div class="col-sm">
@@ -237,16 +150,10 @@
           </v-toolbar>
           <div>
             <v-card class="displaylist">
-              <v-card-text
-                class="displaylistview"
-                v-for="(user, index) in leftDevices"
-                :id="user.id"
-                @click="moveRightDevices(user.id)"
-                v-model="leftSelectedDevices"
-                :key="user.id"
-              >
+              <v-card-text class="displaylistview" v-for="(user, index) in leftDevices" :id="user.id"
+                @click="moveRightDevices(user.id)" v-model="leftSelectedDevices" :key="user.id">
                 <div class="row">
-                  <div class="col">
+                  <div class="col" style="padding: 17px;">
                     {{ user.name }} : {{ user.location }}: {{ user.device_id }}
                   </div>
                 </div>
@@ -257,58 +164,23 @@
 
         <v-col cols="2">
           <div style="text-align: -webkit-center">
-            <button
-              type="button"
-              id="undo_redo_undo"
-              class="btn primary btn-block white--text"
-            >
+            <button type="button" id="undo_redo_undo" class="btn primary btn-block white--text">
               Options
             </button>
 
-            <button
-              @click="moveRightDevices"
-              type="button"
-              id="undo_redo_rightSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--red"
-              ></i>
+            <button @click="moveRightDevices" type="button" id="undo_redo_rightSelected"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
             </button>
 
-            <button
-              @click="allmoveRightDevices"
-              type="button"
-              id="undo_redo_rightAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-              ></i>
+            <button @click="allmoveRightDevices" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
             </button>
-            <button
-              @click="moveLeftDevices"
-              type="button"
-              id="undo_redo_leftSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--red"
-              ></i>
+            <button @click="moveLeftDevices" type="button" id="undo_redo_leftSelected" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
             </button>
-            <button
-              @click="allmoveLeftDevices"
-              type="button"
-              id="undo_redo_leftAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-              ></i>
+            <button @click="allmoveLeftDevices" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
             </button>
           </div>
         </v-col>
@@ -319,16 +191,10 @@
           </v-toolbar>
           <div>
             <v-card class="displaylist">
-              <v-card-text
-                class="displaylistview"
-                v-for="(user, index) in rightDevices"
-                :id="user.id"
-                @click="moveLeftDevices(user.id)"
-                v-model="rightSelectedDevices"
-                :key="user.id"
-              >
+              <v-card-text class="displaylistview" v-for="(user, index) in rightDevices" :id="user.id"
+                @click="moveLeftDevices(user.id)" v-model="rightSelectedDevices" :key="user.id">
                 <div class="row">
-                  <div class="col-sm">
+                  <div class="col-sm" style="padding: 17px;">
                     {{ user.name }} : {{ user.location }} : {{ user.device_id }}
                   </div>
                   <div class="col-sm">
@@ -350,27 +216,16 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button
-                  :loading="loading"
-                  @click="goback()"
-                  type="button"
-                  id="save"
-                  class="btn primary btn-block white--text v-size--default"
-                >
+                <button :loading="loading" @click="goback()" type="button" id="save"
+                  class="btn primary btn-block white--text v-size--default">
                   Back
                 </button>
               </div>
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button
-                  v-if="displaybutton"
-                  :loading="loading"
-                  @click="onSubmit"
-                  type="button"
-                  id="save"
-                  class="btn primary btn-block white--text v-size--default"
-                >
+                <button v-if="displaybutton" :loading="loading" @click="onSubmit" type="button" id="save"
+                  class="btn primary btn-block white--text v-size--default">
                   Submit
                 </button>
               </div>
@@ -449,7 +304,7 @@ export default {
     this.getTimezonesFromApi();
   },
   methods: {
-    fetch_logs() {},
+    fetch_logs() { },
     loadDepartmentemployees() {
       //this.loading = true;
       // let page = this.pagination.current;
@@ -1120,6 +975,7 @@ export default {
 
   border-bottom: 1px solid #ddd;
 }
+
 /*
 .displaylistview:nth-child(even) {
   background-color: #e9e9e9;
