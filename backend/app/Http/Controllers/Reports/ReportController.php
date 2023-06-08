@@ -21,7 +21,7 @@ class ReportController extends Controller
     public function multiInOut(Request $request)
     {
         $model =  $this->processMultiInOut($request);
-        return $this->paginate($model, $request->per_page);
+        return $this->paginate($model, $request->per_page ?? 100);
     }
 
 

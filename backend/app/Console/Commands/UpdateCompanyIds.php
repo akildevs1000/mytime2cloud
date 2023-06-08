@@ -34,10 +34,6 @@ class UpdateCompanyIds extends Command
      */
     public function handle()
     {
-        $company = new CompanyController;
-
-        $result = $company->updateCompanyIds();
-
-        echo $result;
+        echo (new CompanyController)->updateCompanyIds();
     }
 }
