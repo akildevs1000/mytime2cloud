@@ -66,15 +66,15 @@
               <v-card-text class="displaylistview" v-for="(user, index) in leftEmployees" :id="user.id"
                 v-on:dblclick="counter += 1, moveToRightEmp(user.id, user.timezone)" :key="user.id">
                 <v-row>
-
-                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
-                    :value="user.id" primary hide-details></v-checkbox>
-
-                  <v-col col="4" class="   d-flex flex-column  justify-center  " style="padding-top:30px">
+                  <v-col class=" col-1   " style="padding:0px">
+                    <v-checkbox hideDetails class="col    " v-model="leftSelectedEmp" :value="user.id" primary
+                      hide-details></v-checkbox>
+                  </v-col>
+                  <v-col col="2" class=" col     " style="padding-top:30px">
 
                     {{ user.employee_id }}: {{ user.display_name }}
                   </v-col>
-                  <v-col col=" 2" align="center">
+                  <v-col col=" 2">
                     <v-img style="border-radius: 50%;   width: 40px" :src="user.profile_picture
                       ? user.profile_picture
                       : '/no-profile-image.jpg'
@@ -120,11 +120,11 @@
               <v-card-text class="displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
                 v-model="rightSelectedEmp" :key="user.id">
                 <div class="row">
-
-                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
-                    :value="user.id" primary hide-details></v-checkbox>
-
-                  <v-col col="4" class="   d-flex flex-column  justify-center  " style="padding-top:30px">
+                  <v-col class=" col-1   " style="padding:0px">
+                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
+                      :value="user.id" primary hide-details></v-checkbox>
+                  </v-col>
+                  <v-col col="2" class="  col  " style="padding-top:30px">
 
                     {{ user.employee_id }} : {{ user.display_name }}
 
@@ -172,11 +172,11 @@
               <v-card-text class="displaylistview" v-for="(user, index) in leftDevices" :id="user.id"
                 v-model="leftSelectedDevices" :key="user.id">
                 <div class="row">
-
-                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
-                    v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
-
-                  <div class="col  d-flex flex-column  justify-center  " style="padding-top:30px">
+                  <v-col class=" col-1   " style="padding:0px">
+                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
+                      v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+                  </v-col>
+                  <div col-4 class="col   " style="padding-top:30px">
                     {{ user.name }} : {{ user.device_id }}
                   </div>
                 </div>
@@ -220,10 +220,10 @@
                 v-model="rightSelectedDevices" :key="user.id">
                 <div class="row">
 
-
-                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
-                    v-model="rightSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
-
+                  <v-col class=" col-1   " style="padding:0px">
+                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
+                      v-model="rightSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+                  </v-col>
                   <div col class="col-sm" style="padding-top:30px">
                     {{ user.name }} : {{ user.device_id }}
                   </div>
