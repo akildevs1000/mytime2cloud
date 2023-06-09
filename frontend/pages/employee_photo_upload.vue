@@ -40,12 +40,21 @@
         </v-col>
         <v-col cols="4">
           <div style="width: 150px; float: right">
-            <button @click="goback()" type="button" id="back" class="btn primary btn-block white--text v-size--default">
+            <!-- <button @click="goback()" type="button" id="back" class="btn primary btn-block white--text v-size--default">
               <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
               View List
-            </button>
+            </button> -->
+
+
+            <v-btn class="primary" @click="goback" style> <v-icon color="white">mdi
+                mdi-format-list-bulleted-square</v-icon>
+              View List</v-btn>
           </div>
         </v-col>
+      </v-row>
+      <v-row>
+        <v-progress-linear v-model="loading" :active="loading" :indeterminate="loading" absolute
+          color="primary"></v-progress-linear>
       </v-row>
       <v-row>
         <v-col cols="5">
@@ -55,18 +64,22 @@
           <div>
             <v-card class="displaylist">
               <v-card-text class="displaylistview" v-for="(user, index) in leftEmployees" :id="user.id"
-                @click="moveRightEmp(user.id, user.timezone)" v-model="leftSelectedEmp" :key="user.id">
+                v-on:dblclick="counter += 1, moveToRightEmp(user.id, user.timezone)" :key="user.id">
                 <v-row>
-                  <v-col col="4" style="padding: 21px;">
-                    <span>
-                      {{ user.employee_id }}: {{ user.display_name }}</span>
+
+                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
+                    :value="user.id" primary hide-details></v-checkbox>
+
+                  <v-col col="4" class="   d-flex flex-column  justify-center  " style="padding-top:30px">
+
+                    {{ user.employee_id }}: {{ user.display_name }}
                   </v-col>
-                  <v-col col="4">
-                    <span><v-img style="border-radius: 50%;   width: 40px" :src="user.profile_picture
+                  <v-col col=" 2" align="center">
+                    <v-img style="border-radius: 50%;   width: 40px" :src="user.profile_picture
                       ? user.profile_picture
                       : '/no-profile-image.jpg'
                       ">
-                      </v-img></span>
+                    </v-img>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -80,17 +93,19 @@
               Options
             </button>
 
-            <button @click="moveRightEmp" type="button" id="undo_redo_rightSelected" class="btn btn-default btn-block">
+            <button @click="moveToRightEmpOption2" type="button" id="undo_redo_rightSelected"
+              class="btn btn-default btn-block">
               <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
             </button>
 
-            <button @click="allmoveRightEmp" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
+            <button @click="allmoveToRightEmp" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
               <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
             </button>
-            <button @click="moveLeftemp" type="button" id="undo_redo_leftSelected" class="btn btn-default btn-block">
+            <button @click="moveToLeftempOption2" type="button" id="undo_redo_leftSelected"
+              class="btn btn-default btn-block">
               <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
             </button>
-            <button @click="allmoveLeftemp" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
+            <button @click="allmoveToLeftemp" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
               <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
             </button>
           </div>
@@ -103,12 +118,16 @@
           <div>
             <v-card class="displaylist">
               <v-card-text class="displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
-                @click="moveLeftemp(user.id)" v-model="rightSelectedEmp" :key="user.id">
+                v-model="rightSelectedEmp" :key="user.id">
                 <div class="row">
-                  <v-col col="4" style="padding: 9px;">
-                    <div class="col-sm">
-                      {{ user.employee_id }} : {{ user.display_name }}
-                    </div>
+
+                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
+                    :value="user.id" primary hide-details></v-checkbox>
+
+                  <v-col col="4" class="   d-flex flex-column  justify-center  " style="padding-top:30px">
+
+                    {{ user.employee_id }} : {{ user.display_name }}
+
                   </v-col>
                   <v-col col="4">
                     <span><v-img style="border-radius: 50%;   width: 40px" :src="user.profile_picture
@@ -118,9 +137,9 @@
                       </v-img></span>
                   </v-col>
                   <v-col col="4">
-                    <div class="col-sm">
-                      <span style="color: red">{{ user.sdkEmpResponse }}</span>
-                    </div>
+
+                    <span style="color: red">{{ user.sdkEmpResponse }}</span>
+
                   </v-col>
                 </div>
               </v-card-text>
@@ -128,7 +147,7 @@
             <!-- <select
               multiple
               v-model="rightSelectedEmp"
-              @dblclick="moveLeftemp"
+              @dblclick="moveToLeftemp"
               class="form-control"
               size="13"
             >
@@ -151,10 +170,14 @@
           <div>
             <v-card class="displaylist">
               <v-card-text class="displaylistview" v-for="(user, index) in leftDevices" :id="user.id"
-                @click="moveRightDevices(user.id)" v-model="leftSelectedDevices" :key="user.id">
+                v-model="leftSelectedDevices" :key="user.id">
                 <div class="row">
-                  <div class="col" style="padding: 17px;">
-                    {{ user.name }} : {{ user.location }}: {{ user.device_id }}
+
+                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
+                    v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+
+                  <div class="col  d-flex flex-column  justify-center  " style="padding-top:30px">
+                    {{ user.name }} : {{ user.device_id }}
                   </div>
                 </div>
               </v-card-text>
@@ -168,18 +191,20 @@
               Options
             </button>
 
-            <button @click="moveRightDevices" type="button" id="undo_redo_rightSelected"
+            <button @click="moveToRightDevicesOption2" type="button" id="undo_redo_rightSelected"
               class="btn btn-default btn-block">
               <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
             </button>
 
-            <button @click="allmoveRightDevices" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
+            <button @click="allmoveToRightDevices" type="button" id="undo_redo_rightAll"
+              class="btn btn-default btn-block">
               <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
             </button>
-            <button @click="moveLeftDevices" type="button" id="undo_redo_leftSelected" class="btn btn-default btn-block">
+            <button @click="moveToLeftDevicesOption2" type="button" id="undo_redo_leftSelected"
+              class="btn btn-default btn-block">
               <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
             </button>
-            <button @click="allmoveLeftDevices" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
+            <button @click="allmoveToLeftDevices" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
               <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
             </button>
           </div>
@@ -192,12 +217,17 @@
           <div>
             <v-card class="displaylist">
               <v-card-text class="displaylistview" v-for="(user, index) in rightDevices" :id="user.id"
-                @click="moveLeftDevices(user.id)" v-model="rightSelectedDevices" :key="user.id">
+                v-model="rightSelectedDevices" :key="user.id">
                 <div class="row">
-                  <div class="col-sm" style="padding: 17px;">
-                    {{ user.name }} : {{ user.location }} : {{ user.device_id }}
+
+
+                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
+                    v-model="rightSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+
+                  <div col class="col-sm" style="padding-top:30px">
+                    {{ user.name }} : {{ user.device_id }}
                   </div>
-                  <div class="col-sm">
+                  <div col class="col-sm   d-flex flex-column  justify-center  ">
                     <span style="color: red">{{ user.sdkDeviceResponse }}</span>
                   </div>
                 </div>
@@ -207,6 +237,8 @@
         </v-col>
       </v-row>
       <v-row>
+        <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
+          color="primary"></v-progress-linear>
         <v-col cols="12">
           <div class="row">
             <div class="col col-lg-6 text-center">
@@ -233,6 +265,7 @@
           </div>
         </v-col>
       </v-row>
+
     </div>
     <!-- <Preloader v-else /> -->
   </div>
@@ -242,6 +275,8 @@
 export default {
   data() {
     return {
+      loading: false,
+      counter: 0,
       devices_dialog: [],
       displaybutton: true,
       progressloading: false,
@@ -624,12 +659,12 @@ export default {
           }
         }
       }),
-    allmoveLeftemp() {
+    allmoveToLeftemp() {
       this.leftEmployees = this.leftEmployees.concat(this.rightEmployees);
       this.rightEmployees = [];
       this.leftEmployees = this.sortObject(this.leftEmployees);
     },
-    allmoveRightEmp() {
+    allmoveToRightEmp() {
       console.log("1");
       this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
       console.log("2");
@@ -638,14 +673,47 @@ export default {
       this.rightEmployees = this.sortObject(this.rightEmployees);
       console.log("4");
     },
-    moveLeftemp(id) {
+    moveToLeftempOption2() {
+
+      console.log("leftSelectedEmp", this.rightSelectedEmp);
+      console.log("leftSelectedEmp length", this.rightSelectedEmp.length);
+
+      if (!this.rightSelectedEmp.length) return;
+
+      console.log("moveToRightEmp", this.rightSelectedEmp);
+      //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
+      let _rightSelectedEmp_length = this.rightSelectedEmp.length;
+      for (let i = 0; i < _rightSelectedEmp_length; i++) {
+        if (this.rightSelectedEmp) {
+          let selectedindex = this.rightEmployees.findIndex(
+            (e) => e.id == this.rightSelectedEmp[i]
+          );
+
+          let selectedobject = this.rightEmployees.find(
+            (e) => e.id == this.rightSelectedEmp[i]
+          );
+
+          selectedobject.sdkEmpResponse = "";
+          this.leftEmployees.push(selectedobject);
+
+          this.rightEmployees.splice(selectedindex, 1);
+        }
+      }
+      this.leftEmployees = this.sortObject(this.leftEmployees);
+      //console.log("-------End move right--------");
+      for (let i = 0; i < _rightSelectedEmp_length; i++) {
+
+        this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
+      }
+    },
+    moveToLeftemp(id) {
       this.rightSelectedEmp.push(id);
       console.log("leftSelectedEmp", this.rightSelectedEmp);
       console.log("leftSelectedEmp length", this.rightSelectedEmp.length);
 
       if (!this.rightSelectedEmp.length) return;
 
-      console.log("moveRightEmp", this.rightSelectedEmp);
+      console.log("moveToRightEmp", this.rightSelectedEmp);
       //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
       let _rightSelectedEmp_length = this.rightSelectedEmp.length;
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
@@ -669,24 +737,28 @@ export default {
 
       this.rightSelectedEmp.pop(id);
     },
-    moveRightEmp(id, timezone) {
+    check: function (id, e) {
+      console.log(id, this.leftSelectedEmp, e)
+    },
+    selectLeftEmployee(id) {
       console.log(timezone);
-      // if (!timezone) {
-      //   return false;
-      // }
-      // if (!timezone.timezone_name) {
-      //   return false;
-      // }
       this.leftSelectedEmp.push(id);
+    },
 
-      console.log("Starting move right--------");
-      console.log("leftSelectedEmp", this.leftSelectedEmp);
+    moveToRightEmpOption2() {
+      console.log("Starting move to right--------");
+      console.log("leftEmployees ", this.leftEmployees);
+      console.log("leftSelectedEmp ", this.leftSelectedEmp);
       console.log("leftSelectedEmp length", this.leftSelectedEmp.length);
 
       if (!this.leftSelectedEmp.length) return;
 
       let _leftSelectedEmp_length = this.leftSelectedEmp.length;
       for (let i = 0; i < _leftSelectedEmp_length; i++) {
+
+
+        console.log("leftSelectedEmp Process : ", this.leftSelectedEmp[i]);
+
         if (this.leftSelectedEmp) {
           let selectedindex = this.leftEmployees.findIndex(
             (e) => e.id == this.leftSelectedEmp[i]
@@ -700,26 +772,104 @@ export default {
 
           this.leftEmployees.splice(selectedindex, 1);
         }
+
       }
       this.rightEmployees = this.sortObject(this.rightEmployees);
       //console.log("-------End move right--------");
+      for (let i = 0; i < _leftSelectedEmp_length; i++) {
+        this.leftSelectedEmp.pop(this.leftSelectedEmp[i]);
+      }
 
-      this.leftSelectedEmp.pop(id);
     },
+    // moveToRightEmp(id, timezone) {
+    //   console.log(timezone);
+    //   // if (!timezone) {
+    //   //   return false;
+    //   // }
+    //   // if (!timezone.timezone_name) {
+    //   //   return false;
+    //   // }
+    //   this.leftSelectedEmp.push(id);
+
+    //   console.log("Starting move to right--------");
+    //   console.log("leftEmployees ", this.leftEmployees);
+    //   console.log("leftSelectedEmp ", this.leftSelectedEmp);
+    //   console.log("leftSelectedEmp length", this.leftSelectedEmp.length);
+
+    //   if (!this.leftSelectedEmp.length) return;
+
+    //   let _leftSelectedEmp_length = this.leftSelectedEmp.length;
+    //   for (let i = 0; i < _leftSelectedEmp_length; i++) {
+    //     if (this.leftSelectedEmp) {
+    //       let selectedindex = this.leftEmployees.findIndex(
+    //         (e) => e.id == this.leftSelectedEmp[i]
+    //       );
+
+    //       let selectedobject = this.leftEmployees.find(
+    //         (e) => e.id == this.leftSelectedEmp[i]
+    //       );
+
+    //       this.rightEmployees.push(selectedobject);
+
+    //       this.leftEmployees.splice(selectedindex, 1);
+    //     }
+    //   }
+    //   this.rightEmployees = this.sortObject(this.rightEmployees);
+    //   //console.log("-------End move right--------");
+
+    //   this.leftSelectedEmp.pop(id);
+    // },
     /* Devices---------------------------------------- */
-    allmoveLeftDevices() {
+    allmoveToLeftDevices() {
       this.leftDevices = this.leftDevices.concat(this.rightDevices);
       this.rightDevices = [];
       console.log("this.leftDevices", this.leftDevices);
       this.leftDevices = this.sortObjectD(this.leftDevices);
     },
-    allmoveRightDevices() {
+    allmoveToRightDevices() {
       this.rightDevices = this.rightDevices.concat(this.leftDevices);
       this.leftDevices = [];
       console.log("this.rightDevices", this.rightDevices);
       this.rightDevices = this.sortObjectD(this.rightDevices);
     },
-    moveLeftDevices(id) {
+    moveToLeftDevicesOption2() {
+      // console.log("e)", e);
+
+      console.log("leftSelectedDevices", this.rightSelectedDevices);
+      console.log(
+        "leftSelectedDevices length",
+        this.rightSelectedDevices.length
+      );
+
+      if (!this.rightSelectedDevices.length) return;
+
+      console.log("moveToRightDevices", this.rightSelectedDevices);
+      //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
+      let _rightSelectedDevices_length = this.rightSelectedDevices.length;
+      for (let i = 0; i < _rightSelectedDevices_length; i++) {
+        if (this.rightSelectedDevices) {
+          let selectedindex = this.rightDevices.findIndex(
+            (e) => e.id == this.rightSelectedDevices[i]
+          );
+
+          let selectedobject = this.rightDevices.find(
+            (e) => e.id == this.rightSelectedDevices[i]
+          );
+
+          this.leftDevices.push(selectedobject);
+
+          this.rightDevices.splice(selectedindex, 1);
+        }
+      }
+      console.log("this.leftDevices", this.leftDevices);
+      this.leftDevices = this.sortObjectD(this.leftDevices);
+      //console.log("-------End move right--------");
+      for (let i = 0; i < _rightSelectedDevices_length; i++) {
+        this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
+      }
+
+    },
+    moveToLeftDevices(id) {
       // console.log("e)", e);
       this.rightSelectedDevices.push(id);
 
@@ -731,7 +881,7 @@ export default {
 
       if (!this.rightSelectedDevices.length) return;
 
-      console.log("moveRightDevices", this.rightSelectedDevices);
+      console.log("moveToRightDevices", this.rightSelectedDevices);
       //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
       let _rightSelectedDevices_length = this.rightSelectedDevices.length;
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
@@ -755,7 +905,42 @@ export default {
 
       this.rightSelectedDevices.pop(id);
     },
-    moveRightDevices(id) {
+    moveToRightDevicesOption2() {
+
+      console.log("Starting move right--------");
+      console.log("leftSelectedDevices", this.leftSelectedDevices);
+      console.log(
+        "leftSelectedDevices length",
+        this.leftSelectedDevices.length
+      );
+
+      if (!this.leftSelectedDevices.length) return;
+
+      let _leftSelectedDevices_length = this.leftSelectedDevices.length;
+      for (let i = 0; i < _leftSelectedDevices_length; i++) {
+        if (this.leftSelectedDevices) {
+          let selectedindex = this.leftDevices.findIndex(
+            (e) => e.id == this.leftSelectedDevices[i]
+          );
+
+          let selectedobject = this.leftDevices.find(
+            (e) => e.id == this.leftSelectedDevices[i]
+          );
+
+          this.rightDevices.push(selectedobject);
+
+          this.leftDevices.splice(selectedindex, 1);
+        }
+      }
+      console.log("this.rightDevices", this.rightDevices);
+      this.rightDevices = this.sortObjectD(this.rightDevices);
+      //console.log("-------End move right--------");
+      for (let i = 0; i < _leftSelectedDevices_length; i++) {
+        this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
+      }
+
+    },
+    moveToRightDevices(id) {
       this.leftSelectedDevices.push(id);
       console.log("Starting move right--------");
       console.log("leftSelectedDevices", this.leftSelectedDevices);
@@ -790,6 +975,9 @@ export default {
     },
 
     async onSubmit() {
+
+
+      this.loading = true;
       if (this.rightEmployees.length == 0) {
         this.response = this.response + " Atleast select one Employee Details";
       } else if (this.rightDevices.length == 0) {
@@ -831,6 +1019,8 @@ export default {
       const { data } = await this.$axios.post(`/Person/AddRange`, payload);
       if (data.status == 200) {
         this.loading_dialog = false;
+
+
         this.snackbar = true;
         this.response = "Employee(s) has been upload";
         console.log("data", data.data);
@@ -893,6 +1083,8 @@ export default {
           elementDevice["sdkDeviceResponse"] =
             deviceStatusResponse != "" ? deviceStatusResponse : " Success";
           this.errors = [];
+
+          this.loading = false;
         });
 
         // data.data.forEach((e) => {
