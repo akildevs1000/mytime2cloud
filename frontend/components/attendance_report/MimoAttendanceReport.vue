@@ -236,8 +236,8 @@
             <v-col md="2">
               <div>Frequency</div>
               <v-autocomplete class="mt-2" @change="changeReportType(payload.report_type)" outlined dense
-                v-model="payload.report_type" x-small :items="['Custom', 'Daily', 'Weekly', 'Monthly']"
-                item-text="['Custom']" :hide-details="true"></v-autocomplete>
+                v-model="payload.report_type" x-small :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
+                item-text="['Daily']" :hide-details="true"></v-autocomplete>
             </v-col>
             <v-col md="2" v-if="payload.report_type == 'Daily'">
               <div>Date</div>
@@ -549,7 +549,8 @@
     <v-data-table v-if="can(`attendance_report_view`)" :headers="headers" :items="data" :server-items-length="total"
       :loading="loading" :options.sync="options" :footer-props="{
         itemsPerPageOptions: [50, 100, 500, 1000],
-      }" class="elevation-1">
+      }
+        " class="elevation-1">
       <template v-slot:item.employee_id="{ item }">
         <!-- <NuxtLink :to="`/employees/details/${item.employee.id}`"
           >{{ item.employee_id
@@ -573,7 +574,7 @@
               {{ (item.shift && item.shift.name) || "---" }}
             </div>
           </template>
-          <div v-for="(iterable, index) in item.shift" :key="index">
+          <div v-for="( iterable, index ) in  item.shift " :key="index">
             <span v-if="index !== 'id'">
               {{ caps(index) }}: {{ iterable || "---" }}</span>
           </div>
@@ -588,7 +589,7 @@
               {{ (item.device_in && item.device_in.short_name) || "---" }}
             </div>
           </template>
-          <div v-for="(iterable, index) in item.device_in" :key="index">
+          <div v-for="( iterable, index ) in  item.device_in " :key="index">
             <span v-if="index !== 'id'">
               {{ caps(index) }}: {{ iterable || "---" }}</span>
           </div>
@@ -603,7 +604,7 @@
               {{ (item.device_out && item.device_out.short_name) || "---" }}
             </div>
           </template>
-          <div v-for="(iterable, index) in item.device_out" :key="index">
+          <div v-for="( iterable, index ) in  item.device_out " :key="index">
             <span v-if="index !== 'id'">
               {{ caps(index) }}: {{ iterable || "---" }}</span>
           </div>
@@ -630,7 +631,7 @@
           </v-toolbar>
           <v-card-text>
             <div class="pt-5">
-              <span v-for="(log, index) in log_list" :key="index">
+              <span v-for="( log, index ) in  log_list " :key="index">
                 {{ log.date }} - {{ log.time }}
                 <hr />
               </span>
@@ -742,7 +743,7 @@ export default {
       to_date: null,
       daily_date: null,
       employee_id: "",
-      report_type: "Custom",
+      report_type: "Daily",
       department_id: -1,
       status: "Select All",
       late_early: "Select All",

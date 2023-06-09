@@ -159,8 +159,8 @@
             <v-col md="2">
               <div>Frequency</div>
               <v-autocomplete class="mt-2" @change="changeReportType(payload.report_type)" outlined dense
-                v-model="payload.report_type" x-small :items="['Custom', 'Daily', 'Weekly', 'Monthly']"
-                item-text="['Custom']" :hide-details="true"></v-autocomplete>
+                v-model="payload.report_type" x-small :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
+                item-text="['Daily']" :hide-details="true"></v-autocomplete>
             </v-col>
             <v-col md="2" v-if="payload.report_type == 'Daily'">
               <div>Date</div>
@@ -650,7 +650,7 @@ export default {
       to_date: null,
       daily_date: null,
       employee_id: "",
-      report_type: "Custom",
+      report_type: "Daily",
       department_id: -1,
       status: "Present",
       late_early: "Select All",
