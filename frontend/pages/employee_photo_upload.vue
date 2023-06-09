@@ -9,8 +9,7 @@
               <div>Dashboard</div>
             </v-col>
           </v-row>
-          <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
-            color="primary"></v-progress-linear>
+          <!-- <v-progress-linear :active="loading" :indeterminate="loading" absolute color="primary"></v-progress-linear> -->
         </v-col>
       </v-row>
       <v-row>
@@ -53,8 +52,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-progress-linear v-model="loading" :active="loading" :indeterminate="loading" absolute
-          color="primary"></v-progress-linear>
+        <v-progress-linear :active="loading" :indeterminate="loading" absolute color="primary"></v-progress-linear>
       </v-row>
       <v-row>
         <v-col cols="5">
@@ -67,7 +65,7 @@
                 v-on:dblclick="counter += 1, moveToRightEmp(user.id, user.timezone)" :key="user.id">
                 <v-row>
                   <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox hideDetails class="col    " v-model="leftSelectedEmp" :value="user.id" primary
+                    <v-checkbox class="col    " v-model="leftSelectedEmp" :value="user.id" primary
                       hide-details></v-checkbox>
                   </v-col>
                   <v-col col="2" class=" col     " style="padding-top:21px">
@@ -237,8 +235,8 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
-          color="primary"></v-progress-linear>
+        <!-- <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
+          color="primary"></v-progress-linear> -->
         <v-col cols="12">
           <div class="row">
             <div class="col col-lg-6 text-center">
@@ -490,7 +488,7 @@ export default {
       this.progressloading = true;
       let jsrightEmployees = this.rightEmployees;
 
-      this.snackbar = true;
+      this.snackbar.show = true;
       this.response = "Connecting to devices... Please wait...";
 
       let SDKSuccessStatus = true;
@@ -1000,8 +998,8 @@ export default {
           name: item.display_name,
           userCode: parseInt(item.system_user_id),
 
-          //faceImage: `https://backend.ideahrms.com/media/employee/profile_picture/WhatsApp%20Image%202022-09-16%20at%202.11.34%20PM%20(1).jpeg`,
-          faceImage: item.profile_picture
+          faceImage: `https://backend.ideahrms.com/media/employee/profile_picture/WhatsApp%20Image%202022-09-16%20at%202.11.34%20PM%20(1).jpeg`,
+          //faceImage: item.profile_picture
         };
         personListArray.push(person);
       });
@@ -1023,11 +1021,13 @@ export default {
 
       //try {
       const { data } = await this.$axios.post(`/Person/AddRange`, payload);
+
+      console.log('data', data);
       if (data.status == 200) {
         this.loading_dialog = false;
 
 
-        this.snackbar = true;
+        this.snackbar.show = true;
         this.response = "Employee(s) has been upload";
         console.log("data", data.data);
         //console.log("data data", JSON.parse(data));
@@ -1108,12 +1108,22 @@ export default {
         //   }
         // });
       }
+      else {
+        this.loading_dialog = false;
+        this.snackbar.show = true;
+        this.response = data.message;
+        console.log(data.message);
+        this.loading = false;
+
+      }
       // } catch (error) {
       //   this.loading_dialog = false;
       //   this.snackbar = true;
       //   this.response = error.message;
       //   console.log(error.message);
       // }
+
+
     },
   },
 };
