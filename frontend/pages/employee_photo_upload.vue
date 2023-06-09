@@ -70,7 +70,7 @@
                     <v-checkbox hideDetails class="col    " v-model="leftSelectedEmp" :value="user.id" primary
                       hide-details></v-checkbox>
                   </v-col>
-                  <v-col col="2" class=" col     " style="padding-top:30px">
+                  <v-col col="2" class=" col     " style="padding-top:21px">
 
                     {{ user.employee_id }}: {{ user.display_name }}
                   </v-col>
@@ -124,7 +124,7 @@
                     <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
                       :value="user.id" primary hide-details></v-checkbox>
                   </v-col>
-                  <v-col col="2" class="  col  " style="padding-top:30px">
+                  <v-col col="2" class="  col  " style="padding-top:21px">
 
                     {{ user.employee_id }} : {{ user.display_name }}
 
@@ -176,7 +176,7 @@
                     <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
                       v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
                   </v-col>
-                  <div col-4 class="col   " style="padding-top:30px">
+                  <div col-4 class="col   " style="padding-top:21px">
                     {{ user.name }} : {{ user.device_id }}
                   </div>
                 </div>
@@ -224,7 +224,7 @@
                     <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
                       v-model="rightSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
                   </v-col>
-                  <div col class="col-sm" style="padding-top:30px">
+                  <div col class="col-sm" style="padding-top:21px">
                     {{ user.name }} : {{ user.device_id }}
                   </div>
                   <div col class="col-sm   d-flex flex-column  justify-center  ">
@@ -490,6 +490,9 @@ export default {
       this.progressloading = true;
       let jsrightEmployees = this.rightEmployees;
 
+      this.snackbar = true;
+      this.response = "Connecting to devices... Please wait...";
+
       let SDKSuccessStatus = true;
       this.$axios.post(`${url}`, options).then(({ data }) => {
         this.displaybutton = false;
@@ -573,6 +576,9 @@ export default {
           return false;
         }
       });
+
+
+
     },
     goback() {
       this.$router.push("/timezonemapping/list");
@@ -994,8 +1000,8 @@ export default {
           name: item.display_name,
           userCode: parseInt(item.system_user_id),
 
-          faceImage: `https://backend.ideahrms.com/media/employee/profile_picture/WhatsApp%20Image%202022-09-16%20at%202.11.34%20PM%20(1).jpeg`,
-          // faceImage: item.profile_picture
+          //faceImage: `https://backend.ideahrms.com/media/employee/profile_picture/WhatsApp%20Image%202022-09-16%20at%202.11.34%20PM%20(1).jpeg`,
+          faceImage: item.profile_picture
         };
         personListArray.push(person);
       });
