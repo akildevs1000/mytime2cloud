@@ -30,8 +30,16 @@ class UpdateRequest extends FormRequest
             'employee_id' => ['required'],
             'system_user_id' => ['required'],
             'display_name' => ['required', 'min:3', 'max:10'],
+            'first_name' => ['nullable', 'min:3', 'max:10'],
+            'last_name' => ['nullable', 'min:3', 'max:10'],
             'title' => ['required'],
             'status' => ['nullable'],
+            'department_id' => ['nullable'],
+            'sub_department_id' => ['nullable'],
+            'designation_id' => ['nullable'],
+            'role_id' => ['nullable'],
+            'employee_id' => ['required'],
+
             'profile_picture' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
         ];
     }

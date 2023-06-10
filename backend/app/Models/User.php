@@ -42,7 +42,7 @@ class User extends Authenticatable
 
     public function assigned_employee_permissions()
     {
-        return $this->hasOne(AssignPermission::class, 'role_id', 'employee_role_id');
+        return $this->hasOne(AssignPermission::class, 'role_id');
     }
 
 
@@ -86,6 +86,16 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function employee_role()
+    {
+        return $this->belongsTo(Role::class,"employee_role_id");
+    }
+
+    // public function role()
+    // {
+    //     return $this->belongsTo(Role::class);
+    // }
 
     protected static function boot()
     {

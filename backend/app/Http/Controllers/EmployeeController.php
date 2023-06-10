@@ -92,32 +92,6 @@ class EmployeeController extends Controller
         }
     }
 
-    public function employeeUpdateBySingleColumn(Request $request, $id)
-    {
-        try {
-            $employee = Employee::where("id", $id)->update($request->all());
-            if (!$employee) {
-                return $this->response('Record cannot update.', null, false);
-            }
-            return $this->response('Record updated.', Employee::find($id), true);
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
-
-    public function employeeUpdateByRole(Request $request, $id)
-    {
-        try {
-            $employee = User::where("id", $id)->update($request->all());
-            if (!$employee) {
-                return $this->response('Record cannot update.', null, false);
-            }
-            return $this->response('Record updated.', User::find($id), true);
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
-
     public function employeeUpdate(UpdateRequest $request, $id)
     {
         $data = $request->validated();
@@ -220,7 +194,10 @@ class EmployeeController extends Controller
     public function index(Employee $employee, Request $request)
     {
         $data = $employee
-            ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "payroll", "timezone"])
+            // ->with(["user" => function ($q) {
+            //     return $q->with("employee_role:id,name");
+            // }])
+            ->with(["reportTo", "user", "role", "schedule", "department", "sub_department", "designation", "payroll", "timezone"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
                 $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));

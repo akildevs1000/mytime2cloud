@@ -48,7 +48,7 @@
         <v-row>
           <v-col md="6" sm="12" cols="12" dense>
             <v-row>
-              <v-col md="12" sm="12" cols="12">
+              <v-col md="6" sm="12" cols="12">
                 <label class="col-form-label"
                   >Title <span class="text-danger">*</span></label
                 >
@@ -64,7 +64,7 @@
                   outlined
                 ></v-select>
               </v-col>
-              <v-col md="12" sm="12" cols="12" dense>
+              <v-col md="6" sm="12" cols="12" dense>
                 <label class="col-form-label"
                   >Display Name <span class="text-danger">*</span></label
                 >
@@ -80,7 +80,39 @@
                   "
                 ></v-text-field>
               </v-col>
-              <v-col md="12" cols="12" sm="12" dense>
+              <v-col md="6" sm="12" cols="12" dense>
+                <label class="col-form-label"
+                  >First Name <span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  :hide-details="!errors.first_name"
+                  type="text"
+                  v-model="employee.first_name"
+                  :error="errors.first_name"
+                  :error-messages="
+                    errors && errors.first_name ? errors.first_name[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+              <v-col md="6" sm="12" cols="12" dense>
+                <label class="col-form-label"
+                  >Last Name <span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  :hide-details="!errors.last_name"
+                  type="text"
+                  v-model="employee.last_name"
+                  :error="errors.last_name"
+                  :error-messages="
+                    errors && errors.last_name ? errors.last_name[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+              <v-col md="6" cols="12" sm="12" dense>
                 <label class="col-form-label"
                   >Employee ID <span class="text-danger">*</span></label
                 >
@@ -96,7 +128,7 @@
                   "
                 ></v-text-field>
               </v-col>
-              <v-col md="12" cols="12" sm="12" dense>
+              <v-col md="6" cols="12" sm="12" dense>
                 <label class="col-form-label"
                   >Employee Device Id<span class="text-danger">*</span></label
                 >
@@ -113,6 +145,88 @@
                       : ''
                   "
                 ></v-text-field>
+              </v-col>
+              <v-col md="6" sm="12" cols="12">
+                <label class="col-form-label"
+                  >Department <span class="text-danger">*</span></label
+                >
+                <v-autocomplete
+                  :items="departments"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select"
+                  v-model="employee.department_id"
+                  :hide-details="!errors.department_id"
+                  :error="errors.department_id"
+                  :error-messages="
+                    errors && errors.department_id
+                      ? errors.department_id[0]
+                      : ''
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
+              </v-col>
+              <v-col md="6" sm="12" cols="12">
+                <label class="col-form-label"
+                  >Sub Department <span class="text-danger">*</span></label
+                >
+                <v-autocomplete
+                  :items="sub_departments"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select"
+                  v-model="employee.sub_department_id"
+                  :hide-details="!errors.sub_department_id"
+                  :error="errors.sub_department_id"
+                  :error-messages="
+                    errors && errors.sub_department_id
+                      ? errors.sub_department_id[0]
+                      : ''
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
+              </v-col>
+              <v-col md="6" sm="12" cols="12">
+                <label class="col-form-label"
+                  >Designation <span class="text-danger">*</span></label
+                >
+                <v-autocomplete
+                  :items="designations"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select"
+                  v-model="employee.designation_id"
+                  :hide-details="!errors.designation_id"
+                  :error="errors.designation_id"
+                  :error-messages="
+                    errors && errors.designation_id
+                      ? errors.designation_id[0]
+                      : ''
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
+              </v-col>
+              <v-col md="6" sm="12" cols="12">
+                <label class="col-form-label"
+                  >Role <span class="text-danger">*</span></label
+                >
+                <v-autocomplete
+                  :items="roles"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select"
+                  v-model="employee.role_id"
+                  :hide-details="!errors.role_id"
+                  :error="errors.role_id"
+                  :error-messages="
+                    errors && errors.role_id ? errors.role_id[0] : ''
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
               </v-col>
             </v-row>
           </v-col>
@@ -153,6 +267,7 @@
               >
             </div>
           </v-col>
+          <!-- <v-divider></v-divider> -->
           <v-col cols="12" class="text-right">
             <v-btn
               v-if="can('employee_create')"
@@ -238,14 +353,31 @@ export default {
     titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
     editedIndex: -1,
     response: "",
+    departments: [],
+    sub_departments: [],
+    designations: [],
+    roles: [],
     data: [],
     errors: [],
     departments: [],
     department_id: "",
+    payloadOptions: {},
   }),
 
   created() {
     this.getInfo(this.employeeId);
+
+    this.payloadOptions = {
+      params: {
+        per_page: 1000,
+        company_id: this.$auth.user.company.id,
+      },
+    };
+
+    this.getDepartments();
+    this.getSubDepartments();
+    this.getDesignations();
+    this.getRoles();
   },
   mounted() {
     //this.getDataFromApi();
@@ -262,17 +394,47 @@ export default {
     },
   },
   methods: {
+    getDepartments() {
+      this.$axios.get(`departments`, this.payloadOptions).then(({ data }) => {
+        this.departments = data.data;
+      });
+    },
+    getSubDepartments() {
+      this.$axios
+        .get(`sub-departments`, this.payloadOptions)
+        .then(({ data }) => {
+          this.sub_departments = data.data;
+        });
+    },
+    getDesignations() {
+      this.$axios.get(`designation`, this.payloadOptions).then(({ data }) => {
+        this.designations = data.data;
+      });
+    },
+    getRoles() {
+      this.payloadOptions.params.role_type = "employee";
+
+      this.$axios.get(`role`, this.payloadOptions).then(({ data }) => {
+        this.roles = data.data;
+        console.log(this.roles);
+      });
+    },
     getInfo(id) {
       this.$axios
         .get(`employee-single/${id}`)
         .then(({ data }) => {
-          //this.employee = data;
-
-          this.employee.title = data.title;
-          //this.employee.first_name = data.first_name;
-          this.employee.employee_id = data.employee_id;
-          this.employee.system_user_id = data.system_user_id;
-          this.employee.display_name = data.display_name;
+          this.employee = {
+            title: data.title,
+            display_name: data.display_name,
+            first_name: data.first_name,
+            last_name: data.last_name,
+            employee_id: data.employee_id,
+            system_user_id: data.system_user_id,
+            department_id: data.department_id,
+            sub_department_id: data.sub_department_id,
+            designation_id: data.designation_id,
+            role_id: data.role_id,
+          };
 
           // this.employee.id = data.id;
           this.previewImage = data.profile_picture;
@@ -373,7 +535,6 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            console.log("data", data);
             this.errors = [];
             this.snackbar = true;
             this.response = "Employees Updated successfully";

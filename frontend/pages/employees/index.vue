@@ -424,9 +424,9 @@
               </tr>
 
               <tr v-for="(item, index) in data" :key="index">
-                <td style="text-align: left; padding: 8px" class="text-center">
+                <!-- <td style="text-align: left; padding: 8px" class="text-center">
                   <b>{{ ++index }}</b>
-                </td>
+                </td> -->
                 <td style="text-align: left; padding: 8px">
                   {{ item.employee_id || "---" }}
                 </td>
@@ -443,83 +443,15 @@
                   >
                   </v-img>
                 </td>
-                <td style="text-align: left; padding: 8px">
-                  {{ item.display_name || "---" }}
-                </td>
-                <td style="text-align: left; padding: 8px">
-                  {{ (item.user && item.user.email) || "---" }}
-                </td>
-                <td style="text-align: left; padding: 8px">
-                  {{ item.timezone ? item.timezone.timezone_name : "---" }}
-                </td>
-
-                <td style="text-align: left; padding: 8px; width: 200px">
-                  <v-autocomplete
-                    dense
-                    outlined
-                    v-model="item.department_id"
-                    @change="
-                      update(item.id, { department_id: item.department_id })
-                    "
-                    :items="departments"
-                    item-text="name"
-                    item-value="id"
-                    placeholder="Department"
-                    :hide-details="true"
-                  ></v-autocomplete>
-                </td>
-                <td style="text-align: left; padding: 8px; width: 200px">
-                  <v-autocomplete
-                    dense
-                    outlined
-                    v-model="item.sub_department_id"
-                    @change="
-                      update(item.id, {
-                        sub_department_id: item.sub_department_id,
-                      })
-                    "
-                    :items="sub_departments"
-                    item-text="name"
-                    item-value="id"
-                    placeholder="Sub Department"
-                    :hide-details="true"
-                  ></v-autocomplete>
-                </td>
-                <td style="text-align: left; padding: 8px; width: 200px">
-                  <v-autocomplete
-                    dense
-                    outlined
-                    v-model="item.designation_id"
-                    @change="
-                      update(item.id, {
-                        designation_id: item.designation_id,
-                      })
-                    "
-                    :items="designations"
-                    item-text="name"
-                    item-value="id"
-                    placeholder="Designation"
-                    :hide-details="true"
-                  ></v-autocomplete>
-                </td>
-                <td style="text-align: left; padding: 8px; width: 200px">
-                  <v-autocomplete
-                    v-if="item.user"
-                    dense
-                    outlined
-                    v-model="item.user.employee_role_id"
-                    @change="update_role(item)"
-                    :items="roles"
-                    item-text="name"
-                    item-value="id"
-                    placeholder="Roles"
-                    :hide-details="true"
-                  ></v-autocomplete>
-                </td>
-                <td style="text-align: left; padding: 8px">
-                  {{ (item && item.phone_number) || "---" }}
-                </td>
-                <td style="text-align: left; padding: 8px">
+                <td>{{ item.display_name }}</td>
+                <td>{{ item.user.email }}</td>
+                <td>{{ item.timezone.timezone_name }}</td>
+                <td>{{ item.department.name }}</td>
+                <td>{{ item.sub_department.name }}</td>
+                <td>{{ item.designation.name }}</td>
+                <td>{{ item.role.name }}</td>
+                <td>{{ item.phone_number || "---" }}</td>
+                <td>
                   {{
                     item.schedule &&
                     item.schedule.shift &&
@@ -642,8 +574,6 @@ export default {
     selectedItem: 1,
     on: "",
     files: "",
-    Model: "Employee",
-    endpoint: "employee",
     search: "",
     loading: false,
     total: 0,
@@ -714,10 +644,6 @@ export default {
     };
 
     this.getDataFromApi();
-    this.getDepartments();
-    this.getSubDepartments();
-    this.getDesignations();
-    this.getRoles();
   },
   mounted() {
     //this.getDataFromApi();
@@ -779,15 +705,15 @@ export default {
       },
     ];
     this.headers = [
-      { text: "#" },
+      // { text: "#" },
       { text: "EID" },
       { text: "Profile" },
       { text: "Name" },
       { text: "Email" },
       { text: "Timezone" },
-      { text: "Department" },
-      { text: "Sub Department" },
-      { text: "Designation" },
+      { text: "Dept" },
+      { text: "Sub Dept" },
+      { text: "Desgnation" },
       { text: "Role" },
       { text: "Mobile" },
       { text: "Shift" },
@@ -800,42 +726,6 @@ export default {
     },
   },
   methods: {
-    update_role(item) {
-      console.log(item.employee_role_id);
-      // return;
-      if (!item.user.id) {
-        this.color = "red lighten-2";
-        this.snackbar = true;
-        this.response = "To assign a role, you must creata an email first.";
-        return false;
-      }
-      this.$axios
-        .post(`employee-role-update/${item.user.id}`, {
-          employee_role_id: item.employee_role_id,
-        })
-        .then(({ data }) => {
-          if (!data.status) {
-            this.snackbar = false;
-            this.response = "Record cannot update";
-          } else {
-            this.snackbar = true;
-            this.response = "Record has been updated";
-          }
-        });
-    },
-    update(id, column) {
-      this.$axios
-        .post(`employee-single-column-update/${id}`, column)
-        .then(({ data }) => {
-          if (!data.status) {
-            this.snackbar = false;
-            this.response = "Record cannot update";
-          } else {
-            this.snackbar = true;
-            this.response = "Record has been updated";
-          }
-        });
-    },
     closePopup() {
       //croppingimagestep5
       this.$refs.attachment_input.value = null;
@@ -948,31 +838,6 @@ export default {
     },
     onPageChange() {
       this.getDataFromApi();
-    },
-    getDepartments() {
-      this.$axios.get(`departments`, this.payloadOptions).then(({ data }) => {
-        this.departments = data.data;
-      });
-    },
-    getSubDepartments() {
-      this.$axios
-        .get(`sub-departments`, this.payloadOptions)
-        .then(({ data }) => {
-          this.sub_departments = data.data;
-        });
-    },
-    getDesignations() {
-      this.$axios.get(`designation`, this.payloadOptions).then(({ data }) => {
-        this.designations = data.data;
-      });
-    },
-    getRoles() {
-      this.payloadOptions.params.role_type = "employee";
-
-      this.$axios.get(`role`, this.payloadOptions).then(({ data }) => {
-        this.roles = data.data;
-        console.log(this.roles);
-      });
     },
     getDataFromApi(url = this.endpoint) {
       //this.loading = true;

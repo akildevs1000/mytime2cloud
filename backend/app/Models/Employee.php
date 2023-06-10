@@ -41,18 +41,24 @@ class Employee extends Model
             "email" => "---"
         ]);
     }
+
     public function timezone()
     {
-        return $this->belongsTo(Timezone::class, 'timezone_id', 'timezone_id');
-    }
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Timezone::class, 'timezone_id', 'timezone_id')->withDefault([
+            "timezone_name" => "---"
+        ]);
     }
 
     public function designation()
     {
         return $this->belongsTo(Designation::class)->withDefault([
+            "name" => "---",
+        ]);
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class)->withDefault([
             "name" => "---",
         ]);
     }
@@ -64,12 +70,16 @@ class Employee extends Model
 
     public function department()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Department::class)->withDefault([
+            "name" => "---",
+        ]);
     }
 
     public function sub_department()
     {
-        return $this->belongsTo(SubDepartment::class);
+        return $this->belongsTo(SubDepartment::class)->withDefault([
+            "name" => "---",
+        ]);
     }
 
     public function getProfilePictureAttribute($value)
@@ -107,6 +117,8 @@ class Employee extends Model
     }
 
     // use Illuminate\Database\Eloquent\Builder;
+
+    
 
     protected static function boot()
     {
