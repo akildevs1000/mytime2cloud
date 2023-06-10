@@ -12,7 +12,7 @@ class SDKController extends Controller
 {
     // $url = "https://sdk.ideahrms.com";
 
-    protected $endpoint = "localhost:5000";
+    protected $endpoint = "https://sdk.ideahrms.com"; //"localhost:5000";
 
     public function processTimeGroup(Request $request, $id)
     {
@@ -46,37 +46,37 @@ class SDKController extends Controller
                 "timeSegmentList" => [
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "00:00",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "00:00",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "00:00",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "00:00",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "00:00",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "00:00",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "00:00",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
-                    ]
-                ]
+                        "end" => "00:00",
+                    ],
+                ],
             ];
         }
         return $arr;

@@ -159,8 +159,8 @@
             <v-col md="2">
               <div>Frequency</div>
               <v-autocomplete class="mt-2" @change="changeReportType(payload.report_type)" outlined dense
-                v-model="payload.report_type" x-small :items="['Custom', 'Daily', 'Weekly', 'Monthly']"
-                item-text="['Custom']" :hide-details="true"></v-autocomplete>
+                v-model="payload.report_type" x-small :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
+                item-text="['Daily']" :hide-details="true"></v-autocomplete>
             </v-col>
             <v-col md="2" v-if="payload.report_type == 'Daily'">
               <div>Date</div>
@@ -409,6 +409,36 @@
         <span>CSV</span>
       </v-tooltip>
     </v-toolbar>
+    <v-toolbar class="background" dark flat v-if="payload.report_type == 'Custom'">
+      <v-spacer></v-spacer>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly')">
+            <v-icon class="">mdi-printer-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>PRINT</span>
+      </v-tooltip>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_pdf')">
+            <v-icon class="">mdi-download-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>DOWNLOAD</span>
+      </v-tooltip>
+
+      <v-tooltip top color="primary">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_csv')">
+            <v-icon class="">mdi-file-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>CSV</span>
+      </v-tooltip>
+    </v-toolbar>
     <v-data-table v-if="can(`attendance_report_view`)" :headers="headers" :items="data" :server-items-length="total"
       :loading="loading" :options.sync="options" :footer-props="{
         itemsPerPageOptions: [50, 100, 500, 1000],
@@ -620,7 +650,7 @@ export default {
       to_date: null,
       daily_date: null,
       employee_id: "",
-      report_type: "Custom",
+      report_type: "Daily",
       department_id: -1,
       status: "Present",
       late_early: "Select All",
@@ -919,6 +949,15 @@ export default {
       if (u.user_type == "employee") {
         this.payload.department_id = u.employee.department_id;
       }
+
+      if (this.payload.report_type == 'Custom') {
+        if (this.payload.from_date == null) {
+          return false;
+        }
+        if (this.payload.to_date == null) {
+          return false;
+        }
+      }
       let options = {
         params: {
           per_page: itemsPerPage,
@@ -932,6 +971,9 @@ export default {
       };
 
       this.$axios.get(url, options).then(({ data }) => {
+
+        console.log('options', options);
+        console.log('data.data', data.data);
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
