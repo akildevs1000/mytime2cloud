@@ -1,34 +1,34 @@
 <template>
   <div v-if="can(`dashboard_access`)">
     <div v-if="!loading">
-      <v-row>
-        <v-dialog
-          v-model="dialogGeneralreport"
-          :fullscreen="false"
-          max-width="80%"
-        >
-          <v-card>
-            <!-- <v-card-actions>
+      <v-dialog
+        v-model="dialogGeneralreport"
+        :fullscreen="false"
+        max-width="80%"
+      >
+        <v-card>
+          <!-- <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn class="error" small @click="closeDialogGeneralreport">
                 Close <span class="mdi mdi-close-circle"></span>
               </v-btn>
             </v-card-actions> -->
-            <v-card-text style="padding: 0px">
-              <v-container style="max-width: 100%; padding: 0px">
-                <v-row>
-                  <v-col cols="12">
-                    <iframe
-                      v-if="iframeDisplay"
-                      :src="iframeUrl"
-                      frameborder="0"
-                    ></iframe>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
+          <v-card-text style="padding: 0px">
+            <v-container style="max-width: 100%; padding: 0px">
+              <v-row>
+                <v-col cols="12">
+                  <iframe
+                    v-if="iframeDisplay"
+                    :src="iframeUrl"
+                    frameborder="0"
+                  ></iframe>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+      <v-row>
         <v-col md="12">
           <!-- <v-alert
           v-if="first_login && first_login_auth"
@@ -50,10 +50,15 @@
           </nuxt-link>
         </v-alert> -->
         </v-col>
-        <div
-          class="col-xl-2 col-lg-6 text-uppercase"
+        <v-col
           v-for="(i, index) in items"
           :key="index"
+          xs="12"
+          sm="12"
+          cols="12"
+          md="4"
+          lg="4"
+          xl="3"
         >
           <div class="card p-2" :class="i.color" style="min-height: 168px">
             <div class="card-statistic-3">
@@ -92,8 +97,8 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="col-xl-2 col-lg-6 text-uppercase">
+        </v-col>
+        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="3">
           <div class="card p-2 l-bg-purple-dark" style="min-height: 168px">
             <div class="card-statistic-3">
               <div class="card-icon card-icon-large">
@@ -107,8 +112,8 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="col-xl-2 col-lg-6 text-uppercase">
+        </v-col>
+        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="3">
           <div
             class="card p-2"
             style="min-height: 168px; background-color: rgb(193 14 14 / 6%)"
@@ -122,20 +127,17 @@
               </div>
             </div>
           </div>
-        </div>
+        </v-col>
       </v-row>
-
       <v-row>
-        <v-col cols="12" md="8" xl="8">
-          <v-card flat>
+        <v-col cols="12" md="12" xl="12">
             <DailyLogs />
-          </v-card>
         </v-col>
-        <v-col cols="12" md="4" xl="4">
-          <v-card flat>
-            <PIE :items="items" />
+        <!-- <v-col cols="12" md="4" xl="4">
+          <v-card flat class="w-100">
+          <PIE :items="items" />
           </v-card>
-        </v-col>
+        </v-col> -->
       </v-row>
 
       <v-row class="mt-4">
@@ -154,6 +156,26 @@
 export default {
   data() {
     return {
+      cards: [
+        {
+          id: 1,
+          title: "Card 1",
+          description: "This is the description of Card 1",
+          image: "path/to/image1.jpg",
+        },
+        {
+          id: 2,
+          title: "Card 2",
+          description: "This is the description of Card 2",
+          image: "path/to/image2.jpg",
+        },
+        {
+          id: 3,
+          title: "Card 3",
+          description: "This is the description of Card 3",
+          image: "path/to/image3.jpg",
+        },
+      ],
       currentValue: 0,
       targetValue: 100, // The target value for the animation
       animationDuration: 4000, // Animation duration in milliseconds
@@ -222,7 +244,6 @@ export default {
   mounted() {
     this.updateCartcart2();
 
-    console.log(this.$auth.user);
     this.animateNumberEmployeesCount();
   },
   computed: {
@@ -337,22 +358,10 @@ export default {
 
         this.total_employees_count_api = data[0].total_employees_count;
 
-        console.log("this.items", this.items);
         if (this.items.length > 0) {
           this.loading = false;
         }
       });
-
-      // this.items2 = [
-      //   {
-      //     title: "Active",
-      //     value: this.online_device_count,
-      //   },
-      //   {
-      //     title: "Offline",
-      //     value: this.offline_device_count,
-      //   },
-      // ];
     },
   },
 };

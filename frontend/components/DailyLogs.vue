@@ -1,101 +1,96 @@
 <template>
-  <div>
-    <h5>
-      <b style="padding: 10px">
-        Recent Logs
-        <a
-          v-if="logs && logs.length > 0"
-          href="#"
-          class="text-decoration-none"
-          @click="goToemployeelog()"
-        >
-          Table View
-          <i
-            data-v-0591559c=""
-            aria-hidden="true"
-            class="v-icon notranslate pa-0 mdi mdi-grid theme--light"
-          ></i
-        ></a>
-      </b>
-    </h5>
-    <div v-if="logs && logs.length == 0" style="min-height: 400px">
-      <div style="text-align: center; color: red">{{ emptyLogmessage }}</div>
-    </div>
-    <!-- <v-skeleton-loader v-if="logs && !logs.length" type="card">
-    </v-skeleton-loader> -->
-
-    <div v-else>
-      <v-toolbar flat>
-        <v-spacer />
-
-        <v-select
-          @change="getRecords"
-          v-model="number_of_records"
-          outlined
-          dense
-          class="mt-5"
-          placeholder="Select Number of Records"
-          :items="[10, 20, 50, 100]"
-          style="max-width: 200px !important"
-        ></v-select>
-      </v-toolbar>
-      <v-slide-group class="px-4 pb-3" active-class="success" show-arrows>
-        <div></div>
-        <v-slide-item v-for="(item, index) in logs" :key="index">
-          <div class="card mx-2 my-2 w-25">
-            <div class="banner">
-              <v-img
-                class="gg"
-                viewBox="0 0 100 100"
-                style="
-                  border-radius: 50%;
-                  height: 80px;
-                  max-width: 80px !important;
-                "
-                :src="
-                  (item.employee && item.employee.profile_picture) ||
-                  '/no-profile-image.jpg'
-                "
-              ></v-img>
-            </div>
-            <div class="menu">
-              <div class="opener"></div>
-            </div>
-            <h2 class="text-center pa-1" style="font-size: 15px">
-              {{ item.employee && item.employee.display_name }}
-            </h2>
-            <div class="title" style="font-size: 12px !important">
-              EID: {{ item.UserID }}
-            </div>
-            <div class="title" style="font-size: 12px !important"></div>
-            <div class="actions">
-              <div class="follow-info">
-                <h2>
-                  <a href="#"
-                    ><span>{{ item && item.time }} </span><small>Time</small></a
-                  >
-                </h2>
-                <h2>
-                  <a href="#"
-                    ><span>{{
-                      (item.device && item.device.short_name) || "---"
-                    }}</span
-                    ><small>Device</small></a
-                  >
-                </h2>
-              </div>
-            </div>
-          </div>
-        </v-slide-item>
-      </v-slide-group>
-    </div>
+  <div v-if="logs && logs.length == 0" style="min-height: 400px">
+    <div style="text-align: center; color: red">{{ emptyLogmessage }}</div>
   </div>
+  <v-row v-else>
+    <v-col xs="12" sm="12" cols="12" md="6" lg="6" xl="3">
+      <v-card style="height: 500px">
+        <v-toolbar flat class="mb-15 pt-1">
+          <h5>
+            Recent Logs
+            <v-icon v-if="logs && logs.length > 0" @click="goToemployeelog()"
+              >mdi-grid</v-icon
+            >
+          </h5>
+          <v-spacer />
+
+          <v-select
+            @change="getRecords"
+            v-model="number_of_records"
+            :hide-details="true"
+            outlined
+            dense
+            placeholder="Select Number of Records"
+            :items="[10, 20, 50, 100]"
+            style="max-width: 200px !important"
+          ></v-select>
+        </v-toolbar>
+        <v-slide-group class="px-4 pb-3 mb-5" active-class="success" show-arrows>
+          <div></div>
+
+          <v-slide-item v-for="(item, index) in logs" :key="index">
+            <v-card
+              style="border-radius: 2rem !important; height:90%;"
+              class="custom-card mx-2 my-2"
+            >
+              <div
+                style="size: cover"
+                class="d-flex justify-center primary banner pt-5"
+              >
+                <v-img
+                  class="image-box"
+                  :src="
+                    (item.employee && item.employee.profile_picture) ||
+                    '/no-profile-image.jpg'
+                  "
+                ></v-img>
+              </div>
+              <div class="menu">
+                <div class="opener"></div>
+              </div>
+              <h2 class="text-center pa-1" style="font-size: 15px">
+                {{ item.employee && item.employee.display_name }}
+              </h2>
+              <div class="title" style="font-size: 12px !important">
+                EID: {{ item.UserID }}
+              </div>
+              <div class="title" style="font-size: 12px !important"></div>
+              <div class="actions">
+                <div class="follow-info">
+                  <h2>
+                    <a href="#"
+                      ><span>{{ item && item.time }} </span
+                      ><small>Time</small></a
+                    >
+                  </h2>
+                  <h2>
+                    <a href="#"
+                      ><span>{{
+                        (item.device && item.device.short_name) || "---"
+                      }}</span
+                      ><small>Device</small></a
+                    >
+                  </h2>
+                </div>
+              </div>
+            </v-card>
+          </v-slide-item>
+        </v-slide-group>
+      </v-card>
+    </v-col>
+    <v-col xs="12" sm="12" cols="12" md="6" lg="6" xl="3">
+      <v-card style="height: 500px">
+        <PIE :items="items" />
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
 export default {
   data() {
     return {
+      items: [],
       emptyLogmessage: "",
       number_of_records: 10,
       logs: [],
@@ -108,10 +103,26 @@ export default {
 
     this.getRecords();
   },
+
   created() {
+    this.initialize();
     // this.getRecords();
   },
   methods: {
+    initialize() {
+      let options = {
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios.get(`count`, { params: options }).then(({ data }) => {
+        this.items = data;
+
+        this.total_employees_count_api = data[0].total_employees_count;
+
+        if (this.items.length > 0) {
+          this.loading = false;
+        }
+      });
+    },
     getRecords() {
       this.$axios
         .get(
@@ -161,150 +172,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.card {
-  height: 350px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  border-radius: 2rem !important;
-}
-.card .banner {
-  background-color: #5fafa3;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  height: 11rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  box-sizing: border-box;
-}
-.card .banner .gg {
-  background-color: #fff;
-  width: 8rem;
-  height: 8rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
-  border-radius: 50%;
-  transform: translateY(50%);
-  transition: transform 200ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-.card .banner svg:hover {
-  transform: translateY(50%) scale(1.3);
-}
-.card .menu {
-  width: 100%;
-  height: 5.5rem;
-  padding: 1rem;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  position: relative;
-  box-sizing: border-box;
-}
-.card .menu .opener {
-  width: 2.5rem;
-  height: 2.5rem;
-  position: relative;
-  border-radius: 50%;
-  transition: background-color 100ms ease-in-out;
-}
-.card .menu .opener:hover {
-  background-color: #f2f2f2;
-}
-.card .menu .opener span {
-  background-color: #404040;
-  width: 0.4rem;
-  height: 0.4rem;
-  position: absolute;
-  top: 0;
-  left: calc(50% - 0.2rem);
-  border-radius: 50%;
-}
-.card .menu .opener span:nth-child(1) {
-  top: 0.45rem;
-}
-.card .menu .opener span:nth-child(2) {
-  top: 1.05rem;
-}
-.card .menu .opener span:nth-child(3) {
-  top: 1.65rem;
-}
-
-.card .title {
-  color: #a0a0a0;
-  font-size: 0.85rem;
-  text-align: center;
-  /* padding: 0 2rem 1.2rem; */
-}
-.card .actions {
-  padding: 0 2rem 1.2rem;
-  display: flex;
-  flex-direction: column;
-  order: 99;
-}
-.card .actions .follow-info {
-  padding: 0 0 1rem;
-  display: flex;
-}
-.card .actions .follow-info h2 {
-  text-align: center;
-  width: 50%;
-  margin: 0;
-  box-sizing: border-box;
-}
-.card .actions .follow-info h2 a {
-  text-decoration: none;
-  padding: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  border-radius: 0.8rem;
-  transition: background-color 100ms ease-in-out;
-}
-.card .actions .follow-info h2 a span {
-  color: #1c9eff;
-  font-weight: bold;
-  transform-origin: bottom;
-  transform: scaleY(1.3);
-  transition: color 100ms ease-in-out;
-  font-size: 20px;
-}
-.card .actions .follow-info h2 a small {
-  color: #afafaf;
-  font-size: 0.85rem;
-  font-weight: normal;
-}
-.card .actions .follow-info h2 a:hover {
-  background-color: #f2f2f2;
-}
-.card .actions .follow-info h2 a:hover span {
-  color: #007ad6;
-}
-
-.online-devices {
-  /* color: green;
-  font-size: 16px;
-  font-weight: bold; */
-
-  color: #fff;
-  background: green;
-  border-radius: 5px;
-  margin-left: 10px;
-  margin-right: 10px;
-  padding: 4px;
-}
-.offline-devices {
-  /* color: red;
-  font-size: 16px;
-  font-weight: bold;
-  padding-left: 15px;
-  padding-right: 20px; */
-
-  color: #fff;
-  background: red;
-  border-radius: 5px;
-  margin-left: 10px;
-  margin-right: 10px;
-  padding: 4px;
-}
-</style>
+<style scoped src="@/assets/dashboard_style.css"></style>

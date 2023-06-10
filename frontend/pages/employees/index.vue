@@ -245,6 +245,51 @@
           </v-card-text>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="dialog" max-width="500px">
+        <v-card>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12" class="mb-2">
+                  <span class="headline">Import Employee</span>
+                </v-col>
+                <v-col cols="12">
+                  <v-file-input
+                    accept="text/csv"
+                    v-model="files"
+                    placeholder="Upload your file"
+                    label="File"
+                    prepend-icon="mdi-paperclip"
+                  >
+                    <template v-slot:selection="{ text }">
+                      <v-chip v-if="text" small label color="primary">
+                        {{ text }}
+                      </v-chip>
+                    </template>
+                  </v-file-input>
+                  <br />
+                  <a href="/employees.csv" download> Download Sample</a>
+                  <br />
+                  <span
+                    v-if="errors && errors.length > 0"
+                    class="error--text"
+                    >{{ errors[0] }}</span
+                  >
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn class="error" small @click="close"> Cancel </v-btn>
+
+            <v-btn class="primary" :loading="btnLoader" small @click="save"
+              >Save</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-row class="mt-5">
         <v-col cols="6">
           <h3>{{ Model }}</h3>
@@ -264,21 +309,22 @@
             </v-btn>
           </div> -->
           <div class="text-right mt-6">
-            <v-btn
+            <!-- <v-btn
               small
-              class="primary--text pt-4 pb-4"
+              class="primary--text "
               to="/employees/employee_list"
             >
               <v-icon class="pa-0">mdi-menu</v-icon>
             </v-btn>
-            <v-btn x-small class="primary pt-4 pb-4" to="/employees">
+            <v-btn x-small class="primary" to="/employees">
               <v-icon class="pa-0">mdi-grid</v-icon>
-            </v-btn>
+            </v-btn> -->
+
             <v-btn
               v-if="can('employee_import_access')"
               small
               dark
-              class="primary pt-4 pb-4"
+              class="primary"
               @click="dialog = true"
             >
               Import <v-icon right dark>mdi-cloud-upload</v-icon>
@@ -288,69 +334,19 @@
               v-if="can('employee_export_access')"
               small
               dark
-              class="primary pt-4 pb-4"
+              class="primary"
               @click="export_submit"
             >
               Export <v-icon right dark>mdi-cloud-download</v-icon>
             </v-btn>
-
-            <v-dialog v-model="dialog" max-width="500px">
-              <v-card>
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12" class="mb-2">
-                        <span class="headline">Import Employee</span>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-file-input
-                          accept="text/csv"
-                          v-model="files"
-                          placeholder="Upload your file"
-                          label="File"
-                          prepend-icon="mdi-paperclip"
-                        >
-                          <template v-slot:selection="{ text }">
-                            <v-chip v-if="text" small label color="primary">
-                              {{ text }}
-                            </v-chip>
-                          </template>
-                        </v-file-input>
-                        <br />
-                        <a href="/employees.csv" download> Download Sample</a>
-                        <br />
-                        <span
-                          v-if="errors && errors.length > 0"
-                          class="error--text"
-                          >{{ errors[0] }}</span
-                        >
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn class="error" small @click="close"> Cancel </v-btn>
-
-                  <v-btn
-                    class="primary"
-                    :loading="btnLoader"
-                    small
-                    @click="save"
-                    >Save</v-btn
-                  >
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
 
             <v-btn
               v-if="can('employee_create')"
               @click="employeeDialog = true"
               small
               dark
-              class="primary pt-4 pb-4"
-              >{{ Model }}
+              class="primary"
+              >{{ Model }} <v-icon right dark>mdi-account-tie</v-icon>
             </v-btn>
           </div>
         </v-col>
@@ -507,7 +503,6 @@
                   ></v-autocomplete>
                 </td>
                 <td style="text-align: left; padding: 8px; width: 200px">
-                 
                   <v-autocomplete
                     v-if="item.user"
                     dense
