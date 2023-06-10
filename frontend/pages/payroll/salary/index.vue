@@ -169,7 +169,7 @@
                     font-size: 38px;
                     vertical-align: inherit;
                     padding-left: 10px;    margin-top: -5px;
-                  "><span class="mdi mdi-download-box"></span></a>
+                  "><span class="mdi   mdi-download  "></span></a>
                 <a v-if="!downloadAllDisplayStatus" title="Download All Payslips" download style="
                     font-size: 38px;
                     vertical-align: inherit;
@@ -226,7 +226,149 @@
               </v-col>
             </v-row>
  -->
-            <table class="employee-table">
+
+            <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+              {{ snackText }}
+
+              <template v-slot:action="{ attrs }">
+                <v-btn v-bind="attrs" text @click="snack = false">
+                  Close
+                </v-btn>
+              </template>
+            </v-snackbar>
+            <v-data-table show-select v-model="selectedItems" :headers="headers_dialog" :items="data"
+              model-value="data.id" :loading="loading" :options.sync="options" :footer-props="{
+                itemsPerPageOptions: [50, 100, 500, 1000],
+              }" class="elevation-1">
+              <template v-slot:item.sno="{ item, index }">
+
+                <!-- <v-checkbox v-model="selectedItems" :value="item.id" :key="item.id" primary hide-details></v-checkbox> -->
+              </template>
+              <template v-slot:item.employee_id="{ item }">
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+                  :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
+                  {{ item.employee_id }}
+                  <template v-slot:input>
+                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
+                      label="Type Employee Id"></v-text-field>
+                  </template>
+                </v-edit-dialog>
+
+              </template>
+              <template v-slot:item.display_name="{ item }">
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+                  :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
+                  {{ item.display_name }}
+                  <template v-slot:input>
+                    <v-text-field @input="datatable_searchByName" v-model="datatable_search_textbox"
+                      label="Type Employee Name"></v-text-field>
+                  </template>
+                </v-edit-dialog>
+
+
+
+
+              </template>
+              <template v-slot:item.year_month="{ item }">
+
+
+                {{ item.payroll_month }} / {{ item.payroll_year }}
+              </template>
+              <template v-slot:item.designation.name="{ item }">
+
+
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
+                  {{ caps(item.designation && item.designation.name) }}
+                  <template v-slot:input>
+                    <v-text-field @input="datatable_searchByDesignationName" v-model="datatable_search_textbox"
+                      label="Type Department Name"></v-text-field>
+                  </template>
+                </v-edit-dialog>
+
+              </template>
+              <template v-slot:item.department.name="{ item }">
+
+
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
+                  {{ caps(item.department && item.department.name) }}
+                  <template v-slot:input>
+                    <v-text-field @input="datatable_searchByDepartmentName" v-model="datatable_search_textbox"
+                      label="Type Department Name"></v-text-field>
+                  </template>
+                </v-edit-dialog>
+
+              </template>
+              <template v-slot:item.payroll.basic_salary="{ item }">
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
+                  {{ item.payroll && item.payroll.basic_salary }}
+                  <template v-slot:input>
+                    <v-text-field @input="datatable_searchBybasic_salary" v-model="datatable_search_textbox"
+                      label="Minimum Amount"></v-text-field>
+                  </template>
+                </v-edit-dialog>
+
+              </template>
+
+              <template v-slot:item.payroll.net_salary="{ item }">
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
+                  {{ item.payroll && item.payroll.net_salary }}
+                  <template v-slot:input>
+                    <v-text-field @input="datatable_searchBynet_salary" v-model="datatable_search_textbox"
+                      label="Minimum Amount"></v-text-field>
+                  </template>
+                </v-edit-dialog>
+
+              </template>
+              <template v-slot:item.payslip="{ item }">
+
+                <span @click="navigateToViewPDF(item.system_user_id, item.id)" style="
+                      font-size: 25px;
+                      vertical-align: inherit;
+                      cursor: pointer;
+                    ">
+                  <v-icon small class="primary--text">mdi-eye</v-icon>
+                </span>
+                <a v-if="item.payslip_status" :href="getdownloadLink(item.employee_id)" style="
+                      font-size: 25px;
+                      vertical-align: inherit;
+                      cursor: pointer;
+                    ">
+                  <v-icon small class="primary--text">mdi-download</v-icon>
+                </a>
+              </template>
+
+              <template v-slot:item.actions="{ item }">
+
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="editItem(item)">
+                      <v-list-item-title style="cursor: pointer">
+                        <v-icon color="secondary" small> mdi-pencil </v-icon>
+                        Edit
+                      </v-list-item-title>
+                    </v-list-item>
+                    <!-- <v-list-item @click="res(item.id)">
+                        <v-list-item-title style="cursor:pointer">
+                          <v-icon color="primary" small>
+                            mdi-eye
+                          </v-icon>
+                          Select
+                        </v-list-item-title>
+                      </v-list-item> -->
+                  </v-list>
+                </v-menu>
+              </template>
+
+
+            </v-data-table>
+
+
+            <!-- <table class="employee-table">
               <tr>
                 <th>
                   <v-checkbox v-model="allSelected" primary hide-details @click="toggleSelectAll"></v-checkbox>
@@ -252,16 +394,7 @@
                 <td>{{ item.payroll && item.payroll.basic_salary }}</td>
                 <td>{{ item.payroll && item.payroll.net_salary }}</td>
                 <td>
-                  <!-- <v-btn
-                    :to="`/payroll/salary/${item.system_user_id}_${item.id}`"
-                    small
-                    ><span class="mdi mdi-info-box"></span
-                  ></v-btn>
-                  <v-btn
-                    :to="`/payroll/salary/${item.system_user_id}_${item.id}`"
-                  >
-                    <span class="mdi mdi-info-box"></span>
-                  </v-btn> -->
+
 
                   <span @click="navigateToViewPDF(item.system_user_id, item.id)" style="
                       font-size: 25px;
@@ -292,19 +425,12 @@
                           Edit
                         </v-list-item-title>
                       </v-list-item>
-                      <!-- <v-list-item @click="res(item.id)">
-                        <v-list-item-title style="cursor:pointer">
-                          <v-icon color="primary" small>
-                            mdi-eye
-                          </v-icon>
-                          Select
-                        </v-list-item-title>
-                      </v-list-item> -->
+
                     </v-list>
                   </v-menu>
                 </td>
               </tr>
-            </table>
+            </table> -->
           </v-card>
           <v-row>
             <v-col lg="12" class="float-right">
@@ -325,6 +451,10 @@
 <script>
 export default {
   data: () => ({
+    filter_employeeid: '',
+    snack: false,
+    snackColor: '',
+    snackText: '',
     downloadAllDisplayStatus: true,
     dialogPayslipsResults: false,
     payslipsResultsmessages: [],
@@ -336,7 +466,7 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 10,
+      per_page: 100,
     },
     options: {},
     Model: "Payroll",
@@ -361,7 +491,7 @@ export default {
       { text: "#" },
       { text: "EID" },
       { text: "Name" },
-      { text: "Month" },
+      { text: "Year/Month" },
       { text: "Designation" },
       { text: "Department" },
       { text: "Basic Salary" },
@@ -370,33 +500,54 @@ export default {
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     headers_dialog: [
-      { text: "EID", align: "left", sortable: true, value: "system_user_id" },
-      { text: "Name", align: "left", sortable: true, value: "first_name" },
-      { text: "Month", align: "left", sortable: true, value: "2023" },
+
+      { text: "EID", align: "left", sortable: true, key: 'employee_id', value: "employee_id" },
+      { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
+      { text: "Year/Month", align: "left", sortable: false, key: 'year_month', value: "year_month" },
       {
         text: "Designation",
         align: "left",
         sortable: true,
-        value: "designation.name",
+        key: 'designation',
+        value: "designation.name"
       },
       {
         text: "Department",
         align: "left",
         sortable: true,
-        value: "department_id",
+        key: 'department',
+        value: "department.name", //template name should be match
       },
       {
         text: "Basic Salary",
         align: "left",
         sortable: true,
+        key: 'payrollbasic',
+        value: "payroll.basic_salary",
+      },
+      {
+        text: "Net Salary",
+        align: "left",
+        sortable: true,
+        key: 'net_salary',
         value: "payroll.net_salary",
       },
       {
-        text: "Download",
+        text: "Payslip",
         align: "left",
-        sortable: true,
+        sortable: false,
+        key: 'payslip',
+        value: "payslip",
+      },
+      {
+        text: "Actions",
+        align: "left",
+        sortable: false,
+        key: 'actions',
+        value: "actions",
       },
     ],
+    datatable_search_textbox: "",
     editedIndex: -1,
     editedItem: { name: "" },
     defaultItem: { name: "" },
@@ -492,6 +643,29 @@ export default {
   },
 
   methods: {
+    datatable_save() {
+      // this.snack = true
+      // this.snackColor = 'success'
+      // this.snackText = 'Searching...'
+    },
+    datatable_cancel() {
+      // this.loading = false;
+      // this.snack = true
+      // this.snackColor = 'error'
+      // this.snackText = 'Search Canceled'
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+      // this.snack = true
+      // this.snackColor = 'info'
+      // this.snackText = 'Search Details'
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      // console.log('Dialog closed')
+      this.loading = false;
+      //this.datatable_search_textbox = '';
+    },
     navigatetoEmployeepage() {
       this.$router.push("/employees");
     },
@@ -648,11 +822,20 @@ export default {
     generateNewpayslipsSelected() {
       console.log("this.selectedItems", this.selectedItems);
       console.log("this.endpoint", this.endpoint);
+
+      let checkedIdArray = [];
+      this.selectedItems.forEach(element => {
+
+        checkedIdArray.push(element.id);
+      });
+
+      console.log('checkedIdArray', checkedIdArray);
+
       let url = this.endpoint;
       let options = {
         params: {
           company_id: this.$auth.user.company.id,
-          employee_ids: this.selectedItems,
+          employee_ids: checkedIdArray,
 
           year: this.payslip_year,
           month: this.payslip_month,
@@ -660,7 +843,7 @@ export default {
       };
       console.log("options", options);
       this.$axios
-        .get(`/generate-with-employeeids`, options)
+        .get(`/generate-payslips-with-employeeids`, options)
         .then(({ data }) => {
           this.payslipsResultsmessages = [];
           this.dialogPayslipsResults = true;
@@ -674,7 +857,7 @@ export default {
           this.getDataFromApi();
         });
     },
-    getDataFromApi(url = this.endpoint) {
+    getDataFromApi(url = this.endpoint, search_column_name = '') {
       this.loading = true;
       let page = this.pagination.current;
       let department_id = this.department_id;
@@ -685,11 +868,46 @@ export default {
           department_id: department_id,
           year: this.payslip_year,
           month: this.payslip_month,
+
+
         },
       };
 
+      if (search_column_name != '') {
+        options.params.per_page = 1000;
+      }
+
+      if (search_column_name == 'search_department_name') {
+        options.params.search_department_name = 'search_department_name';
+      }
+      else if (search_column_name == 'search_designation_name') {
+        options.params.search_designation_name = 'search_designation_name';
+      }
+      else if (search_column_name == 'searchBybasic_salary') {
+        options.params.searchBybasic_salary = 'searchBybasic_salary';
+      }
+      else if (search_column_name == 'searchBynet_salary') {
+        options.params.searchBynet_salary = 'searchBynet_salary';
+      }
+      else
+        options.params.search_column_name = search_column_name;
+
+
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+
+        if (search_column_name != '' && data.data.length == 0) {
+
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
+
         this.data = data.data;
+
+
+
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
@@ -745,9 +963,57 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
+    datatable_searchById(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'employee_id');
+      }
+    },
+    datatable_searchByName(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'display_name');
+      }
+    },
+    datatable_searchByDepartmentName(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'search_department_name');
+      }
+    },
+    datatable_searchByDesignationName(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'search_designation_name');
+      }
+    },
+    datatable_searchBybasic_salary(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'searchBybasic_salary');
+      }
+    },
+
+    datatable_searchBynet_salary(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'searchBynet_salary');
+      }
+    },
+
+
+
 
     editItem(item) {
-      this.$router.push(`/employees/${item.id}`);
+      //this.$router.push(`/employees/${item.id}?id=${item.id}`);
+
+      this.$router.push({ path: '/employees?id=1', params: { id: item.id } })
     },
 
     delteteSelectedRecords() {

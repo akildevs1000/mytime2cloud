@@ -20,8 +20,7 @@
         <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="4" class="text-right">
-        <v-btn @click="goToCreatePage()" small dark class="primary pt-4 pb-4">Create New +
-        </v-btn>
+
       </v-col>
 
       <v-col cols="12">
@@ -32,96 +31,101 @@
         <v-card class="mb-5 rounded-md mt-3" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <span> {{ Model }} List</span>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-col class="toolbaritems-button-design">
+                <v-btn @click="goToCreatePage()" small dark class="primary pt-4 pb-4">Create New +
+                </v-btn>
+              </v-col>
+
+
+            </v-toolbar-items>
           </v-toolbar>
-          <table class="employee-table">
-            <tr>
-              <th># sno</th>
-              <th>Time zone Name</th>
-              <th>Devices</th>
-              <th>Employees</th>
-              <th class="text-right">Options</th>
-            </tr>
-            <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
-              color="primary"></v-progress-linear>
-            <tr v-for="(item, index) in data" :key="index">
-              <td style="text-align: left; padding: 8px" class="text-center">
-                <b>{{ ++index }}</b>
-              </td>
-              <td style="text-align: left; padding: 8px">
+          <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+            {{ snackText }}
+
+            <template v-slot:action="{ attrs }">
+              <v-btn v-bind="attrs" text @click="snack = false">
+                Close
+              </v-btn>
+            </template>
+          </v-snackbar>
+          <v-data-table :headers="headers" :items="data" :loading="loading" :options.sync="options" :footer-props="{
+            itemsPerPageOptions: [50, 100, 500, 1000],
+
+
+
+          }" class="elevation-1">
+            <template v-slot:item.sno="{ item, index }">
+
+              <b>{{ ++index }}</b>
+            </template>
+            <template v-slot:item.timezone.timezone_name="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+                :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
                 {{ item.timezone.timezone_name }}
-              </td>
-              <td style="text-align: left; padding: 8px">
-                <v-chip small class="primary ma-1" v-for="(subitem, index) in item.device_id.slice(0, 4)" :key="index">
-                  {{ caps(subitem.location + " : " + subitem.name) }}
+                <template v-slot:input>
+                  <v-text-field @input="datatable_searchByTimezonename" v-model="datatable_search_textbox"
+                    label="Type Timezone Name"></v-text-field>
+                </template>
+              </v-edit-dialog>
 
-                </v-chip>
-                <v-btn small warning @click="displayView(item.id)" v-if="item.device_id.length > 4">
-                  All Devices
-                </v-btn>
-                <span v-if="item.employee_id.length > 5">More</span>
-              </td>
-              <td style="text-align: left; padding: 8px">
-                <v-chip small class="primary ma-1" v-for="(subitem, index) in item.employee_id.slice(0, 4)" :key="index">
-                  {{ caps(subitem.display_name + " : " + subitem.employee_id) }}
+            </template>
+            <template v-slot:item.devices="{ item }">
+              <v-chip small class="primary ma-1" v-for="(subitem, index) in item.device_id.slice(0, 3)" :key="index">
+                {{ caps(subitem.location + " : " + subitem.name) }}
 
-                </v-chip>
-                <v-btn small warning @click="displayView(item.id)" v-if="item.employee_id.length > 4">
-                  All Employees
-                </v-btn>
+              </v-chip>
+              <v-btn small warning @click="displayView(item.id)" v-if="item.device_id.length > 3">
+                All Devices
+              </v-btn>
+            </template>
+            <template v-slot:item.employees="{ item }">
 
-              </td>
-              <td>
-                <v-menu bottom left>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                      <v-icon>mdi-dots-vertical</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list width="120" dense>
-                    <v-list-item @click="displayView(item.id)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="primary" small> mdi-view-list </v-icon>
-                        View
-                      </v-list-item-title>
-                    </v-list-item>
+              <v-chip small class="primary ma-1" v-for="(subitem, index) in item.employee_id.slice(0, 3)" :key="index">
+                {{ caps(subitem.display_name + " : " + subitem.employee_id) }}
 
-                    <v-list-item @click="displayEdit(item.id)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-pencil </v-icon>
-                        Edit
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item @click="deleteItem(item.id, item.deleteItem)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="error" small> mdi-delete </v-icon>
-                        Delete
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </td>
-            </tr>
-          </table>
+              </v-chip>
+              <v-btn small warning @click="displayView(item.id)" v-if="item.employee_id.length > 3">
+                All Employees
+              </v-btn>
+            </template>
+            <template v-slot:item.actions="{ item }">
+
+              <v-menu bottom left>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list width="120" dense>
+                  <v-list-item @click="displayView(item.id)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="primary" small> mdi-view-list </v-icon>
+                      View
+                    </v-list-item-title>
+                  </v-list-item>
+
+                  <v-list-item @click="displayEdit(item.id)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-pencil </v-icon>
+                      Edit
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="deleteItem(item.id, item.deleteItem)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="error" small> mdi-delete </v-icon>
+                      Delete
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+
+          </v-data-table>
+
         </v-card>
-        <!-- <table id="empDevice1" class="display nowrap" style="width: 100%">
-          <thead>
-            <tr>
-              <th># sno</th>
-              <th>Time zone Name</th>
-              <th>Devices</th>
-              <th>Employees</th>
-              <th class="text-right">Options</th>
-            </tr>
-            <v-progress-linear
-              v-if="loading"
-              :active="loading"
-              :indeterminate="loading"
-              absolute
-              color="primary"
-            ></v-progress-linear>
-          </thead>
-          <tbody></tbody>
-        </table> -->
+
       </v-col>
     </v-row>
   </div>
@@ -138,8 +142,15 @@ export default {
   },
   data(vm) {
     return {
+      filter_employeeid: '',
+      snack: false,
+      snackColor: '',
+      snackText: '',
+      datatable_search_textbox: '',
+      total: 0,
+      options: {},
       data: [],
-      name: "fahath",
+      name: "",
       endpointUpdatetimezonelist: "employee_timezone_mapping",
       endpoint: "gettimezonesinfo",
       Model: "Timezone Mapping List ",
@@ -154,10 +165,40 @@ export default {
         total: 0,
         per_page: 10,
       },
+      headers: [
+
+        { text: "#", align: "left", sortable: false, value: "sno", align: "start", key: 'sno', value: "sno" },
+        { text: "Timezone Name", align: "left", sortable: true, align: "start", key: 'timezoneName', value: "timezone.timezone_name" },
+
+        {
+          text: "Devices",
+          align: "left",
+          sortable: false,
+          value: "devices",
+        },
+        {
+          text: "Employees",
+          align: "left",
+          sortable: false,
+          value: "employees",
+        },
+
+
+        { text: "Actions", value: "actions", sortable: false },
+      ],
+
     };
   },
-  computed: {},
-
+  // computed: {
+  //   data: {
+  //     get() {
+  //       return this.data
+  //     },
+  //     set(val) {
+  //       this.$emit('update:usersProp', val)
+  //     }
+  //   }
+  // },
   created() {
     //this.getData();
     this.loading = true;
@@ -175,6 +216,30 @@ export default {
     // });
   },
   methods: {
+
+    datatable_save() {
+      // this.snack = true
+      // this.snackColor = 'success'
+      // this.snackText = 'Searching...'
+    },
+    datatable_cancel() {
+      // this.loading = false;
+      // this.snack = true
+      // this.snackColor = 'error'
+      // this.snackText = 'Search Canceled'
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+      // this.snack = true
+      // this.snackColor = 'info'
+      // this.snackText = 'Search Details'
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      // console.log('Dialog closed')
+      this.loading = false;
+      //this.datatable_search_textbox = '';
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";
@@ -232,7 +297,15 @@ export default {
 
       this.getDataFromApi();
     },
-    getDataFromApi(url = this.endpoint) {
+
+    datatable_searchByTimezonename(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi(`${this.endpoint}/search/${e}`, 'searchByTimezoneName');
+      }
+    },
+    getDataFromApi(url = this.endpoint, additional_params) {
       let page = this.pagination.current;
       let options = {
         params: {
@@ -241,9 +314,30 @@ export default {
           cols: ["id", "employee_id", "display_name"],
         },
       };
+      if (additional_params == 'searchByTimezoneName') {
+        options.params.searchByTimezoneName = 'searchByTimezoneName';
+      }
+
+
+
+
       this.loading = true;
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+
+
+
+        if (additional_params != '' && data.data.length == 0) {
+
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
+
+
         this.data = data.data;
+        this.total = this.data.length;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;

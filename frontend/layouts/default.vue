@@ -615,6 +615,63 @@ table.employee-table tr:nth-child(even) {
   height: 32px !important;
 
 
- 
+
+}
+
+.timezone-displaylist {
+  height: 225px !important;
+  background: #fff;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  overflow: auto;
+}
+
+.timezone-displaylistview {
+  padding-left: 10px !important;
+  padding-bottom: 5px !important;
+  padding-top: 0px !important;
+  cursor: pointer !important;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.photo-displaylist {
+  height: 225px !important;
+  background: #fff !important;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  overflow: auto;
+}
+
+.photo-displaylistview {
+  padding-left: 10px !important;
+  padding-bottom: 5px !important;
+  padding-top: 0px !important;
+  cursor: pointer;
+
+  border-bottom: 1px solid #ddd;
+}
+
+
+
+.timezoneedit-displaylist {
+  height: 225px !important;
+  background: #fff;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  overflow: auto;
+}
+
+.timezoneedit-displaylistview {
+  padding-left: 10px !important;
+  padding-bottom: 5px !important;
+  padding-top: 0px !important;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.v-small-dialog__menu-content {
+  margin-left: 1%;
+  margin-top: 1%;
 }
 </style>

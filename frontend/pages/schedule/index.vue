@@ -127,20 +127,10 @@
             <v-card-title>
               <v-row>
                 <v-col md="6">
-                  <v-text-field
-                    :hide-details="true"
-                    v-model="editName"
-                    placeholder="Name"
-                    outlined
-                    dense
-                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"
-                  ></v-text-field>
-                  <small
-                    style="font-size: 12px"
-                    v-if="errors && errors.name"
-                    class="error--text ma-0 pa-0"
-                    >{{ errors.name[0] }}</small
-                  >
+                  <v-text-field :hide-details="true" v-model="editName" placeholder="Name" outlined dense
+                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"></v-text-field>
+                  <small style="font-size: 12px" v-if="errors && errors.name" class="error--text ma-0 pa-0">{{
+                    errors.name[0] }}</small>
                 </v-col>
               </v-row>
               <table style="width: 100%">
@@ -159,40 +149,20 @@
                   </td>
                 </tr>
                 <!-- <pre> {{ editShifts }}</pre> -->
-                <tr
-                  v-for="(item, index) in editShifts"
-                  :key="index"
-                  style="text-align: center; font-size: 15px"
-                >
+                <tr v-for="(item, index) in editShifts" :key="index" style="text-align: center; font-size: 15px">
                   <td style="width: 80px; text-align: center">
-                    <label class="col-form-label"
-                      ><b>{{ item.day }}</b></label
-                    >
+                    <label class="col-form-label"><b>{{ item.day }}</b></label>
                   </td>
-                  <td
-                    style="
+                  <td style="
                       width: 400px;
                       text-align: left;
                       padding: 8px 0px 0px 0px;
-                    "
-                  >
-                    <v-select
-                      class="mx-5 py-0"
-                      :items="shifts"
-                      dense
-                      outlined
-                      item-text="name"
-                      item-value="id"
-                      placeholder="Select"
-                      :hide-details="true"
-                      v-model="item.shift_id"
-                    >
+                    ">
+                    <v-select class="mx-5 py-0" :items="shifts" dense outlined item-text="name" item-value="id"
+                      placeholder="Select" :hide-details="true" v-model="item.shift_id">
                     </v-select>
-                    <small
-                      class="error--text text-left py-0 my-0"
-                      v-if="!shift[index] && errors && errors.shift_ids"
-                      style="margin-left: 20px; font-size: 12px"
-                    >
+                    <small class="error--text text-left py-0 my-0" v-if="!shift[index] && errors && errors.shift_ids"
+                      style="margin-left: 20px; font-size: 12px">
                       {{ errors.shift_ids[0] }}
                     </small>
                   </td>
@@ -212,9 +182,7 @@
             <v-card-actions class="mr-1">
               <v-spacer></v-spacer>
               <v-btn class="error" small @click="close"> Cancel </v-btn>
-              <v-btn class="primary" small @click="update_schedule"
-                >Update</v-btn
-              >
+              <v-btn class="primary" small @click="update_schedule">Update</v-btn>
             </v-card-actions>
           </v-container>
         </v-card-text>
@@ -232,20 +200,10 @@
             <v-card-title>
               <v-row>
                 <v-col md="6">
-                  <v-text-field
-                    :hide-details="true"
-                    v-model="name"
-                    placeholder="Name"
-                    outlined
-                    dense
-                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"
-                  ></v-text-field>
-                  <small
-                    style="font-size: 12px"
-                    v-if="errors && errors.name"
-                    class="error--text ma-0 pa-0"
-                    >{{ errors.name[0] }}</small
-                  >
+                  <v-text-field :hide-details="true" v-model="name" placeholder="Name" outlined dense
+                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"></v-text-field>
+                  <small style="font-size: 12px" v-if="errors && errors.name" class="error--text ma-0 pa-0">{{
+                    errors.name[0] }}</small>
                 </v-col>
               </v-row>
               <table style="width: 100%">
@@ -263,43 +221,23 @@
                     <label class="col-form-label"><b>To</b></label>
                   </td>
                 </tr>
-                <tr
-                  v-for="(item, index) in days"
-                  :key="index"
-                  style="text-align: center; font-size: 15px"
-                >
+                <tr v-for="(item, index) in days" :key="index" style="text-align: center; font-size: 15px">
                   <td style="width: 80px; text-align: center">
-                    <label class="col-form-label"
-                      ><b>{{ item }}</b></label
-                    >
+                    <label class="col-form-label"><b>{{ item }}</b></label>
                   </td>
-                  <td
-                    style="
+                  <td style="
                       width: 400px;
                       text-align: left;
                       padding: 8px 0px 0px 0px;
-                    "
-                  >
+                    ">
                     <!-- {{ shift }}
                     {{ shift[index] }} -->
-                    <v-select
-                      class="mx-5 py-0"
-                      :items="shifts"
-                      dense
-                      outlined
-                      item-text="name"
-                      item-value="id"
-                      v-model="shift[index]"
-                      placeholder="Select"
-                      :hide-details="true"
-                      @change="getTimeRange(shift[index])"
-                    >
+                    <v-select class="mx-5 py-0" :items="shifts" dense outlined item-text="name" item-value="id"
+                      v-model="shift[index]" placeholder="Select" :hide-details="true"
+                      @change="getTimeRange(shift[index])">
                     </v-select>
-                    <small
-                      class="error--text text-left py-0 my-0"
-                      v-if="!shift[index] && errors && errors.shift_ids"
-                      style="margin-left: 20px; font-size: 12px"
-                    >
+                    <small class="error--text text-left py-0 my-0" v-if="!shift[index] && errors && errors.shift_ids"
+                      style="margin-left: 20px; font-size: 12px">
                       {{ errors.shift_ids[0] }}
                     </small>
                   </td>
@@ -337,7 +275,7 @@
             <v-card-title>
               <label class="col-form-label"><b>Schedule List </b></label>
               <v-spacer></v-spacer>
-              <v-btn color="background" dark @click="dialog = true">
+              <v-btn color="primary" small @click="dialog = true">
                 <v-icon>mdi-plus</v-icon> Add Schedule
               </v-btn>
             </v-card-title>
@@ -363,11 +301,7 @@
                     <label class="col-form-label">{{ item.name }}</label>
                   </td>
                   <td style="width: 50%">
-                    <v-chip
-                      class="col-form-label mr-1"
-                      v-for="(j, s) in item.json"
-                      :key="s"
-                    >
+                    <v-chip class="col-form-label mr-1" v-for="(j, s) in item.json" :key="s">
                       {{ j.day }} {{ j.time }} {{ getShiftType(j.shift_id) }}
                     </v-chip>
                   </td>
@@ -678,6 +612,7 @@ th {
   border: 1px solid #dddddd;
   padding-left: 5px;
 }
+
 /* tr:nth-child(even) {
   background-color: #dddddd;
 } */
@@ -689,7 +624,7 @@ th {
   box-sizing: border-box;
 }
 
-body > div {
+body>div {
   min-height: 100vh;
   display: flex;
   font-family: "Roboto", sans-serif;
@@ -713,12 +648,12 @@ table {
   border-collapse: collapse;
 }
 
-table > thead {
+table>thead {
   background-color: #00bcd4;
   color: #fff;
 }
 
-table > thead th {
+table>thead th {
   padding: 15px;
 }
 
@@ -728,7 +663,7 @@ table td {
   padding: 10px 15px;
 }
 
-table > tbody > tr > td > img {
+table>tbody>tr>td>img {
   display: inline-block;
   width: 60px;
   height: 60px;
@@ -744,7 +679,7 @@ table > tbody > tr > td > img {
   gap: 10px;
 }
 
-.action_btn > a {
+.action_btn>a {
   text-decoration: none;
   color: #444;
   background: #fff;
@@ -756,28 +691,28 @@ table > tbody > tr > td > img {
   transition: 0.3s ease-in-out;
 }
 
-.action_btn > a:nth-child(1) {
+.action_btn>a:nth-child(1) {
   border-color: #26a69a;
 }
 
-.action_btn > a:nth-child(2) {
+.action_btn>a:nth-child(2) {
   border-color: orange;
 }
 
-.action_btn > a:hover {
+.action_btn>a:hover {
   box-shadow: 0 3px 8px #0003;
 }
 
-table > tbody > tr {
+table>tbody>tr {
   background-color: #fff;
   transition: 0.3s ease-in-out;
 }
 
-table > tbody > tr:nth-child(even) {
+table>tbody>tr:nth-child(even) {
   background-color: rgb(238, 238, 238);
 }
 
-table > tbody > tr:hover {
+table>tbody>tr:hover {
   filter: drop-shadow(0px 2px 6px #0002);
 }
 </style>

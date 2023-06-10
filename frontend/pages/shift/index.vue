@@ -12,14 +12,7 @@
       </v-col>
       <v-col cols="6">
         <div class="text-right">
-          <v-btn
-            v-if="can(`shift_create`)"
-            small
-            color="primary"
-            to="/shift/create"
-            class="mb-2"
-            >{{ Model }} +</v-btn
-          >
+          <v-btn v-if="can(`shift_create`)" small color="primary" to="/shift/create" class="mb-2">{{ Model }} +</v-btn>
         </div>
       </v-col>
     </v-row>
@@ -62,12 +55,7 @@
             </span>
           </td> -->
           <td style="text-align: center">
-            <v-icon
-              color="secondary"
-              small
-              class="mr-2"
-              @click="editItem(item)"
-            >
+            <v-icon color="primary" small class="mr-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
             <v-icon color="error" small @click="deleteItem(item)">
