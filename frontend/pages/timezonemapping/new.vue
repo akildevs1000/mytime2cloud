@@ -9,69 +9,49 @@
               <div>Dashboard</div>
             </v-col>
           </v-row>
-          <v-progress-linear
-            v-if="progressloading"
-            :active="loading"
-            :indeterminate="loading"
-            absolute
-            color="primary"
-          ></v-progress-linear>
+          <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
+            color="primary"></v-progress-linear>
         </v-col>
       </v-row>
       <v-row>
         <div class="text-center ma-2">
-          <v-snackbar
-            :color="snackbar.color"
-            v-model="snackbar.show"
-            small
-            top="top"
-            :timeout="3000"
-          >
+          <v-snackbar :color="snackbar.color" v-model="snackbar.show" small top="top" :timeout="3000">
             {{ response }}
           </v-snackbar>
         </div>
       </v-row>
       <v-row>
         <v-col cols="4">
-          <v-select
-            @change="loadDepartmentemployees"
-            v-model="departmentselected"
-            :items="departments"
-            dense
-            outlined
-            item-value="id"
-            item-text="name"
-            hide-details
-            label="Department"
-            :search-input.sync="searchInput"
-          ></v-select>
+          <v-select @change="loadDepartmentemployees" v-model="departmentselected" :items="departments" dense outlined
+            item-value="id" item-text="name" hide-details label="Department" :search-input.sync="searchInput"></v-select>
         </v-col>
         <v-col cols="4">
-          <v-select
-            v-model="timezonesselected"
-            :items="timezones"
-            dense
-            outlined
-            item-value="timezone_id"
-            item-text="timezone_name"
-            hide-details
-            label="Timezones"
-            required
-          ></v-select>
+          <v-select v-model="timezonesselected" :items="timezones" dense outlined item-value="timezone_id"
+            item-text="timezone_name" hide-details label="Timezones" required></v-select>
         </v-col>
+
+        <!-- <v-col cols="2" class="toolbaritems-button-design text-right">
+
+          <v-btn @click="goback()" style="width:130px" align="right" small dark class="primary "><v-icon color="white">mdi
+              mdi-format-list-bulleted-square</v-icon>
+            View List
+          </v-btn>
+        </v-col> -->
+
         <v-col cols="4">
-          <div style="width: 150px; float: right">
-            <button
-              @click="goback()"
-              type="button"
-              id="back"
-              class="btn primary btn-block white--text v-size--default"
-            >
-              <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
-              View List
-            </button>
+          <div class="text-right">
+            <v-btn small color="primary" style="width:130px" @click="goback()" class="mb-2"><v-icon color="white">mdi
+                mdi-format-list-bulleted-square</v-icon>
+              View List</v-btn>
           </div>
         </v-col>
+        <!-- <div>
+          <button @click="goback()" type="button" id="back" class="btn primary btn-block white--text v-size--default">
+            <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
+            View List
+          </button>
+        </div> -->
+
       </v-row>
       <v-row>
         <v-col cols="5">
@@ -79,25 +59,20 @@
             <span>All Employees List</span>
           </v-toolbar>
           <div>
-            <v-card class="displaylist">
-              <v-card-text
-                class="displaylistview"
-                v-for="(user, index) in leftEmployees"
-                :id="user.id"
-                @click="moveRightEmp(user.id, user.timezone)"
-                v-model="leftSelectedEmp"
-                :key="user.id"
-              >
+            <v-card class="timezone-displaylist">
+              <v-card-text class="timezone-displaylistview" v-for="(user, index) in leftEmployees" :id="user.id"
+                v-model="leftSelectedEmp" :key="user.id">
                 <div class="row">
-                  <div
-                    class="col-sm"
-                    :style="{
-                      color:
-                        user.timezone && user.timezone.timezone_name
-                          ? '#b4b0b0'
-                          : '#000000',
-                    }"
-                  >
+                  <v-col class=" col-1   " style="padding:0px">
+                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
+                      :value="user.id" primary hide-details></v-checkbox>
+                  </v-col>
+                  <div class="col-sm" :style="{
+                    color:
+                      user.timezone && user.timezone.timezone_name
+                        ? '#b4b0b0'
+                        : '#000000',
+                  }" style="padding-top:21px">
                     {{ user.employee_id }}: {{ user.display_name }}:
                     <span v-if="user.timezone">
                       {{ user.timezone.timezone_name }}
@@ -112,58 +87,24 @@
 
         <v-col cols="2">
           <div style="text-align: -webkit-center">
-            <button
-              type="button"
-              id="undo_redo_undo"
-              class="btn primary btn-block white--text"
-            >
+            <button type="button" id="undo_redo_undo" class="btn primary btn-block white--text">
               Options
             </button>
 
-            <button
-              @click="moveRightEmp"
-              type="button"
-              id="undo_redo_rightSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--red"
-              ></i>
+            <button @click="moveToRightEmpOption2" type="button" id="undo_redo_rightSelected"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
             </button>
 
-            <button
-              @click="allmoveRightEmp"
-              type="button"
-              id="undo_redo_rightAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-              ></i>
+            <button @click="allmoveToRightEmp" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
             </button>
-            <button
-              @click="moveLeftemp"
-              type="button"
-              id="undo_redo_leftSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--red"
-              ></i>
+            <button @click="moveToLeftempOption2" type="button" id="undo_redo_leftSelected"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
             </button>
-            <button
-              @click="allmoveLeftemp"
-              type="button"
-              id="undo_redo_leftAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-              ></i>
+            <button @click="allmoveToLeftemp" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
             </button>
           </div>
         </v-col>
@@ -173,20 +114,16 @@
             <span>Selected Employees List</span>
           </v-toolbar>
           <div>
-            <v-card class="displaylist">
-              <v-card-text
-                class="displaylistview"
-                v-for="(user, index) in rightEmployees"
-                :id="user.id"
-                @click="moveLeftemp(user.id)"
-                v-model="rightSelectedEmp"
-                :key="user.id"
-              >
+            <v-card class="timezone-displaylist">
+              <v-card-text class="timezone-displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
+                v-model="rightSelectedEmp" :key="user.id">
                 <div class="row">
-                  <div class="col-sm">
+                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
+                    :value="user.id" primary hide-details></v-checkbox>
+                  <div class="col-sm" style="padding-top:21px">
                     {{ user.employee_id }} : {{ user.display_name }}
                   </div>
-                  <div class="col-sm">
+                  <div class="col-sm" style="padding-top:21px">
                     <span style="color: red">{{ user.sdkEmpResponse }}</span>
                   </div>
                 </div>
@@ -195,7 +132,7 @@
             <!-- <select
               multiple
               v-model="rightSelectedEmp"
-              @dblclick="moveLeftemp"
+              @dblclick="moveToLeftemp"
               class="form-control"
               size="13"
             >
@@ -216,18 +153,14 @@
             <span>All Devices List</span>
           </v-toolbar>
           <div>
-            <v-card class="displaylist">
-              <v-card-text
-                class="displaylistview"
-                v-for="(user, index) in leftDevices"
-                :id="user.id"
-                @click="moveRightDevices(user.id)"
-                v-model="leftSelectedDevices"
-                :key="user.id"
-              >
+            <v-card class="timezone-displaylist">
+              <v-card-text class="timezone-displaylistview" v-for="(user, index) in leftDevices" :id="user.id"
+                v-model="leftSelectedDevices" :key="user.id">
                 <div class="row">
-                  <div class="col">
-                    {{ user.name }} : {{ user.location }}: {{ user.device_id }}
+                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
+                    v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+                  <div class="col" style="padding-top:21px">
+                    {{ user.name }} : {{ user.device_id }}
                   </div>
                 </div>
               </v-card-text>
@@ -237,58 +170,24 @@
 
         <v-col cols="2">
           <div style="text-align: -webkit-center">
-            <button
-              type="button"
-              id="undo_redo_undo"
-              class="btn primary btn-block white--text"
-            >
+            <button type="button" id="undo_redo_undo" class="btn primary btn-block white--text">
               Options
             </button>
 
-            <button
-              @click="moveRightDevices"
-              type="button"
-              id="undo_redo_rightSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--red"
-              ></i>
+            <button @click="moveToRightDevicesOption2" type="button" id="undo_redo_rightSelected"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
             </button>
 
-            <button
-              @click="allmoveRightDevices"
-              type="button"
-              id="undo_redo_rightAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-              ></i>
+            <button @click="allmoveRightDevices" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
             </button>
-            <button
-              @click="moveLeftDevices"
-              type="button"
-              id="undo_redo_leftSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--red"
-              ></i>
+            <button @click="moveToLeftDevicesOption2" type="button" id="undo_redo_leftSelected"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
             </button>
-            <button
-              @click="allmoveLeftDevices"
-              type="button"
-              id="undo_redo_leftAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-              ></i>
+            <button @click="allmoveLeftDevices" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
             </button>
           </div>
         </v-col>
@@ -298,20 +197,16 @@
             <span>Selected Devices List</span>
           </v-toolbar>
           <div>
-            <v-card class="displaylist">
-              <v-card-text
-                class="displaylistview"
-                v-for="(user, index) in rightDevices"
-                :id="user.id"
-                @click="moveLeftDevices(user.id)"
-                v-model="rightSelectedDevices"
-                :key="user.id"
-              >
+            <v-card class="timezone-displaylist">
+              <v-card-text class="timezone-displaylistview" v-for="(user, index) in rightDevices" :id="user.id"
+                v-model="rightSelectedDevices" :key="user.id">
                 <div class="row">
-                  <div class="col-sm">
-                    {{ user.name }} : {{ user.location }} : {{ user.device_id }}
+                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
+                    v-model="rightSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+                  <div class="col-sm" style="padding-top:21px">
+                    {{ user.name }} : {{ user.device_id }}
                   </div>
-                  <div class="col-sm">
+                  <div class="col-sm" style="padding-top:21px">
                     <span style="color: red">{{ user.sdkDeviceResponse }}</span>
                   </div>
                 </div>
@@ -330,27 +225,16 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button
-                  :loading="loading"
-                  @click="goback()"
-                  type="button"
-                  id="save"
-                  class="btn primary btn-block white--text v-size--default"
-                >
+                <button :loading="loading" @click="goback()" type="button" id="save"
+                  class="btn primary btn-block white--text v-size--default">
                   Back
                 </button>
               </div>
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button
-                  v-if="displaybutton"
-                  :loading="loading"
-                  @click="onSubmit"
-                  type="button"
-                  id="save"
-                  class="btn primary btn-block white--text v-size--default"
-                >
+                <button v-if="displaybutton" :loading="loading" @click="onSubmit" type="button" id="save"
+                  class="btn primary btn-block white--text v-size--default">
                   Submit
                 </button>
               </div>
@@ -428,7 +312,7 @@ export default {
     this.getTimezonesFromApi();
   },
   methods: {
-    fetch_logs() {},
+    fetch_logs() { },
     loadDepartmentemployees() {
       //this.loading = true;
       // let page = this.pagination.current;
@@ -576,7 +460,7 @@ export default {
       let SDKSuccessStatus = true;
       this.$axios.post(`${url}`, options).then(({ data }) => {
         this.displaybutton = false;
-        if (data.record.SDKResponse.data) {
+        if (data.record.SDKResponse) {
           this.loading = false;
 
           $.each(this.rightDevices, function (index, rightDevicesobj) {
@@ -598,6 +482,7 @@ export default {
             } else if (SdkResponseDeviceobject.message == "person info error") {
               let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
               jsrightEmployees.forEach((element) => {
+                element["sdkEmpResponse"] = "Success";
                 let systemUserid = element.system_user_id;
                 SDKSuccessStatus = false;
                 let selectedEmpobject = SDKUseridArray.find(
@@ -653,6 +538,11 @@ export default {
           this.progressloading = false;
 
           this.errors["message"] = "Device Communication is not available";
+
+
+          this.snackbar.show = true;
+          this.snackbar.message = "Device Communication is not available ";
+          this.response = "Device Communication is not available ";
           return false;
         }
       });
@@ -738,24 +628,21 @@ export default {
           }
         }
       }),
-    allmoveLeftemp() {
+    allmoveToLeftemp() {
       this.leftEmployees = this.leftEmployees.concat(this.rightEmployees);
       this.rightEmployees = [];
       this.leftEmployees = this.sortObject(this.leftEmployees);
     },
-    allmoveRightEmp() {
+    allmoveToRightEmp() {
       this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
       this.leftEmployees = [];
       this.rightEmployees = this.sortObject(this.rightEmployees);
     },
-    moveLeftemp(id) {
-      this.rightSelectedEmp.push(id);
-      console.log("leftSelectedEmp", this.rightSelectedEmp);
-      console.log("leftSelectedEmp length", this.rightSelectedEmp.length);
+    moveToLeftempOption2() {
 
       if (!this.rightSelectedEmp.length) return;
 
-      console.log("moveRightEmp", this.rightSelectedEmp);
+      console.log("moveToRightEmp", this.rightSelectedEmp);
       //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
       let _rightSelectedEmp_length = this.rightSelectedEmp.length;
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
@@ -776,15 +663,83 @@ export default {
       }
       this.leftEmployees = this.sortObject(this.leftEmployees);
       //console.log("-------End move right--------");
+      for (let i = 0; i < _rightSelectedEmp_length; i++) {
 
-      this.rightSelectedEmp.pop(id);
-    },
-    moveRightEmp(id, timezone) {
-      if (timezone && timezone.timezone_name) {
-        return false;
+        this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
       }
 
-      this.leftSelectedEmp.push(id);
+    },
+    // moveToLeftemp(id) {
+    //   this.rightSelectedEmp.push(id);
+    //   console.log("leftSelectedEmp", this.rightSelectedEmp);
+    //   console.log("leftSelectedEmp length", this.rightSelectedEmp.length);
+
+    //   if (!this.rightSelectedEmp.length) return;
+
+    //   console.log("moveToRightEmp", this.rightSelectedEmp);
+    //   //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
+    //   let _rightSelectedEmp_length = this.rightSelectedEmp.length;
+    //   for (let i = 0; i < _rightSelectedEmp_length; i++) {
+    //     if (this.rightSelectedEmp) {
+    //       let selectedindex = this.rightEmployees.findIndex(
+    //         (e) => e.id == this.rightSelectedEmp[i]
+    //       );
+
+    //       let selectedobject = this.rightEmployees.find(
+    //         (e) => e.id == this.rightSelectedEmp[i]
+    //       );
+
+    //       selectedobject.sdkEmpResponse = "";
+    //       this.leftEmployees.push(selectedobject);
+
+    //       this.rightEmployees.splice(selectedindex, 1);
+    //     }
+    //   }
+    //   this.leftEmployees = this.sortObject(this.leftEmployees);
+    //   //console.log("-------End move right--------");
+
+    //   this.rightSelectedEmp.pop(id);
+    // },
+    // moveToRightEmp(id, timezone) {
+    //   if (timezone && timezone.timezone_name) {
+    //     return false;
+    //   }
+
+    //   this.leftSelectedEmp.push(id);
+
+    //   console.log("Starting move right--------");
+    //   console.log("leftSelectedEmp", this.leftSelectedEmp);
+    //   console.log("leftSelectedEmp length", this.leftSelectedEmp.length);
+
+    //   if (!this.leftSelectedEmp.length) return;
+
+    //   let _leftSelectedEmp_length = this.leftSelectedEmp.length;
+    //   for (let i = 0; i < _leftSelectedEmp_length; i++) {
+    //     if (this.leftSelectedEmp) {
+    //       let selectedindex = this.leftEmployees.findIndex(
+    //         (e) => e.id == this.leftSelectedEmp[i]
+    //       );
+
+    //       let selectedobject = this.leftEmployees.find(
+    //         (e) => e.id == this.leftSelectedEmp[i]
+    //       );
+
+    //       this.rightEmployees.push(selectedobject);
+
+    //       this.leftEmployees.splice(selectedindex, 1);
+    //     }
+    //   }
+    //   this.rightEmployees = this.sortObject(this.rightEmployees);
+    //   //console.log("-------End move right--------");
+
+    //   this.leftSelectedEmp.pop(id);
+    // },
+    moveToRightEmpOption2() {
+      // if (timezone && timezone.timezone_name) {
+      //   return false;
+      // }
+
+      // this.leftSelectedEmp.push(id);
 
       console.log("Starting move right--------");
       console.log("leftSelectedEmp", this.leftSelectedEmp);
@@ -811,7 +766,11 @@ export default {
       this.rightEmployees = this.sortObject(this.rightEmployees);
       //console.log("-------End move right--------");
 
-      this.leftSelectedEmp.pop(id);
+
+
+      for (let i = 0; i < _leftSelectedEmp_length; i++) {
+        this.leftSelectedEmp.pop(this.leftSelectedEmp[i]);
+      }
     },
     /* Devices---------------------------------------- */
     allmoveLeftDevices() {
@@ -826,9 +785,8 @@ export default {
       console.log("this.rightDevices", this.rightDevices);
       this.rightDevices = this.sortObjectD(this.rightDevices);
     },
-    moveLeftDevices(id) {
+    moveToLeftDevicesOption2() {
       // console.log("e)", e);
-      this.rightSelectedDevices.push(id);
 
       console.log("leftSelectedDevices", this.rightSelectedDevices);
       console.log(
@@ -860,16 +818,57 @@ export default {
       this.leftDevices = this.sortObjectD(this.leftDevices);
       //console.log("-------End move right--------");
 
-      this.rightSelectedDevices.pop(id);
+
+
+      for (let i = 0; i < _rightSelectedDevices_length; i++) {
+
+        this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
+      }
     },
-    moveRightDevices(id) {
-      this.leftSelectedDevices.push(id);
-      console.log("Starting move right--------");
-      console.log("leftSelectedDevices", this.leftSelectedDevices);
-      console.log(
-        "leftSelectedDevices length",
-        this.leftSelectedDevices.length
-      );
+    // moveLeftDevices(id) {
+    //   // console.log("e)", e);
+    //   this.rightSelectedDevices.push(id);
+
+    //   console.log("leftSelectedDevices", this.rightSelectedDevices);
+    //   console.log(
+    //     "leftSelectedDevices length",
+    //     this.rightSelectedDevices.length
+    //   );
+
+    //   if (!this.rightSelectedDevices.length) return;
+
+    //   console.log("moveRightDevices", this.rightSelectedDevices);
+    //   //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
+    //   let _rightSelectedDevices_length = this.rightSelectedDevices.length;
+    //   for (let i = 0; i < _rightSelectedDevices_length; i++) {
+    //     if (this.rightSelectedDevices) {
+    //       let selectedindex = this.rightDevices.findIndex(
+    //         (e) => e.id == this.rightSelectedDevices[i]
+    //       );
+
+    //       let selectedobject = this.rightDevices.find(
+    //         (e) => e.id == this.rightSelectedDevices[i]
+    //       );
+
+    //       this.leftDevices.push(selectedobject);
+
+    //       this.rightDevices.splice(selectedindex, 1);
+    //     }
+    //   }
+    //   console.log("this.leftDevices", this.leftDevices);
+    //   this.leftDevices = this.sortObjectD(this.leftDevices);
+    //   //console.log("-------End move right--------");
+
+    //   this.rightSelectedDevices.pop(id);
+    // },
+    moveToRightDevicesOption2() {
+      // this.leftSelectedDevices.push(id);
+      // console.log("Starting move right--------");
+      // console.log("leftSelectedDevices", this.leftSelectedDevices);
+      // console.log(
+      //   "leftSelectedDevices length",
+      //   this.leftSelectedDevices.length
+      // );
 
       if (!this.leftSelectedDevices.length) return;
 
@@ -893,62 +892,45 @@ export default {
       this.rightDevices = this.sortObjectD(this.rightDevices);
       //console.log("-------End move right--------");
 
-      this.leftSelectedDevices.pop(id);
+
+      for (let i = 0; i < _leftSelectedDevices_length; i++) {
+        this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
+      }
     },
   },
+  //   moveRightDevices(id) {
+  //     this.leftSelectedDevices.push(id);
+  //     console.log("Starting move right--------");
+  //     console.log("leftSelectedDevices", this.leftSelectedDevices);
+  //     console.log(
+  //       "leftSelectedDevices length",
+  //       this.leftSelectedDevices.length
+  //     );
+
+  //     if (!this.leftSelectedDevices.length) return;
+
+  //     let _leftSelectedDevices_length = this.leftSelectedDevices.length;
+  //     for (let i = 0; i < _leftSelectedDevices_length; i++) {
+  //       if (this.leftSelectedDevices) {
+  //         let selectedindex = this.leftDevices.findIndex(
+  //           (e) => e.id == this.leftSelectedDevices[i]
+  //         );
+
+  //         let selectedobject = this.leftDevices.find(
+  //           (e) => e.id == this.leftSelectedDevices[i]
+  //         );
+
+  //         this.rightDevices.push(selectedobject);
+
+  //         this.leftDevices.splice(selectedindex, 1);
+  //       }
+  //     }
+  //     console.log("this.rightDevices", this.rightDevices);
+  //     this.rightDevices = this.sortObjectD(this.rightDevices);
+  //     //console.log("-------End move right--------");
+
+  //     this.leftSelectedDevices.pop(id);
+  //   },
+  // },
 };
 </script>
-
-<style scoped>
-/* @import "../../node_modules/@syncfusion/ej2-base/styles/material.css";
-@import "../../node_modules/@syncfusion/ej2-inputs/styles/material.css";
-@import "../../node_modules/@syncfusion/ej2-vue-dropdowns/styles/material.css"; */
-/* @import "https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"; */
-/* @media only screen and ((min-width: 1200px)) {
-  .container {
-    width: 90% !important;
-  }
-}
-@media (min-width: 1200px) {
-  .container {
-    width: 90% !important;
-  }
-}
-.container {
-  width: 90% !important;
-} */
-/* .container {
-  display: grid;
-  grid-template-columns: 30% 10% 30%;
-  align-items: center;
-} */
-
-.container select {
-  height: 200px;
-  width: 100%;
-}
-
-.container .middle {
-  text-align: center;
-}
-
-.container button {
-  width: 80%;
-  margin-bottom: 5px;
-}
-
-.displaylist {
-  height: 225px;
-  background: #fff;
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-  overflow: auto;
-}
-
-.displaylistview {
-  padding-left: 10px;
-  padding-bottom: 5px;
-  padding-top: 0px;
-  cursor: pointer;
-}
-</style>

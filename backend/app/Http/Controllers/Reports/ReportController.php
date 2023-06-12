@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Models\Employee;
-use App\Models\Attendance;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use App\Http\Controllers\Controller;
-use Illuminate\Pagination\Paginator;
+use App\Models\Attendance;
+use App\Models\Employee;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 
 class ReportController extends Controller
 {
@@ -20,10 +20,9 @@ class ReportController extends Controller
 
     public function multiInOut(Request $request)
     {
-        $model =  $this->processMultiInOut($request);
-        return $this->paginate($model, $request->per_page ?? 100);
+        $model = $this->processMultiInOut($request);
+        return $this->paginate($model, $request->per_page);
     }
-
 
     public function processMultiInOut($request)
     {
@@ -49,7 +48,6 @@ class ReportController extends Controller
         }
         return $model;
     }
-
 
     public function paginate($items, $perPage = 15, $page = null, $options = [])
     {

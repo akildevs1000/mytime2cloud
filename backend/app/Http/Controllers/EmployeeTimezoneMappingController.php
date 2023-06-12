@@ -7,7 +7,9 @@ use App\Http\Requests\EmployeeTimezoneMapping\UpdateRequest;
 use App\Models\Employee;
 use App\Models\EmployeeTimezoneMapping;
 use function PHPUnit\Framework\isJson;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeTimezoneMappingController extends Controller
 {
@@ -15,6 +17,17 @@ class EmployeeTimezoneMappingController extends Controller
     {
 
         return $model->where('company_id', $request->company_id)->paginate($request->per_page);
+    }
+
+    public function gettimezonesinfo_search(Request $request, $text)
+    {
+        return EmployeeTimezoneMapping::query()->with(["timezone"])
+            ->where('company_id', $request->company_id)
+
+            ->when($request->filled('searchByTimezoneName'), function ($q) use ($request, $text) {
+                $q->whereHas('timezone', fn(Builder $query) => $query->where(DB::raw('lower(timezone_name)'), 'LIKE', "$text%"));
+            })
+            ->paginate($request->per_page);
     }
     public function show(EmployeeTimezoneMapping $model, $id)
     {
@@ -31,10 +44,11 @@ class EmployeeTimezoneMappingController extends Controller
 
             if ($record) {
 
-                $SDKjsonRequest = $this->processSDKrequestjson($record);
+                $SDKjsonRequest = $this->prepareSDKrequestjson($record);
 
                 $SDKObj = new SDKController;
-                $SDKresponse = ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
+                //$SDKresponse = ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
+                $SDKresponse = ($SDKObj->processSDKRequest("", $SDKjsonRequest));
 
                 $finalArray['SDKRequest'] = $SDKjsonRequest;
                 $finalArray['SDKResponse'] = json_decode($SDKresponse, true);
@@ -66,7 +80,7 @@ class EmployeeTimezoneMappingController extends Controller
 
         return $newRequestDevicesidArray;
     }
-    public function processSDKrequestjson($phpArray)
+    public function prepareSDKrequestjson($phpArray)
     {
 
         $finalArray = [];
@@ -123,10 +137,11 @@ class EmployeeTimezoneMappingController extends Controller
 
             if ($record) {
 
-                $SDKjsonRequest = $this->processSDKrequestjson($request->all());
+                $SDKjsonRequest = $this->prepareSDKrequestjson($request->all());
 
                 $SDKObj = new SDKController;
-                $SDKresponse = ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
+                //$SDKresponse = ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
+                $SDKresponse = ($SDKObj->processSDKRequest("", $SDKjsonRequest));
 
                 $finalArray['SDKRequest'] = $SDKjsonRequest;
                 $finalArray['SDKResponse'] = json_decode($SDKresponse, true);

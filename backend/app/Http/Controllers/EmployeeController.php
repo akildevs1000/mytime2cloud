@@ -194,19 +194,50 @@ class EmployeeController extends Controller
     public function index(Employee $employee, Request $request)
     {
         $data = $employee
-            // ->with(["user" => function ($q) {
-            //     return $q->with("employee_role:id,name");
-            // }])
+        // ->with(["user" => function ($q) {
+        //     return $q->with("employee_role:id,name");
+        // }])
             ->with(["reportTo", "user", "role", "schedule", "department", "sub_department", "designation", "payroll", "timezone"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
+                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
             })
             ->paginate($request->per_page ?? 100);
         $data = $this->getPayslipstatus($data, $request);
 
         return $data;
     }
+    public function searchby_emp_table(Request $request, $text)
+    {
+
+        $text = strtolower($text);
+        $data = Employee::query()
+            ->latest()
+            ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "payroll", "timezone"])
+            ->where('company_id', $request->company_id)
+            ->when($request->filled('search_column_name'), function ($q) use ($request, $text) {
+                $q->where(DB::raw('lower(' . $request->search_column_name . ')'), 'LIKE', "$text%");
+            })
+            ->when($request->filled('search_department_name'), function ($q) use ($request, $text) {
+                $q->whereHas('department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
+            })
+            ->when($request->filled('search_designation_name'), function ($q) use ($request, $text) {
+                $q->whereHas('designation', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
+            })
+            ->when($request->filled('searchBybasic_salary'), function ($q) use ($request, $text) {
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('basic_salary', '>=', $text));
+            })
+            ->when($request->filled('searchBynet_salary'), function ($q) use ($request, $text) {
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('net_salary', '>=', $text));
+            })
+
+            ->paginate($request->perPage ?? 20);
+
+        $data = $this->getPayslipstatus($data, $request);
+
+        return $data;
+    }
+
     public function getPayslipstatus($data, $request)
     {
         if (isset($request["company_id"]) && $request["year"] && $request["month"]) {
@@ -218,6 +249,9 @@ class EmployeeController extends Controller
                 } else {
                     $value->payslip_status = false;
                 }
+
+                $value->payroll_month = $request["month"];
+                $value->payroll_year = $request["year"];
             }
         }
 

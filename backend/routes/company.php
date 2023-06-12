@@ -1,55 +1,50 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\VisaController;
-use App\Http\Controllers\CountController;
-use App\Http\Controllers\LeaveController;
-use App\Http\Controllers\ShiftController;
-use App\Http\Controllers\DeviceController;
-use App\Http\Controllers\policyController;
-use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AllowanceController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\AssignPermissionController;
+use App\Http\Controllers\AttendanceLogController;
+use App\Http\Controllers\AutoShiftController;
 use App\Http\Controllers\BankInfoController;
+use App\Http\Controllers\CommissionController;
+use App\Http\Controllers\CountController;
+use App\Http\Controllers\DeductionController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\DocumentInfoController;
+use App\Http\Controllers\DutyOrganizerController;
 use App\Http\Controllers\EmiratesController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\PassportController;
-use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\AllowanceController;
-use App\Http\Controllers\AutoShiftController;
-use App\Http\Controllers\DeductionController;
-use App\Http\Controllers\SchedulesController;
-use App\Http\Controllers\ShiftTypeController;
-use App\Http\Controllers\TimeTableController;
-use App\Http\Controllers\CommissionController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\SalaryTypeController;
-use App\Http\Controllers\DesignationController;
-use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\DocumentInfoController;
 use App\Http\Controllers\PersonalInfoController;
-use App\Http\Controllers\AttendanceLogController;
-use App\Http\Controllers\DutyOrganizerController;
+use App\Http\Controllers\policyController;
 use App\Http\Controllers\QualificationController;
-use App\Http\Controllers\ResetPasswordController;
-use App\Http\Controllers\ScheduleShiftController;
-use App\Http\Controllers\SubDepartmentController;
-use App\Http\Controllers\AssignPermissionController;
-use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\ScheduleEmployeeController;
 use App\Http\Controllers\ReportNotificationController;
 use App\Http\Controllers\Reports\AutoReportController;
 use App\Http\Controllers\Reports\ManualReportController;
+use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RosterController;
+use App\Http\Controllers\SalaryController;
+use App\Http\Controllers\SalaryTypeController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\ScheduleEmployeeController;
+use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\ShiftTypeController;
+use App\Http\Controllers\SubDepartmentController;
+use App\Http\Controllers\TimeTableController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\VisaController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::post('/get-company-id-by-device', [DeviceController::class, 'get_company_id_by_device']);
-
 
 // employee reporter
 Route::post('/employee_to_reporter/{id}', [EmployeeController::class, 'employeeToReporter']);
@@ -172,6 +167,8 @@ Route::post('employee/{id}/update', [EmployeeController::class, 'updateEmployee'
 Route::post('employee/{id}/update/contact', [EmployeeController::class, 'updateContact']);
 Route::post('employee/{id}/update/other', [EmployeeController::class, 'updateOther']);
 Route::get('employee/search/{key}', [EmployeeController::class, 'search']);
+Route::get('employee/searchby_emp_table/{key}', [EmployeeController::class, 'searchby_emp_table']);
+
 Route::post('employee/import', [EmployeeController::class, 'import']);
 Route::resource('personalinfo', PersonalInfoController::class);
 Route::resource('bankinfo', BankInfoController::class);
@@ -255,7 +252,6 @@ Route::post('/leave-status', [LeaveController::class, 'status']);
 Route::get('leave-notification/search/{key}/{id}', [LeaveController::class, 'searchNotification']); // search records
 Route::get('leave/search/{key}', [LeaveController::class, 'search']); // search records
 
-
 Route::post('report_notifications', function (Request $request) {
     return $request->all();
 });
@@ -269,4 +265,3 @@ Route::get('/roster_list', [RosterController::class, 'getRosterList']);
 Route::post('/store_schedule_arrange', [RosterController::class, 'storeScheduleArrange']);
 Route::get('/get_roster_by_employee/{id}', [RosterController::class, 'getRosterByEmployee']);
 Route::put('/schedule_update/{id}', [RosterController::class, 'scheduleUpdateByEmployee']);
-

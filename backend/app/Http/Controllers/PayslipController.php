@@ -141,7 +141,7 @@ class PayslipController extends Controller
         $zip_file = 'payslips_' . $month . '_' . $year . ' .zip'; // Name of our archive to download
         $results = [];
         // Initializing PHP class
-        $zip = new \ZipArchive();
+        $zip = new \ZipArchive ();
         $zip->open($zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
         foreach ($employee_ids as $employee_id) {
             $invoice_file = 'app/payslips/' . $company_Id . '/' . $company_Id . '_' . $employee_id . '_' . $month . '_' . $year . '_payslip.pdf';
@@ -171,9 +171,6 @@ class PayslipController extends Controller
         }
         $payroll = [];
 
-        $present = 20;
-        $absent = 10;
-
         try {
             //code...
             $company_id = $employee->payroll->company_id;
@@ -192,8 +189,8 @@ class PayslipController extends Controller
 
             $present = $attendances->where('status', 'P')->count();
             $absent = $attendances->where('status', 'A')->count();
-            // $present = 20;
-            // $absent = 10;
+            // $present = 29;
+            // $absent = 1;
             $payroll = $employee->payroll;
 
             $salary_type = $payroll->payroll_formula->salary_type;
@@ -227,6 +224,7 @@ class PayslipController extends Controller
 
             $payroll->monthName = $monthName;
             $payroll->month = $month;
+            $payroll->year = $year;
             $payroll->presentDays = $present;
             $payroll->absentDays = $absent;
             $payroll['employee_id'] = $employee->employee_id;

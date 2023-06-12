@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\Http;
 class SDKController extends Controller
 {
     // $url = "https://sdk.ideahrms.com";
-
-    protected $endpoint = "https://sdk.ideahrms.com"; //"localhost:5000";
+//http://139.59.69.241:5000
+//localhost:5000
+    protected $endpoint = "localhost:5000";
 
     public function processTimeGroup(Request $request, $id)
     {
@@ -91,6 +92,10 @@ class SDKController extends Controller
 
     public function processSDKRequest($url, $data)
     {
+
+        if ($url == '') {
+            $url = $this->endpoint;
+        }
         try {
             return Http::withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',

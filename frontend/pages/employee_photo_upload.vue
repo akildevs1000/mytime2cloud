@@ -60,8 +60,8 @@
             <span>All Employees List</span>
           </v-toolbar>
           <div>
-            <v-card class="displaylist">
-              <v-card-text class="displaylistview" v-for="(user, index) in leftEmployees" :id="user.id"
+            <v-card class="photo-displaylist">
+              <v-card-text class="photo-displaylistview" v-for="(user, index) in leftEmployees" :id="user.id"
                 v-on:dblclick="counter += 1, moveToRightEmp(user.id, user.timezone)" :key="user.id">
                 <v-row>
                   <v-col class=" col-1   " style="padding:0px">
@@ -114,8 +114,8 @@
             <span>Selected Employees List</span>
           </v-toolbar>
           <div>
-            <v-card class="displaylist">
-              <v-card-text class="displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
+            <v-card class="photo-displaylist">
+              <v-card-text class="photo-displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
                 v-model="rightSelectedEmp" :key="user.id">
                 <div class="row">
                   <v-col class=" col-1   " style="padding:0px">
@@ -166,8 +166,8 @@
             <span>All Devices List</span>
           </v-toolbar>
           <div>
-            <v-card class="displaylist">
-              <v-card-text class="displaylistview" v-for="(user, index) in leftDevices" :id="user.id"
+            <v-card class="photo-displaylist">
+              <v-card-text class="photo-displaylistview" v-for="(user, index) in leftDevices" :id="user.id"
                 v-model="leftSelectedDevices" :key="user.id">
                 <div class="row">
                   <v-col class=" col-1   " style="padding:0px">
@@ -213,8 +213,8 @@
             <span>Selected Devices List</span>
           </v-toolbar>
           <div>
-            <v-card class="displaylist">
-              <v-card-text class="displaylistview" v-for="(user, index) in rightDevices" :id="user.id"
+            <v-card class="photo-displaylist">
+              <v-card-text class="photo-displaylistview" v-for="(user, index) in rightDevices" :id="user.id"
                 v-model="rightSelectedDevices" :key="user.id">
                 <div class="row">
 
@@ -998,8 +998,8 @@ export default {
           name: item.display_name,
           userCode: parseInt(item.system_user_id),
 
-          faceImage: `https://backend.ideahrms.com/media/employee/profile_picture/WhatsApp%20Image%202022-09-16%20at%202.11.34%20PM%20(1).jpeg`,
-          //faceImage: item.profile_picture
+          //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
+          faceImage: item.profile_picture
         };
         personListArray.push(person);
       });
@@ -1054,6 +1054,8 @@ export default {
             jsrightEmployees.forEach((element) => {
               let systemUserid = element.system_user_id;
               SDKSuccessStatus = false;
+
+              element["sdkEmpResponse"] = "Success";
               let selectedEmpobject = SDKUseridArray.find(
                 (e) => e.userCode == systemUserid
               );
@@ -1167,25 +1169,9 @@ export default {
   margin-bottom: 5px;
 }
 
-.displaylist {
-  height: 225px;
-  background: #fff;
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-  overflow: auto;
-}
-
-.displaylistview {
-  padding-left: 10px;
-  padding-bottom: 5px;
-  padding-top: 0px;
-  cursor: pointer;
-
-  border-bottom: 1px solid #ddd;
-}
 
 /*
-.displaylistview:nth-child(even) {
+.photo-displaylistview:nth-child(even) {
   background-color: #e9e9e9;
 } */
 </style>
