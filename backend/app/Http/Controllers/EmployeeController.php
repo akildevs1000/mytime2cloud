@@ -198,7 +198,7 @@ class EmployeeController extends Controller
             ->with(["reportTo", "user", "role", "schedule", "department", "sub_department", "designation", "payroll", "timezone"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
+                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
             })
             ->paginate($request->per_page ?? 100);
         $data = $this->getPayslipstatus($data, $request);
@@ -217,16 +217,16 @@ class EmployeeController extends Controller
                 $q->where(DB::raw('lower(' . $request->search_column_name . ')'), 'LIKE', "$text%");
             })
             ->when($request->filled('search_department_name'), function ($q) use ($request, $text) {
-                $q->whereHas('department', fn (Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
+                $q->whereHas('department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
             })
             ->when($request->filled('search_designation_name'), function ($q) use ($request, $text) {
-                $q->whereHas('designation', fn (Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
+                $q->whereHas('designation', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
             })
             ->when($request->filled('searchBybasic_salary'), function ($q) use ($request, $text) {
-                $q->whereHas('payroll', fn (Builder $query) => $query->where('basic_salary', '>=', $text));
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('basic_salary', '>=', $text));
             })
             ->when($request->filled('searchBynet_salary'), function ($q) use ($request, $text) {
-                $q->whereHas('payroll', fn (Builder $query) => $query->where('net_salary', '>=', $text));
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('net_salary', '>=', $text));
             })
 
             ->paginate($request->perPage ?? 20);
@@ -656,7 +656,6 @@ class EmployeeController extends Controller
                     'department_id' => trim($data['department_code']),
                 ];
 
-
                 $record = null;
 
                 if ($data['email']) {
@@ -673,7 +672,9 @@ class EmployeeController extends Controller
                 $success = Employee::create($employee) ? true : false;
             }
 
-            if ($success) DB::commit();
+            if ($success) {
+                DB::commit();
+            }
 
             $msg = $success ? 'Employee imported successfully.' : 'Employee cannot import.';
 

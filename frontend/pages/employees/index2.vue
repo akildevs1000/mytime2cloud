@@ -227,7 +227,7 @@
         </v-col>
         <v-col cols="3" align="right">
           <input style="width:200px;height: 33px;" small class="form-control py-3 custom-text-box floating shadow-none"
-            placeholder="Search..." @input="searchIt" v-model="search" type="text" />
+            placeholder="Search...EID, Name" @input="searchIt" v-model="search" type="text" />
         </v-col>
         <v-col cols="3" align="right">
 
@@ -1012,7 +1012,7 @@ export default {
       if (s == 0) {
         this.getDataFromApi();
       } else if (s > 2) {
-        this.getDataFromApi(`${this.endpoint} /search/${search} `);
+        this.getDataFromApi(`${this.endpoint}/search/${search}`);
       }
     },
     getDepartments() {
