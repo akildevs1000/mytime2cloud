@@ -250,7 +250,15 @@
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <span> {{ Model }} List</span>
             </v-toolbar>
+            <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+              {{ snackText }}
 
+              <template v-slot:action="{ attrs }">
+                <v-btn v-bind="attrs" text @click="snack = false">
+                  Close
+                </v-btn>
+              </template>
+            </v-snackbar>
             <v-data-table v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
               :loading="loading" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [50, 100, 500, 1000],
@@ -261,7 +269,7 @@
                   @open="datatable_open">
                   {{ item.employee_id }}
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
+                    <v-text-field @input="getDataFromApi_FilterEmployeeid" v-model="datatable_search_textbox"
                       label="Type Employee Id"></v-text-field>
                   </template>
                 </v-edit-dialog>
@@ -279,14 +287,15 @@
                       </v-img>
                     </v-col>
                     <v-col style="padding: 10px;">
-                      <strong>{{ item.display_name }}</strong>
+                      <strong> {{ item.first_name ? item.first_name : '---' }} {{ item.last_name ? item.last_name : '---'
+                      }}</strong>
                       <div> {{ item.designation ? item.designation.name : "---" }}</div>
 
                     </v-col>
                   </v-row>
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
-                      label="Type Employee Id"></v-text-field>
+                    <v-text-field @input="getDataFromApi_FilterEmployeeName" v-model="datatable_search_textbox"
+                      label="Type Employee Name"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -299,32 +308,32 @@
                   <strong>{{ item.department.name }}</strong>
                   <div> {{ item.sub_department.name }}</div>
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
-                      label="Type Employee Id"></v-text-field>
+                    <v-text-field @input="getDataFromApi_FilterDepartmentName" v-model="datatable_search_textbox"
+                      label="Type Department name"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
               </template>
-              <template v-slot:item.mobile="{ item }">
+              <template v-slot:item.phone_number="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
 
                   {{ item.phone_number }}
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
-                      label="Type Employee Id"></v-text-field>
+                    <v-text-field @input="getDataFromApi_FilterPhoneNumber" v-model="datatable_search_textbox"
+                      label="Type Phone Number"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
               </template>
-              <template v-slot:item.email="{ item }">
+              <template v-slot:item.local_email="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
 
                   {{ item.local_email }}
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
-                      label="Type Employee Id"></v-text-field>
+                    <v-text-field @input="getDataFromApi_FilterEmailid" v-model="datatable_search_textbox"
+                      label="Type Email"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -346,8 +355,8 @@
                   }}
                   </div>
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
-                      label="Type Employee Id"></v-text-field>
+                    <v-text-field @input="getDataFromApi_FilterShiftname" v-model="datatable_search_textbox"
+                      label="Type Shift Name"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -359,8 +368,8 @@
                     item.timezone ? item.timezone.timezone_name : ""
                   }}
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
-                      label="Type Employee Id"></v-text-field>
+                    <v-text-field @input="getDataFromApi_FilterTimezonename" v-model="datatable_search_textbox"
+                      label="Type Timezone"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -508,6 +517,9 @@ export default {
   },
 
   data: () => ({
+    snack: false,
+    snackColor: '',
+    snackText: '',
     selectedItems: [],
     datatable_search_textbox: "",
     datatable_searchById: "",
@@ -614,14 +626,14 @@ export default {
         align: "left",
         sortable: true,
         key: 'mobile',
-        value: "phone_number",
+        value: "phone_number", // search and sorting enable if value matches with template name
       },
       {
         text: "Email",
         align: "left",
         sortable: true,
         key: 'email',
-        value: "email_value",
+        value: "local_email",
       },
       {
         text: "Shift",
@@ -901,13 +913,106 @@ export default {
         this.loadinglinear = false;
       });
     },
+    getDataFromApi_FilterEmployeeid(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi_FilterDatatable(e, 'search_employee_id');
+      }
+    },
+
+    getDataFromApi_FilterEmployeeName(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi_FilterDatatable(e, 'search_employee_name');
+      }
+    },
+    getDataFromApi_FilterDepartmentName(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi_FilterDatatable(e, 'search_department_name');
+      }
+    },
+    getDataFromApi_FilterPhoneNumber(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi_FilterDatatable(e, 'search_phone_number');
+      }
+    },
+    getDataFromApi_FilterEmailid(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi_FilterDatatable(e, 'search_emailid');
+      }
+    },
+    getDataFromApi_FilterShiftname(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi_FilterDatatable(e, 'search_shiftname');
+      }
+    },
+    getDataFromApi_FilterTimezonename(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length >= 1) {
+        this.getDataFromApi_FilterDatatable(e, 'search_timezonename');
+      }
+    },
+    getDataFromApi_FilterDatatable(key, extraColumnName) {
+
+      let url = `${this.endpoint}/search/${key}`;
+      //this.loading = true;
+      this.loadinglinear = true;
+      let page = this.pagination.current;
+      let options = {
+        params: {
+          per_page: this.pagination.per_page,
+          company_id: this.$auth.user.company.id,
+          department_id: this.department_filter_id,
+          "datatable_column_filter": true,
+        },
+      };
+
+
+      options.params[extraColumnName] = extraColumnName;
+
+      this.$axios.get(`${url}?page = ${page}`, options).then(({ data }) => {
+
+        if (data.data.length == 0) {
+
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
+
+
+
+
+        this.data = data.data;
+        this.pagination.current = data.current_page;
+        this.pagination.total = data.last_page;
+
+        this.data.length == 0
+          ? (this.displayErrormsg = true)
+          : (this.displayErrormsg = false);
+
+        this.loadinglinear = false;
+      });
+    },
     searchIt() {
       let s = this.search.length;
       let search = this.search;
       if (s == 0) {
         this.getDataFromApi();
       } else if (s > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${search}`);
+        this.getDataFromApi(`${this.endpoint} /search/${search} `);
       }
     },
     getDepartments() {
@@ -935,7 +1040,7 @@ export default {
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
       ) &&
         this.$axios
-          .delete(`/employee/${item.id}`)
+          .delete(`/ employee / ${item.id} `)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
