@@ -11,19 +11,35 @@
           <v-card-text>
             <!-- <img :src="imageUrl" alt="Preview Image" /> -->
             <!-- Cropping image step1 -->
-            <VueCropper v-show="selectedFile" ref="cropper" :src="selectedFile" alt="Source Image" :aspectRatio="1"
-              :autoCropArea="0.9" :viewMode="3"></VueCropper>
+            <VueCropper
+              v-show="selectedFile"
+              ref="cropper"
+              :src="selectedFile"
+              alt="Source Image"
+              :aspectRatio="1"
+              :autoCropArea="0.9"
+              :viewMode="3"
+            ></VueCropper>
 
             <!-- <div class="cropper-preview"></div> -->
           </v-card-text>
 
           <v-card-actions>
             <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
-              <v-btn class="danger btn btn-danger text-left" text @click="closePopup()" style="float: left">Cancel</v-btn>
+              <v-btn
+                class="danger btn btn-danger text-left"
+                text
+                @click="closePopup()"
+                style="float: left"
+                >Cancel</v-btn
+              >
             </div>
             <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
-              <v-btn class="primary btn btn-danger text-right"
-                @click="saveCroppedImageStep2(), (dialog = false)">Crop</v-btn>
+              <v-btn
+                class="primary btn btn-danger text-right"
+                @click="saveCroppedImageStep2(), (dialog = false)"
+                >Crop</v-btn
+              >
             </div>
           </v-card-actions>
         </v-card>
@@ -39,62 +55,130 @@
               <v-col md="6" sm="12" cols="12" dense>
                 <v-row>
                   <v-col md="12" sm="12" cols="12">
-                    <label class="col-form-label">Title <span class="text-danger">*</span></label>
-                    <v-select v-model="employee.title" :items="titleItems" :hide-details="!errors.title"
-                      :error="errors.title" :error-messages="errors && errors.title ? errors.title[0] : ''
-                        " dense outlined></v-select>
+                    <label class="col-form-label"
+                      >Title <span class="text-danger">*</span></label
+                    >
+                    <v-select
+                      v-model="employee.title"
+                      :items="titleItems"
+                      :hide-details="!errors.title"
+                      :error="errors.title"
+                      :error-messages="
+                        errors && errors.title ? errors.title[0] : ''
+                      "
+                      dense
+                      outlined
+                    ></v-select>
                   </v-col>
                   <v-col md="6" cols="6" sm="6" dense>
-                    <label class="col-form-label">Employee ID <span class="text-danger">*</span></label>
-                    <v-text-field dense outlined type="text" v-model="employee.employee_id"
-                      :hide-details="!errors.employee_id" :error="errors.employee_id" :error-messages="errors && errors.employee_id
+                    <label class="col-form-label"
+                      >Employee ID <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.employee_id"
+                      :hide-details="!errors.employee_id"
+                      :error="errors.employee_id"
+                      :error-messages="
+                        errors && errors.employee_id
                           ? errors.employee_id[0]
                           : ''
-                        "></v-text-field>
+                      "
+                    ></v-text-field>
                   </v-col>
                   <v-col md="6" cols="6" sm="6" dense>
-                    <label class="col-form-label">Employee Device Id<span class="text-danger">*</span></label>
-                    <v-text-field dense outlined type="text" v-model="employee.system_user_id"
-                      :hide-details="!errors.system_user_id" :error="errors.system_user_id" :error-messages="errors && errors.system_user_id
+                    <label class="col-form-label"
+                      >Employee Device Id<span class="text-danger"
+                        >*</span
+                      ></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.system_user_id"
+                      :hide-details="!errors.system_user_id"
+                      :error="errors.system_user_id"
+                      :error-messages="
+                        errors && errors.system_user_id
                           ? errors.system_user_id[0]
                           : ''
-                        "></v-text-field>
+                      "
+                    ></v-text-field>
                   </v-col>
                   <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label">Display Name <span class="text-danger">*</span></label>
-                    <v-text-field dense outlined :hide-details="!errors.display_name" type="text"
-                      v-model="employee.display_name" :error="errors.display_name" :error-messages="errors && errors.display_name
+                    <label class="col-form-label"
+                      >Display Name <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.display_name"
+                      type="text"
+                      v-model="employee.display_name"
+                      :error="errors.display_name"
+                      :error-messages="
+                        errors && errors.display_name
                           ? errors.display_name[0]
                           : ''
-                        "></v-text-field>
+                      "
+                    ></v-text-field>
                   </v-col>
                   <v-col md="12" cols="12" sm="12" dense>
                     <label class="col-form-label">Email (optional)</label>
-                    <v-text-field dense outlined type="text" v-model="employee.email" :hide-details="!errors.email"
-                      :error="errors.email" :error-messages="errors && errors.email ? errors.email[0] : ''
-                        "></v-text-field>
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.email"
+                      :hide-details="!errors.email"
+                      :error="errors.email"
+                      :error-messages="
+                        errors && errors.email ? errors.email[0] : ''
+                      "
+                    ></v-text-field>
                   </v-col>
                 </v-row>
               </v-col>
               <v-col class="col-sm-6">
-                <div class="form-group pt-15" style="margin: 0 auto; width: 200px">
-                  <v-img style="
+                <div
+                  class="form-group pt-15"
+                  style="margin: 0 auto; width: 200px"
+                >
+                  <v-img
+                    style="
                       width: 100%;
                       height: 200px;
                       border: 1px solid #5fafa3;
                       border-radius: 50%;
                       margin: 0 auto;
-                    " :src="previewImage || '/no-profile-image.jpg'"></v-img>
+                    "
+                    :src="previewImage || '/no-profile-image.jpg'"
+                  ></v-img>
                   <br />
-                  <v-btn small class="form-control primary" @click="onpick_attachment">{{ !upload.name ? "Upload" :
-                    "Change" }} Profile Image
+                  <v-btn
+                    small
+                    class="form-control primary"
+                    @click="onpick_attachment"
+                    >{{ !upload.name ? "Upload" : "Change" }} Profile Image
                     <v-icon right dark>mdi-cloud-upload</v-icon>
                   </v-btn>
-                  <input required type="file" @change="attachment" style="display: none" accept="image/*"
-                    ref="attachment_input" />
+                  <input
+                    required
+                    type="file"
+                    @change="attachment"
+                    style="display: none"
+                    accept="image/*"
+                    ref="attachment_input"
+                  />
 
-                  <span v-if="errors && errors.profile_picture" class="text-danger mt-2">{{ errors.profile_picture[0]
-                  }}</span>
+                  <span
+                    v-if="errors && errors.profile_picture"
+                    class="text-danger mt-2"
+                    >{{ errors.profile_picture[0] }}</span
+                  >
                 </div>
               </v-col>
             </v-row>
@@ -104,11 +188,21 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn small color="grey white--text" @click="employeeDialog = false">
+            <v-btn
+              small
+              color="grey white--text"
+              @click="employeeDialog = false"
+            >
               Close
             </v-btn>
 
-            <v-btn v-if="can('employee_create')" small :loading="loading" color="primary" @click="store_data">
+            <v-btn
+              v-if="can('employee_create')"
+              small
+              :loading="loading"
+              color="primary"
+              @click="store_data"
+            >
               Submit
             </v-btn>
           </v-card-actions>
@@ -116,18 +210,36 @@
       </v-dialog>
       <v-dialog v-model="editDialog" width="1200" :key="employeeId">
         <v-card>
-          <v-tabs v-model="tab" background-color="primary" centered dark icons-and-text>
+          <v-tabs
+            v-model="tab"
+            background-color="primary"
+            centered
+            dark
+            icons-and-text
+          >
             <v-tabs-slider></v-tabs-slider>
 
-            <v-tab v-for="(item, index) in tabMenu" :key="index" :href="item.value">
+            <v-tab
+              v-for="(item, index) in tabMenu"
+              :key="index"
+              :href="item.value"
+            >
               {{ item.text }}
               <v-icon>{{ item.icon }}</v-icon>
             </v-tab>
           </v-tabs>
           <v-card-text>
             <v-tabs-items v-model="tab">
-              <v-tab-item v-for="(tb, index) in tabMenu" :key="index" :value="`${index}`">
-                <component :is="getComponent(tab)" :employeeId="employeeId" @eventFromchild="getDataFromApi" />
+              <v-tab-item
+                v-for="(tb, index) in tabMenu"
+                :key="index"
+                :value="`${index}`"
+              >
+                <component
+                  :is="getComponent(tab)"
+                  :employeeId="employeeId"
+                  @eventFromchild="getDataFromApi"
+                />
               </v-tab-item>
             </v-tabs-items>
           </v-card-text>
@@ -142,8 +254,13 @@
                   <span class="headline">Import Employee</span>
                 </v-col>
                 <v-col cols="12">
-                  <v-file-input accept="text/csv" v-model="files" placeholder="Upload your file" label="File"
-                    prepend-icon="mdi-paperclip">
+                  <v-file-input
+                    accept="text/csv"
+                    v-model="files"
+                    placeholder="Upload your file"
+                    label="File"
+                    prepend-icon="mdi-paperclip"
+                  >
                     <template v-slot:selection="{ text }">
                       <v-chip v-if="text" small label color="primary">
                         {{ text }}
@@ -153,7 +270,11 @@
                   <br />
                   <a href="/employees.csv" download> Download Sample</a>
                   <br />
-                  <span v-if="errors && errors.length > 0" class="error--text">{{ errors[0] }}</span>
+                  <span
+                    v-if="errors && errors.length > 0"
+                    class="error--text"
+                    >{{ errors[0] }}</span
+                  >
                 </v-col>
               </v-row>
             </v-container>
@@ -163,7 +284,13 @@
             <v-spacer></v-spacer>
             <v-btn class="error" small @click="close"> Cancel </v-btn>
 
-            <v-btn class="primary" :loading="btnLoader" small @click="save">Save</v-btn>
+            <v-btn
+              class="primary"
+              :loading="btnLoader"
+              small
+              @click="importEmployee"
+              >Save</v-btn
+            >
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -197,15 +324,33 @@
               <v-icon class="pa-0">mdi-grid</v-icon>
             </v-btn> -->
 
-            <v-btn v-if="can('employee_import_access')" small dark class="primary" @click="dialog = true">
+            <v-btn
+              v-if="can('employee_import_access')"
+              small
+              dark
+              class="primary"
+              @click="dialog = true"
+            >
               Import <v-icon right dark>mdi-cloud-upload</v-icon>
             </v-btn>
 
-            <v-btn v-if="can('employee_export_access')" small dark class="primary" @click="export_submit">
+            <v-btn
+              v-if="can('employee_export_access')"
+              small
+              dark
+              class="primary"
+              @click="export_submit"
+            >
               Export <v-icon right dark>mdi-cloud-download</v-icon>
             </v-btn>
 
-            <v-btn v-if="can('employee_create')" @click="employeeDialog = true" small dark class="primary">{{ Model }}
+            <v-btn
+              v-if="can('employee_create')"
+              @click="employeeDialog = true"
+              small
+              dark
+              class="primary"
+              >{{ Model }}
               <v-icon right dark>mdi-account-tie</v-icon>
             </v-btn>
           </div>
@@ -214,15 +359,30 @@
       <v-row>
         <v-row>
           <v-col xs="12" sm="12" md="3" cols="12">
-            <v-select class="custom-text-box shadow-none" @change="getDataFromApi(`employee`)"
-              v-model="pagination.per_page" :items="[50, 100, 500, 1000]" placeholder="Per Page Records" solo flat
-              :hide-details="true"></v-select>
+            <v-select
+              class="custom-text-box shadow-none"
+              @change="getDataFromApi(`employee`)"
+              v-model="pagination.per_page"
+              :items="[50, 100, 500, 1000]"
+              placeholder="Per Page Records"
+              solo
+              flat
+              :hide-details="true"
+            ></v-select>
           </v-col>
           <v-col xs="12" sm="12" md="3" cols="12">
-            <v-select class="custom-text-box shadow-none" @change="getDataFromApi(`employee`)"
-              v-model="department_filter_id" item-text="name" item-value="id"
-              :items="[{ name: `All`, id: `` }, ...departments]" placeholder="Department" solo flat
-              :hide-details="true"></v-select>
+            <v-select
+              class="custom-text-box shadow-none"
+              @change="getDataFromApi(`employee`)"
+              v-model="department_filter_id"
+              item-text="name"
+              item-value="id"
+              :items="[{ name: `All`, id: `` }, ...departments]"
+              placeholder="Department"
+              solo
+              flat
+              :hide-details="true"
+            ></v-select>
           </v-col>
           <v-col xs="12" sm="12" md="3" cols="12">
             <!-- <v-text-field
@@ -234,8 +394,13 @@
           @input="searchIt"
           v-model="search"
         ></v-text-field> -->
-            <input class="form-control py-3 custom-text-box floating shadow-none" placeholder="Search..."
-              @input="searchIt" v-model="search" type="text" />
+            <input
+              class="form-control py-3 custom-text-box floating shadow-none"
+              placeholder="Search..."
+              @input="searchIt"
+              v-model="search"
+              type="text"
+            />
           </v-col>
         </v-row>
 
@@ -246,10 +411,19 @@
             </v-toolbar>
 
             <table class="employee-table">
-              <v-progress-linear v-if="loadinglinear" :active="loadinglinear" :indeterminate="loadinglinear" absolute
-                color="primary"></v-progress-linear>
+              <v-progress-linear
+                v-if="loadinglinear"
+                :active="loadinglinear"
+                :indeterminate="loadinglinear"
+                absolute
+                color="primary"
+              ></v-progress-linear>
               <tr>
-                <th style="text-align: left; padding: 8px" v-for="(item, index) in headers" :key="index">
+                <th
+                  style="text-align: left; padding: 8px"
+                  v-for="(item, index) in headers"
+                  :key="index"
+                >
                   {{ item.text }}
                 </th>
               </tr>
@@ -262,12 +436,16 @@
                   {{ item.employee_id || "---" }}
                 </td>
                 <td style="text-align: left; padding: 8px">
-                  <v-img style="border-radius: 50%; height: 40px; width: 40px" :src="item.profile_picture
-                      ? item.profile_picture +
-                      '?t=' +
-                      Math.ceil(Math.random() * 1000000)
-                      : '/no-profile-image.jpg'
-                    ">
+                  <v-img
+                    style="border-radius: 50%; height: 40px; width: 40px"
+                    :src="
+                      item.profile_picture
+                        ? item.profile_picture +
+                          '?t=' +
+                          Math.ceil(Math.random() * 1000000)
+                        : '/no-profile-image.jpg'
+                    "
+                  >
                   </v-img>
                 </td>
                 <td>{{ item.display_name }}</td>
@@ -310,14 +488,20 @@
                 </td>
               </tr>
             </table>
-            <v-col col="12" v-if="displayErrormsg" class="text-center">No Records avaialble</v-col>
+            <v-col col="12" v-if="displayErrormsg" class="text-center"
+              >No Records avaialble</v-col
+            >
           </v-card>
           <div>
             <v-row>
               <v-col md="12" class="float-right">
                 <div class="float-right">
-                  <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
-                    :total-visible="12"></v-pagination>
+                  <v-pagination
+                    v-model="pagination.current"
+                    :length="pagination.total"
+                    @input="onPageChange"
+                    :total-visible="12"
+                  ></v-pagination>
                 </div>
               </v-col>
             </v-row>
@@ -566,7 +750,7 @@ export default {
     close() {
       this.dialog = false;
       this.errors = [];
-      setTimeout(() => { }, 300);
+      setTimeout(() => {}, 300);
     },
     json_to_csv(json) {
       let data = json.map((e) => ({
@@ -610,7 +794,7 @@ export default {
       element.click();
       document.body.removeChild(element);
     },
-    save() {
+    importEmployee() {
       let payload = new FormData();
       payload.append("employees", this.files);
       payload.append("company_id", this.$auth?.user?.company?.id);
