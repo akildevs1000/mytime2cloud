@@ -805,7 +805,9 @@ export default {
       let employee = new FormData();
 
       for (let x in obj) {
-        employee.append(x, obj[x]);
+        if (obj[x]) {
+          employee.append(x, obj[x]);
+        }
       }
       employee.append("profile_picture", this.upload.name);
       employee.append("company_id", this.$auth.user.company.id);
