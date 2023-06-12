@@ -492,11 +492,12 @@ export default {
       }
     },
     mapper(obj) {
-      console.log("obj", obj);
       let employee = new FormData();
 
       for (let x in obj) {
-        employee.append(x, obj[x]);
+        if (obj[x]) {
+          employee.append(x, obj[x]);
+        }
       }
 
       employee.append("company_id", this.$auth.user.company.id);
