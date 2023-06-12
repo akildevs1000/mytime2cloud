@@ -271,8 +271,8 @@
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
                   <v-row no-gutters>
-                    <v-col style="padding: 5px;;padding-left:0px">
-                      <v-img style="border-radius: 50%; height: auto; width: 50px" :src="item.profile_picture
+                    <v-col style="padding: 5px;;padding-left:0px;width:50px;max-width:50px">
+                      <v-img style="border-radius: 50%; height: auto;  width: 50px;max-width: 50px" :src="item.profile_picture
                         ? item.profile_picture
                         : '/no-profile-image.jpg'
                         ">
