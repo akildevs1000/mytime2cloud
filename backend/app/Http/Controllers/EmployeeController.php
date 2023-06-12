@@ -462,16 +462,17 @@ class EmployeeController extends Controller
                     $q->where('phone_number', 'LIKE', "$key%");
                 })
                 ->when($request->filled('search_employee_name'), function ($q) use ($request, $key) {
-                    $q->where(DB::raw('lower(first_name)'), 'LIKE', "$key%");
-                    //$q->where('first_name', 'NOT', null);
-                    $q->orWhere(DB::raw('lower(last_name)'), 'LIKE', "$key%");
+                    $q->where(function ($q) use ($key) {
+                        $q->Where(DB::raw('lower(first_name)'), 'LIKE', "$key%");
+                        $q->orWhere(DB::raw('lower(last_name)'), 'LIKE', "$key%");
+                    });
                 })
                 ->when($request->filled('search_emailid'), function ($q) use ($request, $key) {
                     $q->where('local_email', 'LIKE', "$key%");
                 })
                 ->when($request->filled('search_department_name'), function ($q) use ($request, $key) {
                     $q->whereHas('department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
-                    $q->orWhereHas('sub_department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                    // $q->orWhereHas('sub_department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
                 })
                 ->when($request->filled('search_shiftname'), function ($q) use ($request, $key) {
                     $q->whereHas('schedule.shift', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
