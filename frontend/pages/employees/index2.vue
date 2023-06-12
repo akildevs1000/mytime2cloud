@@ -244,13 +244,13 @@
           </v-btn>
         </v-col>
       </v-row>
+      <v-row>
+        <div v-if="can(`employee_view`)">
+          <v-card class="mb-5 rounded-md mt-3" elevation="0">
+            <v-toolbar class="rounded-md" color="background" dense flat dark>
+              <span> {{ Model }} List</span>
+            </v-toolbar>
 
-      <div v-if="can(`employee_view`)">
-        <v-card class="mb-5 rounded-md mt-3" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <span> {{ Model }} List</span>
-          </v-toolbar>
-          <v-row>
             <v-data-table v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
               :loading="loading" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [50, 100, 500, 1000],
@@ -271,7 +271,7 @@
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
                   <v-row no-gutters>
-                    <v-col style="padding: 5px;">
+                    <v-col style="padding: 5px;;padding-left:0px">
                       <v-img style="border-radius: 50%; height: auto; width: 50px" :src="item.profile_picture
                         ? item.profile_picture
                         : '/no-profile-image.jpg'
@@ -390,8 +390,8 @@
                 </v-menu>
               </template>
             </v-data-table>
-          </v-row>
-          <!-- <table class="employee-table">
+
+            <!-- <table class="employee-table">
             <v-progress-linear v-if="loadinglinear" :active="loadinglinear" :indeterminate="loadinglinear" absolute
               color="primary"></v-progress-linear>
             <tr>
@@ -452,19 +452,19 @@
               </td>
             </tr>
           </table> -->
-          <v-col col="12" v-if="displayErrormsg" class="text-center">No Records avaialble</v-col>
-        </v-card>
-        <div>
-          <v-row>
-            <v-col md="12" class="float-right">
-              <div class="float-right">
-                <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
-                  :total-visible="12"></v-pagination>
-              </div>
-            </v-col>
-          </v-row>
+            <v-col col="12" v-if="displayErrormsg" class="text-center">No Records avaialble</v-col>
+          </v-card>
+          <div>
+            <v-row>
+              <v-col md="12" class="float-right">
+                <div class="float-right">
+                  <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
+                    :total-visible="12"></v-pagination>
+                </div>
+              </v-col>
+            </v-row>
+          </div>
         </div>
-      </div>
       </v-row>
     </div>
     <Preloader v-else />
