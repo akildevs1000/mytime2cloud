@@ -199,12 +199,7 @@ export default {
           to: "/employees",
           menu: "employee_access",
         },
-        {
-          icon: "mdi-account-tie",
-          title: "Employees2",
-          to: "/employees/index2",
-          menu: "employee_access",
-        },
+
 
         {
           icon: "mdi-cash-multiple",
