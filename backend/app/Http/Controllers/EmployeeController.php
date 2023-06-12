@@ -14,6 +14,7 @@ use App\Http\Requests\Employee\UpdateRequest;
 use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\CompanyContact;
+use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
 use App\Models\ScheduleEmployee;
@@ -194,13 +195,10 @@ class EmployeeController extends Controller
     public function index(Employee $employee, Request $request)
     {
         $data = $employee
-        // ->with(["user" => function ($q) {
-        //     return $q->with("employee_role:id,name");
-        // }])
             ->with(["reportTo", "user", "role", "schedule", "department", "sub_department", "designation", "payroll", "timezone"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
+                $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
             })
             ->paginate($request->per_page ?? 100);
         $data = $this->getPayslipstatus($data, $request);
@@ -219,16 +217,16 @@ class EmployeeController extends Controller
                 $q->where(DB::raw('lower(' . $request->search_column_name . ')'), 'LIKE', "$text%");
             })
             ->when($request->filled('search_department_name'), function ($q) use ($request, $text) {
-                $q->whereHas('department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
+                $q->whereHas('department', fn (Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
             })
             ->when($request->filled('search_designation_name'), function ($q) use ($request, $text) {
-                $q->whereHas('designation', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
+                $q->whereHas('designation', fn (Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$text%"));
             })
             ->when($request->filled('searchBybasic_salary'), function ($q) use ($request, $text) {
-                $q->whereHas('payroll', fn(Builder $query) => $query->where('basic_salary', '>=', $text));
+                $q->whereHas('payroll', fn (Builder $query) => $query->where('basic_salary', '>=', $text));
             })
             ->when($request->filled('searchBynet_salary'), function ($q) use ($request, $text) {
-                $q->whereHas('payroll', fn(Builder $query) => $query->where('net_salary', '>=', $text));
+                $q->whereHas('payroll', fn (Builder $query) => $query->where('net_salary', '>=', $text));
             })
 
             ->paginate($request->perPage ?? 20);
@@ -636,43 +634,50 @@ class EmployeeController extends Controller
         try {
             foreach ($data as $data) {
                 $validator = $this->validateImportData($data);
+                if (!$this->checkIfDepartmentExist($data['department_code'])) {
+                    return [
+                        "status" => false,
+                        "errors" => ["Department code ({$data['department_code']}) does not exist"],
+                    ];
+                }
+
                 if ($validator->fails()) {
                     return [
                         "status" => false,
                         "errors" => $validator->errors()->all(),
                     ];
                 }
-                $iteration = [
-                    'name' => 'null',
-                    'email' => $data['email'],
-                    'password' => Hash::make('secret'),
-                ];
 
-                $record = User::create($iteration);
-                $arr = [
+                $employee = [
                     'display_name' => trim($data['display_name']),
-                    'phone_number' => trim($data['phone_number']),
                     'employee_id' => trim($data['employee_id']),
-                    'joining_date' => trim(date('Y-m-d', strtotime($data['joining_date']))),
-                    'user_id' => $record->id,
                     'company_id' => $this->company_id,
                     'system_user_id' => trim($data['employee_device_id']),
                     'department_id' => trim($data['department_code']),
                 ];
-                $success = Employee::create($arr) ? true : false;
-            }
-            if ($success) {
-                DB::commit();
-                return response()->json([
-                    'message' => 'Employee imported successfully.',
-                    'status' => true,
-                ], 200);
+
+
+                $record = null;
+
+                if ($data['email']) {
+                    $record = User::create([
+                        'name' => 'null',
+                        'email' => $data['email'],
+                        'password' => Hash::make('secret'),
+                        'company_id' => $this->company_id,
+                    ]);
+
+                    $arr['user_id'] = $record->id;
+                }
+
+                $success = Employee::create($employee) ? true : false;
             }
 
-            return response()->json([
-                'message' => 'Employee cannot import.',
-                'status' => true,
-            ], 200);
+            if ($success) DB::commit();
+
+            $msg = $success ? 'Employee imported successfully.' : 'Employee cannot import.';
+
+            return $this->response($msg, null, true);
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
@@ -693,19 +698,18 @@ class EmployeeController extends Controller
         ];
 
         $rules = [
+            'title' => ['required'],
             'employee_id' => ['required', $this->uniqueRecord("employees", $employee)],
             'system_user_id' => ['required', $this->uniqueRecord("employees", $employeeDevice)],
             'display_name' => ['required', 'min:3', 'max:10'],
-            'email' => 'required|min:3|max:191|unique:users',
-            'phone_number' => ['required', 'min:1', 'max:15'],
-            'joining_date' => ['required', 'date'],
+            'email' => 'nullable|min:3|max:191|unique:users',
             'department_code' => ['required'],
         ];
 
         $messages = [
             'system_user_id.required' => "The employee device id is required",
-            'employee_id.unique' => "The employee id (" . $data["employee_id"] . ") has already been taken",
             'system_user_id.unique' => "The employee device id (" . $data["system_user_id"] . ") has already been taken",
+            'employee_id.unique' => "The employee id (" . $data["employee_id"] . ") has already been taken",
             'email.unique' => "The employee email (" . $data["email"] . ") has already been taken",
         ];
 
@@ -722,23 +726,17 @@ class EmployeeController extends Controller
                 "errors" => ["wrong file " . $filename . " (valid file is employees.csv)"],
             ];
         }
-        $extension = $file->getClientOriginalExtension();
-        $tempPath = $file->getRealPath();
-        $fileSize = $file->getSize();
-        $location = 'upload';
-        $file->move($location, $filename);
-        // $file->storePubliclyAs($location, 'employee', "do");
-        return public_path($location . "/" . $filename);
+        $file->move("upload", $filename);
+        return public_path("upload/" . $filename);
     }
     public function csvParser($filepath)
     {
         $columns = [
+            "title",
             "employee_id",
             "employee_device_id",
             "display_name",
             "email",
-            "phone_number",
-            "joining_date",
             "department_code",
         ];
         $header = null;
@@ -761,6 +759,7 @@ class EmployeeController extends Controller
                             "errors" => ["column mismatch"],
                         ];
                     }
+
                     $data[] = array_combine($header, $row);
                 }
             }
@@ -774,6 +773,11 @@ class EmployeeController extends Controller
         }
         // dd($data);
         return $data;
+    }
+
+    public function checkIfDepartmentExist($department_code)
+    {
+        return Department::where(["id" => $department_code])->exists();
     }
     public function employeeUpdateSetting(Request $request)
     {
