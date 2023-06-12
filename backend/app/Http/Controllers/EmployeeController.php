@@ -444,12 +444,53 @@ class EmployeeController extends Controller
     }
     public function search(Request $request, $key)
     {
-        return Employee::query()
-            ->latest()
-            ->filter($key)
-            ->with(["user", "department", "sub_department", "designation", "timezone"])
-            ->where('company_id', $request->company_id)
-            ->paginate($request->perPage ?? 20);
+
+        if ($request->datatable_column_filter && $request->datatable_column_filter == true) {
+
+            $key = strtolower($key);
+
+            return Employee::query()
+                ->latest()
+                ->with(["user", "department", "sub_department", "designation", "timezone"])
+                ->where('company_id', $request->company_id)
+                ->when($request->filled('search_employee_id'), function ($q) use ($request, $key) {
+                    $q->where('employee_id', 'LIKE', "$key%");
+                })
+                ->when($request->filled('search_phone_number'), function ($q) use ($request, $key) {
+                    $q->where('phone_number', 'LIKE', "$key%");
+                })
+                ->when($request->filled('search_employee_name'), function ($q) use ($request, $key) {
+                    $q->where(DB::raw('lower(first_name)'), 'LIKE', "$key%");
+                    //$q->where('first_name', 'NOT', null);
+                    $q->orWhere(DB::raw('lower(last_name)'), 'LIKE', "$key%");
+                })
+                ->when($request->filled('search_emailid'), function ($q) use ($request, $key) {
+                    $q->where('local_email', 'LIKE', "$key%");
+                })
+                ->when($request->filled('search_department_name'), function ($q) use ($request, $key) {
+                    $q->whereHas('department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                    $q->orWhereHas('sub_department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                })
+                ->when($request->filled('search_shiftname'), function ($q) use ($request, $key) {
+                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->whereNotNull('name'));
+                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->where('name', '<>', '---'));
+
+                })
+                ->when($request->filled('search_timezonename'), function ($q) use ($request, $key) {
+                    $q->whereHas('timezone', fn(Builder $query) => $query->where(DB::raw('lower(timezone_name)'), 'LIKE', "$key%"));
+
+                })
+                ->paginate($request->perPage ?? 20);
+        } else {
+            return Employee::query()
+                ->latest()
+                ->filter($key)
+                ->with(["user", "department", "sub_department", "designation", "timezone"])
+                ->where('company_id', $request->company_id)
+                ->paginate($request->perPage ?? 20);
+        }
+
     }
     public function scheduled_employees_search(Request $request, $input)
     {
