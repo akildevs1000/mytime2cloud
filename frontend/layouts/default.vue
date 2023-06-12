@@ -672,7 +672,7 @@ table.employee-table tr:nth-child(even) {
 }
 
 .v-small-dialog__menu-content {
-  margin-left: 1%;
+  margin-left: 3%;
   margin-top: 1%;
 }
 </style>
