@@ -673,6 +673,6 @@ table.employee-table tr:nth-child(even) {
 
 .v-small-dialog__menu-content {
   margin-left: 3%;
-  margin-top: 1%;
+  margin-top: 3%;
 }
 </style>
