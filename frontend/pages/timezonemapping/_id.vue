@@ -13,7 +13,7 @@
         <v-toolbar class="rounded-md" color="background" dense flat dark>
           <span> Devices List</span>
         </v-toolbar>
-        <v-data-table :headers="devices_headers" :items="device_data" :loading="loading" :options.sync="options"
+        <v-data-table dense :headers="devices_headers" :items="device_data" :loading="loading" :options.sync="options"
           :footer-props="{
             itemsPerPageOptions: [50, 100, 500, 1000],
 
@@ -102,6 +102,9 @@ export default {
   },
   data() {
     return {
+      loading: false,
+      employee_data: [],
+      options: [],
       name: "fahath",
       endpointUpdatetimezonelist: "employee_timezone_mapping",
       Model: "Timezone Mapping  ",

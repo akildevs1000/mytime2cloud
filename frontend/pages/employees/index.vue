@@ -262,10 +262,10 @@
                 </v-btn>
               </template>
             </v-snackbar>
-            <v-progress-linear v-if="loadinglinear" :active="loadinglinear" :indeterminate="loadinglinear" absolute
-              color="primary"></v-progress-linear>
-            <v-data-table v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
-              :loading="loading" :options.sync="options" :footer-props="{
+            <!-- <v-progress-linear v-if="loadinglinear" :active="loadinglinear" :indeterminate="loadinglinear" absolute
+              color="primary"></v-progress-linear> -->
+            <v-data-table dense v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
+              :loading="loadinglinear" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [50, 100, 500, 1000],
               }" class="elevation-1">
 
@@ -922,6 +922,7 @@ export default {
     getDataFromApi(url = this.endpoint) {
       //this.loading = true;
       this.loadinglinear = true;
+
       let page = this.pagination.current;
       let options = {
         params: {
@@ -939,6 +940,7 @@ export default {
         this.data.length == 0
           ? (this.displayErrormsg = true)
           : (this.displayErrormsg = false);
+
 
         this.loadinglinear = false;
       });

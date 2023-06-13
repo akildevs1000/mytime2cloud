@@ -77,7 +77,7 @@ class TimezoneController extends Controller
         $arr = [];
 
         foreach ($intervals as $key => $interval) {
-            $arr[] =  [
+            $arr[] = [
                 "dayWeek" => $key,
                 "timeSegmentList" => $this->processTimeFrames($interval, $isDefault),
             ];
@@ -102,7 +102,7 @@ class TimezoneController extends Controller
         foreach (range(1, 64) as $iteration) {
             TimezoneDefaultJson::create([
                 "index" => $iteration,
-                "dayTimeList" => $request->dayTimeList
+                "dayTimeList" => $request->dayTimeList,
             ]);
         }
         return TimezoneDefaultJson::count();
@@ -117,13 +117,13 @@ class TimezoneController extends Controller
     {
         $arr = [];
         foreach ($schedules as $key => $d) {
-            $arr[] =  [
+            $arr[] = [
                 "day" => $d["day"],
                 "isScheduled" => $isDefault ? false : $d["isScheduled"],
                 "dayWeek" => $key,
             ];
         }
-        return  $arr;
+        return $arr;
     }
     public function processJson($timezone_id, $interval, $isDefault)
     {
@@ -131,5 +131,19 @@ class TimezoneController extends Controller
             "index" => $timezone_id,
             "dayTimeList" => $this->processIntervals($interval, $isDefault),
         ];
+    }
+    public function search(Request $request, $key)
+    {
+        return Timezone::where('company_id', $request->company_id)
+            ->where("is_default", false)
+            ->when($request->filled('filter_template_id'), function ($q) use ($request, $key) {
+                $q->where('timezone_id', 'like', "$key%");
+
+            })
+            ->when($request->filled('filter_template_name'), function ($q) use ($request, $key) {
+                $q->where('timezone_name', 'like', "$key%");
+
+            })
+            ->paginate($request->per_page ?? 100);
     }
 }
