@@ -12,20 +12,35 @@
             <v-card-text>
               <!-- <img :src="imageUrl" alt="Preview Image" /> -->
               <!-- Cropping image step1 -->
-              <VueCropper v-show="selectedFile" ref="cropper" :src="selectedFile" alt="Source Image" :aspectRatio="1"
-                :autoCropArea="0.9" :viewMode="3"></VueCropper>
+              <VueCropper
+                v-show="selectedFile"
+                ref="cropper"
+                :src="selectedFile"
+                alt="Source Image"
+                :aspectRatio="1"
+                :autoCropArea="0.9"
+                :viewMode="3"
+              ></VueCropper>
 
               <!-- <div class="cropper-preview"></div> -->
             </v-card-text>
 
             <v-card-actions>
               <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
-                <v-btn class="danger btn btn-danger text-left" text @click="closePopup()"
-                  style="float: left">Cancel</v-btn>
+                <v-btn
+                  class="danger btn btn-danger text-left"
+                  text
+                  @click="closePopup()"
+                  style="float: left"
+                  >Cancel</v-btn
+                >
               </div>
               <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
-                <v-btn class="primary btn btn-danger text-right"
-                  @click="saveCroppedImageStep2(), (dialog = false)">Crop</v-btn>
+                <v-btn
+                  class="primary btn btn-danger text-right"
+                  @click="saveCroppedImageStep2(), (dialog = false)"
+                  >Crop</v-btn
+                >
               </div>
             </v-card-actions>
           </v-card>
@@ -34,103 +49,235 @@
           <v-col md="6" sm="12" cols="12" dense>
             <v-row>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Title <span class="text-danger">*</span></label>
-                <v-select v-model="employee.title" :items="titleItems" :hide-details="!errors.title" :error="errors.title"
-                  :error-messages="errors && errors.title ? errors.title[0] : ''
-                    " dense outlined></v-select>
+                <label class="col-form-label"
+                  >Title <span class="text-danger">*</span></label
+                >
+                <v-select
+                  v-model="employee.title"
+                  :items="titleItems"
+                  :hide-details="!errors.title"
+                  :error="errors.title"
+                  :error-messages="
+                    errors && errors.title ? errors.title[0] : ''
+                  "
+                  dense
+                  outlined
+                ></v-select>
               </v-col>
               <v-col md="6" sm="12" cols="12" dense>
-                <label class="col-form-label">Display Name <span class="text-danger">*</span></label>
-                <v-text-field dense outlined :hide-details="!errors.display_name" type="text"
-                  v-model="employee.display_name" :error="errors.display_name" :error-messages="errors && errors.display_name ? errors.display_name[0] : ''
-                    "></v-text-field>
+                <label class="col-form-label"
+                  >Display Name <span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  :hide-details="!errors.display_name"
+                  type="text"
+                  v-model="employee.display_name"
+                  :error="errors.display_name"
+                  :error-messages="
+                    errors && errors.display_name ? errors.display_name[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
               <v-col md="6" sm="12" cols="12" dense>
-                <label class="col-form-label">First Name <span class="text-danger">*</span></label>
-                <v-text-field dense outlined :hide-details="!errors.first_name" type="text" v-model="employee.first_name"
-                  :error="errors.first_name" :error-messages="errors && errors.first_name ? errors.first_name[0] : ''
-                    "></v-text-field>
+                <label class="col-form-label"
+                  >First Name <span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  :hide-details="!errors.first_name"
+                  type="text"
+                  v-model="employee.first_name"
+                  :error="errors.first_name"
+                  :error-messages="
+                    errors && errors.first_name ? errors.first_name[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
               <v-col md="6" sm="12" cols="12" dense>
-                <label class="col-form-label">Last Name <span class="text-danger">*</span></label>
-                <v-text-field dense outlined :hide-details="!errors.last_name" type="text" v-model="employee.last_name"
-                  :error="errors.last_name" :error-messages="errors && errors.last_name ? errors.last_name[0] : ''
-                    "></v-text-field>
+                <label class="col-form-label"
+                  >Last Name <span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  :hide-details="!errors.last_name"
+                  type="text"
+                  v-model="employee.last_name"
+                  :error="errors.last_name"
+                  :error-messages="
+                    errors && errors.last_name ? errors.last_name[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
               <v-col md="6" cols="12" sm="12" dense>
-                <label class="col-form-label">Employee ID <span class="text-danger">*</span></label>
-                <v-text-field dense outlined type="text" v-model="employee.employee_id"
-                  :hide-details="!errors.employee_id" :error="errors.employee_id" :error-messages="errors && errors.employee_id ? errors.employee_id[0] : ''
-                    "></v-text-field>
+                <label class="col-form-label"
+                  >Employee ID <span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  type="text"
+                  v-model="employee.employee_id"
+                  :hide-details="!errors.employee_id"
+                  :error="errors.employee_id"
+                  :error-messages="
+                    errors && errors.employee_id ? errors.employee_id[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
               <v-col md="6" cols="12" sm="12" dense>
-                <label class="col-form-label">Employee Device Id<span class="text-danger">*</span></label>
-                <v-text-field dense outlined type="text" v-model="employee.system_user_id"
-                  :hide-details="!errors.system_user_id" :error="errors.system_user_id" :error-messages="errors && errors.system_user_id
+                <label class="col-form-label"
+                  >Employee Device Id<span class="text-danger">*</span></label
+                >
+                <v-text-field
+                  dense
+                  outlined
+                  type="text"
+                  v-model="employee.system_user_id"
+                  :hide-details="!errors.system_user_id"
+                  :error="errors.system_user_id"
+                  :error-messages="
+                    errors && errors.system_user_id
                       ? errors.system_user_id[0]
                       : ''
-                    "></v-text-field>
+                  "
+                ></v-text-field>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Department <span class="text-danger">*</span></label>
-                <v-autocomplete :items="departments" item-text="name" item-value="id" placeholder="Select"
-                  v-model="employee.department_id" :hide-details="!errors.department_id" :error="errors.department_id"
-                  :error-messages="errors && errors.department_id
+                <label class="col-form-label"
+                  >Department <span class="text-danger">*</span></label
+                >
+                <v-autocomplete
+                  :items="departments"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select"
+                  v-model="employee.department_id"
+                  :hide-details="!errors.department_id"
+                  :error="errors.department_id"
+                  :error-messages="
+                    errors && errors.department_id
                       ? errors.department_id[0]
                       : ''
-                    " dense outlined></v-autocomplete>
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Sub Department <span class="text-danger">*</span></label>
-                <v-autocomplete :items="sub_departments" item-text="name" item-value="id" placeholder="Select"
-                  v-model="employee.sub_department_id" :hide-details="!errors.sub_department_id"
-                  :error="errors.sub_department_id" :error-messages="errors && errors.sub_department_id
+                <label class="col-form-label"
+                  >Sub Department <span class="text-danger">*</span></label
+                >
+                <v-autocomplete
+                  :items="sub_departments"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select"
+                  v-model="employee.sub_department_id"
+                  :hide-details="!errors.sub_department_id"
+                  :error="errors.sub_department_id"
+                  :error-messages="
+                    errors && errors.sub_department_id
                       ? errors.sub_department_id[0]
                       : ''
-                    " dense outlined></v-autocomplete>
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Designation <span class="text-danger">*</span></label>
-                <v-autocomplete :items="designations" item-text="name" item-value="id" placeholder="Select"
-                  v-model="employee.designation_id" :hide-details="!errors.designation_id" :error="errors.designation_id"
-                  :error-messages="errors && errors.designation_id
+                <label class="col-form-label"
+                  >Designation <span class="text-danger">*</span></label
+                >
+                <v-autocomplete
+                  :items="designations"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select"
+                  v-model="employee.designation_id"
+                  :hide-details="!errors.designation_id"
+                  :error="errors.designation_id"
+                  :error-messages="
+                    errors && errors.designation_id
                       ? errors.designation_id[0]
                       : ''
-                    " dense outlined></v-autocomplete>
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Role <span class="text-danger">*</span></label>
-                <v-autocomplete :items="roles" item-text="name" item-value="id" placeholder="Select"
-                  v-model="employee.role_id" :hide-details="!errors.role_id" :error="errors.role_id" :error-messages="errors && errors.role_id ? errors.role_id[0] : ''
-                    " dense outlined></v-autocomplete>
+                <label class="col-form-label"
+                  >Role <span class="text-danger">*</span></label
+                >
+                <v-autocomplete
+                  :items="roles"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select"
+                  v-model="employee.employee_role_id"
+                  :hide-details="!errors.employee_role_id"
+                  :error="errors.employee_role_id"
+                  :error-messages="
+                    errors && errors.employee_role_id
+                      ? errors.employee_role_id[0]
+                      : ''
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
               </v-col>
             </v-row>
           </v-col>
           <v-col class="col-sm-6">
             <div class="form-group pt-15" style="margin: 0 auto; width: 200px">
-              <v-img style="
+              <v-img
+                style="
                   width: 100%;
                   height: 200px;
                   border: 1px solid #5fafa3;
                   border-radius: 50%;
                   margin: 0 auto;
-                " :src="previewImage || '/no-profile-image.jpg'"></v-img>
+                "
+                :src="previewImage || '/no-profile-image.jpg'"
+              ></v-img>
               <br />
-              <v-btn small class="form-control primary" @click="onpick_attachment">{{ !upload.name ? "Upload" : "Change"
-              }}
+              <v-btn
+                small
+                class="form-control primary"
+                @click="onpick_attachment"
+                >{{ !upload.name ? "Upload" : "Change" }}
                 Profile Image
                 <v-icon right dark>mdi-cloud-upload</v-icon>
               </v-btn>
-              <input required type="file" @change="attachment" style="display: none" accept="image/*"
-                ref="attachment_input" />
+              <input
+                required
+                type="file"
+                @change="attachment"
+                style="display: none"
+                accept="image/*"
+                ref="attachment_input"
+              />
 
-              <span v-if="errors && errors.profile_picture" class="text-danger mt-2">{{ errors.profile_picture[0]
-              }}</span>
+              <span
+                v-if="errors && errors.profile_picture"
+                class="text-danger mt-2"
+                >{{ errors.profile_picture[0] }}</span
+              >
             </div>
           </v-col>
           <!-- <v-divider></v-divider> -->
           <v-col cols="12" class="text-right">
-            <v-btn v-if="can('employee_create')" small :loading="loading" color="primary" @click="store_data">
+            <v-btn
+              v-if="can('employee_create')"
+              small
+              :loading="loading"
+              color="primary"
+              @click="store_data"
+            >
               Submit
             </v-btn>
           </v-col>
@@ -196,6 +343,7 @@ export default {
       employee_id: "",
       system_user_id: "",
       profile_picture: "",
+      employee_role_id: "",
     },
     upload: {
       name: "",
@@ -235,14 +383,12 @@ export default {
     this.getRoles();
 
     try {
-      console.log('this.$route.params', this.$route.params);
+      console.log("this.$route.params", this.$route.params);
       let employee_id = this.$route.params.id;
       if (employee_id) {
         this.editItemId(employee_id);
       }
-    } catch (error) {
-
-    }
+    } catch (error) {}
   },
   mounted() {
     //this.getDataFromApi();
@@ -298,7 +444,7 @@ export default {
             department_id: data.department_id,
             sub_department_id: data.sub_department_id,
             designation_id: data.designation_id,
-            role_id: data.role_id,
+            employee_role_id: data.user.employee_role_id,
           };
 
           // this.employee.id = data.id;
