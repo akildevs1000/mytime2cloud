@@ -429,8 +429,9 @@ class EmployeeController extends Controller
     {
         try {
             $record = Employee::find($id);
+            $user_id = $record->user_id;
             if ($record->delete()) {
-                $user = User::find($record->user_id);
+                $user = User::find($user_id);
                 if ($user) {
                     $user->delete();
                 }
@@ -468,18 +469,16 @@ class EmployeeController extends Controller
                     $q->where('local_email', 'LIKE', "$key%");
                 })
                 ->when($request->filled('search_department_name'), function ($q) use ($request, $key) {
-                    $q->whereHas('department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
-                    $q->orWhereHas('sub_department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                    $q->whereHas('department', fn (Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                    $q->orWhereHas('sub_department', fn (Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
                 })
                 ->when($request->filled('search_shiftname'), function ($q) use ($request, $key) {
-                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
-                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->whereNotNull('name'));
-                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->where('name', '<>', '---'));
-
+                    $q->whereHas('schedule.shift', fn (Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                    $q->whereHas('schedule.shift', fn (Builder $query) => $query->whereNotNull('name'));
+                    $q->whereHas('schedule.shift', fn (Builder $query) => $query->where('name', '<>', '---'));
                 })
                 ->when($request->filled('search_timezonename'), function ($q) use ($request, $key) {
-                    $q->whereHas('timezone', fn(Builder $query) => $query->where(DB::raw('lower(timezone_name)'), 'LIKE', "$key%"));
-
+                    $q->whereHas('timezone', fn (Builder $query) => $query->where(DB::raw('lower(timezone_name)'), 'LIKE', "$key%"));
                 })
                 ->paginate($request->perPage ?? 20);
         } else {
@@ -490,7 +489,6 @@ class EmployeeController extends Controller
                 ->where('company_id', $request->company_id)
                 ->paginate($request->perPage ?? 20);
         }
-
     }
     public function scheduled_employees_search(Request $request, $input)
     {
@@ -658,7 +656,7 @@ class EmployeeController extends Controller
 
                 $record = null;
 
-                if ($data['email']) {
+                if ($data['email'] != "") {
                     $record = User::create([
                         'name' => 'null',
                         'email' => $data['email'],
@@ -666,7 +664,7 @@ class EmployeeController extends Controller
                         'company_id' => $this->company_id,
                     ]);
 
-                    $arr['user_id'] = $record->id;
+                    $employee['user_id'] = $record->id;
                 }
 
                 $success = Employee::create($employee) ? true : false;
