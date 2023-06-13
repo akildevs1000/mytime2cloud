@@ -13,7 +13,33 @@
         <v-toolbar class="rounded-md" color="background" dense flat dark>
           <span> Devices List</span>
         </v-toolbar>
-        <table id="devicesTables" class="display nowrap" style="width: 100%">
+        <v-data-table :headers="devices_headers" :items="device_data" :loading="loading" :options.sync="options"
+          :footer-props="{
+            itemsPerPageOptions: [50, 100, 500, 1000],
+
+
+
+          }" class="elevation-1">
+          <template v-slot:item.sno="{ item, index }">
+
+            <b>{{ ++index }}</b>
+          </template>
+          <template v-slot:item.name="{ item }">
+            {{ item.name }}
+
+          </template>
+          <template v-slot:item.device_id="{ item }">
+            {{ item.device_id }}
+
+          </template>
+          <template v-slot:item.location="{ item }">
+            {{ item.location }}
+
+          </template>
+
+
+        </v-data-table>
+        <!-- <table id="devicesTables" class="display nowrap" style="width: 100%">
           <thead>
             <tr>
               <th># sno</th>
@@ -22,14 +48,38 @@
             </tr>
           </thead>
           <tbody></tbody>
-        </table>
+        </table> -->
       </v-col>
 
       <v-col cols="6">
         <v-toolbar class="rounded-md" color="background" dense flat dark>
           <span> Employees List</span>
         </v-toolbar>
-        <table id="employeesTable" class="display nowrap" style="width: 100%">
+        <v-data-table :headers="employee_headers" :items="employee_data" :loading="loading" :options.sync="options"
+          :footer-props="{
+            itemsPerPageOptions: [50, 100, 500, 1000],
+
+
+
+          }" class="elevation-1">
+          <template v-slot:item.sno="{ item, index }">
+
+            <b>{{ ++index }}</b>
+          </template>
+          <template v-slot:item.display_name="{ item }">
+            {{ item.display_name }}
+
+          </template>
+          <template v-slot:item.employee_id="{ item }">
+            {{ item.employee_id }}
+
+          </template>
+
+
+
+        </v-data-table>
+
+        <!-- <table id="employeesTable" class="display nowrap" style="width: 100%">
           <thead>
             <tr>
               <th># sno</th>
@@ -38,7 +88,7 @@
             </tr>
           </thead>
           <tbody></tbody>
-        </table>
+        </table> -->
       </v-col>
     </v-row>
   </div>
@@ -60,6 +110,22 @@ export default {
       tableColumns: [],
       Timezone: "",
       timeZoneName: "",
+      devices_headers: [
+
+        { text: "#", align: "left", sortable: false, key: 'sno', value: "sno" },
+        { text: "Device Name", align: "left", sortable: true, key: 'name', value: "name" },
+        { text: "Device Name", align: "left", sortable: true, key: 'device_id', value: "device_id" },
+        { text: "Device Location", align: "left", sortable: true, key: 'location', value: "location" },
+
+      ],
+      employee_headers: [
+
+        { text: "#", align: "left", sortable: false, key: 'sno', value: "sno" },
+        { text: "Employee Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
+        { text: "Employee ID", align: "left", sortable: true, key: 'employee_id', value: "employee_id" },
+
+
+      ],
     };
   },
   computed: {},
@@ -96,6 +162,11 @@ export default {
     },
 
     deviceTableContent(ajaxData) {
+
+
+      this.device_data = ajaxData;
+
+      return false;
       // Code that will run only after the
       // entire view has been rendered
       var options = {
@@ -177,6 +248,9 @@ export default {
       });
     },
     employeeTableContent(ajaxData) {
+      this.employee_data = ajaxData;
+
+      return false;
       console.log("id", this.$route.params.id);
       // Code that will run only after the
       // entire view has been rendered
@@ -271,4 +345,4 @@ export default {
   },
 };
 </script>
- 
+

@@ -35,34 +35,34 @@ export default {
         href: "https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.4.95/css/materialdesignicons.min.css",
       },
       //Datatables
-      {
-        rel: "stylesheet",
-        href: "https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://cdn.datatables.net/colreorder/1.6.2/css/colReorder.dataTables.min.css",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css",
-      },
+      // {
+      //   rel: "stylesheet",
+      //   href: "https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css",
+      // },
+      // {
+      //   rel: "stylesheet",
+      //   href: "https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css",
+      // },
+      // {
+      //   rel: "stylesheet",
+      //   href: "https://cdn.datatables.net/colreorder/1.6.2/css/colReorder.dataTables.min.css",
+      // },
+      // {
+      //   rel: "stylesheet",
+      //   href: "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css",
+      // },
+      // {
+      //   rel: "stylesheet",
+      //   href: "https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css",
+      // },
+      // {
+      //   rel: "stylesheet",
+      //   href: "https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css",
+      // },
+      // {
+      //   rel: "stylesheet",
+      //   href: "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css",
+      // },
       // {
       //   rel: "stylesheet",
       //   href: "https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.min.css",
@@ -87,63 +87,63 @@ export default {
         body: false,
       }, // Insert in body
 
-      // with shorthand
-      {
-        type: "text/javascript",
-        src: "http://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-      {
-        type: "text/javascript",
-        src: "https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-      {
-        type: "text/javascript",
-        src: "https://cdn.datatables.net/colreorder/1.6.2/js/dataTables.colReorder.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
+      // // with shorthand
+      // {
+      //   type: "text/javascript",
+      //   src: "https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js",
+      //   async: false,
+      //   body: false,
+      // }, // Insert in body
+      // {
+      //   type: "text/javascript",
+      //   src: "https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js",
+      //   async: false,
+      //   body: false,
+      // }, // Insert in body
+      // {
+      //   type: "text/javascript",
+      //   src: "https://cdn.datatables.net/colreorder/1.6.2/js/dataTables.colReorder.min.js",
+      //   async: false,
+      //   body: false,
+      // }, // Insert in body
 
-      // ...
-      {
-        type: "text/javascript",
-        src: "https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-      {
-        type: "text/javascript",
-        src: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-      {
-        type: "text/javascript",
-        src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-      {
-        type: "text/javascript",
-        src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-      {
-        type: "text/javascript",
-        src: "https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-      {
-        type: "text/javascript",
-        src: "https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
+      // // ...
+      // {
+      //   type: "text/javascript",
+      //   src: "https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js",
+      //   async: false,
+      //   body: false,
+      // }, // Insert in body
+      // {
+      //   type: "text/javascript",
+      //   src: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js",
+      //   async: false,
+      //   body: false,
+      // }, // Insert in body
+      // {
+      //   type: "text/javascript",
+      //   src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
+      //   async: false,
+      //   body: false,
+      // }, // Insert in body
+      // {
+      //   type: "text/javascript",
+      //   src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
+      //   async: false,
+      //   body: false,
+      // }, // Insert in body
+      // {
+      //   type: "text/javascript",
+      //   src: "https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js",
+      //   async: false,
+      //   body: false,
+      // }, // Insert in body
+      // {
+      //   type: "text/javascript",
+      //   src: "https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js",
+      //   async: false,
+      //   body: false,
+      // }, // Insert in body
 
       // {
       //   type: "text/javascript",
@@ -203,7 +203,7 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: ["~/assets/styles"],
+  // css: ["~/assets/styles"],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [

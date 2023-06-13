@@ -240,17 +240,14 @@
               model-value="data.id" :loading="loading" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [50, 100, 500, 1000],
               }" class="elevation-1">
-              <template v-slot:item.sno="{ item, index }">
 
-                <!-- <v-checkbox v-model="selectedItems" :value="item.id" :key="item.id" primary hide-details></v-checkbox> -->
-              </template>
               <template v-slot:item.employee_id="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
                   :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
                   {{ item.employee_id }}
                   <template v-slot:input>
                     <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
-                      label="Type Employee Id"></v-text-field>
+                      label="Search Employee Id"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -261,7 +258,7 @@
                   {{ item.display_name }}
                   <template v-slot:input>
                     <v-text-field @input="datatable_searchByName" v-model="datatable_search_textbox"
-                      label="Type Employee Name"></v-text-field>
+                      label="Search Employee Name"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -281,7 +278,7 @@
                   {{ caps(item.designation && item.designation.name) }}
                   <template v-slot:input>
                     <v-text-field @input="datatable_searchByDesignationName" v-model="datatable_search_textbox"
-                      label="Type Department Name"></v-text-field>
+                      label="Search Department Name"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -293,7 +290,7 @@
                   {{ caps(item.department && item.department.name) }}
                   <template v-slot:input>
                     <v-text-field @input="datatable_searchByDepartmentName" v-model="datatable_search_textbox"
-                      label="Type Department Name"></v-text-field>
+                      label="Search Department Name"></v-text-field>
                   </template>
                 </v-edit-dialog>
 

@@ -227,7 +227,7 @@
         </v-col>
         <v-col cols="3" align="right">
           <input style="width:200px;height: 33px;" small class="form-control py-3 custom-text-box floating shadow-none"
-            placeholder="Search..." @input="searchIt" v-model="search" type="text" />
+            placeholder="Search...EID, Name" @input="searchIt" v-model="search" type="text" />
         </v-col>
         <v-col cols="3" align="right">
 
@@ -270,7 +270,7 @@
                   {{ item.employee_id }}
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterEmployeeid" v-model="datatable_search_textbox"
-                      label="Type Employee Id"></v-text-field>
+                      label="Search Employee Id"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -295,7 +295,7 @@
                   </v-row>
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterEmployeeName" v-model="datatable_search_textbox"
-                      label="Type Employee Name"></v-text-field>
+                      label="Search Employee Name"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -309,7 +309,7 @@
                   <div> {{ item.sub_department.name }}</div>
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterDepartmentName" v-model="datatable_search_textbox"
-                      label="Type Department name"></v-text-field>
+                      label="Search Department name"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -321,7 +321,7 @@
                   {{ item.phone_number }}
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterPhoneNumber" v-model="datatable_search_textbox"
-                      label="Type Phone Number"></v-text-field>
+                      label="Search Phone Number"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -333,7 +333,7 @@
                   {{ item.local_email }}
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterEmailid" v-model="datatable_search_textbox"
-                      label="Type Email"></v-text-field>
+                      label="Search Email"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -356,7 +356,7 @@
                   </div>
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterShiftname" v-model="datatable_search_textbox"
-                      label="Type Shift Name"></v-text-field>
+                      label="Search Shift Name"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -369,7 +369,7 @@
                   }}
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterTimezonename" v-model="datatable_search_textbox"
-                      label="Type Timezone"></v-text-field>
+                      label="Search Timezone"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -1012,7 +1012,7 @@ export default {
       if (s == 0) {
         this.getDataFromApi();
       } else if (s > 2) {
-        this.getDataFromApi(`${this.endpoint} /search/${search} `);
+        this.getDataFromApi(`${this.endpoint}/search/${search}`);
       }
     },
     getDepartments() {
