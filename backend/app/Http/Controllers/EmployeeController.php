@@ -101,18 +101,23 @@ class EmployeeController extends Controller
 
         if ($request->employee_role_id) {
 
-            $record = User::updateOrCreate(
-                ['id' => $employee->user_id],
-                [
-                    'name' => 'null',
-                    'email' => "---",
-                    'password' => "---",
-                    'company_id' => $employee->company_id,
-                    'employee_role_id' => $request->employee_role_id,
-                ]
-            );
+            $user = User::where('id', $employee->user_id)->first();
 
-            $data["user_id"] = $record->id;
+            if ($user) {
+                $user->update(['employee_role_id' => $request->employee_role_id]);
+            } else {
+                $user = User::create(
+                    [
+                        'name' => 'null',
+                        'email' => "---",
+                        'password' => "---",
+                        'company_id' => $employee->company_id,
+                        'employee_role_id' => $request->employee_role_id,
+                    ]
+                );
+
+                $data["user_id"] = $user->id;
+            }
         }
 
         if ($request->profile_picture && $request->hasFile('profile_picture')) {
@@ -141,76 +146,6 @@ class EmployeeController extends Controller
         return Employee::with("user")->find($id);
     }
 
-    public function store(Request $request)
-    {
-        $user = [
-            'name' => $request->display_name ?? 'null',
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'employee_role_id' => $request->role_id,
-        ];
-        $employee = [
-            // employee info
-            'display_name' => $request->display_name,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'file_no' => $request->file_no,
-            'title' => $request->title,
-
-            //other info
-            'employee_id' => $request->employee_id,
-            'joining_date' => $request->joining_date,
-            'department_id' => $request->department_id,
-            'designation_id' => $request->designation_id,
-            'system_user_id' => $request->system_user_id,
-            'grade' => $request->grade,
-            'type' => $request->type,
-            'role_id' => $request->role_id,
-            'status' => 1,
-
-            //local contact
-            'local_address' => $request->address,
-            'local_email' => $request->email,
-            'phone_number' => $request->phone_number,
-            'whatsapp_number' => $request->whatsapp_number,
-            'relation' => $request->relation,
-            'phone_relative_number' => $request->phone_relative_number,
-            'local_city' => $request->city,
-            'local_country' => $request->country,
-        ];
-        if (isset($request->company_id)) {
-            $employee['company_id'] = $request->company_id;
-            $user['company_id'] = $request->company_id;
-        }
-        if (isset($request->sub_department_id)) {
-            $employee['sub_department_id'] = $request->sub_department_id;
-        }
-        if ($request->hasFile('profile_picture')) {
-            $file = $request->file('profile_picture');
-            $ext = $file->getClientOriginalExtension();
-            $fileName = time() . '.' . $ext;
-            $request->profile_picture->move(public_path('media/employee/profile_picture/'), $fileName);
-            $employee['profile_picture'] = $fileName;
-        }
-        DB::beginTransaction();
-        try {
-            $user = User::create($user);
-            if (!$user) {
-                return $this->response('User cannot add.', null, false);
-            }
-            $employee["user_id"] = $user->id;
-            $employee = Employee::create($employee);
-            if (!$employee) {
-                return $this->response('Employee cannot add.', null, false);
-            }
-            $employee->profile_picture = asset('media/employee/profile_picture' . $employee->profile_picture);
-            DB::commit();
-            return $this->response('Employee successfully created.', null, true);
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            throw $th;
-        }
-    }
     public function index(Employee $employee, Request $request)
     {
         $data = $employee
