@@ -150,6 +150,10 @@
           <v-card class="mb-5" elevation="0">
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <v-toolbar-title><span> Salary/Payslip List</span></v-toolbar-title>
+
+              <a style="padding-left:10px" title="Reset Filter/Reload" @click="getDataFromApi()"><v-icon class="mx-1">mdi
+                  mdi-reload</v-icon></a>
+
               <v-toolbar-items>
                 <v-col class="toolbaritems-button-design">
                   <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected"
@@ -236,8 +240,8 @@
                 </v-btn>
               </template>
             </v-snackbar>
-            <v-data-table show-select v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
-              :loading="loading" :options.sync="options" :footer-props="{
+            <v-data-table dense show-select v-model="selectedItems" :headers="headers_table" :items="data"
+              model-value="data.id" :loading="loading" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [50, 100, 500, 1000],
               }" class="elevation-1">
 

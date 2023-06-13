@@ -14,34 +14,19 @@
         <v-card-text>
           <v-row>
             <v-col>
-              <input
-                style="padding-top: 8px;"
-                class="form-control"
-                v-model="editedItem.timezone_name"
-              />
-              <span
-                class="error--text"
-                v-if="errors.timezone_name && errors.timezone_name[0]"
-              >
+              <input style="padding-top: 8px;" class="form-control" v-model="editedItem.timezone_name" />
+              <span class="error--text" v-if="errors.timezone_name && errors.timezone_name[0]">
                 {{ errors.timezone_name[0] }}
               </span>
             </v-col>
             <v-col>
-              <select
-                @change="setDefault(editedItem.timezone_id)"
-                class="form-select"
-                v-model="editedItem.timezone_id"
-                :error-messages="errors.timezone_id && errors.timezone_id[0]"
-              >
+              <select @change="setDefault(editedItem.timezone_id)" class="form-select" v-model="editedItem.timezone_id"
+                :error-messages="errors.timezone_id && errors.timezone_id[0]">
                 <option disabled selected value="0">Timezone Id</option>
-                <option v-for="n in 64" :key="n" :value="n"
-                  >Tz{{ n }} <span v-if="n == 1">(24 Hrs)</span>
+                <option v-for="n in 64" :key="n" :value="n">Tz{{ n }} <span v-if="n == 1">(24 Hrs)</span>
                 </option>
               </select>
-              <span
-                class="error--text"
-                v-if="errors.timezone_id && errors.timezone_id[0]"
-              >
+              <span class="error--text" v-if="errors.timezone_id && errors.timezone_id[0]">
                 {{ errors.timezone_id[0] }}
               </span>
             </v-col>
@@ -53,13 +38,7 @@
             <thead>
               <tr class="background white--text" dark>
                 <th class="text-center">Time</th>
-                <th
-                  class="text-center"
-                  colspan="2"
-                  v-for="n in 4"
-                  :key="n"
-                  :value="n"
-                >
+                <th class="text-center" colspan="2" v-for="n in 4" :key="n" :value="n">
                   Interval {{ n }}
                 </th>
               </tr>
@@ -79,90 +58,29 @@
               <tr v-for="(d, index) in days" :key="index">
                 <td>{{ d.name }}</td>
                 <td>
-                  <!-- <v-menu
-                    ref="menu"
-                    v-model="menu2"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    :return-value.sync="time"
-                    transition="scale-transition"
-                    offset-y
-                    max-width="290px"
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        v-model="time"
-                        label="HH:MM"
-                        append-icon="mdi-clock-time-four-outline"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-time-picker
-                      v-if="menu2"
-                      v-model="time"
-                      format="24hr"
-                      full-width
-                      @click:minute="$refs.menu.save(time)"
-                    ></v-time-picker>
-                  </v-menu> -->
 
-                  <!-- @input="
-                      processInput(
-                        d.index,
-                        'interval1',
-                        'begin',
-                        editedItem.interval[d.index]['interval1']['begin']
-                      )
-                    " -->
-                  <input
-                    v-model="editedItem.interval[d.index]['interval1']['begin']"
-                    type="time"
-                  />
+                  <input v-model="editedItem.interval[d.index]['interval1']['begin']" type="time" />
                 </td>
                 <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval1']['end']"
-                    type="time"
-                  />
+                  <input v-model="editedItem.interval[d.index]['interval1']['end']" type="time" />
                 </td>
                 <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval2']['begin']"
-                    type="time"
-                  />
+                  <input v-model="editedItem.interval[d.index]['interval2']['begin']" type="time" />
                 </td>
                 <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval2']['end']"
-                    type="time"
-                  />
+                  <input v-model="editedItem.interval[d.index]['interval2']['end']" type="time" />
                 </td>
                 <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval3']['begin']"
-                    type="time"
-                  />
+                  <input v-model="editedItem.interval[d.index]['interval3']['begin']" type="time" />
                 </td>
                 <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval3']['end']"
-                    type="time"
-                  />
+                  <input v-model="editedItem.interval[d.index]['interval3']['end']" type="time" />
                 </td>
                 <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval4']['begin']"
-                    type="time"
-                  />
+                  <input v-model="editedItem.interval[d.index]['interval4']['begin']" type="time" />
                 </td>
                 <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval4']['end']"
-                    type="time"
-                  />
+                  <input v-model="editedItem.interval[d.index]['interval4']['end']" type="time" />
                 </td>
               </tr>
             </tbody>
@@ -171,9 +89,7 @@
 
         <v-card-actions v-if="!readOnly">
           <v-btn small color="primary" @click="submit">Submit</v-btn>
-          <v-btn small color="background white--text" @click="reset"
-            >Reset</v-btn
-          >
+          <v-btn small color="background white--text" @click="reset">Reset</v-btn>
           <v-btn small color="grey white--text" @click="close">Close</v-btn>
         </v-card-actions>
       </v-card>
@@ -205,13 +121,8 @@
             </tbody>
           </table>
           <br />
-          <v-btn
-            small
-            color="grey white--text"
-            @click="syncDeviceDialog = false"
-          >
-            Close</v-btn
-          >
+          <v-btn small color="grey white--text" @click="syncDeviceDialog = false">
+            Close</v-btn>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -226,38 +137,105 @@
             Sync Device <v-icon class="mx-1">mdi-laptop</v-icon>
           </v-btn>
           <v-btn @click="dialog = true" small color="primary" class="mb-2">
-            {{ Module }} <v-icon class="mx-1">mdi-plus</v-icon></v-btn
-          >
+            {{ Module }} <v-icon class="mx-1">mdi-plus</v-icon></v-btn>
         </div>
       </v-col>
     </v-row>
-    <!-- <v-row>
-      <v-col xs="12" sm="12" md="3" cols="12">
-        <v-select
-          class="form-control custom-text-box shadow-none"
-          @change="getDataFromApi(`timezone`)"
-          v-model="pagination.per_page"
-          :items="[50, 100, 500, 1000]"
-          placeholder="Per Page Records"
-          solo
-          flat
-          :hide-details="true"
-        ></v-select>
-      </v-col>
 
-      <v-col xs="12" sm="12" md="3" cols="12">
-        <input
-          class="form-control py-3 custom-text-box floating shadow-none"
-          placeholder="Search..."
-          @input="searchIt"
-          v-model="search"
-          type="text"
-        />
-      </v-col>
-    </v-row> -->
 
     <v-card>
-      <table>
+
+      <v-toolbar class="rounded-md" color="background" dense flat dark>
+        <v-toolbar-title><span> Timezones List</span></v-toolbar-title> <a style="padding-left:10px"
+          title="Reset Filter/Reload" @click="getDataFromApi()"><v-icon class="mx-1">mdi mdi-reload</v-icon></a>
+        <v-spacer></v-spacer>
+
+
+      </v-toolbar>
+      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+        {{ snackText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snack = false">
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+      <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
+        :options.sync="options" :footer-props="{
+          itemsPerPageOptions: [50, 100, 500, 1000],
+        }" class="elevation-1">
+
+        <template v-slot:item.timezone_id="{ item }">
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+            :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
+            {{ item.timezone_id }}
+            <template v-slot:input>
+              <v-text-field @input="getDataFromApi_DatatablFilter('filter_template_id', $event)"
+                v-model="datatable_search_textbox" label="Search Template Id "></v-text-field>
+            </template>
+          </v-edit-dialog>
+
+        </template>
+        <template v-slot:item.timezone_name="{ item }">
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+            :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
+            {{ item.timezone_name }}
+            <template v-slot:input>
+              <v-text-field @input="getDataFromApi_DatatablFilter('filter_template_name', $event)"
+                v-model="datatable_search_textbox" label="Search Template Name"></v-text-field>
+            </template>
+          </v-edit-dialog>
+
+        </template>
+        <template v-slot:item.days="{ item }">
+          <v-btn v-for="({ day, isScheduled }, idx) in item.scheduled_days" :key="idx"
+            :class="isScheduled ? `circle-btn-green` : `circle-btn-grey`" class="mx-1" fab small>
+            <span :class="isScheduled ? `primary--text` : `grey--text`">{{
+              day
+            }}</span>
+          </v-btn>
+
+        </template>
+        <template v-slot:item.menu="{ item }">
+          <v-menu bottom left>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
+            </template>
+            <v-list width="120" dense>
+              <v-list-item @click="viewItem(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-eye </v-icon>
+                  View
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="editItem(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-pencil </v-icon>
+                  Edit
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="deleteItem(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="error" small> mdi-delete </v-icon>
+                  Delete
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+
+        </template>
+      </v-data-table>
+
+
+
+
+
+
+
+      <!-- <table>
         <thead>
           <tr class="background white--text" dark>
             <th class="text-center">Timezone ID</th>
@@ -266,30 +244,15 @@
             <th class="text-center">Actions</th>
           </tr>
         </thead>
-        <v-progress-linear
-          v-if="loading"
-          :active="loading"
-          :indeterminate="loading"
-          absolute
-          color="primary"
-        ></v-progress-linear>
+        <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
+          color="primary"></v-progress-linear>
         <tbody>
-          <tr
-            v-for="(item, index) in data"
-            :key="index"
-            style="font-size: 13px"
-          >
+          <tr v-for="(item, index) in data" :key="index" style="font-size: 13px">
             <td class="text-center">{{ item.timezone_id }}</td>
             <td class="text-center">{{ item.timezone_name }}</td>
             <td class="text-center">
-              <v-btn
-                v-for="({ day, isScheduled }, idx) in item.scheduled_days"
-                :key="idx"
-                :class="isScheduled ? `circle-btn-green` : `circle-btn-grey`"
-                class="mx-1"
-                fab
-                small
-              >
+              <v-btn v-for="({ day, isScheduled }, idx) in item.scheduled_days" :key="idx"
+                :class="isScheduled ? `circle-btn-green` : `circle-btn-grey`" class="mx-1" fab small>
                 <span :class="isScheduled ? `primary--text` : `grey--text`">{{
                   day
                 }}</span>
@@ -326,17 +289,13 @@
             </td>
           </tr>
         </tbody>
-      </table>
+      </table> -->
     </v-card>
     <v-row>
       <v-col md="12" class="float-right">
         <div class="float-right">
-          <v-pagination
-            v-model="pagination.current"
-            :length="pagination.total"
-            @input="onPageChange"
-            :total-visible="12"
-          ></v-pagination>
+          <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
+            :total-visible="12"></v-pagination>
         </div>
       </v-col>
     </v-row>
@@ -356,6 +315,11 @@ let days = [
 ];
 export default {
   data: () => ({
+    snack: false,
+    snackColor: '',
+    snackText: '',
+    datatable_search_textbox: "",
+
     pagination: {
       current: 1,
       total: 0,
@@ -392,7 +356,18 @@ export default {
         "6": { interval1: {}, interval2: {}, interval3: {}, interval4: {} }
       }
     },
+    headers_table: [
 
+      { text: "Timezone ID", align: "left", sortable: true, key: 'timezone_id', value: "timezone_id" },
+      { text: "Timezone Name", align: "left", sortable: true, key: 'timezone_name', value: "timezone_name" },
+      { text: "Days", align: "left", sortable: false, key: 'days', value: "days" },
+      {
+        text: "Actions",
+        align: "left",
+        sortable: false,
+        key: 'menu',
+        value: "menu"
+      }],
     deviceResults: [],
     readOnly: false,
     editedIndex: -1
@@ -437,6 +412,29 @@ export default {
   },
 
   methods: {
+    datatable_save() {
+      // this.snack = true
+      // this.snackColor = 'success'
+      // this.snackText = 'Searching...'
+    },
+    datatable_cancel() {
+      // this.loading = false;
+      // this.snack = true
+      // this.snackColor = 'error'
+      // this.snackText = 'Search Canceled'
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+      // this.snack = true
+      // this.snackColor = 'info'
+      // this.snackText = 'Search Details'
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      // console.log('Dialog closed')
+      this.loading = false;
+      //this.datatable_search_textbox = '';
+    },
     // processInput(index, interval, type, input) {
     //   this.editedItem.interval[index] = { "begin": interval,type, input };
     // },
@@ -555,8 +553,13 @@ export default {
         u.is_master
       );
     },
+
+    getDataFromApi_DatatablFilter(filter_column, e) {
+
+      this.getDataFromApi(`${this.endpoint}/search/${e}`, filter_column, e);
+    },
     //main
-    getDataFromApi(url = this.endpoint) {
+    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
       this.loading = true;
 
       let page = this.pagination.current;
@@ -568,8 +571,24 @@ export default {
           company_id: this.$auth.user.company.id
         }
       };
+      if (filter_column != '') {
+        options.params['datatable_filter'] = true;
+        options.params[filter_column] = filter_value;
+
+      }
+
 
       this.$axios.get(url, options).then(({ data }) => {
+
+
+        if (data.data.length == 0) {
+
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
         this.data = data.data;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
@@ -663,10 +682,12 @@ export default {
   border-radius: 50%;
   border: 1px solid grey;
 }
+
 .circle-btn-green {
   border-radius: 50%;
   border: 1px solid #5fafa3;
 }
+
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
@@ -683,6 +704,7 @@ th {
 tr:nth-child(even) {
   background-color: #dddddd;
 }
+
 /* input[type="time"]::-webkit-datetime-edit-ampm-field {
   display: none;
 } */

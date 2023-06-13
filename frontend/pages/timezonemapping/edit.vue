@@ -50,8 +50,14 @@
                 <div class="row">
 
                   <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox v-if="!user.timezone" hideDetails class="col-1   d-flex flex-column  justify-center "
-                      v-model="leftSelectedEmp" :value="user.id" primary hide-details></v-checkbox>
+                    <v-checkbox
+                      v-if="(!user.timezone) || (user.timezone.timezone_name == '---' || user.timezone.timezone_name == departmentselected)"
+                      hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
+                      :value="user.id" primary hide-details></v-checkbox>
+
+                    <!-- <v-checkbox v-if="!(user.timezone && user.timezone.timezone_name)" hideDetails
+                      class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp" :value="user.id"
+                      primary hide-details></v-checkbox> -->
                   </v-col>
                   <div class="col-sm" :style="{
                     color:

@@ -957,11 +957,18 @@ export default {
 
     getScheduledEmployees() {
       // return;
+      let u = this.$auth.user;
       let payload = {
         params: {
           company_id: this.$auth.user.company.id,
         },
       };
+      if (u.user_type == "employee") {
+        payload.params.department_id = u.employee.department_id;
+      }
+
+
+
       this.$axios
         .get(`/scheduled_employees_with_type`, payload)
         .then(({ data }) => {

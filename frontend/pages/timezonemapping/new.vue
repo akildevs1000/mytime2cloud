@@ -64,8 +64,9 @@
                 v-model="leftSelectedEmp" :key="user.id">
                 <div class="row">
                   <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
-                      :value="user.id" primary hide-details></v-checkbox>
+                    <v-checkbox v-if="user.timezone.timezone_name == '---'" hideDetails
+                      class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp" :value="user.id"
+                      primary hide-details></v-checkbox>
                   </v-col>
                   <div class="col-sm" :style="{
                     color:
