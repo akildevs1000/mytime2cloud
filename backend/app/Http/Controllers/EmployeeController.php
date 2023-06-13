@@ -647,6 +647,7 @@ class EmployeeController extends Controller
                 }
 
                 $employee = [
+                    'title' => trim($data['title']),
                     'display_name' => trim($data['display_name']),
                     'employee_id' => trim($data['employee_id']),
                     'company_id' => $this->company_id,
@@ -697,7 +698,7 @@ class EmployeeController extends Controller
         ];
 
         $rules = [
-            'title' => ['required'],
+            'title' => ['required', 'in:Mr,Mrs,Miss,Ms,Dr'],
             'employee_id' => ['required', $this->uniqueRecord("employees", $employee)],
             'system_user_id' => ['required', $this->uniqueRecord("employees", $employeeDevice)],
             'display_name' => ['required', 'min:3', 'max:10'],
@@ -706,6 +707,7 @@ class EmployeeController extends Controller
         ];
 
         $messages = [
+            'title.in' => "Invalid title. Valid titles are (Mr,Mrs,Miss,Ms,Dr)",
             'system_user_id.required' => "The employee device id is required",
             'system_user_id.unique' => "The employee device id (" . $data["system_user_id"] . ") has already been taken",
             'employee_id.unique' => "The employee id (" . $data["employee_id"] . ") has already been taken",
