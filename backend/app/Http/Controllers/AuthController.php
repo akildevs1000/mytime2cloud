@@ -39,6 +39,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->user()->email)->first();
 
         $model = User::where('email', $user->email);
+
         if ($user && $user->assigned_permissions) {
             $user->permissions = $user->assigned_permissions->permission_names;
         } else {
@@ -50,7 +51,7 @@ class AuthController extends Controller
         $model = $model->with('company', 'employee')->first();
         $obj = (($user->is_master == 1) && $user->role_id == 0 && ($user->employee_role_id == 0)) ? $user : $model;
         $obj->user_type =  $user->user_type;
-        $obj->permissions =  $user->assigned_employee_permissions->permission_names ?? [];
+        $obj->permissions = $user->assigned_permissions->permission_names ?? [];
         return response()->json(['user' => $obj], 200);
     }
 

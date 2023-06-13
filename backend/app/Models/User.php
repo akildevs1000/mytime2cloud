@@ -37,7 +37,7 @@ class User extends Authenticatable
 
     public function assigned_permissions()
     {
-        return $this->hasOne(AssignPermission::class, 'role_id', 'role_id');
+        return $this->hasOne(AssignPermission::class, 'role_id', 'employee_role_id');
     }
 
     public function assigned_employee_permissions()
@@ -84,12 +84,12 @@ class User extends Authenticatable
 
     public function role()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, "employee_role_id");
     }
 
     public function employee_role()
     {
-        return $this->belongsTo(Role::class,"employee_role_id");
+        return $this->belongsTo(Role::class, "employee_role_id");
     }
 
     // public function role()
