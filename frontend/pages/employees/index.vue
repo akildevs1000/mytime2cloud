@@ -163,7 +163,7 @@
             <v-spacer></v-spacer>
             <v-btn class="error" small @click="close"> Cancel </v-btn>
 
-            <v-btn class="primary" :loading="btnLoader" small @click="save">Save</v-btn>
+            <v-btn class="primary" :loading="btnLoader" small @click="importEmployee">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -680,7 +680,7 @@ export default {
         value: "timezone.timezone_name",
       },
       {
-        text: "options",
+        text: "Options",
         align: "left",
         sortable: false,
         key: 'options',
@@ -869,7 +869,7 @@ export default {
       element.click();
       document.body.removeChild(element);
     },
-    save() {
+    importEmployee() {
       let payload = new FormData();
       payload.append("employees", this.files);
       payload.append("company_id", this.$auth?.user?.company?.id);
@@ -1072,7 +1072,7 @@ export default {
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
       ) &&
         this.$axios
-          .delete(`/ employee / ${item.id} `)
+          .delete(`${this.endpoint}/${item.id}`)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
