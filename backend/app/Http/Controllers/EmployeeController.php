@@ -205,7 +205,7 @@ class EmployeeController extends Controller
 
         return $data;
     }
-    public function searchby_emp_table(Request $request, $text)
+    public function searchby_emp_table_salary(Request $request, $text)
     {
 
         $text = strtolower($text);
@@ -213,6 +213,9 @@ class EmployeeController extends Controller
             ->latest()
             ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "payroll", "timezone"])
             ->where('company_id', $request->company_id)
+            ->when($request->filled('department_id'), function ($q) use ($request) {
+                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
+            })
             ->when($request->filled('search_column_name'), function ($q) use ($request, $text) {
                 $q->where(DB::raw('lower(' . $request->search_column_name . ')'), 'LIKE', "$text%");
             })
@@ -454,6 +457,9 @@ class EmployeeController extends Controller
                 ->latest()
                 ->with(["user", "department", "sub_department", "designation", "timezone"])
                 ->where('company_id', $request->company_id)
+                ->when($request->filled('department_id'), function ($q) use ($request) {
+                    $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
+                })
                 ->when($request->filled('search_employee_id'), function ($q) use ($request, $key) {
                     $q->where('employee_id', 'LIKE', "$key%");
                 })
@@ -474,12 +480,12 @@ class EmployeeController extends Controller
                     // $q->orWhereHas('sub_department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
                 })
                 ->when($request->filled('search_shiftname'), function ($q) use ($request, $key) {
-                    $q->whereHas('schedule.shift', fn (Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
-                    $q->whereHas('schedule.shift', fn (Builder $query) => $query->whereNotNull('name'));
-                    $q->whereHas('schedule.shift', fn (Builder $query) => $query->where('name', '<>', '---'));
+                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->whereNotNull('name'));
+                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->where('name', '<>', '---'));
                 })
                 ->when($request->filled('search_timezonename'), function ($q) use ($request, $key) {
-                    $q->whereHas('timezone', fn (Builder $query) => $query->where(DB::raw('lower(timezone_name)'), 'LIKE', "$key%"));
+                    $q->whereHas('timezone', fn(Builder $query) => $query->where(DB::raw('lower(timezone_name)'), 'LIKE', "$key%"));
                 })
                 ->paginate($request->perPage ?? 20);
         } else {

@@ -199,7 +199,7 @@
               v-model="data"
               show-select
               item-key="id"
-              :headers="headers_dialog"
+              :headers="headers_table"
               :items="data"
             >
               <template v-slot:item.imgUrl="{ item }">
@@ -236,8 +236,8 @@
                 </v-btn>
               </template>
             </v-snackbar>
-            <v-data-table show-select v-model="selectedItems" :headers="headers_dialog" :items="data"
-              model-value="data.id" :loading="loading" :options.sync="options" :footer-props="{
+            <v-data-table show-select v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
+              :loading="loading" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [50, 100, 500, 1000],
               }" class="elevation-1">
 
@@ -496,7 +496,7 @@ export default {
       { text: "Payslip" },
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
-    headers_dialog: [
+    headers_table: [
 
       { text: "EID", align: "left", sortable: true, key: 'employee_id', value: "employee_id" },
       { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
@@ -964,35 +964,35 @@ export default {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'employee_id');
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'employee_id');
       }
     },
     datatable_searchByName(e) {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'display_name');
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'display_name');
       }
     },
     datatable_searchByDepartmentName(e) {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'search_department_name');
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'search_department_name');
       }
     },
     datatable_searchByDesignationName(e) {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'search_designation_name');
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'search_designation_name');
       }
     },
     datatable_searchBybasic_salary(e) {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'searchBybasic_salary');
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'searchBybasic_salary');
       }
     },
 
@@ -1000,7 +1000,7 @@ export default {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table/${e}`, 'searchBynet_salary');
+        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'searchBynet_salary');
       }
     },
 
