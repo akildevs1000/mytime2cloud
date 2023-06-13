@@ -14,15 +14,13 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
 
-        if ($user->company_id > 0 && $user->company->expiry < date('Y-m-d')) {
-            throw ValidationException::withMessages([
-                'email' => ['Your subscription has been expired.'],
-            ]);
-        }
-
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
+            ]);
+        } else if ($user->company_id > 0 && $user->company->expiry < date('Y-m-d')) {
+            throw ValidationException::withMessages([
+                'email' => ['Your subscription has been expired.'],
             ]);
         }
 
@@ -36,23 +34,16 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        $user = User::where('email', $request->user()->email)->first();
+        $user = $request->user();
+        $user->user_type = $this->getUserType($user);
+        $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
 
-        $model = User::where('email', $user->email);
-
-        if ($user && $user->assigned_permissions) {
-            $user->permissions = $user->assigned_permissions->permission_names;
-        } else {
-            $user->permissions = [];
+        if (in_array($user->user_type, ["employee", "company"])) {
+            $employeeUser = $user->load('company', 'employee');
+            $user->permissions = $employeeUser->assigned_employee_permissions->permission_names ?? [];
         }
 
-
-        $user->user_type = $this->getUserType($user);
-        $model = $model->with('company', 'employee')->first();
-        $obj = (($user->is_master == 1) && $user->role_id == 0 && ($user->employee_role_id == 0)) ? $user : $model;
-        $obj->user_type =  $user->user_type;
-        $obj->permissions = $user->assigned_permissions->permission_names ?? [];
-        return response()->json(['user' => $obj], 200);
+        return response()->json(['user' => $user], 200);
     }
 
     public function getUserType($user)
