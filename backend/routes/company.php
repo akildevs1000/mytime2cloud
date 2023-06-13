@@ -167,9 +167,10 @@ Route::post('employee/{id}/update', [EmployeeController::class, 'updateEmployee'
 Route::post('employee/{id}/update/contact', [EmployeeController::class, 'updateContact']);
 Route::post('employee/{id}/update/other', [EmployeeController::class, 'updateOther']);
 Route::get('employee/search/{key}', [EmployeeController::class, 'search']);
-Route::get('employee/searchby_emp_table/{key}', [EmployeeController::class, 'searchby_emp_table']);
+Route::get('employee/searchby_emp_table_salary/{key}', [EmployeeController::class, 'searchby_emp_table_salary']);
 
 Route::post('employee/import', [EmployeeController::class, 'import']);
+
 Route::resource('personalinfo', PersonalInfoController::class);
 Route::resource('bankinfo', BankInfoController::class);
 Route::resource('documentinfo', DocumentInfoController::class);

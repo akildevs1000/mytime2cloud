@@ -1,10 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimezoneController;
+use Illuminate\Support\Facades\Route;
 
 Route::apiResource('timezone', TimezoneController::class);
 
 Route::post('getTimezoneJson', [TimezoneController::class, 'getTimezoneJson']);
 Route::post('storeTimezoneDefaultJson', [TimezoneController::class, 'storeTimezoneDefaultJson']);
 Route::get('GetTimezoneDefaultJson', [TimezoneController::class, 'GetTimezoneDefaultJson']);
+Route::get('timezone/search/{key}', [TimezoneController::class, 'search']);
