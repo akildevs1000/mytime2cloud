@@ -13,14 +13,14 @@
 
       <v-col cols="6">
         <div class="text-right">
-          <v-btn
+          <!-- <v-btn
             v-if="can(`announcement_delete_all`)"
             small
             color="error"
             class="mr-2 mb-2"
             @click="delteteSelectedRecords"
             >Delete Selected Records
-          </v-btn>
+          </v-btn> -->
           <v-btn
             v-if="can(`announcement_create`)"
             small
@@ -42,10 +42,13 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="4">
+                <label for="">Title</label>
                 <v-text-field
+                  dense
+                  outlined
                   v-model="editedItem.title"
-                  label="Title"
+                  placeholder="Title"
                   :error-messages="
                     errors && errors.title ? errors.title[0] : ''
                   "
@@ -53,34 +56,84 @@
               </v-col>
               <!-- {{ employees_dialog }} -->
 
-              <v-col cols="12">
+              <v-col cols="4">
+                <label for="">Department</label>
                 <v-autocomplete
-                  v-model="editedItem.department"
-                  :items="departments"
                   @change="employeesByDepartment"
+                  v-model="editedItem.departments"
+                  :items="departments"
+                  multiple
+                  dense
+                  chips
+                  outlined
+                  deletable-chips
                   item-text="name"
                   item-value="id"
-                  label="Departments"
-                  multiple
-                  chips
+                  placeholder="Departments"
                   :error-messages="
                     errors && errors.departments ? errors.departments[0] : ''
                   "
-                ></v-autocomplete>
+                  color="background"
+                >
+                  <template v-if="departments.length" #prepend-item>
+                    <v-list-item @click="toggleDepartmentSelection">
+                      <v-list-item-action>
+                        <v-checkbox
+                          v-model="selectAllDepartment"
+                          :indeterminate="isIndeterminateDepartment"
+                          :true-value="true"
+                          :false-value="false"
+                        ></v-checkbox>
+                      </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{
+                            selectAllDepartment ? "Unselect All" : "Select All"
+                          }}
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </template>
+                </v-autocomplete>
               </v-col>
-              <v-col cols="12">
+              <v-col cols="4">
+                <label for="">Employee</label>
                 <v-autocomplete
-                  v-model="editedItem.employee"
+                  v-model="editedItem.employees"
                   :items="employees_dialog"
+                  multiple
+                  dense
+                  chips
+                  outlined
+                  deletable-chips
                   item-text="name_with_user_id"
                   item-value="id"
-                  label="Employee"
-                  multiple
-                  chips
+                  placeholder="Employees"
                   :error-messages="
-                    errors && errors.employee ? errors.employee[0] : ''
+                    errors && errors.employees ? errors.employees[0] : ''
                   "
-                ></v-autocomplete>
+                  color="background"
+                >
+                  <template v-if="employees_dialog.length" #prepend-item>
+                    <v-list-item @click="toggleEmployeeSelection">
+                      <v-list-item-action>
+                        <v-checkbox
+                          v-model="selectAllEmployee"
+                          :indeterminate="isIndeterminateEmployee"
+                          :true-value="true"
+                          :false-value="false"
+                        ></v-checkbox>
+                      </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{
+                            selectAllEmployee ? "Unselect All" : "Select All"
+                          }}
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </template>
+                </v-autocomplete>
               </v-col>
 
               <v-col cols="6">
@@ -96,11 +149,15 @@
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">Start Date</div>
                     <v-text-field
+                      outlined
                       dense
                       v-model="editedItem.start_date"
                       readonly
                       v-bind="attrs"
                       v-on="on"
+                      :error-messages="
+                        errors && errors.start_date ? errors.start_date[0] : ''
+                      "
                     >
                     </v-text-field>
                   </template>
@@ -122,11 +179,6 @@
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
-                <span
-                  v-if="errors && errors.start_date"
-                  class="text-danger mt-2"
-                  >{{ errors.start_date[0] }}</span
-                >
               </v-col>
               <v-col cols="6">
                 <v-menu
@@ -141,12 +193,15 @@
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">End Date</div>
                     <v-text-field
-                      :hide-details="!editedItem.end_date"
+                      outlined
                       dense
                       v-model="editedItem.end_date"
                       readonly
                       v-bind="attrs"
                       v-on="on"
+                      :error-messages="
+                        errors && errors.end_date ? errors.end_date[0] : ''
+                      "
                     ></v-text-field>
                   </template>
                   <v-date-picker
@@ -167,31 +222,31 @@
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
-                <span
-                  v-if="errors && errors.end_date"
-                  class="text-danger mt-2"
-                  >{{ errors.end_date[0] }}</span
-                >
               </v-col>
               <v-col cols="12">
-                <ClientOnly>
+                <label for="">Description</label>
+                <v-textarea
+                  dense
+                  outlined
+                  v-model="editedItem.description"
+                  :error-messages="
+                    errors && errors.description ? errors.description[0] : ''
+                  "
+                >
+                </v-textarea>
+                <!-- <ClientOnly>
                   <tiptap-vuetify
                     v-model="editedItem.description"
                     :extensions="extensions"
                     v-scroll.self="onScroll"
                     max-height="300"
                     :toolbar-attributes="{
-                      color: 'primary lighten-2 red--text text--lighten-1'
+                      color: 'primary lighten-2 red--text text--lighten-1',
                     }"
                   />
                   <template #placeholder> Loading... </template>
-                </ClientOnly>
+                </ClientOnly> -->
               </v-col>
-              <span
-                v-if="errors && errors.description"
-                class="text-danger mt-2"
-                >{{ errors.description[0] }}</span
-              >
             </v-row>
           </v-container>
         </v-card-text>
@@ -204,43 +259,11 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="view_notification" max-width="60%">
-      <v-card>
-        <v-toolbar class="pb-0 primary" dark flat>
-          <div class="w-50">
-            <span class="pb-0"><small>Announcement Details</small></span>
-          </div>
-          <div class="w-50 text-right">
-            <span class="pb-0"
-              ><small>Created: {{ desDate }}</small></span
-            >
-          </div>
-        </v-toolbar>
-        <v-card-text>
-          <v-container>
-            <h3>{{ title }}</h3>
-            <v-divider></v-divider>
-            <div>
-              <span v-for="(item, index) in dept" :key="index">
-                <v-chip small class="p-2 mx-1" color="primary">{{
-                  item.name
-                }}</v-chip>
-              </span>
-            </div>
-            <v-divider></v-divider>
-
-            <div v-html="des"></div>
-          </v-container>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-
     <v-row>
       <v-col md="12">
         <v-data-table
           v-if="can(`announcement_view`)"
           v-model="ids"
-          show-select
           item-key="id"
           :headers="headers"
           :items="data"
@@ -248,7 +271,7 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [50, 100, 500, 1000]
+            itemsPerPageOptions: [50, 100, 500, 1000],
           }"
           class="elevation-1"
         >
@@ -279,15 +302,15 @@
             >
               mdi-pencil
             </v-icon>
-            <v-icon
+            <!-- <v-icon
               v-if="can(`announcement_view`)"
               color="secondary"
               small
               class="mr-2"
-              @click="viewItem(item)"
+              @click="editItem(item)"
             >
               mdi-eye
-            </v-icon>
+            </v-icon> -->
             <v-icon
               v-if="can(`announcement_delete`)"
               color="error"
@@ -298,11 +321,27 @@
             </v-icon>
           </template>
           <template v-slot:item.departments="{ item }">
-            <span v-for="(dep, index) in item.departments" :key="index">
-              <v-chip small class="p-2 mx-1" color="primary">
-                {{ dep.name }}
-              </v-chip>
-            </span>
+            <div style="width: 200px">
+              <span v-for="(dep, index) in item.departments" :key="index">
+                <v-chip small class="pa-2 ma-1" color="primary">
+                  {{ dep.name }}
+                </v-chip>
+              </span>
+            </div>
+          </template>
+
+          <template v-slot:item.employees="{ item }">
+            <div style="width: 200px">
+              <span v-for="(emp, index) in item.employees" :key="index">
+                <v-chip small class="p-2 mx-1" color="primary">
+                  {{ emp.display_name }} - {{ emp.employee_id }}
+                </v-chip>
+              </span>
+            </div>
+          </template>
+
+          <template v-slot:item.description="{ item }">
+            <div style="width: 300px" class="pa-2">{{ item.description }}</div>
           </template>
 
           <template v-slot:no-data>
@@ -333,12 +372,12 @@ import {
   Blockquote,
   HardBreak,
   HorizontalRule,
-  History
+  History,
 } from "tiptap-vuetify";
 
 export default {
   components: {
-    TiptapVuetify
+    TiptapVuetify,
   },
   data: () => ({
     //editor
@@ -357,16 +396,16 @@ export default {
         Heading,
         {
           options: {
-            levels: [1, 2, 3]
-          }
-        }
+            levels: [1, 2, 3],
+          },
+        },
       ],
       Bold,
       Link,
       Code,
       HorizontalRule,
       Paragraph,
-      HardBreak
+      HardBreak,
     ],
     // starting editor's content
     content: `
@@ -390,7 +429,6 @@ export default {
     dialog: false,
     ids: [],
     departments: [],
-
     loading: false,
     total: 0,
     headers: [
@@ -399,41 +437,95 @@ export default {
         text: "Departments",
         align: "left",
         sortable: false,
-        value: "departments"
+        value: "departments",
       },
-      { text: "Actions", align: "center", value: "action", sortable: false }
+      {
+        text: "Employees",
+        align: "left",
+        sortable: false,
+        value: "employees",
+      },
+      {
+        text: "Description",
+        align: "left",
+        sortable: false,
+        value: "description",
+      },
+      {
+        text: "Start Date",
+        align: "left",
+        sortable: false,
+        value: "start_date",
+      },
+      {
+        text: "End Date",
+        align: "left",
+        sortable: false,
+        value: "end_date",
+      },
+      { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     editedIndex: -1,
     editedItem: {
       title: "",
       description: "",
-      department: "",
-      employee: "",
+      departments: [],
+      employees: [],
       start_date: null,
-      end_date: null
+      end_date: null,
     },
     defaultItem: {
       title: "",
       description: "",
-      department: "",
+      departments: [],
+      employees: [],
       start_date: null,
-      end_date: null
+      end_date: null,
     },
-    view_notification: false,
     response: "",
     data: [],
     errors: [],
     options_dialog: {},
-    employees_dialog: []
+    employees_dialog: [],
+    selectAllDepartment: false,
+    selectAllEmployee: false,
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
-    }
+    },
+    isIndeterminateDepartment() {
+      return (
+        this.editedItem.departments.length > 0 &&
+        this.editedItem.departments.length < this.departments.length
+      );
+    },
+    isIndeterminateEmployee() {
+      return (
+        this.editedItem.employees.length > 0 &&
+        this.editedItem.employees.length < this.employees_dialog.length
+      );
+    },
   },
 
   watch: {
+    selectAllDepartment(value) {
+      if (value) {
+        this.editedItem.departments = this.departments.map((e) => e.id);
+      } else {
+        this.editedItem.departments = [];
+      }
+    },
+
+    selectAllEmployee(value) {
+      if (value) {
+        this.editedItem.employees = this.employees_dialog.map((e) => e.id);
+      } else {
+        this.editedItem.employees = [];
+      }
+    },
+
     dialog(val) {
       val || this.close();
       this.errors = [];
@@ -443,8 +535,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     this.loading = true;
@@ -453,10 +545,16 @@ export default {
   },
 
   methods: {
+    toggleDepartmentSelection() {
+      this.selectAllDepartment = !this.selectAllDepartment;
+    },
+    toggleEmployeeSelection() {
+      this.selectAllEmployee = !this.selectAllEmployee;
+    },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
     onScroll() {
@@ -466,9 +564,9 @@ export default {
     getDepartments() {
       let options = {
         params: {
-          per_page: 100,
-          company_id: this.$auth.user.company.id
-        }
+          per_page: 1000,
+          company_id: this.$auth.user.company.id,
+        },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
@@ -481,24 +579,20 @@ export default {
 
       let options = {
         params: {
-          department_ids: this.editedItem.department,
+          department_ids: this.editedItem.departments,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
-      if (!this.editedItem.department.length) {
+      if (!this.editedItem.departments.length) {
         this.getEmployees();
         return;
       }
 
       this.$axios.get("employeesByDepartment", options).then(({ data }) => {
         this.employees_dialog = data.data;
-        this.employees_dialog.unshift({
-          id: "---",
-          name_with_user_id: "Select All"
-        });
         this.loading_dialog = false;
       });
     },
@@ -511,8 +605,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -533,25 +627,17 @@ export default {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
-      this.editedItem.department = item.departments.map(e => e.id);
-    },
-
-    viewItem(item) {
-      this.view_notification = true;
-      this.des = item.description;
-      this.title = item.title;
-      this.desDate = item.created_at;
-      this.dept = item.departments;
+      this.editedItem.departments = item.departments.map((e) => e.id);
+      this.editedItem.employees = item.employees.map((e) => e.id);
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids
+            ids: this.ids.map((e) => e.id),
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -563,7 +649,7 @@ export default {
             }
             this.getDataFromApi();
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -581,7 +667,7 @@ export default {
               this.response = data.message;
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     close() {
@@ -600,45 +686,31 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.employees_dialog = data.data;
-        this.employees_dialog.unshift({
-          id: "---",
-          name_with_user_id: "Select All"
-        });
       });
     },
 
     save() {
-      let editedItem = {
-        title: this.editedItem.title.toLowerCase(),
-        description: this.editedItem.description.toLowerCase(),
-        start_date: this.editedItem.start_date,
-        end_date: this.editedItem.end_date,
-        departments:
-          this.editedItem.department == "" ? [] : this.editedItem.department,
-        employee:
-          this.editedItem.employee == "" ? [] : this.editedItem.employee,
-        company_id: this.$auth.user.company.id
-      };
+      this.editedItem.company_id = this.$auth.user.company.id;
 
       if (this.editedIndex > -1) {
         this.$axios
-          .put(this.endpoint + "/" + this.editedItem.id, editedItem)
+          .put(this.endpoint + "/" + this.editedItem.id, this.editedItem)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {
               const index = this.data.findIndex(
-                item => item.id == this.editedItem.id
+                (item) => item.id == this.editedItem.id
               );
               this.data.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name
+                name: this.editedItem.name,
               });
               this.getDataFromApi();
               this.snackbar = data.status;
@@ -646,10 +718,10 @@ export default {
               this.close();
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       } else {
         this.$axios
-          .post(this.endpoint, editedItem)
+          .post(this.endpoint, this.editedItem)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
@@ -662,14 +734,14 @@ export default {
               this.search = "";
             }
           })
-          .catch(res => console.log(res));
+          .catch((res) => console.log(res));
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style>
+<!-- <style>
 .tiptap-vuetify-editor__content {
   min-height: 300px !important;
 }
@@ -677,4 +749,4 @@ export default {
 .ProseMirror .ProseMirror-focused {
   height: 400px !important;
 }
-</style>
+</style> -->

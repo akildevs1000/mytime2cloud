@@ -31,9 +31,8 @@ class StoreRequest extends FormRequest
             'end_date' => 'required|date',
             'description' => 'required',
             'company_id' => 'required',
-
-            'departments' => 'required_without:employee',
-            'employee' => 'required_without:departments',
+            'departments' => 'required|array',
+            'employees' => 'required|array',
 
         ];
     }

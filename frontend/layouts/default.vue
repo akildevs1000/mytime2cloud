@@ -375,6 +375,12 @@ export default {
             },
           ],
         },
+        {
+          icon: "mdi-bell",
+          title: `Announcements`,
+          open_menu: false,
+          to: "/announcement"
+        },
       ],
       items: [],
       modules: {

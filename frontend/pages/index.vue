@@ -58,7 +58,7 @@
           cols="12"
           md="4"
           lg="4"
-          xl="3"
+          xl="2"
         >
           <div class="card p-2" :class="i.color" style="min-height: 168px">
             <div class="card-statistic-3">
@@ -98,7 +98,7 @@
             </div>
           </div>
         </v-col>
-        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="3">
+        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="2">
           <div class="card p-2 l-bg-purple-dark" style="min-height: 168px">
             <div class="card-statistic-3">
               <div class="card-icon card-icon-large">
@@ -113,7 +113,7 @@
             </div>
           </div>
         </v-col>
-        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="3">
+        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="2">
           <div
             class="card p-2"
             style="min-height: 168px; background-color: rgb(193 14 14 / 6%)"
@@ -131,7 +131,7 @@
       </v-row>
       <v-row>
         <v-col cols="12" md="12" xl="12">
-            <DailyLogs />
+          <DailyLogs />
         </v-col>
         <!-- <v-col cols="12" md="4" xl="4">
           <v-card flat class="w-100">
@@ -320,13 +320,12 @@ export default {
 
       if (p.some((e) => e == per) || is_master) return true;
 
-      this.$router.push(`/attendance_report`);
-    },
+      if (this.$auth.user.user_type == "employee") {
+        this.$router.push(`/employee_dashboard`);
+        return;
+      }
 
-    getColor(calories) {
-      if (calories > 400) return "red";
-      else if (calories > 200) return "orange";
-      else return "green";
+      this.$router.push(`/attendance_report`);
     },
     updateCartcart2() {
       this.$axios
