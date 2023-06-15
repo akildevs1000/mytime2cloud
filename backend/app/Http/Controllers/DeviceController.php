@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Device;
-use App\Models\Employee;
-use Illuminate\Http\Request;
 use App\Http\Requests\Device\StoreRequest;
 use App\Http\Requests\Device\UpdateRequest;
 use App\Models\AttendanceLog;
+use App\Models\Device;
+use App\Models\Employee;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -81,10 +81,30 @@ class DeviceController extends Controller
         ];
     }
 
-    public function getLastRecordsByCount($id, $count)
+    public function getLastRecordsByCount($id = 0, $count = 0, Request $request)
     {
+
+        // $id = 0;
+        // $count = 0;
+        // if ($request->id && $request->count) {
+        //     $id = $request->id;
+        //     $count = $request->count;
+        // } else {
+
+        //     return;
+        // }
+
         $model = AttendanceLog::query();
         $model->where('company_id', $id);
+        $model->when($request->filled('search_time'), function ($q) use ($request) {
+            $key = date('Y-m-d') . ' ' . $request->search_time;
+            $q->Where('LogTime', 'LIKE', "$key%");
+        });
+        $model->when($request->filled('search_device_id'), function ($q) use ($request) {
+            $key = strtoupper($request->search_device_id);
+            //$q->Where(DB::raw('lower(DeviceID)'), 'LIKE', "$key%");
+            $q->Where('DeviceID', 'LIKE', "$key%");
+        });
         $model->take($count);
         $model->orderByDesc("id");
 
@@ -94,12 +114,37 @@ class DeviceController extends Controller
 
         foreach ($logs as $log) {
 
-            $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
+            $employee = Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
                 ->where('company_id', $id)
                 ->where('system_user_id', $log->UserID)
-                ->first(['display_name', 'profile_picture', 'company_id']);
+                ->when($request->filled('search_employee_name'), function ($q) use ($request) {
 
-            $dev =  Device::where('device_id', $log->DeviceID)
+                    $key = strtolower($request->search_employee_name);
+                    $q->where(function ($q) use ($key) {
+                        $q->Where(DB::raw('lower(first_name)'), 'LIKE', "$key%");
+                        $q->orWhere(DB::raw('lower(last_name)'), 'LIKE', "$key%");
+                    });
+                })
+                ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
+                    $key = strtolower($request->search_system_user_id);
+                    $q->Where(DB::raw('lower(system_user_id)'), 'LIKE', "$key%");
+                })
+                ->when($request->filled('search_employee_id'), function ($q) use ($request) {
+                    $key = strtolower($request->search_employee_id);
+                    $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
+                })
+                ->when($request->filled('search_employee_id'), function ($q) use ($request) {
+                    $key = strtolower($request->search_employee_id);
+                    $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
+                })
+
+                ->first(['first_name', 'last_name', 'employee_id', 'display_name', 'profile_picture', 'company_id']);
+
+            $dev = Device::where('device_id', $log->DeviceID)
+                ->when($request->filled('search_device_name'), function ($q) use ($request) {
+                    $key = strtolower($request->search_device_name);
+                    $q->Where('name', 'LIKE', "$key%");
+                })
                 ->first(['name as device_name', 'short_name', 'device_id', 'location']);
 
             if ($employee) {
@@ -128,13 +173,12 @@ class DeviceController extends Controller
 
             foreach ($logs as $log) {
 
-
-                $employee =  Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
+                $employee = Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
                     ->where('company_id', $id)
                     ->where('system_user_id', $log->UserID)
                     ->first(['first_name', 'profile_picture', 'company_id']);
 
-                $dev =  Device::where('device_id', $log->DeviceID)
+                $dev = Device::where('device_id', $log->DeviceID)
                     ->first(['name as device_name', 'short_name', 'device_id', 'location']);
 
                 if ($employee) {
@@ -241,7 +285,7 @@ class DeviceController extends Controller
         if ($result && $result->status == 200) {
             try {
                 $record = Device::where("device_id", $device_id)->update([
-                    "sync_date_time" => $request->sync_able_date_time
+                    "sync_date_time" => $request->sync_able_date_time,
                 ]);
 
                 if ($record) {

@@ -581,7 +581,7 @@ export default {
       this.$axios.get(url, options).then(({ data }) => {
 
 
-        if (data.data.length == 0) {
+        if (filter_column != '' && data.data.length == 0) {
 
           this.snack = true;
           this.snackColor = 'error';

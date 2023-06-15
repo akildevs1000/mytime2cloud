@@ -63,8 +63,6 @@ Route::get('company/{id}/branches', [CompanyController::class, 'branches']);
 Route::get('company/{id}/devices', [CompanyController::class, 'devices']);
 Route::get('UpdateCompanyIds', [CompanyController::class, 'UpdateCompanyIds']);
 
-
-
 Route::post('company/{id}/trade-license', [TradeLicenseController::class, 'store']);
 
 //  Permission
@@ -97,13 +95,12 @@ Route::apiResource('device', DeviceController::class);
 Route::get('device/search/{key}', [DeviceController::class, 'search']);
 Route::post('device/details', [DeviceController::class, 'getDeviceCompany']);
 Route::get('device/getLastRecordsByCount/{company_id}/{count}', [DeviceController::class, 'getLastRecordsByCount']);
+//Route::get('device/getLastRecordsByCount', [DeviceController::class, 'getLastRecordsByCount']);
 Route::post('device/delete/selected', [DeviceController::class, 'deleteSelected']);
 Route::get('device_list', [DeviceController::class, 'getDeviceList']);
 Route::get('getdevicesstatuscount/{company_id}', [DeviceController::class, 'getDevicesStatuscount']);
 
-
 Route::get('sync_device_date_time/{device_id}', [DeviceController::class, "sync_device_date_time"]);
-
 
 //  Device Status
 Route::apiResource('device_status', DeviceStatusController::class);
@@ -121,17 +118,14 @@ Route::get('assign-module/search/{key}', [AssignModuleController::class, 'search
 Route::get('assign-module/nacs', [AssignModuleController::class, 'notAssignedCompanyIds']);
 Route::resource('assign-module', AssignModuleController::class);
 
-
 //Testing Routes for Cron Jobs
 Route::get('SyncCompanyIdsWithDevices', [AttendanceLogController::class, 'SyncCompanyIdsWithDevices']);
 
 Route::get('SyncAttendance', [AttendanceController::class, 'SyncAttendance']);
 
-
 Route::get('ProcessAttendance', [AttendanceController::class, 'ProcessAttendance']);
 Route::get('processByManual', [MultiInOutShiftController::class, 'processByManual']);
 Route::get('processByManualForSingleShift', [SingleShiftController::class, 'processByManual']);
-
 
 // Route::get('SyncAbsentForMultipleDays', [AttendanceController::class, 'SyncAbsentForMultipleDays']);
 // Route::get('SyncAbsentForMultipleDays', [AttendanceController::class, 'SyncAbsentForMultipleDays']);

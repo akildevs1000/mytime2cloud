@@ -135,7 +135,7 @@
             <v-col md="2">
               Report Type
               <v-select @change="fetch_logs" class="mt-2" outlined dense v-model="payload.status" x-small :items="[
-                `Select All`,
+                `All`,
                 `Summary`,
                 `Present`,
                 `Absent`,
@@ -313,206 +313,335 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-row>
+      <v-col>
+        <v-card class="mb-5" elevation="0">
+          <v-toolbar class="background" dark flat v-if="payload.report_type == 'Daily'">
 
-    <v-toolbar class="background" dark flat v-if="payload.report_type == 'Daily'">
-      <v-btn class="ma-0" x-small text @click="ProcessAttendance">
-        <v-icon class="">mdi-history</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
+            <v-toolbar-title><span> General Report </span></v-toolbar-title>
+            <a @click="ProcessAttendance"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('daily')">
-            <v-icon class="">mdi-printer-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>PRINT</span>
-      </v-tooltip>
+            <v-spacer></v-spacer>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('daily_download_pdf')">
-            <v-icon class="">mdi-download-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>DOWNLOAD</span>
-      </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('daily')">
+                  <v-icon class="">mdi-printer-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>PRINT</span>
+            </v-tooltip>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('daily_download_csv')">
-            <v-icon class="">mdi-file-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>CSV</span>
-      </v-tooltip>
-    </v-toolbar>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('daily_download_pdf')">
+                  <v-icon class="">mdi-download-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>DOWNLOAD</span>
+            </v-tooltip>
 
-    <v-toolbar class="background" dark flat v-if="payload.report_type == 'Weekly'">
-      <v-spacer></v-spacer>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('daily_download_csv')">
+                  <v-icon class="">mdi-file-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>CSV</span>
+            </v-tooltip>
+          </v-toolbar>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('weekly')">
-            <v-icon class="">mdi-printer-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>PRINT</span>
-      </v-tooltip>
+          <v-toolbar class="background" dark flat v-if="payload.report_type == 'Weekly'">
+            <v-spacer></v-spacer>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('weekly_download_pdf')">
-            <v-icon class="">mdi-download-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>DOWNLOAD</span>
-      </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('weekly')">
+                  <v-icon class="">mdi-printer-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>PRINT</span>
+            </v-tooltip>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('weekly_download_csv')">
-            <v-icon class="">mdi-file-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>CSV</span>
-      </v-tooltip>
-    </v-toolbar>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('weekly_download_pdf')">
+                  <v-icon class="">mdi-download-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>DOWNLOAD</span>
+            </v-tooltip>
 
-    <v-toolbar class="background" dark flat v-if="payload.report_type == 'Monthly'">
-      <v-spacer></v-spacer>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('weekly_download_csv')">
+                  <v-icon class="">mdi-file-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>CSV</span>
+            </v-tooltip>
+          </v-toolbar>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly')">
-            <v-icon class="">mdi-printer-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>PRINT</span>
-      </v-tooltip>
+          <v-toolbar class="background" dark flat v-if="payload.report_type == 'Monthly'">
+            <v-spacer></v-spacer>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_pdf')">
-            <v-icon class="">mdi-download-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>DOWNLOAD</span>
-      </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on"
+                  @click="process_file('monthly')">
+                  <v-icon class="">mdi-printer-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>PRINT</span>
+            </v-tooltip>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_csv')">
-            <v-icon class="">mdi-file-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>CSV</span>
-      </v-tooltip>
-    </v-toolbar>
-    <v-toolbar class="background" dark flat v-if="payload.report_type == 'Custom'">
-      <v-spacer></v-spacer>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on"
+                  @click="process_file('monthly_download_pdf')">
+                  <v-icon class="">mdi-download-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>DOWNLOAD</span>
+            </v-tooltip>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly')">
-            <v-icon class="">mdi-printer-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>PRINT</span>
-      </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on"
+                  @click="process_file('monthly_download_csv')">
+                  <v-icon class="">mdi-file-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>CSV</span>
+            </v-tooltip>
+          </v-toolbar>
+          <v-toolbar class="background" dark flat v-if="payload.report_type == 'Custom'">
+            <v-spacer></v-spacer>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_pdf')">
-            <v-icon class="">mdi-download-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>DOWNLOAD</span>
-      </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn class="ma-0" x-small :ripple="false" text v-bind="attrs" v-on="on"
+                  @click="process_file('monthly')">
+                  <v-icon class="">mdi-printer-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>PRINT</span>
+            </v-tooltip>
 
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="process_file('monthly_download_csv')">
-            <v-icon class="">mdi-file-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>CSV</span>
-      </v-tooltip>
-    </v-toolbar>
-    <v-data-table v-if="can(`attendance_report_view`)" :headers="headers" :items="data" :server-items-length="total"
-      :loading="loading" :options.sync="options" :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000],
-      }" class="elevation-1">
-      <template v-slot:item.employee_id="{ item }">
-        <!-- <NuxtLink :to="`/employees/details/${item.employee.id}`"
-          >{{ item.employee_id
-          }}<v-icon small color="black">mdi-open-in-new</v-icon></NuxtLink
-        > -->
-        {{ item.employee_id }}
-      </template>
-      <template v-slot:item.status="{ item }">
-        <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on"
+                  @click="process_file('monthly_download_pdf')">
+                  <v-icon class="">mdi-download-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>DOWNLOAD</span>
+            </v-tooltip>
 
-        <v-icon v-else-if="item.status == 'P'" color="success darken-1">mdi-check</v-icon>
-        <v-icon v-else-if="item.status == 'H'" color="grey darken-1">mdi-check</v-icon>
-        <span v-else>{{ item.status }}</span>
-      </template>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on"
+                  @click="process_file('monthly_download_csv')">
+                  <v-icon class="">mdi-file-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>CSV</span>
+            </v-tooltip>
+          </v-toolbar>
 
-      <template v-slot:item.shift="{ item }">
-        <v-tooltip v-if="item && item.shift" top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <div class="primary--text" v-bind="attrs" v-on="on">
-              {{ (item.shift && item.shift.name) || "---" }}
-            </div>
-          </template>
-          <div v-for="(iterable, index) in item.shift" :key="index">
-            <span v-if="index !== 'id'">
-              {{ caps(index) }}: {{ iterable || "---" }}</span>
-          </div>
-        </v-tooltip>
-        <span v-else>---</span>
-      </template>
+          <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+            {{ snackText }}
 
-      <template v-slot:item.device_in="{ item }">
-        <v-tooltip v-if="item && item.device_in" top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <div class="primary--text" v-bind="attrs" v-on="on">
-              {{ (item.device_in && item.device_in.short_name) || "---" }}
-            </div>
-          </template>
-          <div v-for="(iterable, index) in item.device_in" :key="index">
-            <span v-if="index !== 'id'">
-              {{ caps(index) }}: {{ iterable || "---" }}</span>
-          </div>
-        </v-tooltip>
-        <span v-else>---</span>
-      </template>
+            <template v-slot:action="{ attrs }">
+              <v-btn v-bind="attrs" text @click="snack = false">
+                Close
+              </v-btn>
+            </template>
+          </v-snackbar>
+          <v-data-table dense v-if="can(`attendance_report_view`)" :headers="headers" :items="data" :loading="loading"
+            :options.sync="options" :footer-props="{
+              itemsPerPageOptions: [50, 100, 500, 1000],
+            }
+              " class="elevation-1" model-value="data.id">
+            <template v-slot:item.date="{ item }">
 
-      <template v-slot:item.device_out="{ item }">
-        <v-tooltip v-if="item && item.device_out" top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <div class="primary--text" v-bind="attrs" v-on="on">
-              {{ (item.device_out && item.device_out.short_name) || "---" }}
-            </div>
-          </template>
-          <div v-for="(iterable, index) in item.device_out" :key="index">
-            <span v-if="index !== 'id'">
-              {{ caps(index) }}: {{ iterable || "---" }}</span>
-          </div>
-        </v-tooltip>
-        <span v-else>---</span>
-      </template>
-      <template v-slot:item.actions="{ item }" v-if="can('attendance_report_edit')">
-        <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
-          mdi-pencil
-        </v-icon>
-        <v-icon @click="viewItem(item)" x-small color="primary" class="mr-2" v-if="can('attendance_report_view')">
-          mdi-eye
-        </v-icon>
-      </template>
-    </v-data-table>
-    <NoAccess v-else />
+              <v-edit-dialog large save-text="Ok" cancel-text="Reset" @save="getDataFromApi_DatatablFilter('date')"
+                @cancel="getDataFromApi()" @open="datatable_open">
+                {{ item.date }}
+                <template v-slot:input>
+                  <v-date-picker v-model="datatable_filter_date" no-title scrollable>
+                    <v-spacer></v-spacer>
+                    <!-- <v-btn text color="primary" @click="daily_menu = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn text color="primary" @click="
+                      set_date_save($refs.daily_menu, payload.daily_date)
+                      ">
+                      OK
+                    </v-btn> -->
+                  </v-date-picker>
+                </template>
+              </v-edit-dialog>
 
+
+            </template>
+            <template v-slot:item.employee_id="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ item.employee_id }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi_DatatablFilter('search_employee_id', $event)"
+                    v-model="datatable_search_textbox" label="Search Employee Id "></v-text-field>
+                </template>
+              </v-edit-dialog>
+
+            </template>
+            <template v-slot:item.employee="{ item }">
+
+
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ item.employee.first_name }} {{ item.employee.last_name }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi_DatatablFilter('search_employee_name', $event)"
+                    v-model="datatable_search_textbox" label="Search Employee Name "></v-text-field>
+                </template>
+              </v-edit-dialog>
+
+            </template>
+            <template v-slot:item.employee.department.name="{ item }">
+
+
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ item.employee.department.name }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi_DatatablFilter('search_department_name', $event)"
+                    v-model="datatable_search_textbox" label="Search Department Name "></v-text-field>
+                </template>
+              </v-edit-dialog>
+
+            </template>
+
+            <template v-slot:item.shift_type.name="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ item.shift_type.name }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi_DatatablFilter('search_shift_type_name', $event)"
+                    v-model="datatable_search_textbox" label="Search Shift Name "></v-text-field>
+                </template>
+              </v-edit-dialog>
+
+            </template>
+
+            <template v-slot:item.status="{ item }">
+              <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
+              <v-icon v-else-if="item.status == 'P'" color="success darken-1">mdi-check</v-icon>
+              <v-icon v-else-if="item.status == 'H'" color="grey darken-1">mdi-check</v-icon>
+              <span v-else>{{ item.status }}</span>
+            </template>
+
+            <template v-slot:item.shift="{ item }">
+              <v-tooltip v-if="item && item.shift" top color="primary">
+                <template v-slot:activator="{ on, attrs }">
+                  <div class="primary--text" v-bind="attrs" v-on="on">
+                    {{ (item.shift && item.shift.name) || "---" }}
+                  </div>
+                </template>
+                <div v-for="(iterable, index) in item.shift" :key="index">
+                  <span v-if="index !== 'id'">
+                    {{ caps(index) }}: {{ iterable || "---" }}</span>
+                </div>
+              </v-tooltip>
+              <span v-else>---</span>
+            </template>
+            <template v-slot:item.in="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ item.in }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi_DatatablFilter('search_time_in', $event)"
+                    v-model="datatable_search_textbox" label="Search Time in "></v-text-field>
+                </template>
+              </v-edit-dialog>
+
+            </template>
+            <template v-slot:item.out="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ item.out }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi_DatatablFilter('search_time_out', $event)"
+                    v-model="datatable_search_textbox" label="Search Time out "></v-text-field>
+                </template>
+              </v-edit-dialog>
+
+            </template>
+            <template v-slot:item.total_hrs="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ item.total_hrs }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi_DatatablFilter('search_total_hours', $event)"
+                    v-model="datatable_search_textbox" label="Search Total Hours "></v-text-field>
+                </template>
+              </v-edit-dialog>
+
+            </template>
+            <template v-slot:item.ot="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ item.ot }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi_DatatablFilter('search_ot', $event)"
+                    v-model="datatable_search_textbox" label="Search OT "></v-text-field>
+                </template>
+              </v-edit-dialog>
+
+            </template>
+            <!-- <template v-slot:item.device_in="{ item }">
+              <v-tooltip v-if="item && item.device_in" top color="primary">
+                <template v-slot:activator="{ on, attrs }">
+                  <div class="primary--text" v-bind="attrs" v-on="on">
+                    {{ (item.device_in && item.device_in.short_name) || "---" }}
+                  </div>
+                </template>
+                <div v-for="(iterable, index) in item.device_in" :key="index">
+                  <span v-if="index !== 'id'">
+                    {{ caps(index) }}: {{ iterable || "---" }}</span>
+                </div>
+              </v-tooltip>
+              <span v-else>---</span>
+            </template>
+
+            <template v-slot:item.device_out="{ item }">
+              <v-tooltip v-if="item && item.device_out" top color="primary">
+                <template v-slot:activator="{ on, attrs }">
+                  <div class="primary--text" v-bind="attrs" v-on="on">
+                    {{ (item.device_out && item.device_out.short_name) || "---" }}
+                  </div>
+                </template>
+                <div v-for="(iterable, index) in item.device_out" :key="index">
+                  <span v-if="index !== 'id'">
+                    {{ caps(index) }}: {{ iterable || "---" }}</span>
+                </div>
+              </v-tooltip>
+              <span v-else>---</span>
+            </template> -->
+            <template v-slot:item.actions="{ item }" v-if="can('attendance_report_edit')">
+              <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
+                mdi-pencil
+              </v-icon>
+              <v-icon @click="viewItem(item)" x-small color="primary" class="mr-2" v-if="can('attendance_report_view')">
+                mdi-eye
+              </v-icon>
+            </template>
+          </v-data-table>
+          <NoAccess v-else />
+        </v-card>
+      </v-col>
+    </v-row>
     <v-row justify="center">
       <v-dialog v-model="log_details" max-width="600px">
         <v-card class="darken-1">
@@ -537,6 +666,15 @@
 export default {
   props: ["main_report_type_props"],
   data: () => ({
+    datatable_search_textbox: '',
+    datatable_filter_date: '',
+    filter_employeeid: '',
+    snack: false,
+    snackColor: '',
+    snackText: '',
+    date: null,
+    filter_employeeid: '',
+
     isCompany: true,
     time_table_dialog: false,
     log_details: false,
@@ -582,42 +720,43 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "Date", align: "left", sortable: false, value: "date" },
-      { text: "E.ID", align: "left", sortable: false, value: "employee_id" },
+      { text: "Date", align: "left", sortable: true, value: "date" },
+      { text: "E.ID", align: "left", sortable: true, value: "employee_id" },
       {
         text: "Name",
         align: "left",
-        sortable: false,
-        value: "employee.display_name",
+        sortable: true,
+        value: "employee",
+        key: "item.employee"
       },
       {
         text: "Dept",
         align: "left",
-        sortable: false,
+        sortable: true,
         value: "employee.department.name",
       },
       {
         text: "Shift Type",
         align: "left",
-        sortable: false,
+        sortable: true,
         value: "shift_type.name",
       },
       {
         text: "Shift",
         align: "left",
-        sortable: false,
+        sortable: true,
         value: "shift",
       },
-      { text: "Status", align: "left", sortable: false, value: "status" },
-      { text: "In", align: "left", sortable: false, value: "in" },
-      { text: "Out", align: "left", sortable: false, value: "out" },
+      { text: "Status", align: "left", sortable: true, value: "status" },
+      { text: "In", align: "left", sortable: true, value: "in" },
+      { text: "Out", align: "left", sortable: true, value: "out" },
       {
         text: "Total Hrs",
         align: "left",
-        sortable: false,
+        sortable: true,
         value: "total_hrs",
       },
-      { text: "OT", align: "left", sortable: false, value: "ot" },
+      { text: "OT", align: "left", sortable: true, value: "ot" },
       // {
       //   text: "Late coming",
       //   align: "left",
@@ -652,7 +791,7 @@ export default {
       employee_id: "",
       report_type: "Daily",
       department_id: -1,
-      status: "Present",
+      status: "All",
       late_early: "Select All",
       main_shift_type: 1,
     },
@@ -689,7 +828,7 @@ export default {
     },
     options: {
       handler() {
-        this.getDataFromApi();
+        // this.getDataFromApi();
       },
       deep: true,
     },
@@ -719,9 +858,28 @@ export default {
 
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
+
+    this.getDataFromApi();
   },
 
   methods: {
+    datatable_save() {
+    },
+    datatable_cancel() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      this.loading = false;
+    },
+    getDataFromApi_DatatablFilter(filter_column, e) {
+      if (filter_column != 'date')
+        this.getDataFromApi(`${this.endpoint}`, filter_column, e);
+      else
+        this.getDataFromApi(`${this.endpoint}`, 'filter_date', this.datatable_filter_date);
+    },
     change_mani_report_type(val) {
       this.$store.commit("main_report_type", val);
     },
@@ -846,8 +1004,8 @@ export default {
     get_time_slots() {
       this.getShift(this.custom_options);
     },
-    getShift(options) {
-      this.$axios.get(`/shift`, options).then(({ data }) => {
+    async getShift(options) {
+      await this.$axios.get(`/shift`, options).then(({ data }) => {
         this.shifts = data.data.map((e) => ({
           name: e.name,
           on_duty_time: (e.time_table && e.time_table.on_duty_time) || "",
@@ -857,7 +1015,7 @@ export default {
       });
     },
 
-    getScheduledEmployees() {
+    async getScheduledEmployees() {
       // return;
       let u = this.$auth.user;
       let payload = {
@@ -869,7 +1027,7 @@ export default {
       if (u.user_type == "employee") {
         payload.params.department_id = u.employee.department_id;
       }
-      this.$axios
+      await this.$axios
         .get(`/scheduled_employees_with_type`, payload)
         .then(({ data }) => {
           this.scheduled_employees = data;
@@ -880,14 +1038,14 @@ export default {
     //     this.devices = data.data;
     //   });
     // },
-    getDepartments(options) {
+    async getDepartments(options) {
       let u = this.$auth.user;
       if (u.user_type == "employee") {
         this.departments = [u.employee.department];
         this.isCompany = false;
         return;
       }
-      this.$axios
+      await this.$axios
         .get("departments", options)
         .then(({ data }) => {
           this.departments = [{ id: -1, name: "Select All" }].concat(data.data);
@@ -895,7 +1053,7 @@ export default {
         .catch((err) => console.log(err));
     },
 
-    getEmployeesByDepartment() {
+    async getEmployeesByDepartment() {
       this.fetch_logs();
       let u = this.$auth.user;
       let department_id = "";
@@ -905,7 +1063,7 @@ export default {
         department_id = this.payload.department_id;
       }
 
-      this.$axios
+      await this.$axios
         .get(`/employees_by_departments/${department_id}`, this.custom_options)
         .then(({ data }) => {
           this.scheduled_employees = data;
@@ -933,7 +1091,7 @@ export default {
       this.getDataFromApi();
     },
 
-    getDataFromApi(url = this.endpoint) {
+    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
       this.loading = true;
 
       let late_early = this.payload.late_early;
@@ -974,9 +1132,17 @@ export default {
           ot: this.overtime ? 1 : 0,
         },
       };
-
+      if (filter_column != '')
+        options.params[filter_column] = filter_value;
       this.$axios.get(url, options).then(({ data }) => {
+        if (filter_column != '' && data.data.length == 0) {
 
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
         console.log('options', options);
         console.log('data.data', data.data);
         this.data = data.data;

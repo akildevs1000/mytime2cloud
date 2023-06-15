@@ -645,27 +645,15 @@ export default {
 
   methods: {
     datatable_save() {
-      // this.snack = true
-      // this.snackColor = 'success'
-      // this.snackText = 'Searching...'
     },
     datatable_cancel() {
-      // this.loading = false;
-      // this.snack = true
-      // this.snackColor = 'error'
-      // this.snackText = 'Search Canceled'
       this.datatable_search_textbox = '';
     },
     datatable_open() {
-      // this.snack = true
-      // this.snackColor = 'info'
-      // this.snackText = 'Search Details'
       this.datatable_search_textbox = '';
     },
     datatable_close() {
-      // console.log('Dialog closed')
       this.loading = false;
-      //this.datatable_search_textbox = '';
     },
     navigatetoEmployeepage() {
       this.$router.push("/employees");

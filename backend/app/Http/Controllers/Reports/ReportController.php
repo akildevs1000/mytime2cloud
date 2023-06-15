@@ -5,16 +5,21 @@ namespace App\Http\Controllers\Reports;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\ShiftType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
     public function index(Request $request)
     {
+
         return $this->report($request)
+        // ->toSql();
             ->paginate($request->per_page);
     }
 
@@ -62,8 +67,9 @@ class ReportController extends Controller
     public function report($request)
     {
         $model = Attendance::query();
-        $model->where('company_id', $request->company_id);
 
+        $model->where('company_id', $request->company_id);
+        $model->with('shift_type');
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
         });
@@ -141,8 +147,45 @@ class ReportController extends Controller
             $q->where('company_id', $request->company_id);
         });
 
-        $model->with('shift_type');
+        $model->with('schedule');
 
+        $model->when($request->filled('filter_date'), function ($q) use ($request) {
+            $q->whereDate('date', $request->filter_date);
+        });
+        $model->when($request->filled('search_employee_id'), function ($q) use ($request) {
+            $q->where('employee_id', 'LIKE', "$request->search_employee_id%");
+        });
+
+        $model->when($request->filled('search_employee_name') && $request->search_employee_name != '', function ($q) use ($request) {
+            $key = strtolower($request->search_employee_name);
+            $q->whereHas('employee', fn(Builder $q) => $q->where(DB::raw('lower(first_name)'), 'LIKE', "$key%"));
+        });
+        $model->when($request->filled('search_department_name'), function ($q) use ($request) {
+            $key = strtolower($request->search_department_name);
+            $q->whereHas('employee.department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+        });
+        if ($request->search_shift_type_name) {
+            $key = strtolower($request->search_shift_type_name);
+            $model->where(function ($q) use ($key) {
+                return $q->whereIn("shift_type_id", ShiftType::where(DB::raw('lower(name)'), 'LIKE', "$key%")->pluck("id"));
+            });
+        }
+        $model->when($request->filled('search_time_in'), function ($q) use ($request) {
+            $key = strtolower($request->search_time_in);
+            $q->where('in', 'LIKE', "$key%");
+        });
+        $model->when($request->filled('search_time_out'), function ($q) use ($request) {
+            $key = strtolower($request->search_time_out);
+            $q->where('out', 'LIKE', "$key%");
+        });
+        $model->when($request->filled('search_total_hours'), function ($q) use ($request) {
+            $key = strtolower($request->search_total_hours);
+            $q->where('total_hrs', 'LIKE', "$key%");
+        });
+        $model->when($request->filled('search_ot'), function ($q) use ($request) {
+            $key = strtolower($request->search_ot);
+            $q->where('ot', 'LIKE', "$key%");
+        });
         return $model;
     }
 }
