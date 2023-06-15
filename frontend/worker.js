@@ -50,13 +50,15 @@ socket.onerror = ({ message: msg }) => {
 
 socket.onmessage = async ({ data }) => {
   try {
-    let { UserCode, SN:DeviceID, RecordDate, RecordNumber } = JSON.parse(
+    let { UserCode, SN: DeviceID, RecordDate, RecordNumber } = JSON.parse(
       data
     ).Data;
 
-    RecordDate = RecordDate.replace("T", " ");
 
     if (UserCode > 0) {
+
+      RecordDate = RecordDate.replace("T", " ");
+
       const sanitizedValues = [
         UserCode,
         RecordDate,
