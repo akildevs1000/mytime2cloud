@@ -29,28 +29,16 @@
           <div class="form-group">
             <label class="col-form-label">Account No</label>
             <input v-model="data.account_no" class="form-control" />
-            <span
-              type="text"
-              v-if="errors && errors.account_no"
-              class="text-danger mt-2"
-              >{{ errors.account_no[0] }}</span
-            >
+            <span type="text" v-if="errors && errors.account_no" class="text-danger mt-2">{{ errors.account_no[0]
+            }}</span>
           </div>
         </v-col>
 
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">Account Name</label>
-            <input
-              type="text"
-              v-model="data.account_title"
-              class="form-control"
-            />
-            <span
-              v-if="errors && errors.account_title"
-              class="text-danger mt-2"
-              >{{ errors.account_title[0] }}</span
-            >
+            <input type="text" v-model="data.account_title" class="form-control" />
+            <span v-if="errors && errors.account_title" class="text-danger mt-2">{{ errors.account_title[0] }}</span>
           </div>
         </v-col>
 
@@ -73,11 +61,7 @@
           <v-col cols="6">
             <div class="form-group">
               <label class="col-form-label">Other Text</label>
-              <input
-                type="text"
-                v-model="data.other_text"
-                class="form-control"
-              />
+              <input type="text" v-model="data.other_text" class="form-control" />
               <span v-if="errors && errors.other_text" class="text-danger">{{
                 errors.other_text[0]
               }}</span>
@@ -87,16 +71,8 @@
           <v-col cols="6">
             <div class="form-group">
               <label class="col-form-label">Other Value</label>
-              <input
-                type="text"
-                v-model="data.other_value"
-                class="form-control"
-              />
-              <span
-                v-if="errors && errors.other_value"
-                class="text-danger mt-2"
-                >{{ errors.other_value[0] }}</span
-              >
+              <input type="text" v-model="data.other_value" class="form-control" />
+              <span v-if="errors && errors.other_value" class="text-danger mt-2">{{ errors.other_value[0] }}</span>
             </div>
           </v-col>
         </v-row>
@@ -185,6 +161,7 @@ export default {
             this.response = data.message;
             this.getInfo();
             this.close_bank_info();
+
           }
         })
         .catch((e) => console.log(e));
@@ -192,7 +169,7 @@ export default {
     close_bank_info() {
       this.popup = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
   },
 };

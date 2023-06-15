@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
     use HasFactory;
 
-    const ABSENT =  "A"; //1;
+    const ABSENT = "A"; //1;
     const PRESENT = "P"; //2;
     const MISSING = "M"; //3;
 
@@ -25,12 +25,11 @@ class Attendance extends Model
     protected $casts = [
         'date' => 'date',
         'logs' => 'array',
+        'shift_type_id' => 'integer',
     ];
-
 
     protected $hidden = ["branch_id", "created_at", "updated_at"];
     // protected $hidden = ["company_id", "branch_id", "created_at", "updated_at"];
-
 
     public function shift()
     {
@@ -124,7 +123,6 @@ class Attendance extends Model
     {
         return $this->belongsTo(Roster::class);
     }
-
 
     protected static function boot()
     {
