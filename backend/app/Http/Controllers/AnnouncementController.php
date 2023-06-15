@@ -11,10 +11,24 @@ use Illuminate\Support\Facades\DB;
 
 class AnnouncementController extends Controller
 {
-    public function index(Announcement $model, Request $request)
+    public function getDefaultModelSettings($request)
     {
-        return $model->with(['employees', 'departments'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 10);
+        $model = Announcement::query();
+        $model->with(['employees:id,display_name,employee_id,system_user_id', 'departments:id,name']);
+        $model->where('company_id', $request->company_id);
+        return $model;
     }
+
+    public function index(Request $request)
+    {
+        return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 10);
+    }
+
+    public function list(Request $request)
+    {
+        return $this->getDefaultModelSettings($request)->where('start_date', '=', date("Y-m-d"))->paginate($request->per_page ?? 10);
+    }
+
     public function store(StoreRequest $request)
     {
         DB::beginTransaction();
@@ -73,9 +87,9 @@ class AnnouncementController extends Controller
             return $this->response('Announcement cannot delete.', null, false);
         }
     }
-    public function search(Announcement $model, Request $request, $key)
+    public function search(Request $request, $key)
     {
-        return $model->where('title', 'LIKE', "%$key%")->with('departments')->paginate($request->per_page);
+        return $this->getDefaultModelSettings($request)->where('title', 'LIKE', "%$key%")->paginate($request->per_page ?? 10);
     }
     public function deleteSelected(Request $request)
     {

@@ -124,6 +124,7 @@ Route::post('policy/delete/selected', [policyController::class, 'deleteSelected'
 
 // announcement
 Route::apiResource('announcement', AnnouncementController::class);
+Route::get('announcement_list', [AnnouncementController::class, 'list']);
 Route::get('announcement/search/{key}', [AnnouncementController::class, 'search']);
 Route::post('announcement/delete/selected', [AnnouncementController::class, 'deleteSelected']);
 

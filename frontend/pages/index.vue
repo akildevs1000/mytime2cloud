@@ -128,6 +128,202 @@
             </div>
           </div>
         </v-col>
+        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="9"> </v-col>
+        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="3">
+          <v-toolbar color="primary" dark flat>
+            <v-toolbar-title>Announcements</v-toolbar-title>
+          </v-toolbar>
+          <v-list>
+            <v-list-item
+              v-for="(announcement, index) in announcements"
+              :key="index"
+            >
+              <v-list-item-content>
+                <v-list-item-title>{{ announcement.title }}</v-list-item-title>
+                <v-list-item-subtitle
+                  >{{ getExcerpt(announcement.description, 30) }}&nbsp;
+                  <v-chip
+                    x-small
+                    color="background"
+                    dark
+                    @click="openDialog(announcement)"
+                    >Read More
+                    <v-icon x-small>mdi-chevron-right</v-icon></v-chip
+                  >
+                </v-list-item-subtitle>
+                <v-list-item-subtitle
+                  >When:
+                  <b
+                    class="primary--text"
+                    v-if="getCurrentDate == announcement.start_date"
+                    >{{ announcement.start_date }}</b
+                  >
+                  <span v-else>{{ announcement.start_date }}</span>
+                  -
+                  <b
+                    class="primary--text"
+                    v-if="getCurrentDate == announcement.end_date"
+                    >{{ announcement.end_date }}</b
+                  >
+                  <span v-else>{{ announcement.end_date }}</span>
+                </v-list-item-subtitle>
+                <v-divider></v-divider>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-card class="mx-auto" max-width="500">
+            <div class="text-center">
+              <v-dialog v-model="dialog" width="600">
+                <v-card>
+                  <v-card-title class="text-h5 primary white--text">
+                    Announcement Detail
+                    <v-spacer></v-spacer>
+                    <v-icon color="background" dark @click="dialog = false"
+                      >mdi-close</v-icon
+                    >
+                  </v-card-title>
+
+                  <v-card-text class="mt-3">
+                    <table
+                      style="
+                        font-family: arial, sans-serif;
+                        border-collapse: collapse;
+                        width: 100%;
+                      "
+                    >
+                      <tr>
+                        <th
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          Title
+                        </th>
+                        <td
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          {{ dialogData.title }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          Description
+                        </th>
+                        <td
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          {{ dialogData.description }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          Departments
+                        </th>
+                        <td
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          <v-chip
+                            class="primary mx-1"
+                            x-small
+                            v-for="(
+                              department, dIndex
+                            ) in dialogData.departments"
+                            :key="dIndex"
+                            >{{ department.name }}</v-chip
+                          >
+                        </td>
+                      </tr>
+                      <tr>
+                        <th
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          Employees
+                        </th>
+                        <td
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          <v-chip
+                            class="primary mx-1"
+                            x-small
+                            v-for="(employee, eIndex) in dialogData.employees"
+                            :key="eIndex"
+                            >{{ employee.display_name }}</v-chip
+                          >
+                        </td>
+                      </tr>
+                      <tr>
+                        <th
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          When
+                        </th>
+                        <td
+                          style="
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                          "
+                        >
+                          <b
+                            class="primary--text"
+                            v-if="getCurrentDate == dialogData.start_date"
+                            >{{ dialogData.start_date }}</b
+                          >
+                          <span v-else>{{ dialogData.start_date }}</span>
+                          -
+                          <b
+                            class="primary--text"
+                            v-if="getCurrentDate == dialogData.end_date"
+                            >{{ dialogData.end_date }}</b
+                          >
+                          <span v-else>{{ dialogData.end_date }}</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </v-card-text>
+                </v-card>
+              </v-dialog>
+            </div>
+          </v-card>
+        </v-col>
       </v-row>
       <v-row>
         <v-col cols="12" md="12" xl="12">
@@ -156,6 +352,30 @@
 export default {
   data() {
     return {
+      dialog: false,
+      dialogData: {},
+      testing: [
+        { header: "Today" },
+        {
+          avatar: "https://cdn.vuetifyjs.com/images/lists/1.jpg",
+          title: "Brunch this weekend?",
+          subtitle: `<span class="font-weight-bold">Ali Connors</span> &mdash; I'll be in your neighborhood doing errands this weekend. Do you want to hang out?`,
+        },
+        { divider: true, inset: true },
+        {
+          avatar: "https://cdn.vuetifyjs.com/images/lists/2.jpg",
+          title: 'Summer BBQ <span class="grey--text text--lighten-1">4</span>',
+          subtitle: `<span class="font-weight-bold">to Alex, Scott, Jennifer</span> &mdash; Wish I could come, but I'm out of town this weekend.`,
+        },
+        { divider: true, inset: true },
+        {
+          avatar: "https://cdn.vuetifyjs.com/images/lists/3.jpg",
+          title: "Oui oui",
+          subtitle:
+            '<span class="font-weight-bold">Sandra Adams</span> &mdash; Do you have Paris recommendations? Have you ever been?',
+        },
+      ],
+
       cards: [
         {
           id: 1,
@@ -231,11 +451,14 @@ export default {
       },
       options: {},
       series: [44, 55, 41, 17, 15],
+      selected: [2],
+      announcements: [],
     };
   },
   created() {
     this.updateCartcart2();
     this.initialize();
+    this.get_announcements();
     this.first_login_auth = this.$auth.user.first_login;
 
     // this.generalreportIframeSrc=  this.$axios.defaults.baseURL +
@@ -250,6 +473,17 @@ export default {
     first_login() {
       return this.$store.state.first_login;
     },
+    getCurrentDate() {
+      // Get the current date
+      const date = new Date();
+
+      // Get the year, month, and day from the date object
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    },
   },
   filters: {
     get_decimal_value: function (value) {
@@ -262,6 +496,17 @@ export default {
     },
   },
   methods: {
+    openDialog(announcement) {
+      this.dialogData = announcement;
+      this.dialog = true;
+    },
+    getExcerpt(text, maxLength) {
+      if (text.length <= maxLength) {
+        return text;
+      } else {
+        return text.substring(0, maxLength) + "...";
+      }
+    },
     animateNumberEmployeesCount() {
       const startTimestamp = Date.now();
       const startValue = this.currentValue;
@@ -361,6 +606,17 @@ export default {
           this.loading = false;
         }
       });
+    },
+    get_announcements() {
+      let options = {
+        per_page: 1000,
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios
+        .get(`announcement_list`, { params: options })
+        .then(({ data }) => {
+          this.announcements = data.data;
+        });
     },
   },
 };
