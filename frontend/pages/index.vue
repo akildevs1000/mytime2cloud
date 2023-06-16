@@ -477,10 +477,10 @@ export default {
 
       if (p.some((e) => e == per) || is_master) return true;
 
-      if (this.$auth.user.user_type == "employee") {
-        this.$router.push(`/employee_dashboard`);
-        return;
-      }
+      // if (this.$auth.user.user_type == "employee") {
+      //   this.$router.push(`/employee_dashboard`);
+      //   return;
+      // }
 
       this.$router.push(`/attendance_report`);
     },
