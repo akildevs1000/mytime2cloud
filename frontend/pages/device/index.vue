@@ -15,27 +15,12 @@
 
     <v-row>
       <v-col xs="12" sm="12" md="3" cols="12">
-        <v-select
-          class="form-control"
-          @change="getDataFromApi(`device`)"
-          v-model="pagination.per_page"
-          :items="[10, 25, 50, 100]"
-          placeholder="Per Page Records"
-          solo
-          hide-details
-          flat
-        ></v-select>
+        <v-select class="form-control" @change="getDataFromApi(`device`)" v-model="pagination.per_page"
+          :items="[10, 25, 50, 100]" placeholder="Per Page Records" solo hide-details flat></v-select>
       </v-col>
       <v-col xs="12" sm="12" md="3" cols="12">
-        <v-text-field
-          class="form-control py-0 custom-text-box floating shadow-none"
-          placeholder="Search..."
-          solo
-          flat
-          @input="searchIt"
-          v-model="search"
-          hide-details
-        ></v-text-field>
+        <v-text-field class="form-control py-0 custom-text-box floating shadow-none" placeholder="Search..." solo flat
+          @input="searchIt" v-model="search" hide-details></v-text-field>
       </v-col>
     </v-row>
     <v-card class="mb-5 rounded-md mt-3" elevation="0">
@@ -48,13 +33,8 @@
             <span v-html="item.text"></span>
           </th>
         </tr>
-        <v-progress-linear
-          v-if="loading"
-          :active="loading"
-          :indeterminate="loading"
-          absolute
-          color="primary"
-        ></v-progress-linear>
+        <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
+          color="primary"></v-progress-linear>
         <tr v-for="(item, index) in data" :key="index">
           <td class="ps-3">
             <b>{{ ++index }}</b>
@@ -65,54 +45,30 @@
           <td>{{ caps(item.device_id) }}</td>
           <td>{{ caps(item.device_type) }}</td>
           <td>
-            <v-chip
-              small
-              class="p-2 mx-1"
-              :color="item.status.name == 'active' ? 'primary' : 'error'"
-            >
+            <v-chip small class="p-2 mx-1" :color="item.status.name == 'active' ? 'primary' : 'error'">
               {{ item.status.name == "active" ? "online" : "offline" }}
             </v-chip>
           </td>
           <td>
-            <v-chip
-              small
-              class="p-2 mx-1"
-              color="primary"
-              @click="open_door(item.device_id)"
-            >
+            <v-chip small class="p-2 mx-1" color="primary" @click="open_door(item.device_id)">
               Open
             </v-chip>
 
-            <v-chip
-              small
-              class="p-2 mx-1"
-              color="primary"
-              @click="open_door_always(item.device_id)"
-            >
+            <v-chip small class="p-2 mx-1" color="primary" @click="open_door_always(item.device_id)">
               Open Always
             </v-chip>
 
-            <v-chip
-              small
-              class="p-2 mx-1"
-              color="error"
-              @click="open_door_always(item.device_id)"
-            >
+            <v-chip small class="p-2 mx-1" color="error" @click="open_door_always(item.device_id)">
               Close
             </v-chip>
           </td>
 
           <td>
-            <v-chip
-              small
-              class="p-2 mx-1"
-              @click="sync_date_time(item)"
-              :color="'primary'"
-            >
+            <v-chip small class="p-2 mx-1" @click="sync_date_time(item)" :color="'primary'">
               {{
                 item.sync_date_time == "---"
-                  ? "click to sync"
-                  : item.sync_date_time
+                ? "click to sync"
+                : item.sync_date_time
               }}
             </v-chip>
           </td>
@@ -122,12 +78,8 @@
     <v-row>
       <v-col md="12" class="float-right">
         <div class="float-right">
-          <v-pagination
-            v-model="pagination.current"
-            :length="pagination.total"
-            @input="onPageChange"
-            :total-visible="12"
-          ></v-pagination>
+          <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
+            :total-visible="12"></v-pagination>
         </div>
       </v-col>
     </v-row>
@@ -226,7 +178,7 @@ export default {
         params: { device_id }
       };
       this.$axios.get(`open_door`, options).then(({ data }) => {
-        console.log(data);
+
         this.snackbar = true;
         this.response = data;
         // this.getDataFromApi();

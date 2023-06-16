@@ -297,7 +297,7 @@ export default {
         {
           icon: "mdi-clipboard-text-clock",
           title: "Attendances Logs",
-          to: "/logs",
+          to: "/devicelogs",
           menu: "logs_access",
         },
         {
@@ -680,5 +680,10 @@ table.employee-table tr:nth-child(even) {
 .v-small-dialog__menu-content {
   margin-left: 3%;
   margin-top: 3%;
+}
+
+.employeepage-seach-textfield:focus {
+  border: 0px !important;
+  box-shadow: none !important;
 }
 </style>

@@ -861,8 +861,6 @@ export default {
     },
   },
   async created() {
-    // console.log("mimo");
-
     this.main_report_type = this.main_report_type_props;
     this.loading = true;
     this.getScheduledEmployees();
@@ -1156,7 +1154,6 @@ export default {
       if (filter_column != '')
         options.params[filter_column] = filter_value;
 
-      console.log('options', options);
       this.$axios.get(url, options).then(({ data }) => {
 
 
@@ -1218,7 +1215,6 @@ export default {
         },
       };
 
-      console.log(payload);
 
       this.$axios
         .get("/processByManual", payload)
@@ -1286,7 +1282,6 @@ export default {
       let report = document.createElement("a");
       report.setAttribute("href", qs);
       report.setAttribute("target", "_blank");
-      console.log(report);
       report.click();
 
       this.fetch_logs();

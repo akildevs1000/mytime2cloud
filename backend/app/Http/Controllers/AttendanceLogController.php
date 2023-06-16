@@ -17,7 +17,7 @@ class AttendanceLogController extends Controller
     public function index(AttendanceLog $model, Request $request)
     {
 
-        return $model->with("device")->where("company_id", $request->company_id)
+        return $model->with(["device", "employee"])->where("company_id", $request->company_id)
 
             ->when($request->from_date, function ($query) use ($request) {
                 return $query->whereDate('LogTime', '>=', $request->from_date);
@@ -43,6 +43,15 @@ class AttendanceLogController extends Controller
                 $key = strtolower($request->search_device_name);
                 $q->whereHas('device', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
             })
+            ->when($request->filled('search_employee_name'), function ($q) use ($request) {
+                $key = strtolower($request->search_employee_name);
+                $q->whereHas('employee', fn(Builder $query) => $query->where(DB::raw('lower(first_name)'), 'LIKE', "$key%"));
+            })
+            ->when($request->filled('search_department_name'), function ($q) use ($request) {
+                $key = strtolower($request->search_department_name);
+                $q->whereHas('employee.department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+            })
+
             ->when($request->filled('search_device_id'), function ($q) use ($request) {
                 $q->where('DeviceID', 'LIKE', "$request->search_device_id%");
             })

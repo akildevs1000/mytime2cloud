@@ -225,11 +225,11 @@
         ></v-text-field> -->
 
         </v-col>
-        <v-col cols="3" align="right">
+        <!-- <v-col cols="3" align="right">
           <input style="width:200px;height: 33px;" small class="form-control py-3 custom-text-box floating shadow-none"
             placeholder="Search Employee Details" @input="searchIt" v-model="search" type="text" />
-        </v-col>
-        <v-col cols="3" align="right">
+        </v-col> -->
+        <v-col cols="6" align="right">
 
           <v-btn v-if="can('employee_import_access')" small dark class="primary" @click="dialog = true">
             Import <v-icon right dark>mdi-cloud-upload</v-icon>
@@ -253,7 +253,17 @@
                   mdi-reload</v-icon></a>
               <v-spacer></v-spacer>
               <v-toolbar-items>
+                <v-col>
+                  <input small dark class="employeepage-seach-textfield form-control py-3 custom-text-box floating  "
+                    placeholder="Search Employee Details" style="width:200px;height: 32px;
+    margin-top: -3px;
+    padding-top: 11px !important;" @input="searchIt" v-model="search" type="text" />
+
+
+                </v-col>
+
                 <v-col class="toolbaritems-button-design">
+
                   <v-btn v-if="can('employee_create')" @click="employeeDialog = true" small dark class="primary">{{ Model
                   }}
                     + <v-icon right dark>mdi-account-tie</v-icon>
@@ -290,6 +300,35 @@
                 </v-edit-dialog>
 
               </template>
+              <!-- <template v-slot:item.display_name_search_icon="{ item, index }">
+
+                <v-row no-gutters>
+                  <v-col style="padding: 5px;;padding-left:0px;width:50px;max-width:50px">
+                    <v-img style="border-radius: 50%; height: auto;  width: 50px;max-width: 50px" :src="item.profile_picture
+                      ? item.profile_picture
+                      : '/no-profile-image.jpg'
+                      ">
+                    </v-img>
+                  </v-col>
+                  <v-col style="padding: 10px;">
+                    <strong> {{ item.first_name ? item.first_name : '---' }} {{ item.last_name ? item.last_name : '---'
+                    }}</strong>
+                    <div> {{ item.designation ? item.designation.name : "---" }}</div>
+
+                  </v-col>
+                </v-row>
+
+                <v-edit-dialog v-if="index == 0" large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+                  @save="getDataFromApi()" @open="datatable_open">
+                  <v-icon style="margin-top: -188px;
+    margin-left: 106px;">mdi mdi-magnify</v-icon>
+                  <template v-slot:input>
+                    <v-text-field @input="getDataFromApi_FilterEmployeeName" v-model="datatable_search_textbox"
+                      label="Search Employee Name"></v-text-field>
+                  </template>
+                </v-edit-dialog>
+
+              </template> -->
               <template v-slot:item.display_name="{ item, index }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
@@ -653,6 +692,9 @@ export default {
 
       { text: "EMP ID", align: "left", sortable: true, key: 'employee_id', value: "employee_id" },
       { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
+      // { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name_search_icon" },
+
+
 
       {
         text: "Department",

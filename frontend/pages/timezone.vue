@@ -413,25 +413,15 @@ export default {
 
   methods: {
     datatable_save() {
-      // this.snack = true
-      // this.snackColor = 'success'
-      // this.snackText = 'Searching...'
     },
     datatable_cancel() {
-      // this.loading = false;
-      // this.snack = true
-      // this.snackColor = 'error'
-      // this.snackText = 'Search Canceled'
       this.datatable_search_textbox = '';
     },
     datatable_open() {
-      // this.snack = true
-      // this.snackColor = 'info'
-      // this.snackText = 'Search Details'
       this.datatable_search_textbox = '';
     },
     datatable_close() {
-      // console.log('Dialog closed')
+
       this.loading = false;
       //this.datatable_search_textbox = '';
     },
@@ -464,7 +454,7 @@ export default {
       //     }
       //   }
       // }
-      // console.log(this.editedItem.interval);
+
       this.editedItem = Object.assign({}, item);
     },
     showShortDays(days) {
@@ -514,7 +504,7 @@ export default {
         const { data } = await this.$axios.post(endpoint, this.editedItem);
         this.processTimeZone(data);
       } catch (error) {
-        console.log(error && error.message);
+
       }
     },
     processTimeZone(devices) {
@@ -539,7 +529,7 @@ export default {
 
           this.deviceResults.push(json);
         } catch (error) {
-          console.log(error && error.message);
+
         }
       });
     },
@@ -638,7 +628,7 @@ export default {
           this.getDataFromApi();
         })
         .catch(err => {
-          console.log(err.message);
+
         });
     },
 

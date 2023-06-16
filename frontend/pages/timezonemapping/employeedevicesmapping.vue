@@ -4,25 +4,13 @@
     <v-row class="mt-5 mb-10">
       <v-col md="6">
         <h3>Devices List</h3>
-        <v-select
-          v-model="deviseOptionsselected"
-          :items="deviseslist"
-          label="Select options"
-          item-text="name"
-          item-value="id"
-          multiple
-        ></v-select>
+        <v-select v-model="deviseOptionsselected" :items="deviseslist" label="Select options" item-text="name"
+          item-value="id" multiple></v-select>
       </v-col>
       <v-col md="6">
         <h3>Employees List</h3>
-        <v-select
-          v-model="employeeOptionsselected"
-          :items="employeesList"
-          label="Select Employees"
-          item-text="display_name"
-          item-value="employee_id"
-          multiple
-        ></v-select>
+        <v-select v-model="employeeOptionsselected" :items="employeesList" label="Select Employees"
+          item-text="display_name" item-value="employee_id" multiple></v-select>
       </v-col>
     </v-row>
 
@@ -60,10 +48,7 @@ export default {
 
   methods: {
     onSubmit() {
-      console.log("form submitted");
 
-      console.log("deviseOptions value: ", this.deviseOptionsselected);
-      console.log("employeeOptions value: ", this.employeeOptionsselected);
       //this.$emit("todo-added", this.employeeOptions);
       let options = {
         params: {
@@ -72,7 +57,7 @@ export default {
         },
       };
 
-      console.log("payload", options);
+
       // this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
       //   //this.deviseslist = data.data;
       // });

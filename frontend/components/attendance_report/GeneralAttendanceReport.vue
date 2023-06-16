@@ -721,16 +721,16 @@ export default {
     total: 0,
     headers: [
       { text: "Date", align: "left", sortable: true, value: "date" },
-      { text: "E.ID", align: "left", sortable: true, value: "employee_id" },
+      { text: "Employee ID", align: "left", sortable: true, value: "employee_id" },
       {
-        text: "Name",
+        text: "Employee",
         align: "left",
         sortable: true,
         value: "employee",
         key: "item.employee"
       },
       {
-        text: "Dept",
+        text: "Department",
         align: "left",
         sortable: true,
         value: "employee.department.name",
@@ -1143,8 +1143,6 @@ export default {
           this.loading = false;
           return false;
         }
-        console.log('options', options);
-        console.log('data.data', data.data);
         this.data = data.data;
         this.total = data.total;
         this.loading = false;

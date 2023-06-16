@@ -342,7 +342,6 @@ export default {
       //this.loading = true;
       // let page = this.pagination.current;
       let url = this.endpointEmployee;
-      console.log("this.departmentselected", this.departmentselected);
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
@@ -472,7 +471,6 @@ export default {
         });
         return selectedObj;
       });
-      console.log(filteredDataEmp);
 
       let options = {
         timezone_id: this.timezonesselected,
@@ -502,7 +500,7 @@ export default {
               (e) => e.sn == rightDevicesobj.device_id
             );
 
-            console.log("person info error", SdkResponseDeviceobject);
+
             let deviceStatusResponse = "";
             let EmpStatusResponse = "";
 
@@ -523,7 +521,7 @@ export default {
                 );
                 EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
                 deviceStatusResponse = "";
-                console.log("selectedEmpobject", selectedEmpobject);
+
 
                 if (EmpStatusResponse != "") {
                   //Adding extra parameters for Employee object
@@ -538,7 +536,7 @@ export default {
                   }
                 }
 
-                console.log("Final - jsrightEmployees", jsrightEmployees);
+
               });
             } else {
             }
@@ -625,7 +623,7 @@ export default {
             return 0;
           }
         } else {
-          console.log(a, b);
+
         }
       }),
     sortObjectD: (o) =>
@@ -642,13 +640,13 @@ export default {
             return 0;
           }
         } else {
-          console.log(a, b);
+
           return 0;
         }
       }),
     sortObjectC: (o) =>
       o.sort(function compareByName(a, b) {
-        console.log("a", a);
+
         if (a.name && b.name) {
           let nameA = a.name.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
           let nameB = b.name.toUpperCase();
@@ -658,7 +656,7 @@ export default {
           } else if (nameA > nameB) {
             return 1;
           } else {
-            console.log(a, b);
+
             return 0;
           }
         }
@@ -669,22 +667,14 @@ export default {
       this.leftEmployees = this.sortObject(this.leftEmployees);
     },
     allmoveToRightEmp() {
-      console.log("1");
       this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
-      console.log("2");
       this.leftEmployees = [];
-      console.log("3");
       this.rightEmployees = this.sortObject(this.rightEmployees);
-      console.log("4");
     },
     moveToLeftempOption2() {
 
-      console.log("leftSelectedEmp", this.rightSelectedEmp);
-      console.log("leftSelectedEmp length", this.rightSelectedEmp.length);
 
       if (!this.rightSelectedEmp.length) return;
-
-      console.log("moveToRightEmp", this.rightSelectedEmp);
       //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
       let _rightSelectedEmp_length = this.rightSelectedEmp.length;
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
@@ -704,7 +694,6 @@ export default {
         }
       }
       this.leftEmployees = this.sortObject(this.leftEmployees);
-      //console.log("-------End move right--------");
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
 
         this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
@@ -712,12 +701,8 @@ export default {
     },
     moveToLeftemp(id) {
       this.rightSelectedEmp.push(id);
-      console.log("leftSelectedEmp", this.rightSelectedEmp);
-      console.log("leftSelectedEmp length", this.rightSelectedEmp.length);
-
       if (!this.rightSelectedEmp.length) return;
 
-      console.log("moveToRightEmp", this.rightSelectedEmp);
       //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
       let _rightSelectedEmp_length = this.rightSelectedEmp.length;
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
@@ -737,31 +722,23 @@ export default {
         }
       }
       this.leftEmployees = this.sortObject(this.leftEmployees);
-      //console.log("-------End move right--------");
 
       this.rightSelectedEmp.pop(id);
     },
     check: function (id, e) {
-      console.log(id, this.leftSelectedEmp, e)
+
     },
     selectLeftEmployee(id) {
-      console.log(timezone);
+
       this.leftSelectedEmp.push(id);
     },
 
     moveToRightEmpOption2() {
-      console.log("Starting move to right--------");
-      console.log("leftEmployees ", this.leftEmployees);
-      console.log("leftSelectedEmp ", this.leftSelectedEmp);
-      console.log("leftSelectedEmp length", this.leftSelectedEmp.length);
 
       if (!this.leftSelectedEmp.length) return;
 
       let _leftSelectedEmp_length = this.leftSelectedEmp.length;
       for (let i = 0; i < _leftSelectedEmp_length; i++) {
-
-
-        console.log("leftSelectedEmp Process : ", this.leftSelectedEmp[i]);
 
         if (this.leftSelectedEmp) {
           let selectedindex = this.leftEmployees.findIndex(
@@ -779,75 +756,32 @@ export default {
 
       }
       this.rightEmployees = this.sortObject(this.rightEmployees);
-      //console.log("-------End move right--------");
+
       for (let i = 0; i < _leftSelectedEmp_length; i++) {
         this.leftSelectedEmp.pop(this.leftSelectedEmp[i]);
       }
 
     },
-    // moveToRightEmp(id, timezone) {
-    //   console.log(timezone);
-    //   // if (!timezone) {
-    //   //   return false;
-    //   // }
-    //   // if (!timezone.timezone_name) {
-    //   //   return false;
-    //   // }
-    //   this.leftSelectedEmp.push(id);
 
-    //   console.log("Starting move to right--------");
-    //   console.log("leftEmployees ", this.leftEmployees);
-    //   console.log("leftSelectedEmp ", this.leftSelectedEmp);
-    //   console.log("leftSelectedEmp length", this.leftSelectedEmp.length);
-
-    //   if (!this.leftSelectedEmp.length) return;
-
-    //   let _leftSelectedEmp_length = this.leftSelectedEmp.length;
-    //   for (let i = 0; i < _leftSelectedEmp_length; i++) {
-    //     if (this.leftSelectedEmp) {
-    //       let selectedindex = this.leftEmployees.findIndex(
-    //         (e) => e.id == this.leftSelectedEmp[i]
-    //       );
-
-    //       let selectedobject = this.leftEmployees.find(
-    //         (e) => e.id == this.leftSelectedEmp[i]
-    //       );
-
-    //       this.rightEmployees.push(selectedobject);
-
-    //       this.leftEmployees.splice(selectedindex, 1);
-    //     }
-    //   }
-    //   this.rightEmployees = this.sortObject(this.rightEmployees);
-    //   //console.log("-------End move right--------");
-
-    //   this.leftSelectedEmp.pop(id);
-    // },
     /* Devices---------------------------------------- */
     allmoveToLeftDevices() {
       this.leftDevices = this.leftDevices.concat(this.rightDevices);
       this.rightDevices = [];
-      console.log("this.leftDevices", this.leftDevices);
+
       this.leftDevices = this.sortObjectD(this.leftDevices);
     },
     allmoveToRightDevices() {
       this.rightDevices = this.rightDevices.concat(this.leftDevices);
       this.leftDevices = [];
-      console.log("this.rightDevices", this.rightDevices);
+
       this.rightDevices = this.sortObjectD(this.rightDevices);
     },
     moveToLeftDevicesOption2() {
-      // console.log("e)", e);
 
-      console.log("leftSelectedDevices", this.rightSelectedDevices);
-      console.log(
-        "leftSelectedDevices length",
-        this.rightSelectedDevices.length
-      );
 
       if (!this.rightSelectedDevices.length) return;
 
-      console.log("moveToRightDevices", this.rightSelectedDevices);
+
       //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
       let _rightSelectedDevices_length = this.rightSelectedDevices.length;
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
@@ -865,27 +799,22 @@ export default {
           this.rightDevices.splice(selectedindex, 1);
         }
       }
-      console.log("this.leftDevices", this.leftDevices);
+
       this.leftDevices = this.sortObjectD(this.leftDevices);
-      //console.log("-------End move right--------");
+
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
         this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
       }
 
     },
     moveToLeftDevices(id) {
-      // console.log("e)", e);
+
       this.rightSelectedDevices.push(id);
 
-      console.log("leftSelectedDevices", this.rightSelectedDevices);
-      console.log(
-        "leftSelectedDevices length",
-        this.rightSelectedDevices.length
-      );
 
       if (!this.rightSelectedDevices.length) return;
 
-      console.log("moveToRightDevices", this.rightSelectedDevices);
+
       //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
       let _rightSelectedDevices_length = this.rightSelectedDevices.length;
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
@@ -903,20 +832,14 @@ export default {
           this.rightDevices.splice(selectedindex, 1);
         }
       }
-      console.log("this.leftDevices", this.leftDevices);
+
       this.leftDevices = this.sortObjectD(this.leftDevices);
-      //console.log("-------End move right--------");
 
       this.rightSelectedDevices.pop(id);
     },
     moveToRightDevicesOption2() {
 
-      console.log("Starting move right--------");
-      console.log("leftSelectedDevices", this.leftSelectedDevices);
-      console.log(
-        "leftSelectedDevices length",
-        this.leftSelectedDevices.length
-      );
+
 
       if (!this.leftSelectedDevices.length) return;
 
@@ -936,9 +859,9 @@ export default {
           this.leftDevices.splice(selectedindex, 1);
         }
       }
-      console.log("this.rightDevices", this.rightDevices);
+
       this.rightDevices = this.sortObjectD(this.rightDevices);
-      //console.log("-------End move right--------");
+
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
         this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
       }
@@ -946,12 +869,6 @@ export default {
     },
     moveToRightDevices(id) {
       this.leftSelectedDevices.push(id);
-      console.log("Starting move right--------");
-      console.log("leftSelectedDevices", this.leftSelectedDevices);
-      console.log(
-        "leftSelectedDevices length",
-        this.leftSelectedDevices.length
-      );
 
       if (!this.leftSelectedDevices.length) return;
 
@@ -971,9 +888,8 @@ export default {
           this.leftDevices.splice(selectedindex, 1);
         }
       }
-      console.log("this.rightDevices", this.rightDevices);
+
       this.rightDevices = this.sortObjectD(this.rightDevices);
-      //console.log("-------End move right--------");
 
       this.leftSelectedDevices.pop(id);
     },
@@ -1022,15 +938,14 @@ export default {
       //try {
       const { data } = await this.$axios.post(`/Person/AddRange`, payload);
 
-      console.log('data', data);
+
       if (data.status == 200) {
         this.loading_dialog = false;
 
 
         this.snackbar.show = true;
         this.response = "Employee(s) has been upload";
-        console.log("data", data.data);
-        //console.log("data data", JSON.parse(data));
+
         let jsrightEmployees = this.rightEmployees;
         let SDKSuccessStatus = true;
         this.rightDevices.forEach((elementDevice) => {
@@ -1038,7 +953,7 @@ export default {
             (e) => e.sn == elementDevice.device_id
           );
 
-          console.log("SdkResponseDeviceobject", SdkResponseDeviceobject);
+
           let deviceStatusResponse = "";
           let EmpStatusResponse = "";
 
@@ -1061,7 +976,7 @@ export default {
               );
               EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
               deviceStatusResponse = "";
-              console.log("selectedEmpobject", selectedEmpobject);
+
 
               if (EmpStatusResponse != "") {
                 //Adding extra parameters for Employee object
@@ -1078,7 +993,7 @@ export default {
                 }
               }
 
-              console.log("Final - jsrightEmployees", jsrightEmployees);
+
             });
           } else {
           }
@@ -1114,7 +1029,7 @@ export default {
         this.loading_dialog = false;
         this.snackbar.show = true;
         this.response = data.message;
-        console.log(data.message);
+
         this.loading = false;
 
       }
@@ -1122,7 +1037,7 @@ export default {
       //   this.loading_dialog = false;
       //   this.snackbar = true;
       //   this.response = error.message;
-      //   console.log(error.message);
+
       // }
 
 
@@ -1132,29 +1047,6 @@ export default {
 </script>
 
 <style scoped>
-/* @import "../../node_modules/@syncfusion/ej2-base/styles/material.css";
-@import "../../node_modules/@syncfusion/ej2-inputs/styles/material.css";
-@import "../../node_modules/@syncfusion/ej2-vue-dropdowns/styles/material.css"; */
-/* @import "https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"; */
-/* @media only screen and ((min-width: 1200px)) {
-  .container {
-    width: 90% !important;
-  }
-}
-@media (min-width: 1200px) {
-  .container {
-    width: 90% !important;
-  }
-}
-.container {
-  width: 90% !important;
-} */
-/* .container {
-  display: grid;
-  grid-template-columns: 30% 10% 30%;
-  align-items: center;
-} */
-
 .container select {
   height: 200px;
   width: 100%;
@@ -1168,10 +1060,4 @@ export default {
   width: 80%;
   margin-bottom: 5px;
 }
-
-
-/*
-.photo-displaylistview:nth-child(even) {
-  background-color: #e9e9e9;
-} */
 </style>

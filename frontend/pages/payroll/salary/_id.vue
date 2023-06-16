@@ -50,15 +50,12 @@
               </tr>
             </table> -->
             <v-row>
-              <a
-                :href="getdownloadLink"
-                style="
+              <a :href="getdownloadLink" style="
                   font-size: 40px;
                   vertical-align: inherit;
                   cursor: pointer;
                   text-align: right;
-                "
-              >
+                ">
                 <span class="mdi mdi-download-box"></span>
               </a>
             </v-row>
@@ -68,10 +65,8 @@
                   <div class="col-md-12">
                     <div class="text-center lh-1 mb-2">
                       <h6 class="fw-bold">Payslip</h6>
-                      <span class="fw-normal"
-                        >Payment slip for the month of {{ currentMonth }}
-                        {{ currentYear }}</span
-                      >
+                      <span class="fw-normal">Payment slip for the month of {{ currentMonth }}
+                        {{ currentYear }}</span>
                     </div>
 
                     <div class="row">
@@ -80,21 +75,16 @@
                           <div class="col-md-3 addressheight">
                             <address>
                               <div>
-                                <img
-                                  :src="this.company_payload.logo"
-                                  width="60px"
-                                />
+                                <img :src="this.company_payload.logo" width="60px" />
                               </div>
-                              <strong>{{ this.company_payload.name }}</strong
-                              ><br />
+                              <strong>{{ this.company_payload.name }}</strong><br />
                               {{ this.company_payload.p_o_box_no }}
                             </address>
                           </div>
                           <div class="col-md-6 text-right addressheight">
                             <address>
                               <div style="height: 60px"></div>
-                              <strong>EMP ID: {{ empCode }}</strong
-                              ><br />
+                              <strong>EMP ID: {{ empCode }}</strong><br />
                               Name: {{ contact_payload.name }}<br />
                               Designation: {{ contact_payload.position }}<br />
                             </address>
@@ -113,10 +103,7 @@
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  <tr
-                                    v-for="(item, index) in data.earnings"
-                                    :key="index"
-                                  >
+                                  <tr v-for="(item, index) in data.earnings" :key="index">
                                     <td class="w-50">
                                       {{ caps(item.label) }}
                                     </td>
@@ -144,10 +131,7 @@
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  <tr
-                                    v-for="(item, index) in data.deductions"
-                                    :key="index"
-                                  >
+                                  <tr v-for="(item, index) in data.deductions" :key="index">
                                     <td class="w-50">
                                       {{ caps(item.label) }}
                                     </td>
@@ -176,9 +160,7 @@
                       <div class="border col-md-12">
                         <div class="row">
                           <div class="col-md-5">
-                            <span
-                              >Present Days: {{ this.data.presentDays }}</span
-                            >
+                            <span>Present Days: {{ this.data.presentDays }}</span>
                           </div>
 
                           <div class="col-md-5 text-right">
@@ -190,9 +172,7 @@
                     <div class="row">
                       <div class="border col-md-12">
                         <div class="d-flex flex-column">
-                          <span
-                            ><strong
-                              >Net Salary: {{ this.data.earnedSubTotal }}
+                          <span><strong>Net Salary: {{ this.data.earnedSubTotal }}
                             </strong>
                           </span>
                         </div>
@@ -324,7 +304,7 @@ export default {
 
           this.countdifference =
             data[0].earnings.length - data[0].deductions.length;
-          console.log("countdifference", this.countdifference);
+
 
           this.getdownloadLink =
             this.$axios.defaults.baseURL +
@@ -343,7 +323,7 @@ export default {
     getCompanyDataFromApi() {
       let company_id = this.$auth?.user?.company?.id;
       this.$axios.get(`company/${company_id}`).then(({ data }) => {
-        console.log("company", data);
+
         let r = data.record;
         this.company_payload = r;
         this.contact_payload = r.contact;
@@ -365,9 +345,11 @@ export default {
 .addressheight {
   height: 180px;
 }
+
 .addressheight2 {
   min-height: 300px;
 }
+
 table.employee-table {
   font-family: arial, sans-serif;
   border-collapse: collapse;

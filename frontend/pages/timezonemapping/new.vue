@@ -318,7 +318,7 @@ export default {
       //this.loading = true;
       // let page = this.pagination.current;
       let url = this.endpointEmployee;
-      console.log("this.departmentselected", this.departmentselected);
+
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
@@ -442,8 +442,6 @@ export default {
         });
         return selectedObj;
       });
-      console.log(filteredDataEmp);
-
       let options = {
         timezone_id: this.timezonesselected,
         employee_id: this.rightEmployees,
@@ -469,7 +467,6 @@ export default {
               (e) => e.sn == rightDevicesobj.device_id
             );
 
-            console.log("person info error", SdkResponseDeviceobject);
             let deviceStatusResponse = "";
             let EmpStatusResponse = "";
 
@@ -491,7 +488,7 @@ export default {
                 );
                 EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
                 deviceStatusResponse = "";
-                console.log("selectedEmpobject", selectedEmpobject);
+
 
                 if (EmpStatusResponse != "") {
                   //Adding extra parameters for Employee object
@@ -508,7 +505,6 @@ export default {
                   }
                 }
 
-                console.log("Final - jsrightEmployees", jsrightEmployees);
               });
             } else {
             }
@@ -615,7 +611,7 @@ export default {
       }),
     sortObjectC: (o) =>
       o.sort(function compareByName(a, b) {
-        console.log("a", a);
+
         if (a.name && b.name) {
           let nameA = a.name.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
           let nameB = b.name.toUpperCase();
@@ -643,7 +639,7 @@ export default {
 
       if (!this.rightSelectedEmp.length) return;
 
-      console.log("moveToRightEmp", this.rightSelectedEmp);
+
       //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
       let _rightSelectedEmp_length = this.rightSelectedEmp.length;
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
@@ -663,88 +659,15 @@ export default {
         }
       }
       this.leftEmployees = this.sortObject(this.leftEmployees);
-      //console.log("-------End move right--------");
+
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
 
         this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
       }
 
     },
-    // moveToLeftemp(id) {
-    //   this.rightSelectedEmp.push(id);
-    //   console.log("leftSelectedEmp", this.rightSelectedEmp);
-    //   console.log("leftSelectedEmp length", this.rightSelectedEmp.length);
 
-    //   if (!this.rightSelectedEmp.length) return;
-
-    //   console.log("moveToRightEmp", this.rightSelectedEmp);
-    //   //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
-    //   let _rightSelectedEmp_length = this.rightSelectedEmp.length;
-    //   for (let i = 0; i < _rightSelectedEmp_length; i++) {
-    //     if (this.rightSelectedEmp) {
-    //       let selectedindex = this.rightEmployees.findIndex(
-    //         (e) => e.id == this.rightSelectedEmp[i]
-    //       );
-
-    //       let selectedobject = this.rightEmployees.find(
-    //         (e) => e.id == this.rightSelectedEmp[i]
-    //       );
-
-    //       selectedobject.sdkEmpResponse = "";
-    //       this.leftEmployees.push(selectedobject);
-
-    //       this.rightEmployees.splice(selectedindex, 1);
-    //     }
-    //   }
-    //   this.leftEmployees = this.sortObject(this.leftEmployees);
-    //   //console.log("-------End move right--------");
-
-    //   this.rightSelectedEmp.pop(id);
-    // },
-    // moveToRightEmp(id, timezone) {
-    //   if (timezone && timezone.timezone_name) {
-    //     return false;
-    //   }
-
-    //   this.leftSelectedEmp.push(id);
-
-    //   console.log("Starting move right--------");
-    //   console.log("leftSelectedEmp", this.leftSelectedEmp);
-    //   console.log("leftSelectedEmp length", this.leftSelectedEmp.length);
-
-    //   if (!this.leftSelectedEmp.length) return;
-
-    //   let _leftSelectedEmp_length = this.leftSelectedEmp.length;
-    //   for (let i = 0; i < _leftSelectedEmp_length; i++) {
-    //     if (this.leftSelectedEmp) {
-    //       let selectedindex = this.leftEmployees.findIndex(
-    //         (e) => e.id == this.leftSelectedEmp[i]
-    //       );
-
-    //       let selectedobject = this.leftEmployees.find(
-    //         (e) => e.id == this.leftSelectedEmp[i]
-    //       );
-
-    //       this.rightEmployees.push(selectedobject);
-
-    //       this.leftEmployees.splice(selectedindex, 1);
-    //     }
-    //   }
-    //   this.rightEmployees = this.sortObject(this.rightEmployees);
-    //   //console.log("-------End move right--------");
-
-    //   this.leftSelectedEmp.pop(id);
-    // },
     moveToRightEmpOption2() {
-      // if (timezone && timezone.timezone_name) {
-      //   return false;
-      // }
-
-      // this.leftSelectedEmp.push(id);
-
-      console.log("Starting move right--------");
-      console.log("leftSelectedEmp", this.leftSelectedEmp);
-      console.log("leftSelectedEmp length", this.leftSelectedEmp.length);
 
       if (!this.leftSelectedEmp.length) return;
 
@@ -765,10 +688,6 @@ export default {
         }
       }
       this.rightEmployees = this.sortObject(this.rightEmployees);
-      //console.log("-------End move right--------");
-
-
-
       for (let i = 0; i < _leftSelectedEmp_length; i++) {
         this.leftSelectedEmp.pop(this.leftSelectedEmp[i]);
       }
@@ -777,7 +696,7 @@ export default {
     allmoveLeftDevices() {
       this.leftDevices = this.leftDevices.concat(this.rightDevices);
       this.rightDevices = [];
-      console.log("this.leftDevices", this.leftDevices);
+
       this.leftDevices = this.sortObjectD(this.leftDevices);
     },
     allmoveRightDevices() {
@@ -787,17 +706,11 @@ export default {
       this.rightDevices = this.sortObjectD(this.rightDevices);
     },
     moveToLeftDevicesOption2() {
-      // console.log("e)", e);
 
-      console.log("leftSelectedDevices", this.rightSelectedDevices);
-      console.log(
-        "leftSelectedDevices length",
-        this.rightSelectedDevices.length
-      );
 
       if (!this.rightSelectedDevices.length) return;
 
-      console.log("moveRightDevices", this.rightSelectedDevices);
+
       //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
       let _rightSelectedDevices_length = this.rightSelectedDevices.length;
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
@@ -815,10 +728,8 @@ export default {
           this.rightDevices.splice(selectedindex, 1);
         }
       }
-      console.log("this.leftDevices", this.leftDevices);
-      this.leftDevices = this.sortObjectD(this.leftDevices);
-      //console.log("-------End move right--------");
 
+      this.leftDevices = this.sortObjectD(this.leftDevices);
 
 
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
@@ -826,50 +737,8 @@ export default {
         this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
       }
     },
-    // moveLeftDevices(id) {
-    //   // console.log("e)", e);
-    //   this.rightSelectedDevices.push(id);
 
-    //   console.log("leftSelectedDevices", this.rightSelectedDevices);
-    //   console.log(
-    //     "leftSelectedDevices length",
-    //     this.rightSelectedDevices.length
-    //   );
-
-    //   if (!this.rightSelectedDevices.length) return;
-
-    //   console.log("moveRightDevices", this.rightSelectedDevices);
-    //   //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
-    //   let _rightSelectedDevices_length = this.rightSelectedDevices.length;
-    //   for (let i = 0; i < _rightSelectedDevices_length; i++) {
-    //     if (this.rightSelectedDevices) {
-    //       let selectedindex = this.rightDevices.findIndex(
-    //         (e) => e.id == this.rightSelectedDevices[i]
-    //       );
-
-    //       let selectedobject = this.rightDevices.find(
-    //         (e) => e.id == this.rightSelectedDevices[i]
-    //       );
-
-    //       this.leftDevices.push(selectedobject);
-
-    //       this.rightDevices.splice(selectedindex, 1);
-    //     }
-    //   }
-    //   console.log("this.leftDevices", this.leftDevices);
-    //   this.leftDevices = this.sortObjectD(this.leftDevices);
-    //   //console.log("-------End move right--------");
-
-    //   this.rightSelectedDevices.pop(id);
-    // },
     moveToRightDevicesOption2() {
-      // this.leftSelectedDevices.push(id);
-      // console.log("Starting move right--------");
-      // console.log("leftSelectedDevices", this.leftSelectedDevices);
-      // console.log(
-      //   "leftSelectedDevices length",
-      //   this.leftSelectedDevices.length
-      // );
 
       if (!this.leftSelectedDevices.length) return;
 
@@ -889,9 +758,8 @@ export default {
           this.leftDevices.splice(selectedindex, 1);
         }
       }
-      console.log("this.rightDevices", this.rightDevices);
+
       this.rightDevices = this.sortObjectD(this.rightDevices);
-      //console.log("-------End move right--------");
 
 
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
@@ -899,39 +767,5 @@ export default {
       }
     },
   },
-  //   moveRightDevices(id) {
-  //     this.leftSelectedDevices.push(id);
-  //     console.log("Starting move right--------");
-  //     console.log("leftSelectedDevices", this.leftSelectedDevices);
-  //     console.log(
-  //       "leftSelectedDevices length",
-  //       this.leftSelectedDevices.length
-  //     );
-
-  //     if (!this.leftSelectedDevices.length) return;
-
-  //     let _leftSelectedDevices_length = this.leftSelectedDevices.length;
-  //     for (let i = 0; i < _leftSelectedDevices_length; i++) {
-  //       if (this.leftSelectedDevices) {
-  //         let selectedindex = this.leftDevices.findIndex(
-  //           (e) => e.id == this.leftSelectedDevices[i]
-  //         );
-
-  //         let selectedobject = this.leftDevices.find(
-  //           (e) => e.id == this.leftSelectedDevices[i]
-  //         );
-
-  //         this.rightDevices.push(selectedobject);
-
-  //         this.leftDevices.splice(selectedindex, 1);
-  //       }
-  //     }
-  //     console.log("this.rightDevices", this.rightDevices);
-  //     this.rightDevices = this.sortObjectD(this.rightDevices);
-  //     //console.log("-------End move right--------");
-
-  //     this.leftSelectedDevices.pop(id);
-  //   },
-  // },
 };
 </script>

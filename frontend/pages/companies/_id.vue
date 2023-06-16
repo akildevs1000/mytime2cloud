@@ -2,12 +2,7 @@
   <div v-if="can('company_access')">
     <div v-if="!preloader">
       <div class="text-center ma-2">
-        <v-snackbar
-          v-model="snackbar"
-          top="top"
-          color="secondary"
-          elevation="24"
-        >
+        <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
           {{ response }}
         </v-snackbar>
       </div>
@@ -47,210 +42,109 @@
                       <v-col cols="4" md="4" sm="4">
                         <label class="col-form-label">Company Code</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="grey"
-                          readonly
-                          dense
-                          outlined
-                          v-model="company_payload.company_code"
-                        ></v-text-field>
+                        <v-text-field color="grey" readonly dense outlined
+                          v-model="company_payload.company_code"></v-text-field>
                       </v-col>
 
                       <v-col cols="4" md="4" sm="4">
                         <label class="col-form-label">Company Name</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="grey"
-                          readonly
-                          dense
-                          outlined
-                          v-model="company_payload.name"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.name"
-                          class="text-danger mt-2"
-                          >{{ errors.name[0] }}</span
-                        >
+                        <v-text-field color="grey" readonly dense outlined v-model="company_payload.name"></v-text-field>
+                        <span v-if="errors && errors.name" class="text-danger mt-2">{{ errors.name[0] }}</span>
                       </v-col>
 
                       <v-col cols="4" md="4" sm="4">
                         <label class="col-form-label">Company Email</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="grey"
-                          readonly
-                          dense
-                          outlined
-                          v-model="user_payload.email"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.email"
-                          class="text-danger mt-2"
-                          >{{ errors.email[0] }}</span
-                        >
+                        <v-text-field color="grey" readonly dense outlined v-model="user_payload.email"></v-text-field>
+                        <span v-if="errors && errors.email" class="text-danger mt-2">{{ errors.email[0] }}</span>
                       </v-col>
 
                       <v-col cols="6" md="6" sm="6">
                         <label class="col-form-label">Mol ID</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="primary"
-                          dense
-                          outlined
-                          v-model="company_payload.mol_id"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.mol_id"
-                          class="text-danger mt-2"
-                          >{{ errors.mol_id[0] }}</span
-                        >
+                        <v-text-field color="primary" dense outlined v-model="company_payload.mol_id"></v-text-field>
+                        <span v-if="errors && errors.mol_id" class="text-danger mt-2">{{ errors.mol_id[0] }}</span>
                       </v-col>
 
                       <v-col cols="6" md="6" sm="6">
                         <label class="col-form-label">P.O Box</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="primary"
-                          dense
-                          outlined
-                          v-model="company_payload.p_o_box_no"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.p_o_box_no"
-                          class="text-danger mt-2"
-                          >{{ errors.p_o_box_no[0] }}</span
-                        >
+                        <v-text-field color="primary" dense outlined v-model="company_payload.p_o_box_no"></v-text-field>
+                        <span v-if="errors && errors.p_o_box_no" class="text-danger mt-2">{{ errors.p_o_box_no[0]
+                        }}</span>
                       </v-col>
 
                       <v-col cols="6" md="6" sm="6">
                         <label class="col-form-label">Member From</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="grey"
-                          readonly
-                          dense
-                          outlined
-                          v-model="company_payload.member_from"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.member_from"
-                          class="text-danger mt-2"
-                          >{{ errors.member_from[0] }}</span
-                        >
+                        <v-text-field color="grey" readonly dense outlined
+                          v-model="company_payload.member_from"></v-text-field>
+                        <span v-if="errors && errors.member_from" class="text-danger mt-2">{{ errors.member_from[0]
+                        }}</span>
                       </v-col>
 
                       <v-col cols="6" md="6" sm="6">
                         <label class="col-form-label">Expiry Date</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="grey"
-                          readonly
-                          dense
-                          outlined
-                          v-model="company_payload.expiry"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.expiry"
-                          class="text-danger mt-2"
-                          >{{ errors.expiry[0] }}</span
-                        >
+                        <v-text-field color="grey" readonly dense outlined
+                          v-model="company_payload.expiry"></v-text-field>
+                        <span v-if="errors && errors.expiry" class="text-danger mt-2">{{ errors.expiry[0] }}</span>
                       </v-col>
 
                       <v-col cols="4" md="4" sm="4">
                         <label class="col-form-label">Max Branches</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="grey"
-                          readonly
-                          dense
-                          outlined
-                          v-model="company_payload.max_branches"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.max_branches"
-                          class="text-danger mt-2"
-                          >{{ errors.max_branches[0] }}</span
-                        >
+                        <v-text-field color="grey" readonly dense outlined
+                          v-model="company_payload.max_branches"></v-text-field>
+                        <span v-if="errors && errors.max_branches" class="text-danger mt-2">{{ errors.max_branches[0]
+                        }}</span>
                       </v-col>
 
                       <v-col cols="4" md="4" sm="4">
                         <label class="col-form-label">Max Employees</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="grey"
-                          readonly
-                          dense
-                          outlined
-                          v-model="company_payload.max_employee"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.max_employee"
-                          class="text-danger mt-2"
-                          >{{ errors.max_employee[0] }}</span
-                        >
+                        <v-text-field color="grey" readonly dense outlined
+                          v-model="company_payload.max_employee"></v-text-field>
+                        <span v-if="errors && errors.max_employee" class="text-danger mt-2">{{ errors.max_employee[0]
+                        }}</span>
                       </v-col>
 
                       <v-col cols="4" md="4" sm="4">
                         <label class="col-form-label">Max Devices</label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          color="grey"
-                          readonly
-                          dense
-                          outlined
-                          v-model="company_payload.max_devices"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.max_devices"
-                          class="text-danger mt-2"
-                          >{{ errors.max_devices[0] }}</span
-                        >
+                        <v-text-field color="grey" readonly dense outlined
+                          v-model="company_payload.max_devices"></v-text-field>
+                        <span v-if="errors && errors.max_devices" class="text-danger mt-2">{{ errors.max_devices[0]
+                        }}</span>
                       </v-col>
 
                       <v-col cols="3" md="3" sm="3">
-                        <label class="col-form-label"
-                          >Company Profile Picture</label
-                        >
+                        <label class="col-form-label">Company Profile Picture</label>
                         <span class="text-danger">*</span>
                         <v-card class="ml-1 mr-1">
                           <div class="pa-5">
-                            <v-img
-                              @click="onpick_attachment"
-                              style="
+                            <v-img @click="onpick_attachment" style="
                                 width: 150px;
                                 height: 150px;
                                 margin: 0 auto;
                                 border-radius: 50%;
-                              "
-                              :src="
-                                previewImage ||
+                              " :src="previewImage ||
                                 company_payload.logo ||
                                 '/no-image.PNG'
-                              "
-                            ></v-img>
+                                "></v-img>
                           </div>
-                          <v-btn style="width: 100%" @click="onpick_attachment"
-                            >{{
-                              !upload.name ? "Upload Logo" : "Logo Uploaded"
-                            }}
+                          <v-btn style="width: 100%" @click="onpick_attachment">{{
+                            !upload.name ? "Upload Logo" : "Logo Uploaded"
+                          }}
                             <v-icon right dark> </v-icon>
                           </v-btn>
                         </v-card>
 
-                        <input
-                          required
-                          type="file"
-                          @change="attachment"
-                          style="display: none"
-                          accept="image/*"
-                          ref="attachment_input"
-                        />
+                        <input required type="file" @change="attachment" style="display: none" accept="image/*"
+                          ref="attachment_input" />
 
-                        <span
-                          v-if="errors && errors.logo"
-                          class="text-danger mt-2"
-                          >{{ errors.logo[0] }}</span
-                        >
+                        <span v-if="errors && errors.logo" class="text-danger mt-2">{{ errors.logo[0] }}</span>
                       </v-col>
                     </v-row>
 
@@ -263,13 +157,8 @@
                     <v-row>
                       <v-col cols="12">
                         <div class="text-right">
-                          <v-btn
-                            v-if="can('company_edit')"
-                            small
-                            :loading="loading"
-                            color="primary"
-                            @click="update_company"
-                          >
+                          <v-btn v-if="can('company_edit')" small :loading="loading" color="primary"
+                            @click="update_company">
                             Submit
                           </v-btn>
                         </div>
@@ -286,164 +175,88 @@
                       <v-col cols="6">
                         <label class="col-form-label"> License </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="company_trade_license.license_no"
-                        ></v-text-field>
+                        <v-text-field dense outlined v-model="company_trade_license.license_no"></v-text-field>
                       </v-col>
 
                       <v-col cols="6">
                         <label class="col-form-label"> License Type</label>
                         <span class="text-danger">*</span>
-                        <v-select
-                          outlined
-                          dense
-                          v-model="company_trade_license.license_type"
-                          x-small
-                          :items="[
-                            {
-                              value: '',
-                              text: 'Select Type',
-                            },
-                            {
-                              value: 'commercial_licenses',
-                              text: 'Commercial licenses',
-                            },
-                            {
-                              value: 'industrial_license',
-                              text: 'Industrial License',
-                            },
-                            {
-                              value: 'professional_license',
-                              text: 'Professional license',
-                            },
-                          ]"
-                          item-value="value"
-                          item-text="text"
-                          :hide-details="true"
-                        ></v-select>
+                        <v-select outlined dense v-model="company_trade_license.license_type" x-small :items="[
+                          {
+                            value: '',
+                            text: 'Select Type',
+                          },
+                          {
+                            value: 'commercial_licenses',
+                            text: 'Commercial licenses',
+                          },
+                          {
+                            value: 'industrial_license',
+                            text: 'Industrial License',
+                          },
+                          {
+                            value: 'professional_license',
+                            text: 'Professional license',
+                          },
+                        ]" item-value="value" item-text="text" :hide-details="true"></v-select>
                       </v-col>
 
                       <v-col cols="6">
                         <label class="col-form-label"> Emirate </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="company_trade_license.emirate"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.emirate"
-                          class="text-danger mt-2"
-                          >{{ errors.emirate[0] }}</span
-                        >
+                        <v-text-field dense outlined v-model="company_trade_license.emirate"></v-text-field>
+                        <span v-if="errors && errors.emirate" class="text-danger mt-2">{{ errors.emirate[0] }}</span>
                       </v-col>
 
                       <v-col cols="6">
                         <label class="col-form-label"> Manager </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="company_trade_license.manager"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.manager"
-                          class="text-danger mt-2"
-                          >{{ errors.manager[0] }}</span
-                        >
+                        <v-text-field dense outlined v-model="company_trade_license.manager"></v-text-field>
+                        <span v-if="errors && errors.manager" class="text-danger mt-2">{{ errors.manager[0] }}</span>
                       </v-col>
 
                       <v-col cols="6">
                         <label class="col-form-label"> Issue Date </label>
                         <span class="text-danger">*</span>
-                        <v-menu
-                          v-model="menuIssueDate"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          transition="scale-transition"
-                          offset-y
-                          max-width="290px"
-                          min-width="290px"
-                        >
+                        <v-menu v-model="menuIssueDate" :close-on-content-click="false" :nudge-right="40"
+                          transition="scale-transition" offset-y max-width="290px" min-width="290px">
                           <template v-slot:activator="{ on }">
-                            <v-text-field
-                              dense
-                              outlined
-                              v-model="company_trade_license.issue_date"
-                              readonly
-                              v-on="on"
-                            ></v-text-field>
+                            <v-text-field dense outlined v-model="company_trade_license.issue_date" readonly
+                              v-on="on"></v-text-field>
                           </template>
-                          <v-date-picker
-                            v-model="company_trade_license.issue_date"
-                            @input="menuIssueDate = false"
-                          ></v-date-picker>
+                          <v-date-picker v-model="company_trade_license.issue_date"
+                            @input="menuIssueDate = false"></v-date-picker>
                         </v-menu>
-                        <span
-                          v-if="errors && errors.issue_date"
-                          class="text-danger mt-2"
-                          >{{ errors.issue_date[0] }}</span
-                        >
+                        <span v-if="errors && errors.issue_date" class="text-danger mt-2">{{ errors.issue_date[0]
+                        }}</span>
                       </v-col>
 
                       <v-col cols="6">
                         <label class="col-form-label"> Expiry Date </label>
                         <span class="text-danger">*</span>
-                        <v-menu
-                          v-model="menuExpiryDate"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          transition="scale-transition"
-                          offset-y
-                          max-width="290px"
-                          min-width="290px"
-                        >
+                        <v-menu v-model="menuExpiryDate" :close-on-content-click="false" :nudge-right="40"
+                          transition="scale-transition" offset-y max-width="290px" min-width="290px">
                           <template v-slot:activator="{ on }">
-                            <v-text-field
-                              dense
-                              outlined
-                              v-model="company_trade_license.expiry_date"
-                              readonly
-                              v-on="on"
-                            ></v-text-field>
+                            <v-text-field dense outlined v-model="company_trade_license.expiry_date" readonly
+                              v-on="on"></v-text-field>
                           </template>
-                          <v-date-picker
-                            v-model="company_trade_license.expiry_date"
-                            @input="menuExpiryDate = false"
-                          ></v-date-picker>
+                          <v-date-picker v-model="company_trade_license.expiry_date"
+                            @input="menuExpiryDate = false"></v-date-picker>
                         </v-menu>
-                        <span
-                          v-if="errors && errors.expiry_date"
-                          class="text-danger mt-2"
-                          >{{ errors.expiry_date[0] }}</span
-                        >
+                        <span v-if="errors && errors.expiry_date" class="text-danger mt-2">{{ errors.expiry_date[0]
+                        }}</span>
                       </v-col>
 
                       <v-col cols="6">
                         <label class="col-form-label"> Makeem No </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="company_trade_license.makeem_no"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.makeem_no"
-                          class="text-danger mt-2"
-                          >{{ errors.makeem_no[0] }}</span
-                        >
+                        <v-text-field dense outlined v-model="company_trade_license.makeem_no"></v-text-field>
+                        <span v-if="errors && errors.makeem_no" class="text-danger mt-2">{{ errors.makeem_no[0] }}</span>
                       </v-col>
                       <v-col cols="12">
                         <div class="text-right">
-                          <v-btn
-                            v-if="can('company_edit')"
-                            small
-                            :loading="loading"
-                            color="primary"
-                            @click="update_license"
-                          >
+                          <v-btn v-if="can('company_edit')" small :loading="loading" color="primary"
+                            @click="update_license">
                             Submit
                           </v-btn>
                         </div>
@@ -462,16 +275,8 @@
                           Contact Person Name
                         </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="contact_payload.name"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.name"
-                          class="text-danger mt-2"
-                          >{{ errors.name[0] }}</span
-                        >
+                        <v-text-field dense outlined v-model="contact_payload.name"></v-text-field>
+                        <span v-if="errors && errors.name" class="text-danger mt-2">{{ errors.name[0] }}</span>
                       </v-col>
 
                       <v-col cols="6">
@@ -479,16 +284,8 @@
                           Contact Person Number
                         </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="contact_payload.number"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.number"
-                          class="text-danger mt-2"
-                          >{{ errors.number[0] }}</span
-                        >
+                        <v-text-field dense outlined v-model="contact_payload.number"></v-text-field>
+                        <span v-if="errors && errors.number" class="text-danger mt-2">{{ errors.number[0] }}</span>
                       </v-col>
 
                       <v-col cols="6">
@@ -496,16 +293,8 @@
                           Contact Person Position
                         </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="contact_payload.position"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.position"
-                          class="text-danger mt-2"
-                          >{{ errors.position[0] }}</span
-                        >
+                        <v-text-field dense outlined v-model="contact_payload.position"></v-text-field>
+                        <span v-if="errors && errors.position" class="text-danger mt-2">{{ errors.position[0] }}</span>
                       </v-col>
 
                       <v-col cols="6">
@@ -513,26 +302,13 @@
                           Contact Person Whatsapp
                         </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="contact_payload.whatsapp"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.whatsapp"
-                          class="text-danger mt-2"
-                          >{{ errors.whatsapp[0] }}</span
-                        >
+                        <v-text-field dense outlined v-model="contact_payload.whatsapp"></v-text-field>
+                        <span v-if="errors && errors.whatsapp" class="text-danger mt-2">{{ errors.whatsapp[0] }}</span>
                       </v-col>
                       <v-col cols="12">
                         <div class="text-right">
-                          <v-btn
-                            v-if="can('company_edit')"
-                            small
-                            :loading="loading"
-                            color="primary"
-                            @click="update_contact"
-                          >
+                          <v-btn v-if="can('company_edit')" small :loading="loading" color="primary"
+                            @click="update_contact">
                             Submit
                           </v-btn>
                         </div>
@@ -549,55 +325,26 @@
                       <v-col cols="6">
                         <label class="col-form-label"> Lat </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="geographic_payload.lat"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.lat"
-                          class="text-danger mt-2"
-                          >{{ errors.lat[0] }}</span
-                        >
+                        <v-text-field dense outlined v-model="geographic_payload.lat"></v-text-field>
+                        <span v-if="errors && errors.lat" class="text-danger mt-2">{{ errors.lat[0] }}</span>
                       </v-col>
                       <v-col cols="6">
                         <label class="col-form-label"> Lon </label>
                         <span class="text-danger">*</span>
-                        <v-text-field
-                          dense
-                          outlined
-                          v-model="geographic_payload.lon"
-                        ></v-text-field>
-                        <span
-                          v-if="errors && errors.lon"
-                          class="text-danger mt-2"
-                          >{{ errors.lon[0] }}</span
-                        >
+                        <v-text-field dense outlined v-model="geographic_payload.lon"></v-text-field>
+                        <span v-if="errors && errors.lon" class="text-danger mt-2">{{ errors.lon[0] }}</span>
                       </v-col>
                       <v-col cols="12">
                         <label class="col-form-label"> Location </label>
                         <span class="text-danger">*</span>
-                        <v-textarea
-                          dense
-                          outlined
-                          v-model="geographic_payload.location"
-                        >
+                        <v-textarea dense outlined v-model="geographic_payload.location">
                         </v-textarea>
-                        <span
-                          v-if="errors && errors.location"
-                          class="text-danger mt-2"
-                          >{{ errors.location[0] }}</span
-                        >
+                        <span v-if="errors && errors.location" class="text-danger mt-2">{{ errors.location[0] }}</span>
                       </v-col>
                       <v-col cols="12">
                         <div class="text-right">
-                          <v-btn
-                            v-if="can('company_edit')"
-                            small
-                            :loading="loading"
-                            color="primary"
-                            @click="update_geographic"
-                          >
+                          <v-btn v-if="can('company_edit')" small :loading="loading" color="primary"
+                            @click="update_geographic">
                             Submit
                           </v-btn>
                         </div>
@@ -615,87 +362,43 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12">
-                      <label class="col-form-label"
-                        >Current Password
-                        <span class="text-danger">*</span></label
-                      >
-                      <v-text-field
-                        dense
-                        outlined
-                        :hide-details="!errors.current_password"
-                        :append-icon="
-                          current_password_show ? 'mdi-eye' : 'mdi-eye-off'
-                        "
-                        :type="current_password_show ? 'text' : 'password'"
-                        v-model="payload.current_password"
-                        class="input-group--focused"
-                        @click:append="
+                      <label class="col-form-label">Current Password
+                        <span class="text-danger">*</span></label>
+                      <v-text-field dense outlined :hide-details="!errors.current_password" :append-icon="current_password_show ? 'mdi-eye' : 'mdi-eye-off'
+                        " :type="current_password_show ? 'text' : 'password'" v-model="payload.current_password"
+                        class="input-group--focused" @click:append="
                           current_password_show = !current_password_show
-                        "
-                        :error="errors.current_password"
-                        :error-messages="
-                          errors && errors.current_password
-                            ? errors.current_password
-                            : ''
-                        "
-                      ></v-text-field>
+                          " :error="errors.current_password" :error-messages="errors && errors.current_password
+    ? errors.current_password
+    : ''
+    "></v-text-field>
                     </v-col>
                     <v-col md="12" sm="12" cols="12" dense>
-                      <label class="col-form-label"
-                        >Password <span class="text-danger">*</span></label
-                      >
-                      <v-text-field
-                        dense
-                        outlined
-                        :hide-details="!errors.password"
+                      <label class="col-form-label">Password <span class="text-danger">*</span></label>
+                      <v-text-field dense outlined :hide-details="!errors.password"
                         :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
-                        :type="show_password ? 'text' : 'password'"
-                        v-model="payload.password"
-                        class="input-group--focused"
-                        @click:append="show_password = !show_password"
-                        :error="errors.password"
-                        :error-messages="
-                          errors && errors.password ? errors.password[0] : ''
-                        "
-                      ></v-text-field>
+                        :type="show_password ? 'text' : 'password'" v-model="payload.password"
+                        class="input-group--focused" @click:append="show_password = !show_password"
+                        :error="errors.password" :error-messages="errors && errors.password ? errors.password[0] : ''
+                          "></v-text-field>
                     </v-col>
 
                     <v-col md="12" sm="12" cols="12" dense>
-                      <label class="col-form-label"
-                        >Confirm Password
-                        <span class="text-danger">*</span></label
-                      >
-                      <v-text-field
-                        dense
-                        outlined
-                        :hide-details="!errors.password_confirmation"
-                        :append-icon="
-                          show_password_confirm ? 'mdi-eye' : 'mdi-eye-off'
-                        "
-                        :type="show_password_confirm ? 'text' : 'password'"
-                        v-model="payload.password_confirmation"
-                        class="input-group--focused"
-                        @click:append="
+                      <label class="col-form-label">Confirm Password
+                        <span class="text-danger">*</span></label>
+                      <v-text-field dense outlined :hide-details="!errors.password_confirmation" :append-icon="show_password_confirm ? 'mdi-eye' : 'mdi-eye-off'
+                        " :type="show_password_confirm ? 'text' : 'password'" v-model="payload.password_confirmation"
+                        class="input-group--focused" @click:append="
                           show_password_confirm = !show_password_confirm
-                        "
-                        :error="errors.show_password_confirm"
-                        :error-messages="
-                          errors && errors.show_password_confirm
-                            ? errors.show_password_confirm[0]
-                            : ''
-                        "
-                      ></v-text-field>
+                          " :error="errors.show_password_confirm" :error-messages="errors && errors.show_password_confirm
+    ? errors.show_password_confirm[0]
+    : ''
+    "></v-text-field>
                     </v-col>
                     <v-col cols="12">
                       <div class="text-left">
-                        <v-btn
-                          v-if="can('setting_company_change_password_access')"
-                          dark
-                          small
-                          :loading="loading_password"
-                          color="primary"
-                          @click="update_setting"
-                        >
+                        <v-btn v-if="can('setting_company_change_password_access')" dark small :loading="loading_password"
+                          color="primary" @click="update_setting">
                           Submit
                         </v-btn>
                       </div>
@@ -716,6 +419,10 @@
 <script>
 export default {
   data: () => ({
+    show_password_confirm: false,
+    current_password_show: false,
+    show_password: false,
+    loading_password: false,
     menuIssueDate: false,
     menuExpiryDate: false,
     IssueDate: null,

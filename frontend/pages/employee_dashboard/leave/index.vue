@@ -32,9 +32,8 @@
           <v-container>
             <v-row>
               <v-col cols="12">
-                <v-text-field v-model="editedItem.title" label="Title" :error-messages="
-                  errors && errors.title ? errors.title[0] : ''
-                "></v-text-field>
+                <v-text-field v-model="editedItem.title" label="Title" :error-messages="errors && errors.title ? errors.title[0] : ''
+                  "></v-text-field>
               </v-col>
 
               <v-col cols="12">
@@ -44,16 +43,14 @@
               </v-col>
 
               <v-col cols="12" v-if="type_manual">
-                <v-text-field v-model="editedItem.type_manual" label="Other" :error-messages="
-                  errors && errors.type_manual ? errors.type_manual[0] : ''
-                "></v-text-field>
+                <v-text-field v-model="editedItem.type_manual" label="Other" :error-messages="errors && errors.type_manual ? errors.type_manual[0] : ''
+                  "></v-text-field>
               </v-col>
 
               <v-col cols="12">
                 <v-autocomplete v-model="editedItem.supervisor" :items="reporters" label="Supervisor"
-                  item-text="first_name" item-value="id" chips multiple :error-messages="
-                    errors && errors.supervisor ? errors.supervisor[0] : ''
-                  "></v-autocomplete>
+                  item-text="first_name" item-value="id" chips multiple :error-messages="errors && errors.supervisor ? errors.supervisor[0] : ''
+                    "></v-autocomplete>
               </v-col>
 
               <v-col cols="6">
@@ -149,7 +146,7 @@
       <v-col md="">
         <v-data-table v-if="can(`leave_list_view`)" v-model="ids" show-select item-key="id" :headers="headers"
           :items="data" :server-items-length="total" :loading="loading" :options.sync="options" :footer-props="{
-            itemsPerPageOptions: [50, 100, 500,1000],
+            itemsPerPageOptions: [50, 100, 500, 1000],
           }" class="elevation-1">
           <template v-slot:top>
             <v-toolbar flat color="">
@@ -391,7 +388,7 @@ export default {
       let id = this.$auth.user.employee.id;
       this.$axios.get(`reporter_by_employee/${id}`).then(({ data }) => {
         this.reporters = data;
-        console.log(data);
+
       });
     },
 

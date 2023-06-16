@@ -542,7 +542,7 @@ export default {
       this.datatable_search_textbox = '';
     },
     datatable_open() {
-      console.log('datatable_open');
+
       this.datatable_search_textbox = '';
     },
     datatable_close() {
@@ -550,7 +550,7 @@ export default {
       //this.datatable_search_textbox = '';
     },
     getUpdateData(index, shift_id, day) {
-      console.log(this.editShifts);
+
     },
 
     can(per) {
@@ -583,8 +583,6 @@ export default {
         company_id: this.$auth?.user?.company?.id,
         name: this.editName,
       };
-      console.log(payload);
-      console.log(this.editedItemId);
       // return;
       this.$axios
         .put("/roster" + "/" + this.editedItemId, payload)
@@ -643,7 +641,7 @@ export default {
           })
           .catch((err) => console.log(err));
       } else {
-        console.log(payload);
+
         this.$axios
           .post("/roster", payload)
           .then(({ data }) => {
@@ -735,9 +733,6 @@ export default {
         company_id: this.$auth.user.company.id,
       };
 
-
-      console.log('filter_column', filter_column);
-      console.log('filter_value', filter_value);
       if (filter_value != '')
         options[filter_column] = filter_value;
       this.$axios.get("roster", { params: options }).then(({ data }) => {

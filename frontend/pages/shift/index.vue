@@ -11,17 +11,113 @@
         <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="6">
-        <div class="text-right">
+        <!-- <div class="text-right">
           <v-btn v-if="can(`shift_create`)" small color="primary" to="/shift/create" class="mb-2">{{ Model }} +</v-btn>
-        </div>
+        </div> -->
       </v-col>
     </v-row>
 
     <v-card elevation="0" v-if="can(`shift_view`)">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <span> {{ Model }} List</span>
+        <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
+        <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi"><v-icon class="mx-1">mdi
+            mdi-reload</v-icon></a>
+        <v-spacer></v-spacer>
+        <v-toolbar-items>
+          <v-col class="toolbaritems-button-design">
+            <v-btn v-if="can(`shift_create`)" small color="primary" to="/shift/create" class="mb-2">{{ Model }} +</v-btn>
+          </v-col>
+        </v-toolbar-items>
       </v-toolbar>
-      <table>
+      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+        {{ snackText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snack = false">
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+      <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
+        :options.sync="options" :footer-props="{
+          itemsPerPageOptions: [50, 100, 500, 1000],
+        }" class="elevation-1">
+        <template v-slot:item.sno="{ item, index }">
+
+          <b>{{ ++index }}</b>
+        </template>
+        <template v-slot:item.name="{ item }">
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
+            {{ item.name }}
+            <template v-slot:input>
+              <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_shift_name', $event)"
+                label="Search Shift name"></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </template>
+        <template v-slot:item.shift_type.name="{ item }">
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
+            {{ item.shift_type.name }}
+            <template v-slot:input>
+              <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_shift_type', $event)"
+                label="Search Shift Type"></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </template>
+
+        <template v-slot:item.on_duty_time="{ item }">
+          {{ item.on_duty_time }}
+        </template>
+        <template v-slot:item.ending_in="{ item }">
+          {{ item.ending_in }}
+        </template>
+        <template v-slot:item.late_time="{ item }">
+          {{ item.late_time }}
+        </template>
+        <template v-slot:item.gap_in="{ item }">
+          {{ item.gap_in }}
+        </template>
+        <template v-slot:item.off_duty_time="{ item }">
+          {{ item.off_duty_time }}
+        </template>
+        <template v-slot:item.beginning_out="{ item }">
+          {{ item.beginning_out }}
+        </template>
+        <template v-slot:item.ending_out="{ item }">
+          {{ item.ending_out }}
+        </template>
+        <template v-slot:item.early_time="{ item }">
+          {{ item.early_time }}
+        </template>
+        <template v-slot:item.gap_out="{ item }">
+          {{ item.gap_out }}
+        </template>
+        <template v-slot:item.absent_min_in="{ item }">
+          {{ item.absent_min_in }}
+        </template>
+        <template v-slot:item.absent_min_out="{ item }">
+          {{ item.absent_min_out }}
+        </template>
+        <template v-slot:item.working_hours="{ item }">
+          {{ item.working_hours }}
+        </template>
+        <template v-slot:item.overtime_interval="{ item }">
+          {{ item.overtime_interval }}
+        </template>
+
+        <template v-slot:item.actions="{ item }">
+          <v-icon color="primary" small class="mr-2" @click="editItem(item)">
+            mdi-pencil
+          </v-icon>
+          <v-icon color="error" small @click="deleteItem(item)">
+            mdi-delete
+          </v-icon>
+        </template>
+      </v-data-table>
+
+      <!-- <table>
         <tr>
           <th v-for="(i, index) in headers" :key="index">{{ i.text }}</th>
         </tr>
@@ -47,13 +143,7 @@
           <td>{{ item && item.working_hours }}</td>
           <td>{{ item && item.overtime_interval }}</td>
 
-          <!-- <td>
-            <span v-if="item && !item.days"> --- </span>
-            <span v-else v-for="(day, index) in item.days" :key="index">
-              {{ day }}
-              <span v-if="item && item.days.length - 1 !== index">, </span>
-            </span>
-          </td> -->
+
           <td style="text-align: center">
             <v-icon color="primary" small class="mr-2" @click="editItem(item)">
               mdi-pencil
@@ -63,7 +153,7 @@
             </v-icon>
           </td>
         </tr>
-      </table>
+      </table> -->
     </v-card>
 
     <NoAccess v-else />
@@ -73,6 +163,13 @@
 <script>
 export default {
   data: () => ({
+    datatable_search_textbox: '',
+    datatable_searchById: '',
+    filter_employeeid: '',
+    snack: false,
+    snackColor: '',
+    snackText: '',
+
     options: {},
     Model: "Shift",
     endpoint: "shift",
@@ -101,6 +198,136 @@ export default {
       // { text: "Off Days" },
       { text: "Actions" },
     ],
+    headers_table: [
+      {
+        text: "#",
+        align: "left",
+        sortable: true,
+
+        value: "sno",// template name
+      },
+      {
+        text: "Name",
+        align: "left",
+        sortable: true,
+        key: "name",
+        value: "name",
+      },
+      {
+        text: "Shift Type",
+        align: "left",
+        sortable: true,
+        key: "name",
+        value: "shift_type.name",
+      },
+
+      {
+        text: "In",
+        align: "left",
+        sortable: true,
+        key: "on_duty_time",
+        value: "on_duty_time",
+      },
+      {
+        text: "Start In",
+        align: "left",
+        sortable: true,
+        key: "beginning_in",
+        value: "beginning_in",
+      },
+      {
+        text: "Ending In",
+        align: "left",
+        sortable: true,
+        key: "ending_in",
+        value: "ending_in",
+      },
+      {
+        text: "Late In",
+        align: "left",
+        sortable: true,
+        key: "late_time",
+        value: "late_time",
+      },
+      {
+        text: "Gap In",
+        align: "left",
+        sortable: true,
+        key: "gap_in",
+        value: "gap_in",
+      },
+      {
+        text: "Out",
+        align: "left",
+        sortable: true,
+        key: "off_duty_time",
+        value: "off_duty_time",
+      },
+      {
+        text: "Start Out",
+        align: "left",
+        sortable: true,
+        key: "beginning_out",
+        value: "beginning_out",
+      },
+      {
+        text: "Ending Out",
+        align: "left",
+        sortable: true,
+        key: "ending_out",
+        value: "ending_out",
+      },
+      {
+        text: "Early Out",
+        align: "left",
+        sortable: true,
+        key: "early_time",
+        value: "early_time",
+      },
+      {
+        text: "Gap Out",
+        align: "left",
+        sortable: true,
+        key: "gap_out",
+        value: "gap_out",
+      },
+      {
+        text: "Absent In",
+        align: "left",
+        sortable: true,
+        key: "absent_min_in",
+        value: "absent_min_in",
+      },
+      {
+        text: "Absent Out",
+        align: "left",
+        sortable: true,
+        key: "absent_min_out",
+        value: "absent_min_out",
+      },
+      {
+        text: "Working Hrs",
+        align: "left",
+        sortable: true,
+        key: "working_hours",
+        value: "working_hours",
+      },
+      {
+        text: "OT Interval",
+        align: "left",
+        sortable: true,
+        key: "overtime_interval",
+        value: "overtime_interval",
+      },
+      // { text: "Off Days" },
+      {
+        text: "Actions",
+        align: "left",
+        sortable: false,
+        key: "actions",
+        value: "actions",
+      },
+    ],
     response: "",
     data: [],
     errors: [],
@@ -120,6 +347,19 @@ export default {
   },
 
   methods: {
+    datatable_save() {
+    },
+    datatable_cancel() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      this.loading = false;
+      //this.datatable_search_textbox = '';
+    },
     getDataForToolTip(item) {
       if (item && !item.time_table) {
         return {};
@@ -150,8 +390,13 @@ export default {
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
+    getRecords(filter_column = '', filter_value = '') {
 
-    getDataFromApi(url = this.endpoint) {
+
+      this.getDataFromApi(this.endpoint, filter_column, filter_value);
+    },
+
+    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
       this.loading = true;
 
       const { page, itemsPerPage } = this.options;
@@ -163,8 +408,19 @@ export default {
           company_id: this.$auth.user.company.id,
         },
       };
+      if (filter_column != '')
+        options.params[filter_column] = filter_value;
 
       this.$axios.get(url, options).then(({ data }) => {
+
+        if (filter_column != '' && data.data.length == 0) {
+
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
@@ -194,6 +450,8 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
             } else {
+
+
               this.getDataFromApi();
               this.snackbar = data.status;
               this.ids = [];

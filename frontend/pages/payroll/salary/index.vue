@@ -716,7 +716,7 @@ export default {
         const monthLabel = month.toLocaleString("default", { month: "long" });
         this.monthNames.push({ value: i + 1, label: monthLabel });
       }
-      console.log("this.monthNames", this.monthNames);
+
       // Select the current month by default
       this.payslip_month = currentMonth + 1;
     },
@@ -779,7 +779,7 @@ export default {
       });
     },
     generateNewpayslipsByDepartment() {
-      console.log("this.endpoint", this.endpoint);
+
       let url = this.endpoint;
       let options = {
         params: {
@@ -810,17 +810,11 @@ export default {
     },
 
     generateNewpayslipsSelected() {
-      console.log("this.selectedItems", this.selectedItems);
-      console.log("this.endpoint", this.endpoint);
-
       let checkedIdArray = [];
       this.selectedItems.forEach(element => {
 
         checkedIdArray.push(element.id);
       });
-
-      console.log('checkedIdArray', checkedIdArray);
-
       let url = this.endpoint;
       let options = {
         params: {
@@ -831,7 +825,6 @@ export default {
           month: this.payslip_month,
         },
       };
-      console.log("options", options);
       this.$axios
         .get(`/generate-payslips-with-employeeids`, options)
         .then(({ data }) => {

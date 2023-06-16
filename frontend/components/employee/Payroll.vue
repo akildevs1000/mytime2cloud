@@ -260,7 +260,7 @@ export default {
         })
         .catch((e) => {
           this.errors = [];
-          console.log(e);
+
         });
     },
     close_payroll_info() {

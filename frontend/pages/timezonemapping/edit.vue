@@ -337,7 +337,7 @@ export default {
 
       let url = this.endPointMapping;
 
-      console.log("this.departmentselected", this.departmentselected);
+
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
@@ -346,18 +346,12 @@ export default {
       };
       let page = 1;
       this.$axios.get(`${url}/${this.mappingtId}`, options).then(({ data }) => {
-        console.log("data", data);
+
         this.rightEmployees = data.employee_id;
         this.rightDevices = data.device_id;
 
         this.timezonesselected = parseInt(data.timezone_id);
-        console.log("employee_id", data.employee_id);
 
-        // console.log(" rightEmployees ", this.rightEmployees);
-        console.log(" rightEmployees ", this.rightSelectedEmp);
-        console.log(" leftEmployees ", this.leftEmployees);
-
-        console.log("optionsRightEmp");
 
         this.rightEmployees
           .map((e) => ({ id: e.id }))
@@ -384,7 +378,7 @@ export default {
       //this.loading = true;
       // let page = this.pagination.current;
       let url = this.endpointEmployee;
-      console.log("this.departmentselected", this.departmentselected);
+
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
@@ -424,7 +418,7 @@ export default {
         .get("timezone", options)
         .then(({ data }) => {
           this.timezones = data.data;
-          console.log("this.$route.query.id", this.$route.query.id);
+
           this.timezonesselected = parseInt(this.$route.query.id);
           // this.$axios
           //   .get("employee_timezone_mapping", options)
@@ -440,7 +434,7 @@ export default {
         })
         .catch((err) => console.log(err));
 
-      //console.log("timezonevalues", this.timezones, this.$route.query.id);
+
     },
     resetErrorMessages() {
       this.errors = [];
@@ -516,7 +510,7 @@ export default {
         });
         return selectedObj;
       });
-      console.log(filteredDataEmp);
+
 
       let options = {
         timezone_id: this.timezonesselected,
@@ -544,7 +538,7 @@ export default {
               (e) => e.sn == rightDevicesobj.device_id
             );
 
-            console.log("person info error", SdkResponseDeviceobject);
+
             let deviceStatusResponse = "";
             let EmpStatusResponse = "";
 
@@ -566,7 +560,7 @@ export default {
                 );
                 EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
                 deviceStatusResponse = "";
-                console.log("selectedEmpobject", selectedEmpobject);
+
 
                 if (EmpStatusResponse != "") {
                   //Adding extra parameters for Employee object
@@ -583,7 +577,7 @@ export default {
                   }
                 }
 
-                console.log("Final - jsrightEmployees", jsrightEmployees);
+
               });
             } else {
             }
@@ -690,7 +684,7 @@ export default {
       }),
     sortObjectC: (o) =>
       o.sort(function compareByName(a, b) {
-        console.log("a", a);
+
         if (a.name && b.name) {
           let nameA = a.name.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
           let nameB = b.name.toUpperCase();
@@ -716,12 +710,11 @@ export default {
     },
     moveToLeftempOption2() {
       // this.rightSelectedEmp.push(id);
-      // console.log("leftSelectedEmp", this.rightSelectedEmp);
-      // console.log("leftSelectedEmp length", this.rightSelectedEmp.length);
+
 
       if (!this.rightSelectedEmp.length) return;
 
-      console.log("moveToRightEmp", this.rightSelectedEmp);
+
       //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
       let _rightSelectedEmp_length = this.rightSelectedEmp.length;
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
@@ -741,7 +734,7 @@ export default {
         }
       }
       this.leftEmployees = this.sortObject(this.leftEmployees);
-      //console.log("-------End move right--------");
+
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
 
         this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
@@ -749,15 +742,6 @@ export default {
 
     },
     moveToRightEmpOption2() {
-      // if (timezone && timezone.timezone_name) {
-      //   return false;
-      // }
-
-      //this.leftSelectedEmp.push(id);
-
-      console.log("Starting move right--------");
-      console.log("leftSelectedEmp", this.leftSelectedEmp);
-      console.log("leftSelectedEmp length", this.leftSelectedEmp.length);
 
       if (!this.leftSelectedEmp.length) return;
 
@@ -778,7 +762,7 @@ export default {
         }
       }
       this.rightEmployees = this.sortObject(this.rightEmployees);
-      //console.log("-------End move right--------");
+
       for (let i = 0; i < _leftSelectedEmp_length; i++) {
 
         this.leftSelectedEmp.pop(this.leftSelectedEmp[i]);
@@ -789,28 +773,21 @@ export default {
     allmoveToLeftDevices() {
       this.leftDevices = this.leftDevices.concat(this.rightDevices);
       this.rightDevices = [];
-      console.log("this.leftDevices", this.leftDevices);
+
       this.leftDevices = this.sortObjectD(this.leftDevices);
     },
     allmoveToRightDevices() {
       this.rightDevices = this.rightDevices.concat(this.leftDevices);
       this.leftDevices = [];
-      console.log("this.rightDevices", this.rightDevices);
+
       this.rightDevices = this.sortObjectD(this.rightDevices);
     },
     moveToLeftDevicesOption2() {
-      // console.log("e)", e);
-      // this.rightSelectedDevices.push(id);
 
-      // console.log("leftSelectedDevices", this.rightSelectedDevices);
-      // console.log(
-      //   "leftSelectedDevices length",
-      //   this.rightSelectedDevices.length
-      // );
 
       if (!this.rightSelectedDevices.length) return;
 
-      console.log("moveToRightDevices", this.rightSelectedDevices);
+
       //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
       let _rightSelectedDevices_length = this.rightSelectedDevices.length;
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
@@ -828,9 +805,9 @@ export default {
           this.rightDevices.splice(selectedindex, 1);
         }
       }
-      console.log("this.leftDevices", this.leftDevices);
+
       this.leftDevices = this.sortObjectD(this.leftDevices);
-      //console.log("-------End move right--------");
+
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
 
         this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
@@ -838,13 +815,6 @@ export default {
 
     },
     moveToRightDevicesOption2() {
-      // this.leftSelectedDevices.push(id);
-      // console.log("Starting move right--------");
-      // console.log("leftSelectedDevices", this.leftSelectedDevices);
-      // console.log(
-      //   "leftSelectedDevices length",
-      //   this.leftSelectedDevices.length
-      // );
 
       if (!this.leftSelectedDevices.length) return;
 
@@ -864,10 +834,8 @@ export default {
           this.leftDevices.splice(selectedindex, 1);
         }
       }
-      console.log("this.rightDevices", this.rightDevices);
-      this.rightDevices = this.sortObjectD(this.rightDevices);
-      //console.log("-------End move right--------");
 
+      this.rightDevices = this.sortObjectD(this.rightDevices);
 
 
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
@@ -879,41 +847,3 @@ export default {
 };
 </script>
 
-<style scoped>
-/* @import "../../node_modules/@syncfusion/ej2-base/styles/material.css";
-@import "../../node_modules/@syncfusion/ej2-inputs/styles/material.css";
-@import "../../node_modules/@syncfusion/ej2-vue-dropdowns/styles/material.css"; */
-/* @import "https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"; */
-/* @media only screen and ((min-width: 1200px)) {
-  .container {
-    width: 90% !important;
-  }
-}
-@media (min-width: 1200px) {
-  .container {
-    width: 90% !important;
-  }
-}
-.container {
-  width: 90% !important;
-} */
-/* .container {
-  display: grid;
-  grid-template-columns: 30% 10% 30%;
-  align-items: center;
-} */
-/*
-.container select {
-  height: 200px;
-  width: 100%;
-}
-
-.container .middle {
-  text-align: center;
-}
-
-.container button {
-  width: 80%;
-  margin-bottom: 5px;
-} */
-</style>

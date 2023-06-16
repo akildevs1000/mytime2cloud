@@ -9,22 +9,14 @@
       <tr>
         <th>Status</th>
         <td>
-          <v-switch
-            color="success"
-            class="mt-0 ml-2"
-            v-model="setting.status"
-          ></v-switch>
+          <v-switch color="success" class="mt-0 ml-2" v-model="setting.status"></v-switch>
         </td>
       </tr>
 
       <tr>
         <th>Mobile Application</th>
         <td>
-          <v-switch
-            color="success"
-            class="mt-0 ml-2"
-            v-model="setting.mobile_application"
-          ></v-switch>
+          <v-switch color="success" class="mt-0 ml-2" v-model="setting.mobile_application"></v-switch>
         </td>
       </tr>
 
@@ -32,18 +24,12 @@
         <th>Over Time</th>
         <td>
           <div class="text-overline mb-1">
-            <v-switch
-              color="success"
-              class="mt-0 ml-2"
-              v-model="setting.overtime"
-            ></v-switch>
+            <v-switch color="success" class="mt-0 ml-2" v-model="setting.overtime"></v-switch>
           </div>
         </td>
       </tr>
       <div class="w-100 text-right">
-        <v-btn small class="primary mt-1 w-25" @click="update_setting"
-          >Save</v-btn
-        >
+        <v-btn small class="primary mt-1 w-25" @click="update_setting">Save</v-btn>
       </div>
     </table>
   </div>
@@ -87,13 +73,13 @@ export default {
         overtime: this.setting.overtime,
         mobile_application: this.setting.mobile_application,
       };
-      console.log(payload);
+
       // return;
       this.$axios
         .post(`employee/update/setting`, payload)
         .then(({ data }) => {
           this.loading = false;
-          console.log(data);
+
 
           if (!data.status) {
             this.errors = data.errors;
@@ -101,7 +87,7 @@ export default {
             this.errors = [];
             this.snackbar = true;
             this.response = "Setting has been successfully updated";
-            console.log("success");
+
           }
         })
         .catch((e) => console.log(e));

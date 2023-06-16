@@ -254,7 +254,7 @@ export default {
       this.employee_data = ajaxData;
 
       return false;
-      console.log("id", this.$route.params.id);
+
       // Code that will run only after the
       // entire view has been rendered
       var options = {
@@ -335,7 +335,7 @@ export default {
     },
 
     handleAction(actionName, data) {
-      console.log(actionName, data);
+
       //window.alert("check out the console to see the logs");
     },
     can(per) {

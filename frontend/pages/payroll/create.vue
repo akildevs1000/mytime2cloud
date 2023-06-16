@@ -14,9 +14,7 @@
       </v-row>
       <v-card elevation="0" class="pa-3 mb-5">
         <v-card-title>
-          <label class="col-form-label pt-0 mt-5"
-            ><b>Create Payroll Formula</b></label
-          >
+          <label class="col-form-label pt-0 mt-5"><b>Create Payroll Formula</b></label>
           <!-- <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
             <v-icon>mdi-arrow-left</v-icon>
@@ -25,9 +23,7 @@
         <v-container>
           <v-row>
             <v-col cols="2">
-              <label class="col-form-label pt-0 mt-5"
-                ><b>Salary calculation formula</b></label
-              >
+              <label class="col-form-label pt-0 mt-5"><b>Salary calculation formula</b></label>
             </v-col>
             <v-col cols="10">
               <div style="display: inline-flex">
@@ -46,22 +42,9 @@
             </v-col>
             <v-col cols="10">
               <div style="display: inline-flex">
-                <input
-                  class="form-control"
-                  type="text"
-                  outlined
-                  dense
-                  value="Per Hour Salary"
-                  readonly
-                />
+                <input class="form-control" type="text" outlined dense value="Per Hour Salary" readonly />
                 <span class="pa-2">x</span>
-                <input
-                  v-model="payload.ot_value"
-                  class="form-control"
-                  type="text"
-                  outlined
-                  dense
-                />
+                <input v-model="payload.ot_value" class="form-control" type="text" outlined dense />
               </div>
               <span v-if="errors && errors.ot_value" class="text-danger">{{
                 errors.ot_value[0]
@@ -69,35 +52,15 @@
             </v-col>
 
             <v-col cols="2">
-              <label class="col-form-label"
-                ><b>Late Deduction formula</b></label
-              >
+              <label class="col-form-label"><b>Late Deduction formula</b></label>
             </v-col>
             <v-col cols="8">
               <div style="display: inline-flex">
-                <input
-                  class="form-control"
-                  type="text"
-                  outlined
-                  dense
-                  value="Per Hour Salary"
-                  readonly
-                />
+                <input class="form-control" type="text" outlined dense value="Per Hour Salary" readonly />
                 <span class="pa-2">x</span>
-                <input
-                  v-model="payload.deduction_value"
-                  class="form-control"
-                  type="text"
-                  outlined
-                  dense
-                />
+                <input v-model="payload.deduction_value" class="form-control" type="text" outlined dense />
               </div>
-              <span
-                v-if="errors && errors.deduction_value"
-                class="text-danger"
-                d
-                >{{ errors.deduction_value[0] }}</span
-              >
+              <span v-if="errors && errors.deduction_value" class="text-danger" d>{{ errors.deduction_value[0] }}</span>
             </v-col>
             <v-col cols="12">
               <v-btn small color="primary" @click="store"> Submit </v-btn>
@@ -108,9 +71,7 @@
 
       <v-card elevation="0" class="pa-3">
         <v-card-title>
-          <label class="col-form-label pt-0 mt-5"
-            ><b>Create Payroll Generation Date</b></label
-          >
+          <label class="col-form-label pt-0 mt-5"><b>Create Payroll Generation Date</b></label>
           <!-- <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
             <v-icon>mdi-arrow-left</v-icon>
@@ -119,32 +80,15 @@
         <v-container>
           <v-row>
             <v-col cols="2">
-              <label class="col-form-label"
-                ><b>Set date for payroll genration</b></label
-              >
+              <label class="col-form-label"><b>Set date for payroll genration</b></label>
             </v-col>
             <v-col cols="2">
-              <v-menu
-                v-model="menu"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
+              <v-menu v-model="menu" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
+                offset-y min-width="auto">
                 <template v-slot:activator="{ on }">
-                  <v-text-field
-                    outlined
-                    dense
-                    v-model="date"
-                    readonly
-                    v-on="on"
-                  ></v-text-field>
+                  <v-text-field outlined dense v-model="date" readonly v-on="on"></v-text-field>
                 </template>
-                <v-date-picker
-                  v-model="date"
-                  @input="menu = false"
-                ></v-date-picker>
+                <v-date-picker v-model="date" @input="menu = false"></v-date-picker>
               </v-menu>
               <span v-if="errors && errors.date" class="text-danger">{{
                 errors.date[0]
@@ -188,7 +132,6 @@ export default {
       .get(`/payroll_formula/${this.payload.company_id}`)
       .then(({ data }) => {
         if (data) {
-          console.log((this.payload = data));
         }
       })
       .catch((e) => console.log(e));

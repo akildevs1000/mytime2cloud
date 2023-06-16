@@ -76,16 +76,8 @@
                     <label class="col-form-label">{{
                       caps("nationality")
                     }}</label>
-                    <input
-                      v-model="personalItem.nationality"
-                      class="form-control"
-                      type=""
-                    />
-                    <span
-                      v-if="errors && errors.nationality"
-                      class="text-danger mt-2"
-                      >{{ errors.nationality[0] }}</span
-                    >
+                    <input v-model="personalItem.nationality" class="form-control" type="" />
+                    <span v-if="errors && errors.nationality" class="text-danger mt-2">{{ errors.nationality[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -93,32 +85,16 @@
                     <label class="col-form-label">{{
                       caps("Date of birth")
                     }}</label>
-                    <input
-                      min="0"
-                      v-model="personalItem.date_of_birth"
-                      class="form-control"
-                      type="date"
-                    />
-                    <span
-                      v-if="errors && errors.date_of_birth"
-                      class="text-danger mt-2"
-                      >{{ errors.date_of_birth[0] }}</span
-                    >
+                    <input min="0" v-model="personalItem.date_of_birth" class="form-control" type="date" />
+                    <span v-if="errors && errors.date_of_birth" class="text-danger mt-2">{{ errors.date_of_birth[0]
+                    }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("religion") }}</label>
-                    <input
-                      v-model="personalItem.religion"
-                      class="form-control"
-                      type=""
-                    />
-                    <span
-                      v-if="errors && errors.religion"
-                      class="text-danger mt-2"
-                      >{{ errors.religion[0] }}</span
-                    >
+                    <input v-model="personalItem.religion" class="form-control" type="" />
+                    <span v-if="errors && errors.religion" class="text-danger mt-2">{{ errors.religion[0] }}</span>
                   </div>
                 </v-col>
 
@@ -127,20 +103,13 @@
                     <label class="col-form-label">{{
                       caps("marital status")
                     }}</label>
-                    <select
-                      v-model="personalItem.marital_status"
-                      class="form-control"
-                      aria-label="Default select"
-                    >
+                    <select v-model="personalItem.marital_status" class="form-control" aria-label="Default select">
                       <option value="">select...</option>
                       <option value="1">Married</option>
                       <option value="2">Single</option>
                     </select>
-                    <span
-                      v-if="errors && errors.marital_status"
-                      class="text-danger mt-2"
-                      >{{ errors.marital_status[0] }}</span
-                    >
+                    <span v-if="errors && errors.marital_status" class="text-danger mt-2">{{ errors.marital_status[0]
+                    }}</span>
                   </div>
                 </v-col>
 
@@ -149,17 +118,9 @@
                     <label class="col-form-label">{{
                       caps("no of spouse")
                     }}</label>
-                    <input
-                      min="0"
-                      v-model="personalItem.no_of_spouse"
-                      class="form-control"
-                      type="number"
-                    />
-                    <span
-                      v-if="errors && errors.no_of_spouse"
-                      class="text-danger mt-2"
-                      >{{ errors.no_of_spouse[0] }}</span
-                    >
+                    <input min="0" v-model="personalItem.no_of_spouse" class="form-control" type="number" />
+                    <span v-if="errors && errors.no_of_spouse" class="text-danger mt-2">{{ errors.no_of_spouse[0]
+                    }}</span>
                   </div>
                 </v-col>
 
@@ -168,17 +129,9 @@
                     <label class="col-form-label">{{
                       caps("no of children")
                     }}</label>
-                    <input
-                      min="0"
-                      v-model="personalItem.no_of_children"
-                      class="form-control"
-                      type="number"
-                    />
-                    <span
-                      v-if="errors && errors.no_of_children"
-                      class="text-danger mt-2"
-                      >{{ errors.no_of_children[0] }}</span
-                    >
+                    <input min="0" v-model="personalItem.no_of_children" class="form-control" type="number" />
+                    <span v-if="errors && errors.no_of_children" class="text-danger mt-2">{{ errors.no_of_children[0]
+                    }}</span>
                   </div>
                 </v-col>
 
@@ -187,17 +140,8 @@
                     <label class="col-form-label">{{
                       caps("father name")
                     }}</label>
-                    <input
-                      min="0"
-                      v-model="personalItem.father_name"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.father_name"
-                      class="text-danger mt-2"
-                      >{{ errors.father_name[0] }}</span
-                    >
+                    <input min="0" v-model="personalItem.father_name" class="form-control" type="text" />
+                    <span v-if="errors && errors.father_name" class="text-danger mt-2">{{ errors.father_name[0] }}</span>
                   </div>
                 </v-col>
 
@@ -206,52 +150,30 @@
                     <label class="col-form-label">{{
                       caps("mother name")
                     }}</label>
-                    <input
-                      min="0"
-                      v-model="personalItem.mother_name"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.mother_name"
-                      class="text-danger mt-2"
-                      >{{ errors.mother_name[0] }}</span
-                    >
+                    <input min="0" v-model="personalItem.mother_name" class="form-control" type="text" />
+                    <span v-if="errors && errors.mother_name" class="text-danger mt-2">{{ errors.mother_name[0] }}</span>
                   </div>
                 </v-col>
 
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("gender") }}</label>
-                    <select
-                      v-model="personalItem.gender"
-                      class="form-select"
-                      aria-label="Default select"
-                    >
+                    <select v-model="personalItem.gender" class="form-select" aria-label="Default select">
                       <option value="">Select...</option>
                       <option value="1">Male</option>
                       <option value="2">Female</option>
                     </select>
-                    <span
-                      v-if="errors && errors.gender"
-                      class="text-danger mt-2"
-                      >{{ errors.gender[0] }}</span
-                    >
+                    <span v-if="errors && errors.gender" class="text-danger mt-2">{{ errors.gender[0] }}</span>
                   </div>
                 </v-col>
 
                 <v-col cols="12">
-                  <a
-                    href="javascrip:void(0)"
-                    @click="add_other_personal_info = !add_other_personal_info"
-                    >{{
-                      caps(
-                        `${
-                          add_other_personal_info ? "hide" : "show"
-                        } other field`
-                      )
-                    }}</a
-                  >
+                  <a href="javascrip:void(0)" @click="add_other_personal_info = !add_other_personal_info">{{
+                    caps(
+                      `${add_other_personal_info ? "hide" : "show"
+                      } other field`
+                    )
+                  }}</a>
                 </v-col>
 
                 <v-col cols="6" v-if="add_other_personal_info">
@@ -259,15 +181,8 @@
                     <label class="col-form-label">{{
                       caps("other text")
                     }}</label>
-                    <input
-                      v-model="personalItem.other_text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.other_text"
-                      class="text-danger"
-                      >{{ errors.other_text[0] }}</span
-                    >
+                    <input v-model="personalItem.other_text" class="form-control" />
+                    <span v-if="errors && errors.other_text" class="text-danger">{{ errors.other_text[0] }}</span>
                   </div>
                 </v-col>
 
@@ -276,15 +191,8 @@
                     <label class="col-form-label">{{
                       caps("other value")
                     }}</label>
-                    <input
-                      v-model="personalItem.other_value"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.other_value"
-                      class="text-danger mt-2"
-                      >{{ errors.other_value[0] }}</span
-                    >
+                    <input v-model="personalItem.other_value" class="form-control" />
+                    <span v-if="errors && errors.other_value" class="text-danger mt-2">{{ errors.other_value[0] }}</span>
                   </div>
                 </v-col>
 
@@ -320,9 +228,7 @@
             <v-btn class="error" small @click="close_personal_info">
               Cancel
             </v-btn>
-            <v-btn class="primary" small @click="save_personal_info"
-              >Save</v-btn
-            >
+            <v-btn class="primary" small @click="save_personal_info">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -341,30 +247,16 @@
                     <label class="col-form-label">{{
                       caps("local address")
                     }}</label>
-                    <input
-                      v-model="contactItem.local_address"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.local_address"
-                      class="text-danger mt-2"
-                      >{{ errors.local_address[0] }}</span
-                    >
+                    <input v-model="contactItem.local_address" class="form-control" />
+                    <span v-if="errors && errors.local_address" class="text-danger mt-2">{{ errors.local_address[0]
+                    }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
-                    <label class="col-form-label">{{ caps("  email") }}</label>
-                    <input
-                      v-model="contactItem.local_email"
-                      class="form-control"
-                      type="email"
-                    />
-                    <span
-                      v-if="errors && errors.local_email"
-                      class="text-danger mt-2"
-                      >{{ errors.local_email[0] }}</span
-                    >
+                    <label class="col-form-label">{{ caps(" email") }}</label>
+                    <input v-model="contactItem.local_email" class="form-control" type="email" />
+                    <span v-if="errors && errors.local_email" class="text-danger mt-2">{{ errors.local_email[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -372,15 +264,9 @@
                     <label class="col-form-label">{{
                       caps("phone number")
                     }}</label>
-                    <input
-                      v-model="contactItem.phone_number"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.phone_number"
-                      class="text-danger mt-2"
-                      >{{ errors.phone_number[0] }}</span
-                    >
+                    <input v-model="contactItem.phone_number" class="form-control" />
+                    <span v-if="errors && errors.phone_number" class="text-danger mt-2">{{ errors.phone_number[0]
+                    }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -388,15 +274,9 @@
                     <label class="col-form-label">{{
                       caps("whatsapp number")
                     }}</label>
-                    <input
-                      v-model="contactItem.whatsapp_number"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.whatsapp_number"
-                      class="text-danger mt-2"
-                      >{{ errors.whatsapp_number[0] }}</span
-                    >
+                    <input v-model="contactItem.whatsapp_number" class="form-control" />
+                    <span v-if="errors && errors.whatsapp_number" class="text-danger mt-2">{{ errors.whatsapp_number[0]
+                    }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -404,30 +284,16 @@
                     <label class="col-form-label">{{
                       caps("phone relative number")
                     }}</label>
-                    <input
-                      v-model="contactItem.phone_relative_number"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.phone_relative_number"
-                      class="text-danger mt-2"
-                      >{{ errors.phone_relative_number[0] }}</span
-                    >
+                    <input v-model="contactItem.phone_relative_number" class="form-control" />
+                    <span v-if="errors && errors.phone_relative_number" class="text-danger mt-2">{{
+                      errors.phone_relative_number[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("relation") }}</label>
-                    <input
-                      v-model="contactItem.relation"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.relation"
-                      class="text-danger mt-2"
-                      >{{ errors.relation[0] }}</span
-                    >
+                    <input v-model="contactItem.relation" class="form-control" type="text" />
+                    <span v-if="errors && errors.relation" class="text-danger mt-2">{{ errors.relation[0] }}</span>
                   </div>
                 </v-col>
 
@@ -436,16 +302,8 @@
                     <label class="col-form-label">{{
                       caps("local city")
                     }}</label>
-                    <input
-                      v-model="contactItem.local_city"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.local_city"
-                      class="text-danger mt-2"
-                      >{{ errors.local_city[0] }}</span
-                    >
+                    <input v-model="contactItem.local_city" class="form-control" type="text" />
+                    <span v-if="errors && errors.local_city" class="text-danger mt-2">{{ errors.local_city[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -453,154 +311,78 @@
                     <label class="col-form-label">{{
                       caps("local country")
                     }}</label>
-                    <input
-                      v-model="contactItem.local_country"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.local_country"
-                      class="text-danger mt-2"
-                      >{{ errors.local_country[0] }}</span
-                    >
+                    <input v-model="contactItem.local_country" class="form-control" type="text" />
+                    <span v-if="errors && errors.local_country" class="text-danger mt-2">{{ errors.local_country[0]
+                    }}</span>
                   </div>
                 </v-col>
 
                 <v-col cols="12">
-                  <a
-                    href="javascrip:void(0)"
-                    @click="add_other_bank_info = !add_other_bank_info"
-                    >{{
-                      caps(
-                        `${
-                          add_other_bank_info ? "hide" : "show"
-                        } Home Country Details`
-                      )
-                    }}</a
-                  >
+                  <a href="javascrip:void(0)" @click="add_other_bank_info = !add_other_bank_info">{{
+                    caps(
+                      `${add_other_bank_info ? "hide" : "show"
+                      } Home Country Details`
+                    )
+                  }}</a>
                 </v-col>
                 <v-col cols="6" v-if="add_other_bank_info">
                   <div class="form-group">
                     <label class="col-form-label">{{
-                      caps("  address")
+                      caps(" address")
                     }}</label>
-                    <input
-                      v-model="contactItem.home_address"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.home_address"
-                      class="text-danger"
-                      >{{ errors.home_address[0] }}</span
-                    >
+                    <input v-model="contactItem.home_address" class="form-control" type="text" />
+                    <span v-if="errors && errors.home_address" class="text-danger">{{ errors.home_address[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6" v-if="add_other_bank_info">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("tel") }}</label>
-                    <input
-                      v-model="contactItem.home_tel"
-                      class="form-control"
-                      type="number"
-                    />
-                    <span
-                      v-if="errors && errors.home_tel"
-                      class="text-danger"
-                      >{{ errors.home_tel[0] }}</span
-                    >
+                    <input v-model="contactItem.home_tel" class="form-control" type="number" />
+                    <span v-if="errors && errors.home_tel" class="text-danger">{{ errors.home_tel[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6" v-if="add_other_bank_info">
                   <div class="form-group">
-                    <label class="col-form-label">{{ caps("  mobile") }}</label>
-                    <input
-                      v-model="contactItem.home_mobile"
-                      class="form-control"
-                      type="number"
-                    />
-                    <span
-                      v-if="errors && errors.home_mobile"
-                      class="text-danger"
-                      >{{ errors.home_mobile[0] }}</span
-                    >
+                    <label class="col-form-label">{{ caps(" mobile") }}</label>
+                    <input v-model="contactItem.home_mobile" class="form-control" type="number" />
+                    <span v-if="errors && errors.home_mobile" class="text-danger">{{ errors.home_mobile[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6" v-if="add_other_bank_info">
                   <div class="form-group">
-                    <label class="col-form-label">{{ caps("  fax") }}</label>
-                    <input
-                      v-model="contactItem.home_fax"
-                      class="form-control"
-                      type="number"
-                    />
-                    <span
-                      v-if="errors && errors.home_fax"
-                      class="text-danger"
-                      >{{ errors.home_fax[0] }}</span
-                    >
+                    <label class="col-form-label">{{ caps(" fax") }}</label>
+                    <input v-model="contactItem.home_fax" class="form-control" type="number" />
+                    <span v-if="errors && errors.home_fax" class="text-danger">{{ errors.home_fax[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6" v-if="add_other_bank_info">
                   <div class="form-group">
-                    <label class="col-form-label">{{ caps("  city") }}</label>
-                    <input
-                      v-model="contactItem.home_city"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.home_city"
-                      class="text-danger"
-                      >{{ errors.home_city[0] }}</span
-                    >
+                    <label class="col-form-label">{{ caps(" city") }}</label>
+                    <input v-model="contactItem.home_city" class="form-control" type="text" />
+                    <span v-if="errors && errors.home_city" class="text-danger">{{ errors.home_city[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6" v-if="add_other_bank_info">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("state") }}</label>
-                    <input
-                      v-model="contactItem.home_state"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.home_state"
-                      class="text-danger"
-                      >{{ errors.home_state[0] }}</span
-                    >
+                    <input v-model="contactItem.home_state" class="form-control" type="text" />
+                    <span v-if="errors && errors.home_state" class="text-danger">{{ errors.home_state[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6" v-if="add_other_bank_info">
                   <div class="form-group">
                     <label class="col-form-label">{{
-                      caps("  country")
+                      caps(" country")
                     }}</label>
-                    <input
-                      v-model="contactItem.home_country"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.home_country"
-                      class="text-danger"
-                      >{{ errors.home_country[0] }}</span
-                    >
+                    <input v-model="contactItem.home_country" class="form-control" type="text" />
+                    <span v-if="errors && errors.home_country" class="text-danger">{{ errors.home_country[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6" v-if="add_other_bank_info">
                   <div class="form-group">
-                    <label class="col-form-label">{{ caps("  email") }}</label>
-                    <input
-                      v-model="contactItem.home_email"
-                      class="form-control"
-                      type="email"
-                    />
-                    <span
-                      v-if="errors && errors.home_email"
-                      class="text-danger"
-                      >{{ errors.home_email[0] }}</span
-                    >
+                    <label class="col-form-label">{{ caps(" email") }}</label>
+                    <input v-model="contactItem.home_email" class="form-control" type="email" />
+                    <span v-if="errors && errors.home_email" class="text-danger">{{ errors.home_email[0] }}</span>
                   </div>
                 </v-col>
                 <span v-if="errors && errors.length" class="error--text">{{
@@ -635,11 +417,7 @@
                       caps("bank name")
                     }}</label>
                     <input v-model="BankInfo.bank_name" class="form-control" />
-                    <span
-                      v-if="errors && errors.bank_name"
-                      class="text-danger mt-2"
-                      >{{ errors.bank_name[0] }}</span
-                    >
+                    <span v-if="errors && errors.bank_name" class="text-danger mt-2">{{ errors.bank_name[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -648,11 +426,7 @@
                       caps("bank address")
                     }}</label>
                     <input v-model="BankInfo.address" class="form-control" />
-                    <span
-                      v-if="errors && errors.address"
-                      class="text-danger mt-2"
-                      >{{ errors.address[0] }}</span
-                    >
+                    <span v-if="errors && errors.address" class="text-danger mt-2">{{ errors.address[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -661,11 +435,7 @@
                       caps("account no")
                     }}</label>
                     <input v-model="BankInfo.account_no" class="form-control" />
-                    <span
-                      v-if="errors && errors.account_no"
-                      class="text-danger mt-2"
-                      >{{ errors.account_no[0] }}</span
-                    >
+                    <span v-if="errors && errors.account_no" class="text-danger mt-2">{{ errors.account_no[0] }}</span>
                   </div>
                 </v-col>
 
@@ -674,15 +444,9 @@
                     <label class="col-form-label">{{
                       caps("account title")
                     }}</label>
-                    <input
-                      v-model="BankInfo.account_title"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.account_title"
-                      class="text-danger mt-2"
-                      >{{ errors.account_title[0] }}</span
-                    >
+                    <input v-model="BankInfo.account_title" class="form-control" />
+                    <span v-if="errors && errors.account_title" class="text-danger mt-2">{{ errors.account_title[0]
+                    }}</span>
                   </div>
                 </v-col>
 
@@ -690,24 +454,16 @@
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("iban") }}</label>
                     <input v-model="BankInfo.iban" class="form-control" />
-                    <span
-                      v-if="errors && errors.iban"
-                      class="text-danger mt-2"
-                      >{{ errors.iban[0] }}</span
-                    >
+                    <span v-if="errors && errors.iban" class="text-danger mt-2">{{ errors.iban[0] }}</span>
                   </div>
                 </v-col>
 
                 <v-col cols="12">
-                  <a
-                    href="javascrip:void(0)"
-                    @click="add_other_bank_info = !add_other_bank_info"
-                    >{{
-                      caps(
-                        `${add_other_bank_info ? "hide" : "show"} other field`
-                      )
-                    }}</a
-                  >
+                  <a href="javascrip:void(0)" @click="add_other_bank_info = !add_other_bank_info">{{
+                    caps(
+                      `${add_other_bank_info ? "hide" : "show"} other field`
+                    )
+                  }}</a>
                 </v-col>
 
                 <v-col cols="6" v-if="add_other_bank_info">
@@ -716,11 +472,7 @@
                       caps("other text")
                     }}</label>
                     <input v-model="BankInfo.other_text" class="form-control" />
-                    <span
-                      v-if="errors && errors.other_text"
-                      class="text-danger"
-                      >{{ errors.other_text[0] }}</span
-                    >
+                    <span v-if="errors && errors.other_text" class="text-danger">{{ errors.other_text[0] }}</span>
                   </div>
                 </v-col>
 
@@ -729,15 +481,8 @@
                     <label class="col-form-label">{{
                       caps("other value")
                     }}</label>
-                    <input
-                      v-model="BankInfo.other_value"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.other_value"
-                      class="text-danger mt-2"
-                      >{{ errors.other_value[0] }}</span
-                    >
+                    <input v-model="BankInfo.other_value" class="form-control" />
+                    <span v-if="errors && errors.other_value" class="text-danger mt-2">{{ errors.other_value[0] }}</span>
                   </div>
                 </v-col>
 
@@ -770,31 +515,15 @@
                     <label class="col-form-label">{{
                       caps("passport no")
                     }}</label>
-                    <input
-                      v-model="passport_list.passport_no"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.passport_no"
-                      class="text-danger mt-2"
-                      >{{ errors.passport_no[0] }}</span
-                    >
+                    <input v-model="passport_list.passport_no" type="text" class="form-control" />
+                    <span v-if="errors && errors.passport_no" class="text-danger mt-2">{{ errors.passport_no[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("note") }}</label>
-                    <input
-                      v-model="passport_list.note"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.note"
-                      class="text-danger mt-2"
-                      >{{ errors.note[0] }}</span
-                    >
+                    <input v-model="passport_list.note" type="text" class="form-control" />
+                    <span v-if="errors && errors.note" class="text-danger mt-2">{{ errors.note[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -802,32 +531,17 @@
                     <label class="col-form-label">{{
                       caps("place of issues")
                     }}</label>
-                    <input
-                      v-model="passport_list.place_of_issues"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.place_of_issues"
-                      class="text-danger mt-2"
-                      >{{ errors.place_of_issues[0] }}</span
-                    >
+                    <input v-model="passport_list.place_of_issues" type="text" class="form-control" />
+                    <span v-if="errors && errors.place_of_issues" class="text-danger mt-2">{{ errors.place_of_issues[0]
+                    }}</span>
                   </div>
                 </v-col>
 
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("country") }}</label>
-                    <input
-                      v-model="passport_list.country"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.country"
-                      class="text-danger mt-2"
-                      >{{ errors.country[0] }}</span
-                    >
+                    <input v-model="passport_list.country" class="form-control" type="text" />
+                    <span v-if="errors && errors.country" class="text-danger mt-2">{{ errors.country[0] }}</span>
                   </div>
                 </v-col>
 
@@ -836,16 +550,8 @@
                     <label class="col-form-label">{{
                       caps("issue date")
                     }}</label>
-                    <input
-                      v-model="passport_list.issue_date"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.issue_date"
-                      class="text-danger mt-2"
-                      >{{ errors.issue_date[0] }}</span
-                    >
+                    <input v-model="passport_list.issue_date" type="date" class="form-control" />
+                    <span v-if="errors && errors.issue_date" class="text-danger mt-2">{{ errors.issue_date[0] }}</span>
                   </div>
                 </v-col>
 
@@ -854,16 +560,8 @@
                     <label class="col-form-label">{{
                       caps("expiry date")
                     }}</label>
-                    <input
-                      v-model="passport_list.expiry_date"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.expiry_date"
-                      class="text-danger mt-2"
-                      >{{ errors.expiry_date[0] }}</span
-                    >
+                    <input v-model="passport_list.expiry_date" type="date" class="form-control" />
+                    <span v-if="errors && errors.expiry_date" class="text-danger mt-2">{{ errors.expiry_date[0] }}</span>
                   </div>
                 </v-col>
 
@@ -879,9 +577,7 @@
             <v-btn class="error" small @click="close_passport_info">
               Cancel
             </v-btn>
-            <v-btn class="primary" small @click="save_passport_info"
-              >Save</v-btn
-            >
+            <v-btn class="primary" small @click="save_passport_info">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -900,50 +596,26 @@
                     <label class="col-form-label">{{
                       caps("emirate id")
                     }}</label>
-                    <input
-                      v-model="emirateItems.emirate_id"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.emirate_id"
-                      class="text-danger mt-2"
-                      >{{ errors.emirate_id[0] }}</span
-                    >
+                    <input v-model="emirateItems.emirate_id" type="text" class="form-control" />
+                    <span v-if="errors && errors.emirate_id" class="text-danger mt-2">{{ errors.emirate_id[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("name") }}</label>
-                    <input
-                      v-model="emirateItems.name"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.name"
-                      class="text-danger mt-2"
-                      >{{ errors.name[0] }}</span
-                    >
+                    <input v-model="emirateItems.name" type="text" class="form-control" />
+                    <span v-if="errors && errors.name" class="text-danger mt-2">{{ errors.name[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("gender") }}</label>
-                    <select
-                      v-model="emirateItems.gender"
-                      class="form-select"
-                      aria-label="Default select"
-                    >
+                    <select v-model="emirateItems.gender" class="form-select" aria-label="Default select">
                       <option value="">Select...</option>
                       <option value="1">Male</option>
                       <option value="2">Female</option>
                     </select>
-                    <span
-                      v-if="errors && errors.gender"
-                      class="text-danger mt-2"
-                      >{{ errors.gender[0] }}</span
-                    >
+                    <span v-if="errors && errors.gender" class="text-danger mt-2">{{ errors.gender[0] }}</span>
                   </div>
                 </v-col>
 
@@ -952,16 +624,8 @@
                     <label class="col-form-label">{{
                       caps("nationality")
                     }}</label>
-                    <input
-                      v-model="emirateItems.nationality"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.nationality"
-                      class="text-danger mt-2"
-                      >{{ errors.nationality[0] }}</span
-                    >
+                    <input v-model="emirateItems.nationality" class="form-control" type="text" />
+                    <span v-if="errors && errors.nationality" class="text-danger mt-2">{{ errors.nationality[0] }}</span>
                   </div>
                 </v-col>
 
@@ -970,16 +634,8 @@
                     <label class="col-form-label">{{
                       caps("issue date")
                     }}</label>
-                    <input
-                      v-model="emirateItems.issue"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.issue"
-                      class="text-danger mt-2"
-                      >{{ errors.issue[0] }}</span
-                    >
+                    <input v-model="emirateItems.issue" type="date" class="form-control" />
+                    <span v-if="errors && errors.issue" class="text-danger mt-2">{{ errors.issue[0] }}</span>
                   </div>
                 </v-col>
 
@@ -988,16 +644,8 @@
                     <label class="col-form-label">{{
                       caps("expiry date")
                     }}</label>
-                    <input
-                      v-model="emirateItems.expiry"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.expiry"
-                      class="text-danger mt-2"
-                      >{{ errors.expiry[0] }}</span
-                    >
+                    <input v-model="emirateItems.expiry" type="date" class="form-control" />
+                    <span v-if="errors && errors.expiry" class="text-danger mt-2">{{ errors.expiry[0] }}</span>
                   </div>
                 </v-col>
 
@@ -1006,16 +654,8 @@
                     <label class="col-form-label">{{
                       caps("Date of birth")
                     }}</label>
-                    <input
-                      v-model="emirateItems.date_of_birth"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.date_of_birth"
-                      class="text-danger mt-2"
-                      >{{ errors.expiry[0] }}</span
-                    >
+                    <input v-model="emirateItems.date_of_birth" type="date" class="form-control" />
+                    <span v-if="errors && errors.date_of_birth" class="text-danger mt-2">{{ errors.expiry[0] }}</span>
                   </div>
                 </v-col>
 
@@ -1048,31 +688,15 @@
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("Visa no") }}</label>
-                    <input
-                      v-model="visaItem.visa_no"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.visa_no"
-                      class="text-danger mt-2"
-                      >{{ errors.visa_no[0] }}</span
-                    >
+                    <input v-model="visaItem.visa_no" type="text" class="form-control" />
+                    <span v-if="errors && errors.visa_no" class="text-danger mt-2">{{ errors.visa_no[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("note") }}</label>
-                    <input
-                      v-model="visaItem.note"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.note"
-                      class="text-danger mt-2"
-                      >{{ errors.note[0] }}</span
-                    >
+                    <input v-model="visaItem.note" type="text" class="form-control" />
+                    <span v-if="errors && errors.note" class="text-danger mt-2">{{ errors.note[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -1080,32 +704,17 @@
                     <label class="col-form-label">{{
                       caps("place of issues")
                     }}</label>
-                    <input
-                      v-model="visaItem.place_of_issues"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.place_of_issues"
-                      class="text-danger mt-2"
-                      >{{ errors.place_of_issues[0] }}</span
-                    >
+                    <input v-model="visaItem.place_of_issues" type="text" class="form-control" />
+                    <span v-if="errors && errors.place_of_issues" class="text-danger mt-2">{{ errors.place_of_issues[0]
+                    }}</span>
                   </div>
                 </v-col>
 
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("country") }}</label>
-                    <input
-                      v-model="visaItem.country"
-                      class="form-control"
-                      type="text"
-                    />
-                    <span
-                      v-if="errors && errors.country"
-                      class="text-danger mt-2"
-                      >{{ errors.country[0] }}</span
-                    >
+                    <input v-model="visaItem.country" class="form-control" type="text" />
+                    <span v-if="errors && errors.country" class="text-danger mt-2">{{ errors.country[0] }}</span>
                   </div>
                 </v-col>
 
@@ -1114,16 +723,8 @@
                     <label class="col-form-label">{{
                       caps("issue date")
                     }}</label>
-                    <input
-                      v-model="visaItem.issue_date"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.issue_date"
-                      class="text-danger mt-2"
-                      >{{ errors.issue_date[0] }}</span
-                    >
+                    <input v-model="visaItem.issue_date" type="date" class="form-control" />
+                    <span v-if="errors && errors.issue_date" class="text-danger mt-2">{{ errors.issue_date[0] }}</span>
                   </div>
                 </v-col>
 
@@ -1132,16 +733,8 @@
                     <label class="col-form-label">{{
                       caps("expiry date")
                     }}</label>
-                    <input
-                      v-model="visaItem.expiry_date"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.expiry_date"
-                      class="text-danger mt-2"
-                      >{{ errors.expiry_date[0] }}</span
-                    >
+                    <input v-model="visaItem.expiry_date" type="date" class="form-control" />
+                    <span v-if="errors && errors.expiry_date" class="text-danger mt-2">{{ errors.expiry_date[0] }}</span>
                   </div>
                 </v-col>
 
@@ -1150,16 +743,8 @@
                     <label class="col-form-label">{{
                       caps("labour no")
                     }}</label>
-                    <input
-                      v-model="visaItem.labour_no"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.labour_no"
-                      class="text-danger mt-2"
-                      >{{ errors.labour_no[0] }}</span
-                    >
+                    <input v-model="visaItem.labour_no" type="text" class="form-control" />
+                    <span v-if="errors && errors.labour_no" class="text-danger mt-2">{{ errors.labour_no[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -1167,16 +752,8 @@
                     <label class="col-form-label">{{
                       caps("expiry date")
                     }}</label>
-                    <input
-                      v-model="visaItem.personal_no"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.personal_no"
-                      class="text-danger mt-2"
-                      >{{ errors.personal_no[0] }}</span
-                    >
+                    <input v-model="visaItem.personal_no" type="text" class="form-control" />
+                    <span v-if="errors && errors.personal_no" class="text-danger mt-2">{{ errors.personal_no[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -1184,16 +761,9 @@
                     <label class="col-form-label">{{
                       caps("labour issue date")
                     }}</label>
-                    <input
-                      v-model="visaItem.labour_issue_date"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.labour_issue_date"
-                      class="text-danger mt-2"
-                      >{{ errors.labour_issue_date[0] }}</span
-                    >
+                    <input v-model="visaItem.labour_issue_date" type="date" class="form-control" />
+                    <span v-if="errors && errors.labour_issue_date" class="text-danger mt-2">{{
+                      errors.labour_issue_date[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -1201,16 +771,9 @@
                     <label class="col-form-label">{{
                       caps("labour expiry date")
                     }}</label>
-                    <input
-                      v-model="visaItem.labour_expiry_date"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.labour_expiry_date"
-                      class="text-danger mt-2"
-                      >{{ errors.labour_expiry_date[0] }}</span
-                    >
+                    <input v-model="visaItem.labour_expiry_date" type="date" class="form-control" />
+                    <span v-if="errors && errors.labour_expiry_date" class="text-danger mt-2">{{
+                      errors.labour_expiry_date[0] }}</span>
                   </div>
                 </v-col>
                 <span v-if="errors && errors.length" class="error--text">{{
@@ -1243,19 +806,11 @@
                 <v-col cols="5">
                   <v-text-field v-model="d.title" label="Title"></v-text-field>
 
-                  <span
-                    v-if="errors && errors.title"
-                    class="text-danger mt-2"
-                    >{{ errors.title[0] }}</span
-                  >
+                  <span v-if="errors && errors.title" class="text-danger mt-2">{{ errors.title[0] }}</span>
                 </v-col>
                 <v-col cols="5">
                   <div class="form-group">
-                    <v-file-input
-                      v-model="d.file"
-                      placeholder="Upload your file"
-                      label="Attachment"
-                    >
+                    <v-file-input v-model="d.file" placeholder="Upload your file" label="Attachment">
                       <template v-slot:selection="{ text }">
                         <v-chip v-if="text" small label color="primary">
                           {{ text }}
@@ -1263,22 +818,12 @@
                       </template>
                     </v-file-input>
 
-                    <span
-                      v-if="errors && errors.attachment"
-                      class="text-danger mt-2"
-                      >{{ errors.attachment[0] }}</span
-                    >
+                    <span v-if="errors && errors.attachment" class="text-danger mt-2">{{ errors.attachment[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="2">
                   <div class="form-group">
-                    <v-btn
-                      dark
-                      class="error mt-5"
-                      fab
-                      @click="removeItem(index)"
-                      x-small
-                    >
+                    <v-btn dark class="error mt-5" fab @click="removeItem(index)" x-small>
                       <v-icon>mdi-delete</v-icon>
                     </v-btn>
                   </div>
@@ -1292,13 +837,7 @@
             <v-btn class="error" small @click="close_document_info">
               Cancel
             </v-btn>
-            <v-btn
-              :disabled="!Document.items.length"
-              class="primary"
-              small
-              @click="save_document_info"
-              >Save</v-btn
-            >
+            <v-btn :disabled="!Document.items.length" class="primary" small @click="save_document_info">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -1317,31 +856,15 @@
                     <label class="col-form-label">{{
                       caps("certificate")
                     }}</label>
-                    <input
-                      v-model="qualification_list.certificate"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.certificate"
-                      class="text-danger mt-2"
-                      >{{ errors.certificate[0] }}</span
-                    >
+                    <input v-model="qualification_list.certificate" type="text" class="form-control" />
+                    <span v-if="errors && errors.certificate" class="text-danger mt-2">{{ errors.certificate[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("collage") }}</label>
-                    <input
-                      v-model="qualification_list.collage"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.collage"
-                      class="text-danger mt-2"
-                      >{{ errors.collage[0] }}</span
-                    >
+                    <input v-model="qualification_list.collage" type="text" class="form-control" />
+                    <span v-if="errors && errors.collage" class="text-danger mt-2">{{ errors.collage[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
@@ -1349,46 +872,22 @@
                     <label class="col-form-label">{{
                       caps("start date")
                     }}</label>
-                    <input
-                      v-model="qualification_list.start"
-                      class="form-control"
-                      type="date"
-                    />
-                    <span
-                      v-if="errors && errors.start"
-                      class="text-danger mt-2"
-                      >{{ errors.start[0] }}</span
-                    >
+                    <input v-model="qualification_list.start" class="form-control" type="date" />
+                    <span v-if="errors && errors.start" class="text-danger mt-2">{{ errors.start[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("end date") }}</label>
-                    <input
-                      v-model="qualification_list.end"
-                      type="date"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.end"
-                      class="text-danger mt-2"
-                      >{{ errors.end[0] }}</span
-                    >
+                    <input v-model="qualification_list.end" type="date" class="form-control" />
+                    <span v-if="errors && errors.end" class="text-danger mt-2">{{ errors.end[0] }}</span>
                   </div>
                 </v-col>
                 <v-col cols="6">
                   <div class="form-group">
                     <label class="col-form-label">{{ caps("type") }}</label>
-                    <input
-                      v-model="qualification_list.type"
-                      type="text"
-                      class="form-control"
-                    />
-                    <span
-                      v-if="errors && errors.type"
-                      class="text-danger mt-2"
-                      >{{ errors.type[0] }}</span
-                    >
+                    <input v-model="qualification_list.type" type="text" class="form-control" />
+                    <span v-if="errors && errors.type" class="text-danger mt-2">{{ errors.type[0] }}</span>
                   </div>
                 </v-col>
                 <span v-if="errors && errors.length" class="error--text">{{
@@ -1403,9 +902,7 @@
             <v-btn class="error" small @click="close_qualification_info">
               Cancel
             </v-btn>
-            <v-btn class="primary" small @click="save_qualification_info"
-              >Save</v-btn
-            >
+            <v-btn class="primary" small @click="save_qualification_info">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -1415,23 +912,16 @@
           <v-col cols="6" style="border-right: 1px dashed #808080">
             <v-list-item>
               <v-list-item-avatar tile size="120">
-                <v-img
-                  style="
+                <v-img style="
                     border-radius: 50%;
                     height: 125px;
                     width: 50%;
                     margin: 0 auto;
-                  "
-                  :src="payload.profile_picture || '/no-image.PNG'"
-                >
+                  " :src="payload.profile_picture || '/no-image.PNG'">
                 </v-img>
               </v-list-item-avatar>
-              <v-badge
-                class="profile-image-badge"
-                :style="payload.profile_picture ? '' : 'top:55px; left:102px;'"
-                bordered
-                :color="payload.status == 1 ? 'green' : 'red'"
-              >
+              <v-badge class="profile-image-badge" :style="payload.profile_picture ? '' : 'top:55px; left:102px;'"
+                bordered :color="payload.status == 1 ? 'green' : 'red'">
               </v-badge>
               <v-list-item-content>
                 <div class="text-overline mb-1">
@@ -1452,22 +942,14 @@
                     ></v-switch> -->
                     <!-- {{ switch_img }} -->
 
-                    <img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      style="
+                    <img lazy-src="https://picsum.photos/id/11/10/6" style="
                         max-height: 36px;
                         max-width: 78px;
                         margin: -3px 4px -15px -7px;
-                      "
-                      :src="payload.status == true ? '/on.png' : '/off.png'"
-                      @click="payload.status = !payload.status"
-                    />
-                    <v-btn
-                      class="primary mt-1"
-                      x-small
-                      @click="update_setting"
-                      >{{ payload.status ? "Active" : " Inactive" }}</v-btn
-                    >
+                      " :src="payload.status == true ? '/on.png' : '/off.png'"
+                      @click="payload.status = !payload.status" />
+                    <v-btn class="primary mt-1" x-small @click="update_setting">{{ payload.status ? "Active" : " Inactive"
+                    }}</v-btn>
                   </div>
                 </div>
               </v-list-item-content>
@@ -1521,9 +1003,8 @@
                   <v-col cols="8">
                     {{
                       (payload.sub_department && payload.sub_department.name) ||
-                        "---"
-                    }}</v-col
-                  >
+                      "---"
+                    }}</v-col>
 
                   <v-col cols="3">
                     <v-list-item-title class="text-bold mb-1">
@@ -1551,15 +1032,8 @@
               </v-col>
 
               <v-col cols="3" class="text-right" style="margin: -8px">
-                <v-icon
-                  v-if="can(`employee_edit`)"
-                  @click="editItem(`/employees/${$route.params.id}`)"
-                  small
-                  class="grey"
-                  style="border-radius: 50%; padding: 5px"
-                  color="secondary"
-                  >mdi-pencil</v-icon
-                >
+                <v-icon v-if="can(`employee_edit`)" @click="editItem(`/employees/${$route.params.id}`)" small class="grey"
+                  style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
               </v-col>
 
               <v-col cols="6">
@@ -1684,10 +1158,10 @@
                   <v-col cols="7">
                     {{
                       personalItem.marital_status
-                        ? personalItem.marital_status == 1
-                          ? "Married"
-                          : "Single"
-                        : "---"
+                      ? personalItem.marital_status == 1
+                        ? "Married"
+                        : "Single"
+                      : "---"
                     }}
                   </v-col>
                   <v-col cols="5">
@@ -1721,15 +1195,8 @@
                   </v-col>
 
                   <v-col cols="3" class="text-right" style="margin: -8px">
-                    <v-icon
-                      v-if="can(`employee_edit`)"
-                      @click="personal_info = true"
-                      small
-                      class="grey"
-                      style="border-radius: 50%; padding: 5px"
-                      color="secondary"
-                      >mdi-pencil</v-icon
-                    >
+                    <v-icon v-if="can(`employee_edit`)" @click="personal_info = true" small class="grey"
+                      style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
                   </v-col>
 
                   <v-col cols="5">
@@ -1767,33 +1234,21 @@
           <v-tab-item v-if="can(`employee_access`)">
             <v-row class="pl-1 mt-5 mb-5">
               <v-col cols="12" class="text-right py-0">
-                <v-col
-                  class="text-right"
-                  style="margin: -30px -30px -11px -5px"
-                >
-                  <v-icon
-                    v-if="can(`employee_edit`)"
-                    @click="contact_info = true"
-                    small
-                    class="grey"
-                    style="border-radius: 50%; padding: 5px"
-                    color="secondary"
-                    >mdi-pencil</v-icon
-                  >
+                <v-col class="text-right" style="margin: -30px -30px -11px -5px">
+                  <v-icon v-if="can(`employee_edit`)" @click="contact_info = true" small class="grey"
+                    style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
                 </v-col>
               </v-col>
 
               <v-col cols="6" style="border-right: 1px dashed #808080">
-                <div
-                  class="
+                <div class="
                     theme--dark
                     mt-0
                     px-2
                     py-2
                     gradient-custom-2
                     text-white
-                  "
-                >
+                  ">
                   Local Contact Details
                 </div>
                 <v-row class="pa-4">
@@ -1827,7 +1282,7 @@
                   </v-col>
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`  phone relative number`) }}
+                      {{ caps(` phone relative number`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1852,7 +1307,7 @@
                   </v-col>
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`  country`) }}
+                      {{ caps(` country`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1860,7 +1315,7 @@
                   </v-col>
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`  email`) }}
+                      {{ caps(` email`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1870,8 +1325,7 @@
               </v-col>
 
               <v-col cols="6">
-                <div
-                  class="
+                <div class="
                     theme--dark
                     mt-0
                     mr-1
@@ -1879,15 +1333,14 @@
                     py-2
                     gradient-custom-2
                     text-white
-                  "
-                >
+                  ">
                   Home Country Contact Details
                 </div>
                 <v-row class="pa-4">
                   <!-- home country contact details -->
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`    address`) }}
+                      {{ caps(` address`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1896,7 +1349,7 @@
 
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`    telephone`) }}
+                      {{ caps(` telephone`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1905,7 +1358,7 @@
 
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`    mobile`) }}
+                      {{ caps(` mobile`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1914,7 +1367,7 @@
 
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`    city`) }}
+                      {{ caps(` city`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1923,7 +1376,7 @@
 
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`    state`) }}
+                      {{ caps(` state`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1932,7 +1385,7 @@
 
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`    country`) }}
+                      {{ caps(` country`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1941,7 +1394,7 @@
 
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
-                      {{ caps(`    email`) }}
+                      {{ caps(` email`) }}
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
@@ -1996,15 +1449,8 @@
                     {{ passport_list.issue_date || "---" }}
                   </v-col>
                   <v-col cols="3" class="text-right" style="margin: -8px">
-                    <v-icon
-                      v-if="can(`employee_edit`)"
-                      @click="passport_info = true"
-                      small
-                      class="grey"
-                      style="border-radius: 50%; padding: 5px"
-                      color="secondary"
-                      >mdi-pencil</v-icon
-                    >
+                    <v-icon v-if="can(`employee_edit`)" @click="passport_info = true" small class="grey"
+                      style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
                   </v-col>
 
                   <v-col cols="5">
@@ -2079,15 +1525,8 @@
                     {{ emirateItems.nationality || "---" }}
                   </v-col>
                   <v-col cols="3" class="text-right" style="margin: -8px">
-                    <v-icon
-                      v-if="can(`employee_edit`)"
-                      @click="emirate_info = true"
-                      small
-                      class="grey"
-                      style="border-radius: 50%; padding: 5px"
-                      color="secondary"
-                      >mdi-pencil</v-icon
-                    >
+                    <v-icon v-if="can(`employee_edit`)" @click="emirate_info = true" small class="grey"
+                      style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
                   </v-col>
 
                   <v-col cols="5">
@@ -2170,15 +1609,8 @@
                     {{ visaItem.labour_no || "---" }}
                   </v-col>
                   <v-col cols="3" class="text-right" style="margin: -8px">
-                    <v-icon
-                      v-if="can(`employee_edit`)"
-                      @click="visa_info = true"
-                      small
-                      class="grey"
-                      style="border-radius: 50%; padding: 5px"
-                      color="secondary"
-                      >mdi-pencil</v-icon
-                    >
+                    <v-icon v-if="can(`employee_edit`)" @click="visa_info = true" small class="grey"
+                      style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
                   </v-col>
 
                   <v-col cols="5">
@@ -2232,15 +1664,8 @@
                     {{ BankInfo.bank_name || "---" }}
                   </v-col>
                   <v-col cols="3" class="text-right" style="margin: -8px">
-                    <v-icon
-                      v-if="can(`employee_edit`)"
-                      @click="bank_info = true"
-                      small
-                      class="grey"
-                      style="border-radius: 50%; padding: 5px"
-                      color="secondary"
-                      >mdi-pencil</v-icon
-                    >
+                    <v-icon v-if="can(`employee_edit`)" @click="bank_info = true" small class="grey"
+                      style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
                   </v-col>
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
@@ -2292,11 +1717,7 @@
           <v-tab-item v-if="can(`employee_access`)">
             <v-row class="pl-1 mt-5 mb-5">
               <v-col cols="6">
-                <v-row
-                  v-for="(d, index) in document_list"
-                  :key="index"
-                  class="pa-2"
-                >
+                <v-row v-for="(d, index) in document_list" :key="index" class="pa-2">
                   <v-col cols="5">
                     <span>{{ d.title }}</span>
                   </v-col>
@@ -2310,26 +1731,13 @@
                   </v-col>
 
                   <v-col cols="3" class="text-right" style="margin: -8px">
-                    <v-icon
-                      v-if="can(`employee_edit`) && !index"
-                      @click="documents = true"
-                      small
-                      class="grey"
-                      style="border-radius: 50%; padding: 5px"
-                      color="secondary"
-                      >mdi-pencil</v-icon
-                    >
+                    <v-icon v-if="can(`employee_edit`) && !index" @click="documents = true" small class="grey"
+                      style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
                   </v-col>
                 </v-row>
                 <v-col v-if="document_list.length == 0">
-                  <v-icon
-                    @click="documents = true"
-                    small
-                    class="grey"
-                    style="border-radius: 50%; padding: 5px"
-                    color="secondary"
-                    >mdi-pencil</v-icon
-                  >
+                  <v-icon @click="documents = true" small class="grey" style="border-radius: 50%; padding: 5px"
+                    color="secondary">mdi-pencil</v-icon>
                   <!-- <v-btn v-if="can(`employee_edit`)" @click="documents = true" x-small class="primary">{{caps(`add document`)}}</v-btn>                   -->
                 </v-col>
               </v-col>
@@ -2351,15 +1759,8 @@
                   </v-col>
 
                   <v-col cols="3" class="text-right" style="margin: -8px">
-                    <v-icon
-                      v-if="can(`employee_edit`)"
-                      @click="qualification_info = true"
-                      small
-                      class="grey"
-                      style="border-radius: 50%; padding: 5px"
-                      color="secondary"
-                      >mdi-pencil</v-icon
-                    >
+                    <v-icon v-if="can(`employee_edit`)" @click="qualification_info = true" small class="grey"
+                      style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
                   </v-col>
                   <v-col cols="5">
                     <v-list-item-title class="text-bold mb-1">
@@ -2410,11 +1811,7 @@
                   </v-col>
                   <v-col cols="7">
                     <div class="text-overline mb-1">
-                      <v-switch
-                        color="success"
-                        class="mt-0 ml-2"
-                        v-model="setting.status"
-                      ></v-switch>
+                      <v-switch color="success" class="mt-0 ml-2" v-model="setting.status"></v-switch>
                     </div>
                   </v-col>
 
@@ -2425,11 +1822,7 @@
                   </v-col>
                   <v-col cols="7">
                     <div class="text-overline mb-1">
-                      <v-switch
-                        color="success"
-                        class="mt-0 ml-2"
-                        v-model="setting.overtime"
-                      ></v-switch>
+                      <v-switch color="success" class="mt-0 ml-2" v-model="setting.overtime"></v-switch>
                     </div>
                   </v-col>
 
@@ -2440,11 +1833,7 @@
                   </v-col>
                   <v-col cols="7">
                     <div class="text-overline mb-1">
-                      <v-switch
-                        color="success"
-                        class="mt-0 ml-2"
-                        v-model="setting.mobile_application"
-                      ></v-switch>
+                      <v-switch color="success" class="mt-0 ml-2" v-model="setting.mobile_application"></v-switch>
                     </div>
                   </v-col>
 
@@ -2454,9 +1843,7 @@
                     </v-list-item-title>
                   </v-col>
                   <v-col cols="7">
-                    <v-btn class="primary mt-1" @click="update_setting()"
-                      >Save</v-btn
-                    >
+                    <v-btn class="primary mt-1" @click="update_setting()">Save</v-btn>
                   </v-col>
                 </v-row>
               </v-col>
@@ -2906,23 +2293,23 @@ export default {
     //     overtime: this.setting.overtime,
     //     mobile_application: this.setting.mobile_application,
     //   };
-    //   // console.log(payload);
+
     //   // return;
 
     //   this.$axios
     //     .post(`employee/update/setting`, payload)
     //     .then(({ data }) => {
     //       this.loading = false;
-    //       console.log(data);
+
 
     //       if (data != 1) {
     //         this.errors = data.errors;
-    //         console.log("error");
+
     //       } else {
     //         this.errors = [];
     //         this.snackbar = true;
     //         this.response = "successfully updated ";
-    //         console.log("success");
+
     //       }
     //     })
     //     .catch((e) => console.log(e));
@@ -2965,42 +2352,42 @@ export default {
     close_personal_info() {
       this.personal_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
     close_passport_info() {
       this.passport_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
     close_visa_info() {
       this.visa_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
     close_emirate_info() {
       this.emirate_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
     close_qualification_info() {
       this.qualification_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
     close_bank_info() {
       this.bank_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
     close_contact_info() {
       this.contact_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
     close_document_info() {
       this.documents = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
 
     can(per) {

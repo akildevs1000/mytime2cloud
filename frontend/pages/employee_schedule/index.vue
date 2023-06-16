@@ -722,7 +722,7 @@ export default {
       this.datatable_search_textbox = '';
     },
     datatable_open() {
-      console.log('datatable_open');
+
       this.datatable_search_textbox = '';
     },
     datatable_close() {
@@ -959,8 +959,7 @@ export default {
     },
     getSearchRecords(filter_column = '', filter_value = '') {
 
-      console.log('filter_column', filter_column);
-      console.log('filter_value', filter_value);
+
       this.getDataFromApi(this.endpoint, filter_column, filter_value);
     },
     //main

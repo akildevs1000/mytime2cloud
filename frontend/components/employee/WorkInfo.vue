@@ -6,14 +6,8 @@
       </v-snackbar>
     </div>
     <div style="text-align: right" class="pr-5">
-      <v-icon
-        @click="editItem"
-        small
-        class="red"
-        style="border-radius: 50%; padding: 5px"
-        color="secondary"
-        >mdi-pencil</v-icon
-      >
+      <v-icon @click="editItem" small class="red" style="border-radius: 50%; padding: 5px"
+        color="secondary">mdi-pencil</v-icon>
     </div>
 
     <!-- <KeyValueTable :data="table_data" :hideEditBtn="true" /> -->
@@ -103,7 +97,7 @@ export default {
   methods: {
     getInfo() {
       this.$axios.get(`employee/${this.employeeId}`).then(async ({ data }) => {
-        console.log("data2", this.table_data2);
+
         this.table_data2 = data;
         this.table_data = {
           Role: await data.role.name,
@@ -145,13 +139,12 @@ export default {
         overtime: this.setting.overtime,
         mobile_application: this.setting.mobile_application,
       };
-      console.log(payload);
+
       // return;
       this.$axios
         .post(`employee/update/setting`, payload)
         .then(({ data }) => {
           this.loading = false;
-          console.log(data);
 
           if (!data.status) {
             this.errors = data.errors;
@@ -159,7 +152,7 @@ export default {
             this.errors = [];
             this.snackbar = true;
             this.response = "Setting has been successfully updated";
-            console.log("success");
+
           }
         })
         .catch((e) => console.log(e));
@@ -174,6 +167,7 @@ export default {
   padding-left: 13px;
   font-size: 11px;
 }
+
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;

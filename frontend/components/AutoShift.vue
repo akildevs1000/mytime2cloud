@@ -14,25 +14,13 @@
         <v-skeleton-loader v-else-if="shifts.length == 0">
           <!-- francis -->
         </v-skeleton-loader>
-        <v-checkbox
-          style="float: left"
-          class="mr-5"
-          v-for="(item, index) in shifts"
-          :key="index"
-          v-model="payload.shift_ids"
-          :label="item.name"
-          :value="item.id"
-          :error-messages="errors.shift_ids && errors.shift_ids[0]"
-        ></v-checkbox>
+        <v-checkbox style="float: left" class="mr-5" v-for="(item, index) in shifts" :key="index"
+          v-model="payload.shift_ids" :label="item.name" :value="item.id"
+          :error-messages="errors.shift_ids && errors.shift_ids[0]"></v-checkbox>
       </v-col>
       <v-col cols="12">
         <div class="text-left">
-          <v-btn
-            v-if="can(`shift_create`)"
-            small
-            color="primary"
-            @click="store_shift"
-          >
+          <v-btn v-if="can(`shift_create`)" small color="primary" @click="store_shift">
             Submit
           </v-btn>
         </div>
@@ -106,7 +94,7 @@ export default {
       this.$axios
         .post(`/auto_shift`, this.payload)
         .then(({ data }) => {
-          console.log(data);
+
           this.loading = false;
           if (!data.status) {
             this.errors = data.errors;

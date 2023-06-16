@@ -121,7 +121,7 @@ export default {
         .get(`${this.endpoint}/${this.employeeId}`)
         .then(({ data }) => {
           //this.data = data;
-          console.log("data", data);
+
           this.data = {
             bank_name: data.bank_name,
             address: data.address,
@@ -145,9 +145,6 @@ export default {
         company_id: this.$auth?.user?.company?.id,
         employee_id: this.employeeId,
       };
-
-      console.log("payload", payload);
-
       this.$axios
         .post(`bankinfo`, payload)
         .then(({ data }) => {

@@ -69,7 +69,7 @@
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> Attendances Logs</span></v-toolbar-title>
 
-            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="firstLoad"><v-icon class="mx-1">mdi
+            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getRecords()"><v-icon class="mx-1">mdi
                 mdi-reload</v-icon></a>
           </v-toolbar>
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -99,7 +99,45 @@
                 </template>
               </v-edit-dialog>
             </template>
+            <template v-slot:item.employee="{ item, index }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getRecords()"
+                @open="datatable_open">
+                <v-row no-gutters>
+                  <v-col style="padding: 5px;;padding-left:0px;width:50px;max-width:50px">
+                    <v-img style="border-radius: 50%; height: auto;  width: 50px;max-width: 50px" :src="item.employee
+                      ? item.employee.profile_picture
+                      : '/no-profile-image.jpg'
+                      ">
+                    </v-img>
+                  </v-col>
+                  <v-col style="padding: 10px;">
+                    <strong> {{ item.employee ? item.employee.first_name : '---' }} {{ item.employee
+                      ? item.employee.last_name : '---'
+                    }}</strong>
+                    <div> {{ item.employee && item.employee.designation ? item.employee.designation.name : "---" }}</div>
 
+                  </v-col>
+                </v-row>
+                <template v-slot:input>
+                  <v-text-field @input="getRecords('search_employee_name', $event)" v-model="datatable_search_textbox"
+                    label="Type Employee Name"></v-text-field>
+                </template>
+              </v-edit-dialog>
+            </template>
+            <template v-slot:item.department="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+
+                <strong>{{ item.employee && item.employee.department ? item.employee.department.name : '---' }}</strong>
+                <div> {{ item.employee && item.employee.sub_department ? item.employee.sub_department.name : '---' }}
+                </div>
+                <template v-slot:input>
+                  <v-text-field @input="getRecords('search_department_name', $event)" v-model="datatable_search_textbox"
+                    label="Search Department name"></v-text-field>
+                </template>
+              </v-edit-dialog>
+
+            </template>
             <template v-slot:item.time="{ item }">
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
                 @save="getRecords()" @open="datatable_open">
@@ -210,6 +248,20 @@ export default {
         sortable: true,
         key: "UserID",
         value: "UserID",
+      },
+      {
+        text: "Employee",
+        align: "left",
+        sortable: true,
+        key: "time", //sorting
+        value: "employee", //edit purpose
+      },
+      {
+        text: "Department",
+        align: "left",
+        sortable: true,
+        key: "time", //sorting
+        value: "department", //edit purpose
       },
       {
         text: "Log Time",
@@ -331,7 +383,7 @@ export default {
           this.loading = false;
         });
     },
-    searchIt() { 
+    searchIt() {
       this.payload.from_date_txt = this.payload.from_date;
       this.payload.to_date_txt = this.payload.to_date;
 

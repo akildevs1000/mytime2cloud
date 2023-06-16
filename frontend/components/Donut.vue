@@ -56,7 +56,7 @@ export default {
     },
     getValue() {
       this.options.series = this.items.map(e => e.value);
-      console.log(this.options.series);
+
     }
   }
 };

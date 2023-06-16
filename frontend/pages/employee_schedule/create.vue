@@ -409,14 +409,14 @@ export default {
       return;
       let toDate = this.setSevenDays(from, index);
       this.schedules_temp_list[index].to_date = toDate;
-      console.log(this.schedules_temp_list);
+
     },
 
     set_to_date_save(from_menu, from, index) {
       from_menu.save(from);
       let toDate = this.setSevenDays(from);
       this.schedules_temp_list[index].to_date = toDate;
-      console.log(this.schedules_temp_list);
+
     },
 
     setSevenDays(selected_date, index) {
@@ -430,7 +430,7 @@ export default {
       let y = datetime.getFullYear();
       this.max_date[index] = `${y}-${m}-${d}`;
       this.min_date[index] = `${y}-${m}-${d}`;
-      console.log(this.max_date);
+
       return `${y}-${m}-${d}`;
     },
 
@@ -442,8 +442,7 @@ export default {
         this.rosters = data;
         this.addRow(data[0].schedule_id);
         this.rosterFirstValue = data[0].schedule_id;
-        console.log(this.rosterFirstValue);
-        console.log(this.rosters);
+
       });
     },
 
@@ -660,7 +659,7 @@ export default {
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company.id,
       };
-      console.log(payload);
+
       // return;
       if (this.is_edit) {
         this.process(

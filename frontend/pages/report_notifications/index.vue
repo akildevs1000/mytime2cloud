@@ -15,9 +15,7 @@
         <v-col cols="12">
           <v-card elevation="0" class="px-5 pb-5">
             <v-card-title>
-              <label class="col-form-label"
-                ><b>Report Notification List </b></label
-              >
+              <label class="col-form-label"><b>Report Notification List </b></label>
               <v-spacer></v-spacer>
               <v-btn color="background" dark to="/report_notifications/create">
                 <v-icon>mdi-plus</v-icon> Add Report Notification
@@ -63,56 +61,25 @@
                   </td>
                   <td style="max-width:100px;">
                     <div>
-                      <v-chip
-                        v-for="(medium, i) in item.mediums"
-                        :key="i"
-                        class="background ma-1"
-                        dark
-                        small
-                        >{{ medium }}</v-chip
-                      >
+                      <v-chip v-for="(medium, i) in item.mediums" :key="i" class="background ma-1" dark small>{{ medium
+                      }}</v-chip>
                     </div>
                   </td>
                   <td>
                     <div>
-                      <v-chip
-                        v-for="(report, i) in item.reports"
-                        :key="i"
-                        class="background ma-1"
-                        dark
-                        small
-                        >{{ report }}</v-chip
-                      >
+                      <v-chip v-for="(report, i) in item.reports" :key="i" class="background ma-1" dark small>{{ report
+                      }}</v-chip>
                     </div>
                   </td>
 
                   <td style="max-width:100px;">
                     <div>
-                      <v-chip
-                        v-for="(to, i) in item.tos"
-                        :key="i"
-                        class="background ma-1"
-                        dark
-                        small
-                        >{{ to }}</v-chip
-                      >
-                      <v-chip
-                        v-for="(cc, i) in item.ccs"
-                        :key="i"
-                        class="background ma-1"
-                        dark
-                        small
-                        >{{ cc }} (Cc)</v-chip
-                      >
+                      <v-chip v-for="(to, i) in item.tos" :key="i" class="background ma-1" dark small>{{ to }}</v-chip>
+                      <v-chip v-for="(cc, i) in item.ccs" :key="i" class="background ma-1" dark small>{{ cc }}
+                        (Cc)</v-chip>
 
-                      <v-chip
-                        v-for="(bcc, i) in item.bccs"
-                        :key="i"
-                        class="background ma-1"
-                        dark
-                        small
-                        >{{ bcc }} (Bcc)</v-chip
-                      >
+                      <v-chip v-for="(bcc, i) in item.bccs" :key="i" class="background ma-1" dark small>{{ bcc }}
+                        (Bcc)</v-chip>
                     </div>
                   </td>
                   <td>
@@ -258,10 +225,7 @@ export default {
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.data = data.data;
-        console.log(
-          "🚀 ~ file: index.vue ~ line 180 ~ this.$axios.get ~ this.data",
-          this.data
-        );
+
         this.total = data.total;
         this.loading = false;
       });
@@ -275,6 +239,7 @@ th {
   border: 1px solid #dddddd;
   padding-left: 5px;
 }
+
 /* tr:nth-child(even) {
   background-color: #dddddd;
 } */
@@ -286,7 +251,7 @@ th {
   box-sizing: border-box;
 }
 
-body > div {
+body>div {
   min-height: 100vh;
   display: flex;
   font-family: "Roboto", sans-serif;
@@ -310,12 +275,12 @@ table {
   border-collapse: collapse;
 }
 
-table > thead {
+table>thead {
   background-color: #00bcd4;
   color: #fff;
 }
 
-table > thead th {
+table>thead th {
   padding: 15px;
 }
 
@@ -325,7 +290,7 @@ table td {
   padding: 10px 15px;
 }
 
-table > tbody > tr > td > img {
+table>tbody>tr>td>img {
   display: inline-block;
   width: 60px;
   height: 60px;
@@ -341,7 +306,7 @@ table > tbody > tr > td > img {
   gap: 10px;
 }
 
-.action_btn > a {
+.action_btn>a {
   text-decoration: none;
   color: #444;
   background: #fff;
@@ -353,28 +318,28 @@ table > tbody > tr > td > img {
   transition: 0.3s ease-in-out;
 }
 
-.action_btn > a:nth-child(1) {
+.action_btn>a:nth-child(1) {
   border-color: #26a69a;
 }
 
-.action_btn > a:nth-child(2) {
+.action_btn>a:nth-child(2) {
   border-color: orange;
 }
 
-.action_btn > a:hover {
+.action_btn>a:hover {
   box-shadow: 0 3px 8px #0003;
 }
 
-table > tbody > tr {
+table>tbody>tr {
   background-color: #fff;
   transition: 0.3s ease-in-out;
 }
 
-table > tbody > tr:nth-child(even) {
+table>tbody>tr:nth-child(even) {
   background-color: rgb(238, 238, 238);
 }
 
-table > tbody > tr:hover {
+table>tbody>tr:hover {
   filter: drop-shadow(0px 2px 6px #0002);
 }
 </style>
