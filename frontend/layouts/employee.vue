@@ -1,78 +1,37 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      v-model="drawer"
-      dark
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
-      class="no_print"
-      color="background"
-    >
+    <v-navigation-drawer v-model="drawer" dark :mini-variant="miniVariant" :clipped="clipped" fixed app
+      :color="sideBarcolor" :style="miniVariant ? 'width: 60px' : ''" @transitionend="collapseSubItems">
+      <br />
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
-        <v-list-item
-          :to="i.to"
-          router
-          :class="!miniVariant || 'pl-2'"
-          v-if="!i.hasChildren"
-        >
-          <v-list-item-icon v-if="i.permission" class="ma-2">
+        <v-list-item :to="i.to" router v-if="!i.hasChildren" :class="!miniVariant || 'pl-2'">
+          <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
           </v-list-item-icon>
-          <v-list-item-title v-if="i.permission">
-            {{ i.title }}&nbsp;
-            <v-badge
-              v-if="i.title == 'Orders' && order_count > 0"
-              color="primary"
-              :content="order_count"
-              small
-            />
-          </v-list-item-title>
+          <v-list-item-title> {{ i.title }}&nbsp; </v-list-item-title>
         </v-list-item>
-
-        <v-list-item
-          v-else
-          :class="!miniVariant || 'pl-2'"
-          @click="i.open_menu = !i.open_menu"
-        >
-          <v-list-item-icon v-if="i.permission" class="ma-2">
+        <v-list-item v-else :class="!miniVariant || 'pl-2'" @click="i.open_menu = !i.open_menu">
+          <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
+            <v-icon v-if="miniVariant" small>{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+            </v-icon>
           </v-list-item-icon>
-          <v-list-item-title v-if="i.permission">{{
-            i.title
-          }}</v-list-item-title>
-          <v-icon v-if="i.permission" small>{{
-            !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up"
-          }}</v-icon>
+
+          <v-list-item-title>{{ i.title }} </v-list-item-title>
+          <v-icon small>{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+          </v-icon>
         </v-list-item>
-        <div v-if="i.open_menu && i.title == `Modules`">
-          <div
-            style="margin-left: 50px"
-            v-for="(j, jdx) in modules.module_names"
-            :key="jdx"
-          >
-            <v-list-item v-if="j.permission" style="min-height: 0" :to="j.to">
-              <v-list-item-title>{{ j.title }}</v-list-item-title>
+        <div v-if="i.open_menu">
+          <div style="margin-left: 54px" v-for="(j, jdx) in i.hasChildren" :key="jdx">
+            <!-- v-show="!miniVariant" -->
+            <v-list-item style="min-height: 0" :to="j.to" class="submenutitle">
+              <v-list-item-title v-if="!miniVariant">{{ j.title }}
+              </v-list-item-title>
 
-              <v-list-item-icon>
-                <v-icon :to="j.to">{{ j.icon }}</v-icon>
-              </v-list-item-icon>
-            </v-list-item>
-          </div>
-        </div>
-
-        <div v-else-if="i.open_menu && i.title != `Modules`">
-          <div
-            style="margin-left: 50px"
-            v-for="(j, jdx) in i.hasChildren"
-            :key="jdx"
-          >
-            <v-list-item v-if="j.permission" style="min-height: 0" :to="j.to">
-              <v-list-item-title>{{ j.title }}</v-list-item-title>
-
-              <v-list-item-icon>
-                <v-icon :to="i.to">{{ j.icon }}</v-icon>
+              <v-list-item-icon :style="miniVariant ? 'margin-left: -54px;' : ''">
+                <v-icon :to="j.to" :style="miniVariant ? 'margin-left: 12px;' : ''">
+                  {{ j.icon }}
+                </v-icon>
               </v-list-item-icon>
             </v-list-item>
           </div>
@@ -80,7 +39,12 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar color="primary" dark :clipped-left="clipped" fixed app>
+    <!-- style="
+    margin-left: -49px;
+" -->
+
+    <v-app-bar :color="changeColor" dark :clipped-left="clipped" fixed app
+      :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
@@ -90,20 +54,9 @@
       </v-btn>
       {{ title }}
       <v-spacer></v-spacer>
-      <!-- <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn> -->
-      <v-menu
-        nudge-bottom="50"
-        transition="scale-transition"
-        origin="center center"
-        bottom
-        left
-        min-width="200"
-        nudge-left="5"
-        nudge-right="5"
-        fixed
-      >
+
+      <v-menu nudge-bottom="50" transition="scale-transition" origin="center center" bottom left min-width="200"
+        nudge-left="20">
         <template v-slot:activator="{ on, attrs }">
           <label class="px-2" v-bind="attrs" v-on="on">
             {{ getUser }}
@@ -116,27 +69,23 @@
           </v-btn>
         </template>
 
-        <v-list fixed light nav dense>
+        <v-list light nav dense>
           <v-list-item-group color="primary">
-            <v-list-item>
+            <v-list-item @click="goToCompany()">
               <v-list-item-icon>
                 <v-icon>mdi-account-multiple-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text"
-                  >Profile</v-list-item-title
-                >
+                <v-list-item-title class="black--text">Profile</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
-            <v-list-item>
+            <v-list-item @click="goToSetting()">
               <v-list-item-icon>
                 <v-icon>mdi-cog</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text"
-                  >Setting</v-list-item-title
-                >
+                <v-list-item-title class="black--text">Setting</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -145,137 +94,292 @@
                 <v-icon>mdi-logout</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text"
-                  >Logout</v-list-item-title
-                >
+                <v-list-item-title class="black--text">Logout</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
         </v-list>
       </v-menu>
     </v-app-bar>
-    <v-main
-      :style="
-        $nuxt.$route.path == '/employee_dashboard/announcement'
-          ? 'background-color: #ECF0F4'
-          : ''
-      "
-    >
+
+    <v-main class="main_bg">
       <v-container>
         <nuxt />
       </v-container>
     </v-main>
-    <v-navigation-drawer v-model="rightDrawer" :right="right" temporary fixed>
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light> mdi-repeat </v-icon>
-          </v-list-item-action>
-          <v-list-item-title>Switch drawer (click me)</v-list-item-title>
-        </v-list-item>
-      </v-list>
+    <v-btn height="50" width="20" dark :color="changeColor" class="fixed-setting"
+      @click.stop="rightDrawer = !rightDrawer">
+      <v-icon class="spin" dark size="25">mdi-cog</v-icon>
+    </v-btn>
+    <!-- setting -->
+    <v-navigation-drawer v-model="rightDrawer" :clipped="true" :right="right" fixed style="z-index: 1000">
+      <v-row style="margin-top: 50px">
+        <v-col>
+          <v-card class="pa-2" elevation="0">
+            <v-col cols="12">
+              <div class="mb-3">
+                <Strong>Theme</Strong>
+              </div>
+              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="theme" id="light" autocomplete="off"
+                  @click="changeTheme('light')" />
+                <label class="btn" :class="'btn-outline-dark'" for="light">Light</label>
+                <input type="radio" class="btn-check" name="theme" id="dark" autocomplete="off"
+                  @click="changeTheme('dark')" />
+                <label class="btn btn-outline-dark" for="dark">Dark</label>
+              </div>
+            </v-col>
+            <v-divider></v-divider>
+            <v-col cols="12">
+              <div class="mb-3">
+                <Strong>Top Bar</Strong>
+              </div>
+              <div class="d-flex">
+                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="primary"
+                  @click="changeTopBarColor('primary')"></v-btn>
+                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="error"
+                  @click="changeTopBarColor('error')"></v-btn>
+                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="indigo"
+                  @click="changeTopBarColor('indigo')"></v-btn>
+                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="background"
+                  @click="changeTopBarColor('background')"></v-btn>
+              </div>
+            </v-col>
+            <v-divider></v-divider>
+            <v-col cols="12">
+              <div class="mb-3">
+                <Strong>Side Bar</Strong>
+              </div>
+              <div class="d-flex">
+                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="primary"
+                  @click="changeSideBarColor('primary')"></v-btn>
+                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="error"
+                  @click="changeSideBarColor('error')"></v-btn>
+                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="indigo"
+                  @click="changeSideBarColor('indigo')"></v-btn>
+                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="background"
+                  @click="changeSideBarColor('background')">
+                </v-btn>
+              </div>
+            </v-col>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-navigation-drawer>
-    <!-- <v-footer :fixed="fixed" app>
-      <v-icon Logout color="primary" @click="logout">{{
-        logout_btn.icon
-      }}</v-icon>
-
-      <span class="primary--text">Logout</span>
-
-      <v-spacer></v-spacer>
-      <span class="primary--text">
-        <v-icon v-if="$auth && this.$auth.user.role" Logout color="primary"
-          >mdi-account</v-icon
-        >
-      </span>
-    </v-footer> -->
   </v-app>
 </template>
 
 <script>
 export default {
-  mounted() {},
   data() {
     return {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-
+      color: "",
+      sideBarcolor: "background",
       year: new Date().getFullYear(),
+      dropdown_menus: [{ title: "setting" }, { title: "logout" }],
       clipped: false,
       open_menu: [],
       drawer: true,
       fixed: false,
       order_count: "",
-      admins: [
-        ["Management", "mdi-account-multiple-outline"],
-        ["Settings", "mdi-cog-outline"]
-      ],
-      cruds: [
-        ["Create", "mdi-plus-outline"],
-        ["Read", "mdi-file-outline"],
-        ["Update", "mdi-update"],
-        ["Delete", "mdi-delete"]
-      ],
-
-      items: [
+      menus: [
         {
           icon: "mdi-home",
-          title: "Home",
-          to: "/employee_dashboard",
-          permission: this.can("/")
+          title: "Dashboard",
+          to: "/",
+          menu: "dashboard_access",
         },
-        {
-          icon: "mdi-domain",
-          title: `Employee`,
-          open_menu: false,
-          permission: this.can("employee_access"),
-          hasChildren: [
-            {
-              icon: "mdi-domain",
-              title: "My Profile",
-              to: `/employee_dashboard/profile/${this.$auth?.user?.employee?.id}`, //this.$auth.user.employee.id
-              permission: this.can("employee_access")
-            },
-            {
-              icon: "mdi-door",
-              title: "Leave Request",
-              to: "/employee_dashboard/leave",
-              permission: this.can("department_access")
-            },
 
+        {
+          icon: "mdi-account-tie",
+          title: "Employees",
+          to: "/employees",
+          menu: "employee_access",
+        },
+
+
+        {
+          icon: "mdi-cash-multiple",
+          title: `Payroll`,
+          open_menu: false,
+          menu: "payroll_access",
+          hasChildren: [
             // {
-            //   icon: "mdi-bullhorn-variant-outline",
-            //   title: "Announcement",
-            //   to: "/announcement",
-            //   permission: this.can("employee_access"),
+            //   icon: "mdi-cash-multiple ",
+            //   title: "Generate Month",
+            //   to: "/payroll/month",
+            //   menu:("payroll_generate_month_access")
             // },
 
+            // {
+            //   icon: "mdi-cash-multiple ",
+            //   title: "Generate Payroll",
+            //   to: "/employees",
+            //   menu:("employee_schedule_access")
+            // },
             {
-              icon: "mdi-bullhorn-variant-outline",
-              title: "Leave Notification",
-              to: "/employee_dashboard/leave_notification",
-              permission: this.can("leave_notification_access")
-            }
-          ]
+              icon: "mdi-cash",
+              title: "Salary",
+              to: "/payroll/salary",
+              menu: "payroll_generate_access",
+            },
+            {
+              icon: "mdi mdi-calculator",
+              title: "Payroll Settings",
+              to: "/payroll/create",
+              menu: "payroll_generate_access",
+            },
+          ],
+        },
+
+        {
+          icon: "mdi-calendar-today",
+          title: `Reports`,
+          open_menu: false,
+          menu: "payroll_access",
+          hasChildren: [
+            {
+              icon: "mdi-chart-box-outline",
+              title: "Attendance Report",
+              to: "/attendance_report",
+              menu: "payroll_access",
+            },
+
+            {
+              icon: "mdi-clock",
+              title: "Shifts",
+              to: "/shift",
+              menu: "shift_access",
+            },
+            {
+              icon: "mdi mdi-calendar-clock",
+              title: "Schedule",
+              to: "/schedule",
+              menu: "schedule_access",
+            },
+            {
+              icon: "mdi-account-tie",
+              title: "Employee Schedule",
+              to: "/employee_schedule",
+              menu: "employee_schedule_access",
+            },
+          ],
+        },
+        {
+          icon: "mdi-calendar-today",
+          title: `Access Control`,
+          open_menu: false,
+          menu: "access",
+          hasChildren: [
+            {
+              icon: "mdi mdi-clock-time-four-outline",
+              title: "Timezones",
+              to: "/timezone",
+              menu: "timezone",
+            },
+            {
+              icon: "mdi mdi-credit-card-clock-outline",
+              title: "TImezone Mapped List",
+              to: "/timezonemapping/list",
+              menu: "timezone_mapping_list",
+            },
+            {
+              icon: "mdi mdi-camera-account",
+              title: "Employee Photo Upload",
+              to: "/employee_photo_upload",
+              menu: "employee_photo_upload",
+            },
+          ],
         },
         {
           icon: "mdi-clipboard-text-clock",
-          title: "Reports",
-          to: "/attendance_report",
-          permission: this.can("attendance_report")
-        }
+          title: "Attendances Logs",
+          to: "/logs",
+          menu: "logs_access",
+        },
+        {
+          icon: "mdi-email",
+          title: "Notification",
+          to: "/report_notifications",
+          menu: "notifications_access",
+        },
+        {
+          icon: "mdi-cog",
+          title: `Settings`,
+          open_menu: false,
+          menu: "company_access",
+          hasChildren: [
+            {
+              icon: "mdi mdi-card-account-details",
+              title: "Profile",
+              to: `/companies/${this.$auth.user?.company?.id}`,
+              menu: "setting_access",
+              class: "submenutitle",
+            },
 
-        // {
-        //   icon: "mdi-cog",
-        //   title: "Setting",
-        //   to: "/setting",
-        //   permission: this.can("/"),
-        // },
+            {
+              icon: "mdi mdi-account-check-outline",
+              title: "Roles",
+              to: "/role",
+              menu: "role_access",
+            },
+            {
+              icon: "mdi mdi-account-details",
+              title: "Assign Permissions",
+              to: "/assign_permission",
+              menu: "assign_permission_access",
+            },
+            {
+              icon: "mdi-cellphone-text",
+              title: "Devices List",
+              to: "/device",
+              menu: "device_access",
+            },
+            // {
+            //   icon: "mdi-badge-account-outline",
+            //   title: "Upload Users",
+            //   to: "/device_management",
+            //   menu: "device_management",
+            // },
+
+            // {
+            //   icon: "mdi mdi-clock-plus-outline",
+            //   title: "Create New",
+            //   to: "/timezonemapping/new",
+            //   menu: "timezone_mapping_list",
+            // },
+          ],
+        },
+
+        {
+          icon: "mdi-briefcase-outline",
+          title: `Organization`,
+          open_menu: false,
+          menu: "company_access",
+          hasChildren: [
+            {
+              icon: "mdi-lan",
+              title: "Departments",
+              to: "/department",
+              menu: "department_access",
+            },
+
+            {
+              icon: "mdi-account-details ",
+              title: "Designations",
+              to: "/designation",
+              menu: "designation_access",
+            },
+          ],
+        },
       ],
+      items: [],
       modules: {
         module_ids: [],
-        module_names: []
+        module_names: [],
       },
       clipped: true,
 
@@ -283,53 +387,292 @@ export default {
       title: "ideaHRMS",
       logout_btn: {
         icon: "mdi-logout",
-        label: "Logout"
-      }
+        label: "Logout",
+      },
     };
   },
   created() {
+    let das = {
+      icon: "mdi-home",
+      title: "Dashboard",
+      to: "/",
+      menu: "dashboard_access",
+    };
+    let user = this.$auth.user;
+    let permissions = user.permissions;
+
+    if (user && user.is_master) {
+      this.items = this.menus;
+      // this.items.unshift(das);
+      return;
+    }
+
+    this.menus.forEach((ele) => {
+      if (permissions.includes(ele.menu)) {
+        this.items.push(ele);
+      }
+    });
+
     this.getCompanyDetails();
   },
+
+  mounted() { },
+
   computed: {
+    changeColor() {
+      return this.$store.state.color;
+    },
+
     getUser() {
-      return this.$auth.user && this.$auth.user.employee.first_name;
+      return this.$auth.user &&
+        this.$auth.user.employee &&
+        this.$auth.user.company
+        ? this.$auth.user.employee.display_name
+        : this.$auth.user.company.name;
     },
 
     getLogo() {
-      return this.$auth.user && this.$auth.user.employee.profile_picture;
-    }
+      return this.$auth.user && this.$auth.user.company.logo;
+    },
   },
   methods: {
-    caps(str) {
-      return str.replace(/\b\w/g, c => c.toUpperCase());
+    collapseSubItems() {
+      this.menus.map((item) => (item.active = false));
+    },
+    changeTopBarColor(color) {
+      this.color = color;
+      this.$store.commit("change_color", color);
     },
 
+    changeTheme(color) {
+      // alert(color);
+    },
+
+    changeSideBarColor(color) {
+      this.sideBarcolor = color;
+    },
+
+    caps(str) {
+      return str.replace(/\b\w/g, (c) => c.toUpperCase());
+    },
+    goToSetting() {
+      this.$router.push("/setting");
+    },
+    goToCompany() {
+      let u = this.$auth.user.user_type;
+      // if(u){
+      // this.$router.push(`/empl/${this.$auth.user?.company?.id}`);
+      // }
+      this.$router.push(`/companies/${this.$auth.user?.company?.id}`);
+    },
     getCompanyDetails() {
       let user = this.$auth.user;
 
       this.$axios.get(`company/${user?.company?.id}`).then(({ data }) => {
         let { modules } = data.record;
 
-        this.modules = {
-          module_ids: modules.module_ids || [],
-          module_names: modules.module_names.map(e => ({
-            icon: "mdi-chart-bubble",
-            title: this.caps(e),
-            to: "/" + e + "_modules",
-            permission: true
-          }))
-        };
+        if (modules !== null) {
+          this.modules = {
+            module_ids: modules.module_ids || [],
+            module_names: modules.module_names.map((e) => ({
+              icon: "mdi-chart-bubble",
+              title: this.caps(e),
+              to: "/" + e + "_modules",
+              permission: true,
+            })),
+          };
+        }
       });
     },
     can(per) {
       let user = this.$auth.user;
-      return user && user.permissions.some(e => e == per || per == "/");
+      return (
+        (user && user.permissions.some((e) => e == per || per == "/")) ||
+        user.is_master
+      );
     },
-    async logout() {
+
+    logout() {
       this.$axios.get(`/logout`).then(({ res }) => {
         this.$auth.logout();
       });
-    }
-  }
+    },
+  },
 };
 </script>
+<style>
+table {
+  font-family: Roboto !important;
+}
+
+.fixed-setting {
+  position: fixed !important;
+  top: 500px;
+  z-index: 100000;
+  transition: right 1000ms !important;
+  right: -15px !important;
+}
+
+/* .v-btn__content {
+  margin: 0 12px 0 0px !important;
+  padding: 0 !important;
+} */
+
+.setting-drawer-open {
+  right: 250px !important;
+}
+
+.setting-drawer-close {
+  right: -15px !important;
+}
+
+.spin {
+  -webkit-animation: spin 4s linear infinite;
+  -moz-animation: spin 4s linear infinite;
+  animation: spin 4s linear infinite;
+
+  margin: 0 12px 0 0px !important;
+  padding: 0 !important;
+}
+
+@-moz-keyframes spin {
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.stg-color-icon {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+@media (min-width: 1264px) {
+  .container {
+    max-width: 100%;
+  }
+}
+
+.submenutitle {
+  padding-left: 5px;
+  margin-left: -15px;
+}
+
+table.employee-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  /* border: 1px solid #dddddd; */
+  text-align: left;
+  padding: 8px;
+}
+
+table.employee-table tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+
+table.employee-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  /* border: 1px solid #dddddd; */
+  text-align: left;
+  padding: 8px;
+}
+
+table.employee-table tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+
+.toolbaritems-button-design {
+
+  padding-top: 8px !important;
+  padding-right: 0px !important;
+  /* margin: auto;
+  border-radius: 5px; */
+}
+
+.toolbaritems-button-design .v-btn {
+  height: 32px !important;
+
+
+
+}
+
+.timezone-displaylist {
+  height: 225px !important;
+  background: #fff;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  overflow: auto;
+}
+
+.timezone-displaylistview {
+  padding-left: 10px !important;
+  padding-bottom: 5px !important;
+  padding-top: 0px !important;
+  cursor: pointer !important;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.photo-displaylist {
+  height: 225px !important;
+  background: #fff !important;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  overflow: auto;
+}
+
+.photo-displaylistview {
+  padding-left: 10px !important;
+  padding-bottom: 5px !important;
+  padding-top: 0px !important;
+  cursor: pointer;
+
+  border-bottom: 1px solid #ddd;
+}
+
+
+
+.timezoneedit-displaylist {
+  height: 225px !important;
+  background: #fff;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  overflow: auto;
+}
+
+.timezoneedit-displaylistview {
+  padding-left: 10px !important;
+  padding-bottom: 5px !important;
+  padding-top: 0px !important;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.v-small-dialog__menu-content {
+  margin-left: 3%;
+  margin-top: 3%;
+}
+</style>

@@ -18,13 +18,25 @@ class AuthController extends Controller
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
-        } else if ($user->company_id > 0 && $user->company->expiry < date('Y-m-d')) {
-            throw ValidationException::withMessages([
-                'email' => ['Your subscription has been expired.'],
-            ]);
         }
 
         $user->user_type = $this->getUserType($user);
+
+        if (in_array($user->user_type, ["employee", "company"])) {
+            $employeeUser = $user->load('company', 'employee');
+
+            if (!$employeeUser->company) {
+                throw ValidationException::withMessages([
+                    'email' => ['Comapny does not exist.'],
+                ]);
+            }
+
+            if ($employeeUser->company_id > 0 && $employeeUser->company->expiry < date('Y-m-d')) {
+                throw ValidationException::withMessages([
+                    'email' => ['Your subscription has been expired.'],
+                ]);
+            }
+        }
 
         return response()->json([
             'token' => $user->createToken('myApp')->plainTextToken,

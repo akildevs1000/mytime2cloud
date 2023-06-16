@@ -25,12 +25,16 @@
             style="max-width: 200px !important"
           ></v-select>
         </v-toolbar>
-        <v-slide-group class="px-4 pb-3 mb-5" active-class="success" show-arrows>
+        <v-slide-group
+          class="px-4 pb-3 mb-5"
+          active-class="success"
+          show-arrows
+        >
           <div></div>
 
           <v-slide-item v-for="(item, index) in logs" :key="index">
             <v-card
-              style="border-radius: 2rem !important; height:90%;"
+              style="border-radius: 2rem !important; height: 90%"
               class="custom-card mx-2 my-2"
             >
               <div
@@ -149,9 +153,9 @@ export default {
       this.socket = new WebSocket(this.url);
 
       this.socket.onmessage = ({ data }) => {
-        let json = JSON.parse(data);
-        if (json.Status == 200 && json.Data.UserCode !== 0) {
-          this.getDetails(json.Data);
+        let json = JSON.parse(data).Data;
+        if (json && json.UserCode > 0) {
+          this.getDetails(json);
         }
       };
     },
