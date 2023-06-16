@@ -13,7 +13,8 @@ class SDKController extends Controller
     // $url = "https://sdk.ideahrms.com";
 //http://139.59.69.241:5000
 //localhost:5000
-    protected $endpoint = "localhost:5000";
+//https://stagingsdk.ideahrms.com
+    protected $endpoint = "https://stagingsdk.ideahrms.com";
 
     public function processTimeGroup(Request $request, $id)
     {
