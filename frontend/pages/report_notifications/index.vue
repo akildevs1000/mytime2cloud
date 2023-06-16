@@ -11,36 +11,66 @@
           <h3>Report Notification</h3>
           <div>Dashboard / Report Notification</div>
         </v-col>
+        <div class="text-center">
+          <v-dialog v-model="dialog" width="500">
+            <v-card>
+              <v-card-title class="text-h5 primary white--text mb-5">
+                Send test Message to whatsapp
+              </v-card-title>
 
+              <v-card-text>
+                <v-text-field dense outlined placeholder="number" v-model="number">
+
+                </v-text-field>
+                <v-textarea dense outlined placeholder="message" v-model="message">
+                  Hello
+                </v-textarea>
+              </v-card-text>
+
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn class="primary" @click="send">
+                  Send
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </div>
         <v-col cols="12">
           <v-card elevation="0" class="px-5 pb-5">
             <v-card-title>
               <label class="col-form-label"><b>Report Notification List </b></label>
               <v-spacer></v-spacer>
+              <v-btn color="background" dark @click="dialog = true">
+                <v-icon>mdi-phone</v-icon> Whatsapp Test
+              </v-btn>
+              &nbsp;
               <v-btn color="background" dark to="/report_notifications/create">
                 <v-icon>mdi-plus</v-icon> Add Report Notification
               </v-btn>
             </v-card-title>
             <v-card-title>
-              <table style="width: 100%;">
+              <table style="width: 100%">
                 <tr>
-                  <td style="width:130px;">
+                  <td style="width: 130px">
                     <label class="col-form-label"><b>Title</b></label>
                   </td>
-                  <td style="max-width:100px;">
+                  <td style="max-width: 100px">
                     <label class="col-form-label">Frequency</label>
                   </td>
-                  <td style="width:80px;">
+                  <td style="width: 80px">
                     <label class="col-form-label"><b>Time</b></label>
                   </td>
-                  <td style="width:160px;">
+                  <td style="width: 160px">
                     <label class="col-form-label"><b>Medium</b></label>
                   </td>
-                  <td style="width:500px;">
+                  <td style="width: 500px">
                     <label class="col-form-label"><b>Reports</b></label>
                   </td>
 
-                  <td style="width:600px;">
+                  <td style="width: 600px">
                     <label class="col-form-label"><b>Recepients</b></label>
                   </td>
                   <td>
@@ -50,16 +80,16 @@
                   </td>
                 </tr>
                 <tr v-for="(item, index) in data" :key="index">
-                  <td style="max-width:10px;">
+                  <td style="max-width: 10px">
                     <label class="col-form-label">{{ item.subject }}</label>
                   </td>
-                  <td style="max-width:10px;">
+                  <td style="max-width: 10px">
                     <label class="col-form-label">{{ item.frequency }}</label>
                   </td>
                   <td>
                     <label class="col-form-label">{{ item.time }}</label>
                   </td>
-                  <td style="max-width:100px;">
+                  <td style="max-width: 100px">
                     <div>
                       <v-chip v-for="(medium, i) in item.mediums" :key="i" class="background ma-1" dark small>{{ medium
                       }}</v-chip>
@@ -72,7 +102,7 @@
                     </div>
                   </td>
 
-                  <td style="max-width:100px;">
+                  <td style="max-width: 100px">
                     <div>
                       <v-chip v-for="(to, i) in item.tos" :key="i" class="background ma-1" dark small>{{ to }}</v-chip>
                       <v-chip v-for="(cc, i) in item.ccs" :key="i" class="background ma-1" dark small>{{ cc }}
@@ -93,7 +123,7 @@
                       </template>
                       <v-list width="120" dense>
                         <v-list-item @click="editItem(item)">
-                          <v-list-item-title style="cursor:pointer">
+                          <v-list-item-title style="cursor: pointer">
                             <v-icon color="secondary" small>
                               mdi-pencil
                             </v-icon>
@@ -101,10 +131,8 @@
                           </v-list-item-title>
                         </v-list-item>
                         <v-list-item @click="deleteItem(item)">
-                          <v-list-item-title style="cursor:pointer">
-                            <v-icon color="error" small>
-                              mdi-delete
-                            </v-icon>
+                          <v-list-item-title style="cursor: pointer">
+                            <v-icon color="error" small> mdi-delete </v-icon>
                             Delete
                           </v-list-item-title>
                         </v-list-item>
@@ -126,6 +154,7 @@
 <script>
 export default {
   data: () => ({
+    dialog: false,
     color: "primary",
     endpoint: "report_notification",
     e1: 1,
@@ -138,6 +167,8 @@ export default {
     to: "",
     cc: "",
     bcc: "",
+    number: "",
+    message: "",
     payload: {
       report_types: [],
       mediums: [],
@@ -145,38 +176,11 @@ export default {
       time: null,
       tos: [],
       ccs: [],
-      bccs: []
+      bccs: [],
     },
     data: [],
     options: {},
     errors: [],
-    headers_table: [
-
-      { text: "Title", align: "left", sortable: true, key: 'title', value: "title" },
-      { text: "Frequency", align: "left", sortable: true, key: 'frequency', value: "frequency" },
-      { text: "Time", align: "left", sortable: false, key: 'time', value: "time" },
-      {
-        text: "Medium",
-        align: "left",
-        sortable: true,
-        key: 'medium',
-        value: "medium"
-      },
-      {
-        text: "Reports",
-        align: "left",
-        sortable: true,
-        key: 'reports',
-        value: "reports",
-      },
-      {
-        text: "Recepients",
-        align: "left",
-        sortable: true,
-        key: 'recepients',
-        value: "recepients",
-      },
-    ],
   }),
 
   created() {
@@ -185,21 +189,15 @@ export default {
     this.getDataFromApi();
   },
   methods: {
-    datatable_save() {
-    },
-    datatable_cancel() {
-      this.datatable_search_textbox = '';
-    },
-    datatable_open() {
-      this.datatable_search_textbox = '';
-    },
-    datatable_close() {
-      this.loading = false;
+    send() {
+      // https://ezwhat.com/api/send.php?number=923108559858&type=text&message=test%20message&instance_id=64466B01B7926&access_token=a27e1f9ca2347bb766f332b8863ebe9f
+      this.$axios.get(`https://ezwhat.com/api/send.php?number=${this.number}&type=text&message=${this.message}&instance_id=64466B01B7926&access_token=a27e1f9ca2347bb766f332b8863ebe9f`)
+        .then(({ data }) => console.log(data));
     },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -222,7 +220,7 @@ export default {
               this.getDataFromApi();
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     add_to() {
@@ -257,8 +255,8 @@ export default {
         params: {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
-          role_type: "employee"
-        }
+          role_type: "employee",
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -267,11 +265,11 @@ export default {
         this.total = data.total;
         this.loading = false;
       });
-    }
-  }
+    },
+  },
 };
 </script>
-<style scoped>
+<!-- <style scoped>
 td,
 th {
   border: 1px solid #dddddd;

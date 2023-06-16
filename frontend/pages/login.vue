@@ -77,26 +77,14 @@
                         <v-btn
                           :loading="loading"
                           @click="login"
-                          class="
-                            btn btn-primary btn-block
-                            text-white
-                            fa-lg
-                            primary
-                            mt-1
-                            mb-3
-                          "
+                          class="btn btn-primary btn-block text-white fa-lg primary mt-1 mb-3"
                         >
                           Log in
                         </v-btn>
                       </div>
 
                       <div
-                        class="
-                          d-flex
-                          align-items-center
-                          justify-content-center
-                          pb-4
-                        "
+                        class="d-flex align-items-center justify-content-center pb-4"
                       >
                         <!-- <p class="mb-0 me-2">Don't have an account?</p> -->
                         <!-- <button type="button" class="btn btn-outline-danger">Create new</button> -->
@@ -149,11 +137,11 @@ export default {
     show_password: false,
     msg: "",
     emailRules: [
-      v => !!v || "E-mail is required",
-      v => /.+@.+\..+/.test(v) || "E-mail must be valid"
+      (v) => !!v || "E-mail is required",
+      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
     ],
 
-    passwordRules: [v => !!v || "Password is required"]
+    passwordRules: [(v) => !!v || "Password is required"],
   }),
   created() {},
   methods: {
@@ -172,7 +160,7 @@ export default {
         // const token = await this.$recaptcha.getResponse();
         let credentials = {
           email: this.email,
-          password: this.password
+          password: this.password,
         };
         this.$auth
           .loginWith("local", { data: credentials })
@@ -215,8 +203,8 @@ export default {
             setTimeout(() => (this.loading = false), 2000);
           });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>
