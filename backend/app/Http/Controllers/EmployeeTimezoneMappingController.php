@@ -48,7 +48,7 @@ class EmployeeTimezoneMappingController extends Controller
 
                 $SDKObj = new SDKController;
                 //$SDKresponse = ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
-                $SDKresponse = ($SDKObj->processSDKRequest("", $SDKjsonRequest));
+                $SDKresponse = ($SDKObj->PersonAddRangeWithData($SDKjsonRequest));
 
                 $finalArray['SDKRequest'] = $SDKjsonRequest;
                 $finalArray['SDKResponse'] = json_decode($SDKresponse, true);

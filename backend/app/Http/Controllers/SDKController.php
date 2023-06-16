@@ -90,13 +90,15 @@ class SDKController extends Controller
 
         return $this->processSDKRequest($url, $request->all());
     }
+    public function PersonAddRangeWithData($data)
+    {
+        $url = "{$this->endpoint}/Person/AddRange";
 
+        return $this->processSDKRequest($url, $data);
+    }
     public function processSDKRequest($url, $data)
     {
 
-        if ($url == '') {
-            $url = $this->endpoint;
-        }
         try {
             return Http::withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
