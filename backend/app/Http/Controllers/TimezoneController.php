@@ -138,11 +138,9 @@ class TimezoneController extends Controller
             ->where("is_default", false)
             ->when($request->filled('filter_template_id'), function ($q) use ($request, $key) {
                 $q->where('timezone_id', 'like', "$key%");
-
             })
             ->when($request->filled('filter_template_name'), function ($q) use ($request, $key) {
                 $q->where('timezone_name', 'like', "$key%");
-
             })
             ->paginate($request->per_page ?? 100);
     }

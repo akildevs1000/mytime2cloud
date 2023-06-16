@@ -38,7 +38,145 @@
             </v-card>
           </v-dialog>
         </div>
-        <v-col cols="12">
+        <v-row>
+          <v-col>
+            <v-card class="mb-5" elevation="0">
+              <v-toolbar class="rounded-md" color="background" dense flat dark>
+                <v-toolbar-title><span> Notifications List</span></v-toolbar-title>
+
+                <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon
+                    class="mx-1">mdi
+                    mdi-reload</v-icon></a>
+
+
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-col class="toolbaritems-button-design">
+
+
+                    <v-btn @click="dialog = true" color="primary" class="primary ms-4 pt-4 pb-4 toolbar-button-design">
+                      <v-icon>mdi-phone</v-icon> Whatsapp Test
+                    </v-btn>
+
+                    <v-btn color="primary" class="primary ms-4 pt-4 pb-4 toolbar-button-design"
+                      to="/report_notifications/create">
+                      <v-icon>mdi-plus</v-icon> Add Report Notification
+                    </v-btn>
+                  </v-col>
+                </v-toolbar-items>
+              </v-toolbar>
+
+
+              <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+                {{ snackText }}
+
+                <template v-slot:action="{ attrs }">
+                  <v-btn v-bind="attrs" text @click="snack = false">
+                    Close
+                  </v-btn>
+                </template>
+              </v-snackbar>
+              <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
+                :footer-props="{
+                  itemsPerPageOptions: [50, 100, 500, 1000],
+                }" class="elevation-1">
+
+                <template v-slot:item.subject="{ item }">
+                  <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+                    @save="getDataFromApi()" @open="datatable_open">
+                    {{ item.subject }}
+                    <template v-slot:input>
+                      <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
+                        v-model="datatable_search_textbox" label="Search Subject"></v-text-field>
+                    </template>
+                  </v-edit-dialog>
+
+                </template>
+                <template v-slot:item.frequency="{ item }">
+                  <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+                    @save="getDataFromApi()" @open="datatable_open">
+                    {{ item.frequency }}
+                    <template v-slot:input>
+                      <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
+                        v-model="datatable_search_textbox" label="Search Employee Id"></v-text-field>
+                    </template>
+                  </v-edit-dialog>
+                </template>
+                <template v-slot:item.time="{ item }">
+                  <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+                    @save="getDataFromApi()" @open="datatable_open">
+                    {{ item.time }}
+                    <template v-slot:input>
+                      <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
+                        v-model="datatable_search_textbox" label="Search Employee Id"></v-text-field>
+                    </template>
+                  </v-edit-dialog>
+                </template>
+                <template v-slot:item.medium="{ item }">
+                  <v-chip v-for="(medium, i) in item.mediums" :key="i" class="background ma-1" dark small>{{ medium
+                  }}</v-chip>
+                </template>
+                <template v-slot:item.reports="{ item }">
+                  <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+                    @save="getDataFromApi()" @open="datatable_open">
+                    <v-chip v-for="(report, i) in item.reports" :key="i" class="background ma-1" dark small>{{ report
+                    }}</v-chip>
+                    <template v-slot:input>
+                      <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
+                        v-model="datatable_search_textbox" label="Search Employee Id"></v-text-field>
+                    </template>
+                  </v-edit-dialog>
+                </template>
+                <template v-slot:item.recipients="{ item }">
+                  <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
+                    @save="getDataFromApi()" @open="datatable_open">
+                    <v-chip v-for="(to, i) in item.tos" :key="i" class="background ma-1" dark small>{{ to }}</v-chip>
+                    <v-chip v-for="(cc, i) in item.ccs" :key="i" class="background ma-1" dark small>{{ cc }}
+                      (Cc)</v-chip>
+
+                    <v-chip v-for="(bcc, i) in item.bccs" :key="i" class="background ma-1" dark small>{{ bcc }}
+                      (Bcc)</v-chip>
+                    <template v-slot:input>
+                      <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
+                        v-model="datatable_search_textbox" label="Search Employee Id"></v-text-field>
+                    </template>
+                  </v-edit-dialog>
+                </template>
+                <template v-slot:item.actions="{ item }">
+                  <v-menu bottom left>
+                    <template v-slot:activator="{ on, attrs }">
+                      <div class="text-center">
+                        <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                          <v-icon>mdi-dots-vertical</v-icon>
+                        </v-btn>
+                      </div>
+                    </template>
+                    <v-list width="120" dense>
+                      <v-list-item @click="editItem(item)">
+                        <v-list-item-title style="cursor: pointer">
+                          <v-icon color="secondary" small>
+                            mdi-pencil
+                          </v-icon>
+                          Edit
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item @click="deleteItem(item)">
+                        <v-list-item-title style="cursor: pointer">
+                          <v-icon color="error" small> mdi-delete </v-icon>
+                          Delete
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </template>
+
+              </v-data-table>
+
+            </v-card>
+
+          </v-col>
+        </v-row>
+        <!-- <v-col cols="12">
           <v-card elevation="0" class="px-5 pb-5">
             <v-card-title>
               <label class="col-form-label"><b>Report Notification List </b></label>
@@ -143,7 +281,7 @@
               </table>
             </v-card-title>
           </v-card>
-        </v-col>
+        </v-col> -->
       </v-row>
     </div>
     <Preloader v-else />
@@ -154,6 +292,12 @@
 <script>
 export default {
   data: () => ({
+    datatable_search_textbox: '',
+    filter_employeeid: '',
+    snack: false,
+    snackColor: '',
+    snackText: '',
+
     dialog: false,
     color: "primary",
     endpoint: "report_notification",
@@ -181,6 +325,16 @@ export default {
     data: [],
     options: {},
     errors: [],
+    headers_table: [
+
+      { text: "Subject", align: "left", sortable: true, key: 'title', value: "subject" },
+      { text: "Frequency", align: "left", sortable: true, key: 'frequency', value: "frequency" },
+      { text: "Time", align: "left", sortable: false, key: 'time', value: "time" },
+      { text: "Medium", align: "left", sortable: false, key: 'medium', value: "medium" },
+      { text: "Reports", align: "left", sortable: false, key: 'reports', value: "reports" },
+      { text: "Recipients", align: "left", sortable: false, key: 'recipients', value: "recipients" },
+      { text: "Actions", align: "left", sortable: false, key: 'action', value: "actions" },
+    ]
   }),
 
   created() {
@@ -189,6 +343,17 @@ export default {
     this.getDataFromApi();
   },
   methods: {
+    datatable_save() {
+    },
+    datatable_cancel() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      this.loading = false;
+    },
     send() {
       // https://ezwhat.com/api/send.php?number=923108559858&type=text&message=test%20message&instance_id=64466B01B7926&access_token=a27e1f9ca2347bb766f332b8863ebe9f
       this.$axios.get(`https://ezwhat.com/api/send.php?number=${this.number}&type=text&message=${this.message}&instance_id=64466B01B7926&access_token=a27e1f9ca2347bb766f332b8863ebe9f`)
@@ -246,9 +411,11 @@ export default {
     deleteBCC(i) {
       this.payload.bccs.splice(i, 1);
     },
-    getDataFromApi(url = this.endpoint) {
+    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
       this.loading = true;
-
+      if (url == '') {
+        url = this.endpoint;
+      }
       const { page, itemsPerPage } = this.options;
 
       let options = {
@@ -259,7 +426,17 @@ export default {
         },
       };
 
+      if (filter_column != '')
+        options.params[filter_column] = filter_value;
+
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+        if (filter_column != '' && data.data.length == 0) {
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
         this.data = data.data;
 
         this.total = data.total;

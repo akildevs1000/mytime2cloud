@@ -35,7 +35,9 @@ class SDKController extends Controller
         asort($data);
 
         $url = "{$this->endpoint}/{$id}/WriteTimeGroup";
-        return $this->processSDKRequest($url, $data);
+        $sdkResponse = $this->processSDKRequest($url, $data);
+
+        return [$sdkResponse, 'requestData' => $data];
     }
 
     public function renderEmptyTimeFrame()

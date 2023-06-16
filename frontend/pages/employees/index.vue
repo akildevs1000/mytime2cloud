@@ -540,9 +540,9 @@
               </td>
             </tr>
           </table> -->
-            <v-col col="12" v-if="displayErrormsg" class="text-center">No Records avaialble</v-col>
+            <!-- <v-col col="12" v-if="displayErrormsg" class="text-center">No Records avaialble</v-col> -->
           </v-card>
-          <div>
+          <!-- <div>
             <v-row>
               <v-col md="12" class="float-right">
                 <div class="float-right">
@@ -551,7 +551,7 @@
                 </div>
               </v-col>
             </v-row>
-          </div>
+          </div> -->
         </div>
       </v-row>
     </div>
@@ -637,7 +637,7 @@ export default {
     next_page_url: "",
     prev_page_url: "",
     current_page: 1,
-    per_page: 8,
+    per_page: 1000,
     ListName: "",
     color: "background",
     response: "",
@@ -663,7 +663,7 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 10,
+      per_page: 1000,
     },
     options: {},
     Model: "Employee",

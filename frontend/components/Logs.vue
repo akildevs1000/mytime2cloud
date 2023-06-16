@@ -205,7 +205,7 @@ export default {
     snackbar: false,
     headers_table: [
       {
-        text: "Employee Device Id/User ID",
+        text: "E.ID",
         align: "left",
         sortable: true,
         key: "UserID",
@@ -331,7 +331,7 @@ export default {
           this.loading = false;
         });
     },
-    searchIt() { 
+    searchIt() {
       this.payload.from_date_txt = this.payload.from_date;
       this.payload.to_date_txt = this.payload.to_date;
 

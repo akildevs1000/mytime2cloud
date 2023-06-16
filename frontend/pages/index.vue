@@ -97,8 +97,15 @@
             </div>
           </div>
         </v-col>
-        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="9"> </v-col>
-        <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="3">
+
+
+      </v-row>
+      <v-row>
+        <v-col cols="12" md="12" lg="9" xl="9">
+          <DailyLogs />
+        </v-col>
+
+        <v-col xs="12" sm="12" cols="12" md="3" lg="3" xl="3">
           <v-toolbar color="primary" dark flat>
             <v-toolbar-title>Announcements</v-toolbar-title>
           </v-toolbar>
@@ -233,11 +240,6 @@
               </v-dialog>
             </div>
           </v-card>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12" md="12" xl="12">
-          <DailyLogs />
         </v-col>
         <!-- <v-col cols="12" md="4" xl="4">
           <v-card flat class="w-100">

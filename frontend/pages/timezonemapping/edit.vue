@@ -62,8 +62,8 @@
                   <div class="col-sm" :style="{
                     color:
                       user.timezone && user.timezone.timezone_name
-                        ? '#b4b0b0'
-                        : '#000000',
+                        ? '#000000'
+                        : '#b4b0b0',
                   }" style="padding-top:21px">
                     {{ user.employee_id }}: {{ user.display_name }}:
                     <span v-if="user.timezone">
@@ -114,7 +114,7 @@
                     <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
                       :value="user.id" primary hide-details></v-checkbox>
                   </v-col>
-                  <div class="col-sm" style="padding-top:21px">
+                  <div class="col-sm" style="padding-top:21px;color:#000000">
                     {{ user.employee_id }} : {{ user.display_name }}
                   </div>
                   <div class="col-sm" style="padding-top:21px">
@@ -155,7 +155,7 @@
                     <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
                       v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
                   </v-col>
-                  <div class="col" style="padding-top:21px">
+                  <div class="col" style="padding-top:21px;color:#000000">
                     {{ user.name }} : {{ user.device_id }}
                   </div>
                 </div>
@@ -219,7 +219,7 @@
                     <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
                       v-model="rightSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
                   </v-col>
-                  <div class="col-sm" style="padding-top:21px">
+                  <div class="col-sm" style="padding-top:21px;color:#000000">
                     {{ user.name }} : {{ user.device_id }}
                   </div>
                   <div class="col-sm" style="padding-top:21px">

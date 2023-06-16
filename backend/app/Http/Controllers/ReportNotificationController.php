@@ -11,7 +11,14 @@ class ReportNotificationController extends Controller
 {
     public function index(ReportNotification $model, Request $request)
     {
-        return $model->where('company_id', $request->company_id)->paginate($request->per_page);
+
+        return $model->where('company_id', $request->company_id)
+            ->when($request->filled('serach_email_subject'), function ($q) use ($request) {
+                $key = strtolower($request->serach_email_subject);
+                $q->where('subject', 'like', "$key%");
+
+            })
+            ->paginate($request->per_page);
     }
 
     public function store(StoreRequest $request)
@@ -24,7 +31,7 @@ class ReportNotificationController extends Controller
             } else {
                 return $this->response('Report Notification cannot create.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -44,11 +51,11 @@ class ReportNotificationController extends Controller
             } else {
                 return $this->response('Report Notification update.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
-    
+
     public function destroy(ReportNotification $ReportNotification)
     {
         $record = $ReportNotification->delete();

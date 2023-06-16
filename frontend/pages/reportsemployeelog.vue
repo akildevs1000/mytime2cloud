@@ -249,7 +249,7 @@ export default {
         value: "employee.first_name",
       },
       {
-        text: "Employee Device Id",
+        text: "E.ID",
         align: "left",
         sortable: true,
         key: "UserID",
