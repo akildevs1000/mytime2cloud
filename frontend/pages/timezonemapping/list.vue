@@ -114,7 +114,7 @@
                       Edit
                     </v-list-item-title>
                   </v-list-item>
-                  <v-list-item @click="deleteItem(item.id, item.deleteItem)">
+                  <v-list-item @click="deleteItem(item.id, item.timezone_id)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="error" small> mdi-delete </v-icon>
                       Delete
