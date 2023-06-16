@@ -104,7 +104,7 @@
                 @open="datatable_open">
                 <v-row no-gutters>
                   <v-col style="padding: 5px;;padding-left:0px;width:50px;max-width:50px">
-                    <v-img style="border-radius: 50%; height: auto;  width: 50px;max-width: 50px" :src="item.employee
+                    <v-img style="border-radius: 50%; height: auto;  width: 50px;max-width: 50px" :src="item.employee && item.employee.profile_picture
                       ? item.employee.profile_picture
                       : '/no-profile-image.jpg'
                       ">
