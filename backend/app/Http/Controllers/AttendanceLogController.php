@@ -17,8 +17,10 @@ class AttendanceLogController extends Controller
     public function index(AttendanceLog $model, Request $request)
     {
 
-        return $model->with(["device", "employee"])->where("company_id", $request->company_id)
-
+        return $model->with(["device"])->where("company_id", $request->company_id)
+            ->with('employee', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            })
             ->when($request->from_date, function ($query) use ($request) {
                 return $query->whereDate('LogTime', '>=', $request->from_date);
             })
