@@ -149,7 +149,34 @@ export default {
     },
     data: [],
     options: {},
-    errors: []
+    errors: [],
+    headers_table: [
+
+      { text: "Title", align: "left", sortable: true, key: 'title', value: "title" },
+      { text: "Frequency", align: "left", sortable: true, key: 'frequency', value: "frequency" },
+      { text: "Time", align: "left", sortable: false, key: 'time', value: "time" },
+      {
+        text: "Medium",
+        align: "left",
+        sortable: true,
+        key: 'medium',
+        value: "medium"
+      },
+      {
+        text: "Reports",
+        align: "left",
+        sortable: true,
+        key: 'reports',
+        value: "reports",
+      },
+      {
+        text: "Recepients",
+        align: "left",
+        sortable: true,
+        key: 'recepients',
+        value: "recepients",
+      },
+    ],
   }),
 
   created() {
@@ -158,6 +185,17 @@ export default {
     this.getDataFromApi();
   },
   methods: {
+    datatable_save() {
+    },
+    datatable_cancel() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      this.loading = false;
+    },
     can(per) {
       let u = this.$auth.user;
       return (
