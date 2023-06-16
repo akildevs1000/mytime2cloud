@@ -119,8 +119,10 @@
               <v-card-text class="timezone-displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
                 v-model="rightSelectedEmp" :key="user.id">
                 <div class="row">
-                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
-                    :value="user.id" primary hide-details></v-checkbox>
+                  <v-col class=" col-1   " style="padding:0px">
+                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
+                      :value="user.id" primary hide-details></v-checkbox>
+                  </v-col>
                   <div class="col-sm" style="padding-top:21px;color:#000000">
                     {{ user.employee_id }} : {{ user.display_name }}
                   </div>
@@ -158,9 +160,12 @@
               <v-card-text class="timezone-displaylistview" v-for="(user, index) in leftDevices" :id="user.id"
                 v-model="leftSelectedDevices" :key="user.id">
                 <div class="row">
-                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
-                    v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
-                  <div class="col" style="padding-top:21px;color:#000000">
+                  <v-col class=" col-1   " style="padding:0px">
+                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
+                      v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+
+                  </v-col>
+                  <div class="col-sm" style="padding-top:21px;color:#000000">
                     {{ user.name }} : {{ user.device_id }}
                   </div>
                 </div>
@@ -202,14 +207,17 @@
               <v-card-text class="timezone-displaylistview" v-for="(user, index) in rightDevices" :id="user.id"
                 v-model="rightSelectedDevices" :key="user.id">
                 <div class="row">
-                  <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
-                    v-model="rightSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+                  <v-col class=" col-1   " style="padding:0px"><v-checkbox hideDetails
+                      class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedDevices" :value="user.id"
+                      primary hide-details></v-checkbox>
+                  </v-col>
                   <div class="col-sm" style="padding-top:21px;color:#000000">
                     {{ user.name }} : {{ user.device_id }}
                   </div>
                   <div class="col-sm" style="padding-top:21px">
                     <span style="color: red">{{ user.sdkDeviceResponse }}</span>
                   </div>
+
                 </div>
               </v-card-text>
             </v-card>

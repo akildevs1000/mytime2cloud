@@ -278,6 +278,8 @@ export default {
 
       confirm("Are you sure you want to delete this item?") &&
         this.$axios.post(`${url}`, options).then(({ data }) => {
+
+          this.getDataFromApi();
           if (!data.status) {
             this.errors = data.errors;
           } else {
@@ -287,7 +289,7 @@ export default {
           }
         });
 
-      this.getDataFromApi();
+
     },
 
     datatable_searchByTimezonename(e) {
@@ -306,28 +308,17 @@ export default {
           cols: ["id", "employee_id", "display_name"],
         },
       };
-      if (additional_params == 'searchByTimezoneName') {
-        options.params.searchByTimezoneName = 'searchByTimezoneName';
-      }
-
-
-
-
+      if (additional_params != '')
+        options.params['additional_params'] = additional_params;
       this.loading = true;
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-
-
         if (additional_params != '' && data.data.length == 0) {
-
           this.snack = true;
           this.snackColor = 'error';
           this.snackText = 'No Results Found';
           this.loading = false;
           return false;
         }
-
-
         this.data = data.data;
         this.total = this.data.length;
         this.pagination.current = data.current_page;
