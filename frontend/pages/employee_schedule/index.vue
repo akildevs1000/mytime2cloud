@@ -219,13 +219,13 @@
         <div>Dashboard / {{ Module }}</div>
       </v-col>
       <v-col cols="6">
-        <div class="text-right">
+        <!-- <div class="text-right">
           <v-btn v-if="can(`employee_schedule_create`)" small color="primary" to="/employee_schedule/create" class="mb-2">
             {{ Module }} +</v-btn>
-        </div>
+        </div> -->
       </v-col>
     </v-row>
-    <v-row>
+    <!-- <v-row>
       <v-col xs="12" sm="12" md="3" cols="12">
         <v-select class="form-control custom-text-box shadow-none" @change="getDataFromApi(`scheduled_employees`)"
           v-model="pagination.per_page" :items="[50, 100, 500, 1000]" placeholder="Per Page Records" solo flat
@@ -236,10 +236,158 @@
         <input class="form-control py-3 custom-text-box floating shadow-none" placeholder="Search..." @input="searchIt"
           v-model="search" type="text" />
       </v-col>
-    </v-row>
+    </v-row> -->
 
     <v-card class="mb-5 rounded-md mt-3" elevation="0">
+
+
+
       <v-toolbar class="rounded-md" color="background" dense flat dark>
+        <v-toolbar-title><span> Schedule List</span></v-toolbar-title>
+        <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi"><v-icon class="mx-1">mdi
+            mdi-reload</v-icon></a>
+        <v-spacer></v-spacer>
+        <v-toolbar-items>
+          <v-col class="toolbaritems-button-design">
+            <v-btn v-if="can(`employee_schedule_create`)" small color="primary" to="/employee_schedule/create"
+              class="mb-2">
+              {{ Module }} +</v-btn>
+          </v-col>
+        </v-toolbar-items>
+      </v-toolbar>
+      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+        {{ snackText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snack = false">
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+        {{ snackText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snack = false">
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+      <v-data-table dense :headers="headers_table" :items="employees" model-value="data.id" :loading="loading"
+        :options.sync="options" :footer-props="{
+          itemsPerPageOptions: [50, 100, 500, 1000],
+        }" class="elevation-1">
+        <template v-slot:item.sno="{ item, index }">
+
+          <b>{{ ++index }}</b>
+        </template>
+        <template v-slot:item.employee_id="{ item }">
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
+            {{ caps(item.employee_id) }}
+            <template v-slot:input>
+              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_employee_id', $event)"
+                label="Search Employee ID"></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </template>
+        <template v-slot:item.employee.first_name="{ item }">
+
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
+            {{ caps(item.employee && item.employee.first_name) }} {{ caps(item.employee && item.employee.last_name) }}
+            <template v-slot:input>
+              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_employee_name', $event)"
+                label="Search Employee name"></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </template>
+        <template v-slot:item.roster.name="{ item }">
+
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
+            {{ caps(item.roster && item.roster.name) }}
+            <template v-slot:input>
+              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_schedule_name', $event)"
+                label="Search Schedule name"></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </template>
+        <template v-slot:item.show_from_date="{ item }">
+
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
+            {{ item && item.from_date }}
+            <template v-slot:input>
+              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_from_date', $event)"
+                label="Search From Date"></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </template>
+        <template v-slot:item.show_to_date="{ item }">
+
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
+            {{ item && item.to_date }}
+            <template v-slot:input>
+              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_to_date', $event)"
+                label="Search Shift name"></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </template>
+        <template v-slot:item.isOverTime="{ item }">
+          <v-icon v-if="item && item.isOverTime" color="success darken-1">mdi-check</v-icon>
+          <v-icon v-else color="error">mdi-close</v-icon>
+        </template>
+        <template v-slot:item.shift.name="{ item }">
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
+            {{ item.shift && item.shift.name }}
+            <template v-slot:input>
+              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_shift_name', $event)"
+                label="Search Shift name"></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </template>
+        <template v-slot:item.shift_type.name="{ item }">
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
+            {{ item.shift_type && item.shift_type.name }}
+            <template v-slot:input>
+              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_shift_type', $event)"
+                label="Search Shift Type"></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </template>
+        <template v-slot:item.options="{ item }">
+          <v-menu bottom left>
+            <template v-slot:activator="{ on, attrs }">
+              <div class="text-center">
+                <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </div>
+            </template>
+            <v-list width="120" dense>
+              <v-list-item @click="editItem(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small>
+                    mdi-pencil
+                  </v-icon>
+                  Edit
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="deleteItem(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="error" small> mdi-delete </v-icon>
+                  Delete
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
+      </v-data-table>
+      <!-- <v-toolbar class="rounded-md" color="background" dense flat dark>
         <span>Employee Schedule List</span>
       </v-toolbar>
       <table>
@@ -295,18 +443,13 @@
                     Edit
                   </v-list-item-title>
                 </v-list-item>
-                <!-- <v-list-item @click="deleteItem(item)">
-                  <v-list-item-title style="cursor: pointer">
-                    <v-icon color="error" small> mdi-delete </v-icon>
-                    Delete
-                  </v-list-item-title>
-                </v-list-item> -->
-              </v-list>
-            </v-menu>
-          </td>
-        </tr>
+
+      </v-list>
+      </v-menu>
+      </td>
+      </tr>
       </table>
-      <v-col align="center" v-if="displayNoRecords">No Records available</v-col>
+      <v-col align="center" v-if="displayNoRecords">No Records available</v-col> -->
 
     </v-card>
     <v-row>
@@ -323,6 +466,13 @@
 <script>
 export default {
   data: () => ({
+
+    datatable_search_textbox: '',
+    datatable_searchById: '',
+    filter_employeeid: '',
+    snack: false,
+    snackColor: '',
+    snackText: '',
     displayNoRecords: false,
     from_date: new Date().toJSON().slice(0, 10),
     from_menu: false,
@@ -410,7 +560,71 @@ export default {
         sortable: false,
       },
     ],
+    headers_table: [
+      {
+        text: "#",
+        align: "center",
+        value: "sno",
+        sortable: false,
+      },
+      {
+        text: "Employee Id",
+        align: "left",
+        sortable: true,
+        value: "employee_id",
+      },
+      {
+        text: "Name",
+        align: "left",
+        sortable: true,
+        value: "employee.first_name",
+      },
+      {
+        text: "	Current Schedule Name",
+        align: "left",
+        sortable: true,
+        value: "roster.name",
+      },
+      {
+        text: "Schedule Start",
+        align: "left",
+        sortable: true,
+        value: "show_from_date",
+      },
+      {
+        text: "Schedule Start",
+        align: "left",
+        sortable: true,
+        value: "show_to_date",
+      },
+      {
+        text: "OT",
+        align: "left",
+        sortable: true,
+        value: "isOverTime",
+      },
+      {
+        text: "Shift Name",
+        align: "left",
+        sortable: true,
+        value: "shift.name",
+      },
+      {
+        text: "Shift Type",
+        align: "left",
+        sortable: true,
+        value: "shift_type.name",
+      },
 
+
+
+      {
+        text: "Actions",
+        align: "center",
+        value: "action",
+        sortable: false,
+      },
+    ],
     department_ids: ["---"],
     sub_department_ids: ["---"],
     employee_ids: [],
@@ -441,8 +655,8 @@ export default {
       },
       {
         text: "Name",
-        sortable: false,
-        value: "display_name",
+        sortable: true,
+        value: "employee.first_name",
       },
       {
         text: "Department",
@@ -471,7 +685,7 @@ export default {
     },
     options: {
       handler() {
-        this.getDataFromApi();
+        //this.getDataFromApi();
       },
       deep: true,
     },
@@ -492,7 +706,7 @@ export default {
     this.loading = true;
     this.loading_dialog = true;
     this.get_rosters();
-
+    this.getDataFromApi();
     this.options = {
       params: {
         per_page: 1000,
@@ -502,6 +716,19 @@ export default {
   },
 
   methods: {
+    datatable_save() {
+    },
+    datatable_cancel() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+      console.log('datatable_open');
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      this.loading = false;
+      //this.datatable_search_textbox = '';
+    },
     onPageChange() {
       this.getDataFromApi();
     },
@@ -730,8 +957,15 @@ export default {
         u.is_master
       );
     },
+    getSearchRecords(filter_column = '', filter_value = '') {
+
+      console.log('filter_column', filter_column);
+      console.log('filter_value', filter_value);
+      this.getDataFromApi(this.endpoint, filter_column, filter_value);
+    },
     //main
-    getDataFromApi(url = this.endpoint) {
+    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
+
       this.loading = true;
 
       let page = this.pagination.current;
@@ -744,7 +978,18 @@ export default {
         },
       };
 
+      if (filter_value != '')
+        options.params[filter_column] = filter_value;
+
       this.$axios.get(url, options).then(({ data }) => {
+        if (filter_column != '' && data.data.length == 0) {
+
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
         this.employees = data.data;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
@@ -754,6 +999,8 @@ export default {
           this.displayNoRecords = true;
         }
       });
+
+      this.loading = false;
     },
 
     getDataFromApiForDialog(url = this.endpoint_dialog) {

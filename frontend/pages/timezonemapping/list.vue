@@ -31,7 +31,7 @@
         <v-card class="mb-5 rounded-md mt-3" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <span> {{ Model }} </span>
-            <a style="padding-left:10px" title="Reset Filter/Reload" @click="getDataFromApi()"><v-icon class="mx-1">mdi
+            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
                 mdi-reload</v-icon></a>
             <v-spacer></v-spacer>
             <v-toolbar-items>

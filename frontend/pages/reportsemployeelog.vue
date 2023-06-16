@@ -16,7 +16,7 @@
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <v-toolbar-title><span> Recent Logs</span></v-toolbar-title>
 
-              <a style="padding-left:10px" title="Reset Filter/Reload" @click="getRecords()"><v-icon class="mx-1">mdi
+              <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getRecords()"><v-icon class="mx-1">mdi
                   mdi-reload</v-icon></a>
             </v-toolbar>
             <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -56,7 +56,7 @@
               </template>
               <template v-slot:item.UserID="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
-                  @save="getRecords()">
+                  @save="getRecords()" @open="datatable_open">
                   {{ item.UserID }}
                   <template v-slot:input>
                     <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_system_user_id', $event)"
@@ -66,7 +66,7 @@
               </template>
               <template v-slot:item.employee.employee_id="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
-                  @save="getRecords()">
+                  @save="getRecords()" @open="datatable_open">
                   {{ item.employee.employee_id }}
                   <template v-slot:input>
                     <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_employee_id', $event)"
@@ -76,7 +76,7 @@
               </template>
               <template v-slot:item.time="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
-                  @save="getRecords()">
+                  @save="getRecords()" @open="datatable_open">
                   {{ item.time }}
                   <template v-slot:input>
                     <v-text-field v-model="datatable_search_textbox" label="Search Time"
@@ -86,7 +86,7 @@
               </template>
               <template v-slot:item.device.device_name="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
-                  @save="getRecords()">
+                  @save="getRecords()" @open="datatable_open">
                   {{ item.device ? item.device.device_name : '---' }}
                   <template v-slot:input>
                     <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_device_name', $event)"
@@ -96,7 +96,7 @@
               </template>
               <template v-slot:item.device.device_id="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
-                  @save="getRecords()">
+                  @save="getRecords()" @open="datatable_open">
                   {{ item.device ? item.device.device_id : '---' }}
                   <template v-slot:input>
                     <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_device_id', $event)"

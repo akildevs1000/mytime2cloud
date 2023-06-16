@@ -270,74 +270,159 @@
           <h3>Schedule</h3>
           <div>Dashboard / Schedule</div>
         </v-col>
-        <v-col cols="12">
-          <v-card elevation="0" class="px-5 pb-5">
-            <v-card-title>
-              <label class="col-form-label"><b>Schedule List </b></label>
-              <v-spacer></v-spacer>
+
+      </v-row>
+
+
+      <v-card elevation="0" v-if="can(`shift_view`)">
+
+        <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <v-toolbar-title><span> Schedule List</span></v-toolbar-title>
+          <a style="padding-left:10px" title="Reload Page/Reset Form" @click="get_schedule"><v-icon class="mx-1">mdi
+              mdi-reload</v-icon></a>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-col class="toolbaritems-button-design">
               <v-btn color="primary" small @click="dialog = true">
                 <v-icon>mdi-plus</v-icon> Add Schedule
               </v-btn>
-            </v-card-title>
-            <v-card-title>
-              <!-- <pre>{{ scheduleData }}</pre> -->
-              <table style="width: 100%">
-                <tr>
-                  <td style="width: 130px">
-                    <label class="col-form-label"><b>Name</b></label>
-                  </td>
-                  <td style="width: 85%">
-                    <label class="col-form-label">Description</label>
-                  </td>
-                  <td style="width: 2px">
+            </v-col>
+          </v-toolbar-items>
+        </v-toolbar>
+        <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+          {{ snackText }}
+
+          <template v-slot:action="{ attrs }">
+            <v-btn v-bind="attrs" text @click="snack = false">
+              Close
+            </v-btn>
+          </template>
+        </v-snackbar>
+        <v-data-table dense :headers="headers_table" :items="scheduleData" model-value="data.id" :loading="loading"
+          :options.sync="options" :footer-props="{
+            itemsPerPageOptions: [50, 100, 500, 1000],
+          }" class="elevation-1">
+          <template v-slot:item.sno="{ item, index }">
+
+            <b>{{ ++index }}</b>
+          </template>
+          <template v-slot:item.name="{ item }">
+            <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="get_schedule()"
+              @save="get_schedule()" @open="datatable_open">
+              {{ item.name }}
+              <template v-slot:input>
+                <v-text-field v-model="datatable_search_textbox" @input="get_schedule('search_shift_name', $event)"
+                  label="Search Shift name"></v-text-field>
+              </template>
+            </v-edit-dialog>
+          </template>
+          <template v-slot:item.description="{ item }">
+
+            <v-chip small class="primary ma-1" v-for="(j, s) in item.json" :key="s">
+              {{ j.day }} {{ j.time }} {{ getShiftType(j.shift_id) }}
+            </v-chip>
+          </template>
+          <template v-slot:item.options="{ item }">
+            <v-menu bottom left>
+              <template v-slot:activator="{ on, attrs }">
+                <div class="text-center">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <v-list width="120" dense>
+                <v-list-item @click="editItem(item)">
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="secondary" small>
+                      mdi-pencil
+                    </v-icon>
+                    Edit
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="deleteItem(item)">
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="error" small> mdi-delete </v-icon>
+                    Delete
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+        </v-data-table>
+
+      </v-card>
+      <!-- <v-col cols="12">
+
+
+        <v-card elevation="0" class="px-5 pb-5">
+
+          <v-card-title>
+            <label class="col-form-label"><b>Schedule List </b></label>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" small @click="dialog = true">
+              <v-icon>mdi-plus</v-icon> Add Schedule
+            </v-btn>
+          </v-card-title>
+
+
+          <table style="width: 100%">
+            <tr>
+              <td style="width: 130px">
+                <label class="col-form-label"><b>Name</b></label>
+              </td>
+              <td style="width: 85%">
+                <label class="col-form-label">Description</label>
+              </td>
+              <td style="width: 2px">
+                <div class="text-center">
+                  <label class="col-form-label"> <b>Action</b></label>
+                </div>
+              </td>
+            </tr>
+
+            <tr v-for="(item, index) in scheduleData" :key="index">
+              <td style="max-width: 10px">
+                <label class="col-form-label">{{ item.name }}</label>
+              </td>
+              <td style="width: 50%">
+                <v-chip class="col-form-label mr-1" v-for="(j, s) in item.json" :key="s">
+                  {{ j.day }} {{ j.time }} {{ getShiftType(j.shift_id) }}
+                </v-chip>
+              </td>
+              <td style="width: 2px">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
                     <div class="text-center">
-                      <label class="col-form-label"> <b>Action</b></label>
+                      <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                        <v-icon>mdi-dots-vertical</v-icon>
+                      </v-btn>
                     </div>
-                  </td>
-                </tr>
-                <!-- <pre>{{ scheduleData }}</pre> -->
-                <tr v-for="(item, index) in scheduleData" :key="index">
-                  <td style="max-width: 10px">
-                    <label class="col-form-label">{{ item.name }}</label>
-                  </td>
-                  <td style="width: 50%">
-                    <v-chip class="col-form-label mr-1" v-for="(j, s) in item.json" :key="s">
-                      {{ j.day }} {{ j.time }} {{ getShiftType(j.shift_id) }}
-                    </v-chip>
-                  </td>
-                  <td style="width: 2px">
-                    <v-menu bottom left>
-                      <template v-slot:activator="{ on, attrs }">
-                        <div class="text-center">
-                          <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                            <v-icon>mdi-dots-vertical</v-icon>
-                          </v-btn>
-                        </div>
-                      </template>
-                      <v-list width="120" dense>
-                        <v-list-item @click="editItem(item)">
-                          <v-list-item-title style="cursor: pointer">
-                            <v-icon color="secondary" small>
-                              mdi-pencil
-                            </v-icon>
-                            Edit
-                          </v-list-item-title>
-                        </v-list-item>
-                        <v-list-item @click="deleteItem(item)">
-                          <v-list-item-title style="cursor: pointer">
-                            <v-icon color="error" small> mdi-delete </v-icon>
-                            Delete
-                          </v-list-item-title>
-                        </v-list-item>
-                      </v-list>
-                    </v-menu>
-                  </td>
-                </tr>
-              </table>
-            </v-card-title>
-          </v-card>
-        </v-col>
-      </v-row>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="editItem(item)">
+                      <v-list-item-title style="cursor: pointer">
+                        <v-icon color="secondary" small>
+                          mdi-pencil
+                        </v-icon>
+                        Edit
+                      </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item @click="deleteItem(item)">
+                      <v-list-item-title style="cursor: pointer">
+                        <v-icon color="error" small> mdi-delete </v-icon>
+                        Delete
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </td>
+            </tr>
+          </table>
+
+        </v-card>
+      </v-col> -->
+
     </div>
 
     <Preloader v-else />
@@ -348,6 +433,12 @@
 <script>
 export default {
   data: () => ({
+    datatable_search_textbox: '',
+    datatable_searchById: '',
+    filter_employeeid: '',
+    snack: false,
+    snackColor: '',
+    snackText: '',
     color: "primary",
     e1: 1,
     menu2: false,
@@ -392,6 +483,36 @@ export default {
     errors: [],
     selectedDays: [],
     edit_arr: [],
+    headers_table: [
+      {
+        text: "#",
+        align: "left",
+        sortable: true,
+
+        value: "sno",// template name
+      },
+      {
+        text: "Name",
+        align: "left",
+        sortable: true,
+        key: "name",
+        value: "name",
+      },
+      {
+        text: "Description",
+        align: "left",
+        sortable: true,
+        key: "name",
+        value: "description",
+      },
+      {
+        text: "Options",
+        align: "left",
+        sortable: false,
+        key: "name",
+        value: "options",
+      },
+    ],
   }),
 
   watch: {
@@ -415,6 +536,19 @@ export default {
     this.get_schedule();
   },
   methods: {
+    datatable_save() {
+    },
+    datatable_cancel() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+      console.log('datatable_open');
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      this.loading = false;
+      //this.datatable_search_textbox = '';
+    },
     getUpdateData(index, shift_id, day) {
       console.log(this.editShifts);
     },
@@ -594,13 +728,29 @@ export default {
           .catch((err) => console.log(err));
     },
 
-    get_schedule() {
+    get_schedule(filter_column = '', filter_value = '') {
+      this.loading = true;
       let options = {
         per_page: 20,
         company_id: this.$auth.user.company.id,
       };
+
+
+      console.log('filter_column', filter_column);
+      console.log('filter_value', filter_value);
+      if (filter_value != '')
+        options[filter_column] = filter_value;
       this.$axios.get("roster", { params: options }).then(({ data }) => {
+        if (filter_column != '' && data.data.length == 0) {
+
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
         this.scheduleData = data.data;
+        this.loading = false;
       });
     },
   },

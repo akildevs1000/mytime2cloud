@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Roster;
-use Illuminate\Http\Request;
 use App\Http\Requests\Roster\StoreRequest;
 use App\Http\Requests\Roster\UpdateRequest;
-use App\Models\Employee;
+use App\Models\Roster;
 use App\Models\ScheduleEmployee;
 use App\Models\Shift;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RosterController extends Controller
 {
@@ -17,6 +17,10 @@ class RosterController extends Controller
         try {
             return $model
                 ->where('company_id', $request->company_id)
+                ->when($request->filled('search_shift_name'), function ($q) use ($request) {
+                    $key = strtolower($request->search_shift_name);
+                    $q->where(DB::raw('lower(name)'), 'LIKE', "$key%");
+                })
                 ->orderBy('id', 'desc')
                 ->paginate($request->per_page ?? 20);
         } catch (\Throwable $th) {
@@ -33,7 +37,7 @@ class RosterController extends Controller
             $shift_names = $request->shift_names;
 
             for ($i = 0; $i < count($days); $i++) {
-                $shift =  Shift::find($shift_ids[$i]);
+                $shift = Shift::find($shift_ids[$i]);
                 $json[] = [
                     "day" => $days[$i],
                     "shift_id" => $shift_ids[$i],
@@ -49,7 +53,7 @@ class RosterController extends Controller
                 "days" => $days,
                 "json" => $json,
                 "name" => $request->name,
-                "company_id" => $request->company_id
+                "company_id" => $request->company_id,
             ]);
 
             if ($created) {
@@ -86,8 +90,6 @@ class RosterController extends Controller
                 }, $schedules);
             }, $empIds);
 
-
-
             ScheduleEmployee::insert(array_merge(...$arr));
 
             (new ScheduleEmployeeController)->assignScheduleByManual($request);
@@ -106,7 +108,7 @@ class RosterController extends Controller
         $shift_names = $request->shift_names;
 
         for ($i = 0; $i < count($days); $i++) {
-            $shift =  Shift::find($shift_ids[$i]);
+            $shift = Shift::find($shift_ids[$i]);
             $json[] = [
                 "day" => $days[$i],
                 "shift_id" => $shift_ids[$i],
@@ -118,7 +120,7 @@ class RosterController extends Controller
         $update = $roster->update([
             "json" => $json,
             "name" => $request->name,
-            "company_id" => $request->company_id
+            "company_id" => $request->company_id,
         ]);
 
         if ($update) {
@@ -133,7 +135,7 @@ class RosterController extends Controller
         $data = $request->json;
         $arr = [];
         foreach ($data as $data) {
-            $shift =  Shift::find($data['shift_id']);
+            $shift = Shift::find($data['shift_id']);
             $arr[] = [
                 "day" => $data['day'],
                 "shift_id" => $data['shift_id'],
@@ -149,7 +151,7 @@ class RosterController extends Controller
             "shift_ids" => array_column($arr, 'shift_id'),
             "json" => $arr,
             "name" => $request->name,
-            "company_id" => $request->company_id
+            "company_id" => $request->company_id,
         ]);
 
         if ($update) {
@@ -176,7 +178,7 @@ class RosterController extends Controller
     public function getRosterList(Request $request)
     {
         try {
-            $model =  Roster::query();
+            $model = Roster::query();
             return $model
                 ->where('company_id', $request->company_id)
                 ->orderBy('id', 'ASC')
@@ -189,7 +191,7 @@ class RosterController extends Controller
     public function getRosterByEmployee(Request $request, $id)
     {
         try {
-            $model =  ScheduleEmployee::query();
+            $model = ScheduleEmployee::query();
             $data = $model
                 ->whereCompanyId($request->company_id)
                 ->whereEmployeeId($id)
@@ -244,7 +246,7 @@ class RosterController extends Controller
                 "isOverTime" => $newData['is_over_time'],
                 "roster_id" => $newData['schedule_id'],
                 "from_date" => $newData['from_date'],
-                "to_date" => $newData['to_date']
+                "to_date" => $newData['to_date'],
             ]);
         });
         return $this->response('Schedule successfully Updated.', null, true);

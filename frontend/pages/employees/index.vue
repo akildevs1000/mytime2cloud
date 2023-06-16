@@ -239,9 +239,7 @@
             Export <v-icon right dark>mdi-cloud-download</v-icon>
           </v-btn>
 
-          <v-btn v-if="can('employee_create')" @click="employeeDialog = true" small dark class="primary">{{ Model }}
-            <v-icon right dark>mdi-account-tie</v-icon>
-          </v-btn>
+
         </v-col>
       </v-row>
       <v-row>
@@ -250,9 +248,21 @@
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <span> {{ Model }} List</span>
 
-              <a style="padding-left:10px" title="Reset Filter/Reload" @click="getDataFromApi()"><v-icon class="mx-1">mdi
+              <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon
+                  class="mx-1">mdi
                   mdi-reload</v-icon></a>
+              <v-spacer></v-spacer>
+              <v-toolbar-items>
+                <v-col class="toolbaritems-button-design">
+                  <v-btn v-if="can('employee_create')" @click="employeeDialog = true" small dark class="primary">{{ Model
+                  }}
+                    + <v-icon right dark>mdi-account-tie</v-icon>
+                  </v-btn>
+                </v-col>
+              </v-toolbar-items>
             </v-toolbar>
+
+
             <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
               {{ snackText }}
 
@@ -784,25 +794,14 @@ export default {
   },
   methods: {
     datatable_save() {
-      // this.snack = true
-      // this.snackColor = 'success'
-      // this.snackText = 'Searching...'
     },
     datatable_cancel() {
-      // this.loading = false;
-      // this.snack = true
-      // this.snackColor = 'error'
-      // this.snackText = 'Search Canceled'
       this.datatable_search_textbox = '';
     },
     datatable_open() {
-      // this.snack = true
-      // this.snackColor = 'info'
-      // this.snackText = 'Search Details'
       this.datatable_search_textbox = '';
     },
     datatable_close() {
-      // console.log('Dialog closed')
       this.loading = false;
       //this.datatable_search_textbox = '';
     },

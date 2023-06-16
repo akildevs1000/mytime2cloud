@@ -151,7 +151,8 @@
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <v-toolbar-title><span> Salary/Payslip List</span></v-toolbar-title>
 
-              <a style="padding-left:10px" title="Reset Filter/Reload" @click="getDataFromApi()"><v-icon class="mx-1">mdi
+              <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon
+                  class="mx-1">mdi
                   mdi-reload</v-icon></a>
 
               <v-toolbar-items>

@@ -2,22 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Reason;
-use App\Models\ScheduleEmployee;
-use App\Models\TimeTable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log as Logger;
 
 class AttendanceLogController extends Controller
 {
     public function index(AttendanceLog $model, Request $request)
     {
-        return $model->with("device")->where("company_id", $request->company_id)->orderByDesc("id")->paginate($request->per_page);
+
+        return $model->with("device")->where("company_id", $request->company_id)
+
+            ->when($request->from_date, function ($query) use ($request) {
+                return $query->whereDate('LogTime', '>=', $request->from_date);
+            })
+            ->when($request->to_date, function ($query) use ($request) {
+                return $query->whereDate('LogTime', '<=', $request->to_date);
+            })
+
+            ->when($request->UserID, function ($query) use ($request) {
+                return $query->where('UserID', $request->UserID);
+            })
+
+            ->when($request->DeviceID, function ($query) use ($request) {
+                return $query->where('DeviceID', $request->DeviceID);
+            })
+            ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
+                $q->where('UserID', 'LIKE', "$request->search_system_user_id%");
+            })
+            ->when($request->filled('search_time'), function ($q) use ($request) {
+                $q->where('LogTime', 'LIKE', "$request->search_time%");
+            })
+            ->when($request->filled('search_device_name'), function ($q) use ($request) {
+                $key = strtolower($request->search_device_name);
+                $q->whereHas('device', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+            })
+            ->when($request->filled('search_device_id'), function ($q) use ($request) {
+                $q->where('DeviceID', 'LIKE', "$request->search_device_id%");
+            })
+            ->orderByDesc("LogTime")->paginate($request->per_page);
     }
     public function getAttendanceLogs(AttendanceLog $model, Request $request)
     {
@@ -367,9 +396,9 @@ class AttendanceLogController extends Controller
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 
-
     public function Search(Request $request, $company_id)
     {
+
         $model = AttendanceLog::query();
 
         $model->where("company_id", $request->company_id);
@@ -391,6 +420,20 @@ class AttendanceLogController extends Controller
 
         $model->when($request->DeviceID, function ($query) use ($request) {
             return $query->where('DeviceID', $request->DeviceID);
+        });
+
+        $model->when($request->filled('search_system_user_id'), function ($q) use ($request) {
+            $q->where('UserID', 'LIKE', "$request->search_system_user_id%");
+        });
+        $model->when($request->filled('search_time'), function ($q) use ($request) {
+            $q->where('LogTime', 'LIKE', "$request->search_time%");
+        });
+        $model->when($request->filled('search_device_name'), function ($q) use ($request) {
+            $key = strtolower($request->search_device_name);
+            $q->whereHas('device', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+        });
+        $model->when($request->filled('search_device_id'), function ($q) use ($request) {
+            $q->where('DeviceID', 'LIKE', "$request->search_device_id%");
         });
 
         return $model
