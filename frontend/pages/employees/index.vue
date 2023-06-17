@@ -330,7 +330,7 @@
                 </v-edit-dialog>
 
               </template> -->
-              <template v-slot:item.display_name="{ item, index }">
+              <template v-slot:item.display_name="{ item, index }" style="width:300px">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
                   <v-row no-gutters>
@@ -406,7 +406,7 @@
                 </v-edit-dialog>
 
               </template>
-              <template v-slot:item.local_email="{ item }">
+              <template v-slot:item.local_email="{ item }" style="width:200px">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
 
@@ -641,7 +641,7 @@ export default {
     next_page_url: "",
     prev_page_url: "",
     current_page: 1,
-    per_page: 500,
+    per_page: 10,
     ListName: "",
     color: "background",
     response: "",
@@ -667,7 +667,7 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 50,
+      per_page: 1000,
     },
     options: {},
     Model: "Employee",
@@ -750,7 +750,7 @@ export default {
 
     this.payloadOptions = {
       params: {
-        per_page: 1000,
+        per_page: 10,
         company_id: this.$auth.user.company.id,
       },
     };
