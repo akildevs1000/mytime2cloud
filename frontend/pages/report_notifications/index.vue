@@ -98,8 +98,8 @@
                     @save="getDataFromApi()" @open="datatable_open">
                     {{ item.frequency }}
                     <template v-slot:input>
-                      <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
-                        v-model="datatable_search_textbox" label="Search Employee Id"></v-text-field>
+                      <v-text-field @input="getDataFromApi('', 'serach_frequency', $event)"
+                        v-model="datatable_search_textbox" label="Search Frequency"></v-text-field>
                     </template>
                   </v-edit-dialog>
                 </template>
@@ -108,27 +108,27 @@
                     @save="getDataFromApi()" @open="datatable_open">
                     {{ item.time }}
                     <template v-slot:input>
-                      <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
-                        v-model="datatable_search_textbox" label="Search Employee Id"></v-text-field>
+                      <v-text-field @input="getDataFromApi('', 'serach_time', $event)" v-model="datatable_search_textbox"
+                        label="Search Time"></v-text-field>
                     </template>
                   </v-edit-dialog>
                 </template>
                 <template v-slot:item.medium="{ item }">
-                  <v-chip v-for="(medium, i) in item.mediums" :key="i" class="  ma-1" small color="primary">{{
-                    medium
-                  }}</v-chip>
-                </template>
-                <template v-slot:item.reports="{ item }">
                   <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
                     @save="getDataFromApi()" @open="datatable_open">
-                    <v-chip v-for="(report, i) in item.reports" :key="i" small color="primary" class="ma-1">{{
-                      report
+                    <v-chip v-for="(medium, i) in item.mediums" :key="i" class="  ma-1" small color="primary">{{
+                      medium
                     }}</v-chip>
                     <template v-slot:input>
-                      <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
-                        v-model="datatable_search_textbox" label="Search Employee Id"></v-text-field>
+                      <v-text-field @input="getDataFromApi('', 'serach_medium', $event)"
+                        v-model="datatable_search_textbox" label="Search full word.. whatsapp,email"></v-text-field>
                     </template>
                   </v-edit-dialog>
+                </template>
+                <template v-slot:item.reports="{ item }">
+                  <v-chip v-for="(report, i) in item.reports" :key="i" small color="primary" class="ma-1">{{
+                    report
+                  }}</v-chip>
                 </template>
                 <template v-slot:item.recipients="{ item }">
                   <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
@@ -143,8 +143,8 @@
                       bcc }}
                       (Bcc)</v-chip>
                     <template v-slot:input>
-                      <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
-                        v-model="datatable_search_textbox" label="Search Employee Id"></v-text-field>
+                      <v-text-field @input="getDataFromApi('', 'serach_email_recipients', $event)"
+                        v-model="datatable_search_textbox" label="Search full email"></v-text-field>
                     </template>
                   </v-edit-dialog>
                 </template>
@@ -335,7 +335,7 @@ export default {
 
       { text: "Subject", align: "left", sortable: true, key: 'title', value: "subject" },
       { text: "Frequency", align: "left", sortable: true, key: 'frequency', value: "frequency" },
-      { text: "Time", align: "left", sortable: false, key: 'time', value: "time" },
+      { text: "Time", align: "left", sortable: true, key: 'time', value: "time" },
       { text: "Medium", align: "left", sortable: false, key: 'medium', value: "medium" },
       { text: "Reports", align: "left", sortable: false, key: 'reports', value: "reports" },
       { text: "Recipients", align: "left", sortable: false, key: 'recipients', value: "recipients" },
@@ -418,6 +418,15 @@ export default {
       this.payload.bccs.splice(i, 1);
     },
     getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
+
+      if ((filter_column == 'serach_medium' || filter_column == 'serach_email_recipients') && filter_value != '' && filter_value.length <= 5) {
+
+        this.snack = true;
+        this.snackColor = 'error';
+        this.snackText = 'Minimum 5 Characters to filter ';
+        this.loading = false;
+        return false;
+      }
       this.loading = true;
       if (url == '') {
         url = this.endpoint;
@@ -436,6 +445,7 @@ export default {
         options.params[filter_column] = filter_value;
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+
         if (filter_column != '' && data.data.length == 0) {
           this.snack = true;
           this.snackColor = 'error';

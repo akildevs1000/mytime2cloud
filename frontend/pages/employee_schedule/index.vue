@@ -359,30 +359,28 @@
             </template>
           </v-edit-dialog>
         </template>
-        <template v-slot:item.options="{ item }">
+        <template v-slot:item.action="{ item }">
+
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
-              <div class="text-center">
-                <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
-              </div>
+              <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
             </template>
             <v-list width="120" dense>
-              <v-list-item @click="editItem(item)">
+              <v-list-item @click="ScheduleItem(item, 'view')">
                 <v-list-item-title style="cursor: pointer">
-                  <v-icon color="secondary" small>
-                    mdi-pencil
-                  </v-icon>
+                  <v-icon color="secondary" small> mdi-eye </v-icon>
+                  View
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="ScheduleItem(item, 'edit')">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-pencil </v-icon>
                   Edit
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="deleteItem(item)">
-                <v-list-item-title style="cursor: pointer">
-                  <v-icon color="error" small> mdi-delete </v-icon>
-                  Delete
-                </v-list-item-title>
-              </v-list-item>
+
             </v-list>
           </v-menu>
         </template>
