@@ -266,7 +266,7 @@
 
                   <v-btn v-if="can('employee_create')" @click="employeeDialog = true" small dark class="primary">{{ Model
                   }}
-                    + <v-icon right dark>mdi-account-tie</v-icon>
+                    <v-icon right dark>mdi-account-tie</v-icon>
                   </v-btn>
                 </v-col>
               </v-toolbar-items>
@@ -284,9 +284,10 @@
             </v-snackbar>
             <!-- <v-progress-linear v-if="loadinglinear" :active="loadinglinear" :indeterminate="loadinglinear" absolute
               color="primary"></v-progress-linear> -->
+            <!-- :server-items-length="datatableTotallenght" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc"  -->
             <v-data-table dense v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
               :loading="loadinglinear" :options.sync="options" :footer-props="{
-                itemsPerPageOptions: [50, 100, 500, 1000],
+                itemsPerPageOptions: [10, 50, 100, 500, 1000],
               }" class="elevation-1">
 
               <template v-slot:item.employee_id="{ item }">
@@ -596,6 +597,9 @@ export default {
   },
 
   data: () => ({
+    sortBy: 'employee_id',
+    sortDesc: false,
+    datatableTotallenght: 10,
     snack: false,
     snackColor: '',
     snackText: '',
@@ -637,7 +641,7 @@ export default {
     next_page_url: "",
     prev_page_url: "",
     current_page: 1,
-    per_page: 1000,
+    per_page: 500,
     ListName: "",
     color: "background",
     response: "",
@@ -663,7 +667,7 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 1000,
+      per_page: 50,
     },
     options: {},
     Model: "Employee",
@@ -975,6 +979,7 @@ export default {
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.data = data.data;
+        this.datatableTotallenght = this.data.length;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
 
