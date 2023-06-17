@@ -12,8 +12,10 @@ class SDKController extends Controller
 {
     // $url = "https://sdk.ideahrms.com";
 //http://139.59.69.241:5000
+//http://192.168.002.210:5000  _device 9000
 //localhost:5000
 //https://stagingsdk.ideahrms.com
+
     protected $endpoint = "https://stagingsdk.ideahrms.com";
 
     public function processTimeGroup(Request $request, $id)
@@ -37,7 +39,7 @@ class SDKController extends Controller
         $url = "{$this->endpoint}/{$id}/WriteTimeGroup";
         $sdkResponse = $this->processSDKRequest($url, $data);
 
-        return [$sdkResponse, 'requestData' => $data];
+        return $sdkResponse;
     }
 
     public function renderEmptyTimeFrame()
