@@ -54,13 +54,14 @@
                   <v-col class="toolbaritems-button-design">
 
 
-                    <v-btn @click="dialog = true" color="primary" class="primary ms-4 pt-4 pb-4 toolbar-button-design">
-                      <v-icon>mdi-phone</v-icon> Whatsapp Test
+                    <v-btn @click="dialog = true" small color="primary"
+                      class="primary ms-4 pt-4 pb-4 toolbar-button-design">
+                      <v-icon small>mdi mdi-whatsapp</v-icon> Whatsapp Test
                     </v-btn>
 
-                    <v-btn color="primary" class="primary ms-4 pt-4 pb-4 toolbar-button-design"
+                    <v-btn color="primary" small class="primary ms-4 pt-4 pb-4 toolbar-button-design"
                       to="/report_notifications/create">
-                      <v-icon>mdi-plus</v-icon> Add Report Notification
+                      <v-icon small>mdi mdi-email</v-icon> Add Report Notification
                     </v-btn>
                   </v-col>
                 </v-toolbar-items>
@@ -113,13 +114,15 @@
                   </v-edit-dialog>
                 </template>
                 <template v-slot:item.medium="{ item }">
-                  <v-chip v-for="(medium, i) in item.mediums" :key="i" class="background ma-1" dark small>{{ medium
+                  <v-chip v-for="(medium, i) in item.mediums" :key="i" class="  ma-1" small color="primary">{{
+                    medium
                   }}</v-chip>
                 </template>
                 <template v-slot:item.reports="{ item }">
                   <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
                     @save="getDataFromApi()" @open="datatable_open">
-                    <v-chip v-for="(report, i) in item.reports" :key="i" class="background ma-1" dark small>{{ report
+                    <v-chip v-for="(report, i) in item.reports" :key="i" small color="primary" class="ma-1">{{
+                      report
                     }}</v-chip>
                     <template v-slot:input>
                       <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"
@@ -130,11 +133,14 @@
                 <template v-slot:item.recipients="{ item }">
                   <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
                     @save="getDataFromApi()" @open="datatable_open">
-                    <v-chip v-for="(to, i) in item.tos" :key="i" class="background ma-1" dark small>{{ to }}</v-chip>
-                    <v-chip v-for="(cc, i) in item.ccs" :key="i" class="background ma-1" dark small>{{ cc }}
+                    <v-chip v-for="(to, i) in item.tos" :key="i" small color="primary" class="ma-1">{{ to
+                    }}</v-chip>
+                    <v-chip v-for="(cc, i) in item.ccs" :key="i" small color="primary" class="ma-1">{{ cc
+                    }}
                       (Cc)</v-chip>
 
-                    <v-chip v-for="(bcc, i) in item.bccs" :key="i" class="background ma-1" dark small>{{ bcc }}
+                    <v-chip v-for="(bcc, i) in item.bccs" :key="i" small color="primary" class="ma-1">{{
+                      bcc }}
                       (Bcc)</v-chip>
                     <template v-slot:input>
                       <v-text-field @input="getDataFromApi('', 'serach_email_subject', $event)"

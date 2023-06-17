@@ -7,29 +7,21 @@
     </div>
 
     <v-container>
-      <v-btn
-        v-if="can(`employee_document_edit_access`)"
-        @click="addDocumentInfo"
-        class="primary mb-2"
-        >Add Document +
+      <v-btn v-if="can(`employee_document_edit_access`)" @click="addDocumentInfo" class="primary mb-2">Add Document +
       </v-btn>
       <v-row v-for="(d, index) in Document.items" :key="index">
         <v-col cols="2">
-          <label class="col-form-label"
-            >Title <span class="text-danger">*</span></label
-          >
+          <label class="col-form-label">Title <span class="text-danger">*</span></label>
           <v-text-field dense outlined v-model="d.title"></v-text-field>
           <span v-if="errors && errors.title" class="text-danger mt-2">{{
             errors.title[0]
           }}</span>
         </v-col>
         <v-col cols="2">
-          <label class="col-form-label"
-            >File <span class="text-danger">*</span></label
-          >
+          <label class="col-form-label">File <span class="text-danger">*</span></label>
           <v-file-input dense outlined v-model="d.file">
             <template v-slot:selection="{ text }">
-              <v-chip v-if="text" small label color="primary">
+              <v-chip v-if="text" small label color="primary" class="ma-1">
                 {{ text }}
               </v-chip>
             </template>
@@ -40,20 +32,12 @@
           }}</span>
         </v-col>
         <v-col cols="2">
-          <v-icon class="error--text mt-10" @click="removeItem(index)"
-            >mdi-delete</v-icon
-          >
+          <v-icon class="error--text mt-10" @click="removeItem(index)">mdi-delete</v-icon>
         </v-col>
       </v-row>
       <v-row>
         <v-col cols="12">
-          <v-btn
-            :disabled="!Document.items.length"
-            class="primary"
-            small
-            @click="save_document_info"
-            >Save</v-btn
-          >
+          <v-btn :disabled="!Document.items.length" class="primary" small @click="save_document_info">Save</v-btn>
         </v-col>
       </v-row>
       <v-row>
@@ -61,66 +45,54 @@
           <table style="border-collapse: collapse; width: 100%">
             <thead>
               <tr>
-                <th
-                  style="
+                <th style="
                     border: 1px solid #dddddd;
                     text-align: left;
                     padding: 8px;
-                  "
-                >
+                  ">
                   Title
                 </th>
-                <th
-                  style="
+                <th style="
                     border: 1px solid #dddddd;
                     text-align: left;
                     padding: 8px;
-                  "
-                >
+                  ">
                   File
                 </th>
-                <th
-                  style="
+                <th style="
                     border: 1px solid #dddddd;
                     text-align: left;
                     padding: 8px;
-                  "
-                >
+                  ">
                   Action
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(d, index) in document_list" :key="index">
-                <td
-                  style="
+                <td style="
                     border: 1px solid #dddddd;
                     text-align: left;
                     padding: 8px;
-                  "
-                >
+                  ">
                   {{ d.key }}
                 </td>
-                <td
-                  style="
+                <td style="
                     border: 1px solid #dddddd;
                     text-align: left;
                     padding: 8px;
-                  "
-                >
+                  ">
                   <a :href="d.value" target="_blank">
                     <v-btn small class="primary">
                       open file <v-icon>mdi-open-window</v-icon>
                     </v-btn>
                   </a>
                 </td>
-                <td
-                  style="
+                <td style="
                     border: 1px solid #dddddd;
                     text-align: left;
                     padding: 8px;
-                  "
-                >
+                  ">
                   <v-icon color="error" @click="delete_document(d.id)">
                     mdi-delete
                   </v-icon>
