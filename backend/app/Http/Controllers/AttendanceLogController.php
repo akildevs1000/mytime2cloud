@@ -9,7 +9,6 @@ use App\Models\Reason;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log as Logger;
 
 class AttendanceLogController extends Controller
@@ -46,15 +45,19 @@ class AttendanceLogController extends Controller
             })
             ->when($request->filled('search_device_name'), function ($q) use ($request) {
                 $key = strtolower($request->search_device_name);
-                $q->whereHas('device', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                $q->whereHas('device', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+            })
+            ->when($request->filled('search_device_location'), function ($q) use ($request) {
+                $key = strtolower($request->search_device_location);
+                $q->whereHas('device', fn(Builder $query) => $query->where('location', 'ILIKE', "$key%"));
             })
             ->when($request->filled('search_employee_name'), function ($q) use ($request) {
                 $key = strtolower($request->search_employee_name);
-                $q->whereHas('employee', fn(Builder $query) => $query->where(DB::raw('lower(first_name)'), 'LIKE', "$key%"));
+                $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
             })
             ->when($request->filled('search_department_name'), function ($q) use ($request) {
                 $key = strtolower($request->search_department_name);
-                $q->whereHas('employee.department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+                $q->whereHas('employee.department', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
             })
 
             ->when($request->filled('search_device_id'), function ($q) use ($request) {
@@ -444,7 +447,7 @@ class AttendanceLogController extends Controller
         });
         $model->when($request->filled('search_device_name'), function ($q) use ($request) {
             $key = strtolower($request->search_device_name);
-            $q->whereHas('device', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+            $q->whereHas('device', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
         });
         $model->when($request->filled('search_device_id'), function ($q) use ($request) {
             $q->where('DeviceID', 'LIKE', "$request->search_device_id%");

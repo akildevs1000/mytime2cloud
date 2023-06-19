@@ -897,8 +897,8 @@
                             </v-img>
                           </v-list-item-avatar>
                           <v-badge class="profile-image-badge" :style="payload.profile_picture
-                              ? ''
-                              : 'top:55px; left:102px;'
+                            ? ''
+                            : 'top:55px; left:102px;'
                             " bordered :color="payload.status == 1 ? 'green' : 'red'">
                           </v-badge>
                         </div>
@@ -931,8 +931,8 @@
                                   max-width: 78px;
                                   margin: -3px 4px -15px -7px;
                                 " :src="payload.status == true
-                                    ? '/on.png'
-                                    : '/off.png'
+                                  ? '/on.png'
+                                  : '/off.png'
                                   " @click="payload.status = !payload.status" />
                               <v-btn class="primary mt-1" x-small @click="update_setting">{{
                                 payload.status ? "Active" : " Inactive"
@@ -958,7 +958,7 @@
                         <div class="col-sm-3 text-muted " style="text-align:right">
                           <v-icon v-if="can('employee_edit')" @click="editItem(`/employees/${$route.params.id}`)" small
                             class="red" style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
-                          </v-col>
+
                         </div>
 
 
@@ -1030,9 +1030,7 @@
                         <div class="col-sm-3 text-muted " style="text-align:right">
                           <v-icon v-if="can('employee_edit')" @click="editItem(`/employees/${$route.params.id}`)" small
                             class="red" style="border-radius: 50%; padding: 5px" color="secondary">mdi-pencil</v-icon>
-                          </v-col>
                         </div>
-
                       </div>
                       <hr />
                       <div class="row">

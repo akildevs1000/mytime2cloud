@@ -255,18 +255,16 @@
               <v-toolbar-items>
                 <v-col>
                   <input small dark class="employeepage-seach-textfield form-control py-3 custom-text-box floating  "
-                    placeholder="Search Employee Details" style="width:200px;height: 32px;
-    margin-top: -3px;
+                    placeholder="Search Employee Details" style="width:200px;height: 28px;
+    margin-top: 1px;
     padding-top: 11px !important;" @input="searchIt" v-model="search" type="text" />
 
 
                 </v-col>
 
-                <v-col class="toolbaritems-button-design">
-
+                <v-col class="toolbaritems-button-design1">
                   <v-btn v-if="can('employee_create')" @click="employeeDialog = true" small dark class="primary">{{ Model
-                  }}
-                    <v-icon right dark>mdi-account-tie</v-icon>
+                  }} <v-icon right dark>mdi-account-tie</v-icon>
                   </v-btn>
                 </v-col>
               </v-toolbar-items>
@@ -282,18 +280,29 @@
                 </v-btn>
               </template>
             </v-snackbar>
-            <!-- <v-progress-linear v-if="loadinglinear" :active="loadinglinear" :indeterminate="loadinglinear" absolute
-              color="primary"></v-progress-linear> -->
+            <!-- <v-btn color="success" @click="toggleFilter">Toggle Filters</v-btn> -->
+
             <!-- :server-items-length="datatableTotallenght" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc"  -->
             <v-data-table dense v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
               :loading="loadinglinear" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
               }" class="elevation-1">
-
+              <!-- <template v-slot:header="{ props: { headers } }">
+                <tr v-if="isFilter">
+                  <th v-for="header in headers" :key="header.text">
+                    <v-text-field v-if="header.filterable" v-model="filters[header.value]" :label="header.text" clearable
+                      @input="applyFilters" dense outlined flat append-icon="mdi-magnify"></v-text-field>
+                    <template v-else>
+                      {{ header.text }}
+                    </template>
+                  </th>
+                </tr>
+              </template> -->
               <template v-slot:item.employee_id="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
-                  {{ item.employee_id }}
+                  <strong>{{ item.employee_id }} </strong><br /><span style="font-size:12px">{{ item.system_user_id
+                  }}</span>
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterEmployeeid" v-model="datatable_search_textbox"
                       label="Search Employee Id"></v-text-field>
@@ -406,11 +415,11 @@
                 </v-edit-dialog>
 
               </template>
-              <template v-slot:item.local_email="{ item }" style="width:200px">
+              <template v-slot:item.user.email="{ item }" style="width:200px">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
 
-                  {{ item.local_email }}
+                  {{ item.user.email }}
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterEmailid" v-model="datatable_search_textbox"
                       label="Search Email"></v-text-field>
@@ -597,6 +606,8 @@ export default {
   },
 
   data: () => ({
+    filters: {},
+    isFilter: false,
     sortBy: 'employee_id',
     sortDesc: false,
     datatableTotallenght: 10,
@@ -641,7 +652,7 @@ export default {
     next_page_url: "",
     prev_page_url: "",
     current_page: 1,
-    per_page: 10,
+    per_page: 1000,
     ListName: "",
     color: "background",
     response: "",
@@ -694,7 +705,7 @@ export default {
     payloadOptions: {},
     headers_table: [
 
-      { text: "EMP ID", align: "left", sortable: true, key: 'employee_id', value: "employee_id" },
+      { text: "EMP ID / Device Id", align: "left", sortable: true, key: 'employee_id', value: "employee_id", filterable: true },
       { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
       // { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name_search_icon" },
 
@@ -750,7 +761,7 @@ export default {
 
     this.payloadOptions = {
       params: {
-        per_page: 10,
+        per_page: 1000,
         company_id: this.$auth.user.company.id,
       },
     };
@@ -759,6 +770,7 @@ export default {
     this.getDepartments();
   },
   mounted() {
+
     //this.getDataFromApi();
     this.tabMenu = [
       {
@@ -833,12 +845,27 @@ export default {
       { text: "Actions" },
     ];
   },
+  // watch: {
+  //   dialog(val) {
+  //     val || this.close();
+  //   },
+  // },
   watch: {
-    dialog(val) {
-      val || this.close();
+    options: {
+      handler() {
+        this.getDataFromApi()
+      },
+      deep: true,
     },
   },
   methods: {
+    applyFilters() {
+      this.getDataFromApi();
+    },
+    toggleFilter() {
+      this.isFilter = !this.isFilter;
+    },
+
     datatable_save() {
     },
     datatable_cancel() {
@@ -974,6 +1001,7 @@ export default {
           per_page: this.pagination.per_page,
           company_id: this.$auth.user.company.id,
           department_id: this.department_filter_id,
+          ...this.filters
         },
       };
 

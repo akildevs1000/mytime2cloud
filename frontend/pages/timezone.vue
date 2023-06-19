@@ -101,6 +101,8 @@
           Sync Device
         </v-card-title>
         <v-card-text>
+          <v-progress-linear v-if="loading_devicesync" :active="loading_devicesync" :indeterminate="loading_devicesync"
+            absolute color="primary"></v-progress-linear>
           <table style="width:100%;">
             <thead>
               <tr class="background white--text" dark>
@@ -109,10 +111,13 @@
                 <th class="text-center">Status</th>
               </tr>
             </thead>
+
+
             <tbody>
+
               <tr v-for="(d, index) in deviceResults" :key="index">
                 <td>{{ d.DeviceID }}</td>
-                <td>{{ d.message }}</td>
+                <td v-html="d.message"></td>
                 <td class="text-center">
                   <v-icon color="primary" v-if="d.status">mdi-check</v-icon>
                   <v-icon color="error" v-else>mdi-close</v-icon>
@@ -325,6 +330,7 @@ export default {
       total: 0,
       per_page: 10
     },
+    loading_devicesync: false,
     Module: "Timezone",
     options: {},
     endpoint: "timezone",
@@ -512,26 +518,41 @@ export default {
       let payload = {
         company_id: this.$auth.user.company.id
       };
+      let counter = 0;
       devices.forEach(async DeviceID => {
+
         try {
+          this.loading_devicesync = true;
           let endpoint = `${DeviceID}/WriteTimeGroup`;
           const { data } = await this.$axios.post(endpoint, payload);
           let json = {
             DeviceID,
-            message: `Error found on device`,
+            message: '<span style="color:red">Device communication error</span>',
             status: false
           };
 
           if (data.status == 200) {
-            json.message = `Timezone data has been upload `;
-            json.status = true;
+            json.message = '<span style="color:green">Timezone data has been upload',
+              json.status = true;
+            counter++;
+
+          }
+          else {
+            counter++;
           }
 
+
+
           this.deviceResults.push(json);
+          if (counter == devices.length) {
+            this.loading_devicesync = false;
+          }
         } catch (error) {
 
         }
       });
+
+
     },
     close() {
       this.dialog = false;

@@ -124,7 +124,7 @@
                 </template>
               </v-edit-dialog>
             </template>
-            <template v-slot:item.department="{ item }">
+            <template v-slot:item.employee.department="{ item }">
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                 @open="datatable_open">
 
@@ -148,17 +148,27 @@
                 </template>
               </v-edit-dialog>
             </template>
-            <template v-slot:item.device.device_name="{ item }">
+            <template v-slot:item.device.name="{ item }">
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
                 @save="getRecords()" @open="datatable_open">
-                {{ item.device ? item.device.name : '---' }}
+                {{ item.device ? caps(item.device.name) : '---' }}
                 <template v-slot:input>
                   <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_device_name', $event)"
                     label="Search Device Name"></v-text-field>
                 </template>
               </v-edit-dialog>
             </template>
-            <template v-slot:item.device.device_id="{ item }">
+            <template v-slot:item.device.location="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
+                @save="getRecords()" @open="datatable_open">
+                {{ item.device ? caps(item.device.location) : '---' }}
+                <template v-slot:input>
+                  <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_device_location', $event)"
+                    label="Search Device location"></v-text-field>
+                </template>
+              </v-edit-dialog>
+            </template>
+            <!-- <template v-slot:item.device.device_id="{ item }">
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
                 @save="getRecords()" @open="datatable_open">
                 {{ item.device ? item.device.device_id : '---' }}
@@ -167,7 +177,7 @@
                     label="Search Device ID"></v-text-field>
                 </template>
               </v-edit-dialog>
-            </template>
+            </template> -->
           </v-data-table>
 
         </v-card>
@@ -236,8 +246,17 @@ export default {
     data: [],
     devices: [],
     total: 0,
-    options: {},
+    pagination: {
+      current: 1,
+      total: 0,
+      itemsPerPage: 1000,
+    },
     payloadOptions: {},
+    options: {
+      current: 1,
+      total: 0,
+      itemsPerPage: 1000,
+    },
     errors: [],
     response: "",
     snackbar: false,
@@ -253,15 +272,15 @@ export default {
         text: "Employee",
         align: "left",
         sortable: true,
-        key: "time", //sorting
+        key: "employee.first_name", //sorting
         value: "employee", //edit purpose
       },
       {
         text: "Department",
         align: "left",
         sortable: true,
-        key: "time", //sorting
-        value: "department", //edit purpose
+        key: "department", //sorting
+        value: "employee.department", //edit purpose
       },
       {
         text: "Log Time",
@@ -274,15 +293,15 @@ export default {
         text: "Device Name",
         align: "left",
         sortable: true,
-        value: "devicename",
-        value: "device.device_name",
+        key: "device",
+        value: "device.name",
       },
       {
-        text: "Device ID",
+        text: "Device Location",
         align: "left",
         sortable: true,
         key: "deviceid",
-        value: "device.device_id",
+        value: "device.location",
       },
     ],
 
@@ -307,6 +326,15 @@ export default {
       this.payload.from_date_txt = this.getDate();
       this.payload.to_date_txt = this.getDate();
       this.getDeviceList();
+      this.getDataFromApi();
+    },
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
+      } else {
+        let res = str.toString();
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
+      }
     },
     datatable_save() {
     },

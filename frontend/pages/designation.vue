@@ -26,37 +26,20 @@
             <v-container>
               <v-row class="mt-2">
                 <v-col cols="12">
-                  <v-text-field
-                    v-model="editedItem.name"
-                    placeholder="Designation"
-                    outlined
-                    dense
-                  ></v-text-field>
+                  <v-text-field v-model="editedItem.name" placeholder="Designation" outlined dense></v-text-field>
                   <span v-if="errors && errors.name" class="error--text">{{
                     errors.name[0]
                   }}</span>
                 </v-col>
                 <v-col cols="12">
-                  <v-autocomplete
-                    v-model="editedItem.department_id"
-                    :items="departments"
-                    item-text="name"
-                    item-value="id"
-                    placeholder="Select Departments"
-                    outlined
-                    dense
-                  >
+                  <v-autocomplete v-model="editedItem.department_id" :items="departments" item-text="name" item-value="id"
+                    placeholder="Select Departments" outlined dense>
                   </v-autocomplete>
-                  <span
-                    v-if="errors && errors.department_id"
-                    class="error--text"
-                    >{{ errors.department_id[0] }}</span
-                  >
+                  <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
                 </v-col>
                 <v-card-actions>
                   <v-col md="6" lg="6" style="padding: 0px">
-                    <v-btn class="error" @click="close"> Cancel </v-btn></v-col
-                  >
+                    <v-btn class="error" @click="close"> Cancel </v-btn></v-col>
                   <v-col md="6" lg="6" class="text-right" style="padding: 0px">
                     <v-btn class="primary" @click="save">Save</v-btn>
                   </v-col>
@@ -69,43 +52,92 @@
       <v-col md="12">
         <v-card class="mb-5" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title
-              ><span> {{ Model }} List</span></v-toolbar-title
-            >
+            <v-toolbar-title><span> {{ Model }}s List</span></v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn
-                @click="newItem"
-                class="primary ms-4 pt-4 pb-4 toolbar-button-design"
-                color="primary"
-                >Add {{ Model }} +
-              </v-btn>
+              <v-col>
+                <v-btn @click="newItem" small class="primary mr-2 mb-2  ">Add {{ Model
+                }}
+                  +
+                </v-btn>
+              </v-col>
             </v-toolbar-items>
           </v-toolbar>
 
-          <v-text-field
-            class="form-control py-0 ma-1 mb-0 w-25 float-start custom-text-box floating shadow-none"
-            placeholder="Search..."
-            solo
-            flat
-            @input="searchIt"
-            v-model="search"
-            :hide-details="true"
-          ></v-text-field>
-          <table>
+          <!-- <v-text-field
+            class=" form-control py-0 ma-1 mb-0 w-25 float-start custom-text-box floating shadow-none"
+                placeholder="Search..." solo flat @input="searchIt" v-model="search"
+                :hide-details="true"></v-text-field> -->
+
+          <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+            {{ snackText }}
+
+            <template v-slot:action="{ attrs }">
+              <v-btn v-bind="attrs" text @click="snack = false">
+                Close
+              </v-btn>
+            </template>
+          </v-snackbar>
+          <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
+            :footer-props="{
+              itemsPerPageOptions: [50, 100, 500, 1000],
+            }" class="elevation-1">
+            <template v-slot:item.sno="{ item, index }">
+              {{ ++index }}
+            </template>
+            <template v-slot:item.name="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ caps(item.name) }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi('', 'serach_designation_name', $event)"
+                    v-model="datatable_search_textbox" label="Search Designation name"></v-text-field>
+                </template>
+              </v-edit-dialog>
+            </template>
+            <template v-slot:item.department.name="{ item }">
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                @open="datatable_open">
+                {{ caps(item.department && item.department.name) }}
+                <template v-slot:input>
+                  <v-text-field @input="getDataFromApi('', 'serach_department_name', $event)"
+                    v-model="datatable_search_textbox" label="Search Department name"></v-text-field>
+                </template>
+              </v-edit-dialog>
+            </template>
+            <template v-slot:item.action="{ item }">
+              <v-menu bottom left>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list width="120" dense>
+                  <v-list-item @click="editItem(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-pencil </v-icon>
+                      Edit
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="deleteItem(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="error" small> mdi-delete </v-icon>
+                      Delete
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+          </v-data-table>
+          <!-- <table>
             <tr>
               <th class="ps-5">#</th>
               <th>Designation</th>
               <th>Department</th>
               <th class="text-center">Action</th>
             </tr>
-            <v-progress-linear
-              v-if="loading"
-              :active="loading"
-              :indeterminate="loading"
-              absolute
-              color="primary"
-            ></v-progress-linear>
+            <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
+              color="primary"></v-progress-linear>
             <tr v-for="(item, index) in data" :key="index">
               <td class="ps-5">
                 <b>{{ ++index }}</b>
@@ -138,20 +170,16 @@
                 </v-menu>
               </td>
             </tr>
-          </table>
+          </table> -->
         </v-card>
-        <v-row>
+        <!-- <v-row>
           <v-col md="12" class="float-right">
             <div class="float-right">
-              <v-pagination
-                v-model="pagination.current"
-                :length="pagination.total"
-                @input="onPageChange"
-                :total-visible="12"
-              ></v-pagination>
+              <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
+                :total-visible="12"></v-pagination>
             </div>
           </v-col>
-        </v-row>
+        </v-row> -->
       </v-col>
     </v-row>
   </div>
@@ -161,6 +189,11 @@
 <script>
 export default {
   data: () => ({
+    datatable_search_textbox: '',
+    filter_employeeid: '',
+    snack: false,
+    snackColor: '',
+    snackText: '',
     dialogForm: false,
     pagination: {
       current: 1,
@@ -182,6 +215,27 @@ export default {
         text: "Department",
         align: "left",
         sortable: false,
+        value: "department.name",
+      },
+      { text: "Actions", align: "center", value: "action", sortable: false },
+    ],
+    headers_table: [
+      {
+        text: "#",
+        align: "left",
+        sortable: true,
+        value: "sno",
+      },
+      {
+        text: "Designation",
+        align: "left",
+        sortable: true,
+        value: "name",
+      },
+      {
+        text: "Department Name ",
+        align: "left",
+        sortable: true,
         value: "department.name",
       },
       { text: "Actions", align: "center", value: "action", sortable: false },
@@ -214,6 +268,17 @@ export default {
   },
 
   methods: {
+    datatable_save() {
+    },
+    datatable_cancel() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_open() {
+      this.datatable_search_textbox = '';
+    },
+    datatable_close() {
+      this.loading = false;
+    },
     newItem() {
       this.dialogForm = true;
     },
@@ -247,7 +312,9 @@ export default {
       );
     },
 
-    getDataFromApi(url = this.endpoint) {
+    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
+
+      if (url == '') url = this.endpoint;
       this.loading = true;
 
       let page = this.pagination.current;
@@ -258,8 +325,20 @@ export default {
           company_id: this.$auth.user.company.id,
         },
       };
+      if (filter_column != '') {
 
+        options.params[filter_column] = filter_value;
+
+      }
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+
+        if (filter_column != '' && data.data.length == 0) {
+          this.snack = true;
+          this.snackColor = 'error';
+          this.snackText = 'No Results Found';
+          this.loading = false;
+          return false;
+        }
         this.data = data.data;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
@@ -391,6 +470,7 @@ th {
 tr:nth-child(even) {
   background-color: #e9e9e9;
 }
+
 .toolbar-button-design {
   height: 38px !important;
   /* vertical-align: bottom; */

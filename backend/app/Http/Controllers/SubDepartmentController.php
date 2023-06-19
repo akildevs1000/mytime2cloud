@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SubDepartment\SubDepartmentRequest;
 use App\Http\Requests\SubDepartment\SubDepartmentUpdateRequest;
 use App\Models\SubDepartment;
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 class SubDepartmentController extends Controller
 {
@@ -15,7 +15,13 @@ class SubDepartmentController extends Controller
         return $model->with('department')
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department',  fn (Builder $query) => $query->where('department_id', $request->department_id));
+                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
+            })
+            ->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
+                $q->where('name', 'ILIKE', "$request->serach_sub_department_name%");
+            })
+            ->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
+                $q->where('name', 'ILIKE', "$request->serach_sub_department_name%");
             })
             ->paginate($request->per_page);
     }

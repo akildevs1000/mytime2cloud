@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -158,16 +157,16 @@ class ReportController extends Controller
 
         $model->when($request->filled('search_employee_name') && $request->search_employee_name != '', function ($q) use ($request) {
             $key = strtolower($request->search_employee_name);
-            $q->whereHas('employee', fn(Builder $q) => $q->where(DB::raw('lower(first_name)'), 'LIKE', "$key%"));
+            $q->whereHas('employee', fn(Builder $q) => $q->where('first_name', 'ILIKE', "$key%"));
         });
         $model->when($request->filled('search_department_name'), function ($q) use ($request) {
             $key = strtolower($request->search_department_name);
-            $q->whereHas('employee.department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+            $q->whereHas('employee.department', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
         });
         if ($request->search_shift_type_name) {
             $key = strtolower($request->search_shift_type_name);
             $model->where(function ($q) use ($key) {
-                return $q->whereIn("shift_type_id", ShiftType::where(DB::raw('lower(name)'), 'LIKE', "$key%")->pluck("id"));
+                return $q->whereIn("shift_type_id", ShiftType::where('name', 'ILIKE', "$key%")->pluck("id"));
             });
         }
         $model->when($request->filled('search_time_in'), function ($q) use ($request) {

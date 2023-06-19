@@ -21,75 +21,65 @@
             >Delete Selected Records</v-btn
           > -->
 
-          <v-btn
-            v-if="can(`assign_permission_create`)"
-            small
-            color="primary"
-            to="/assign_permission/create"
-            class="mb-2"
-            >{{ Module }} +</v-btn
-          >
+
         </div>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col md="12">
-        <v-card elevation="0">
-          <div v-for="(item, index) in data" :key="index">
-            <v-toolbar class="rounded-md" color="background" dense flat dark>
+
+        <v-card class="mb-5" elevation="0" v-for="(item, index) in data" :key="index">
+
+          <!-- <v-toolbar class="rounded-md" color="background" dense flat dark>
               <span> {{ item.role && item.role.name }}</span>
-            </v-toolbar>
-            <table class="mb-15">
-              <tr style="text-align:center; ">
-                <th style="width:600px; padding: 5px 0 !important">
-                  Module
-                </th>
-                <th>Access</th>
-                <th>View</th>
-                <th>Create</th>
-                <th>Edit</th>
-                <th>Delete</th>
-              </tr>
-              <tr v-for="(items, idx) in permissions" :key="idx">
-                <th class="ps-3">{{ capsTitle(idx) }}</th>
-                <th
-                  v-for="(pa, idx) in items"
-                  :key="idx"
-                  style="text-align:center !important;"
-                  class=""
-                >
-                  <v-checkbox
-                    :value="pa.id"
-                    v-model="item.permission_ids"
-                    :hide-details="true"
-                    class="pt-0  py-1 chk-align"
-                  >
-                  </v-checkbox>
-                </th>
-              </tr>
-              <v-btn
-                v-if="can(`assign_permission_edit`)"
-                dark
-                small
-                color="primary"
-                class="mx-1 my-4"
-                @click="save(item)"
-              >
-                Submit
-              </v-btn>
-              <v-btn
-                v-if="can(`assign_permission_delete`)"
-                dark
-                small
-                color="error"
-                class="mx-1 my-4"
-                @click="deleteItem(item)"
-              >
-                Delete
-              </v-btn>
-            </table>
-          </div>
+            </v-toolbar> -->
+
+
+          <v-toolbar class="rounded-md" color="background" dense flat dark>
+            <v-toolbar-title><span> {{ item.role && capsTitle(item.role.name) }}</span></v-toolbar-title>
+
+
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-col class="toolbaritems-button-design1">
+                <v-btn v-if="can(`assign_permission_create`)" small color="primary" to="/assign_permission/create"
+                  class="mb-2">{{ Module }} +</v-btn>
+              </v-col>
+            </v-toolbar-items>
+          </v-toolbar>
+
+
+
+
+          <table class="mb-15">
+            <tr style="text-align:center; ">
+              <th style="width:600px;text-align:center; padding: 5px 0 !important">
+                Module
+              </th>
+              <th style="text-align:center;">Access</th>
+              <th style=" text-align:center;">View</th>
+              <th style="text-align:center;">Create</th>
+              <th style=" text-align:center;">Edit</th>
+              <th style="text-align:center;">Delete</th>
+            </tr>
+            <tr v-for=" (items, idx) in permissions" :key="idx">
+              <th class="ps-3">{{ capsTitle(idx) }}</th>
+              <th v-for="(pa, idx) in items" :key="idx" style="text-align:center !important;" class="">
+                <v-checkbox :value="pa.id" v-model="item.permission_ids" :hide-details="true"
+                  class="pt-0  py-1 chk-align">
+                </v-checkbox>
+              </th>
+            </tr>
+            <v-btn v-if="can(`assign_permission_edit`)" dark small color="primary" class="mx-1 my-4" @click="save(item)">
+              Submit
+            </v-btn>
+            <v-btn v-if="can(`assign_permission_delete`)" dark small color="error" class="mx-1 my-4"
+              @click="deleteItem(item)">
+              Delete
+            </v-btn>
+          </table>
+
         </v-card>
       </v-col>
     </v-row>
@@ -386,9 +376,11 @@ table {
   border-collapse: collapse;
   width: 100%;
 }
+
 tr:nth-child(even) {
   background-color: #e9e9e9;
 }
+
 th,
 td {
   border: 1px solid #dddddd;
@@ -406,7 +398,7 @@ td {
   box-sizing: border-box;
 }
 
-body > div {
+body>div {
   min-height: 100vh;
   display: flex;
   font-family: "Roboto", sans-serif;
@@ -430,12 +422,12 @@ table {
   border-collapse: collapse;
 }
 
-table > thead {
+table>thead {
   background-color: #00bcd4;
   color: #fff;
 }
 
-table > thead th {
+table>thead th {
   padding: 15px;
 }
 
@@ -445,7 +437,7 @@ table td {
   padding: 10px 15px;
 }
 
-table > tbody > tr > td > img {
+table>tbody>tr>td>img {
   display: inline-block;
   width: 60px;
   height: 60px;
@@ -461,7 +453,7 @@ table > tbody > tr > td > img {
   gap: 10px;
 }
 
-.action_btn > a {
+.action_btn>a {
   text-decoration: none;
   color: #444;
   background: #fff;
@@ -473,28 +465,28 @@ table > tbody > tr > td > img {
   transition: 0.3s ease-in-out;
 }
 
-.action_btn > a:nth-child(1) {
+.action_btn>a:nth-child(1) {
   border-color: #26a69a;
 }
 
-.action_btn > a:nth-child(2) {
+.action_btn>a:nth-child(2) {
   border-color: orange;
 }
 
-.action_btn > a:hover {
+.action_btn>a:hover {
   box-shadow: 0 3px 8px #0003;
 }
 
-table > tbody > tr {
+table>tbody>tr {
   background-color: #fff;
   transition: 0.3s ease-in-out;
 }
 
-table > tbody > tr:nth-child(even) {
+table>tbody>tr:nth-child(even) {
   background-color: rgb(238, 238, 238);
 }
 
-table > tbody > tr:hover {
+table>tbody>tr:hover {
   filter: drop-shadow(0px 2px 6px #0002);
 }
 </style>

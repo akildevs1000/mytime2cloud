@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Department\DepartmentRequest;
 use App\Http\Requests\Department\DepartmentUpdateRequest;
 use App\Models\Department;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
@@ -17,6 +18,15 @@ class DepartmentController extends Controller
         $model->where('company_id', $request->company_id);
         $model->with('children');
         $model->where('company_id', $request->company_id);
+        $model->when($request->filled('serach_department_id'), function ($q) use ($request) {
+            $q->where('id', 'LIKE', "$request->serach_department_id%");
+        });
+        $model->when($request->filled('serach_department_name'), function ($q) use ($request) {
+            $q->where('name', 'ILIKE', "$request->serach_department_name%");
+        });
+        $model->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
+            $q->whereHas('children', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_sub_department_name%"));
+        });
         $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
             $q->select($cols);
         });

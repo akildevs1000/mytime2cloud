@@ -7,6 +7,7 @@ use App\Http\Requests\Device\UpdateRequest;
 use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,24 @@ class DeviceController extends Controller
         $cols = $request->cols;
         $model->with(['status', 'company']);
         $model->where('company_id', $request->company_id);
+        $model->when($request->filled('serach_device_name'), function ($q) use ($request) {
+            $q->where('name', 'ILIKE', "$request->serach_device_name%");
+        });
+        $model->when($request->filled('serach_short_name'), function ($q) use ($request) {
+            $q->where('short_name', 'ILIKE', "$request->serach_short_name%");
+        });
+        $model->when($request->filled('serach_location'), function ($q) use ($request) {
+            $q->where('location', 'ILIKE', "$request->serach_location%");
+        });
+        $model->when($request->filled('serach_device_id'), function ($q) use ($request) {
+            $q->where('device_id', 'ILIKE', "%$request->serach_device_id%");
+        });
+        $model->when($request->filled('serach_device_type'), function ($q) use ($request) {
+            $q->where('device_type', 'ILIKE', "$request->serach_device_type%");
+        });
+        $model->when($request->filled('serach_status_name'), function ($q) use ($request) {
+            $q->whereHas('status', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_status_name%"));
+        });
         $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
             $q->select($cols);
         });

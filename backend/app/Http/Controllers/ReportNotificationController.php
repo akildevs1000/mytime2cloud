@@ -16,17 +16,17 @@ class ReportNotificationController extends Controller
         return $model->where('company_id', $request->company_id)
             ->when($request->filled('serach_email_subject'), function ($q) use ($request) {
                 $key = strtolower($request->serach_email_subject);
-                $q->where(DB::raw('lower(subject)'), 'LIKE', "$key%");
+                $q->where('subject', 'ILIKE', "$key%");
 
             })
             ->when($request->filled('serach_frequency'), function ($q) use ($request) {
                 $key = strtolower($request->serach_frequency);
-                $q->where(DB::raw('lower(frequency)'), 'LIKE', "$key%");
+                $q->where('frequency', 'ILIKE', "$key%");
 
             })
             ->when($request->filled('serach_time'), function ($q) use ($request) {
                 $key = strtolower($request->serach_time);
-                $q->where(DB::raw('lower(time)'), 'LIKE', "$key%");
+                $q->where('time', 'ILIKE', "$key%");
             })
             ->when($request->filled('serach_medium'), function ($q) use ($request) {
                 $key = strtolower($request->serach_medium);

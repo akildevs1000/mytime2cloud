@@ -1,6 +1,18 @@
 <template>
   <div style="padding: 0px ;width:100%">
-    <div id="pie"></div>
+
+
+
+    <div v-if="items[0].value == 0 && items[1].value == 0 && items[2].value == 0 && items[3].value == 0"
+      style="min-height: 400px">
+      <div style="text-align: center; color: red;margin: 0;
+    position: absolute;
+    top: 50%;
+
+    left: 36%;">Attendance data is not available on Today</div>
+    </div>
+    <div v-else id="pie"></div>
+
   </div>
 </template>
 

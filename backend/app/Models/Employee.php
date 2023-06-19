@@ -164,6 +164,7 @@ class Employee extends Model
                     ->orWhere(DB::raw('lower(last_name)'), 'Like', '%' . $search . '%')
                     ->orWhere(DB::raw('lower(phone_number)'), 'Like', '%' . $search . '%')
                     ->orWhere(DB::raw('lower(local_email)'), 'Like', '%' . $search . '%')
+                    ->orWhere(DB::raw('lower(system_user_id)'), 'Like', '%' . $search . '%')
                     ->whereNotNull('first_name')
                     // ->orWhere('whatsapp_number', 'Like', '%' . $search . '%')
                     // ->orWhere('phone_relative_number', 'Like', '%' . $search . '%')

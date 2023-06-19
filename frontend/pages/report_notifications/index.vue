@@ -51,15 +51,11 @@
 
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                  <v-col class="toolbaritems-button-design">
-
-
-                    <v-btn @click="dialog = true" small color="primary"
-                      class="primary ms-4 pt-4 pb-4 toolbar-button-design">
+                  <v-col class="toolbaritems-button-design1">
+                    <v-btn @click="dialog = true" small color="primary" class="primary mr-2 mb-2 toolbar-button-design1">
                       <v-icon small>mdi mdi-whatsapp</v-icon> Whatsapp Test
                     </v-btn>
-
-                    <v-btn color="primary" small class="primary ms-4 pt-4 pb-4 toolbar-button-design"
+                    <v-btn color="primary" small class="primary mr-2 mb-2 toolbar-button-design1"
                       to="/report_notifications/create">
                       <v-icon small>mdi mdi-email</v-icon> Add Report Notification
                     </v-btn>
