@@ -21,42 +21,42 @@
 
     <v-row>
       <v-dialog v-model="dialogForm" :fullscreen="false" width="500px">
-        <v-col md="12" lg="12">
-          <v-card elevation="0">
-            <v-toolbar color="background" dense flat dark>
-              <span>{{ formTitle }} {{ Model }}</span>
-            </v-toolbar>
-            <v-divider class="py-0 my-0"></v-divider>
-            <v-card-text>
-              <v-container>
-                <v-row class="mt-2">
-                  <v-col cols="12">
-                    <v-text-field v-model="editedItem.name" placeholder="Sub Department" outlined dense></v-text-field>
-                    <span v-if="errors && errors.name" class="error--text">{{
-                      errors.name[0]
-                    }}</span>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-autocomplete v-model="editedItem.department_id" :items="departments" item-text="name"
-                      item-value="id" placeholder="Select Departments" outlined dense>
-                    </v-autocomplete>
-                    <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
-                  </v-col>
 
-                  <v-card-actions>
-                    <v-col md="6" lg="6" style="padding: 0px">
-                      <v-btn class="error" @click="close">
-                        Cancel
-                      </v-btn></v-col>
-                    <v-col md="6" lg="6" class="text-right" style="padding: 0px">
-                      <v-btn class="primary" @click="save">Save</v-btn>
-                    </v-col>
-                  </v-card-actions>
-                </v-row>
-              </v-container>
-            </v-card-text>
-          </v-card>
-        </v-col>
+        <v-card elevation="0">
+          <v-toolbar color="background" dense flat dark>
+            <span>{{ formTitle }} {{ Model }}</span>
+          </v-toolbar>
+          <v-divider class="py-0 my-0"></v-divider>
+          <v-card-text>
+            <v-container>
+              <v-row class="mt-2">
+                <v-col cols="12">
+                  <v-text-field v-model="editedItem.name" placeholder="Sub Department" outlined dense></v-text-field>
+                  <span v-if="errors && errors.name" class="error--text">{{
+                    errors.name[0]
+                  }}</span>
+                </v-col>
+                <v-col cols="12">
+                  <v-autocomplete v-model="editedItem.department_id" :items="departments" item-text="name" item-value="id"
+                    placeholder="Select Departments" outlined dense>
+                  </v-autocomplete>
+                  <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
+                </v-col>
+
+                <v-card-actions>
+                  <v-col md="6" lg="6" style="padding: 0px">
+                    <v-btn class="error" @click="close">
+                      Cancel
+                    </v-btn></v-col>
+                  <v-col md="6" lg="6" class="text-right" style="padding: 0px">
+                    <v-btn class="primary" @click="save">Save</v-btn>
+                  </v-col>
+                </v-card-actions>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+
       </v-dialog>
 
       <v-col md="12" lg="12">

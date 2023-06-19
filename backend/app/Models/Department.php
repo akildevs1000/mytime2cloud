@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Models\Employee;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
 {
@@ -27,7 +27,10 @@ class Department extends Model
     {
         return $this->hasMany(SubDepartment::class);
     }
-
+    public function designations()
+    {
+        return $this->hasMany(Designation::class);
+    }
     public function employees()
     {
         return $this->hasMany(Employee::class);

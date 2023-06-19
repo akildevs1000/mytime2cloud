@@ -17,6 +17,7 @@ class DepartmentController extends Controller
         $model = Department::query();
         $model->where('company_id', $request->company_id);
         $model->with('children');
+        $model->with('designations');
         $model->where('company_id', $request->company_id);
         $model->when($request->filled('serach_department_id'), function ($q) use ($request) {
             $q->where('id', 'LIKE', "$request->serach_department_id%");
@@ -26,6 +27,9 @@ class DepartmentController extends Controller
         });
         $model->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
             $q->whereHas('children', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_sub_department_name%"));
+        });
+        $model->when($request->filled('serach_designation_name'), function ($q) use ($request) {
+            $q->whereHas('designations', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_designation_name%"));
         });
         $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
             $q->select($cols);

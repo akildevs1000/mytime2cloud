@@ -301,11 +301,11 @@
               <template v-slot:item.employee_id="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
-                  <strong>{{ item.employee_id }} </strong><br /><span style="font-size:12px">{{ item.system_user_id
+                  <strong>E:{{ item.employee_id }} </strong><br /><span style="font-size:12px;">D:{{ item.system_user_id
                   }}</span>
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterEmployeeid" v-model="datatable_search_textbox"
-                      label="Search Employee Id"></v-text-field>
+                      label="Search Employee/Device Id"></v-text-field>
                   </template>
                 </v-edit-dialog>
 
@@ -705,7 +705,7 @@ export default {
     payloadOptions: {},
     headers_table: [
 
-      { text: "EMP ID / Device Id", align: "left", sortable: true, key: 'employee_id', value: "employee_id", filterable: true },
+      { text: "EMP Id / Device Id", align: "left", sortable: true, key: 'employee_id', value: "employee_id", filterable: true },
       { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
       // { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name_search_icon" },
 

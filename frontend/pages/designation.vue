@@ -11,7 +11,13 @@
         <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="6">
-        <div class="text-right"></div>
+        <div class="text-right">
+
+          <v-btn small class="primary" to="/department">
+            <v-icon small>mdi-arrow-left</v-icon>&nbsp;Back
+          </v-btn>
+
+        </div>
       </v-col>
     </v-row>
 

@@ -10,10 +10,89 @@
         <h3>{{ Model }}</h3>
         <div>Dashboard / {{ Model }}</div>
       </v-col>
+      <v-col>
+        <div class="display-1 pa-2 text-right">
+          <v-btn small class="primary" to="/designation">
+            View Designations List <v-icon small>mdi-list-box</v-icon>
+          </v-btn>
+        </div>
+      </v-col>
     </v-row>
 
     <div v-if="can(`employee_view`)">
       <v-row>
+        <v-dialog v-model="dialogFormDesignation" :fullscreen="false" width="500px">
+          <v-card elevation="0">
+            <v-toolbar color="background" dense flat dark>
+              <span>New Designation</span>
+            </v-toolbar>
+            <v-divider class="py-0 my-0"></v-divider>
+            <v-card-text>
+              <v-container>
+                <v-row class="mt-2">
+                  <v-col cols="12">
+                    <v-text-field v-model="new_Designation_name" placeholder="Designation" outlined dense></v-text-field>
+                    <span v-if="errors && errors.name" class="error--text">{{
+                      errors.name[0]
+                    }}</span>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-autocomplete v-model="new_designation_department_id" :items="departments" item-text="name"
+                      item-value="id" placeholder="Select Departments" outlined dense>
+                    </v-autocomplete>
+                    <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
+                  </v-col>
+                  <v-card-actions>
+                    <v-col md="6" lg="6" style="padding: 0px">
+                      <v-btn class="error" @click="close"> Cancel </v-btn></v-col>
+                    <v-col md="6" lg="6" class="text-right" style="padding: 0px">
+                      <v-btn class="primary" @click="savenewDesignation">Save</v-btn>
+                    </v-col>
+                  </v-card-actions>
+                </v-row>
+              </v-container>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogFormSubdepartment" :fullscreen="false" width="500px">
+
+          <v-card elevation="0">
+            <v-toolbar color="background" dense flat dark>
+              <span>New Sub Department </span>
+            </v-toolbar>
+            <v-divider class="py-0 my-0"></v-divider>
+            <v-card-text>
+              <v-container>
+                <v-row class="mt-2">
+                  <v-col cols="12">
+                    <v-text-field v-model="New_sub_DepartmentName" placeholder="Sub Department" outlined
+                      dense></v-text-field>
+                    <span v-if="errors && errors.name" class="error--text">{{
+                      errors.name[0]
+                    }}</span>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-autocomplete v-model="Newdepartment_id" :items="departments" item-text="name" item-value="id"
+                      placeholder="Select Departments" outlined dense>
+                    </v-autocomplete>
+                    <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
+                  </v-col>
+
+                  <v-card-actions>
+                    <v-col md="6" lg="6" style="padding: 0px">
+                      <v-btn class="error" @click="close">
+                        Cancel
+                      </v-btn></v-col>
+                    <v-col md="6" lg="6" class="text-right" style="padding: 0px">
+                      <v-btn class="primary" @click="saveSubDepartment">Save</v-btn>
+                    </v-col>
+                  </v-card-actions>
+                </v-row>
+              </v-container>
+            </v-card-text>
+          </v-card>
+
+        </v-dialog>
         <v-dialog v-model="dialogForm" :fullscreen="false" width="500px">
           <v-card elevation="0">
             <v-toolbar color="background" dense flat dark>
@@ -50,6 +129,11 @@
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-col class="toolbaritems-button-design1">
+                  <v-btn @click="newDesignation" small class="primary mr-2 mb-2"> Add Designation +
+                  </v-btn>
+                  <v-btn @click="newSubDepartment" small class="primary mr-2 mb-2">Add Sub Department +
+                  </v-btn>
+
                   <v-btn @click="newItem" small class="primary mr-2 mb-2">Add {{
                     Model
                   }} +
@@ -100,7 +184,7 @@
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
                   <span v-if="item.children.length > 0">
-                    <v-chip small class="primary ma-1" v-for="(sub_dep, index) in item.children" :key="index">
+                    <v-chip small class="primary ma-1" v-for="(sub_dep, index) in item.children.slice(0, 3)" :key="index">
                       {{ caps(sub_dep.name) }}
                     </v-chip>
                   </span>
@@ -108,6 +192,31 @@
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi('', 'serach_sub_department_name', $event)"
                       v-model="datatable_search_textbox" label="Search Sub Department name"></v-text-field>
+                  </template>
+
+                </v-edit-dialog>
+                <v-chip small class="primary ma-1" style="color:black" @click="gotoSubdepartments(item)"
+                  v-if="item.children.length > 3">
+                  More..
+                </v-chip>
+              </template>
+              <template v-slot:item.designations="{ item }">
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
+                  @open="datatable_open">
+                  <span v-if="item.designations.length > 0">
+                    <v-chip small class="primary ma-1" v-for="(designation, index) in item.designations.slice(0, 3)"
+                      :key="index">
+                      {{ caps(designation.name) }}
+                    </v-chip>
+                    <v-chip small class="primary ma-1" style="color:black" to="/designation"
+                      v-if="item.designations.length > 3">
+                      View all
+                    </v-chip>
+                  </span>
+                  <p v-else>---</p>
+                  <template v-slot:input>
+                    <v-text-field @input="getDataFromApi('', 'serach_designation_name', $event)"
+                      v-model="datatable_search_textbox" label="Search   Designation name"></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
@@ -228,6 +337,15 @@
 <script>
 export default {
   data: () => ({
+    dialogFormDesignation: false,
+
+    new_Designation_name: '',
+    new_designation_department_id: '',
+    departments: [],
+
+    New_sub_DepartmentName: '',
+    Newdepartment_id: '',
+    dialogFormSubdepartment: false,
     datatable_search_textbox: '',
     filter_employeeid: '',
     snack: false,
@@ -260,6 +378,8 @@ export default {
       { text: "Department Code", align: "left", sortable: true, value: "id" },
       { text: "Department", align: "left", sortable: true, value: "name" },
       { text: "Sub Department", align: "left", sortable: true, value: "sub_dep.name" },
+      { text: "Designations", align: "left", sortable: true, value: "designations" },
+
 
       { text: "Options", align: "left", sortable: true, value: "options" }
     ],
@@ -305,6 +425,12 @@ export default {
     newItem() {
       this.dialogForm = true;
     },
+    newSubDepartment() {
+      this.dialogFormSubdepartment = true;
+    },
+    newDesignation() {
+      this.dialogFormDesignation = true;
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";
@@ -342,6 +468,7 @@ export default {
           return false;
         }
         this.data = data.data;
+        this.departments = data.data;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
@@ -404,12 +531,70 @@ export default {
     close() {
       //this.dialog = false;
       this.dialogForm = false;
+      this.dialogFormSubdepartment = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
     },
+    savenewDesignation() {
 
+      let payload = {
+        name: this.new_Designation_name.toLowerCase(),
+        department_id: this.new_designation_department_id,
+        company_id: this.$auth.user.company.id,
+      };
+
+      this.$axios
+        .post('designation', payload)
+        .then(({ data }) => {
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.getDataFromApi();
+            this.snackbar = data.status;
+            this.response = data.message;
+            this.dialogForm = false;
+            this.dialogFormDesignation = false;
+            this.close();
+            this.errors = [];
+            this.search = "";
+            this.new_Designation_name = '';
+            this.new_designation_department_id = '';
+          }
+        })
+        .catch((res) => console.log(res));
+
+
+    },
+    saveSubDepartment() {
+
+      let payload = {
+        name: this.New_sub_DepartmentName.toLowerCase(),
+        department_id: this.Newdepartment_id,
+        company_id: this.$auth.user.company.id,
+      };
+
+      this.$axios
+        .post('sub-departments', payload)
+        .then(({ data }) => {
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.getDataFromApi();
+            this.snackbar = data.status;
+            this.response = data.message;
+            this.close();
+            this.errors = [];
+            this.search = "";
+            this.New_sub_DepartmentName = "";
+            this.Newdepartment_id = "";
+            his.dialogFormSubdepartment = false;
+          }
+        })
+        .catch((res) => console.log(res));
+
+    },
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),

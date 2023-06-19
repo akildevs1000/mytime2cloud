@@ -18,10 +18,10 @@
         <v-select class="form-control" @change="getDataFromApi(`device`)" v-model="pagination.per_page"
           :items="[10, 25, 50, 100]" placeholder="Per Page Records" solo hide-details flat></v-select>
       </v-col> -->
-      <v-col xs="12" sm="12" md="3" cols="12">
+      <!-- <v-col xs="12" sm="12" md="3" cols="12">
         <v-text-field class="form-control py-0 custom-text-box floating shadow-none" placeholder="Search..." solo flat
           @input="searchIt" v-model="search" hide-details></v-text-field>
-      </v-col>
+      </v-col> -->
     </v-row>
 
     <v-card class="mb-5" elevation="0">

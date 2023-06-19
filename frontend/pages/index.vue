@@ -1,24 +1,8 @@
 <template>
   <div v-if="can(`dashboard_access`)">
     <div v-if="!loading">
-      <v-dialog v-model="dialogGeneralreport" :fullscreen="false" max-width="80%">
-        <v-card>
-          <!-- <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn class="error" small @click="closeDialogGeneralreport">
-                Close <span class="mdi mdi-close-circle"></span>
-              </v-btn>
-            </v-card-actions> -->
-          <v-card-text style="padding: 0px">
-            <v-container style="max-width: 100%; padding: 0px">
-              <v-row>
-                <v-col cols="12">
-                  <iframe v-if="iframeDisplay" :src="iframeUrl" frameborder="0" style="width:100%;height:600px"></iframe>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
-        </v-card>
+      <v-dialog v-model="dialogGeneralreport" :fullscreen="false" max-width="1200px">
+        <iframe v-if="iframeDisplay" :src="iframeUrl" frameborder="0" style="width:100%;height:600px"></iframe>
       </v-dialog>
       <v-row>
         <v-col md="12">
