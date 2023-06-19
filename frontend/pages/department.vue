@@ -208,10 +208,7 @@
                       :key="index">
                       {{ caps(designation.name) }}
                     </v-chip>
-                    <v-chip small class="primary ma-1" style="color:black" to="/designation"
-                      v-if="item.designations.length > 3">
-                      View all
-                    </v-chip>
+
                   </span>
                   <p v-else>---</p>
                   <template v-slot:input>
@@ -219,6 +216,10 @@
                       v-model="datatable_search_textbox" label="Search   Designation name"></v-text-field>
                   </template>
                 </v-edit-dialog>
+                <v-chip small class="primary ma-1" style="color:black" to="/designation"
+                  v-if="item.designations.length > 3">
+                  View all
+                </v-chip>
               </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>

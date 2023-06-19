@@ -255,7 +255,7 @@
               <v-toolbar-items>
                 <v-col>
                   <input small dark class="employeepage-seach-textfield form-control py-3 custom-text-box floating  "
-                    placeholder="Search Employee Details" style="width:200px;height: 28px;
+                    placeholder="Search Employee Details" style="width:200px;height: 28px;padding-right: 0px;
     margin-top: 1px;
     padding-top: 11px !important;" @input="searchIt" v-model="search" type="text" />
 
@@ -705,7 +705,7 @@ export default {
     payloadOptions: {},
     headers_table: [
 
-      { text: "EMP Id / Device Id", align: "left", sortable: true, key: 'employee_id', value: "employee_id", filterable: true },
+      { text: "Emp Id / Device Id", align: "left", sortable: true, key: 'employee_id', value: "employee_id", filterable: true },
       { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
       // { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name_search_icon" },
 
@@ -831,7 +831,7 @@ export default {
     ];
     this.headers = [
       // { text: "#" },
-      { text: "EID" },
+      { text: "E.ID" },
       { text: "Profile" },
       { text: "Name" },
       { text: "Email" },

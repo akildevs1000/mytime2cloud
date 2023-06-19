@@ -213,7 +213,7 @@ export default {
       { text: "&nbsp #" },
       { text: "Pic" },
       { text: "Name" },
-      { text: "Eid" },
+      { text: "E.id" },
       { text: "Last Active" },
       { text: "Device name" }
     ],

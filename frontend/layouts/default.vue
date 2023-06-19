@@ -248,15 +248,15 @@ export default {
               menu: "payroll_access",
             },
 
-            {
-              icon: "mdi-clock",
-              title: "Shifts",
-              to: "/shift",
-              menu: "shift_access",
-            },
+            // {
+            //   icon: "mdi-clock",
+            //   title: "Shifts",
+            //   to: "/shift",
+            //   menu: "shift_access",
+            // },
             {
               icon: "mdi mdi-calendar-clock",
-              title: "Schedule",
+              title: "Schedule List",
               to: "/schedule",
               menu: "schedule_access",
             },

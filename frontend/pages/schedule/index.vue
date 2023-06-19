@@ -271,6 +271,15 @@
           <div>Dashboard / Schedule</div>
         </v-col>
 
+
+
+        <v-col>
+          <div class="display-1 pa-2 text-right">
+            <v-btn small to="/shift" color="primary">
+              <v-icon small>mdi-clock-outline </v-icon>&nbsp;Manage Shifts
+            </v-btn>
+          </div>
+        </v-col>
       </v-row>
 
 
@@ -282,7 +291,7 @@
               mdi-reload</v-icon></a>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-col class="toolbaritems-button-design">
+            <v-col class="toolbaritems-button-design1">
               <v-btn color="primary" small @click="dialog = true">
                 <v-icon>mdi-plus</v-icon> Add Schedule
               </v-btn>

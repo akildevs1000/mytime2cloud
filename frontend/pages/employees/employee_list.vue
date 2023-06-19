@@ -198,7 +198,7 @@ export default {
         text: "#",
       },
       {
-        text: "EID",
+        text: "E.ID",
       },
       {
         text: "Profile",
