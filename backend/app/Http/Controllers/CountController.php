@@ -70,57 +70,49 @@ class CountController extends Controller
         ];
     }
 
-    public function employeeDashboard(Request $request)
+    public function employeeCounts(Request $request)
     {
 
-        $id = $request->company_id ?? 0;
-        $employee_id = $request->employee_id ?? 0;
-        $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
-        $query = Attendance::whereCompanyId($id)->where('employee_id', $employee_id);
+        $cId = $request->company_id;
+        $eId = $request->employee_id;
 
         return [
             [
                 "title" => "Total Presents",
-                "value" => $query->where('status', 'p')->count(),
-                "icon" => "mdi-check",
+                "value" => $this->getStatsByStatus($cId, $eId, "p"),
+                "icon" => "fas fa-calendar-check",
                 "color" => "l-bg-green-dark",
-                "border_color" => "4B7BEC",
+                "link" => "http://localhost:8000/api/daily?page=1&per_page=1000&company_id=8&status=P&daily_date=2023-06-13&department_id=-1&report_type=Daily",
             ],
             [
-                "title" => "Total Presents Current Month",
-                "value" => $query->whereMonth('date', date('m'))->where('status', 'p')->count() . '/' . $daysInMonth,
-                "icon" => "mdi-history",
-                "color" => "orange darken-3",
-                "border_color" => "EF6C00",
+                "title" => "Total Absence",
+                "value" => $this->getStatsByStatus($cId, $eId, "a"),
+                "icon" => "fas fa-calendar-times",
+                "color" => "l-bg-orange-dark",
+                "link" => "http://localhost:8000/api/daily?page=1&per_page=1000&company_id=8&status=A&daily_date=2023-06-13&department_id=-1&report_type=Daily",
             ],
             [
-                "title" => "Absence",
-                "value" => $query->where('status', 'a')->count(),
-                "icon" => "mdi-cancel",
-                "color" => "error",
-                "border_color" => "DD2C00",
+                "title" => "Total Missing",
+                "value" => $this->getStatsByStatus($cId, $eId, "---"),
+                "icon" => "fas fa-clock",
+                "color" => "l-bg-cyan-dark",
+                "link" => "http://localhost:8000/api/daily?page=1&per_page=1000&company_id=8&status=---&daily_date=2023-06-13&department_id=-1&report_type=Daily",
             ],
             [
-                "title" => "Total Absence Current Month",
-                "value" => $query->whereMonth('date', date('m'))->where('status', 'a')->count() . '/' . $daysInMonth,
-                "icon" => "mdi-history",
-                "color" => "orange darken-3",
-                "border_color" => "EF6C00",
-            ],
-            [
-                "title" => "Number of Apply Leaves",
-                "value" => Leave::where('company_id', $request->company_id)->where('employee_id', $request->employee_id)->count(),
-                "icon" => "mdi-home",
-                "color" => "blue-grey darken-1",
+                "title" => "Total Leaves",
+                "value" => Leave::where('company_id', $cId)->where('employee_id', $request->employee_id)->count(),
+                "icon" => "fas fa-clock",
+                "color" => "l-bg-purple-dark",
                 "border_color" => "526C78",
-            ],
-            [
-                "title" => "Late Coming",
-                "value" => Device::whereCompanyId($id)->count(),
-                "icon" => "mdi-clock",
-                "color" => "error",
-                "border_color" => "DD2C00",
-            ],
+            ]
         ];
+    }
+
+    public function getStatsByStatus($company_id, $employee_id, $status)
+    {
+        return rand(0, 30);
+        $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
+        $query = Attendance::whereCompanyId($company_id ?? 0)->where('employee_id', $employee_id);
+        return $query->whereMonth('date', date('m'))->where('status', $status)->count() . '/' . $daysInMonth;
     }
 }

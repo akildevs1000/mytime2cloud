@@ -8,125 +8,217 @@ use App\Models\Permission;
 
 class PermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        // Permission::truncate();
+        Permission::truncate();
 
+        $data = [
+            ['module' => 'company', 'title' => 'Company access', 'name' => 'company_access'],
+            ['module' => 'company', 'title' => 'Company view', 'name' => 'company_view'],
+            ['module' => 'company', 'title' => 'Company create', 'name' => 'company_create'],
+            ['module' => 'company', 'title' => 'Company edit', 'name' => 'company_edit'],
+            ['module' => 'company', 'title' => 'Company delete', 'name' => 'company_delete'],
 
-        // Permission::create(['module' => 'department', 'title' => 'department access', 'name' => 'department_access']);
-        // Permission::create(['module' => 'department', 'title' => 'department view', 'name' => 'department_view']);
-        // Permission::create(['module' => 'department', 'title' => 'department create', 'name' => 'department_create']);
-        // Permission::create(['module' => 'department', 'title' => 'department edit', 'name' => 'department_edit']);
-        // Permission::create(['module' => 'department', 'title' => 'department delete', 'name' => 'department_delete']);
+            ['module' => 'dashboard', 'title' => 'dashboard access', 'name' => 'dashboard_access'],
+            ['module' => 'dashboard', 'title' => 'dashboard view', 'name' => 'dashboard_view'],
+            ['module' => 'dashboard', 'title' => 'dashboard create', 'name' => 'dashboard_create'],
+            ['module' => 'dashboard', 'title' => 'dashboard edit', 'name' => 'dashboard_edit'],
+            ['module' => 'dashboard', 'title' => 'dashboard delete', 'name' => 'dashboard_delete'],
 
-        // Permission::create(['module' => 'sub_department', 'title' => 'sub department access', 'name' => 'sub_department_access']);
-        // Permission::create(['module' => 'sub_department', 'title' => 'sub department view', 'name' => 'sub_department_view']);
-        // Permission::create(['module' => 'sub_department', 'title' => 'sub department create', 'name' => 'sub_department_create']);
-        // Permission::create(['module' => 'sub_department', 'title' => 'sub department edit', 'name' => 'sub_department_edit']);
-        // Permission::create(['module' => 'sub_department', 'title' => 'sub department delete', 'name' => 'sub_department_delete']);
+            ['module' => 'device', 'title' => 'Device access', 'name' => 'device_access'],
+            ['module' => 'device', 'title' => 'Device view', 'name' => 'device_view'],
+            ['module' => 'device', 'title' => 'Device create', 'name' => 'device_create'],
+            ['module' => 'device', 'title' => 'Device edit', 'name' => 'device_edit'],
+            ['module' => 'device', 'title' => 'Device delete', 'name' => 'device_delete'],
 
-        // Permission::create(['module' => 'designation', 'title' => 'designation access', 'name' => 'designation_access']);
-        // Permission::create(['module' => 'designation', 'title' => 'designation view', 'name' => 'designation_view']);
-        // Permission::create(['module' => 'designation', 'title' => 'designation create', 'name' => 'designation_create']);
-        // Permission::create(['module' => 'designation', 'title' => 'designation edit', 'name' => 'designation_edit']);
-        // Permission::create(['module' => 'designation', 'title' => 'designation delete', 'name' => 'designation_delete']);
+            ['module' => 'shift', 'title' => 'Shift access', 'name' => 'shift_access'],
+            ['module' => 'shift', 'title' => 'Shift view', 'name' => 'shift_view'],
+            ['module' => 'shift', 'title' => 'Shift create', 'name' => 'shift_create'],
+            ['module' => 'shift', 'title' => 'Shift edit', 'name' => 'shift_edit'],
+            ['module' => 'shift', 'title' => 'Shift delete', 'name' => 'shift_delete'],
 
-        // Permission::create(['module' => 'role', 'title' => 'role access', 'name' => 'role_access']);
-        // Permission::create(['module' => 'role', 'title' => 'role view', 'name' => 'role_view']);
-        // Permission::create(['module' => 'role', 'title' => 'role create', 'name' => 'role_create']);
-        // Permission::create(['module' => 'role', 'title' => 'role edit', 'name' => 'role_edit']);
-        // Permission::create(['module' => 'role', 'title' => 'role delete', 'name' => 'role_delete']);
+            ['module' => 'schedule', 'title' => 'Schedule access', 'name' => 'schedule_access'],
+            ['module' => 'schedule', 'title' => 'Schedule view', 'name' => 'schedule_view'],
+            ['module' => 'schedule', 'title' => 'Schedule create', 'name' => 'schedule_create'],
+            ['module' => 'schedule', 'title' => 'Schedule edit', 'name' => 'schedule_edit'],
+            ['module' => 'schedule', 'title' => 'Schedule delete', 'name' => 'schedule_delete'],
 
-        // Permission::create(['module' => 'assign_permission', 'title' => 'assign permission access', 'name' => 'assign_permission_access']);
-        // Permission::create(['module' => 'assign_permission', 'title' => 'assign permission view', 'name' => 'assign_permission_view']);
-        // Permission::create(['module' => 'assign_permission', 'title' => 'assign permission create', 'name' => 'assign_permission_create']);
-        // Permission::create(['module' => 'assign_permission', 'title' => 'assign permission edit', 'name' => 'assign_permission_edit']);
-        // Permission::create(['module' => 'assign_permission', 'title' => 'assign permission delete', 'name' => 'assign_permission_delete']);
+            ['module' => 'payroll', 'title' => 'Payroll access', 'name' => 'payroll_access'],
+            ['module' => 'payroll', 'title' => 'Payroll view', 'name' => 'payroll_view'],
+            ['module' => 'payroll', 'title' => 'Payroll create', 'name' => 'payroll_create'],
+            ['module' => 'payroll', 'title' => 'Payroll edit', 'name' => 'payroll_edit'],
+            ['module' => 'payroll', 'title' => 'Payroll delete', 'name' => 'payroll_delete'],
 
-        // Permission::create(['module' => 'employee', 'title' => 'employee access', 'name' => 'employee_access']);
-        // Permission::create(['module' => 'employee', 'title' => 'employee view', 'name' => 'employee_view']);
-        // Permission::create(['module' => 'employee', 'title' => 'employee create', 'name' => 'employee_create']);
-        // Permission::create(['module' => 'employee', 'title' => 'employee edit', 'name' => 'employee_edit']);
-        // Permission::create(['module' => 'employee', 'title' => 'employee delete', 'name' => 'employee_delete']);
+            ['module' => 'payroll settings', 'title' => 'Payroll settings access', 'name' => 'payroll_settings_access'],
+            ['module' => 'payroll settings', 'title' => 'Payroll settings view', 'name' => 'payroll_settings_view'],
+            ['module' => 'payroll settings', 'title' => 'Payroll settings create', 'name' => 'payroll_settings_create'],
+            ['module' => 'payroll settings', 'title' => 'Payroll settings edit', 'name' => 'payroll_settings_edit'],
+            ['module' => 'payroll settings', 'title' => 'Payroll settings delete', 'name' => 'payroll_settings_delete'],
 
-        // Permission::create(['module' => 'announcement', 'title' => 'announcement access', 'name' => 'announcement_access']);
-        // Permission::create(['module' => 'announcement', 'title' => 'announcement view', 'name' => 'announcement_view']);
-        // Permission::create(['module' => 'announcement', 'title' => 'announcement create', 'name' => 'announcement_create']);
-        // Permission::create(['module' => 'announcement', 'title' => 'announcement edit', 'name' => 'announcement_edit']);
-        // Permission::create(['module' => 'announcement', 'title' => 'announcement delete', 'name' => 'announcement_delete']);
+            ['module' => 'setting', 'title' => 'Setting access', 'name' => 'setting_access'],
+            ['module' => 'setting', 'title' => 'Setting view', 'name' => 'setting_view'],
+            ['module' => 'setting', 'title' => 'Setting create', 'name' => 'setting_create'],
+            ['module' => 'setting', 'title' => 'Setting edit', 'name' => 'setting_edit'],
+            ['module' => 'setting', 'title' => 'Setting delete', 'name' => 'setting_delete'],
 
-        // Permission::create(['module' => 'policy', 'title' => 'policy access', 'name' => 'policy_access']);
-        // Permission::create(['module' => 'policy', 'title' => 'policy view', 'name' => 'policy_view']);
-        // Permission::create(['module' => 'policy', 'title' => 'policy create', 'name' => 'policy_create']);
-        // Permission::create(['module' => 'policy', 'title' => 'policy edit', 'name' => 'policy_edit']);
-        // Permission::create(['module' => 'policy', 'title' => 'policy delete', 'name' => 'policy_delete']);
+            ['module' => 'notifications', 'title' => 'Notifications access', 'name' => 'notifications_access'],
+            ['module' => 'notifications', 'title' => 'Notifications view', 'name' => 'notifications_view'],
+            ['module' => 'notifications', 'title' => 'Notifications create', 'name' => 'notifications_create'],
+            ['module' => 'notifications', 'title' => 'Notifications edit', 'name' => 'notifications_edit'],
+            ['module' => 'notifications', 'title' => 'Notifications delete', 'name' => 'notifications_delete'],
 
+            ['module' => 'logs', 'title' => 'Log access', 'name' => 'logs_access'],
+            ['module' => 'logs', 'title' => 'Log view', 'name' => 'logs_view'],
+            ['module' => 'logs', 'title' => 'Log create', 'name' => 'logs_create'],
+            ['module' => 'logs', 'title' => 'Log edit', 'name' => 'logs_edit'],
+            ['module' => 'logs', 'title' => 'Log delete', 'name' => 'logs_delete'],
 
-        // Permission::create(['module' => 'attendance_report', 'title' => 'Attendance access', 'name' => 'attendance_report_access']);
-        // Permission::create(['module' => 'attendance_report', 'title' => 'Attendance view', 'name' => 'attendance_report_view']);
-        // Permission::create(['module' => 'attendance_report', 'title' => 'Attendance create', 'name' => 'attendance_report_create']);
-        // Permission::create(['module' => 'attendance_report', 'title' => 'Attendance edit', 'name' => 'attendance_report_edit']);
-        // Permission::create(['module' => 'attendance_report', 'title' => 'Attendance delete', 'name' => 'attendance_report_delete']);
+            ['module' => 'role', 'title' => 'Role access', 'name' => 'role_access'],
+            ['module' => 'role', 'title' => 'Role view', 'name' => 'role_view'],
+            ['module' => 'role', 'title' => 'Role create', 'name' => 'role_create'],
+            ['module' => 'role', 'title' => 'Role edit', 'name' => 'role_edit'],
+            ['module' => 'role', 'title' => 'Role delete', 'name' => 'role_delete'],
 
-        // Permission::create(['module' => 'company_access', 'title' => 'Company access', 'name' => 'company_access']);
-        // Permission::create(['module' => 'company_access', 'title' => 'Company view', 'name' => 'company_view']);
-        // Permission::create(['module' => 'company_access', 'title' => 'Company create', 'name' => 'company_create']);
-        // Permission::create(['module' => 'company_access', 'title' => 'Company edit', 'name' => 'company_edit']);
-        // Permission::create(['module' => 'company_access', 'title' => 'Company delete', 'name' => 'company_delete']);
+            ['module' => 'assign_permission', 'title' => 'Assign permission access', 'name' => 'assign_permission_access'],
+            ['module' => 'assign_permission', 'title' => 'Assign permission view', 'name' => 'assign_permission_view'],
+            ['module' => 'assign_permission', 'title' => 'Assign permission create', 'name' => 'assign_permission_create'],
+            ['module' => 'assign_permission', 'title' => 'Assign permission edit', 'name' => 'assign_permission_edit'],
+            ['module' => 'assign_permission', 'title' => 'Assign permission delete', 'name' => 'assign_permission_delete'],
 
-        // Permission::create(['module' => 'device', 'title' => 'Device access', 'name' => 'device_access']);
-        // Permission::create(['module' => 'device', 'title' => 'Device view', 'name' => 'device_view']);
-        // Permission::create(['module' => 'device', 'title' => 'Device create', 'name' => 'device_create']);
-        // Permission::create(['module' => 'device', 'title' => 'Device edit', 'name' => 'device_edit']);
-        // Permission::create(['module' => 'device', 'title' => 'Device delete', 'name' => 'device_delete']);
+            ['module' => 'department', 'title' => 'Department access', 'name' => 'department_access'],
+            ['module' => 'department', 'title' => 'Department view', 'name' => 'department_view'],
+            ['module' => 'department', 'title' => 'Department create', 'name' => 'department_create'],
+            ['module' => 'department', 'title' => 'Department edit', 'name' => 'department_edit'],
+            ['module' => 'department', 'title' => 'Department delete', 'name' => 'department_delete'],
 
-        // Permission::create(['module' => 'shift', 'title' => 'Shift access', 'name' => 'shift_access']);
-        // Permission::create(['module' => 'shift', 'title' => 'Shift view', 'name' => 'shift_view']);
-        // Permission::create(['module' => 'shift', 'title' => 'Shift create', 'name' => 'shift_create']);
-        // Permission::create(['module' => 'shift', 'title' => 'Shift edit', 'name' => 'shift_edit']);
-        // Permission::create(['module' => 'shift', 'title' => 'Shift delete', 'name' => 'shift_delete']);
+            ['module' => 'sub_department', 'title' => 'Sub department access', 'name' => 'sub_department_access'],
+            ['module' => 'sub_department', 'title' => 'Sub department view', 'name' => 'sub_department_view'],
+            ['module' => 'sub_department', 'title' => 'Sub department create', 'name' => 'sub_department_create'],
+            ['module' => 'sub_department', 'title' => 'Sub department edit', 'name' => 'sub_department_edit'],
+            ['module' => 'sub_department', 'title' => 'Sub department delete', 'name' => 'sub_department_delete'],
 
-        // Permission::create(['module' => 'employee_schedule', 'title' => 'Employee_schedule access', 'name' => 'employee_schedule_access']);
-        // Permission::create(['module' => 'employee_schedule', 'title' => 'Employee_schedule view', 'name' => 'employee_schedule_view']);
-        // Permission::create(['module' => 'employee_schedule', 'title' => 'Employee_schedule create', 'name' => 'employee_schedule_create']);
-        // Permission::create(['module' => 'employee_schedule', 'title' => 'Employee_schedule edit', 'name' => 'employee_schedule_edit']);
-        // Permission::create(['module' => 'employee_schedule', 'title' => 'Employee_schedule delete', 'name' => 'employee_schedule_delete']);
+            ['module' => 'designation', 'title' => 'Designation access', 'name' => 'designation_access'],
+            ['module' => 'designation', 'title' => 'Designation view', 'name' => 'designation_view'],
+            ['module' => 'designation', 'title' => 'Designation create', 'name' => 'designation_create'],
+            ['module' => 'designation', 'title' => 'Designation edit', 'name' => 'designation_edit'],
+            ['module' => 'designation', 'title' => 'Designation delete', 'name' => 'designation_delete'],
 
-        // Permission::create(['module' => 'payroll', 'title' => 'Payroll access', 'name' => 'payroll_access']);
-        // Permission::create(['module' => 'payroll', 'title' => 'Payroll view', 'name' => 'payroll_view']);
-        // Permission::create(['module' => 'payroll', 'title' => 'Payroll create', 'name' => 'payroll_create']);
-        // Permission::create(['module' => 'payroll', 'title' => 'Payroll edit', 'name' => 'payroll_edit']);
-        // Permission::create(['module' => 'payroll', 'title' => 'Payroll delete', 'name' => 'payroll_delete']);
+            ['module' => 'policy', 'title' => 'Policy access', 'name' => 'policy_access'],
+            ['module' => 'policy', 'title' => 'Policy view', 'name' => 'policy_view'],
+            ['module' => 'policy', 'title' => 'Policy create', 'name' => 'policy_create'],
+            ['module' => 'policy', 'title' => 'Policy edit', 'name' => 'policy_edit'],
+            ['module' => 'policy', 'title' => 'Policy delete', 'name' => 'policy_delete'],
 
-        // Permission::create(['module' => 'setting', 'title' => 'Setting access', 'name' => 'setting_access']);
-        // Permission::create(['module' => 'setting', 'title' => 'Setting view', 'name' => 'setting_view']);
-        // Permission::create(['module' => 'setting', 'title' => 'Setting create', 'name' => 'setting_create']);
-        // Permission::create(['module' => 'setting', 'title' => 'Setting edit', 'name' => 'setting_edit']);
-        // Permission::create(['module' => 'setting', 'title' => 'Setting delete', 'name' => 'setting_delete']);
+            ['module' => 'employee', 'title' => 'Employee access', 'name' => 'employee_access'],
+            ['module' => 'employee', 'title' => 'Employee view', 'name' => 'employee_view'],
+            ['module' => 'employee', 'title' => 'Employee create', 'name' => 'employee_create'],
+            ['module' => 'employee', 'title' => 'Employee edit', 'name' => 'employee_edit'],
+            ['module' => 'employee', 'title' => 'Employee delete', 'name' => 'employee_delete'],
 
-        // Permission::create(['module' => 'notifications', 'title' => 'Notifications access', 'name' => 'notifications_access']);
-        // Permission::create(['module' => 'notifications', 'title' => 'Notifications view', 'name' => 'notifications_view']);
-        // Permission::create(['module' => 'notifications', 'title' => 'Notifications create', 'name' => 'notifications_create']);
-        // Permission::create(['module' => 'notifications', 'title' => 'Notifications edit', 'name' => 'notifications_edit']);
-        // Permission::create(['module' => 'notifications', 'title' => 'Notifications delete', 'name' => 'notifications_delete']);
+            ['module' => 'employee profile', 'title' => 'Employee profile access', 'name' => 'employee_profile_access'],
+            ['module' => 'employee profile', 'title' => 'Employee profile view', 'name' => 'employee_profile_view'],
+            ['module' => 'employee profile', 'title' => 'Employee profile create', 'name' => 'employee_profile_create'],
+            ['module' => 'employee profile', 'title' => 'Employee profile edit', 'name' => 'employee_profile_edit'],
+            ['module' => 'employee profile', 'title' => 'Employee profile delete', 'name' => 'employee_profile_delete'],
 
+            ['module' => 'employee contact', 'title' => 'Employee contact access', 'name' => 'employee_contact_access'],
+            ['module' => 'employee contact', 'title' => 'Employee contact view', 'name' => 'employee_contact_view'],
+            ['module' => 'employee contact', 'title' => 'Employee contact create', 'name' => 'employee_contact_create'],
+            ['module' => 'employee contact', 'title' => 'Employee contact edit', 'name' => 'employee_contact_edit'],
+            ['module' => 'employee contact', 'title' => 'Employee contact delete', 'name' => 'employee_contact_delete'],
 
-        //new
-        Permission::create(['module' => 'logs', 'title' => 'logs access', 'name' => 'logs_access']);
-        Permission::create(['module' => 'logs', 'title' => 'logs view', 'name' => 'logs_view']);
-        Permission::create(['module' => 'logs', 'title' => 'logs create', 'name' => 'logs_create']);
-        Permission::create(['module' => 'logs', 'title' => 'logs edit', 'name' => 'logs_edit']);
-        Permission::create(['module' => 'logs', 'title' => 'logs delete', 'name' => 'logs_delete']);
+            ['module' => 'employee passport', 'title' => 'Employee passport access', 'name' => 'employee_passport_access'],
+            ['module' => 'employee passport', 'title' => 'Employee passport view', 'name' => 'employee_passport_view'],
+            ['module' => 'employee passport', 'title' => 'Employee passport create', 'name' => 'employee_passport_create'],
+            ['module' => 'employee passport', 'title' => 'Employee passport edit', 'name' => 'employee_passport_edit'],
+            ['module' => 'employee passport', 'title' => 'Employee passport delete', 'name' => 'employee_passport_delete'],
 
-        Permission::create(['module' => 'dashboard', 'title' => 'dashboard access', 'name' => 'dashboard_access']);
-        Permission::create(['module' => 'dashboard', 'title' => 'dashboard view', 'name' => 'dashboard_view']);
-        Permission::create(['module' => 'dashboard', 'title' => 'dashboard create', 'name' => 'dashboard_create']);
-        Permission::create(['module' => 'dashboard', 'title' => 'dashboard edit', 'name' => 'dashboard_edit']);
-        Permission::create(['module' => 'dashboard', 'title' => 'dashboard delete', 'name' => 'dashboard_delete']);
+            ['module' => 'employee emirates', 'title' => 'Employee emirates access', 'name' => 'employee_emirates_access'],
+            ['module' => 'employee emirates', 'title' => 'Employee emirates view', 'name' => 'employee_emirates_view'],
+            ['module' => 'employee emirates', 'title' => 'Employee emirates create', 'name' => 'employee_emirates_create'],
+            ['module' => 'employee emirates', 'title' => 'Employee emirates edit', 'name' => 'employee_emirates_edit'],
+            ['module' => 'employee emirates', 'title' => 'Employee emirates delete', 'name' => 'employee_emirates_delete'],
+
+            ['module' => 'employee visa', 'title' => 'Employee visa access', 'name' => 'employee_visa_access'],
+            ['module' => 'employee visa', 'title' => 'Employee visa view', 'name' => 'employee_visa_view'],
+            ['module' => 'employee visa', 'title' => 'Employee visa create', 'name' => 'employee_visa_create'],
+            ['module' => 'employee visa', 'title' => 'Employee visa edit', 'name' => 'employee_visa_edit'],
+            ['module' => 'employee visa', 'title' => 'Employee visa delete', 'name' => 'employee_visa_delete'],
+
+            ['module' => 'employee bank', 'title' => 'Employee bank access', 'name' => 'employee_bank_access'],
+            ['module' => 'employee bank', 'title' => 'Employee bank view', 'name' => 'employee_bank_view'],
+            ['module' => 'employee bank', 'title' => 'Employee bank create', 'name' => 'employee_bank_create'],
+            ['module' => 'employee bank', 'title' => 'Employee bank edit', 'name' => 'employee_bank_edit'],
+            ['module' => 'employee bank', 'title' => 'Employee bank delete', 'name' => 'employee_bank_delete'],
+
+            ['module' => 'employee document', 'title' => 'Employee document access', 'name' => 'employee_document_access'],
+            ['module' => 'employee document', 'title' => 'Employee document view', 'name' => 'employee_document_view'],
+            ['module' => 'employee document', 'title' => 'Employee document create', 'name' => 'employee_document_create'],
+            ['module' => 'employee document', 'title' => 'Employee document edit', 'name' => 'employee_document_edit'],
+            ['module' => 'employee document', 'title' => 'Employee document delete', 'name' => 'employee_document_delete'],
+
+            ['module' => 'employee qualification', 'title' => 'Employee qualification access', 'name' => 'employee_qualification_access'],
+            ['module' => 'employee qualification', 'title' => 'Employee qualification view', 'name' => 'employee_qualification_view'],
+            ['module' => 'employee qualification', 'title' => 'Employee qualification create', 'name' => 'employee_qualification_create'],
+            ['module' => 'employee qualification', 'title' => 'Employee qualification edit', 'name' => 'employee_qualification_edit'],
+            ['module' => 'employee qualification', 'title' => 'Employee qualification delete', 'name' => 'employee_qualification_delete'],
+
+            ['module' => 'employee setting', 'title' => 'Employee setting access', 'name' => 'employee_setting_access'],
+            ['module' => 'employee setting', 'title' => 'Employee setting view', 'name' => 'employee_setting_view'],
+            ['module' => 'employee setting', 'title' => 'Employee setting create', 'name' => 'employee_setting_create'],
+            ['module' => 'employee setting', 'title' => 'Employee setting edit', 'name' => 'employee_setting_edit'],
+            ['module' => 'employee setting', 'title' => 'Employee setting delete', 'name' => 'employee_setting_delete'],
+
+            ['module' => 'employee payroll', 'title' => 'Employee payroll access', 'name' => 'employee_payroll_access'],
+            ['module' => 'employee payroll', 'title' => 'Employee payroll view', 'name' => 'employee_payroll_view'],
+            ['module' => 'employee payroll', 'title' => 'Employee payroll create', 'name' => 'employee_payroll_create'],
+            ['module' => 'employee payroll', 'title' => 'Employee payroll edit', 'name' => 'employee_payroll_edit'],
+            ['module' => 'employee payroll', 'title' => 'Employee payroll delete', 'name' => 'employee_payroll_delete'],
+
+            ['module' => 'employee login', 'title' => 'Employee login access', 'name' => 'employee_login_access'],
+            ['module' => 'employee login', 'title' => 'Employee login view', 'name' => 'employee_login_view'],
+            ['module' => 'employee login', 'title' => 'Employee login create', 'name' => 'employee_login_create'],
+            ['module' => 'employee login', 'title' => 'Employee login edit', 'name' => 'employee_login_edit'],
+            ['module' => 'employee login', 'title' => 'Employee login delete', 'name' => 'employee_login_delete'],
+
+            ['module' => 'employee_schedule', 'title' => 'Employee schedule access', 'name' => 'employee_schedule_access'],
+            ['module' => 'employee_schedule', 'title' => 'Employee schedule view', 'name' => 'employee_schedule_view'],
+            ['module' => 'employee_schedule', 'title' => 'Employee schedule create', 'name' => 'employee_schedule_create'],
+            ['module' => 'employee_schedule', 'title' => 'Employee schedule edit', 'name' => 'employee_schedule_edit'],
+            ['module' => 'employee_schedule', 'title' => 'Employee schedule delete', 'name' => 'employee_schedule_delete'],
+
+            ['module' => 'attendance_report', 'title' => 'Attendance report access', 'name' => 'attendance_report_access'],
+            ['module' => 'attendance_report', 'title' => 'Attendance report view', 'name' => 'attendance_report_view'],
+            ['module' => 'attendance_report', 'title' => 'Attendance report create', 'name' => 'attendance_report_create'],
+            ['module' => 'attendance_report', 'title' => 'Attendance report edit', 'name' => 'attendance_report_edit'],
+            ['module' => 'attendance_report', 'title' => 'Attendance report delete', 'name' => 'attendance_report_delete'],
+
+            ['module' => 'timezone', 'title' => 'Timezone access', 'name' => 'timezone_access'],
+            ['module' => 'timezone', 'title' => 'Timezone view', 'name' => 'timezone_view'],
+            ['module' => 'timezone', 'title' => 'Timezone create', 'name' => 'timezone_create'],
+            ['module' => 'timezone', 'title' => 'Timezone edit', 'name' => 'timezone_edit'],
+            ['module' => 'timezone', 'title' => 'Timezone delete', 'name' => 'timezone_delete'],
+
+            ['module' => 'timezone_mapping', 'title' => 'Timezone mapping access', 'name' => 'timezone_mapping_access'],
+            ['module' => 'timezone_mapping', 'title' => 'Timezone mapping view', 'name' => 'timezone_mapping_view'],
+            ['module' => 'timezone_mapping', 'title' => 'Timezone mapping create', 'name' => 'timezone_mapping_create'],
+            ['module' => 'timezone_mapping', 'title' => 'Timezone mapping edit', 'name' => 'timezone_mapping_edit'],
+            ['module' => 'timezone_mapping', 'title' => 'Timezone mapping delete', 'name' => 'timezone_mapping_delete'],
+
+            ['module' => 'timezone_device_mapping', 'title' => 'Employee device mapping access', 'name' => 'employee_device_mapping_access'],
+            ['module' => 'timezone_device_mapping', 'title' => 'Employee device mapping view', 'name' => 'employee_device_mapping_view'],
+            ['module' => 'timezone_device_mapping', 'title' => 'Employee device mapping create', 'name' => 'employee_device_mapping_create'],
+            ['module' => 'timezone_device_mapping', 'title' => 'Employee device mapping edit', 'name' => 'employee_device_mapping_edit'],
+            ['module' => 'timezone_device_mapping', 'title' => 'Employee device mapping delete', 'name' => 'employee_device_mapping_delete'],
+
+            ['module' => 'announcement', 'title' => 'Announcement access', 'name' => 'announcement_access'],
+            ['module' => 'announcement', 'title' => 'Announcement view', 'name' => 'announcement_view'],
+            ['module' => 'announcement', 'title' => 'Announcement create', 'name' => 'announcement_create'],
+            ['module' => 'announcement', 'title' => 'Announcement edit', 'name' => 'announcement_edit'],
+            ['module' => 'announcement', 'title' => 'Announcement delete', 'name' => 'announcement_delete'],
+        ];
+
+        // run this command to seed the data => php artisan db:seed --class=PermissionSeeders
+        Permission::insert($data);
     }
 }

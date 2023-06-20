@@ -1,389 +1,691 @@
 <template>
-  <div v-if="can('employee_edit')">
-    <div v-if="!preloader">
-      <div class="text-center ma-2">
-        <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
-          {{ response }}
-        </v-snackbar>
-      </div>
-      <v-row class="mt-5 mb-10">
-        <v-col cols="10">
-          <h3>{{ Model }}</h3>
-          <div>Dashboard / {{ Model }} / Edit</div>
-        </v-col>
+  <div v-if="!preloader">
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+        {{ response }}
+      </v-snackbar>
+    </div>
+    <v-row class="mt-5 mb-10">
+      <v-col cols="10">
+        <h3>{{ Model }}</h3>
+        <div>Dashboard / {{ Model }} / Edit</div>
+      </v-col>
 
-        <v-col cols="2">
-          <div class="display-1 pa-2 text-right">
-            <v-btn small class="primary" :to="`/employees`">
-              <v-icon small>mdi-arrow-left</v-icon>&nbsp;Back
-            </v-btn>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-card>
-            <v-tabs color="primary">
-              <v-tab>
-                <v-icon left> mdi-account </v-icon>
-              </v-tab>
-              <v-tab>
-                <v-icon left> mdi-phone </v-icon>
-              </v-tab>
-              <v-tab>
-                <v-icon left> mdi-chart-bubble </v-icon>
-              </v-tab>
+      <v-col cols="2">
+        <div class="display-1 pa-2 text-right">
+          <v-btn small class="primary" :to="`/employees`">
+            <v-icon small>mdi-arrow-left</v-icon>&nbsp;Back
+          </v-btn>
+        </div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-card>
+          <v-tabs color="primary">
+            <v-tab>
+              <v-icon left> mdi-account </v-icon>
+            </v-tab>
+            <v-tab>
+              <v-icon left> mdi-phone </v-icon>
+            </v-tab>
+            <v-tab>
+              <v-icon left> mdi-chart-bubble </v-icon>
+            </v-tab>
 
-              <v-tab-item>
-                <v-card flat>
-                  <v-card-text>
-                    <v-row dense>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Title <span class="text-danger">*</span></label>
-                        <v-select v-model="payload.title" :items="titleItems" :hide-details="!errors.title"
-                          :error="errors.title" :error-messages="errors && errors.title ? errors.title[0] : ''
-                            " dense outlined></v-select>
-                      </v-col>
+            <v-tab-item>
+              <v-card flat>
+                <v-card-text>
+                  <v-row dense>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Title <span class="text-danger">*</span></label
+                      >
+                      <v-select
+                        v-model="payload.title"
+                        :items="titleItems"
+                        :hide-details="!errors.title"
+                        :error="errors.title"
+                        :error-messages="
+                          errors && errors.title ? errors.title[0] : ''
+                        "
+                        dense
+                        outlined
+                      ></v-select>
+                    </v-col>
 
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">File No <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="text" :hide-details="!errors.file_no" v-model="payload.file_no"
-                          :error="errors.file_no" :error-messages="errors && errors.file_no ? errors.file_no[0] : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="4" sm="12" cols="12" dense>
-                        <label class="col-form-label">Display Name
-                          <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined :hide-details="!errors.display_name" type="text"
-                          v-model="payload.display_name" :error="errors.display_name" :error-messages="errors && errors.display_name
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >File No <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        :hide-details="!errors.file_no"
+                        v-model="payload.file_no"
+                        :error="errors.file_no"
+                        :error-messages="
+                          errors && errors.file_no ? errors.file_no[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="4" sm="12" cols="12" dense>
+                      <label class="col-form-label"
+                        >Display Name <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        :hide-details="!errors.display_name"
+                        type="text"
+                        v-model="payload.display_name"
+                        :error="errors.display_name"
+                        :error-messages="
+                          errors && errors.display_name
                             ? errors.display_name[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="4" cols="12" sm="12" dense>
-                        <label class="col-form-label">First Name <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="text" v-model="payload.first_name"
-                          :hide-details="!errors.first_name" :error="errors.first_name" :error-messages="errors && errors.first_name
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="4" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >First Name <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="payload.first_name"
+                        :hide-details="!errors.first_name"
+                        :error="errors.first_name"
+                        :error-messages="
+                          errors && errors.first_name
                             ? errors.first_name[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="4" cols="12" sm="12" dense>
-                        <label class="col-form-label">Last Name <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="text" autocomplete="off" v-model="payload.last_name"
-                          :hide-details="!errors.last_name" :error="errors.last_name" :error-messages="errors && errors.last_name
-                            ? errors.last_name[0]
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="4" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Last Name <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        autocomplete="off"
+                        v-model="payload.last_name"
+                        :hide-details="!errors.last_name"
+                        :error="errors.last_name"
+                        :error-messages="
+                          errors && errors.last_name ? errors.last_name[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+
+                    <v-col md="6" sm="12" cols="12" dense>
+                      <label class="col-form-label"
+                        >Password <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        :hide-details="!errors.password"
+                        :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="show_password ? 'text' : 'password'"
+                        v-model="payload.password"
+                        class="input-group--focused"
+                        @click:append="show_password = !show_password"
+                        :error="errors.password"
+                        :error-messages="
+                          errors && errors.password ? errors.password[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+
+                    <v-col md="6" sm="12" cols="12" dense>
+                      <label class="col-form-label"
+                        >Confirm Password
+                        <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        :hide-details="!errors.password_confirmation"
+                        :append-icon="
+                          show_password_confirm ? 'mdi-eye' : 'mdi-eye-off'
+                        "
+                        :type="show_password_confirm ? 'text' : 'password'"
+                        v-model="payload.password_confirmation"
+                        class="input-group--focused"
+                        @click:append="
+                          show_password_confirm = !show_password_confirm
+                        "
+                        :error="errors.show_password_confirm"
+                        :error-messages="
+                          errors && errors.show_password_confirm
+                            ? errors.show_password_confirm[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Email <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        readonly
+                        outlined
+                        type="text"
+                        v-model="payload.email"
+                        :hide-details="!errors.email"
+                        :error="errors.email"
+                        :error-messages="
+                          errors && errors.email ? errors.email[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Roles <span class="text-danger">*</span></label
+                      >
+                      <v-select
+                        dense
+                        outlined
+                        :rules="Rules"
+                        v-model="payload.role_id"
+                        :items="roles"
+                        item-value="id"
+                        item-text="name"
+                        :hide-details="!errors.role_id"
+                        :error="errors.role_id"
+                        :error-messages="
+                          errors && errors.role_id ? errors.role_id[0] : ''
+                        "
+                      ></v-select>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <div col="6" md="6" style="display: none">
+                      <div class="col-sm-3 pt-5">
+                        <div class="form-group">
+                          <label class="col-form-label">Profile Picture</label>
 
-                      <v-col md="6" sm="12" cols="12" dense>
-                        <label class="col-form-label">Password <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined :hide-details="!errors.password" :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'
-                          " :type="show_password ? 'text' : 'password'" v-model="payload.password"
-                          class="input-group--focused" @click:append="show_password = !show_password"
-                          :error="errors.password" :error-messages="errors && errors.password ? errors.password[0] : ''
-                            "></v-text-field>
-                      </v-col>
+                          <v-img
+                            style="
+                              border-radius: 50%;
+                              height: 120px;
+                              width: 35%;
+                              margin: 0 auto;
+                            "
+                            :src="
+                              previewImage ||
+                              payload.profile_picture ||
+                              '/no-profile-image.jpg'
+                            "
+                          ></v-img>
 
-                      <v-col md="6" sm="12" cols="12" dense>
-                        <label class="col-form-label">Confirm Password
-                          <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined :hide-details="!errors.password_confirmation" :append-icon="show_password_confirm ? 'mdi-eye' : 'mdi-eye-off'
-                          " :type="show_password_confirm ? 'text' : 'password'" v-model="payload.password_confirmation"
-                          class="input-group--focused" @click:append="
-                            show_password_confirm = !show_password_confirm
-                            " :error="errors.show_password_confirm" :error-messages="errors && errors.show_password_confirm
-    ? errors.show_password_confirm[0]
-    : ''
-    "></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Email <span class="text-danger">*</span></label>
-                        <v-text-field dense readonly outlined type="text" v-model="payload.email"
-                          :hide-details="!errors.email" :error="errors.email" :error-messages="errors && errors.email ? errors.email[0] : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Roles <span class="text-danger">*</span></label>
-                        <v-select dense outlined :rules="Rules" v-model="payload.role_id" :items="roles" item-value="id"
-                          item-text="name" :hide-details="!errors.role_id" :error="errors.role_id" :error-messages="errors && errors.role_id ? errors.role_id[0] : ''
-                            "></v-select>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <div col="6" md="6" style="display: none">
-                        <div class="col-sm-3 pt-5">
-                          <div class="form-group">
-                            <label class="col-form-label">Profile Picture</label>
-
-                            <v-img style="
-                                border-radius: 50%;
-                                height: 120px;
-                                width: 35%;
-                                margin: 0 auto;
-                              " :src="previewImage ||
-                                payload.profile_picture ||
-                                '/no-profile-image.jpg'
-                                "></v-img>
-
-                            <br />
-                            <v-btn text small class="form-control primary" @click="onpick_attachment">{{
-                              !upload.name
-                              ? "Profile Picture"
-                              : "File Uploaded"
+                          <br />
+                          <v-btn
+                            text
+                            small
+                            class="form-control primary"
+                            @click="onpick_attachment"
+                            >{{
+                              !upload.name ? "Profile Picture" : "File Uploaded"
                             }}
-                              <v-icon right dark>mdi-cloud-upload</v-icon>
-                            </v-btn>
-
-                            <input required type="file" @change="attachment" style="display: none" accept="image/*"
-                              ref="attachment_input" />
-
-                            <span v-if="errors && errors.profile_picture" class="text-danger mt-2">{{
-                              errors.profile_picture[0] }}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div col="6" md="6">
-                        <div class="col-sm-3 pt-5">
-                          <div class="form-group">
-                            <label class="col-form-label">Profile Picture</label>
-
-                            <v-img style="
-                                border-radius: 50%;
-                                height: 120px;
-                                width: 35%;
-                                margin: 0 auto;
-                              " :src="image_name ||
-                                payload.profile_picture ||
-                                '/no-profile-image.jpg'
-                                "></v-img>
-
-                            <br />
-                            <v-btn text small class="form-control primary" @click="$refs.FileInput.click()">{{
-                              !upload.name
-                              ? "Profile Picture"
-                              : "File Uploaded"
-                            }}
-                              <v-icon right dark>mdi-cloud-upload</v-icon>
-                            </v-btn>
-
-                            <input ref="FileInput" type="file" accept="image/jpeg, image/png" style="display: none"
-                              @change="onFileSelect" />
-                            <span v-if="errors && errors.profile_picture" class="text-danger mt-2">{{
-                              errors.profile_picture[0] }}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div col="6" md="6">
-                        <div>
-                          <v-dialog v-model="dialog" width="500">
-                            <v-card style="padding-top: 20px">
-                              <v-card-text>
-                                <!-- <img :src="imageUrl" alt="Preview Image" /> -->
-                                <VueCropper v-show="selectedFile" ref="cropper" :src="selectedFile" alt="Source Image"
-                                  :aspectRatio="1" :autoCropArea="0.9" :viewMode="3"></VueCropper>
-
-                                <!-- <div class="cropper-preview"></div> -->
-                              </v-card-text>
-
-                              <v-card-actions>
-                                <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
-                                  <v-btn class="danger btn btn-danger text-left" text @click="closePopup()"
-                                    style="float: left">Cancel</v-btn>
-                                </div>
-                                <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
-                                  <v-btn class="primary btn btn-danger text-right"
-                                    @click="saveImage(), (dialog = false)">Crop</v-btn>
-                                </div>
-                              </v-card-actions>
-                            </v-card>
-                          </v-dialog>
-                        </div>
-                      </div>
-                    </v-row>
-                    <v-row>
-                      <v-col cols="12">
-                        <div class="text-right">
-                          <v-btn v-if="can('employee_edit')" small :loading="loading" color="primary"
-                            @click="update_employee">
-                            Submit
+                            <v-icon right dark>mdi-cloud-upload</v-icon>
                           </v-btn>
-                        </div>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-tab-item>
 
-              <v-tab-item>
-                <v-card flat>
-                  <v-card-text>
-                    <v-row dense>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Phone Number
-                          <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="number" v-model="contact.phone_number"
-                          :hide-details="!errors.phone_number" :error="errors.phone_number" :error-messages="errors && errors.phone_number
+                          <input
+                            required
+                            type="file"
+                            @change="attachment"
+                            style="display: none"
+                            accept="image/*"
+                            ref="attachment_input"
+                          />
+
+                          <span
+                            v-if="errors && errors.profile_picture"
+                            class="text-danger mt-2"
+                            >{{ errors.profile_picture[0] }}</span
+                          >
+                        </div>
+                      </div>
+                    </div>
+                    <div col="6" md="6">
+                      <div class="col-sm-3 pt-5">
+                        <div class="form-group">
+                          <label class="col-form-label">Profile Picture</label>
+
+                          <v-img
+                            style="
+                              border-radius: 50%;
+                              height: 120px;
+                              width: 35%;
+                              margin: 0 auto;
+                            "
+                            :src="
+                              image_name ||
+                              payload.profile_picture ||
+                              '/no-profile-image.jpg'
+                            "
+                          ></v-img>
+
+                          <br />
+                          <v-btn
+                            text
+                            small
+                            class="form-control primary"
+                            @click="$refs.FileInput.click()"
+                            >{{
+                              !upload.name ? "Profile Picture" : "File Uploaded"
+                            }}
+                            <v-icon right dark>mdi-cloud-upload</v-icon>
+                          </v-btn>
+
+                          <input
+                            ref="FileInput"
+                            type="file"
+                            accept="image/jpeg, image/png"
+                            style="display: none"
+                            @change="onFileSelect"
+                          />
+                          <span
+                            v-if="errors && errors.profile_picture"
+                            class="text-danger mt-2"
+                            >{{ errors.profile_picture[0] }}</span
+                          >
+                        </div>
+                      </div>
+                    </div>
+
+                    <div col="6" md="6">
+                      <div>
+                        <v-dialog v-model="dialog" width="500">
+                          <v-card style="padding-top: 20px">
+                            <v-card-text>
+                              <!-- <img :src="imageUrl" alt="Preview Image" /> -->
+                              <VueCropper
+                                v-show="selectedFile"
+                                ref="cropper"
+                                :src="selectedFile"
+                                alt="Source Image"
+                                :aspectRatio="1"
+                                :autoCropArea="0.9"
+                                :viewMode="3"
+                              ></VueCropper>
+
+                              <!-- <div class="cropper-preview"></div> -->
+                            </v-card-text>
+
+                            <v-card-actions>
+                              <div
+                                col="6"
+                                md="6"
+                                class="col-sm-12 col-md-6 col-12 pull-left"
+                              >
+                                <v-btn
+                                  class="danger btn btn-danger text-left"
+                                  text
+                                  @click="closePopup()"
+                                  style="float: left"
+                                  >Cancel</v-btn
+                                >
+                              </div>
+                              <div
+                                col="6"
+                                md="6"
+                                class="col-sm-12 col-md-6 col-12 text-right"
+                              >
+                                <v-btn
+                                  class="primary btn btn-danger text-right"
+                                  @click="saveImage(), (dialog = false)"
+                                  >Crop</v-btn
+                                >
+                              </div>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </div>
+                    </div>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="12">
+                      <div class="text-right">
+                        <v-btn
+                          v-if="can('employee_edit')"
+                          small
+                          :loading="loading"
+                          color="primary"
+                          @click="update_employee"
+                        >
+                          Submit
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+
+            <v-tab-item>
+              <v-card flat>
+                <v-card-text>
+                  <v-row dense>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Phone Number <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="number"
+                        v-model="contact.phone_number"
+                        :hide-details="!errors.phone_number"
+                        :error="errors.phone_number"
+                        :error-messages="
+                          errors && errors.phone_number
                             ? errors.phone_number[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Whatsapp Number
-                          <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="number" v-model="contact.whatsapp_number"
-                          :hide-details="!errors.whatsapp_number" :error="errors.whatsapp_number" :error-messages="errors && errors.whatsapp_number
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Whatsapp Number
+                        <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="number"
+                        v-model="contact.whatsapp_number"
+                        :hide-details="!errors.whatsapp_number"
+                        :error="errors.whatsapp_number"
+                        :error-messages="
+                          errors && errors.whatsapp_number
                             ? errors.whatsapp_number[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Relative Number
-                          <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="number" v-model="contact.phone_relative_number"
-                          :hide-details="!errors.phone_relative_number" :error="errors.phone_relative_number"
-                          :error-messages="errors && errors.phone_relative_number
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Relative Number
+                        <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="number"
+                        v-model="contact.phone_relative_number"
+                        :hide-details="!errors.phone_relative_number"
+                        :error="errors.phone_relative_number"
+                        :error-messages="
+                          errors && errors.phone_relative_number
                             ? errors.phone_relative_number[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Relation <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="text" v-model="contact.relation"
-                          :hide-details="!errors.relation" :error="errors.relation" :error-messages="errors && errors.relation ? errors.relation[0] : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">City </label>
-                        <v-text-field dense outlined type="text" v-model="contact.local_city"
-                          :hide-details="!errors.local_city" :error="errors.city" :error-messages="errors && errors.local_city
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Relation <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="contact.relation"
+                        :hide-details="!errors.relation"
+                        :error="errors.relation"
+                        :error-messages="
+                          errors && errors.relation ? errors.relation[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label">City </label>
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="contact.local_city"
+                        :hide-details="!errors.local_city"
+                        :error="errors.city"
+                        :error-messages="
+                          errors && errors.local_city
                             ? errors.local_city[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
+                        "
+                      ></v-text-field>
+                    </v-col>
 
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Country</label>
-                        <v-text-field dense outlined type="text" v-model="contact.local_country"
-                          :hide-details="!errors.local_country" :error="errors.local_country" :error-messages="errors && errors.local_country
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label">Country</label>
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="contact.local_country"
+                        :hide-details="!errors.local_country"
+                        :error="errors.local_country"
+                        :error-messages="
+                          errors && errors.local_country
                             ? errors.local_country[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="12" cols="12" sm="12" dense>
-                        <label class="col-form-label">Address</label>
-                        <v-textarea dense outlined type="text" :hide-details="!errors.local_address"
-                          v-model="contact.local_address" class="input-group--focused"></v-textarea>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col cols="12">
-                        <div class="text-right">
-                          <v-btn v-if="can('employee_edit')" small :loading="loading" color="primary"
-                            @click="update_contact">
-                            Submit
-                          </v-btn>
-                        </div>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-tab-item>
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="12" cols="12" sm="12" dense>
+                      <label class="col-form-label">Address</label>
+                      <v-textarea
+                        dense
+                        outlined
+                        type="text"
+                        :hide-details="!errors.local_address"
+                        v-model="contact.local_address"
+                        class="input-group--focused"
+                      ></v-textarea>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="12">
+                      <div class="text-right">
+                        <v-btn
+                          v-if="can('employee_edit')"
+                          small
+                          :loading="loading"
+                          color="primary"
+                          @click="update_contact"
+                        >
+                          Submit
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
 
-              <v-tab-item>
-                <v-card flat>
-                  <v-card-text>
-                    <v-row dense>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Employee Id <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="text" v-model="other.employee_id"
-                          :hide-details="!errors.employee_id" :error="errors.employee_id" :error-messages="errors && errors.employee_id
+            <v-tab-item>
+              <v-card flat>
+                <v-card-text>
+                  <v-row dense>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Employee Id <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="other.employee_id"
+                        :hide-details="!errors.employee_id"
+                        :error="errors.employee_id"
+                        :error-messages="
+                          errors && errors.employee_id
                             ? errors.employee_id[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Employee Device Id
-                          <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="text" v-model="other.system_user_id"
-                          :hide-details="!errors.system_user_id" :error="errors.system_user_id" :error-messages="errors && errors.system_user_id
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Employee Device Id
+                        <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="other.system_user_id"
+                        :hide-details="!errors.system_user_id"
+                        :error="errors.system_user_id"
+                        :error-messages="
+                          errors && errors.system_user_id
                             ? errors.system_user_id[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Joining Date
-                          <span class="text-danger">*</span></label>
-                        <v-text-field dense outlined type="date" v-model="other.joining_date"
-                          :hide-details="!errors.joining_date" :error="errors.joining_date" :error-messages="errors && errors.joining_date
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Joining Date <span class="text-danger">*</span></label
+                      >
+                      <v-text-field
+                        dense
+                        outlined
+                        type="date"
+                        v-model="other.joining_date"
+                        :hide-details="!errors.joining_date"
+                        :error="errors.joining_date"
+                        :error-messages="
+                          errors && errors.joining_date
                             ? errors.joining_date[0]
                             : ''
-                            "></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Department <span class="text-danger">*</span></label>
-                        <v-select v-model="other.department_id" @change="getMultiple(other.department_id)"
-                          :items="departments" dense item-text="name" item-value="id" outlined
-                          :hide-details="!errors.department_id" :error="errors.department_id" :error-messages="errors && errors.department_id
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Department <span class="text-danger">*</span></label
+                      >
+                      <v-select
+                        v-model="other.department_id"
+                        @change="getMultiple(other.department_id)"
+                        :items="departments"
+                        dense
+                        item-text="name"
+                        item-value="id"
+                        outlined
+                        :hide-details="!errors.department_id"
+                        :error="errors.department_id"
+                        :error-messages="
+                          errors && errors.department_id
                             ? errors.department_id[0]
                             : ''
-                            "></v-select>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Designation <span class="text-danger">*</span></label>
-                        <v-select v-model="other.designation_id" :items="designations" dense item-text="name"
-                          item-value="id" outlined :hide-details="!errors.designation_id" :error="errors.designation_id"
-                          :error-messages="errors && errors.designation_id
+                        "
+                      ></v-select>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >Designation <span class="text-danger">*</span></label
+                      >
+                      <v-select
+                        v-model="other.designation_id"
+                        :items="designations"
+                        dense
+                        item-text="name"
+                        item-value="id"
+                        outlined
+                        :hide-details="!errors.designation_id"
+                        :error="errors.designation_id"
+                        :error-messages="
+                          errors && errors.designation_id
                             ? errors.designation_id[0]
                             : ''
-                            "></v-select>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">sub Departments
-                          <span class="text-danger">*</span></label>
-                        <v-select v-model="other.sub_department_id" :items="subDepartments" dense item-text="name"
-                          item-value="id" outlined :hide-details="!errors.sub_department_id"
-                          :error="errors.sub_department_id" :error-messages="errors && errors.sub_department_id
+                        "
+                      ></v-select>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label"
+                        >sub Departments
+                        <span class="text-danger">*</span></label
+                      >
+                      <v-select
+                        v-model="other.sub_department_id"
+                        :items="subDepartments"
+                        dense
+                        item-text="name"
+                        item-value="id"
+                        outlined
+                        :hide-details="!errors.sub_department_id"
+                        :error="errors.sub_department_id"
+                        :error-messages="
+                          errors && errors.sub_department_id
                             ? errors.sub_department_id[0]
                             : ''
-                            "></v-select>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Type </label>
-                        <v-select v-model="other.type" :items="['limit', 'test']" dense outlined
-                          :hide-details="!errors.type" :error="errors.type" :error-messages="errors && errors.type ? errors.type[0] : ''
-                            "></v-select>
-                      </v-col>
-                      <v-col md="6" cols="12" sm="12" dense>
-                        <label class="col-form-label">Grade </label>
-                        <v-select v-model="other.grade" :items="['A', 'B', 'C']" dense outlined
-                          :hide-details="!errors.grade" :error="errors.grade" :error-messages="errors && errors.grade ? errors.grade[0] : ''
-                            "></v-select>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col cols="12">
-                        <div class="text-right">
-                          <v-btn v-if="can('employee_edit')" small :loading="loading" color="primary"
-                            @click="update_other">
-                            Submit
-                          </v-btn>
-                        </div>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-tab-item>
-            </v-tabs>
-          </v-card>
-        </v-col>
-      </v-row>
-    </div>
-    <Preloader v-else />
+                        "
+                      ></v-select>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label">Type </label>
+                      <v-select
+                        v-model="other.type"
+                        :items="['limit', 'test']"
+                        dense
+                        outlined
+                        :hide-details="!errors.type"
+                        :error="errors.type"
+                        :error-messages="
+                          errors && errors.type ? errors.type[0] : ''
+                        "
+                      ></v-select>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label class="col-form-label">Grade </label>
+                      <v-select
+                        v-model="other.grade"
+                        :items="['A', 'B', 'C']"
+                        dense
+                        outlined
+                        :hide-details="!errors.grade"
+                        :error="errors.grade"
+                        :error-messages="
+                          errors && errors.grade ? errors.grade[0] : ''
+                        "
+                      ></v-select>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="12">
+                      <div class="text-right">
+                        <v-btn
+                          v-if="can('employee_edit')"
+                          small
+                          :loading="loading"
+                          color="primary"
+                          @click="update_other"
+                        >
+                          Submit
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+          </v-tabs>
+        </v-card>
+      </v-col>
+    </v-row>
   </div>
-  <NoAccess v-else />
+  <Preloader v-else />
 </template>
 
 <script>
@@ -485,7 +787,6 @@ export default {
     },
   },
   mounted: function () {
-
     this.$nextTick(function () {
       setTimeout(() => {
         // const cropper = this.$refs.cropper.$cropper;
@@ -528,7 +829,6 @@ export default {
       if (!file) return;
       this.mime_type = file.type;
 
-
       if (!this.uploadFilesizevalidation(e.target.files)) return false;
 
       if (typeof FileReader === "function") {
@@ -544,9 +844,7 @@ export default {
       }
     },
 
-    handleUploaded(event) {
-
-    },
+    handleUploaded(event) {},
 
     getRoles() {
       let options = {
@@ -722,7 +1020,6 @@ export default {
       if (this.$refs.attachment_input.files[0]) {
         file = this.$refs.attachment_input.files[0];
       } else if (this.$refs.FileInput.files[0]) {
-
         file = this.$refs.FileInput.files[0];
         this.$refs.attachment_input = this.$refs.FileInput;
         // Convert the cropped canvas to a Blob
@@ -739,7 +1036,6 @@ export default {
       }
     },
     updateToserver(file, payload) {
-
       // if (!file) {
       //   e.preventDefault();
       //   alert("No file chosen");

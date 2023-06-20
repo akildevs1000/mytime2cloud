@@ -69,6 +69,11 @@ class Employee extends Model
         return $this->hasOne(Payroll::class);
     }
 
+    public function passport()
+    {
+        return $this->hasOne(Passport::class);
+    }
+
     public function department()
     {
         return $this->belongsTo(Department::class)->withDefault([

@@ -149,7 +149,7 @@ class EmployeeController extends Controller
     public function index(Employee $employee, Request $request)
     {
         $data = $employee
-            ->with(["reportTo", "user", "role", "schedule", "department", "sub_department", "designation", "payroll", "timezone"])
+            ->with(["reportTo", "user", "role", "schedule", "department", "sub_department", "designation", "payroll", "timezone","passport"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
                 $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));

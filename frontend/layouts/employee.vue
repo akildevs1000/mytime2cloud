@@ -1,35 +1,65 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" dark :mini-variant="miniVariant" :clipped="clipped" fixed app
-      :color="sideBarcolor" :style="miniVariant ? 'width: 60px' : ''" @transitionend="collapseSubItems">
+    <v-navigation-drawer
+      v-model="drawer"
+      dark
+      :mini-variant="miniVariant"
+      :clipped="clipped"
+      fixed
+      app
+      :color="sideBarcolor"
+      :style="miniVariant ? 'width: 60px' : ''"
+      @transitionend="collapseSubItems"
+    >
       <br />
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
-        <v-list-item :to="i.to" router v-if="!i.hasChildren" :class="!miniVariant || 'pl-2'">
+        <v-list-item
+          :to="i.to"
+          router
+          v-if="!i.hasChildren"
+          :class="!miniVariant || 'pl-2'"
+        >
           <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-title> {{ i.title }}&nbsp; </v-list-item-title>
         </v-list-item>
-        <v-list-item v-else :class="!miniVariant || 'pl-2'" @click="i.open_menu = !i.open_menu">
+        <v-list-item
+          v-else
+          :class="!miniVariant || 'pl-2'"
+          @click="i.open_menu = !i.open_menu"
+        >
           <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
-            <v-icon v-if="miniVariant" small>{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+            <v-icon v-if="miniVariant" small
+              >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
             </v-icon>
           </v-list-item-icon>
 
           <v-list-item-title>{{ i.title }} </v-list-item-title>
-          <v-icon small>{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+          <v-icon small
+            >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
           </v-icon>
         </v-list-item>
         <div v-if="i.open_menu">
-          <div style="margin-left: 54px" v-for="(j, jdx) in i.hasChildren" :key="jdx">
+          <div
+            style="margin-left: 54px"
+            v-for="(j, jdx) in i.hasChildren"
+            :key="jdx"
+          >
             <!-- v-show="!miniVariant" -->
             <v-list-item style="min-height: 0" :to="j.to" class="submenutitle">
-              <v-list-item-title v-if="!miniVariant">{{ j.title }}
+              <v-list-item-title v-if="!miniVariant"
+                >{{ j.title }}
               </v-list-item-title>
 
-              <v-list-item-icon :style="miniVariant ? 'margin-left: -54px;' : ''">
-                <v-icon :to="j.to" :style="miniVariant ? 'margin-left: 12px;' : ''">
+              <v-list-item-icon
+                :style="miniVariant ? 'margin-left: -54px;' : ''"
+              >
+                <v-icon
+                  :to="j.to"
+                  :style="miniVariant ? 'margin-left: 12px;' : ''"
+                >
                   {{ j.icon }}
                 </v-icon>
               </v-list-item-icon>
@@ -43,8 +73,14 @@
     margin-left: -49px;
 " -->
 
-    <v-app-bar :color="changeColor" dark :clipped-left="clipped" fixed app
-      :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''">
+    <v-app-bar
+      :color="changeColor"
+      dark
+      :clipped-left="clipped"
+      fixed
+      app
+      :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''"
+    >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
@@ -55,8 +91,15 @@
       {{ title }}
       <v-spacer></v-spacer>
 
-      <v-menu nudge-bottom="50" transition="scale-transition" origin="center center" bottom left min-width="200"
-        nudge-left="20">
+      <v-menu
+        nudge-bottom="50"
+        transition="scale-transition"
+        origin="center center"
+        bottom
+        left
+        min-width="200"
+        nudge-left="20"
+      >
         <template v-slot:activator="{ on, attrs }">
           <label class="px-2" v-bind="attrs" v-on="on">
             {{ getUser }}
@@ -71,21 +114,14 @@
 
         <v-list light nav dense>
           <v-list-item-group color="primary">
-            <v-list-item @click="goToCompany()">
+            <v-list-item @click="goToProfile()">
               <v-list-item-icon>
-                <v-icon>mdi-account-multiple-outline</v-icon>
+                <v-icon>mdi-account-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text">Profile</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item @click="goToSetting()">
-              <v-list-item-icon>
-                <v-icon>mdi-cog</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title class="black--text">Setting</v-list-item-title>
+                <v-list-item-title class="black--text"
+                  >Profile</v-list-item-title
+                >
               </v-list-item-content>
             </v-list-item>
 
@@ -94,7 +130,9 @@
                 <v-icon>mdi-logout</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text">Logout</v-list-item-title>
+                <v-list-item-title class="black--text"
+                  >Logout</v-list-item-title
+                >
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -107,12 +145,24 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-btn height="50" width="20" dark :color="changeColor" class="fixed-setting"
-      @click.stop="rightDrawer = !rightDrawer">
+    <v-btn
+      height="50"
+      width="20"
+      dark
+      :color="changeColor"
+      class="fixed-setting"
+      @click.stop="rightDrawer = !rightDrawer"
+    >
       <v-icon class="spin" dark size="25">mdi-cog</v-icon>
     </v-btn>
     <!-- setting -->
-    <v-navigation-drawer v-model="rightDrawer" :clipped="true" :right="right" fixed style="z-index: 1000">
+    <v-navigation-drawer
+      v-model="rightDrawer"
+      :clipped="true"
+      :right="right"
+      fixed
+      style="z-index: 1000"
+    >
       <v-row style="margin-top: 50px">
         <v-col>
           <v-card class="pa-2" elevation="0">
@@ -120,12 +170,30 @@
               <div class="mb-3">
                 <Strong>Theme</Strong>
               </div>
-              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                <input type="radio" class="btn-check" name="theme" id="light" autocomplete="off"
-                  @click="changeTheme('light')" />
-                <label class="btn" :class="'btn-outline-dark'" for="light">Light</label>
-                <input type="radio" class="btn-check" name="theme" id="dark" autocomplete="off"
-                  @click="changeTheme('dark')" />
+              <div
+                class="btn-group"
+                role="group"
+                aria-label="Basic radio toggle button group"
+              >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="theme"
+                  id="light"
+                  autocomplete="off"
+                  @click="changeTheme('light')"
+                />
+                <label class="btn" :class="'btn-outline-dark'" for="light"
+                  >Light</label
+                >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="theme"
+                  id="dark"
+                  autocomplete="off"
+                  @click="changeTheme('dark')"
+                />
                 <label class="btn btn-outline-dark" for="dark">Dark</label>
               </div>
             </v-col>
@@ -135,14 +203,38 @@
                 <Strong>Top Bar</Strong>
               </div>
               <div class="d-flex">
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="primary"
-                  @click="changeTopBarColor('primary')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="error"
-                  @click="changeTopBarColor('error')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="indigo"
-                  @click="changeTopBarColor('indigo')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="background"
-                  @click="changeTopBarColor('background')"></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="primary"
+                  @click="changeTopBarColor('primary')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="error"
+                  @click="changeTopBarColor('error')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="indigo"
+                  @click="changeTopBarColor('indigo')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="background"
+                  @click="changeTopBarColor('background')"
+                ></v-btn>
               </div>
             </v-col>
             <v-divider></v-divider>
@@ -151,14 +243,38 @@
                 <Strong>Side Bar</Strong>
               </div>
               <div class="d-flex">
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="primary"
-                  @click="changeSideBarColor('primary')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="error"
-                  @click="changeSideBarColor('error')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="indigo"
-                  @click="changeSideBarColor('indigo')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="background"
-                  @click="changeSideBarColor('background')">
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="primary"
+                  @click="changeSideBarColor('primary')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="error"
+                  @click="changeSideBarColor('error')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="indigo"
+                  @click="changeSideBarColor('indigo')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="background"
+                  @click="changeSideBarColor('background')"
+                >
                 </v-btn>
               </div>
             </v-col>
@@ -192,188 +308,17 @@ export default {
           to: "/",
           menu: "dashboard_access",
         },
-
         {
-          icon: "mdi-account-tie",
-          title: "Employees",
-          to: "/employees",
-          menu: "employee_access",
-        },
-
-
-        {
-          icon: "mdi-cash-multiple",
-          title: `Payroll`,
-          open_menu: false,
-          menu: "payroll_access",
-          hasChildren: [
-            // {
-            //   icon: "mdi-cash-multiple ",
-            //   title: "Generate Month",
-            //   to: "/payroll/month",
-            //   menu:("payroll_generate_month_access")
-            // },
-
-            // {
-            //   icon: "mdi-cash-multiple ",
-            //   title: "Generate Payroll",
-            //   to: "/employees",
-            //   menu:("employee_schedule_access")
-            // },
-            {
-              icon: "mdi-cash",
-              title: "Salary",
-              to: "/payroll/salary",
-              menu: "payroll_generate_access",
-            },
-            {
-              icon: "mdi mdi-calculator",
-              title: "Payroll Settings",
-              to: "/payroll/create",
-              menu: "payroll_generate_access",
-            },
-          ],
-        },
-
-        {
-          icon: "mdi-calendar-today",
-          title: `Reports`,
-          open_menu: false,
-          menu: "payroll_access",
-          hasChildren: [
-            {
-              icon: "mdi-chart-box-outline",
-              title: "Attendance Report",
-              to: "/attendance_report",
-              menu: "payroll_access",
-            },
-
-            {
-              icon: "mdi-clock",
-              title: "Shifts",
-              to: "/shift",
-              menu: "shift_access",
-            },
-            {
-              icon: "mdi mdi-calendar-clock",
-              title: "Schedule",
-              to: "/schedule",
-              menu: "schedule_access",
-            },
-            {
-              icon: "mdi-account-tie",
-              title: "Employee Schedule",
-              to: "/employee_schedule",
-              menu: "employee_schedule_access",
-            },
-          ],
-        },
-        {
-          icon: "mdi-calendar-today",
-          title: `Access Control`,
-          open_menu: false,
-          menu: "access",
-          hasChildren: [
-            {
-              icon: "mdi mdi-clock-time-four-outline",
-              title: "Timezones",
-              to: "/timezone",
-              menu: "timezone",
-            },
-            {
-              icon: "mdi mdi-credit-card-clock-outline",
-              title: "TImezone Mapped List",
-              to: "/timezonemapping/list",
-              menu: "timezone_mapping_list",
-            },
-            {
-              icon: "mdi mdi-camera-account",
-              title: "Employee Photo Upload",
-              to: "/employee_photo_upload",
-              menu: "employee_photo_upload",
-            },
-          ],
+          icon: "mdi-account-outline",
+          title: "Profile",
+          to: "/employees/profile",
+          menu: "employee_payroll_access",
         },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Attendances Logs",
-          to: "/logs",
+          to: "/employees/logs",
           menu: "logs_access",
-        },
-        {
-          icon: "mdi-email",
-          title: "Notification",
-          to: "/report_notifications",
-          menu: "notifications_access",
-        },
-        {
-          icon: "mdi-cog",
-          title: `Settings`,
-          open_menu: false,
-          menu: "company_access",
-          hasChildren: [
-            {
-              icon: "mdi mdi-card-account-details",
-              title: "Profile",
-              to: `/companies/${this.$auth.user?.company?.id}`,
-              menu: "setting_access",
-              class: "submenutitle",
-            },
-
-            {
-              icon: "mdi mdi-account-check-outline",
-              title: "Roles",
-              to: "/role",
-              menu: "role_access",
-            },
-            {
-              icon: "mdi mdi-account-details",
-              title: "Assign Permissions",
-              to: "/assign_permission",
-              menu: "assign_permission_access",
-            },
-            {
-              icon: "mdi-cellphone-text",
-              title: "Devices List",
-              to: "/device",
-              menu: "device_access",
-            },
-            // {
-            //   icon: "mdi-badge-account-outline",
-            //   title: "Upload Users",
-            //   to: "/device_management",
-            //   menu: "device_management",
-            // },
-
-            // {
-            //   icon: "mdi mdi-clock-plus-outline",
-            //   title: "Create New",
-            //   to: "/timezonemapping/new",
-            //   menu: "timezone_mapping_list",
-            // },
-          ],
-        },
-
-        {
-          icon: "mdi-briefcase-outline",
-          title: `Organization`,
-          open_menu: false,
-          menu: "company_access",
-          hasChildren: [
-            {
-              icon: "mdi-lan",
-              title: "Departments",
-              to: "/department",
-              menu: "department_access",
-            },
-
-            {
-              icon: "mdi-account-details ",
-              title: "Designations",
-              to: "/designation",
-              menu: "designation_access",
-            },
-          ],
         },
       ],
       items: [],
@@ -416,7 +361,7 @@ export default {
     this.getCompanyDetails();
   },
 
-  mounted() { },
+  mounted() {},
 
   computed: {
     changeColor() {
@@ -458,12 +403,12 @@ export default {
     goToSetting() {
       this.$router.push("/setting");
     },
-    goToCompany() {
+    goToProfile() {
       let u = this.$auth.user.user_type;
       // if(u){
       // this.$router.push(`/empl/${this.$auth.user?.company?.id}`);
       // }
-      this.$router.push(`/companies/${this.$auth.user?.company?.id}`);
+      this.$router.push(`/employees/profile`);
     },
     getCompanyDetails() {
       let user = this.$auth.user;
@@ -500,179 +445,3 @@ export default {
   },
 };
 </script>
-<style>
-table {
-  font-family: Roboto !important;
-}
-
-.fixed-setting {
-  position: fixed !important;
-  top: 500px;
-  z-index: 100000;
-  transition: right 1000ms !important;
-  right: -15px !important;
-}
-
-/* .v-btn__content {
-  margin: 0 12px 0 0px !important;
-  padding: 0 !important;
-} */
-
-.setting-drawer-open {
-  right: 250px !important;
-}
-
-.setting-drawer-close {
-  right: -15px !important;
-}
-
-.spin {
-  -webkit-animation: spin 4s linear infinite;
-  -moz-animation: spin 4s linear infinite;
-  animation: spin 4s linear infinite;
-
-  margin: 0 12px 0 0px !important;
-  padding: 0 !important;
-}
-
-@-moz-keyframes spin {
-  100% {
-    -moz-transform: rotate(360deg);
-  }
-}
-
-@-webkit-keyframes spin {
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-
-@keyframes spin {
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-.stg-color-icon {
-  width: 30px !important;
-  height: 30px !important;
-}
-
-@media (min-width: 1264px) {
-  .container {
-    max-width: 100%;
-  }
-}
-
-.submenutitle {
-  padding-left: 5px;
-  margin-left: -15px;
-}
-
-table.employee-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  /* border: 1px solid #dddddd; */
-  text-align: left;
-  padding: 8px;
-}
-
-table.employee-table tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-
-table.employee-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  /* border: 1px solid #dddddd; */
-  text-align: left;
-  padding: 8px;
-}
-
-table.employee-table tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-
-.toolbaritems-button-design {
-
-  padding-top: 8px !important;
-  padding-right: 0px !important;
-  /* margin: auto;
-  border-radius: 5px; */
-}
-
-.toolbaritems-button-design .v-btn {
-  height: 32px !important;
-
-
-
-}
-
-.timezone-displaylist {
-  height: 225px !important;
-  background: #fff;
-  border-bottom-left-radius: 6px !important;
-  border-bottom-right-radius: 6px !important;
-  overflow: auto;
-}
-
-.timezone-displaylistview {
-  padding-left: 10px !important;
-  padding-bottom: 5px !important;
-  padding-top: 0px !important;
-  cursor: pointer !important;
-
-  border-bottom: 1px solid #ddd;
-}
-
-.photo-displaylist {
-  height: 225px !important;
-  background: #fff !important;
-  border-bottom-left-radius: 6px !important;
-  border-bottom-right-radius: 6px !important;
-  overflow: auto;
-}
-
-.photo-displaylistview {
-  padding-left: 10px !important;
-  padding-bottom: 5px !important;
-  padding-top: 0px !important;
-  cursor: pointer;
-
-  border-bottom: 1px solid #ddd;
-}
-
-
-
-.timezoneedit-displaylist {
-  height: 225px !important;
-  background: #fff;
-  border-bottom-left-radius: 6px !important;
-  border-bottom-right-radius: 6px !important;
-  overflow: auto;
-}
-
-.timezoneedit-displaylistview {
-  padding-left: 10px !important;
-  padding-bottom: 5px !important;
-  padding-top: 0px !important;
-
-  border-bottom: 1px solid #ddd;
-}
-
-.v-small-dialog__menu-content {
-  margin-left: 3%;
-  margin-top: 3%;
-}
-</style>

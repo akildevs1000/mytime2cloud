@@ -179,11 +179,11 @@ export default {
             //   name = data.user?.name;
             // }
 
-            if (data.user && data.user.user_type == "master") {
-              this.$router.push(`/master`);
-              id = data.user?.id;
-              name = data.user?.name;
-            }
+            // if (data.user && data.user.user_type == "master") {
+            //   this.$router.push(`/master`);
+            //   id = data.user?.id;
+            //   name = data.user?.name;
+            // }
 
             // this.$axios.post(`activity`, {
             //   user_id: id,
