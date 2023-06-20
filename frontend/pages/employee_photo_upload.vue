@@ -282,7 +282,7 @@ export default {
       snackbar: {
         message: "",
         color: "black",
-        show: true,
+        show: false,
       },
       errors: [],
       response: "",
@@ -314,9 +314,9 @@ export default {
     };
   },
   mounted: function () {
-    this.snackbar.show = true;
-    this.snackbar.message = "Data loading...Please wait ";
-    this.response = "Data loading...Please wait ";
+    // this.snackbar.show = false;
+    // this.snackbar.message = "Data loading...Please wait ";
+    // this.response = "Data loading...Please wait ";
 
     this.$nextTick(function () {
       setTimeout(() => {
