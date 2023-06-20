@@ -14,19 +14,28 @@ class AnnouncementController extends Controller
     public function getDefaultModelSettings($request)
     {
         $model = Announcement::query();
-        $model->with(['employees:id,display_name,employee_id,system_user_id', 'departments:id,name']);
+        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'departments:id,name']);
         $model->where('company_id', $request->company_id);
+
+        $model->when($request->filled('serach_title'), function ($q) use ($request) {
+            $key = $request->serach_title;
+            $q->where('title', 'ILIKE', "$key%");
+        });
+        $model->when($request->filled('serach_description'), function ($q) use ($request) {
+            $key = $request->serach_description;
+            $q->where('description', 'ILIKE', "$key%");
+        });
+
         return $model;
     }
 
     public function index(Request $request)
     {
-        return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 10);
+        return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
-    public function list(Request $request)
-    {
-        return $this->getDefaultModelSettings($request)->where('start_date', '=', date("Y-m-d"))->paginate($request->per_page ?? 10);
+    function list(Request $request) {
+        return $this->getDefaultModelSettings($request)->where('start_date', '=', date("Y-m-d"))->paginate($request->per_page ?? 100);
     }
 
     public function store(StoreRequest $request)
@@ -89,7 +98,7 @@ class AnnouncementController extends Controller
     }
     public function search(Request $request, $key)
     {
-        return $this->getDefaultModelSettings($request)->where('title', 'LIKE', "%$key%")->paginate($request->per_page ?? 10);
+        return $this->getDefaultModelSettings($request)->where('title', 'LIKE', "%$key%")->paginate($request->per_page ?? 100);
     }
     public function deleteSelected(Request $request)
     {

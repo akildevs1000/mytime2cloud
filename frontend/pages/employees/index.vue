@@ -255,7 +255,7 @@
               <v-toolbar-items>
                 <v-col>
                   <input small dark class="employeepage-seach-textfield form-control py-3 custom-text-box floating  "
-                    placeholder="Search Employee Details" style="width:200px;height: 28px;padding-right: 0px;
+                    placeholder="Search Employee Details" style="width:200px;height: 28px;padding-right: 0px
     margin-top: 1px;
     padding-top: 11px !important;" @input="searchIt" v-model="search" type="text" />
 
@@ -283,6 +283,12 @@
             <!-- <v-btn color="success" @click="toggleFilter">Toggle Filters</v-btn> -->
 
             <!-- :server-items-length="datatableTotallenght" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc"  -->
+            <!-- <v-data-table dense v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
+              :loading="loadinglinear" :options.sync="options" :server-items-length=server_datatable_totalItems
+              :footer-props="{
+                itemsPerPageOptions: [10, 50, 100, 500, 1000],
+              }" class="elevation-1"> -->
+
             <v-data-table dense v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
               :loading="loadinglinear" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
@@ -339,7 +345,7 @@
                 </v-edit-dialog>
 
               </template> -->
-              <template v-slot:item.display_name="{ item, index }" style="width:300px">
+              <template v-slot:item.first_name="{ item, index }" style="width:300px">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
                   <v-row no-gutters>
@@ -353,7 +359,7 @@
                     <v-col style="padding: 10px;">
                       <strong> {{ item.first_name ? item.first_name : '---' }} {{ item.last_name ? item.last_name : '---'
                       }}</strong>
-                      <div> {{ item.designation ? item.designation.name : "---" }}</div>
+                      <div> {{ item.designation ? caps(item.designation.name) : "---" }}</div>
 
                     </v-col>
                   </v-row>
@@ -394,8 +400,8 @@
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                   @open="datatable_open">
 
-                  <strong>{{ item.department.name }}</strong>
-                  <div> {{ item.sub_department.name }}</div>
+                  <strong>{{ caps(item.department.name) }}</strong>
+                  <div> {{ caps(item.sub_department.name) }}</div>
                   <template v-slot:input>
                     <v-text-field @input="getDataFromApi_FilterDepartmentName" v-model="datatable_search_textbox"
                       label="Search Department name"></v-text-field>
@@ -610,7 +616,7 @@ export default {
     isFilter: false,
     sortBy: 'employee_id',
     sortDesc: false,
-    datatableTotallenght: 10,
+    server_datatable_totalItems: 1000,
     snack: false,
     snackColor: '',
     snackText: '',
@@ -648,7 +654,7 @@ export default {
     files: "",
     search: "",
     loading: false,
-    total: 0,
+    //total: 0,
     next_page_url: "",
     prev_page_url: "",
     current_page: 1,
@@ -687,7 +693,7 @@ export default {
     snackbar: false,
     ids: [],
     loading: false,
-    total: 0,
+    //total: 0,
     headers: [],
     titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
     editedIndex: -1,
@@ -705,25 +711,25 @@ export default {
     payloadOptions: {},
     headers_table: [
 
-      { text: "Emp Id / Device Id", align: "left", sortable: true, key: 'employee_id', value: "employee_id", filterable: true },
-      { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
+      { text: "Emp Id / Device Id", align: "left", sortable: true, key: 'employee_id', value: "employee_id", filterable: true, width: "150px" },
+      { text: "Name", align: "left", sortable: true, key: 'first_name', value: "first_name", width: "300px" },
       // { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name_search_icon" },
-
-
-
       {
         text: "Department",
         align: "left",
         sortable: true,
-        key: 'department',
+        key: 'department.name',
         value: "department.name", //template name should be match for sorting sub table should be the same
+        width: "200px"
       },
+
       {
         text: "Mobile",
         align: "left",
         sortable: true,
         key: 'mobile',
         value: "phone_number", // search and sorting enable if value matches with template name
+        width: "150px"
       },
       {
         text: "Email",
@@ -755,13 +761,15 @@ export default {
       },
     ],
   }),
+
+
   async created() {
     this.loading = false;
     this.boilerplate = true;
 
     this.payloadOptions = {
       params: {
-        per_page: 1000,
+        per_page: 10,
         company_id: this.$auth.user.company.id,
       },
     };
@@ -771,7 +779,7 @@ export default {
   },
   mounted() {
 
-    //this.getDataFromApi();
+    this.getDataFromApi();
     this.tabMenu = [
       {
         text: "Profile",
@@ -845,20 +853,32 @@ export default {
       { text: "Actions" },
     ];
   },
+
   // watch: {
   //   dialog(val) {
   //     val || this.close();
   //   },
   // },
   watch: {
-    options: {
-      handler() {
-        this.getDataFromApi()
-      },
-      deep: true,
-    },
+    // options: {
+    //   handler() {
+    //     this.getDataFromApi()
+    //   },
+    //   deep: true,
+    // },
   },
+  // mounted() {
+  //   //this.getDataFromApi();
+  // },
   methods: {
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
+      } else {
+        let res = str.toString();
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+    },
     applyFilters() {
       this.getDataFromApi();
     },
@@ -995,10 +1015,20 @@ export default {
       //this.loading = true;
       this.loadinglinear = true;
 
-      let page = this.pagination.current;
+
+      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : '';
+      let sortedDesc = sortDesc ? sortDesc[0] : '';
+      // if (!page)
+      //   return false;
+      //let page = this.pagination.current;
       let options = {
         params: {
-          per_page: this.pagination.per_page,
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: this.server_datatable_totalItems,// itemsPerPage,//this.pagination.per_page,
           company_id: this.$auth.user.company.id,
           department_id: this.department_filter_id,
           ...this.filters
@@ -1007,7 +1037,7 @@ export default {
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.data = data.data;
-        this.datatableTotallenght = this.data.length;
+        this.server_datatable_totalItems = data.total;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
 
@@ -1124,7 +1154,7 @@ export default {
     getDepartments() {
       let options = {
         params: {
-          per_page: 100,
+          per_page: 10,
           company_id: this.$auth.user.company.id,
         },
       };

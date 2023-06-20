@@ -126,6 +126,9 @@
           <v-card class="mb-5 rounded-md" elevation="0">
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
+              <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon
+                  class="mx-1">mdi
+                  mdi-reload</v-icon></a>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-col class="toolbaritems-button-design1">
@@ -155,7 +158,7 @@
             </v-snackbar>
             <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
               :footer-props="{
-                itemsPerPageOptions: [50, 100, 500, 1000],
+                itemsPerPageOptions: [10, 50, 100, 500, 1000],
               }" class="elevation-1">
               <template v-slot:item.sno="{ item, index }">
                 {{ ++index }}
@@ -197,7 +200,7 @@
                 </v-edit-dialog>
                 <v-chip small class="primary ma-1" style="color:black" @click="gotoSubdepartments(item)"
                   v-if="item.children.length > 3">
-                  More..
+                  View all..
                 </v-chip>
               </template>
               <template v-slot:item.designations="{ item }">

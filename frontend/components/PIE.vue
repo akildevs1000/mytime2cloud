@@ -9,7 +9,7 @@
     position: absolute;
     top: 50%;
 
-    left: 36%;">Attendance data is not available on Today</div>
+    left: 30%;">Attendance data is not available on Today</div>
     </div>
     <div v-else id="pie"></div>
 

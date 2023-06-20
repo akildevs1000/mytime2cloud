@@ -75,7 +75,7 @@
               </v-snackbar>
               <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
                 :footer-props="{
-                  itemsPerPageOptions: [50, 100, 500, 1000],
+                  itemsPerPageOptions: [10, 50, 100, 500, 1000],
                 }" class="elevation-1">
 
                 <template v-slot:item.subject="{ item }">

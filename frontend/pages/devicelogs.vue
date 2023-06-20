@@ -83,7 +83,7 @@
           </v-snackbar>
           <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
             :options.sync="options" :footer-props="{
-              itemsPerPageOptions: [50, 100, 500, 1000],
+              itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }" class="elevation-1">
 
 
@@ -92,7 +92,10 @@
             <template v-slot:item.UserID="{ item }">
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
                 @save="getRecords()" @open="datatable_open">
-                {{ item.UserID }}
+                <strong>{{ item.employee && item.employee.employee_id ? item.employee.employee_id : '---' }}</strong>
+                <br /> {{ item.UserID ?
+                  item.UserID : '---'
+                }}
                 <template v-slot:input>
                   <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_system_user_id', $event)"
                     label="Search System User Id"></v-text-field>
@@ -114,7 +117,8 @@
                     <strong> {{ item.employee ? item.employee.first_name : '---' }} {{ item.employee
                       ? item.employee.last_name : '---'
                     }}</strong>
-                    <div> {{ item.employee && item.employee.designation ? item.employee.designation.name : "---" }}</div>
+                    <div> {{ item.employee && item.employee.designation ? caps(item.employee.designation.name) : "---" }}
+                    </div>
 
                   </v-col>
                 </v-row>
@@ -128,8 +132,10 @@
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
                 @open="datatable_open">
 
-                <strong>{{ item.employee && item.employee.department ? item.employee.department.name : '---' }}</strong>
-                <div> {{ item.employee && item.employee.sub_department ? item.employee.sub_department.name : '---' }}
+                <strong>{{ item.employee && item.employee.department ? caps(item.employee.department.name) : '---'
+                }}</strong>
+                <div> {{ item.employee && item.employee.sub_department ? caps(item.employee.sub_department.name) : '---'
+                }}
                 </div>
                 <template v-slot:input>
                   <v-text-field @input="getRecords('search_department_name', $event)" v-model="datatable_search_textbox"
@@ -198,7 +204,7 @@
 <script>
 export default {
   data: () => ({
-
+    server_datatable_totalItems: 1000,
     datatable_search_textbox: '',
     datatable_searchById: '',
     filter_employeeid: '',
@@ -262,11 +268,12 @@ export default {
     snackbar: false,
     headers_table: [
       {
-        text: "E.ID",
+        text: "Emp.Id / Device Id",
         align: "left",
         sortable: true,
         key: "UserID",
         value: "UserID",
+        width: "150px",
       },
       {
         text: "Employee",
@@ -274,6 +281,7 @@ export default {
         sortable: true,
         key: "employee.first_name", //sorting
         value: "employee", //edit purpose
+        width: "300px",
       },
       {
         text: "Department",
@@ -386,7 +394,7 @@ export default {
     getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
       this.payloadOptions = {
         params: {
-          per_page: this.options.itemsPerPage,
+          per_page: this.server_datatable_totalItems,//this.options.itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.payload,
         },
@@ -405,7 +413,9 @@ export default {
             this.snackText = 'No Results Found';
             this.loading = false;
             return false;
+
           }
+          this.server_datatable_totalItems = data.total;
           this.data = data.data;
           this.total = data.total;
           this.loading = false;

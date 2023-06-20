@@ -156,29 +156,29 @@
                   mdi-reload</v-icon></a>
 
               <v-toolbar-items>
-                <v-col class="toolbaritems-button-design">
-                  <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected"
-                    class="primary ms-4 pt-4 pb-4 toolbar-button-design" color="primary">Generate Payslips
+                <v-col class="toolbaritems-button-design1">
+                  <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected" small
+                    class="primary   toolbar-button-design1" color="primary">Generate Payslips
                   </v-btn>
                 </v-col>
               </v-toolbar-items>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-col class="toolbaritems-button-design">
-                  <v-btn @click="openPayslipDialog" class="primary ms-4 pt-4 pb-4 toolbar-button-design"
+                <v-col class="toolbaritems-button-design1">
+                  <v-btn @click="openPayslipDialog" small class="primary   toolbar-button-design1"
                     color="primary">Generate New Payslips
                   </v-btn>
                 </v-col>
                 <a v-if="downloadAllDisplayStatus" title="Download All Payslips" download :href="payslipsDownloadAllURL"
                   style="
-                    font-size: 38px;
+                    font-size: 30px;
                     vertical-align: inherit;
-                    padding-left: 10px;    margin-top: -5px;
+                    padding-left: 10px;    margin-top: 5px;
                   "><span class="mdi   mdi-download  "></span></a>
                 <a v-if="!downloadAllDisplayStatus" title="Download All Payslips" download style="
-                    font-size: 38px;
+                    font-size: 30px;
                     vertical-align: inherit;
-                    padding-left: 10px;    margin-top: -5px;
+                    padding-left: 10px;    margin-top: 5px;
                   " @click="downloadAllPayslipsError"><span class="mdi mdi-download-box"></span></a>
 
               </v-toolbar-items>
@@ -243,7 +243,7 @@
             </v-snackbar>
             <v-data-table dense show-select v-model="selectedItems" :headers="headers_table" :items="data"
               model-value="data.id" :loading="loading" :options.sync="options" :footer-props="{
-                itemsPerPageOptions: [50, 100, 500, 1000],
+                itemsPerPageOptions: [10, 50, 100, 500, 1000],
               }" class="elevation-1">
 
               <template v-slot:item.employee_id="{ item }">
@@ -434,14 +434,14 @@
               </tr>
             </table> -->
           </v-card>
-          <v-row>
+          <!-- <v-row>
             <v-col lg="12" class="float-right">
               <div class="float-right">
                 <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
                   :total-visible="5"></v-pagination>
               </div>
             </v-col>
-          </v-row>
+          </v-row> -->
         </v-col>
       </v-row>
       <div></div>
@@ -453,6 +453,7 @@
 <script>
 export default {
   data: () => ({
+    server_datatable_totalItems: 1000,
     filter_employeeid: '',
     snack: false,
     snackColor: '',
@@ -491,7 +492,7 @@ export default {
     ],
     headers: [
       { text: "#" },
-      { text: "EID" },
+      { text: "E.ID" },
       { text: "Name" },
       { text: "Year/Month" },
       { text: "Designation" },
@@ -503,7 +504,7 @@ export default {
     ],
     headers_table: [
 
-      { text: "EID", align: "left", sortable: true, key: 'employee_id', value: "employee_id" },
+      { text: "Emp ID", align: "left", sortable: true, key: 'employee_id', value: "employee_id" },
       { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
       { text: "Year/Month", align: "left", sortable: false, key: 'year_month', value: "year_month" },
       {
@@ -846,7 +847,7 @@ export default {
       let department_id = this.department_id;
       let options = {
         params: {
-          per_page: this.pagination.per_page,
+          per_page: this.server_datatable_totalItems,//this.pagination.per_page,
           company_id: this.$auth.user.company.id,
           department_id: department_id,
           year: this.payslip_year,
@@ -889,7 +890,7 @@ export default {
 
         this.data = data.data;
 
-
+        this.server_datatable_totalItems = data.total;
 
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;

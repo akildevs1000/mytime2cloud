@@ -686,4 +686,25 @@ table.employee-table tr:nth-child(even) {
   border: 0px !important;
   box-shadow: none !important;
 }
+
+
+.sortable {
+  font-weight: bold;
+  color: black !important;
+}
+
+.v-data-table-header .desc i {
+
+  color: red !important;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
 </style>

@@ -64,7 +64,7 @@
                     "></v-text-field>
               </v-col>
               <v-col md="6" cols="12" sm="12" dense>
-                <label class="col-form-label">Employee Device Id<span class="text-danger">*</span></label>
+                <label class="col-form-label">Employee Device Id <span class="text-danger">*</span></label>
                 <v-text-field dense outlined type="text" v-model="employee.system_user_id"
                   :hide-details="!errors.system_user_id" :error="errors.system_user_id" :error-messages="errors && errors.system_user_id
                     ? errors.system_user_id[0]
@@ -72,7 +72,7 @@
                     "></v-text-field>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Department <span class="text-danger">*</span></label>
+                <label class="col-form-label">Department </label>
                 <v-autocomplete :items="departments" item-text="name" item-value="id" placeholder="Select"
                   v-model="employee.department_id" :hide-details="!errors.department_id" :error="errors.department_id"
                   :error-messages="errors && errors.department_id
@@ -81,7 +81,7 @@
                     " dense outlined></v-autocomplete>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Sub Department <span class="text-danger">*</span></label>
+                <label class="col-form-label">Sub Department </label>
                 <v-autocomplete :items="sub_departments" item-text="name" item-value="id" placeholder="Select"
                   v-model="employee.sub_department_id" :hide-details="!errors.sub_department_id"
                   :error="errors.sub_department_id" :error-messages="errors && errors.sub_department_id
@@ -90,7 +90,7 @@
                     " dense outlined></v-autocomplete>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Designation <span class="text-danger">*</span></label>
+                <label class="col-form-label">Designation </label>
                 <v-autocomplete :items="designations" item-text="name" item-value="id" placeholder="Select"
                   v-model="employee.designation_id" :hide-details="!errors.designation_id" :error="errors.designation_id"
                   :error-messages="errors && errors.designation_id
@@ -99,7 +99,7 @@
                     " dense outlined></v-autocomplete>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Role <span class="text-danger">*</span></label>
+                <label class="col-form-label">Role </label>
                 <v-autocomplete :items="roles" item-text="name" item-value="id" placeholder="Select"
                   v-model="employee.employee_role_id" :hide-details="!errors.employee_role_id"
                   :error="errors.employee_role_id" :error-messages="errors && errors.employee_role_id

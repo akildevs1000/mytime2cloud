@@ -26,6 +26,7 @@
         <v-card elevation="0">
           <v-toolbar color="background" dense flat dark>
             <span>{{ formTitle }} {{ Model }}</span>
+
           </v-toolbar>
           <v-divider class="py-0 my-0"></v-divider>
           <v-card-text>
@@ -59,6 +60,8 @@
         <v-card class="mb-5" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> {{ Model }}s List</span></v-toolbar-title>
+            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
+                mdi-reload</v-icon></a>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col>
@@ -86,7 +89,7 @@
           </v-snackbar>
           <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
             :footer-props="{
-              itemsPerPageOptions: [50, 100, 500, 1000],
+              itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }" class="elevation-1">
             <template v-slot:item.sno="{ item, index }">
               {{ ++index }}

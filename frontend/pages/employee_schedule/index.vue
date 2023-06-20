@@ -195,7 +195,7 @@
               <v-data-table v-model="employee_ids" show-select item-key="id" :headers="headers_dialog"
                 :items="employees_dialog" :server-items-length="total_dialog" :loading="loading_dialog"
                 :options.sync="options_dialog" :footer-props="{
-                  itemsPerPageOptions: [50, 100, 500, 1000],
+                  itemsPerPageOptions: [10,50, 100, 500, 1000],
                 }">
               </v-data-table>
             </v-col>

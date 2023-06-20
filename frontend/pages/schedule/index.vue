@@ -309,7 +309,7 @@
         </v-snackbar>
         <v-data-table dense :headers="headers_table" :items="scheduleData" model-value="data.id" :loading="loading"
           :options.sync="options" :footer-props="{
-            itemsPerPageOptions: [50, 100, 500, 1000],
+            itemsPerPageOptions: [10, 50, 100, 500, 1000],
           }" class="elevation-1">
           <template v-slot:item.sno="{ item, index }">
 

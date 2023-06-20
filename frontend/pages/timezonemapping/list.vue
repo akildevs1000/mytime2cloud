@@ -53,7 +53,7 @@
             </template>
           </v-snackbar>
           <v-data-table dense :headers="headers" :items="data" :loading="loading" :options.sync="options" :footer-props="{
-            itemsPerPageOptions: [50, 100, 500, 1000],
+            itemsPerPageOptions: [10, 50, 100, 500, 1000],
 
 
 

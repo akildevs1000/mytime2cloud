@@ -27,12 +27,10 @@ class Announcement extends Model
         return $this->belongsToMany(Department::class)->withTimestamps();
     }
 
-  public function employees()
-  {
-      return $this->belongsToMany(Employee::class)->withTimestamps();
-  }
-
-
+    public function employees()
+    {
+        return $this->belongsToMany(Employee::class)->withTimestamps();
+    }
 
     protected static function boot()
     {

@@ -154,11 +154,16 @@ class EmployeeController extends Controller
             ->when($request->filled('department_id'), function ($q) use ($request) {
                 $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
             })
+            ->when($request->filled('sortBy'), function ($q) use ($request) {
+                $q->orderBy($request->sortBy);
+            })
+
             ->paginate($request->per_page ?? 100);
         $data = $this->getPayslipstatus($data, $request);
 
         return $data;
     }
+
     public function searchby_emp_table_salary(Request $request, $text)
     {
 
@@ -695,6 +700,8 @@ class EmployeeController extends Controller
             'display_name' => ['required', 'min:3', 'max:10'],
             'email' => 'nullable|min:3|max:191|unique:users',
             'department_code' => ['required'],
+            'first_name' => ['required'],
+            'last_name' => ['required'],
         ];
 
         $messages = [
@@ -703,6 +710,8 @@ class EmployeeController extends Controller
             'system_user_id.unique' => "The employee device id (" . $data["system_user_id"] . ") has already been taken",
             'employee_id.unique' => "The employee id (" . $data["employee_id"] . ") has already been taken",
             'email.unique' => "The employee email (" . $data["email"] . ") has already been taken",
+            'first_name.required' => "The employee First Name required.",
+            'last_name.required' => "The employee Last Name required.",
         ];
 
         return Validator::make($data, $rules, $messages);
