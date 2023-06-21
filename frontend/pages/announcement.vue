@@ -296,8 +296,8 @@
                 </v-chip>
 
               </span>
-              <v-chip small class="primary ma-1" style="color:black" @click="gotoDialogPage(item
-              )" v-if="item.employees.length > 4">
+              <v-chip small class="primary ma-1" style="color:black" @click="gotoDialogPage(item)"
+                v-if="item.employees.length > 4">
                 More..
               </v-chip>
             </template>
@@ -349,7 +349,7 @@ export default {
   },
   data: () => ({
     dialogEmployees: false,
-    idsEmployeeList: '',
+    idsEmployeeList: [],
     //editor
     datatable_search_textbox: '',
     filter_employeeid: '',
@@ -563,6 +563,7 @@ export default {
 
   methods: {
     gotoDialogPage(item) {
+      // console.log('item', item);
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
