@@ -315,12 +315,39 @@ export default {
           menu: "employee_payroll_access",
         },
         {
+          icon: "mdi-calendar-clock",
+          title: "Schedule",
+          to: "/employees/schedule",
+          menu: "logs_access",
+        },
+        {
+          icon: "mdi-cash",
+          title: "Salary details",
+          to: "/employees/salary",
+          menu: "logs_access",
+        },
+        {
+          icon: "mdi-calendar-today",
+          title: "attendance reports",
+          to: "/employees/attendance_reports",
+          menu: "logs_access",
+        },
+        {
           icon: "mdi-clipboard-text-clock",
           title: "Attendances Logs",
           to: "/employees/logs",
           menu: "logs_access",
         },
+        {
+        icon: "mdi-bell",
+          title: "Announcements",
+          to: "/employees/announcements",
+          menu: "logs_access",
+        },
       ],
+      // -------
+      // leave request
+      // holiday
       items: [],
       modules: {
         module_ids: [],

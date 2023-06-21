@@ -28,16 +28,16 @@
           </v-card-text>
         </v-card>
       </v-dialog>
-      <v-row >
+      <v-row>
         <v-col
-          v-for="(i, index) in items"
-          :key="index"
+          cols="12"
           xs="12"
           sm="12"
-          cols="12"
-          md="4"
-          lg="4"
+          md="3"
+          lg="6"
           xl="3"
+          v-for="(i, index) in items"
+          :key="index"
         >
           <div class="card p-2" :class="i.color" style="min-height: 150px">
             <div class="card-statistic-3">
@@ -62,12 +62,12 @@
             </div>
           </div>
         </v-col>
-        <v-col xs="12" sm="12" md="6">
+        <v-col cols="12" md="12" lg="6" xl="6">
           <v-card elevation="1" style="min-height: 445px">
             <v-toolbar class="background" dense dark>
               <div><b>Attendance Logs</b></div>
               <v-spacer></v-spacer>
-              <v-btn small class="primary"
+              <v-btn to="/employees/logs" small class="primary"
                 >View More &nbsp;<v-icon>mdi-eye</v-icon></v-btn
               >
             </v-toolbar>
@@ -155,60 +155,7 @@
                             {{ dialogData.description }}
                           </td>
                         </tr>
-                        <tr>
-                          <th
-                            style="
-                              border: 1px solid #dddddd;
-                              text-align: left;
-                              padding: 8px;
-                            "
-                          >
-                            Departments
-                          </th>
-                          <td
-                            style="
-                              border: 1px solid #dddddd;
-                              text-align: left;
-                              padding: 8px;
-                            "
-                          >
-                            <v-chip
-                              class="primary mx-1"
-                              x-small
-                              v-for="(
-                                department, dIndex
-                              ) in dialogData.departments"
-                              :key="dIndex"
-                              >{{ department.name }}</v-chip
-                            >
-                          </td>
-                        </tr>
-                        <tr>
-                          <th
-                            style="
-                              border: 1px solid #dddddd;
-                              text-align: left;
-                              padding: 8px;
-                            "
-                          >
-                            Employees
-                          </th>
-                          <td
-                            style="
-                              border: 1px solid #dddddd;
-                              text-align: left;
-                              padding: 8px;
-                            "
-                          >
-                            <v-chip
-                              class="primary mx-1"
-                              x-small
-                              v-for="(employee, eIndex) in dialogData.employees"
-                              :key="eIndex"
-                              >{{ employee.display_name }}</v-chip
-                            >
-                          </td>
-                        </tr>
+
                         <tr>
                           <th
                             style="
@@ -249,12 +196,12 @@
             </v-card>
           </v-card>
         </v-col>
-        <v-col xs="12" sm="12" md="3">
+        <v-col cols="12" md="6" lg="6" xl="3">
           <v-card elevation="1" style="min-height: 445px">
             <v-toolbar class="background" dense dark>
               <div><b>Announcements</b></div>
               <v-spacer></v-spacer>
-              <v-btn small class="primary"
+              <v-btn small class="primary" to="/employees/announcements"
                 >View More &nbsp;<v-icon>mdi-eye</v-icon></v-btn
               >
             </v-toolbar>
@@ -266,20 +213,25 @@
                   v-for="(announcement, index) in announcements"
                   :key="index"
                 >
-                  <v-list-item-content>
+                  <v-list-item-content
+                    style="
+                      border-top: 1px dotted grey;
+                      border-bottom: 1px dotted grey;
+                    "
+                  >
                     <v-list-item-title>{{
                       announcement.title
                     }}</v-list-item-title>
                     <v-list-item-subtitle
                       >{{ getExcerpt(announcement.description, 30) }}&nbsp;
-                      <v-chip
+                      <!-- <v-chip
                         x-small
                         color="background"
                         dark
                         @click="openDialog(announcement)"
                         >Read More
                         <v-icon x-small>mdi-chevron-right</v-icon></v-chip
-                      >
+                      > -->
                     </v-list-item-subtitle>
                     <v-list-item-subtitle
                       >When:
@@ -297,7 +249,6 @@
                       >
                       <span v-else>{{ announcement.end_date }}</span>
                     </v-list-item-subtitle>
-                    <v-divider></v-divider>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
@@ -458,7 +409,7 @@
             </v-container>
           </v-card>
         </v-col>
-        <v-col xs="12" sm="12" md="3">
+        <v-col cols="12" md="6" lg="6" xl="3">
           <v-card elevation="1" style="min-height: 445px">
             <v-toolbar class="background" dense dark>
               <div><b>Attendance Report (Current Month)</b></div>
@@ -468,11 +419,12 @@
             </v-container>
           </v-card>
         </v-col>
-        <v-col xs="12" sm="12" md="3">
+        <v-col cols="12" md="6" lg="6" xl="3">
           <v-card elevation="1">
-            <v-container>
+            <v-toolbar class="background" dense dark>
               <div><b>Activity</b></div>
-              <v-divider></v-divider>
+            </v-toolbar>
+            <v-container>
               <Activity />
             </v-container>
           </v-card>
@@ -667,12 +619,12 @@ export default {
         });
     },
     get_announcements() {
-      let options = {
-        per_page: 1000,
-        company_id: this.$auth.user.company.id,
-      };
+      const id = this.$auth.user.employee.id;
+      const company_id = this.$auth.user.company.id;
+      const url = `employee-today-announcements`;
+
       this.$axios
-        .get(`announcement_list`, { params: options })
+        .get(`${url}/${id}?page=1&company_id=${company_id}&per_page=4`)
         .then(({ data }) => {
           this.announcements = data.data;
         });

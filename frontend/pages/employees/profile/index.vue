@@ -11,81 +11,224 @@
           <h3>Profile</h3>
           <div>Dashboard / Profile</div>
         </v-col>
-        <v-col cols="12">
-          <v-card>
-            <v-tabs
-              v-model="tab"
-              background-color="background"
-              dark
-              icons-and-text
-            >
-              <v-tabs-slider></v-tabs-slider>
-
-              <v-tab
-                v-for="(item, index) in tabMenu"
-                :key="index"
-                :href="item.value"
-              >
-                {{ item.text }}
-                <v-icon>{{ item.icon }}</v-icon>
-              </v-tab>
-            </v-tabs>
+      </v-row>
+      <v-row>
+        <v-col cols="12" md="3">
+          <v-row>
+            <v-col cols="12" class="text-center">
+              <v-card>
+                <v-card-text>
+                  <v-avatar size="150" class="mx-auto">
+                    <v-img
+                      :src="test_employee.photoUrl"
+                      alt="Employee Photo"
+                      contain
+                    ></v-img>
+                  </v-avatar>
+                </v-card-text>
+                <div>
+                  <strong>{{ test_employee.name }} (1111)</strong>
+                  <v-card-subtitle>{{
+                    test_employee.position
+                  }}</v-card-subtitle>
+                </div>
+                <!-- <v-divider></v-divider>
             <v-card-text>
-              <v-tabs-items v-model="tab">
-                <v-tab-item
-                  v-for="(tb, index) in tabMenu"
-                  :key="index"
-                  :value="`${index}`"
-                >
-                  <component :is="getComponent(tab)" :employeeId="employeeId" />
-                </v-tab-item>
-              </v-tabs-items>
-            </v-card-text>
-          </v-card>
-          <v-dialog v-model="dialogCropping" width="500">
-            <v-card style="padding-top: 20px">
-              <v-card-text>
-                <!-- <img :src="imageUrl" alt="Preview Image" /> -->
-                <!-- Cropping image step1 -->
-                <VueCropper
-                  v-show="selectedFile"
-                  ref="cropper"
-                  :src="selectedFile"
-                  alt="Source Image"
-                  :aspectRatio="1"
-                  :autoCropArea="0.9"
-                  :viewMode="3"
-                ></VueCropper>
+              <v-chip
+                class="primary mx-1"
+                v-for="(skill, index) in test_employee.skills"
+                :key="index"
+                >{{ skill }}</v-chip
+              >
+            </v-card-text> -->
+              </v-card>
+            </v-col>
+            <v-col cols="12">
+              <v-card>
+                <v-container>
+                  <div><strong>Profile Info</strong></div>
+                  <v-divider></v-divider>
+                  <v-row>
+                    <v-col xs="6" sm="2" cols="6"
+                      ><v-avatar
+                        size="40"
+                        color="primary"
+                        class="d-flex justify-center align-center"
+                      >
+                        <v-icon color="white"
+                          >mdi-account-card-details-outline</v-icon
+                        >
+                      </v-avatar></v-col
+                    >
+                    <v-col xs="6" sm="6" cols="6">
+                      <div>Full Name</div>
+                      <b>Ms. {{ test_employee.name }}</b></v-col
+                    >
+                  </v-row>
+                  <v-row>
+                    <v-col xs="6" sm="2" cols="6"
+                      ><v-avatar
+                        size="40"
+                        color="primary"
+                        class="d-flex justify-center align-center"
+                      >
+                        <v-icon color="white"
+                          >mdi-account-card-details-outline</v-icon
+                        >
+                      </v-avatar></v-col
+                    >
+                    <v-col xs="6" sm="6" cols="6">
+                      <div>Employee Id</div>
+                      <b>1111</b></v-col
+                    >
+                  </v-row>
 
-                <!-- <div class="cropper-preview"></div> -->
-              </v-card-text>
+                  <v-row>
+                    <v-col xs="6" sm="2" cols="6"
+                      ><v-avatar
+                        size="40"
+                        color="primary"
+                        class="d-flex justify-center align-center"
+                      >
+                        <v-icon color="white"
+                          >mdi-account-card-details-outline</v-icon
+                        >
+                      </v-avatar></v-col
+                    >
+                    <v-col xs="6" sm="6" cols="6">
+                      <div>Employee Device Id</div>
+                      <b>1111</b></v-col
+                    >
+                  </v-row>
 
-              <v-card-actions>
-                <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
-                  <v-btn
-                    class="danger btn btn-danger text-left"
-                    text
-                    @click="closePopup()"
-                    style="float: left"
-                    >Cancel</v-btn
-                  >
-                </div>
-                <div
-                  col="6"
-                  md="6"
-                  class="col-sm-12 col-md-6 col-12 text-right"
+                  <v-row>
+                    <v-col xs="6" sm="2" cols="6"
+                      ><v-avatar
+                        size="40"
+                        color="primary"
+                        class="d-flex justify-center align-center"
+                      >
+                        <v-icon color="white">mdi-email</v-icon>
+                      </v-avatar></v-col
+                    >
+                    <v-col xs="6" sm="6" cols="6">
+                      <div>Email</div>
+                      <b>{{ test_employee.email }}</b></v-col
+                    >
+                  </v-row>
+
+                  <v-row>
+                    <v-col xs="6" sm="2" cols="6"
+                      ><v-avatar
+                        size="40"
+                        color="primary"
+                        class="d-flex justify-center align-center"
+                      >
+                        <v-icon color="white">mdi-domain</v-icon>
+                      </v-avatar></v-col
+                    >
+                    <v-col xs="6" sm="6" cols="6">
+                      <div>Department</div>
+                      <b>Sales</b></v-col
+                    >
+                  </v-row>
+
+                  <v-row>
+                    <v-col xs="6" sm="2" cols="6"
+                      ><v-avatar
+                        size="40"
+                        color="primary"
+                        class="d-flex justify-center align-center"
+                      >
+                        <v-icon color="white">mdi-phone</v-icon>
+                      </v-avatar></v-col
+                    >
+                    <v-col xs="6" sm="6" cols="6">
+                      <div>Phone</div>
+                      <b>{{ test_employee.phone }}</b></v-col
+                    >
+                  </v-row>
+                </v-container>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-col>
+        <v-col cols="12" md="9">
+          <v-row>
+            <v-col cols="12">
+              <v-card>
+                <v-tabs
+                  v-model="tab"
+                  centered
+                  icons-and-text
+                  background-color="white"
                 >
-                  <v-btn
-                    class="primary btn btn-danger text-right"
-                    @click="saveCroppedImageStep2(), (dialog = false)"
-                    >Crop</v-btn
+                  <v-tabs-slider></v-tabs-slider>
+
+                  <v-tab
+                    v-for="(item, index) in tabMenu"
+                    :key="index"
+                    :href="item.value"
                   >
-                </div>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+                    {{ item.text }}
+                    <v-icon>{{ item.icon }}</v-icon>
+                  </v-tab>
+                </v-tabs>
+                <v-tabs-items v-model="tab">
+                  <v-tab-item
+                    v-for="(tb, index) in tabMenu"
+                    :key="index"
+                    :value="`${index}`"
+                  >
+                    <component
+                      :is="getComponent(tab)"
+                      :employeeId="employeeId"
+                    />
+                  </v-tab-item>
+                </v-tabs-items>
+              </v-card>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
+      <v-dialog v-model="dialogCropping" width="500">
+        <v-card style="padding-top: 20px">
+          <v-card-text>
+            <!-- <img :src="imageUrl" alt="Preview Image" /> -->
+            <!-- Cropping image step1 -->
+            <VueCropper
+              v-show="selectedFile"
+              ref="cropper"
+              :src="selectedFile"
+              alt="Source Image"
+              :aspectRatio="1"
+              :autoCropArea="0.9"
+              :viewMode="3"
+            ></VueCropper>
+
+            <!-- <div class="cropper-preview"></div> -->
+          </v-card-text>
+
+          <v-card-actions>
+            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
+              <v-btn
+                class="danger btn btn-danger text-left"
+                text
+                @click="closePopup()"
+                style="float: left"
+                >Cancel</v-btn
+              >
+            </div>
+            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
+              <v-btn
+                class="primary btn btn-danger text-right"
+                @click="saveCroppedImageStep2(), (dialog = false)"
+                >Crop</v-btn
+              >
+            </div>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
     <Preloader v-else />
   </div>
@@ -129,6 +272,19 @@ export default {
   },
 
   data: () => ({
+    tab: null,
+    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    test_employee: {
+      name: "Sonia Taylor",
+      position: "Senior Software Engineer",
+      department: "Engineering",
+      photoUrl:
+        "https://laravelui.spruko.com/valex/build/assets/img/users/6.jpg",
+      email: "johndoe@example.com",
+      phone: "+1 123-456-7890",
+      address: "123 Main Street, City, State, Zip Code",
+      skills: ["Java", "Python", "JavaScript"],
+    },
     snack: false,
     snackColor: "",
     snackText: "",
