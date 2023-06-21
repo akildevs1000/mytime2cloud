@@ -378,8 +378,8 @@ export default {
     data: [],
     errors: [],
     headers_table: [
-      { text: "#", align: "left", sortable: true, value: "sno" },
-      { text: "Department Code", align: "left", sortable: true, value: "id" },
+      { text: "#", align: "left", sortable: true, value: "sno", width: "50px" },
+      { text: "Department Code", align: "left", sortable: true, value: "id", width: "150px" },
       { text: "Department", align: "left", sortable: true, value: "name" },
       { text: "Sub Department", align: "left", sortable: true, value: "sub_dep.name" },
       { text: "Designations", align: "left", sortable: true, value: "designations" },
