@@ -189,8 +189,8 @@ class PayslipController extends Controller
 
             $present = $attendances->where('status', 'P')->count();
             $absent = $attendances->where('status', 'A')->count();
-            $present = 29;
-            $absent = 1;
+            // $present = 29;
+            // $absent = 1;
             $payroll = $employee->payroll;
 
             $salary_type = $payroll->payroll_formula->salary_type;
