@@ -21,7 +21,7 @@ class PayslipController extends Controller
             ->withOut("schedule")
             ->with("payroll", "designation")
             ->where("company_id", $request->company_id)
-            ->get(["id", "employee_id", "display_name"]);
+            ->get(["id", "employee_id", "display_name", "first_name", "last_name"]);
         $data = [];
 
         foreach ($employees as $employee) {
@@ -43,7 +43,7 @@ class PayslipController extends Controller
             ->when($request->filled('department_id'), function ($q) use ($request) {
                 $q->where('department_id', $request->department_id);
             })
-            ->get(["id", "employee_id", "display_name"]);
+            ->get(["id", "employee_id", "display_name", "first_name", "last_name"]);
         $data = [];
 
         foreach ($employees as $employee) {
@@ -67,7 +67,7 @@ class PayslipController extends Controller
             ->with("payroll", "designation")
 
             ->where("company_id", $request["company_id"])
-            ->get(["id", "employee_id", "display_name"]);
+            ->get(["id", "employee_id", "display_name", "first_name", "last_name"]);
         $data = [];
 
         foreach ($employees as $employee) {
@@ -90,7 +90,7 @@ class PayslipController extends Controller
             ->with("payroll", "designation")
             ->wherein("id", $request["employee_ids"])
             ->where("company_id", $request["company_id"])
-            ->get(["id", "employee_id", "display_name"]);
+            ->get(["id", "employee_id", "display_name", "first_name", "last_name"]);
 
         $data = [];
         foreach ($employees as $employee) {
@@ -189,8 +189,8 @@ class PayslipController extends Controller
 
             $present = $attendances->where('status', 'P')->count();
             $absent = $attendances->where('status', 'A')->count();
-            // $present = 29;
-            // $absent = 1;
+            $present = 29;
+            $absent = 1;
             $payroll = $employee->payroll;
 
             $salary_type = $payroll->payroll_formula->salary_type;
@@ -205,7 +205,7 @@ class PayslipController extends Controller
 
             $extraEarnings = [
                 "label" => "Basic",
-                "value" => $payroll->SELECTEDSALARY,
+                "value" => $payroll->basic_salary,
             ];
 
             $payroll->earnings = array_merge([$extraEarnings], $payroll->earnings);
@@ -229,6 +229,8 @@ class PayslipController extends Controller
             $payroll->absentDays = $absent;
             $payroll['employee_id'] = $employee->employee_id;
             $payroll['display_name'] = $employee->display_name;
+            $payroll['first_name'] = $employee->first_name;
+            $payroll['last_name'] = $employee->last_name;
             $payroll['position'] = $employee->designation->name;
 
             $payroll['status'] = true;
