@@ -260,7 +260,7 @@
               <template v-slot:item.display_name="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
                   :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
-                  {{ item.display_name }}
+                  {{ item.first_name }} {{ item.last_name }}
                   <template v-slot:input>
                     <v-text-field @input="datatable_searchByName" v-model="datatable_search_textbox"
                       label="Search Employee Name"></v-text-field>
