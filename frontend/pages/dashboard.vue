@@ -86,11 +86,14 @@
 
       </v-row>
       <v-row>
-        <v-col cols="12" md="12" lg="9" xl="9">
+        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="4">
           <DailyLogs />
         </v-col>
+        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="4">
+          <PIE :items="items" />
+        </v-col>
 
-        <v-col xs="12" sm="12" cols="12" md="3" lg="3" xl="3">
+        <v-col cols="12" xs="12" sm="12" md="12" lg="12" xl="4">
           <v-card style="height:500px">
             <v-toolbar color="primary" dark flat>
               <v-toolbar-title>Announcements</v-toolbar-title>

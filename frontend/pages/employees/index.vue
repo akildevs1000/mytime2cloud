@@ -208,34 +208,19 @@
               v-model="pagination.per_page" :items="[50, 100, 500, 1000]" placeholder="Per Page Records" solo flat
               :hide-details="true"></v-select>
           </v-col> -->
-        <v-col xs="12" sm="12" md="3">
+        <v-col xs="4" sm="6" md="6" lg="6" xl="6">
           <v-select class="custom-text-box shadow-none" @change="getDataFromApi()" v-model="department_filter_id"
             item-text="name" item-value="id" :items="[{ name: `All Departments`, id: `` }, ...departments]"
             placeholder="Department" solo flat :hide-details="true"></v-select>
         </v-col>
-        <v-col xs="12" sm="12" md="3">
-          <!-- <v-text-field
-          class="rounded-md custom-text-box shadow-none"
-          :hide-details="true"
-          placeholder="Search..."
-          solo
-          flat
-          @input="searchIt"
-          v-model="search"
-        ></v-text-field> -->
 
-        </v-col>
-        <!-- <v-col cols="3" align="right">
-          <input style="width:200px;height: 33px;" small class="form-control py-3 custom-text-box floating shadow-none"
-            placeholder="Search Employee Details" @input="searchIt" v-model="search" type="text" />
-        </v-col> -->
-        <v-col cols="6" align="right">
+        <v-col xs="8" sm="6" md="6" lg="6" xl="6" align="right">
 
-          <v-btn v-if="can('employee_import_access')" small dark class="primary" @click="dialog = true">
+          <v-btn v-if="can('employee_import_access')" small dark class="primary  " @click="dialog = true">
             Import <v-icon right dark>mdi-cloud-upload</v-icon>
           </v-btn>
 
-          <v-btn v-if="can('employee_export_access')" small dark class="primary" @click="export_submit">
+          <v-btn v-if="can('employee_export_access')" small dark class="primary xs-margin-5" @click="export_submit">
             Export <v-icon right dark>mdi-cloud-download</v-icon>
           </v-btn>
 
@@ -262,7 +247,7 @@
 
                 </v-col>
 
-                <v-col class="toolbaritems-button-design1">
+                <v-col class="toolbaritems-button-design1 xs-padding-0">
                   <v-btn v-if="can('employee_create')" @click="employeeDialog = true" small dark class="primary">{{ Model
                   }} <v-icon right dark>mdi-account-tie</v-icon>
                   </v-btn>

@@ -3,7 +3,7 @@
     <div style="text-align: center; color: red">{{ emptyLogmessage }}</div>
   </div>
   <v-row v-else>
-    <v-col xs="12" sm="12" cols="12" md="6" lg="6" xl="6">
+    <v-col xs="12" sm="12" cols="12" md="12" lg="12" xl="12">
       <v-card style="height: 500px">
         <v-toolbar flat class="mb-15 pt-1">
           <h5>
@@ -53,11 +53,11 @@
         </v-slide-group>
       </v-card>
     </v-col>
-    <v-col xs="12" sm="12" cols="12" md="6" lg="6" xl="6">
+    <!-- <v-col xs="12" sm="12" cols="12" md="6" lg="6" xl="6">
       <v-card style="height: 500px">
         <PIE :items="items" />
       </v-card>
-    </v-col>
+    </v-col> -->
   </v-row>
 </template>
 
