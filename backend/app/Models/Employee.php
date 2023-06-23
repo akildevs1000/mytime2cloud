@@ -79,6 +79,29 @@ class Employee extends Model
         return $this->hasOne(Passport::class);
     }
 
+    public function emirate()
+    {
+        return $this->hasOne(EmiratesInfo::class);
+    }
+
+    public function qualification()
+    {
+        return $this->hasOne(Qualification::class)->withDefault([
+            "certificate" => "---",
+        ]);
+    }
+
+    public function bank()
+    {
+        return $this->hasOne(BankInfo::class)->withDefault([
+            "bank_name" => "---",
+            "account_no" => "---",
+            "account_title" => "---",
+            "address" => "---",
+            "iban" => "---",
+        ]);
+    }
+
     public function department()
     {
         return $this->belongsTo(Department::class)->withDefault([

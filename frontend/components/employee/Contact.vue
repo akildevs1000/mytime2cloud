@@ -8,37 +8,7 @@
 
     <v-container>
       <v-row>
-        <v-col md="6" sm="12" cols="12" dense>
-          <label class="col-form-label">Local Address</label>
-          <v-text-field
-            dense
-            outlined
-            :hide-details="!errors.local_address"
-            type="text"
-            v-model="contactItem.local_address"
-            :error="errors.local_address"
-            :error-messages="
-              errors && errors.local_address ? errors.local_address[0] : ''
-            "
-          ></v-text-field>
-        </v-col>
-
-        <v-col md="6" sm="12" cols="12" dense>
-          <label class="col-form-label">Email</label>
-          <v-text-field
-            dense
-            outlined
-            :hide-details="!errors.local_email"
-            type="text"
-            v-model="contactItem.local_email"
-            :error="errors.local_email"
-            :error-messages="
-              errors && errors.local_email ? errors.local_email[0] : ''
-            "
-          ></v-text-field>
-        </v-col>
-
-        <v-col md="6" sm="12" cols="12" dense>
+        <v-col md="4" sm="12" cols="12" dense>
           <label class="col-form-label">Phone Number</label>
           <v-text-field
             dense
@@ -53,7 +23,7 @@
           ></v-text-field>
         </v-col>
 
-        <v-col md="6" sm="12" cols="12" dense>
+        <v-col md="4" sm="12" cols="12" dense>
           <label class="col-form-label">Whatsapp Number</label>
           <v-text-field
             dense
@@ -64,6 +34,21 @@
             :error="errors.whatsapp_number"
             :error-messages="
               errors && errors.whatsapp_number ? errors.whatsapp_number[0] : ''
+            "
+          ></v-text-field>
+        </v-col>
+
+        <v-col md="4" sm="12" cols="12" dense>
+          <label class="col-form-label">Alternate Email</label>
+          <v-text-field
+            dense
+            outlined
+            :hide-details="!errors.local_email"
+            type="text"
+            v-model="contactItem.local_email"
+            :error="errors.local_email"
+            :error-messages="
+              errors && errors.local_email ? errors.local_email[0] : ''
             "
           ></v-text-field>
         </v-col>
@@ -100,7 +85,22 @@
           ></v-text-field>
         </v-col>
 
-        <v-col md="6" sm="12" cols="12" dense>
+        <v-col md="4" sm="12" cols="12" dense>
+          <label class="col-form-label">Local Address</label>
+          <v-text-field
+            dense
+            outlined
+            :hide-details="!errors.local_address"
+            type="text"
+            v-model="contactItem.local_address"
+            :error="errors.local_address"
+            :error-messages="
+              errors && errors.local_address ? errors.local_address[0] : ''
+            "
+          ></v-text-field>
+        </v-col>
+
+        <v-col md="4" sm="12" cols="12" dense>
           <label class="col-form-label">Local City</label>
           <v-text-field
             dense
@@ -115,7 +115,7 @@
           ></v-text-field>
         </v-col>
 
-        <v-col md="6" sm="12" cols="12" dense>
+        <v-col md="4" sm="12" cols="12" dense>
           <label class="col-form-label">Local Country</label>
           <v-text-field
             dense
@@ -131,10 +131,7 @@
         </v-col>
 
         <v-col cols="12">
-          <v-btn 
-          class="primary--text"
-          text 
-          @click="other_info = !other_info">
+          <v-btn class="primary--text" text @click="other_info = !other_info">
             {{ other_info ? "hide" : "show" }} Home Country Details
           </v-btn>
         </v-col>
@@ -247,7 +244,7 @@
         </v-col>
 
         <v-col md="6" sm="12" cols="12" dense>
-          <label class="col-form-label">Email</label>
+          <label class="col-form-label">Personal Email</label>
           <v-text-field
             dense
             outlined

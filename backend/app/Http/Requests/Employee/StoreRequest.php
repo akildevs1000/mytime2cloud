@@ -43,6 +43,7 @@ class StoreRequest extends FormRequest
             'system_user_id' => ['required', $controller->uniqueRecord("employees", $employeeDevice)],
             'display_name' => ['required', 'min:3', 'max:10'],
             'title' => ['required'],
+            'joining_date' => ['required'],
             'status' => ['nullable'],
             'email' => 'nullable|min:3|max:191|unique:users',
             'profile_picture' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
