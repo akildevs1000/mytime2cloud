@@ -204,7 +204,7 @@
 
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
+            <v-toolbar-title><span> {{ Model }} List </span></v-toolbar-title>
             <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
                 mdi-reload</v-icon></a>
             <v-spacer></v-spacer>
@@ -787,13 +787,3 @@ export default {
   },
 };
 </script>
-
-<!-- <style>
-.tiptap-vuetify-editor__content {
-  min-height: 300px !important;
-}
-
-.ProseMirror .ProseMirror-focused {
-  height: 400px !important;
-}
-</style> -->

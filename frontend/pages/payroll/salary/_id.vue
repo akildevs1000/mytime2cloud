@@ -81,7 +81,7 @@
                               {{ this.company_payload.p_o_box_no }}
                             </address>
                           </div>
-                          <div class="col-md-6 text-right addressheight">
+                          <div class="col-md-8 text-right addressheight">
                             <address>
                               <div style="height: 60px"></div>
                               <strong>EMP ID: {{ empCode }}</strong><br />
@@ -95,6 +95,8 @@
                         <div class="col-md-12">
                           <div class="row">
                             <div class="col-md-6 addressheight2">
+
+                              <!-- {{ data.earnings }} -->
                               <table class="mt-4 table table-bordered">
                                 <thead class="bg-dark text-white">
                                   <tr>
@@ -172,7 +174,7 @@
                     <div class="row">
                       <div class="border col-md-12">
                         <div class="d-flex flex-column">
-                          <span><strong>Net Salary: {{ this.data.earnedSubTotal }}
+                          <span><strong>Net Salary: {{ numberRound(this.data.earnedSubTotal) }}
                             </strong>
                           </span>
                         </div>
@@ -265,6 +267,11 @@ export default {
   },
 
   methods: {
+    numberRound(val) {
+
+      if (val)
+        return val.toFixed(2);
+    },
     can(per) {
       let u = this.$auth.user;
       return true;
@@ -296,8 +303,8 @@ export default {
           },
         })
         .then(({ data }) => {
-          console.log("Payslip", data);
-          this.data = data;
+          // console.log("Payslip", data);
+          this.data = data[0];
 
           this.earnings = data[0].earnings;
           this.deductions = data[0].deductions;
@@ -311,11 +318,11 @@ export default {
             "/donwload-payslip-pdf?company_id=" +
             this.$auth.user.company.id +
             "&employee_id=" +
-            data.employee_id +
+            this.data.employee_id +
             "&month=" +
-            data.month +
+            this.data.month +
             "&year=" +
-            data.year;
+            this.data.year;
 
           // this.loading = false;
         });

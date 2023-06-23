@@ -1253,6 +1253,8 @@ export default {
       switch (status) {
         case "Select All":
           return "SA";
+        case "All":
+          return "SA";
         case "Missing":
           return "---";
         case "Manual Entry":

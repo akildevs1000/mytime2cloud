@@ -36,7 +36,7 @@
                 <div class=" text-right addressheight">
                     <address>
                         <strong>EMP ID: {{ $data->employee_id }}</strong><br>
-                        Name: {{ $data->display_name }}<br>
+                        Name: {{ $data->first_name }} {{ $data->last_name }}<br>
                         Designation: {{ $data->position }}<br>
                     </address>
                 </div>
@@ -137,7 +137,7 @@
         <tr>
             <td colspan="2">
                 <div class=" "><span><strong>Final Salary:
-                            {{ number_format((float) $data->earnedSubTotal, 2, '.', '') }}
+                            {{ $data->earnedSubTotal }}
 
                         </strong> </span></div>
 

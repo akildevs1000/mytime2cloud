@@ -1,17 +1,20 @@
 <template>
-  <div style="padding: 0px ;width:100%">
+  <div>
+    <v-card style="height:500px">
+      <v-toolbar color="primary" dark flat>
+        <v-toolbar-title>Attendance</v-toolbar-title>
+      </v-toolbar>
+      <v-list style="min-height: 430px">
+        <div v-if="items[0].value == 0 && items[1].value == 0 && items[2].value == 0 && items[3].value == 0" class="
+        center-parent">
+          <div class="center-child">Attendance data is not available on Today</div>
+        </div>
+        <div v-else id=" pie"></div>
+      </v-list>
+
+    </v-card>
 
 
-
-    <div v-if="items[0].value == 0 && items[1].value == 0 && items[2].value == 0 && items[3].value == 0"
-      style="min-height: 400px">
-      <div style="text-align: center; color: red;margin: 0;
-    position: absolute;
-    top: 50%;
-
-    left: 30%;">Attendance data is not available on Today</div>
-    </div>
-    <div v-else id="pie"></div>
 
   </div>
 </template>
