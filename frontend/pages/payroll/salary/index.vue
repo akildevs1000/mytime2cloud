@@ -138,7 +138,7 @@
         <v-col>
           <v-card class="mb-5" elevation="0">
             <v-toolbar class="rounded-md mb-2 white--text" color="background" dense flat>
-              <v-col cols="9">
+              <v-col cols="8">
                 <span> Dashboard / Payslip List</span>
                 <v-icon @click="getDataFromApi()" class="mx-1 white--text">mdi mdi-reload</v-icon>
 
@@ -146,10 +146,11 @@
                   class="primary   toolbar-button-design1" color="primary"> Payslips For selected
                 </v-btn>
               </v-col>
-              <v-col cols="3" class="text-right">
+              <v-col cols="4" class="text-right">
                 <v-btn @click="openPayslipDialog" small dark class="primary  mx-1   toolbar-button-design1 "
                   color="primary">
-                  Payslips By Department
+                  Payslips Generation <v-icon @click="showFilters = !showFilters" class="mx-1 white--text">mdi
+                    mdi-currency-usd</v-icon>
                 </v-btn>
                 <v-btn v-if="downloadAllDisplayStatus" download :href="payslipsDownloadAllURL" small dark
                   class="primary   mx-1 toolbar-button-design1" color="primary"> All Payslips <v-icon
