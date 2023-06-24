@@ -97,10 +97,10 @@
     </v-row>
 
     <v-row class="mt-5 mb-5">
-      <v-col cols="6">
+      <!-- <v-col cols="6">
         <h3>{{ Model }}</h3>
         <div>Dashboard / {{ Model }}</div>
-      </v-col>
+      </v-col> -->
       <v-col cols="12">
         <v-card elevation="2" class="pa-5">
           <v-row>

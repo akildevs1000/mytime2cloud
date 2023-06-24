@@ -1,11 +1,7 @@
 <template>
   <div>
     <div>
-      <v-dialog
-        v-model="dialogGeneralreport"
-        :fullscreen="false"
-        max-width="80%"
-      >
+      <v-dialog v-model="dialogGeneralreport" :fullscreen="false" max-width="80%">
         <v-card>
           <!-- <v-card-actions>
               <v-spacer></v-spacer>
@@ -17,11 +13,7 @@
             <v-container style="max-width: 100%; padding: 0px">
               <v-row>
                 <v-col cols="12">
-                  <iframe
-                    v-if="iframeDisplay"
-                    :src="iframeUrl"
-                    frameborder="0"
-                  ></iframe>
+                  <iframe v-if="iframeDisplay" :src="iframeUrl" frameborder="0"></iframe>
                 </v-col>
               </v-row>
             </v-container>
@@ -29,16 +21,7 @@
         </v-card>
       </v-dialog>
       <v-row>
-        <v-col
-          cols="12"
-          xs="12"
-          sm="12"
-          md="3"
-          lg="6"
-          xl="3"
-          v-for="(i, index) in items"
-          :key="index"
-        >
+        <v-col cols="12" xs="12" sm="12" md="3" lg="6" xl="3" v-for="(i, index) in items" :key="index">
           <div class="card p-2" :class="i.color" style="min-height: 150px">
             <div class="card-statistic-3">
               <div class="card-icon card-icon-large">
@@ -48,10 +31,7 @@
                 <h4 class="card-title text-capitalize">{{ i.title }}</h4>
                 <span class="data-1"> {{ i.value }}</span>
                 <p class="mb-0 text-sm">
-                  <span
-                    class="handcursor font-11"
-                    @click="showDialogGeneralreport(i.link)"
-                  >
+                  <span class="handcursor font-11" @click="showDialogGeneralreport(i.link)">
                     <span class="mr-2">
                       <v-icon dark small>mdi-arrow-right</v-icon>
                     </span>
@@ -67,9 +47,7 @@
             <v-toolbar class="background" dense dark>
               <div><b>Attendance Logs</b></div>
               <v-spacer></v-spacer>
-              <v-btn to="/employees/logs" small class="primary"
-                >View More &nbsp;<v-icon>mdi-eye</v-icon></v-btn
-              >
+              <v-btn to="/employees/logs" small class="primary">View More &nbsp;<v-icon>mdi-eye</v-icon></v-btn>
             </v-toolbar>
             <v-container>
               <NoRecordFound :data="attendance_logs" />
@@ -102,89 +80,67 @@
                     <v-card-title class="text-h5 primary white--text">
                       Announcement Detail
                       <v-spacer></v-spacer>
-                      <v-icon color="background" dark @click="dialog = false"
-                        >mdi-close</v-icon
-                      >
+                      <v-icon color="background" dark @click="dialog = false">mdi-close</v-icon>
                     </v-card-title>
 
                     <v-card-text class="mt-3">
-                      <table
-                        style="
+                      <table style="
                           font-family: arial, sans-serif;
                           border-collapse: collapse;
                           width: 100%;
-                        "
-                      >
+                        ">
                         <tr>
-                          <th
-                            style="
+                          <th style="
                               border: 1px solid #dddddd;
                               text-align: left;
                               padding: 8px;
-                            "
-                          >
+                            ">
                             Title
                           </th>
-                          <td
-                            style="
+                          <td style="
                               border: 1px solid #dddddd;
                               text-align: left;
                               padding: 8px;
-                            "
-                          >
+                            ">
                             {{ dialogData.title }}
                           </td>
                         </tr>
                         <tr>
-                          <th
-                            style="
+                          <th style="
                               border: 1px solid #dddddd;
                               text-align: left;
                               padding: 8px;
-                            "
-                          >
+                            ">
                             Description
                           </th>
-                          <td
-                            style="
+                          <td style="
                               border: 1px solid #dddddd;
                               text-align: left;
                               padding: 8px;
-                            "
-                          >
+                            ">
                             {{ dialogData.description }}
                           </td>
                         </tr>
 
                         <tr>
-                          <th
-                            style="
+                          <th style="
                               border: 1px solid #dddddd;
                               text-align: left;
                               padding: 8px;
-                            "
-                          >
+                            ">
                             When
                           </th>
-                          <td
-                            style="
+                          <td style="
                               border: 1px solid #dddddd;
                               text-align: left;
                               padding: 8px;
-                            "
-                          >
-                            <b
-                              class="primary--text"
-                              v-if="getCurrentDate == dialogData.start_date"
-                              >{{ dialogData.start_date }}</b
-                            >
+                            ">
+                            <b class="primary--text" v-if="getCurrentDate == dialogData.start_date">{{
+                              dialogData.start_date }}</b>
                             <span v-else>{{ dialogData.start_date }}</span>
                             -
-                            <b
-                              class="primary--text"
-                              v-if="getCurrentDate == dialogData.end_date"
-                              >{{ dialogData.end_date }}</b
-                            >
+                            <b class="primary--text" v-if="getCurrentDate == dialogData.end_date">{{ dialogData.end_date
+                            }}</b>
                             <span v-else>{{ dialogData.end_date }}</span>
                           </td>
                         </tr>
@@ -201,29 +157,21 @@
             <v-toolbar class="background" dense dark>
               <div><b>Announcements</b></div>
               <v-spacer></v-spacer>
-              <v-btn small class="primary" to="/employees/announcements"
-                >View More &nbsp;<v-icon>mdi-eye</v-icon></v-btn
-              >
+              <v-btn small class="primary" to="/employees/announcements">View More &nbsp;<v-icon>mdi-eye</v-icon></v-btn>
             </v-toolbar>
             <v-container>
               <NoRecordFound :data="announcements" />
 
               <v-list>
-                <v-list-item
-                  v-for="(announcement, index) in announcements"
-                  :key="index"
-                >
-                  <v-list-item-content
-                    style="
+                <v-list-item v-for="(announcement, index) in announcements" :key="index">
+                  <v-list-item-content style="
                       border-top: 1px dotted grey;
                       border-bottom: 1px dotted grey;
-                    "
-                  >
+                    ">
                     <v-list-item-title>{{
                       announcement.title
                     }}</v-list-item-title>
-                    <v-list-item-subtitle
-                      >{{ getExcerpt(announcement.description, 30) }}&nbsp;
+                    <v-list-item-subtitle>{{ getExcerpt(announcement.description, 30) }}&nbsp;
                       <!-- <v-chip
                         x-small
                         color="background"
@@ -233,20 +181,13 @@
                         <v-icon x-small>mdi-chevron-right</v-icon></v-chip
                       > -->
                     </v-list-item-subtitle>
-                    <v-list-item-subtitle
-                      >When:
-                      <b
-                        class="primary--text"
-                        v-if="getCurrentDate == announcement.start_date"
-                        >{{ announcement.start_date }}</b
-                      >
+                    <v-list-item-subtitle>When:
+                      <b class="primary--text" v-if="getCurrentDate == announcement.start_date">{{ announcement.start_date
+                      }}</b>
                       <span v-else>{{ announcement.start_date }}</span>
                       -
-                      <b
-                        class="primary--text"
-                        v-if="getCurrentDate == announcement.end_date"
-                        >{{ announcement.end_date }}</b
-                      >
+                      <b class="primary--text" v-if="getCurrentDate == announcement.end_date">{{ announcement.end_date
+                      }}</b>
                       <span v-else>{{ announcement.end_date }}</span>
                     </v-list-item-subtitle>
                   </v-list-item-content>
@@ -259,144 +200,102 @@
                       <v-card-title class="text-h5 primary white--text">
                         Announcement Detail
                         <v-spacer></v-spacer>
-                        <v-icon color="background" dark @click="dialog = false"
-                          >mdi-close</v-icon
-                        >
+                        <v-icon color="background" dark @click="dialog = false">mdi-close</v-icon>
                       </v-card-title>
 
                       <v-card-text class="mt-3">
-                        <table
-                          style="
+                        <table style="
                             font-family: arial, sans-serif;
                             border-collapse: collapse;
                             width: 100%;
-                          "
-                        >
+                          ">
                           <tr>
-                            <th
-                              style="
+                            <th style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
+                              ">
                               Title
                             </th>
-                            <td
-                              style="
+                            <td style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
+                              ">
                               {{ dialogData.title }}
                             </td>
                           </tr>
                           <tr>
-                            <th
-                              style="
+                            <th style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
+                              ">
                               Description
                             </th>
-                            <td
-                              style="
+                            <td style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
+                              ">
                               {{ dialogData.description }}
                             </td>
                           </tr>
                           <tr>
-                            <th
-                              style="
+                            <th style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
+                              ">
                               Departments
                             </th>
-                            <td
-                              style="
+                            <td style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
-                              <v-chip
-                                class="primary mx-1"
-                                x-small
-                                v-for="(
+                              ">
+                              <v-chip class="primary mx-1" x-small v-for="(
                                   department, dIndex
-                                ) in dialogData.departments"
-                                :key="dIndex"
-                                >{{ department.name }}</v-chip
-                              >
+                                ) in dialogData.departments" :key="dIndex">{{ department.name }}</v-chip>
                             </td>
                           </tr>
                           <tr>
-                            <th
-                              style="
+                            <th style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
+                              ">
                               Employees
                             </th>
-                            <td
-                              style="
+                            <td style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
-                              <v-chip
-                                class="primary mx-1"
-                                x-small
-                                v-for="(
+                              ">
+                              <v-chip class="primary mx-1" x-small v-for="(
                                   employee, eIndex
-                                ) in dialogData.employees"
-                                :key="eIndex"
-                                >{{ employee.display_name }}</v-chip
-                              >
+                                ) in dialogData.employees" :key="eIndex">{{ employee.display_name }}</v-chip>
                             </td>
                           </tr>
                           <tr>
-                            <th
-                              style="
+                            <th style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
+                              ">
                               When
                             </th>
-                            <td
-                              style="
+                            <td style="
                                 border: 1px solid #dddddd;
                                 text-align: left;
                                 padding: 8px;
-                              "
-                            >
-                              <b
-                                class="primary--text"
-                                v-if="getCurrentDate == dialogData.start_date"
-                                >{{ dialogData.start_date }}</b
-                              >
+                              ">
+                              <b class="primary--text" v-if="getCurrentDate == dialogData.start_date">{{
+                                dialogData.start_date }}</b>
                               <span v-else>{{ dialogData.start_date }}</span>
                               -
-                              <b
-                                class="primary--text"
-                                v-if="getCurrentDate == dialogData.end_date"
-                                >{{ dialogData.end_date }}</b
-                              >
+                              <b class="primary--text" v-if="getCurrentDate == dialogData.end_date">{{ dialogData.end_date
+                              }}</b>
                               <span v-else>{{ dialogData.end_date }}</span>
                             </td>
                           </tr>
@@ -593,6 +492,7 @@ export default {
       this.$router.push(`/attendance_report`);
     },
     initialize() {
+
       this.loading = false;
       let options = {
         company_id: this.$auth.user.company.id,
