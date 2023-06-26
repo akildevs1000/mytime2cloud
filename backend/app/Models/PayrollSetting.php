@@ -11,6 +11,13 @@ class PayrollSetting extends Model
 
     protected $guarded = [];
 
+    protected $appends = ['day_number'];
+
+    public function getDayNumberAttribute()
+    {
+        return (int) date("d", strtotime($this->date));
+    }
+
     /**
      * Get the user that owns the PayrollSetting
      *

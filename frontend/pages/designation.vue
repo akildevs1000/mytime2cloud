@@ -7,10 +7,6 @@
     </div>
     <v-row class="mt-5 mb-5">
       <v-col cols="6">
-        <h3>{{ Model }}</h3>
-        <div>Dashboard / {{ Model }}</div>
-      </v-col>
-      <v-col cols="6">
         <div class="text-right">
 
           <v-btn small class="primary" to="/department">

@@ -5,18 +5,6 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-row class="mt-5 mb-5">
-      <v-col cols="6">
-        <h3>{{ Model }}</h3>
-        <div>Dashboard / {{ Model }}</div>
-      </v-col>
-      <v-col cols="6">
-        <!-- <div class="text-right">
-          <v-btn v-if="can(`shift_create`)" small color="primary" to="/shift/create" class="mb-2">{{ Model }} +</v-btn>
-        </div> -->
-      </v-col>
-    </v-row>
-
     <v-card elevation="0" v-if="can(`shift_view`)">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
         <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>

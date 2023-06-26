@@ -26,10 +26,10 @@ class DepartmentController extends Controller
             $q->where('name', 'ILIKE', "$request->serach_department_name%");
         });
         $model->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
-            $q->whereHas('children', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_sub_department_name%"));
+            $q->whereHas('children', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->serach_sub_department_name%"));
         });
         $model->when($request->filled('serach_designation_name'), function ($q) use ($request) {
-            $q->whereHas('designations', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_designation_name%"));
+            $q->whereHas('designations', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->serach_designation_name%"));
         });
         $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
             $q->select($cols);
@@ -54,9 +54,11 @@ class DepartmentController extends Controller
             $data["company_id"] = $request->company_id;
         }
         try {
-            $record = $model->create($data);
 
-            if ($record) {
+            $record = $model->create($data);
+            $userCreated = (new UserController)->create_user($request);
+
+            if ($record && $userCreated) {
                 return $this->response('Department successfully added.', $record->with('children'), true);
             } else {
                 return $this->response('Department cannot add.', null, false);
