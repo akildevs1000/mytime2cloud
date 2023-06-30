@@ -379,22 +379,30 @@ export default {
           company_id: this.$auth.user.company.id,
         },
       };
+
+
+
       this.$axios.get(`leave_type`, options).then(({ data }) => {
         this.leaveTypes = data.data;
-        let UpdatedLeaveTypes = [];
-        this.leaveTypes.forEach(leavetype => {
-          let alreadyExist = false;
-          this.data.forEach(group => {
-            if (group.leave_type_id == leavetype.id) {
-              alreadyExist = true;
-            }
-          });
+        // if (this.editedIndex <= -1) {
 
-          if (!alreadyExist)
-            UpdatedLeaveTypes.push(leavetype);
-        });
+        //   let UpdatedLeaveTypes = [];
+        //   this.leaveTypes.forEach(leavetype => {
+        //     let alreadyExist = false;
+        //     this.data.forEach(group => {
+        //       if (group.leave_type_id == leavetype.id) {
+        //         alreadyExist = true;
+        //       }
+        //     });
 
-        this.leaveTypes = UpdatedLeaveTypes;
+        //     if (!alreadyExist)
+        //       UpdatedLeaveTypes.push(leavetype);
+        //   });
+
+        //   this.leaveTypes = UpdatedLeaveTypes;
+
+        // }
+
       });
     },
     getDesignations() {
