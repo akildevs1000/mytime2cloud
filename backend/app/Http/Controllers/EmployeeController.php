@@ -74,9 +74,9 @@ class EmployeeController extends Controller
             }
 
             $data["user_id"] = $user->id;
-
-            unset($data['email']);
         }
+
+        if ($request->email) unset($data['email']);
 
         try {
 
