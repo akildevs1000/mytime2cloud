@@ -75,7 +75,7 @@ class LeaveCountController extends Controller
             throw $th;
         }
     }
-    public function destroy(LeaveCount $LeaveCount, $id)
+    public function destroy($id)
     {
 
         if (LeaveCount::find($id)->delete()) {
