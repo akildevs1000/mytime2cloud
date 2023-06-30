@@ -419,7 +419,7 @@
             @save="getDataFromApi()"
             @open="datatable_open"
           >
-            {{ caps(item.employee_id) }}
+            {{ caps(item.employee.employee_id) }}
             <template v-slot:input>
               <v-text-field
                 v-model="datatable_search_textbox"
@@ -700,7 +700,7 @@ export default {
         sortable: false,
       },
       {
-        text: "Employee Id",
+        text: "Emp Id",
         align: "left",
         sortable: true,
         value: "employee_id",
