@@ -15,7 +15,7 @@
             <v-text-field :hide-details="!payload.from_date" outlined dense v-model="payload.from_date_txt" readonly
               v-bind="attrs" v-on="on" placeholder="Date"></v-text-field>
           </template>
-          <v-date-picker style="height:322px" v-model="payload.from_date" no-title scrollable @change="searchIt">
+          <v-date-picker style="height:350px" v-model="payload.from_date" no-title scrollable @change="searchIt">
             <v-spacer></v-spacer>
             <!-- <v-btn class="blue-grey" small dark @click="from_menu = false">
               Cancel
@@ -34,7 +34,7 @@
             <v-text-field :hide-details="!payload.to_date" outlined dense v-model="payload.to_date_txt" readonly
               v-bind="attrs" v-on="on" placeholder="Date"></v-text-field>
           </template>
-          <v-date-picker style="height:322px" v-model="payload.to_date" no-title scrollable @change="searchIt">
+          <v-date-picker style="height:350px" v-model="payload.to_date" no-title scrollable @change="searchIt">
             <!-- <v-spacer></v-spacer>
             <v-btn class="blue-grey" small dark @click="to_menu = false">
               Cancel

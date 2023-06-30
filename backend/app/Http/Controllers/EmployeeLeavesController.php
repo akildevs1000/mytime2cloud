@@ -1,0 +1,167 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\EmployeeLeaves\StoreRequest;
+use App\Http\Requests\EmployeeLeaves\UpdateRequest;
+use App\Models\EmployeeLeaves;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class EmployeeLeavesController extends Controller
+{
+    public function getDefaultModelSettings($request)
+    {
+        $model = EmployeeLeaves::query();
+        $model->with(["leave_type", "employee.leave_group", "reporting"]);
+        $model->where('company_id', $request->company_id);
+        // $model->where('year', $request->year);
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+            $q->where('employee_id', $request->employee_id);
+        });
+        $model->when($request->filled('name'), function ($q) use ($request) {
+            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->name%"));
+        });
+        $model->when($request->filled('group_name'), function ($q) use ($request) {
+            $q->whereHas('employee.leave_group', fn(Builder $query) => $query->where('group_name', 'ILIKE', "$request->group_name%"));
+        });
+        $model->when($request->filled('leave_type_name'), function ($q) use ($request) {
+            $q->whereHas('leave_type', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->leave_type_name%"));
+        });
+        $model->when($request->filled('start_date'), function ($q) use ($request) {
+            $q->where('start_date', 'ILIKE', "$request->start_date%");
+        });
+        $model->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date', 'ILIKE', "$request->end_date%");
+        });
+        $model->when($request->filled('reason'), function ($q) use ($request) {
+            $q->where('reason', 'ILIKE', "$request->reason%");
+        });
+        $model->when($request->filled('reporting'), function ($q) use ($request) {
+            $q->whereHas('reporting', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->reporting%"));
+        });
+        $model->when($request->filled('created_at'), function ($q) use ($request) {
+            $q->where('created_at', 'ILIKE', "$request->created_at%");
+        });
+        $model->when($request->filled('status'), function ($q) use ($request) {
+            if (strtolower($request->status) == 'approved') {
+                $q->where('status', 1);
+            } else if (strtolower($request->status) == 'rejected') {
+                $q->where('status', 2);
+            } else if (strtolower($request->status) == 'pending') {
+                $q->where('status', 0);
+            }
+
+        });
+
+        return $model;
+    }
+
+    public function index(Request $request)
+    {
+
+        return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
+    }
+
+    function list(Request $request) {
+        return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
+    }
+
+    public function store(StoreRequest $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Database operations
+            $record = EmployeeLeaves::create($request->all());
+
+            DB::commit();
+            if ($record) {
+
+                return $this->response('Employee Leave Successfully created.', $record, true);
+            } else {
+                return $this->response('Employee Leave cannot be created.', null, false);
+            }
+        } catch (\Throwable $th) {
+            DB::rollback();
+            throw $th;
+        }
+    }
+    public function update(UpdateRequest $request, EmployeeLeaves $EmployeeLeaves, $id)
+    {
+
+        try {
+            $record = $EmployeeLeaves::find($id)->update($request->all());
+
+            if ($record) {
+
+                return $this->response('Employee Leave successfully updated.', $record, true);
+            } else {
+                return $this->response('Employee Leave cannot update.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function destroy(EmployeeLeaves $EmployeeLeaves, $id)
+    {
+
+        if (EmployeeLeaves::find($id)->delete()) {
+
+            return $this->response('Employee Leave successfully deleted.', null, true);
+        } else {
+            return $this->response('Employee Leave cannot delete.', null, false);
+        }
+    }
+    public function search(Request $request, $key)
+    {
+        return $this->getDefaultModelSettings($request)->where('title', 'LIKE', "%$key%")->paginate($request->per_page ?? 100);
+    }
+    public function deleteSelected(Request $request)
+    {
+        $record = EmployeeLeaves::whereIn('id', $request->ids)->delete();
+        if ($record) {
+
+            return $this->response('Employee Leave Successfully delete.', $record, true);
+        } else {
+            return $this->response('Employee Leave cannot delete.', null, false);
+        }
+    }
+
+    public function approveLeave(Request $request, $leaveId)
+    {
+        $model = EmployeeLeaves::find($leaveId);
+        if ($model) {
+            $model->status = 1;
+            $record = $model->save();
+
+            if ($record) {
+
+                return $this->response('Employee Leave Approved Successfully.', $record, true);
+            } else {
+                return $this->response('Employee Leave not approved.', null, false);
+            }
+        } else {
+            return $this->response('Employee Leave data is not available.', null, false);
+        }
+    }
+    public function rejectLeave(Request $request, $leaveId)
+    {
+        $model = EmployeeLeaves::find($leaveId);
+        if ($model) {
+            $model->status = 2;
+            $record = $model->save();
+
+            if ($record) {
+
+                return $this->response('Employee Leave Rejected Successfully.', $record, true);
+            } else {
+                return $this->response('Employee Leave not Rejected.', null, false);
+            }
+        } else {
+            return $this->response('Employee Leave data is not available.', null, false);
+        }
+    }
+}

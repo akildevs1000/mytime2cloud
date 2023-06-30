@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Payroll\StoreRequest;
 use App\Models\Payroll;
 use Illuminate\Http\Request;
-use App\Http\Requests\Payroll\StoreRequest;
-use App\Http\Requests\Payroll\UpdateRequest;
 
 class PayrollController extends Controller
 {
@@ -32,6 +31,6 @@ class PayrollController extends Controller
     {
         $where = ["company_id" => $request->company_id, "employee_id" => $id];
 
-        return $model->where($where)->first();
+        return $model->with(["leave_group"])->where($where)->first();
     }
 }

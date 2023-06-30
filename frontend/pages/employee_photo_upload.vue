@@ -793,7 +793,7 @@ export default {
           let selectedobject = this.rightDevices.find(
             (e) => e.id == this.rightSelectedDevices[i]
           );
-
+          selectedobject["sdkEmpResponse"] = "";
           this.leftDevices.push(selectedobject);
 
           this.rightDevices.splice(selectedindex, 1);
@@ -853,12 +853,14 @@ export default {
           let selectedobject = this.leftDevices.find(
             (e) => e.id == this.leftSelectedDevices[i]
           );
-
+          selectedobject["sdkDeviceResponse"] = "";
           this.rightDevices.push(selectedobject);
 
           this.leftDevices.splice(selectedindex, 1);
         }
       }
+
+
 
       this.rightDevices = this.sortObjectD(this.rightDevices);
 
@@ -883,6 +885,7 @@ export default {
             (e) => e.id == this.leftSelectedDevices[i]
           );
 
+          selectedobject["sdkDeviceResponse"] = "";
           this.rightDevices.push(selectedobject);
 
           this.leftDevices.splice(selectedindex, 1);

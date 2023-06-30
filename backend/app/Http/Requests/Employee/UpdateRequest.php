@@ -38,6 +38,8 @@ class UpdateRequest extends FormRequest
             'sub_department_id' => ['nullable'],
             'designation_id' => ['nullable'],
             'employee_id' => ['required'],
+            'leave_group_id' => ['nullable'],
+            'reporting_manager_id' => ['nullable'],
 
             'profile_picture' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
         ];
