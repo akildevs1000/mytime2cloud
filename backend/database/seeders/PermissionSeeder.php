@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Permission;
+use Illuminate\Database\Seeder;
 
 class PermissionSeeder extends Seeder
 {
@@ -216,9 +215,39 @@ class PermissionSeeder extends Seeder
             ['module' => 'announcement', 'title' => 'Announcement create', 'name' => 'announcement_create'],
             ['module' => 'announcement', 'title' => 'Announcement edit', 'name' => 'announcement_edit'],
             ['module' => 'announcement', 'title' => 'Announcement delete', 'name' => 'announcement_delete'],
+
+            ['module' => 'leave', 'title' => 'Leave access', 'name' => 'leave_access'],
+            ['module' => 'leave', 'title' => 'Leave view', 'name' => 'leave_view'],
+            ['module' => 'leave', 'title' => 'Leave create', 'name' => 'leave_create'],
+            ['module' => 'leave', 'title' => 'Leave edit', 'name' => 'leave_edit'],
+            ['module' => 'leave', 'title' => 'Leave  delete', 'name' => 'leave_delete'],
+
+            ['module' => 'leave_application', 'title' => 'Leave Application access', 'name' => 'leave_application_access'],
+            ['module' => 'leave_application', 'title' => 'Leave Application view', 'name' => 'leave_application_view'],
+            ['module' => 'leave_application', 'title' => 'Leave Application create', 'name' => 'leave_application_create'],
+            ['module' => 'leave_application', 'title' => 'Leave Application edit', 'name' => 'leave_application_edit'],
+            ['module' => 'leave_application', 'title' => 'Leave Application delete', 'name' => 'leave_application_delete'],
+
+            ['module' => 'leave_type', 'title' => 'Leave Type access', 'name' => 'leave_type_access'],
+            ['module' => 'leave_type', 'title' => 'Leave Type view', 'name' => 'leave_type_view'],
+            ['module' => 'leave_type', 'title' => 'Leave Type create', 'name' => 'leave_type_create'],
+            ['module' => 'leave_type', 'title' => 'Leave Type edit', 'name' => 'leave_type_edit'],
+            ['module' => 'leave_type', 'title' => 'Leave Type  delete', 'name' => 'leave_type_delete'],
+
+            ['module' => 'leave_group', 'title' => 'Leave Group access', 'name' => 'leave_group_access'],
+            ['module' => 'leave_group', 'title' => 'Leave Group view', 'name' => 'leave_group_view'],
+            ['module' => 'leave_group', 'title' => 'Leave Group create', 'name' => 'leave_group_create'],
+            ['module' => 'leave_group', 'title' => 'Leave Group edit', 'name' => 'leave_group_edit'],
+            ['module' => 'leave_group', 'title' => 'Leave Group  delete', 'name' => 'leave_group_delete'],
+
+            ['module' => 'holiday', 'title' => 'Holiday access', 'name' => 'holiday_access'],
+            ['module' => 'holiday', 'title' => 'Holiday view', 'name' => 'holiday_view'],
+            ['module' => 'holiday', 'title' => 'Holiday create', 'name' => 'holiday_create'],
+            ['module' => 'holiday', 'title' => 'Holiday edit', 'name' => 'holiday_edit'],
+            ['module' => 'holiday', 'title' => 'Holiday  delete', 'name' => 'holiday_delete'],
         ];
 
-        // run this command to seed the data => php artisan db:seed --class=PermissionSeeders
+        // run this command to seed the data => php artisan db:seed --class=PermissionSeeder
         Permission::insert($data);
     }
 }

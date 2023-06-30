@@ -47,7 +47,7 @@
                 <tr v-for="(item, index) in payroll.earnings" :key="index">
                   <th>{{ item.label }}</th>
                   <td class="text-left">
-                    :  {{ item.value }}
+                    : {{ item.value }}
                   </td>
                 </tr>
               </table>

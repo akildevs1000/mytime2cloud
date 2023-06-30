@@ -25,7 +25,7 @@ class Payroll extends Model
 
     public function payroll_formula()
     {
-        return $this->hasOne(PayrollFormula::class,"company_id","company_id");
+        return $this->hasOne(PayrollFormula::class, "company_id", "company_id");
     }
 
     // public function attendance()

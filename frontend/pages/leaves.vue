@@ -6,10 +6,10 @@
       </v-snackbar>
     </div>
 
-    <v-dialog v-model="dialogLeaveGroup" width="600px">
+    <v-dialog v-model="dialogLeaveGroup" width="500px">
       <v-card>
         <v-toolbar flat small dense dark class="background">
-          <span class="headline">Group Information </span>
+          <span class="headline">Employee - {{ viewEmployeeName }} </span>
         </v-toolbar>
         <v-card-text style="padding:5px">
 
@@ -33,6 +33,12 @@
           </v-data-table>
 
 
+
+
+
+
+
+
         </v-card-text>
 
 
@@ -50,9 +56,9 @@
             <v-row>
               <v-col cols="12">
                 <label for="" style="padding-bottom:5px">Leave Type</label>
-                <v-autocomplete :items="leaveTypes" item-text="leave_type.name" item-value="leave_type.id"
-                  placeholder="Select Leave Type" v-model="editedItem.leave_type_id" :hide-details="!errors.leave_type_id"
-                  :error="errors.leave_type_id" :error-messages="errors && errors.leave_type_id
+                <v-autocomplete :items="leaveTypes" item-text="name" item-value="id" placeholder="Select Leave Type"
+                  v-model="editedItem.leave_type_id" :hide-details="!errors.leave_type_id" :error="errors.leave_type_id"
+                  :error-messages="errors && errors.leave_type_id
                     ? errors.leave_type_id[0]
                     : ''
                     " dense outlined></v-autocomplete>
@@ -251,17 +257,13 @@
             <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
                 mdi-filter</v-icon></a>
             <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-col>
-                <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="gotoGroupDetails('')"
-                  class="mb-2">Group Info <v-icon>mdi-information</v-icon></v-btn>
-              </v-col>
-              <v-col>
+            <!-- <v-toolbar-items>
+              <v-col class="toolbaritems-button-design1">
                 <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
                   Model }}
                   +</v-btn>
               </v-col>
-            </v-toolbar-items>
+            </v-toolbar-items> -->
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -279,23 +281,60 @@
             }" class="elevation-1">
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
-                <td v-for="header in headers" :key="header.text" class="table-search-header">
-                  <v-text-field style="padding-left: 10px;" v-if="header.filterable" v-model="filters[header.value]"
-                    id="header.value" @input="applyFilters(header.value, $event)" outlined height="10px"
-                    clearable></v-text-field>
+                <td v-for="header in      headers     " :key="header.text" class="table-search-header">
+                  <v-text-field style="padding-left: 10px;" v-if="header.filterable && header.text != 'Status'"
+                    v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
+                    height="10px" clearable></v-text-field>
+
+                  <v-select class="filter-select-hidden-text" v-else-if="header.filterable && header.text == 'Status'"
+                    height="10px;width:5px" style="padding: 0px;" small density="compact"
+                    @change="applyFilters('status', $event)" clearable item-value="value" item-text="title" :items="[{ value: 'approved', title: 'Approved' }, {
+                      value: 'rejected',
+                      title: 'Rejected'
+                    }, { value: 'pending', title: 'Pending' }]"></v-select>
+
                   <template v-else>
-                    {{ header.text }}
+                    <!-- {{ header.text }} -->
                   </template>
                 </td>
               </tr>
             </template>
             <template v-slot:item.name="{ item }">
-              {{ (item.employee.first_name) }} {{ (item.employee.last_name) }}
-
+              <v-row no-gutters>
+                <v-col style="
+                        padding: 5px;
+                        padding-left: 0px;
+                        width: 50px;
+                        max-width: 50px;
+                      ">
+                  <v-img style="
+                          border-radius: 50%;
+                          height: auto;
+                          width: 50px;
+                          max-width: 50px;
+                        " :src="item.employee.profile_picture
+                          ? item.employee.profile_picture
+                          : '/no-profile-image.jpg'
+                          ">
+                  </v-img>
+                </v-col>
+                <v-col style="padding: 10px">
+                  <strong>
+                    {{ item.employee.first_name ? item.employee.first_name : "---" }}
+                    {{ item.employee.last_name ? item.employee.last_name : "---" }}</strong>
+                  <div>
+                    {{
+                      item.employee.designation ? (item.employee.designation.name) : "---"
+                    }}
+                  </div>
+                </v-col>
+              </v-row>
             </template>
             <template v-slot:item.group_name="{ item }">
-              {{ item.employee.leave_group &&
-                item.employee.leave_group.group_name }}
+              <v-chip @click="gotoGroupDetails(item.employee.leave_group_id, item.employee.id, item.employee.full_name)">
+                {{
+                  item.employee.leave_group &&
+                  item.employee.leave_group.group_name }} </v-chip>
             </template>
 
 
@@ -338,26 +377,34 @@
                 </template>
                 <v-list width="120" dense>
 
-                  <v-list-item @click="editItem(item)" v-if="item.status == 0">
+                  <!-- <v-list-item @click="editItem(item)" v-if="item.status == 0">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon v-if="can(`leave_application_edit`)" color="secondary" small @click="editItem(item)">
                         mdi-pencil
                       </v-icon> Edit
                     </v-list-item-title>
-                  </v-list-item>
+                  </v-list-item> -->
 
 
-                  <v-list-item @click="deleteItem(item)" v-if="item.status == 0">
+                  <!-- <v-list-item @click="deleteItem(item)" v-if="item.status == 0">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon v-if="can(`leave_application_delete`)" color="error" small @click="deleteItem(item)">
                         {{ item.announcement === "customer" ? "" : "mdi-delete" }}
                       </v-icon> Delete
                     </v-list-item-title>
+                  </v-list-item> -->
+                  <v-list-item
+                    @click="gotoGroupDetails(item.employee.leave_group_id, item.employee.id, item.employee.full_name)">
+                    <v-list-item-title style=" cursor: pointer">
+                      <v-icon v-if="can(`leave_application_view`)" color="primary" small>
+                        mdi-calendar
+                      </v-icon> View Leaves Count
+                    </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="view(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon v-if="can(`leave_application_view`)" color="primary" small @click="view(item)">
-                        {{ item.announcement === "customer" ? "" : "mdi-information" }}
+                        mdi-information
                       </v-icon> View
                     </v-list-item-title>
                   </v-list-item>
@@ -375,7 +422,6 @@
               <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
             </template>
           </v-data-table>
-
         </v-card>
       </v-col>
     </v-row>
@@ -405,11 +451,11 @@ import {
 } from "tiptap-vuetify";
 
 export default {
-  layout: "employee",
   components: {
     TiptapVuetify,
   },
   data: () => ({
+    viewEmployeeName: "",
     filters: {},
     isFilter: false,
     DialogLeaveGroupData: [],
@@ -590,9 +636,7 @@ export default {
 
 
     this.getDataFromApi();
-    if (this.$auth.user.employee.leave_group_id)
-      this.getLeaveTypesByGroupId(this.$auth.user.employee.leave_group_id);
-
+    this.getLeaveTypes();
     let now = new Date();
 
     let year = now.getFullYear();
@@ -662,18 +706,14 @@ export default {
 
 
     },
-    gotoGroupDetails(leaveGroupId = "") {
+    gotoGroupDetails(leaveGroupId, employee_id, employee_name) {
 
-      if (leaveGroupId == "") {
-        console.log(this.$auth.user.employee.leave_group_id);
-        leaveGroupId = this.$auth.user.employee.leave_group_id;
-      }
-
+      this.viewEmployeeName = employee_name;
       let options = {
         params: {
           per_page: 1000,
           company_id: this.$auth.user.company.id,
-          employee_id: this.$auth.user.employee.id,
+          employee_id: employee_id
         },
       };
       this.$axios.get('leave_groups/' + leaveGroupId, options).then(({ data }) => {
@@ -714,7 +754,7 @@ export default {
     onScroll() {
       this.scrollInvoked++;
     },
-    getLeaveTypesByGroupId(leaveGroupId) {
+    getLeaveTypes() {
 
 
       let options = {
@@ -723,11 +763,8 @@ export default {
           company_id: this.$auth.user.company.id,
         },
       };
-      this.$axios.get('leave_groups/' + leaveGroupId, options).then(({ data }) => {
-
-        this.leaveTypes = data[0].leave_count;
-        console.log(this.leaveTypes);
-
+      this.$axios.get(`leave_type`, options).then(({ data }) => {
+        this.leaveTypes = data.data;
       });
     },
 
@@ -736,10 +773,12 @@ export default {
       this.getDataFromApi();
     },
 
-
     getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
 
-      if (url == '') url = this.endpoint;
+      if (url == '') {
+        url = this.endpoint;
+        //
+      }
       this.loading = true;
 
       let endDate = new Date();
@@ -753,7 +792,6 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           year: endDate.getFullYear(),
-          employee_id: this.$auth.user.employee.id,
         },
       };
       if (filter_column != '') {
@@ -839,22 +877,22 @@ export default {
       }, 300);
     },
 
-    // getEmployees(url = "employee") {
-    //   this.loading = true;
+    getEmployees(url = "employee") {
+      this.loading = true;
 
-    //   const { page, itemsPerPage } = this.options;
+      const { page, itemsPerPage } = this.options;
 
-    //   let options = {
-    //     params: {
-    //       per_page: itemsPerPage,
-    //       company_id: this.$auth.user.company.id,
-    //     },
-    //   };
+      let options = {
+        params: {
+          per_page: itemsPerPage,
+          company_id: this.$auth.user.company.id,
+        },
+      };
 
-    //   this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-    //     this.employees_dialog = data.data;
-    //   });
-    // },
+      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+        this.employees_dialog = data.data;
+      });
+    },
     rejectLeave(leaveid) {
       let options = {
         params: {
@@ -900,22 +938,25 @@ export default {
 
 
       console.log(this.$auth);
-      // this.editedItem.company_id = this.$auth.user.company.id;
-      // this.editedItem.employee_id = this.login_user_employee_id;
-      // this.editedItem.reporting_manager_id = this.$auth.user.reporting_manager_id;
-      // ;
+      this.editedItem.company_id = this.$auth.user.company.id;
+      this.editedItem.employee_id = this.login_user_employee_id;
+      this.editedItem.reporting_manager_id = this.$auth.user.reporting_manager_id;
+      ;
 
       let options = {
         params: {
           company_id: this.$auth.user.company.id,
           employee_id: this.login_user_employee_id,
-          reporting_manager_id: this.$auth.user.employee.reporting_manager_id,
+          reporting_manager_id: this.$auth.user.reporting_manager_id,
           leave_type_id: this.editedItem.leave_type_id,
           start_date: this.editedItem.start_date,
           end_date: this.editedItem.end_date,
           reason: this.editedItem.reason,
         },
       };
+
+
+
 
       if (this.editedIndex > -1) {
         this.$axios
@@ -936,7 +977,7 @@ export default {
           .catch((err) => console.log(err));
       } else {
         this.$axios
-          .post(this.endpoint, options.params)
+          .post(this.endpoint, this.editedItem)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
@@ -955,4 +996,5 @@ export default {
   },
 };
 </script>
+
 

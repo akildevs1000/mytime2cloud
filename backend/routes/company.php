@@ -17,8 +17,13 @@ use App\Http\Controllers\DocumentInfoController;
 use App\Http\Controllers\DutyOrganizerController;
 use App\Http\Controllers\EmiratesController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeLeavesController;
 use App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LeaveCountController;
+use App\Http\Controllers\LeaveGroupsController;
+use App\Http\Controllers\LeaveTypesController;
 use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\PassportController;
 use App\Http\Controllers\PermissionController;
@@ -267,3 +272,22 @@ Route::get('/roster_list', [RosterController::class, 'getRosterList']);
 Route::post('/store_schedule_arrange', [RosterController::class, 'storeScheduleArrange']);
 Route::get('/get_roster_by_employee/{id}', [RosterController::class, 'getRosterByEmployee']);
 Route::put('/schedule_update/{id}', [RosterController::class, 'scheduleUpdateByEmployee']);
+
+// Holidays
+Route::apiResource('holidays', HolidaysController::class);
+//Route::get('holidays', [HolidaysController::class, 'list']);
+// Route::get('holidays/search/{key}', [HolidaysController::class, 'search']);
+// Route::post('holidays/delete/selected', [HolidaysController::class, 'deleteSelected']);
+
+// Leaves
+Route::apiResource('employee_leaves', EmployeeLeavesController::class);
+Route::get('employee_leaves/approve/{id}', [EmployeeLeavesController::class, 'approveLeave']);
+Route::get('employee_leaves/reject/{id}', [EmployeeLeavesController::class, 'rejectLeave']);
+
+//Leave Type
+Route::apiResource('leave_type', LeaveTypesController::class);
+
+Route::apiResource('leave_count', LeaveCountController::class);
+
+Route::apiResource('leave_groups', LeaveGroupsController::class);
+Route::get('leave_groups/{id}', [LeaveGroupsController::class, 'show']);

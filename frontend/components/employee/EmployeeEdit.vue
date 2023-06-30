@@ -107,6 +107,24 @@
                     : ''
                     " dense outlined></v-autocomplete>
               </v-col>
+              <v-col md="6" sm="12" cols="12">
+                <label class="col-form-label">Leave Group Id</label>
+                <v-autocomplete :items="leave_groups" item-text="group_name" item-value="id" placeholder="Select"
+                  v-model="employee.leave_group_id" :hide-details="!errors.leave_group_id" :error="errors.leave_group_id"
+                  :error-messages="errors && errors.leave_group_id
+                    ? errors.leave_group_id[0]
+                    : ''
+                    " dense outlined></v-autocomplete>
+              </v-col>
+              <v-col md="6" sm="12" cols="12">
+                <label class="col-form-label">Leave Manager </label>
+                <v-autocomplete :items="leave_managers" :item-text="getEmployeeName" item-value="id" placeholder="Select"
+                  v-model="employee.reporting_manager_id" :hide-details="!errors.reporting_manager_id"
+                  :error="errors.reporting_manager_id" :error-messages="errors && errors.reporting_manager_id
+                    ? errors.reporting_manager_id[0]
+                    : ''
+                    " dense outlined></v-autocomplete>
+              </v-col>
             </v-row>
           </v-col>
           <v-col class="col-sm-6">
@@ -152,6 +170,7 @@ export default {
   props: ["employeeId"],
   data: () => ({
     image: "",
+    leave_managers: [],
     mime_type: "",
     cropedImage: "",
     cropper: "",
@@ -200,6 +219,8 @@ export default {
       system_user_id: "",
       profile_picture: "",
       employee_role_id: "",
+      leave_group_id: "",
+      reporting_manager_id: "",
     },
     upload: {
       name: "",
@@ -216,6 +237,7 @@ export default {
     sub_departments: [],
     designations: [],
     roles: [],
+    leave_groups: [],
     data: [],
     errors: [],
     departments: [],
@@ -237,6 +259,8 @@ export default {
     this.getSubDepartments();
     this.getDesignations();
     this.getRoles();
+    this.getLeaveGroups();
+    this.getLeaveManagers();
 
     try {
 
@@ -286,6 +310,27 @@ export default {
 
       });
     },
+    getLeaveGroups() {
+      this.payloadOptions.params.company_id = this.$auth.user.company.id;
+
+      this.$axios.get(`leave_groups`, this.payloadOptions).then(({ data }) => {
+        this.leave_groups = data.data;
+
+      });
+    },
+    getLeaveManagers() {
+
+      this.payloadOptions.params.company_id = this.$auth.user.company.id;
+
+      this.$axios.get(`employeesList`, this.payloadOptions).then(({ data }) => {
+        this.leave_managers = data.data;
+
+      });
+    },
+    getEmployeeName(item) {
+
+      return item.first_name ? item.first_name + ' ' + item.last_name : '---';
+    },
     getInfo(id) {
       this.$axios
         .get(`employee-single/${id}`)
@@ -301,6 +346,8 @@ export default {
             sub_department_id: data.sub_department_id,
             designation_id: data.designation_id,
             employee_role_id: data.user.employee_role_id,
+            leave_group_id: data.leave_group_id,
+            reporting_manager_id: data.reporting_manager_id,
           };
 
           // this.employee.id = data.id;

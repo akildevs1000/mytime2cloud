@@ -105,7 +105,7 @@
         <v-card elevation="2" class="pa-5">
           <v-row>
             <v-col md="6">
-              <h5>Filters - General Report</h5>
+              <h5>Dashboard / General Report</h5>
             </v-col>
             <v-col md="6">
               <!-- {{ main_report_type }} -->

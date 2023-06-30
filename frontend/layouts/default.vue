@@ -501,27 +501,52 @@ export default {
             // },
           ],
         },
-        // {
-        //   icon: "mdi-briefcase-outline",
-        //   title: `Leaves`,
-        //   open_menu: false,
-        //   menu: "company_access",
-        //   hasChildren: [
-        //     {
-        //       icon: "mdi-lan",
-        //       title: "Leaves",
-        //       to: "/leaves",
-        //       menu: "leaves_access",
-        //     },
+        {
+          icon: "mdi mdi-calendar-star-four-points",
+          title: "Holidays",
+          to: "/holidays",
+          menu: "holiday_access",
+        },
+        {
+          icon: "mdi-briefcase-outline",
+          title: `Leaves Management`,
+          open_menu: false,
+          menu: "leave_access",
+          hasChildren: [
+            {
+              icon: "mdi mdi-calendar-star-four-points",
+              title: "Leave Applications",
+              to: "/leaves",
+              menu: "leave_application_access",
+            },
+            {
+              icon: "mdi mdi-calendar-star-four-points",
+              title: "Leave Type",
+              to: "/leavetype",
+              menu: "leave_type_access",
+            },
+            {
+              icon: "mdi mdi-calendar-star-four-points",
+              title: "Leave Groups",
+              to: "/leavegroups",
+              menu: "leave_group_access",
+            },
 
-        //     {
-        //       icon: "mdi-account-details ",
-        //       title: "Settings",
-        //       to: "/settings",
-        //       menu: "leaves_access",
-        //     },
-        //   ],
-        // },
+            // {
+            //   icon: "mdi-lan",
+            //   title: "Leaves",
+            //   to: "/leaves",
+            //   menu: "leaves_access",
+            // },
+
+            // {
+            //   icon: "mdi-account-details ",
+            //   title: "Settings",
+            //   to: "/settings",
+            //   menu: "leaves_access",
+            // },
+          ],
+        },
         {
           icon: "mdi-bell",
           title: `Announcements`,
@@ -853,6 +878,7 @@ table.employee-table tr:nth-child(even) {
   opacity: 0;
 }
 
+
 .container {
   max-width: 100% !important;
 }
@@ -861,6 +887,21 @@ table.employee-table tr:nth-child(even) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+}
+
+.text-overflow-parent {
+
+  max-width: 100px;
+
+}
+
+
+.text-overflow-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 100px;
 }
 
 .vertical-center {
@@ -888,6 +929,63 @@ table.employee-table tr:nth-child(even) {
 
 tbody tr:nth-of-type(odd) {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.v-picker--date {
+  height: 330px !important;
+}
+
+.table-search-header {
+  padding: 0px;
+  font-size: 10px;
+  padding-top: 10px;
+}
+
+.table-search-header .theme--light.v-input input {
+  display: inline;
+  padding-top: 0px;
+}
+
+.table-search-header .v-text-field--outlined fieldset,
+.table-search-header .v-text-field--outlined .v-text-field__slot {
+  height: 32px !important;
+  width: 80% !important;
+}
+
+.table-search-header .v-text-field--outlined>.v-input__control>.v-input__slot {
+  min-height: 32px !important;
+}
+
+.table-search-header td {
+  border: 0px !important;
+  padding-top: 10px;
+
+}
+
+.table-search-header .v-text-field__details {
+  display: none !important;
+}
+
+.table-search-header .v-input__icon--clear {
+  margin-top: -17px;
+  margin-right: 31px;
+}
+
+.filter-select-hidden-text input {
+  display: none !important;
+}
+
+.filter-select-hidden-text .v-input__append-inner {
+  margin: 0px !important;
+  margin-left: -54px !important;
+}
+
+.filter-select-hidden-text .mdi-close {
+  font-size: 8px !important;
+}
+
+.filter-select-hidden-text .v-select__selection {
+  font-size: 13px !important;
 }
 
 @media (max-width: 500px) {

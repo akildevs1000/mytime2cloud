@@ -179,7 +179,7 @@
         <v-card elevation="2" class="pa-5">
           <v-row>
             <v-col md="6">
-              <h5>Filters - Multi In/Out Report</h5>
+              <h5>Dashboard / Multi In & Out Report</h5>
             </v-col>
 
             <v-col md="6" align-self="end">
