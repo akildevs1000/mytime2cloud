@@ -10,16 +10,16 @@
 
     <v-dialog v-model="dialog" width="500px">
       <v-card>
-        <v-card-title>
+        <v-toolbar flat small dense dark class="background">
           <span class="headline">{{ formTitle }} </span>
-        </v-card-title>
+        </v-toolbar>
 
         <v-card-text>
           <v-container>
 
             <v-row>
               <v-col cols="12">
-                <label for="">Title</label>
+                <label for="" style="padding-bottom:5px">Title</label>
                 <v-text-field dense outlined v-model="editedItem.name" placeholder="Name" :error-messages="errors && errors.name ? errors.name[0] : ''
                   "></v-text-field>
               </v-col>

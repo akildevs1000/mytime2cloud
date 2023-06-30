@@ -394,7 +394,7 @@ export default {
             },
             {
               icon: "mdi mdi-calendar",
-              title: "Leave Type",
+              title: "Leave Types",
               to: "/leavetype",
               menu: "leave_type_access",
             },
