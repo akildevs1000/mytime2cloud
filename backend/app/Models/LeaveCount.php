@@ -24,7 +24,7 @@ class LeaveCount extends Model
     }
     public function leave_groups()
     {
-        return $this->belongsTo(leaveGroups::class, 'group_id', 'id')->withDefault([
+        return $this->belongsTo(LeaveGroups::class, 'group_id', 'id')->withDefault([
             "group_name" => "---",
         ]);
     }

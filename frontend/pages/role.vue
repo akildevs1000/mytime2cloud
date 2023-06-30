@@ -2,21 +2,17 @@
   <div v-if="can(`role_access`)">
     <v-dialog v-model="dialogNewRole" width="500">
       <v-card>
-        <v-toolbar flat dark class="background">
+        <!-- <v-toolbar flat dark class="background">
           {{ formTitle }} {{ Model }}
-        </v-toolbar>
+        </v-toolbar> -->
 
         <v-card-text>
           <v-container>
             <v-row>
               <v-col cols="12">
-                <v-text-field
-                  v-model="editedItem.name"
-                  label="Role"
-                ></v-text-field>
+                <v-text-field v-model="editedItem.name" label="Role"></v-text-field>
                 <span v-if="errors && errors.name" class="error--text">
-                  {{ errors.name[0] }}</span
-                >
+                  {{ errors.name[0] }}</span>
               </v-col>
               <v-col> </v-col>
             </v-row>
@@ -36,62 +32,71 @@
         {{ response }}
       </v-snackbar>
     </div>
+    <!-- <v-row class="mt-5 mb-5">
+      <v-col cols="6">
+        <h3>{{ Model }}</h3>
+        <div>Dashboard / {{ Model }}</div>
+      </v-col>
+      <v-col cols="6">
+        <div class="text-right">
+
+        </div>
+      </v-col>
+    </v-row> -->
+
     <v-row>
       <v-col md="12">
-        <v-data-table
-          v-if="can(`role_view`)"
-          :headers="headers"
-          :items="data"
-          :loading="loading"
-          :options.sync="options"
-          :footer-props="{
+        <v-data-table v-if="can(`role_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
+          :loading="loading" :options.sync="options" :footer-props="{
             itemsPerPageOptions: [50, 100, 500, 1000],
-          }"
-          class="elevation-1"
-        >
+          }" class="elevation-1">
           <template v-slot:top>
             <v-card class="mb-5 rounded-md mt-3" elevation="0">
-              <v-toolbar
-                class="rounded-md"
-                style="border-radius: 5px 5px 0px 0px"
-                color="background"
-                dense
-                flat
-                dark
-              >
-                <span> Roles</span>
+              <v-toolbar class="rounded-md" style="border-radius: 5px 5px 0px 0px" color="background" dense flat dark>
+                <span> Dashboard / Roles List</span>
 
                 <v-spacer></v-spacer>
-                <v-icon @click="dispalyNewDialog" v-if="can(`role_created`)"
-                  >mdi-plus</v-icon
-                >
+                <v-toolbar-items>
+                  <!-- <v-col>
+                    <v-btn v-if="can(`role_deleted`)" small color="error  " class="mr-2 mb-2"
+                      @click="delteteSelectedRecords">Delete Selected Records</v-btn>
+                  </v-col> -->
+
+                  <v-col>
+                    <v-btn v-if="can(`role_deleted`)" small color="primary" class="mr-2 mb-2"
+                      @click="dispalyNewDialog()">Create New +
+                    </v-btn>
+                  </v-col>
+
+
+                </v-toolbar-items>
               </v-toolbar>
             </v-card>
+
+            <v-toolbar flat>
+
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <v-text-field @input="searchIt" v-model="search" label="Search" single-line hide-details></v-text-field>
+            </v-toolbar>
+          </template>
+          <template v-slot:item.name="{ item }">
+
+            {{ item.name }}
+
+
           </template>
           <template v-slot:item.action="{ item }">
-            <v-icon
-              v-if="can(`role_edit`)"
-              color="secondary"
-              small
-              class="mr-2"
-              @click="editItem(item)"
-            >
+            <v-icon v-if="can(`role_edit`)" color="secondary" small class="mr-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
-            <v-icon
-              v-if="can(`role_delete`)"
-              color="error"
-              small
-              @click="deleteItem(item)"
-            >
-              mdi-delete
+            <v-icon v-if="can(`role_delete`)" color="error" small @click="deleteItem(item)">
+              {{ item.role === "customer" ? "" : "mdi-delete" }}
             </v-icon>
           </template>
           <template v-slot:no-data>
             <!-- <v-btn color="background" @click="initialize">Reset</v-btn> -->
           </template>
-        </v-data-table></v-col
-      >
+        </v-data-table></v-col>
     </v-row>
   </div>
   <NoAccess v-else />
@@ -110,13 +115,7 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      {
-        text: "Role",
-        align: "left",
-        sortable: true,
-        key: "name",
-        value: "name",
-      },
+      { text: "Role", align: "left", sortable: true, key: "name", value: "name" },
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     editedIndex: -1,
@@ -293,3 +292,11 @@ export default {
   },
 };
 </script>
+<style scoped>
+.toolbar-button-design {
+  height: 38px !important;
+  /* vertical-align: bottom; */
+  margin: auto;
+  border-radius: 5px;
+}
+</style>
