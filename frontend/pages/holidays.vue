@@ -7,6 +7,7 @@
     </div>
 
 
+
     <v-dialog v-model="dialog" width="500px">
       <v-card>
         <v-card-title>
@@ -151,18 +152,18 @@
                     <v-icon>mdi-dots-vertical</v-icon>
                   </v-btn>
                 </template>
-                <v-list width="120" dense>
+                <v-list width="120" dense v-if="can(`holiday_edit`) || can(`holiday_delete`)">
 
-                  <v-list-item @click="editItem(item)">
+                  <v-list-item @click="editItem(item)" v-if="can(`holiday_edit`)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`holiday_edit`)" color="secondary" small @click="editItem(item)">
+                      <v-icon color="secondary" small @click="editItem(item)">
                         mdi-pencil
                       </v-icon> Edit
                     </v-list-item-title>
                   </v-list-item>
-                  <v-list-item @click="deleteItem(item)">
+                  <v-list-item @click="deleteItem(item)" v-if="can(`holiday_delete`)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`holiday_delete`)" color="error" small @click="deleteItem(item)">
+                      <v-icon color="error" small @click="deleteItem(item)">
                         {{ item.announcement === "customer" ? "" : "mdi-delete" }}
                       </v-icon> Delete
                     </v-list-item-title>

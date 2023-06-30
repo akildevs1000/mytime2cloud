@@ -288,7 +288,7 @@
 
                   <v-select class="filter-select-hidden-text" v-else-if="header.filterable && header.text == 'Status'"
                     height="10px;width:5px" style="padding: 0px;" small density="compact"
-                    @change="applyFilters('status', $event)" clearable item-value="value" item-text="title" :items="[{ value: 'approved', title: 'Approved' }, {
+                    @change="applyFilters('status', $event)" clearable item-value="value" item-text="title" :items="[{ value: '', title: 'All' }, { value: 'approved', title: 'Approved' }, {
                       value: 'rejected',
                       title: 'Rejected'
                     }, { value: 'pending', title: 'Pending' }]"></v-select>
@@ -398,7 +398,7 @@
                     <v-list-item-title style=" cursor: pointer">
                       <v-icon v-if="can(`leave_application_view`)" color="primary" small>
                         mdi-calendar
-                      </v-icon> View Leaves Count
+                      </v-icon> Statistics
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="view(item)">
