@@ -59,7 +59,7 @@ class EmployeeController extends Controller
 
         DB::beginTransaction();
 
-        if ($request->email) {
+        if (!empty($request->email)) {
 
             $user = User::create([
                 "user_type" => "employee",
