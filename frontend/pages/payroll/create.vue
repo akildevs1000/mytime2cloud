@@ -6,15 +6,11 @@
       </v-snackbar>
     </div>
     <div v-if="!preloader">
-      <v-row class="mt-5 mb-5">
-        <v-col cols="10">
-          <h3>Payroll Settings</h3>
-          <div>Dashboard / Payroll Settings</div>
-        </v-col>
-      </v-row>
       <v-card elevation="0" class="pa-3 mb-5">
         <v-card-title>
-          <label class="col-form-label pt-0 mt-5"><b>Create Payroll Formula</b></label>
+          <label class="col-form-label pt-0 mt-5"
+            ><b>Create Payroll Formula</b></label
+          >
           <!-- <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
             <v-icon>mdi-arrow-left</v-icon>
@@ -23,7 +19,9 @@
         <v-container>
           <v-row>
             <v-col cols="2">
-              <label class="col-form-label pt-0 mt-5"><b>Salary calculation formula</b></label>
+              <label class="col-form-label pt-0 mt-5"
+                ><b>Salary calculation formula</b></label
+              >
             </v-col>
             <v-col cols="10">
               <div style="display: inline-flex">
@@ -42,9 +40,22 @@
             </v-col>
             <v-col cols="10">
               <div style="display: inline-flex">
-                <input class="form-control" type="text" outlined dense value="Per Hour Salary" readonly />
+                <input
+                  class="form-control"
+                  type="text"
+                  outlined
+                  dense
+                  value="Per Hour Salary"
+                  readonly
+                />
                 <span class="pa-2">x</span>
-                <input v-model="payload.ot_value" class="form-control" type="text" outlined dense />
+                <input
+                  v-model="payload.ot_value"
+                  class="form-control"
+                  type="text"
+                  outlined
+                  dense
+                />
               </div>
               <span v-if="errors && errors.ot_value" class="text-danger">{{
                 errors.ot_value[0]
@@ -52,15 +63,35 @@
             </v-col>
 
             <v-col cols="2">
-              <label class="col-form-label"><b>Late Deduction formula</b></label>
+              <label class="col-form-label"
+                ><b>Late Deduction formula</b></label
+              >
             </v-col>
             <v-col cols="8">
               <div style="display: inline-flex">
-                <input class="form-control" type="text" outlined dense value="Per Hour Salary" readonly />
+                <input
+                  class="form-control"
+                  type="text"
+                  outlined
+                  dense
+                  value="Per Hour Salary"
+                  readonly
+                />
                 <span class="pa-2">x</span>
-                <input v-model="payload.deduction_value" class="form-control" type="text" outlined dense />
+                <input
+                  v-model="payload.deduction_value"
+                  class="form-control"
+                  type="text"
+                  outlined
+                  dense
+                />
               </div>
-              <span v-if="errors && errors.deduction_value" class="text-danger" d>{{ errors.deduction_value[0] }}</span>
+              <span
+                v-if="errors && errors.deduction_value"
+                class="text-danger"
+                d
+                >{{ errors.deduction_value[0] }}</span
+              >
             </v-col>
             <v-col cols="12">
               <v-btn small color="primary" @click="store"> Submit </v-btn>
@@ -71,7 +102,9 @@
 
       <v-card elevation="0" class="pa-3">
         <v-card-title>
-          <label class="col-form-label pt-0 mt-5"><b>Create Payroll Generation Date</b></label>
+          <label class="col-form-label pt-0 mt-5"
+            ><b>Create Payroll Generation Date</b></label
+          >
           <!-- <v-spacer></v-spacer>
           <v-btn small fab color="background" dark to="/report_notifications">
             <v-icon>mdi-arrow-left</v-icon>
@@ -80,19 +113,19 @@
         <v-container>
           <v-row>
             <v-col cols="2">
-              <label class="col-form-label"><b>Set date for payroll genration</b></label>
+              <label class="col-form-label"
+                ><b>Set date for payroll generation</b></label
+              >
             </v-col>
             <v-col cols="2">
-              <v-menu v-model="menu" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
-                offset-y min-width="auto">
-                <template v-slot:activator="{ on }">
-                  <v-text-field outlined dense v-model="date" readonly v-on="on"></v-text-field>
-                </template>
-                <v-date-picker v-model="date" @input="menu = false"></v-date-picker>
-              </v-menu>
-              <span v-if="errors && errors.date" class="text-danger">{{
-                errors.date[0]
-              }}</span>
+              <v-autocomplete
+                dense
+                outlined
+                v-model="date"
+                :items="dayOptions"
+                item-value="value"
+                item-text="label"
+              ></v-autocomplete>
             </v-col>
             <v-col cols="12">
               <v-btn small color="primary" @click="storeDate"> Submit </v-btn>
@@ -115,11 +148,15 @@ export default {
       deduction_value: 1.5,
     },
     menu: false,
-    date: null,
+    date: 1,
     preloader: false,
     loading: false,
     response: false,
     snackbar: false,
+    dayOptions: Array.from({ length: 31 }, (_, i) => ({
+      value: i + 1,
+      label: i + 1,
+    })),
     errors: [],
   }),
 
@@ -136,7 +173,7 @@ export default {
       })
       .catch((e) => console.log(e));
 
-    this.date = this.getDate();
+    // this.date = this.getDate();
 
     this.$axios
       .get(`/payroll_generate_date/${this.payload.company_id}`)
@@ -150,7 +187,7 @@ export default {
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, "0");
       const day = date.getDate().toString().padStart(2, "0");
-      return `${year}-${month}-${day}`;
+      return `${day}`;
     },
     can(per) {
       let u = this.$auth.user;

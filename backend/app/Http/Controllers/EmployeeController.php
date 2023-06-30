@@ -59,9 +59,10 @@ class EmployeeController extends Controller
 
         DB::beginTransaction();
 
-        if ($request->email) {
+        if ($request->filled('email')) {
 
             $user = User::create([
+                "user_type" => "employee",
                 "name" => "null",
                 "email" => $request->email,
                 "password" => Hash::make("secret"),
@@ -73,9 +74,9 @@ class EmployeeController extends Controller
             }
 
             $data["user_id"] = $user->id;
-
-            unset($data['email']);
         }
+
+        unset($data['email']);
 
         try {
 
@@ -108,6 +109,7 @@ class EmployeeController extends Controller
             } else {
                 $user = User::create(
                     [
+                        "user_type" => "employee",
                         'name' => 'null',
                         'email' => "---",
                         'password' => "---",
@@ -574,6 +576,7 @@ class EmployeeController extends Controller
     public function employeeLoginUpdate(Request $request, $id)
     {
         $arr = [];
+        $arr["user_type"] = "employee";
         $arr["name"] = "null";
         $arr["email"] = $request->email;
         $arr["company_id"] = $request->company_id;
@@ -662,6 +665,8 @@ class EmployeeController extends Controller
                 $employee = [
                     'title' => trim($data['title']),
                     'display_name' => trim($data['display_name']),
+                    'first_name' => trim($data['first_name']),
+                    'last_name' => trim($data['last_name']),
                     'employee_id' => trim($data['employee_id']),
                     'company_id' => $this->company_id,
                     'system_user_id' => trim($data['employee_device_id']),
@@ -672,6 +677,7 @@ class EmployeeController extends Controller
 
                 if ($data['email'] != "") {
                     $record = User::create([
+                        "user_type" => "employee",
                         'name' => 'null',
                         'email' => $data['email'],
                         'password' => Hash::make('secret'),
@@ -754,6 +760,8 @@ class EmployeeController extends Controller
             "employee_id",
             "employee_device_id",
             "display_name",
+            "first_name",
+            "last_name",
             "email",
             "department_code",
         ];

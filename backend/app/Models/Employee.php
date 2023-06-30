@@ -79,12 +79,18 @@ class Employee extends Model
 
     public function passport()
     {
-        return $this->hasOne(Passport::class);
+        return $this->hasOne(Passport::class)->withDefault([
+            "passport_no" => "---",            
+            "country" => "---",
+
+        ]);
     }
 
     public function emirate()
     {
-        return $this->hasOne(EmiratesInfo::class);
+        return $this->hasOne(EmiratesInfo::class)->withDefault([
+            "emirate_id" => "---",
+        ]);
     }
 
     public function qualification()

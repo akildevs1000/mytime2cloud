@@ -18,6 +18,13 @@ class PayrollSettingController extends Controller
     {
         $data = $request->all();
 
+        $year = date("Y");
+        $month = date("m");
+
+        $dateObj = \DateTime::createFromFormat('Y-n-j', $year . '-' . $month . '-' . $request->date);
+
+        $data['date'] = $dateObj->format('Y-m-d');
+
         try {
             $record = PayrollSetting::updateOrCreate(["company_id" => $data['company_id']], $data);
 
@@ -40,6 +47,6 @@ class PayrollSettingController extends Controller
 
     public function show($id)
     {
-        return PayrollSetting::where("company_id", $id)->value("date") ?? date("Y-m-d");
+        return PayrollSetting::where("company_id", $id)->first()->day_number ?? date("d");
     }
 }

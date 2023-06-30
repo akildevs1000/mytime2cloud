@@ -141,7 +141,7 @@ class PayslipController extends Controller
         $zip_file = 'payslips_' . $month . '_' . $year . ' .zip'; // Name of our archive to download
         $results = [];
         // Initializing PHP class
-        $zip = new \ZipArchive ();
+        $zip = new \ZipArchive();
         $zip->open($zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
         foreach ($employee_ids as $employee_id) {
             $invoice_file = 'app/payslips/' . $company_Id . '/' . $company_Id . '_' . $employee_id . '_' . $month . '_' . $year . '_payslip.pdf';
@@ -362,5 +362,46 @@ class PayslipController extends Controller
         $pdfFile_name = 'payslips/' . $request["company_id"] . '/' . $request["company_id"] . '_' . $request["employee_id"] . '_' . $request["month"] . '_' . $request["year"] . '_payslip.pdf';
 
         return Storage::download($pdfFile_name);
+    }
+
+    public function renderPayslipByEmployee()
+    {
+        $data = (object) [
+            "employee_id" => date("M"),
+            "first_name" => "first name",
+            "last_name" => "last name",
+            "position" => "position",
+            "monthName" => date("M"),
+            "year" => date("Y"),
+            "company" => (object)[
+                "name" => "testing",
+                "location" => "address"
+
+            ],
+            "earnings" => [
+                [
+                    "label" => "label name",
+                    "value" => 500
+                ]
+            ],
+            "salary_and_earnings" => 500,
+
+            "deductions" => [
+                [
+                    "label" => "label name",
+                    "value" => 100
+                ]
+            ],
+
+            "deducted_salary" => 200,
+
+            "present_days"  => 20,
+            "absent_days" => 10,
+            "earned_sub_total" => 1000,
+
+
+        ];
+
+        return Pdf::loadView('pdf.render-payslip', compact('data'))->stream();
     }
 }

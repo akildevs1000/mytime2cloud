@@ -24,3 +24,8 @@ function getDatesInRange(startDate, endDate) {
   const d2 = new Date('2022-01-24');
   
   console.log(getDatesInRange(d1, d2));
+
+
+  Payslip references
+
+  https://www.youtube.com/watch?v=AY3EEGGHV3Y

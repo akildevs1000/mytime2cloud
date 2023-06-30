@@ -127,10 +127,20 @@
             <v-card-title>
               <v-row>
                 <v-col md="6">
-                  <v-text-field :hide-details="true" v-model="editName" placeholder="Name" outlined dense
-                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"></v-text-field>
-                  <small style="font-size: 12px" v-if="errors && errors.name" class="error--text ma-0 pa-0">{{
-                    errors.name[0] }}</small>
+                  <v-text-field
+                    :hide-details="true"
+                    v-model="editName"
+                    placeholder="Name"
+                    outlined
+                    dense
+                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"
+                  ></v-text-field>
+                  <small
+                    style="font-size: 12px"
+                    v-if="errors && errors.name"
+                    class="error--text ma-0 pa-0"
+                    >{{ errors.name[0] }}</small
+                  >
                 </v-col>
               </v-row>
               <table style="width: 100%">
@@ -149,20 +159,40 @@
                   </td>
                 </tr>
                 <!-- <pre> {{ editShifts }}</pre> -->
-                <tr v-for="(item, index) in editShifts" :key="index" style="text-align: center; font-size: 15px">
+                <tr
+                  v-for="(item, index) in editShifts"
+                  :key="index"
+                  style="text-align: center; font-size: 15px"
+                >
                   <td style="width: 80px; text-align: center">
-                    <label class="col-form-label"><b>{{ item.day }}</b></label>
+                    <label class="col-form-label"
+                      ><b>{{ item.day }}</b></label
+                    >
                   </td>
-                  <td style="
+                  <td
+                    style="
                       width: 400px;
                       text-align: left;
                       padding: 8px 0px 0px 0px;
-                    ">
-                    <v-select class="mx-5 py-0" :items="shifts" dense outlined item-text="name" item-value="id"
-                      placeholder="Select" :hide-details="true" v-model="item.shift_id">
+                    "
+                  >
+                    <v-select
+                      class="mx-5 py-0"
+                      :items="shifts"
+                      dense
+                      outlined
+                      item-text="name"
+                      item-value="id"
+                      placeholder="Select"
+                      :hide-details="true"
+                      v-model="item.shift_id"
+                    >
                     </v-select>
-                    <small class="error--text text-left py-0 my-0" v-if="!shift[index] && errors && errors.shift_ids"
-                      style="margin-left: 20px; font-size: 12px">
+                    <small
+                      class="error--text text-left py-0 my-0"
+                      v-if="!shift[index] && errors && errors.shift_ids"
+                      style="margin-left: 20px; font-size: 12px"
+                    >
                       {{ errors.shift_ids[0] }}
                     </small>
                   </td>
@@ -182,7 +212,9 @@
             <v-card-actions class="mr-1">
               <v-spacer></v-spacer>
               <v-btn class="error" small @click="close"> Cancel </v-btn>
-              <v-btn class="primary" small @click="update_schedule">Update</v-btn>
+              <v-btn class="primary" small @click="update_schedule"
+                >Update</v-btn
+              >
             </v-card-actions>
           </v-container>
         </v-card-text>
@@ -200,10 +232,20 @@
             <v-card-title>
               <v-row>
                 <v-col md="6">
-                  <v-text-field :hide-details="true" v-model="name" placeholder="Name" outlined dense
-                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"></v-text-field>
-                  <small style="font-size: 12px" v-if="errors && errors.name" class="error--text ma-0 pa-0">{{
-                    errors.name[0] }}</small>
+                  <v-text-field
+                    :hide-details="true"
+                    v-model="name"
+                    placeholder="Name"
+                    outlined
+                    dense
+                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"
+                  ></v-text-field>
+                  <small
+                    style="font-size: 12px"
+                    v-if="errors && errors.name"
+                    class="error--text ma-0 pa-0"
+                    >{{ errors.name[0] }}</small
+                  >
                 </v-col>
               </v-row>
               <table style="width: 100%">
@@ -221,23 +263,43 @@
                     <label class="col-form-label"><b>To</b></label>
                   </td>
                 </tr>
-                <tr v-for="(item, index) in days" :key="index" style="text-align: center; font-size: 15px">
+                <tr
+                  v-for="(item, index) in days"
+                  :key="index"
+                  style="text-align: center; font-size: 15px"
+                >
                   <td style="width: 80px; text-align: center">
-                    <label class="col-form-label"><b>{{ item }}</b></label>
+                    <label class="col-form-label"
+                      ><b>{{ item }}</b></label
+                    >
                   </td>
-                  <td style="
+                  <td
+                    style="
                       width: 400px;
                       text-align: left;
                       padding: 8px 0px 0px 0px;
-                    ">
+                    "
+                  >
                     <!-- {{ shift }}
                     {{ shift[index] }} -->
-                    <v-select class="mx-5 py-0" :items="shifts" dense outlined item-text="name" item-value="id"
-                      v-model="shift[index]" placeholder="Select" :hide-details="true"
-                      @change="getTimeRange(shift[index])">
+                    <v-select
+                      class="mx-5 py-0"
+                      :items="shifts"
+                      dense
+                      outlined
+                      item-text="name"
+                      item-value="id"
+                      v-model="shift[index]"
+                      placeholder="Select"
+                      :hide-details="true"
+                      @change="getTimeRange(shift[index])"
+                    >
                     </v-select>
-                    <small class="error--text text-left py-0 my-0" v-if="!shift[index] && errors && errors.shift_ids"
-                      style="margin-left: 20px; font-size: 12px">
+                    <small
+                      class="error--text text-left py-0 my-0"
+                      v-if="!shift[index] && errors && errors.shift_ids"
+                      style="margin-left: 20px; font-size: 12px"
+                    >
                       {{ errors.shift_ids[0] }}
                     </small>
                   </td>
@@ -265,69 +327,67 @@
     </v-dialog>
 
     <div v-if="!preloader">
-      <v-row class="mt-5">
-        <v-col cols="3">
-          <h3>Schedule</h3>
-          <div>Dashboard / Schedule</div>
-        </v-col>
-
-
-
-        <v-col>
-          <div class="display-1 pa-2 text-right">
-            <v-btn small to="/shift" color="primary">
-              <v-icon small>mdi-clock-outline </v-icon>&nbsp;Manage Shifts
-            </v-btn>
-          </div>
-        </v-col>
-      </v-row>
-
-
       <v-card elevation="0" v-if="can(`shift_view`)">
-
         <v-toolbar class="rounded-md" color="background" dense flat dark>
           <v-toolbar-title><span> Schedule List</span></v-toolbar-title>
-          <a style="padding-left:10px" title="Reload Page/Reset Form" @click="get_schedule"><v-icon class="mx-1">mdi
-              mdi-reload</v-icon></a>
+          <a
+            style="padding-left: 10px"
+            title="Reload Page/Reset Form"
+            @click="get_schedule"
+            ><v-icon class="mx-1">mdi mdi-reload</v-icon></a
+          >
           <v-spacer></v-spacer>
-          <v-toolbar-items>
-            <v-col class="toolbaritems-button-design1">
-              <v-btn color="primary" small @click="dialog = true">
-                <v-icon>mdi-plus</v-icon> Add Schedule
-              </v-btn>
-            </v-col>
-          </v-toolbar-items>
+          <v-icon small @click="dialog = true">mdi-plus</v-icon>
         </v-toolbar>
         <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
           {{ snackText }}
 
           <template v-slot:action="{ attrs }">
-            <v-btn v-bind="attrs" text @click="snack = false">
-              Close
-            </v-btn>
+            <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
           </template>
         </v-snackbar>
-        <v-data-table dense :headers="headers_table" :items="scheduleData" model-value="data.id" :loading="loading"
-          :options.sync="options" :footer-props="{
+        <v-data-table
+          dense
+          :headers="headers_table"
+          :items="scheduleData"
+          model-value="data.id"
+          :loading="loading"
+          :options.sync="options"
+          :footer-props="{
             itemsPerPageOptions: [10, 50, 100, 500, 1000],
-          }" class="elevation-1">
+          }"
+          class="elevation-1"
+        >
           <template v-slot:item.sno="{ item, index }">
-
             <b>{{ ++index }}</b>
           </template>
           <template v-slot:item.name="{ item }">
-            <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="get_schedule()"
-              @save="get_schedule()" @open="datatable_open">
+            <v-edit-dialog
+              large
+              save-text="Reset"
+              cancel-text="Ok"
+              style="margin-left: 4%"
+              @cancel="get_schedule()"
+              @save="get_schedule()"
+              @open="datatable_open"
+            >
               {{ item.name }}
               <template v-slot:input>
-                <v-text-field v-model="datatable_search_textbox" @input="get_schedule('search_shift_name', $event)"
-                  label="Search Shift name"></v-text-field>
+                <v-text-field
+                  v-model="datatable_search_textbox"
+                  @input="get_schedule('search_shift_name', $event)"
+                  label="Search Shift name"
+                ></v-text-field>
               </template>
             </v-edit-dialog>
           </template>
           <template v-slot:item.description="{ item }">
-
-            <v-chip small class="primary ma-1" v-for="(j, s) in item.json" :key="s">
+            <v-chip
+              small
+              class="primary ma-1"
+              v-for="(j, s) in item.json"
+              :key="s"
+            >
               {{ j.day }} {{ j.time }} {{ getShiftType(j.shift_id) }}
             </v-chip>
           </template>
@@ -343,9 +403,7 @@
               <v-list width="120" dense>
                 <v-list-item @click="editItem(item)">
                   <v-list-item-title style="cursor: pointer">
-                    <v-icon color="secondary" small>
-                      mdi-pencil
-                    </v-icon>
+                    <v-icon color="secondary" small> mdi-pencil </v-icon>
                     Edit
                   </v-list-item-title>
                 </v-list-item>
@@ -359,7 +417,6 @@
             </v-menu>
           </template>
         </v-data-table>
-
       </v-card>
       <!-- <v-col cols="12">
 
@@ -431,7 +488,6 @@
 
         </v-card>
       </v-col> -->
-
     </div>
 
     <Preloader v-else />
@@ -442,12 +498,12 @@
 <script>
 export default {
   data: () => ({
-    datatable_search_textbox: '',
-    datatable_searchById: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    datatable_searchById: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     color: "primary",
     e1: 1,
     menu2: false,
@@ -498,7 +554,7 @@ export default {
         align: "left",
         sortable: true,
 
-        value: "sno",// template name
+        value: "sno", // template name
       },
       {
         text: "Name",
@@ -545,22 +601,18 @@ export default {
     this.get_schedule();
   },
   methods: {
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
       //this.datatable_search_textbox = '';
     },
-    getUpdateData(index, shift_id, day) {
-
-    },
+    getUpdateData(index, shift_id, day) {},
 
     can(per) {
       let u = this.$auth.user;
@@ -650,7 +702,6 @@ export default {
           })
           .catch((err) => console.log(err));
       } else {
-
         this.$axios
           .post("/roster", payload)
           .then(({ data }) => {
@@ -735,21 +786,19 @@ export default {
           .catch((err) => console.log(err));
     },
 
-    get_schedule(filter_column = '', filter_value = '') {
+    get_schedule(filter_column = "", filter_value = "") {
       this.loading = true;
       let options = {
         per_page: 20,
         company_id: this.$auth.user.company.id,
       };
 
-      if (filter_value != '')
-        options[filter_column] = filter_value;
+      if (filter_value != "") options[filter_column] = filter_value;
       this.$axios.get("roster", { params: options }).then(({ data }) => {
-        if (filter_column != '' && data.data.length == 0) {
-
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }
@@ -767,31 +816,8 @@ th {
   padding-left: 5px;
 }
 
-/* tr:nth-child(even) {
-  background-color: #dddddd;
-} */
-</style>
-<style scoped>
-/* @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500&display=swap'); */
-
 * {
   box-sizing: border-box;
-}
-
-body>div {
-  min-height: 100vh;
-  display: flex;
-  font-family: "Roboto", sans-serif;
-}
-
-.table_responsive {
-  max-width: 900px;
-  border: 1px solid #00bcd4;
-  background-color: #efefef33;
-  padding: 15px;
-  overflow: auto;
-  margin: auto;
-  border-radius: 4px;
 }
 
 table {
@@ -802,12 +828,12 @@ table {
   border-collapse: collapse;
 }
 
-table>thead {
+table > thead {
   background-color: #00bcd4;
   color: #fff;
 }
 
-table>thead th {
+table > thead th {
   padding: 15px;
 }
 
@@ -817,7 +843,7 @@ table td {
   padding: 10px 15px;
 }
 
-table>tbody>tr>td>img {
+table > tbody > tr > td > img {
   display: inline-block;
   width: 60px;
   height: 60px;
@@ -827,46 +853,16 @@ table>tbody>tr>td>img {
   box-shadow: 0 2px 6px #0003;
 }
 
-.action_btn {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.action_btn>a {
-  text-decoration: none;
-  color: #444;
-  background: #fff;
-  border: 1px solid;
-  display: inline-block;
-  padding: 7px 20px;
-  font-weight: bold;
-  border-radius: 3px;
-  transition: 0.3s ease-in-out;
-}
-
-.action_btn>a:nth-child(1) {
-  border-color: #26a69a;
-}
-
-.action_btn>a:nth-child(2) {
-  border-color: orange;
-}
-
-.action_btn>a:hover {
-  box-shadow: 0 3px 8px #0003;
-}
-
-table>tbody>tr {
+table > tbody > tr {
   background-color: #fff;
   transition: 0.3s ease-in-out;
 }
 
-table>tbody>tr:nth-child(even) {
+table > tbody > tr:nth-child(even) {
   background-color: rgb(238, 238, 238);
 }
 
-table>tbody>tr:hover {
+table > tbody > tr:hover {
   filter: drop-shadow(0px 2px 6px #0002);
 }
 </style>

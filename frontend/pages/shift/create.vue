@@ -1,18 +1,5 @@
 <template>
   <div v-if="can(`shift_create`)">
-    <v-row class="mt-5 mb-10">
-      <v-col md="6">
-        <h3>{{ Model }}</h3>
-        <div>Dashboard / {{ Model }} / Create</div>
-      </v-col>
-      <v-col md="6">
-        <div class="text-right">
-          <v-btn x-small dark fab color="background" to="/shift">
-            <v-icon>mdi-arrow-left</v-icon>
-          </v-btn>
-        </div>
-      </v-col>
-    </v-row>
     <!-- <GenerateLog /> -->
 
     <v-card>

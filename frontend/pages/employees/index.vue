@@ -81,7 +81,12 @@
                       >
                         <template v-slot:activator="{ on, attrs }">
                           <v-text-field
-                            :hide-details="true"
+                            :hide-details="!errors.joining_date"
+                            :error-messages="
+                              errors && errors.joining_date
+                                ? errors.joining_date[0]
+                                : ''
+                            "
                             v-model="employee.joining_date"
                             persistent-hint
                             append-icon="mdi-calendar"
@@ -100,6 +105,56 @@
                         ></v-date-picker>
                       </v-menu>
                     </div>
+                  </v-col>
+                  <v-col md="12" sm="12" cols="12" dense>
+                    <label class="col-form-label"
+                      >Display Name <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.display_name"
+                      type="text"
+                      v-model="employee.display_name"
+                      :error="errors.display_name"
+                      :error-messages="
+                        errors && errors.display_name
+                          ? errors.display_name[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col md="6" sm="12" cols="12" dense>
+                    <label class="col-form-label"
+                      >First Name <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.first_name"
+                      type="text"
+                      v-model="employee.first_name"
+                      :error="errors.first_name"
+                      :error-messages="
+                        errors && errors.first_name ? errors.first_name[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col md="6" sm="12" cols="12" dense>
+                    <label class="col-form-label"
+                      >Last Name <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.last_name"
+                      type="text"
+                      v-model="employee.last_name"
+                      :error="errors.last_name"
+                      :error-messages="
+                        errors && errors.last_name ? errors.last_name[0] : ''
+                      "
+                    ></v-text-field>
                   </v-col>
                   <v-col md="6" cols="6" sm="6" dense>
                     <label class="col-form-label"
@@ -139,24 +194,7 @@
                       "
                     ></v-text-field>
                   </v-col>
-                  <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label"
-                      >Display Name <span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      :hide-details="!errors.display_name"
-                      type="text"
-                      v-model="employee.display_name"
-                      :error="errors.display_name"
-                      :error-messages="
-                        errors && errors.display_name
-                          ? errors.display_name[0]
-                          : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
+
                   <v-col md="12" cols="12" sm="12" dense>
                     <label class="col-form-label">Email (optional)</label>
                     <v-text-field
@@ -276,13 +314,14 @@
           </v-card-text>
         </v-card>
       </v-dialog>
-
       <div class="text-center">
         <v-dialog v-model="viewDialog" width="1200" :key="employeeId">
-          <EmployeeDetails :employeeObject="employeeObject" />
+          <EmployeeDetails
+            @close-parent-dialog="closeViewDialog"
+            :employeeObject="employeeObject"
+          />
         </v-dialog>
       </div>
-
       <v-dialog v-model="dialog" max-width="500px">
         <v-card>
           <v-card-text>
@@ -332,27 +371,67 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+        {{ snackText }}
 
-      <v-row>
-        <div v-if="can(`employee_view`)">
-          <v-card class="mb-5 rounded-md mt-3" elevation="0">
-            <v-toolbar
-              class="rounded-md mb-2 white--text"
-              color="background"
-              dense
-              flat
-            >
-              <v-col cols="9">
-                <span> Dashboard / {{ Model }} List</span>
-                <v-icon @click="getDataFromApi()" class="mx-1 white--text"
-                  >mdi mdi-reload</v-icon
-                >
-                <!-- <v-icon
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
+        </template>
+      </v-snackbar>
+
+      <div v-if="can(`employee_view`)">
+        <v-container>
+          <v-card elevation="0">
+            <v-toolbar class="mb-2 white--text" color="background" dense flat>
+              <span>{{ Model }}s</span>
+              <v-icon @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+              <v-spacer></v-spacer>
+              <v-icon color="white" right dark @click="dialog = true"
+                >mdi-cloud-upload</v-icon
+              >
+              <v-icon color="white" right dark @click="export_submit"
+                >mdi-cloud-download</v-icon
+              >
+              <v-icon
+                color="white"
+                right
+                dark
+                v-if="can('employee_create')"
+                @click="employeeDialog = true"
+                >mdi-plus</v-icon
+              >
+              <!-- <v-btn
+                v-if="can('employee_import_access')"
+                small
+                dark
+                class="primary mx-1"
+                @click="dialog = true"
+              >
+                Import <v-icon right dark>mdi-cloud-upload</v-icon>
+              </v-btn>
+              <v-btn
+                v-if="can('employee_export_access')"
+                small
+                dark
+                class="primary mx-1"
+                @click="export_submit"
+              >
+                Export <v-icon right dark>mdi-cloud-download</v-icon>
+              </v-btn>
+              <v-btn
+                v-if="can('employee_create')"
+                @click="employeeDialog = true"
+                small
+                dark
+                class="primary"
+                >{{ Model }}<v-icon right dark>mdi-plus</v-icon>
+              </v-btn> -->
+              <!-- <v-icon
                   @click="showFilters = !showFilters"
                   class="mx-1 white--text"
                   >mdi mdi-filter</v-icon
                 > -->
-                <v-select
+              <!-- <v-select
                   v-if="showFilters"
                   @change="getDataFromApi()"
                   v-model="department_filter_id"
@@ -364,48 +443,8 @@
                   dense
                   flat
                   :hide-details="true"
-                ></v-select>
-              </v-col>
-              <v-col cols="3" class="text-right">
-                <v-btn
-                  v-if="can('employee_import_access')"
-                  small
-                  dark
-                  class="primary mx-1"
-                  @click="dialog = true"
-                >
-                  Import <v-icon right dark>mdi-cloud-upload</v-icon>
-                </v-btn>
-                <v-btn
-                  v-if="can('employee_export_access')"
-                  small
-                  dark
-                  class="primary mx-1"
-                  @click="export_submit"
-                >
-                  Export <v-icon right dark>mdi-cloud-download</v-icon>
-                </v-btn>
-                <v-btn
-                  v-if="can('employee_create')"
-                  @click="employeeDialog = true"
-                  small
-                  dark
-                  class="primary mx-1"
-                  >{{ Model }} <v-icon right dark>mdi-plus</v-icon>
-                </v-btn>
-              </v-col>
+                ></v-select> -->
             </v-toolbar>
-
-            <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-              {{ snackText }}
-
-              <template v-slot:action="{ attrs }">
-                <v-btn v-bind="attrs" text @click="snack = false">
-                  Close
-                </v-btn>
-              </template>
-            </v-snackbar>
-
             <v-data-table
               dense
               v-model="selectedItems"
@@ -638,8 +677,8 @@
               </template>
             </v-data-table>
           </v-card>
-        </div>
-      </v-row>
+        </v-container>
+      </div>
     </div>
     <Preloader v-else />
   </div>
@@ -940,6 +979,9 @@ export default {
     ];
   },
   methods: {
+    closeViewDialog() {
+      this.viewDialog = false;
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";

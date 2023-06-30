@@ -20,6 +20,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'user_type',
         'name',
         'email',
         'password',
@@ -86,7 +87,7 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class, "employee_role_id")->withDefault([
             "name" => "---",
-        ]);;
+        ]);
     }
 
     public function employee_role()

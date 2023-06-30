@@ -3,9 +3,16 @@
     <v-toolbar class="background" dense dark
       >Profile Details
       <v-spacer></v-spacer>
-      <v-btn small class="primary"
+      <v-btn @click="openDocumentDrawer" small class="primary"
         >Documents&nbsp;<v-icon small>
           mdi-file
+          <!-- mdi-open-in-new -->
+        </v-icon></v-btn
+      >
+      &nbsp;
+      <v-btn @click="closeParentDialog" small class="grey"
+        >Close &nbsp;<v-icon small>
+          mdi-close
           <!-- mdi-open-in-new -->
         </v-icon></v-btn
       >
@@ -92,7 +99,8 @@
                   employeeObject.local_address || "---"
                 }}
                 <br />
-                {{ employeeObject.local_city || "---" }},
+                {{ employeeObject.local_city || "---" }}
+                <span v-if="employeeObject.local_city">,</span>
                 {{ employeeObject.local_country || "---" }}
               </td>
             </tr>
@@ -121,31 +129,29 @@
             <tr>
               <td>
                 <strong>Timezone</strong><br />{{
-                  employeeObject.timezone.name
+                  employeeObject.timezone.timezone_name
                 }}
               </td>
             </tr>
-            <tr>
+            <!-- <tr>
               <td>
-                <strong>Shift</strong><br />Straight Shift <br />10:00 to 20:00
+                <strong>Shift</strong><br />{{
+                  employeeObject.schedule.shift.name
+                }}
+                <br />
+                {{ employeeObject.schedule.shift.working_hours }}
               </td>
-            </tr>
+            </tr> -->
             <tr>
               <td>
                 <strong
-                  >Passport :
-                  {{
-                    (employeeObject.passport &&
-                      employeeObject.passport.country) ||
-                    "---"
-                  }} </strong
+                  >Passport : {{ employeeObject.passport.country }} </strong
                 ><br />
-                {{
-                  (employeeObject.passport &&
-                    employeeObject.passport.passport_no) ||
-                  "---"
-                }}<br />Expired on
-                {{ formatDate(employeeObject.passport.expiry_date) }}
+                {{ employeeObject.passport.passport_no }}<br />Expired on
+                <span v-if="employeeObject.passport.expiry_date">
+                  {{ formatDate(employeeObject.passport.expiry_date) }}</span
+                >
+                <span v-else> --- </span>
               </td>
             </tr>
             <tr>
@@ -153,7 +159,10 @@
                 <strong>Emirates ID </strong><br />{{
                   employeeObject.emirate.emirate_id
                 }}<br />Expired on
-                {{ formatDate(employeeObject.emirate.expiry) }}
+                <span v-if="employeeObject.emirate.expiry">
+                  {{ formatDate(employeeObject.emirate.expiry) }}</span
+                >
+                <span v-else> --- </span>
               </td>
             </tr>
           </table>
@@ -189,6 +198,66 @@
           </table>
         </v-col>
       </v-row>
+      <v-navigation-drawer v-model="drawer" bottom temporary right fixed>
+        <v-toolbar class="background" dense dark
+          >Documents
+          <v-spacer></v-spacer>
+
+          <v-icon @click="drawer = false">
+            mdi-close
+            <!-- mdi-open-in-new -->
+          </v-icon>
+        </v-toolbar>
+        <table style="width: 100%; border-collapse: collapse; margin: 5px">
+          <thead>
+            <tr>
+              <th
+                style="
+                  padding: 8px;
+                  text-align: left;
+                  border-bottom: 1px solid #ddd;
+                "
+              >
+                Title
+              </th>
+              <th
+                style="
+                  padding: 8px;
+                  text-align: left;
+                  border-bottom: 1px solid #ddd;
+                "
+              >
+                Document
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(document, index) in document_list" :key="index">
+              <td
+                style="
+                  padding: 8px;
+                  text-align: left;
+                  border-bottom: 1px solid #ddd;
+                "
+              >
+                {{ document.title }}
+              </td>
+              <td
+                style="
+                  padding: 8px;
+                  text-align: left;
+                  border-bottom: 1px solid #ddd;
+                "
+              >
+                <a :href="document.attachment" download target="_blank">
+                  <v-icon color="primary"> mdi-download </v-icon>
+                </a>
+              </td>
+            </tr>
+            <!-- Add more rows as needed -->
+          </tbody>
+        </table>
+      </v-navigation-drawer>
     </v-card-text>
   </v-card>
 </template>
@@ -211,7 +280,8 @@ export default {
     upload_edit: {
       name: "",
     },
-
+    drawer: false,
+    group: null,
     attrs: [],
     dialog: false,
     editDialog: false,
@@ -222,7 +292,6 @@ export default {
     boilerplate: false,
     right: true,
     rightDrawer: false,
-    drawer: true,
     tab: null,
     selectedItem: 1,
 
@@ -271,11 +340,10 @@ export default {
     departments: [],
     department_id: "",
     payloadOptions: {},
+    document_list: [],
   }),
 
   created() {
-    this.getInfo(this.employeeId);
-
     this.payloadOptions = {
       params: {
         per_page: 1000,
@@ -308,6 +376,9 @@ export default {
       },
       deep: true,
     },
+    group() {
+      this.drawer = false;
+    },
   },
   computed: {
     formatJoiningDate() {
@@ -327,6 +398,17 @@ export default {
     },
   },
   methods: {
+    closeParentDialog() {
+      this.$emit("close-parent-dialog");
+    },
+    openDocumentDrawer() {
+      this.drawer = true;
+      this.$axios
+        .get(`documentinfo/${this.employeeObject.id}`)
+        .then(({ data }) => {
+          this.document_list = data;
+        });
+    },
     formatDate(date) {
       let dateObj = new Date();
 
@@ -382,28 +464,6 @@ export default {
       this.$axios.get(`role`, this.payloadOptions).then(({ data }) => {
         this.roles = data.data;
       });
-    },
-    getInfo(id) {
-      this.$axios
-        .get(`employee-single/${id}`)
-        .then(({ data }) => {
-          this.employee = {
-            title: data.title,
-            display_name: data.display_name,
-            first_name: data.first_name,
-            last_name: data.last_name,
-            employee_id: data.employee_id,
-            system_user_id: data.system_user_id,
-            department_id: data.department_id,
-            sub_department_id: data.sub_department_id,
-            designation_id: data.designation_id,
-            employee_role_id: data.user.employee_role_id,
-          };
-
-          // this.employee.id = data.id;
-          this.previewImage = data.profile_picture;
-        })
-        .catch((err) => console.log(err));
     },
     saveCroppedImageStep2() {
       this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();

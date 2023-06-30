@@ -10,11 +10,29 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    public function create_user($request)
+    {
+        try {
+            $record = User::create([
+                "name" => "null",
+                "email" => $request->email,
+                "password" => Hash::make($request->password),
+                "company_id" => $request->company_id,
+                "user_type " => $request->user_type,
+
+            ]);
+
+            return $record ? true : false;
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     public function index(User $model, Request $request)
     {
         $model = $this->FilterCompanyList($model, $request);
 
-        $model->whereHas("role",function($q){
+        $model->whereHas("role", function ($q) {
             return $q->where('name', '!=', "company");
         });
 
@@ -39,8 +57,7 @@ class UserController extends Controller
             } else {
                 return $this->response('User cannot add.', null, false);
             }
-
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -61,7 +78,6 @@ class UserController extends Controller
             } else {
                 return $this->response('User cannot update.', null, false);
             }
-
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -82,7 +98,6 @@ class UserController extends Controller
             } else {
                 return $this->response('User cannot delete.', null, false);
             }
-
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -98,7 +113,6 @@ class UserController extends Controller
             } else {
                 return $this->response('Select record cannot delete.', null, false);
             }
-
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -115,7 +129,7 @@ class UserController extends Controller
 
         $model = $this->process_search($model, $key, $fields);
 
-        $model->whereHas("role",function($q){
+        $model->whereHas("role", function ($q) {
             return $q->where('name', '!=', "company");
         });
 
