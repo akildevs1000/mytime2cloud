@@ -1,225 +1,333 @@
 <template>
-  <div v-if="can(`employee_access`)">
-    <v-row class="mt-5 mb-5">
-      <v-col cols="6" sm="6" md="6">
-        <h3>{{ Model }}</h3>
-        <div>Dashboard / {{ Model }}</div>
-      </v-col>
-    </v-row>
-    <div v-if="can(`employee_view`)">
+  <v-card
+    v-if="company_payload && company_payload.name"
+    class="mx-auto"
+    justify="center"
+  >
+    <v-card-text>
       <v-row>
-        <v-col>
-          <!-- <table>
-            <tr>
-              <td>
-                <v-btn class="primary"> <b>Present</b> 20</v-btn>
-              </td>
-              <td>
-                <v-btn class="primary"> <b>Performed Hours</b> 20</v-btn>
-              </td>
-              <td>
-                <v-btn class="primary"> <b>OT Hours</b> 20</v-btn>
-              </td>
-              <td>
-                <v-btn class="orange white--text"> <b>Absents</b> 20</v-btn>
-              </td>
-              <td>
-                <v-btn class="orange white--text">
-                  <b>Missing Hours</b> 20</v-btn
-                >
-              </td>
-              <td>
-                <v-btn class="orange white--text"> <b>Late Hours</b> 20</v-btn>
-              </td>
-            </tr>
-          </table> -->
-
-          <v-card class="mb-5" elevation="0">
-            <!-- <table v-if="data && data.earnings" class="employee-table">
-              <tr class="background white--text">
-                <td class="w-50">Earnings</td>
-                <td>Deductions</td>
-              </tr>
-              <tr v-for="(item, index) in data.earnings" :key="index">
-                <td class="w-50">{{ caps(item.label) }} {{ item.value }}</td>
-                <td>
-                  <span v-if="data && data.deductions[index]">
-                    Absent {{ data.deductedSalary }}
-                  </span>
-                </td>
-              </tr>
-            </table> -->
-            <v-row>
-              <a :href="getdownloadLink" style="
-                  font-size: 40px;
-                  vertical-align: inherit;
-                  cursor: pointer;
-                  text-align: right;
-                ">
-                <span class="mdi mdi-download-box"></span>
-              </a>
-            </v-row>
-            <v-row>
-              <div class="container mt-5 mb-5" id="printMe">
-                <div class="row">
-                  <div class="col-md-12">
-                    <div class="text-center lh-1 mb-2">
-                      <h6 class="fw-bold">Payslip</h6>
-                      <span class="fw-normal">Payment slip for the month of {{ currentMonth }}
-                        {{ currentYear }}</span>
-                    </div>
-
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="row">
-                          <div class="col-md-3 addressheight">
-                            <address>
-                              <div>
-                                <img :src="this.company_payload.logo" width="60px" />
-                              </div>
-                              <strong>{{ this.company_payload.name }}</strong><br />
-                              {{ this.company_payload.p_o_box_no }}
-                            </address>
-                          </div>
-                          <div class="col-md-8 text-right addressheight">
-                            <address>
-                              <div style="height: 60px"></div>
-                              <strong>EMP ID: {{ empCode }}</strong><br />
-                              Name: {{ contact_payload.name }}<br />
-                              Designation: {{ contact_payload.position }}<br />
-                            </address>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-12">
-                          <div class="row">
-                            <div class="col-md-6 addressheight2">
-
-                              <!-- {{ data.earnings }} -->
-                              <table class="mt-4 table table-bordered">
-                                <thead class="bg-dark text-white">
-                                  <tr>
-                                    <th scope="col">Earnings</th>
-                                    <th scope="col">Amount</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <tr v-for="(item, index) in data.earnings" :key="index">
-                                    <td class="w-50">
-                                      {{ caps(item.label) }}
-                                    </td>
-                                    <td class="w-50 text-right">
-                                      {{ item.value }}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <th class="w-50">
-                                      <strong>Total Earnings</strong>
-                                    </th>
-                                    <th class="w-50 text-right">
-                                      {{ data.salary_and_earnings }}
-                                    </th>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
-                            <div class="col-md-6 text-right addressheight2">
-                              <table class="mt-4 table table-bordered">
-                                <thead class="bg-dark text-white">
-                                  <tr>
-                                    <th scope="col">Deductions</th>
-                                    <th scope="col">Amount</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <tr v-for="(item, index) in data.deductions" :key="index">
-                                    <td class="w-50">
-                                      {{ caps(item.label) }}
-                                    </td>
-                                    <td class="w-50 text-right">
-                                      {{ item.value }}
-                                    </td>
-                                  </tr>
-                                  <tr v-for="n in countdifference" :key="n">
-                                    <th scope="row">&nbsp;</th>
-                                    <td class="text-right">&nbsp;</td>
-                                  </tr>
-                                  <tr>
-                                    <th scope="row">Total Deductions</th>
-                                    <th class="text-right">
-                                      {{ data.deductedSalary }}
-                                    </th>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="border col-md-12">
-                        <div class="row">
-                          <div class="col-md-5">
-                            <span>Present Days: {{ this.data.presentDays }}</span>
-                          </div>
-
-                          <div class="col-md-5 text-right">
-                            <span>Absent Days: {{ this.data.absentDays }}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="border col-md-12">
-                        <div class="d-flex flex-column">
-                          <span><strong>Net Salary: {{ numberRound(this.data.earnedSubTotal) }}
-                            </strong>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <v-col cols="4" class="reds">
+          <div class="d-flex" style="border: 1px solid white">
+            <v-img
+              style="border-radius: 10%"
+              :src="this.company_payload.logo"
+              max-width="100"
+              max-height="100"
+            ></v-img>
+            <div class="ml-3 mt-3">
+              <div style="border-top: 1px solid white">
+                <strong>{{ this.company_payload.name }}</strong>
               </div>
-            </v-row>
-            <!-- <table v-if="data && data.earnings" class="employee-table">
-              <v-progress-linear
-                v-if="loading"
-                :active="loading"
-                :indeterminate="loading"
-                absolute
-                color="primary"
-              ></v-progress-linear>
-              <tr>
-                <td style="width:50%;">
-                  {{ data.present }} Presents x {{ data.perDaySalary }} AED =
-                  {{ data.earnedSalary }}
-                </td>
-                <td>{{ data.deductedSalary }}</td>
-              </tr>
+              <div class="w-10">{{ this.company_payload.location }}</div>
+              <div class="w-10">{{ this.company_payload.p_o_box_no }}</div>
+            </div>
+          </div>
+        </v-col>
+        <v-col cols="4" class="reds">
+          <div class="text-center pt-2">
+            <h5 class="text--grey">
+              <u>PAYSLIP FOR THE MONTH OF JUNE {{ currentYear }}</u>
+            </h5>
+          </div>
+        </v-col>
+        <v-col cols="4" class="reds text-right">
+          <div class="text-right">
+            <div class="ml-2">
+              <div style="border-top: 1px solid white">
+                <strong><u>PAYSLIP #49029</u></strong>
+              </div>
+            </div>
+          </div>
+        </v-col>
+      </v-row>
+    </v-card-text>
+    <v-card-text>
+      <v-row>
+        <v-col cols="6">
+          <v-card outlined>
+            <v-card-title> Employee Details </v-card-title>
+            <v-card-text>
+              <table
+                style="
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-bottom: 10px;
+                "
+              >
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Employee Name
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    Francis
+                  </td>
+                </tr>
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Employee Id
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    1111
+                  </td>
+                </tr>
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Department
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    IT
+                  </td>
+                </tr>
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Designation
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    Developer
+                  </td>
+                </tr>
+              </table>
+            </v-card-text>
+          </v-card>
+        </v-col>
 
-              <tr>
-                <td>Sub Total: {{ data.earnedSubTotal }}</td>
-                <td>Sub Total: {{ data.earnedSubTotal }}</td>
-              </tr>
-            </table>
+        <v-col cols="6">
+          <v-card outlined>
+            <v-card-title> Other Details </v-card-title>
+            <v-card-text>
+              <table
+                style="
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-bottom: 10px;
+                "
+              >
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Salary Month:
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    {{ currentMonth }}, {{ currentYear }}
+                  </td>
+                </tr>
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Presents
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    25
+                  </td>
+                </tr>
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Absent
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    05
+                  </td>
+                </tr>
+              </table>
+            </v-card-text>
+          </v-card>
+        </v-col>
 
-            <table v-if="data" class="employee-table">
-              <tr>
-                <td>Net Salary : {{ data.finalSalary }}</td>
-                <td>Net Salary : {{ data.finalSalary }}</td>
-              </tr>
-            </table> -->
+        <v-col cols="6">
+          <v-card outlined>
+            <v-card-title> Earning Details </v-card-title>
+            <v-card-text>
+              <table
+                style="
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-bottom: 10px;
+                "
+              >
+                <thead>
+                  <tr>
+                    <th
+                      style="
+                        text-align: left;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      Earnings
+                    </th>
+                    <th
+                      style="
+                        text-align: right;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      Amount
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in data.earnings" :key="index">
+                    <td
+                      style="
+                        text-align: left;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      {{ caps(item.label) }}
+                    </td>
+                    <td
+                      style="
+                        text-align: right;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      {{ item.value }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th
+                      style="
+                        text-align: left;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      <strong>Total Earnings</strong>
+                    </th>
+                    <th
+                      style="
+                        text-align: right;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      {{ data.salary_and_earnings }}
+                    </th>
+                  </tr>
+                </tbody>
+              </table>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="6">
+          <v-card outlined>
+            <v-card-title> Deduction Details </v-card-title>
+            <v-card-text>
+              <table
+                style="
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-bottom: 10px;
+                "
+              >
+                <thead>
+                  <tr>
+                    <th
+                      style="
+                        text-align: left;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      Deductions
+                    </th>
+                    <th
+                      style="
+                        text-align: right;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      Amount
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in data.deductions" :key="index">
+                    <td
+                      style="
+                        text-align: left;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      {{ caps(item.label) }}
+                    </td>
+                    <td
+                      style="
+                        text-align: right;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      {{ item.value }}
+                    </td>
+                  </tr>
+                  <tr v-for="n in countdifference" :key="n">
+                    <th
+                      style="
+                        text-align: left;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                      scope="row"
+                    >
+                      &nbsp;
+                    </th>
+                    <td
+                      style="
+                        text-align: right;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      &nbsp;
+                    </td>
+                  </tr>
+                  <tr>
+                    <th
+                      style="
+                        text-align: left;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                      scope="row"
+                    >
+                      Total Deductions
+                    </th>
+                    <th
+                      style="
+                        text-align: right;
+                        padding: 5px;
+                        border-bottom: 1px solid #ccc;
+                      "
+                    >
+                      {{ data.deductedSalary }}
+                    </th>
+                  </tr>
+
+                  <!-- Add more deductions rows if needed -->
+                </tbody>
+              </table>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12">
+          <v-card outlined>
+            <v-card-text class="text-right">
+              <strong>Net Salary</strong>:
+              {{ numberRound(this.data.earnedSubTotal) }}
+            </v-card-text>
           </v-card>
         </v-col>
       </v-row>
-    </div>
-    <NoAccess v-else />
-  </div>
-  <NoAccess v-else />
+    </v-card-text>
+  </v-card>
+  <Preloader v-else />
 </template>
+
 <script>
 export default {
   data: () => ({
@@ -268,9 +376,7 @@ export default {
 
   methods: {
     numberRound(val) {
-
-      if (val)
-        return val.toFixed(2);
+      if (val) return val.toFixed(2);
     },
     can(per) {
       let u = this.$auth.user;
@@ -312,7 +418,6 @@ export default {
           this.countdifference =
             data[0].earnings.length - data[0].deductions.length;
 
-
           this.getdownloadLink =
             this.$axios.defaults.baseURL +
             "/donwload-payslip-pdf?company_id=" +
@@ -330,7 +435,6 @@ export default {
     getCompanyDataFromApi() {
       let company_id = this.$auth?.user?.company?.id;
       this.$axios.get(`company/${company_id}`).then(({ data }) => {
-
         let r = data.record;
         this.company_payload = r;
         this.contact_payload = r.contact;
@@ -347,30 +451,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.addressheight {
-  height: 180px;
-}
-
-.addressheight2 {
-  min-height: 300px;
-}
-
-table.employee-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  /* border: 1px solid #dddddd; */
-  text-align: left;
-  padding: 8px;
-}
-
-table.employee-table tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-</style>

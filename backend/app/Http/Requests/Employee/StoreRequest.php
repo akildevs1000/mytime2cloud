@@ -42,6 +42,8 @@ class StoreRequest extends FormRequest
             'employee_id' => ['required', $controller->uniqueRecord("employees", $employee)],
             'system_user_id' => ['required', $controller->uniqueRecord("employees", $employeeDevice)],
             'display_name' => ['required', 'min:3', 'max:10'],
+            'first_name' => ['required', 'min:3', 'max:10'],
+            'last_name' => ['required', 'min:3', 'max:10'],
             'title' => ['required'],
             'joining_date' => ['required'],
             'status' => ['nullable'],

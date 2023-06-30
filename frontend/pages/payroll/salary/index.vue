@@ -24,25 +24,39 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr :style="{
-                    color: item.status ? '' : 'red',
-                  }" v-for="(item, index) in payslipsResultsmessages" :key="item.id">
+                  <tr
+                    :style="{
+                      color: item.status ? '' : 'red',
+                    }"
+                    v-for="(item, index) in payslipsResultsmessages"
+                    :key="item.id"
+                  >
                     <td>{{ index + 1 }}</td>
 
                     <td>{{ item.status_message }}</td>
                     <td class="text-right">
-                      <a v-if="item.status" :href="getdownloadLink(item.employee_id)" style="
+                      <a
+                        v-if="item.status"
+                        :href="getdownloadLink(item.employee_id)"
+                        style="
                           font-size: 25px;
                           vertical-align: inherit;
                           cursor: pointer;
-                        ">
-                        <v-icon small class="primary--text">mdi-download</v-icon>
+                        "
+                      >
+                        <v-icon small class="primary--text"
+                          >mdi-download</v-icon
+                        >
                       </a>
-                      <a v-if="!item.status" @click="navigatetoEmployeepage()" style="
+                      <a
+                        v-if="!item.status"
+                        @click="navigatetoEmployeepage()"
+                        style="
                           font-size: 14px;
                           vertical-align: inherit;
                           cursor: pointer;
-                        ">
+                        "
+                      >
                         Go to Employee Page
                       </a>
                     </td>
@@ -81,19 +95,47 @@
             <v-row class="mt-4">
               <v-col cols="5">
                 <div class="">Departments</div>
-                <v-select outlined dense x-small v-model="department_idPopup" item-text="name" item-value="id"
-                  :items="departments" placeholder="Department" solo flat></v-select>
+                <v-select
+                  outlined
+                  dense
+                  x-small
+                  v-model="department_idPopup"
+                  item-text="name"
+                  item-value="id"
+                  :items="departments"
+                  placeholder="Department"
+                  solo
+                  flat
+                ></v-select>
               </v-col>
 
               <v-col cols="3">
                 <div class="">Year</div>
-                <v-select outlined dense x-small v-model="payslip_year_Popup" :items="dataYears" placeholder="Year" solo
-                  flat></v-select>
+                <v-select
+                  outlined
+                  dense
+                  x-small
+                  v-model="payslip_year_Popup"
+                  :items="dataYears"
+                  placeholder="Year"
+                  solo
+                  flat
+                ></v-select>
               </v-col>
               <v-col cols="3">
                 <div class="">Month</div>
-                <v-select outlined dense x-small v-model="payslip_month_Popup" :items="monthNames" item-text="label"
-                  item-value="value" placeholder="Month" solo flat></v-select>
+                <v-select
+                  outlined
+                  dense
+                  x-small
+                  v-model="payslip_month_Popup"
+                  :items="monthNames"
+                  item-text="label"
+                  item-value="value"
+                  placeholder="Month"
+                  solo
+                  flat
+                ></v-select>
               </v-col>
 
               <v-card-actions>
@@ -103,7 +145,12 @@
                   </v-btn>-->
                 </v-col>
                 <v-col md="6" lg="6" class="text-right" style="padding: 0px">
-                  <v-btn class="primary" @click="generateNewpayslipsByDepartment" style>Generate Payslips</v-btn>
+                  <v-btn
+                    class="primary"
+                    @click="generateNewpayslipsByDepartment"
+                    style
+                    >Generate Payslips</v-btn
+                  >
                 </v-col>
               </v-card-actions>
             </v-row>
@@ -137,24 +184,58 @@
       <v-row>
         <v-col>
           <v-card class="mb-5" elevation="0">
-            <v-toolbar class="rounded-md mb-2 white--text" color="background" dense flat>
+            <v-toolbar
+              class="rounded-md mb-2 white--text"
+              color="background"
+              dense
+              flat
+            >
               <v-col cols="8">
                 <span> Dashboard / Payslip List</span>
-                <v-icon @click="getDataFromApi()" class="mx-1 white--text">mdi mdi-reload</v-icon>
+                <v-icon @click="getDataFromApi()" class="mx-1 white--text"
+                  >mdi mdi-reload</v-icon
+                >
 
-                <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected" small
-                  class="primary   toolbar-button-design1" color="primary"> Payslips For selected
+                <v-btn
+                  v-if="selectedItems.length"
+                  @click="generateNewpayslipsSelected"
+                  small
+                  class="primary toolbar-button-design1"
+                  color="primary"
+                >
+                  Payslips For selected
                 </v-btn>
               </v-col>
               <v-col cols="4" class="text-right">
-                <v-btn @click="openPayslipDialog" small dark class="primary  mx-1   toolbar-button-design1 "
-                  color="primary">
-                  Payslips Generation <v-icon @click="showFilters = !showFilters" class="mx-1 white--text">mdi
-                    mdi-currency-usd</v-icon>
+                <v-btn
+                  @click="openPayslipDialog"
+                  small
+                  dark
+                  class="primary mx-1 toolbar-button-design1"
+                  color="primary"
+                >
+                  Payslips Generation
+                  <v-icon
+                    @click="showFilters = !showFilters"
+                    class="mx-1 white--text"
+                    >mdi mdi-currency-usd</v-icon
+                  >
                 </v-btn>
-                <v-btn v-if="downloadAllDisplayStatus" download :href="payslipsDownloadAllURL" small dark
-                  class="primary   mx-1 toolbar-button-design1" color="primary"> All Payslips <v-icon
-                    @click="showFilters = !showFilters" class="mx-1 white--text">mdi mdi-download</v-icon>
+                <v-btn
+                  v-if="downloadAllDisplayStatus"
+                  download
+                  :href="payslipsDownloadAllURL"
+                  small
+                  dark
+                  class="primary mx-1 toolbar-button-design1"
+                  color="primary"
+                >
+                  All Payslips
+                  <v-icon
+                    @click="showFilters = !showFilters"
+                    class="mx-1 white--text"
+                    >mdi mdi-download</v-icon
+                  >
                 </v-btn>
               </v-col>
             </v-toolbar>
@@ -200,21 +281,39 @@
                 </v-btn>
               </template>
             </v-snackbar>
-            <v-data-table dense show-select v-model="selectedItems" :headers="headers_table" :items="data"
-              model-value="data.id" :loading="loading" :options.sync="options" :footer-props="{
+            <v-data-table
+              dense
+              show-select
+              v-model="selectedItems"
+              :headers="headers_table"
+              :items="data"
+              model-value="data.id"
+              :loading="loading"
+              :options.sync="options"
+              :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
-              }" class="elevation-1">
-
+              }"
+              class="elevation-1"
+            >
               <template v-slot:item.employee_id="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
-                  :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
+                <v-edit-dialog
+                  large
+                  save-text="Reset"
+                  cancel-text="Ok"
+                  style="margin-left: 4%"
+                  :return-value.sync="item.employee_id"
+                  @save="getDataFromApi()"
+                  @open="datatable_open"
+                >
                   {{ item.employee_id }}
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
-                      label="Search Employee Id"></v-text-field>
+                    <v-text-field
+                      @input="datatable_searchById"
+                      v-model="datatable_search_textbox"
+                      label="Search Employee Id"
+                    ></v-text-field>
                   </template>
                 </v-edit-dialog>
-
               </template>
               <!-- <template v-slot:item.display_name="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
@@ -230,32 +329,47 @@
 
 
               </template> -->
-              <template v-slot:item.display_name="{ item, index }" style="width: 300px">
-
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
+              <template
+                v-slot:item.display_name="{ item, index }"
+                style="width: 300px"
+              >
+                <v-edit-dialog
+                  large
+                  save-text="Reset"
+                  cancel-text="Ok"
+                  style="margin-left: 4%"
+                  @save="getDataFromApi()"
+                  @open="datatable_open"
+                >
                   <v-row no-gutters>
-                    <v-col style="
+                    <v-col
+                      style="
                         padding: 5px;
                         padding-left: 0px;
                         width: 50px;
                         max-width: 50px;
-                      ">
-                      <v-img style="
+                      "
+                    >
+                      <v-img
+                        style="
                           border-radius: 50%;
                           height: auto;
                           width: 50px;
                           max-width: 50px;
-                        " :src="item.profile_picture
-                          ? item.profile_picture
-                          : '/no-profile-image.jpg'
-                          ">
+                        "
+                        :src="
+                          item.profile_picture
+                            ? item.profile_picture
+                            : '/no-profile-image.jpg'
+                        "
+                      >
                       </v-img>
                     </v-col>
                     <v-col style="padding: 10px">
                       <strong>
                         {{ item.first_name ? item.first_name : "---" }}
-                        {{ item.last_name ? item.last_name : "---" }}</strong>
+                        {{ item.last_name ? item.last_name : "---" }}</strong
+                      >
                       <div>
                         {{
                           item.designation ? caps(item.designation.name) : "---"
@@ -264,26 +378,36 @@
                     </v-col>
                   </v-row>
                   <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterEmployeeName" v-model="datatable_search_textbox"
-                      label="Type Employee Name"></v-text-field>
+                    <v-text-field
+                      @input="getDataFromApi_FilterEmployeeName"
+                      v-model="datatable_search_textbox"
+                      label="Type Employee Name"
+                    ></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
 
               <template v-slot:item.department.name="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
+                <v-edit-dialog
+                  large
+                  save-text="Reset"
+                  cancel-text="Ok"
+                  style="margin-left: 4%"
+                  @save="getDataFromApi()"
+                  @open="datatable_open"
+                >
                   <strong>{{ caps(item.department.name) }}</strong>
                   <div>{{ caps(item.sub_department.name) }}</div>
                   <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterDepartmentName" v-model="datatable_search_textbox"
-                      label="Search Department name"></v-text-field>
+                    <v-text-field
+                      @input="getDataFromApi_FilterDepartmentName"
+                      v-model="datatable_search_textbox"
+                      label="Search Department name"
+                    ></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
               <template v-slot:item.year_month="{ item }">
-
-
                 {{ item.payroll_month }} / {{ item.payroll_year }}
               </template>
               <!-- <template v-slot:item.designation.name="{ item }">
@@ -311,46 +435,67 @@
 
               </template> -->
               <template v-slot:item.payroll.basic_salary="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
+                <v-edit-dialog
+                  large
+                  save-text="Reset"
+                  cancel-text="Ok"
+                  @save="getDataFromApi()"
+                  @open="datatable_open"
+                >
                   {{ item.payroll && item.payroll.basic_salary }}
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchBybasic_salary" v-model="datatable_search_textbox"
-                      label="Minimum Amount"></v-text-field>
+                    <v-text-field
+                      @input="datatable_searchBybasic_salary"
+                      v-model="datatable_search_textbox"
+                      label="Minimum Amount"
+                    ></v-text-field>
                   </template>
                 </v-edit-dialog>
-
               </template>
 
               <template v-slot:item.payroll.net_salary="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
+                <v-edit-dialog
+                  large
+                  save-text="Reset"
+                  cancel-text="Ok"
+                  @save="getDataFromApi()"
+                  @open="datatable_open"
+                >
                   {{ item.payroll && item.payroll.net_salary }}
                   <template v-slot:input>
-                    <v-text-field @input="datatable_searchBynet_salary" v-model="datatable_search_textbox"
-                      label="Minimum Amount"></v-text-field>
+                    <v-text-field
+                      @input="datatable_searchBynet_salary"
+                      v-model="datatable_search_textbox"
+                      label="Minimum Amount"
+                    ></v-text-field>
                   </template>
                 </v-edit-dialog>
-
               </template>
               <template v-slot:item.payslip="{ item }">
-
-                <span @click="navigateToViewPDF(item.system_user_id, item.id)" style="
-                      font-size: 25px;
-                      vertical-align: inherit;
-                      cursor: pointer;
-                    ">
+                <span
+                  @click="navigateToViewPDF(item.system_user_id, item.id)"
+                  style="
+                    font-size: 25px;
+                    vertical-align: inherit;
+                    cursor: pointer;
+                  "
+                >
                   <v-icon small class="primary--text">mdi-eye</v-icon>
                 </span>
-                <a v-if="item.payslip_status" :href="getdownloadLink(item.employee_id)" style="
-                      font-size: 25px;
-                      vertical-align: inherit;
-                      cursor: pointer;
-                    ">
+                <a
+                  v-if="item.payslip_status"
+                  :href="getdownloadLink(item.employee_id)"
+                  style="
+                    font-size: 25px;
+                    vertical-align: inherit;
+                    cursor: pointer;
+                  "
+                >
                   <v-icon small class="primary--text">mdi-download</v-icon>
                 </a>
               </template>
 
               <template v-slot:item.actions="{ item }">
-
                 <v-menu bottom left>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn dark-2 icon v-bind="attrs" v-on="on">
@@ -375,10 +520,7 @@
                   </v-list>
                 </v-menu>
               </template>
-
-
             </v-data-table>
-
 
             <!-- <table class="employee-table">
               <tr>
@@ -464,10 +606,10 @@
 export default {
   data: () => ({
     server_datatable_totalItems: 1000,
-    filter_employeeid: '',
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     downloadAllDisplayStatus: true,
     dialogPayslipsResults: false,
     payslipsResultsmessages: [],
@@ -513,47 +655,62 @@ export default {
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     headers_table: [
-
-      { text: "Emp ID", align: "left", sortable: true, key: 'employee_id', value: "employee_id" },
-      { text: "Name", align: "left", sortable: true, key: 'display_name', value: "display_name" },
-
+      {
+        text: "Emp ID",
+        align: "left",
+        sortable: true,
+        key: "employee_id",
+        value: "employee_id",
+      },
+      {
+        text: "Name",
+        align: "left",
+        sortable: true,
+        key: "display_name",
+        value: "display_name",
+      },
 
       {
         text: "Department",
         align: "left",
         sortable: true,
-        key: 'department',
+        key: "department",
         value: "department.name", //template name should be match
       },
 
-
-      { text: "Month/Year", align: "left", sortable: false, key: 'year_month', value: "year_month" },
+      {
+        text: "Month/Year",
+        align: "left",
+        sortable: false,
+        key: "year_month",
+        value: "year_month",
+      },
       {
         text: "Basic Salary",
         align: "left",
         sortable: true,
-        key: 'payrollbasic',
+        key: "payrollbasic",
         value: "payroll.basic_salary",
       },
       {
         text: "Net Salary",
         align: "left",
         sortable: true,
-        key: 'net_salary',
+        key: "net_salary",
         value: "payroll.net_salary",
       },
       {
         text: "Payslip",
         align: "left",
         sortable: false,
-        key: 'payslip',
+        key: "payslip",
         value: "payslip",
       },
       {
         text: "Actions",
         align: "left",
         sortable: false,
-        key: 'actions',
+        key: "actions",
         value: "actions",
       },
     ],
@@ -653,13 +810,12 @@ export default {
   },
 
   methods: {
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -675,18 +831,12 @@ export default {
       return false;
     },
     getdownloadLink(employee_id) {
-      let url =
-        this.$axios.defaults.baseURL +
-        "/donwload-payslip-pdf?company_id=" +
-        this.$auth.user.company.id +
-        "&employee_id=" +
-        employee_id +
-        "&month=" +
-        this.payslip_month +
-        "&year=" +
-        this.payslip_year;
+      const baseURL = this.$axios.defaults.baseURL;
+      const id = this.$auth.user.company.id;
+      const month = this.payslip_month;
+      const year = this.payslip_year;
 
-      return url;
+      return `${baseURL}/donwload-payslip-pdf?company_id=${id}&employee_id=${employee_id}&month=${month}&year=${year}`;
     },
     getPdfDownloadlink(employee_id) {
       let url = this.$axios.defaults.baseURL;
@@ -736,11 +886,7 @@ export default {
       }
     },
     toggleSelectAll() {
-
-
-      this.selectedItems = this.allSelected ? this.data.map(e => e.id) : [];
-
-
+      this.selectedItems = this.allSelected ? this.data.map((e) => e.id) : [];
     },
     onPageChange() {
       this.getDataFromApi();
@@ -787,7 +933,6 @@ export default {
       });
     },
     generateNewpayslipsByDepartment() {
-
       let url = this.endpoint;
       let options = {
         params: {
@@ -819,8 +964,7 @@ export default {
 
     generateNewpayslipsSelected() {
       let checkedIdArray = [];
-      this.selectedItems.forEach(element => {
-
+      this.selectedItems.forEach((element) => {
         checkedIdArray.push(element.id);
       });
       let url = this.endpoint;
@@ -848,49 +992,39 @@ export default {
           this.getDataFromApi();
         });
     },
-    getDataFromApi(url = this.endpoint, search_column_name = '') {
+    getDataFromApi(url = this.endpoint, search_column_name = "") {
       this.loading = true;
       let page = this.pagination.current;
       let department_id = this.department_id;
       let options = {
         params: {
-          per_page: this.server_datatable_totalItems,//this.pagination.per_page,
+          per_page: this.server_datatable_totalItems, //this.pagination.per_page,
           company_id: this.$auth.user.company.id,
           department_id: department_id,
           year: this.payslip_year,
           month: this.payslip_month,
-
-
         },
       };
 
-      if (search_column_name != '') {
+      if (search_column_name != "") {
         options.params.per_page = 1000;
       }
 
-      if (search_column_name == 'search_department_name') {
-        options.params.search_department_name = 'search_department_name';
-      }
-      else if (search_column_name == 'search_designation_name') {
-        options.params.search_designation_name = 'search_designation_name';
-      }
-      else if (search_column_name == 'searchBybasic_salary') {
-        options.params.searchBybasic_salary = 'searchBybasic_salary';
-      }
-      else if (search_column_name == 'searchBynet_salary') {
-        options.params.searchBynet_salary = 'searchBynet_salary';
-      }
-      else
-        options.params.search_column_name = search_column_name;
-
+      if (search_column_name == "search_department_name") {
+        options.params.search_department_name = "search_department_name";
+      } else if (search_column_name == "search_designation_name") {
+        options.params.search_designation_name = "search_designation_name";
+      } else if (search_column_name == "searchBybasic_salary") {
+        options.params.searchBybasic_salary = "searchBybasic_salary";
+      } else if (search_column_name == "searchBynet_salary") {
+        options.params.searchBynet_salary = "searchBynet_salary";
+      } else options.params.search_column_name = search_column_name;
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-        if (search_column_name != '' && data.data.length == 0) {
-
+        if (search_column_name != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }
@@ -958,35 +1092,50 @@ export default {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'employee_id');
+        this.getDataFromApi(
+          `${this.endpoint}/searchby_emp_table_salary/${e}`,
+          "employee_id"
+        );
       }
     },
     datatable_searchByName(e) {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'display_name');
+        this.getDataFromApi(
+          `${this.endpoint}/searchby_emp_table_salary/${e}`,
+          "display_name"
+        );
       }
     },
     datatable_searchByDepartmentName(e) {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'search_department_name');
+        this.getDataFromApi(
+          `${this.endpoint}/searchby_emp_table_salary/${e}`,
+          "search_department_name"
+        );
       }
     },
     datatable_searchByDesignationName(e) {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'search_designation_name');
+        this.getDataFromApi(
+          `${this.endpoint}/searchby_emp_table_salary/${e}`,
+          "search_designation_name"
+        );
       }
     },
     datatable_searchBybasic_salary(e) {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'searchBybasic_salary');
+        this.getDataFromApi(
+          `${this.endpoint}/searchby_emp_table_salary/${e}`,
+          "searchBybasic_salary"
+        );
       }
     },
 
@@ -994,17 +1143,17 @@ export default {
       if (e.length == 0) {
         this.getDataFromApi();
       } else if (e.length >= 1) {
-        this.getDataFromApi(`${this.endpoint}/searchby_emp_table_salary/${e}`, 'searchBynet_salary');
+        this.getDataFromApi(
+          `${this.endpoint}/searchby_emp_table_salary/${e}`,
+          "searchBynet_salary"
+        );
       }
     },
-
-
-
 
     editItem(item) {
       //this.$router.push(`/employees/${item.id}?id=${item.id}`);
 
-      this.$router.push({ path: '/employees?id=1', params: { id: item.id } })
+      this.$router.push({ path: "/employees?id=1", params: { id: item.id } });
     },
 
     delteteSelectedRecords() {
@@ -1102,7 +1251,7 @@ export default {
     openPayslipDialog() {
       this.generatePayslipDialog = true;
     },
-    closePopup() { },
+    closePopup() {},
   },
 };
 </script>

@@ -297,6 +297,7 @@
               </template>
               <template v-slot:item.sub_dep.name="{ item }">
                 <v-edit-dialog
+                  v-if="item.children.length > 0"
                   large
                   save-text="Reset"
                   cancel-text="Ok"
@@ -304,17 +305,16 @@
                   @save="getDataFromApi()"
                   @open="datatable_open"
                 >
-                  <span v-if="item.children.length > 0">
-                    <v-chip
-                      small
-                      class="primary ma-1"
-                      v-for="(sub_dep, index) in item.children.slice(0, 3)"
-                      :key="index"
-                    >
+                  <span
+                    v-for="(sub_dep, index) in item.children.slice(0, 3)"
+                    :key="index"
+                  >
+                    <v-chip small class="primary ma-1">
                       {{ caps(sub_dep.name) }}
                     </v-chip>
+                    <br />
                   </span>
-                  <p v-else>---</p>
+                  <!-- <p v-else>---</p> -->
                   <template v-slot:input>
                     <v-text-field
                       @input="
@@ -337,6 +337,7 @@
               </template>
               <template v-slot:item.designations="{ item }">
                 <v-edit-dialog
+                  v-if="item.children.length > 0"
                   large
                   save-text="Reset"
                   cancel-text="Ok"
@@ -344,20 +345,19 @@
                   @save="getDataFromApi()"
                   @open="datatable_open"
                 >
-                  <span v-if="item.designations.length > 0">
-                    <v-chip
-                      small
-                      class="primary ma-1"
-                      v-for="(designation, index) in item.designations.slice(
-                        0,
-                        3
-                      )"
-                      :key="index"
-                    >
+                  <span
+                    v-for="(designation, index) in item.designations.slice(
+                      0,
+                      3
+                    )"
+                    :key="index"
+                  >
+                    <v-chip small class="primary ma-1">
                       {{ caps(designation.name) }}
                     </v-chip>
+                    <br>
                   </span>
-                  <p v-else>---</p>
+                  <!-- <p v-else>---</p> -->
                   <template v-slot:input>
                     <v-text-field
                       @input="

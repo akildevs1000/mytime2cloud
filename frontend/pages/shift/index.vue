@@ -7,50 +7,79 @@
     </div>
     <v-card elevation="0" v-if="can(`shift_view`)">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
-        <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi"><v-icon class="mx-1">mdi
-            mdi-reload</v-icon></a>
+        <v-toolbar-title
+          ><span> {{ Model }} List</span></v-toolbar-title
+        >
+        <a
+          style="padding-left: 10px"
+          title="Reload Page/Reset Form"
+          @click="getDataFromApi"
+          ><v-icon class="mx-1">mdi mdi-reload</v-icon></a
+        >
         <v-spacer></v-spacer>
-        <v-toolbar-items>
-          <v-col class="toolbaritems-button-design">
-            <v-btn v-if="can(`shift_create`)" small color="primary" to="/shift/create" class="mb-2">{{ Model }} +</v-btn>
-          </v-col>
-        </v-toolbar-items>
+        <v-icon @click="goToCreate" small disabledv-if="can(`shift_create`)"
+          >mdi-plus</v-icon
+        >
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
 
         <template v-slot:action="{ attrs }">
-          <v-btn v-bind="attrs" text @click="snack = false">
-            Close
-          </v-btn>
+          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
         </template>
       </v-snackbar>
-      <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
-        :options.sync="options" :footer-props="{
+      <v-data-table
+        dense
+        :headers="headers_table"
+        :items="data"
+        model-value="data.id"
+        :loading="loading"
+        :options.sync="options"
+        :footer-props="{
           itemsPerPageOptions: [10, 50, 100, 500, 1000],
-        }" class="elevation-1">
+        }"
+        class="elevation-1"
+      >
         <template v-slot:item.sno="{ item, index }">
-
           <b>{{ ++index }}</b>
         </template>
         <template v-slot:item.name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
+          <v-edit-dialog
+            large
+            save-text="Reset"
+            cancel-text="Ok"
+            style="margin-left: 4%"
+            @cancel="getDataFromApi()"
+            @save="getDataFromApi()"
+            @open="datatable_open"
+          >
             {{ item.name }}
             <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_shift_name', $event)"
-                label="Search Shift name"></v-text-field>
+              <v-text-field
+                v-model="datatable_search_textbox"
+                @input="getRecords('search_shift_name', $event)"
+                label="Search Shift name"
+              ></v-text-field>
             </template>
           </v-edit-dialog>
         </template>
         <template v-slot:item.shift_type.name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
+          <v-edit-dialog
+            large
+            save-text="Reset"
+            cancel-text="Ok"
+            style="margin-left: 4%"
+            @cancel="getDataFromApi()"
+            @save="getDataFromApi()"
+            @open="datatable_open"
+          >
             {{ item.shift_type.name }}
             <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_shift_type', $event)"
-                label="Search Shift Type"></v-text-field>
+              <v-text-field
+                v-model="datatable_search_textbox"
+                @input="getRecords('search_shift_type', $event)"
+                label="Search Shift Type"
+              ></v-text-field>
             </template>
           </v-edit-dialog>
         </template>
@@ -151,12 +180,12 @@
 <script>
 export default {
   data: () => ({
-    datatable_search_textbox: '',
-    datatable_searchById: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    datatable_searchById: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
 
     options: {},
     Model: "Shift",
@@ -192,7 +221,7 @@ export default {
         align: "left",
         sortable: true,
 
-        value: "sno",// template name
+        value: "sno", // template name
       },
       {
         text: "Name",
@@ -335,14 +364,14 @@ export default {
   },
 
   methods: {
-    datatable_save() {
+    goToCreate() {
+      this.$router.push(`/shift/create`);
     },
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -378,13 +407,11 @@ export default {
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
-    getRecords(filter_column = '', filter_value = '') {
-
-
+    getRecords(filter_column = "", filter_value = "") {
       this.getDataFromApi(this.endpoint, filter_column, filter_value);
     },
 
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       this.loading = true;
 
       const { page, itemsPerPage } = this.options;
@@ -396,16 +423,13 @@ export default {
           company_id: this.$auth.user.company.id,
         },
       };
-      if (filter_column != '')
-        options.params[filter_column] = filter_value;
+      if (filter_column != "") options.params[filter_column] = filter_value;
 
       this.$axios.get(url, options).then(({ data }) => {
-
-        if (filter_column != '' && data.data.length == 0) {
-
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }
@@ -438,8 +462,6 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
             } else {
-
-
               this.getDataFromApi();
               this.snackbar = data.status;
               this.ids = [];
@@ -469,22 +491,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-</style>

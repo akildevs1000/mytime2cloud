@@ -337,13 +337,7 @@
             ><v-icon class="mx-1">mdi mdi-reload</v-icon></a
           >
           <v-spacer></v-spacer>
-          <v-toolbar-items>
-            <v-col class="toolbaritems-button-design1">
-              <v-btn color="primary" small @click="dialog = true">
-                <v-icon>mdi-plus</v-icon> Add Schedule
-              </v-btn>
-            </v-col>
-          </v-toolbar-items>
+          <v-icon small @click="dialog = true">mdi-plus</v-icon>
         </v-toolbar>
         <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
           {{ snackText }}
@@ -822,31 +816,8 @@ th {
   padding-left: 5px;
 }
 
-/* tr:nth-child(even) {
-  background-color: #dddddd;
-} */
-</style>
-<style scoped>
-/* @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500&display=swap'); */
-
 * {
   box-sizing: border-box;
-}
-
-body > div {
-  min-height: 100vh;
-  display: flex;
-  font-family: "Roboto", sans-serif;
-}
-
-.table_responsive {
-  max-width: 900px;
-  border: 1px solid #00bcd4;
-  background-color: #efefef33;
-  padding: 15px;
-  overflow: auto;
-  margin: auto;
-  border-radius: 4px;
 }
 
 table {
@@ -880,36 +851,6 @@ table > tbody > tr > td > img {
   border-radius: 50%;
   border: 4px solid #fff;
   box-shadow: 0 2px 6px #0003;
-}
-
-.action_btn {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.action_btn > a {
-  text-decoration: none;
-  color: #444;
-  background: #fff;
-  border: 1px solid;
-  display: inline-block;
-  padding: 7px 20px;
-  font-weight: bold;
-  border-radius: 3px;
-  transition: 0.3s ease-in-out;
-}
-
-.action_btn > a:nth-child(1) {
-  border-color: #26a69a;
-}
-
-.action_btn > a:nth-child(2) {
-  border-color: orange;
-}
-
-.action_btn > a:hover {
-  box-shadow: 0 3px 8px #0003;
 }
 
 table > tbody > tr {

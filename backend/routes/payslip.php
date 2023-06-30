@@ -10,3 +10,4 @@ Route::get('/generate-payslips-with-employeeids', [PayslipController::class, 'ge
 Route::get('/donwload-payslip-pdf', [PayslipController::class, 'downloadPayslipPdf']);
 Route::get('/generate-payslips-companyid/{id}', [PayslipController::class, 'generateWithCompanyIds']);
 Route::get('/generate-payslips-zip', [PayslipController::class, 'downloadAllPayslipszip']);
+Route::get('/render-payslip-by-employee/{id}', [PayslipController::class, 'renderPayslipByEmployee']);
