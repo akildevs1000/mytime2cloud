@@ -48,7 +48,7 @@
       <v-card>
 
         <v-toolbar flat small dense dark class="background">
-          <span class="headline">New Leave Application </span>
+          <span class="headline"> Leave Application </span>
         </v-toolbar>
         <v-card-text>
           <v-container>

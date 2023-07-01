@@ -30,6 +30,7 @@ class ReportController extends Controller
 
     public function processMultiInOut($request)
     {
+
         $model = $this->report($request)
             ->get();
         foreach ($model as $value) {
@@ -82,8 +83,7 @@ class ReportController extends Controller
         });
 
         $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
-            $q->whereIn('employee_id', $ids);
+            $q->whereIn('employee_id', Employee::where("department_id", $request->department_id)->where('company_id', $request->company_id)->pluck("system_user_id"));
         });
 
         $model->when($request->status == "P", function ($q) {
