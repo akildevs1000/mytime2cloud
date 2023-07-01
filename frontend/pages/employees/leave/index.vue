@@ -9,7 +9,7 @@
     <v-dialog v-model="dialogLeaveGroup" width="600px">
       <v-card>
         <v-toolbar flat small dense dark class="background">
-          <span class="headline">Group Information </span>
+          <span class="headline">Statistics </span>
         </v-toolbar>
         <v-card-text style="padding:5px">
 
@@ -254,7 +254,7 @@
             <v-toolbar-items>
               <v-col>
                 <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="gotoGroupDetails('')"
-                  class="mb-2">Group Info <v-icon>mdi-information</v-icon></v-btn>
+                  class="mb-2">Statistics <v-icon>mdi-information</v-icon></v-btn>
               </v-col>
               <v-col>
                 <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
@@ -280,11 +280,18 @@
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text" class="table-search-header">
-                  <v-text-field style="padding-left: 10px;" v-if="header.filterable" v-model="filters[header.value]"
-                    id="header.value" @input="applyFilters(header.value, $event)" outlined height="10px"
-                    clearable></v-text-field>
+                  <v-text-field style="padding-left: 10px;" v-if="header.filterable && header.text != 'Status'"
+                    v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
+                    height="10px" clearable></v-text-field>
+                  <v-select class="filter-select-hidden-text" v-else-if="header.filterable && header.text == 'Status'"
+                    height="10px;width:5px" style="padding: 0px;" small density="compact"
+                    @change="applyFilters('status', $event)" clearable item-value="value" item-text="title" :items="[{ value: '', title: 'All' }, { value: 'approved', title: 'Approved' }, {
+                      value: 'rejected',
+                      title: 'Rejected'
+                    }, { value: 'pending', title: 'Pending' }]"></v-select>
+
                   <template v-else>
-                    {{ header.text }}
+                    <!-- {{ header.text }} -->
                   </template>
                 </td>
               </tr>

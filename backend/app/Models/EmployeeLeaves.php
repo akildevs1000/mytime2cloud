@@ -24,13 +24,13 @@ class EmployeeLeaves extends Model
     }
     public function employee()
     {
-        return $this->belongsTo(employee::class, "employee_id", "id")->withDefault([
+        return $this->belongsTo(Employee::class, "employee_id", "id")->withDefault([
             "first_name" => "---", "last_name" => "---",
         ]);
     }
     public function reporting()
     {
-        return $this->belongsTo(employee::class, "reporting_manager_id", "id")->withDefault([
+        return $this->belongsTo(Employee::class, "reporting_manager_id", "id")->withDefault([
             "first_name" => "---", "last_name" => "---",
         ]);
     }

@@ -214,7 +214,7 @@ export default {
           menu: "logs_access",
         },
         {
-          icon: "mdi mdi-calendar-star-four-points",
+          icon: "mdi mdi-calendar-account",
           title: "Leave Applications",
           to: "/employees/leave",
           menu: "leave_application_access",
