@@ -227,11 +227,11 @@
             <v-card-actions class="mt-4">
               <v-btn class="error" small @click="close"> Close </v-btn>
               <v-spacer></v-spacer>
-              <v-btn class="warning" v-if="dialogViewObject.status == 0" small @click="rejectLeave(dialogViewObject.id)">
+              <!--  <v-btn class="warning" v-if="dialogViewObject.status == 0" small @click="rejectLeave(dialogViewObject.id)">
                 Reject </v-btn>
               <v-spacer></v-spacer>
               <v-btn class="primary" v-if="dialogViewObject.status == 0" small
-                @click="approveLeave(dialogViewObject.id)">Approve</v-btn>
+                @click="approveLeave(dialogViewObject.id)">Approve</v-btn>-->
             </v-card-actions>
           </v-container>
         </v-card-text>
