@@ -14,21 +14,21 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-row class="mt-5 mb-5">
-      <v-col cols="8">
+    <v-row class=" ">
+      <!-- <v-col cols="8">
         <h3>{{ Model }}</h3>
         <div>Dashboard / {{ Model }}</div>
       </v-col>
       <v-col cols="4" class="text-right">
 
-      </v-col>
+      </v-col> -->
 
       <v-col cols="12">
         <!-- <v-toolbar class="rounded-md" color="background" dense flat dark>
           <span> {{ Model }} List</span>
         </v-toolbar> -->
 
-        <v-card class="mb-5 rounded-md mt-3" elevation="0">
+        <v-card class="mb-5 rounded-md " elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <span> {{ Model }} </span>
             <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi

@@ -3,14 +3,27 @@
     <div>
       <v-row>
         <v-col cols="12">
-          <v-row class="mt-5 mb-5">
+          <v-row class=" ">
             <v-col cols="4">
-              <h3>Employee Photo Upload to Device</h3>
-              <div>Dashboard</div>
+              <h4>Employee Photo Upload to Device</h4>
+
             </v-col>
           </v-row>
-          <!-- <v-progress-linear :active="loading" :indeterminate="loading" absolute color="primary"></v-progress-linear> -->
+
         </v-col>
+        <!-- <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <span> Employee Photo Upload to Device </span>
+
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-col class="toolbaritems-button-design">
+              <v-btn @click="goToCreatePage()" small dark class="primary pt-4 pb-4">Create New +
+              </v-btn>
+            </v-col>
+
+
+          </v-toolbar-items>
+        </v-toolbar> -->
       </v-row>
       <v-row>
         <div class="text-center ma-2">

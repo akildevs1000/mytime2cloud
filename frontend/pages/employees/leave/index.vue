@@ -14,7 +14,7 @@
         <v-card-text style="padding:5px">
 
           <v-data-table v-model="ids" item-key="id" :headers="headersGroupInfo" :items="DialogLeaveGroupData"
-            :loading="loading" :hide-default-footer="true" class="elevation-1">
+            :hide-default-footer="true" class="elevation-1">
 
             <template v-slot:item.leave_type="{ item }" center>
               {{ item.leave_type.name }} ({{ item.leave_type.short_name }})
@@ -506,10 +506,10 @@ export default {
     loading: false,
     total: 0,
     headersGroupInfo: [
-      { text: "Leave Type", align: "left", key: "name", value: "leave_type" },
-      { text: "Total", align: "center", key: "name", value: "total" },
-      { text: "Approved", align: "center", key: "name", value: "approved" },
-      { text: "Available", align: "center", key: "name", value: "available" },
+      { text: "Leave Type", align: "left", key: "name", sortable: false, value: "leave_type" },
+      { text: "Total", align: "center", key: "name", sortable: false, value: "total" },
+      { text: "Approved", align: "center", key: "name", sortable: false, value: "approved" },
+      { text: "Available", align: "center", key: "name", sortable: false, value: "available" },
 
     ],
     headers: [

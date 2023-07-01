@@ -5,53 +5,29 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-row class="mt-5 mb-5">
+    <v-row class=" ">
       <v-col cols="6">
         <h3>device</h3>
         <div>Dashboard / device</div>
       </v-col>
       <v-col cols="6">
         <div class="text-right">
-          <v-btn
-            small
-            color="error"
-            class="mr-2 mb-2"
-            @click="delteteSelectedRecords"
-            >Delete Selected Records</v-btn
-          >
+          <v-btn small color="error" class="mr-2 mb-2" @click="delteteSelectedRecords">Delete Selected Records</v-btn>
 
-          <v-btn small color="primary" to="/device/create" class="mb-2"
-            >device +</v-btn
-          >
+          <v-btn small color="primary" to="/device/create" class="mb-2">device +</v-btn>
         </div>
       </v-col>
     </v-row>
-    <v-data-table
-      v-model="ids"
-      show-select
-      item-key="id"
-      :headers="headers"
-      :items="devices"
-      :server-items-length="total"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
+    <v-data-table v-model="ids" show-select item-key="id" :headers="headers" :items="devices" :server-items-length="total"
+      :loading="loading" :options.sync="options" :footer-props="{
         itemsPerPageOptions: [50, 100, 500, 1000]
-      }"
-      class="elevation-1"
-    >
+      }" class="elevation-1">
       <template v-slot:top>
         <v-toolbar flat color="">
           <v-toolbar-title>List</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
 
-          <v-text-field
-            @input="searchIt"
-            v-model="search"
-            label="Search"
-            single-line
-            hide-details
-          ></v-text-field>
+          <v-text-field @input="searchIt" v-model="search" label="Search" single-line hide-details></v-text-field>
         </v-toolbar>
       </template>
       <template v-slot:item.action="{ item }">

@@ -5,10 +5,10 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-row class="mt-5 mb-5">
+    <v-row class=" ">
       <v-col cols="6">
         <h3>{{ Module }}</h3>
-        <div>Dashboard / {{ Module }}</div>
+        <!-- <div>Dashboard / {{ Module }}</div> -->
       </v-col>
       <v-col cols="6">
         <div class="text-right">

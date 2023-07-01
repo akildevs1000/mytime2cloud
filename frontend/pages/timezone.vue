@@ -131,7 +131,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-row class="mt-5 mb-5">
+    <!-- <v-row class="mt-5 mb-5">
       <v-col cols="6">
         <h3>{{ Module }}</h3>
         <div>Dashboard / {{ Module }}</div>
@@ -145,7 +145,7 @@
             {{ Module }} <v-icon class="mx-1">mdi-plus</v-icon></v-btn>
         </div>
       </v-col>
-    </v-row>
+    </v-row> -->
 
 
     <v-card>
@@ -154,7 +154,11 @@
         <v-toolbar-title><span> Timezones List</span></v-toolbar-title> <a style="padding-left:10px"
           title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi mdi-reload</v-icon></a>
         <v-spacer></v-spacer>
-
+        <v-btn @click="openDeviceDialog" small color="primary" class=" mr-2">
+          Sync Device <v-icon class="mx-1">mdi-laptop</v-icon>
+        </v-btn>
+        <v-btn @click="dialog = true" small color="primary" class=" ">
+          {{ Module }} <v-icon class="mx-1">mdi-plus</v-icon></v-btn>
 
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">

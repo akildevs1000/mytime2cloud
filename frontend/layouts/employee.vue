@@ -317,7 +317,7 @@ export default {
       return this.$auth.user &&
         this.$auth.user.employee &&
         this.$auth.user.company
-        ? this.$auth.user.employee.display_name
+        ? this.$auth.user.employee.first_name + " " + this.$auth.user.employee.last_name
         : this.$auth.user.company.name;
     },
 
