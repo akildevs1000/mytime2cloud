@@ -84,6 +84,63 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogVisible" max-width="500px">
+      <v-card flat dense class="white--text">
+        <v-card-title class="background">
+          <span class="headline">Filter</span>
+        </v-card-title>
+        <v-progress-linear
+          v-if="filterLoader"
+          indeterminate
+          color="primary"
+        ></v-progress-linear>
+
+        <br />
+
+        <v-card-text>
+          <v-autocomplete
+            placeholder="Department"
+            outlined
+            dense
+            @change="getDataFromApi(`employee`)"
+            v-model="department_id"
+            x-small
+            :items="departments"
+            item-value="id"
+            item-text="name"
+          ></v-autocomplete>
+          <v-autocomplete
+            outlined
+            dense
+            @change="handleFilters"
+            x-small
+            item-value="id"
+            item-text="name"
+            v-model="payslip_year"
+            :items="dataYears"
+            placeholder="Year"
+          ></v-autocomplete>
+          <v-autocomplete
+            outlined
+            dense
+            @change="handleFilters"
+            x-small
+            v-model="payslip_month"
+            :items="fitleredMonthNames()"
+            item-text="label"
+            item-value="value"
+            placeholder="Month"
+          ></v-autocomplete>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn dark color="background" @click="dialogVisible = false"
+            >Close</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="generatePayslipDialog" :fullscreen="false" width="600px">
       <v-card elevation="0">
         <v-toolbar color="background" dense flat dark>
@@ -158,27 +215,6 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <!--
-    <v-row>
-
-      <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-select @change="getDataFromApi(`employee`)" v-model="department_id" item-text="name" item-value="id"
-          :items="departments" placeholder="Department" solo flat></v-select>
-      </v-col>
-
-
-      <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-select v-model="payslip_year" :items="dataYears" placeholder="Year" solo flat></v-select>
-      </v-col>
-      <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-select v-model="payslip_month" :items="monthNames" item-text="label" item-value="value" placeholder="Month"
-          solo flat></v-select>
-      </v-col>
-      <v-col xs="12" sm="12" lg="2" cols="12">
-        <v-btn class="primary btn btn-primary text-left" text @click="filterSubmitaction" style="float: left">Show
-          Payslips</v-btn>
-      </v-col>
-    </v-row> -->
 
     <div v-if="can(`employee_view`)">
       <v-row>
@@ -191,11 +227,13 @@
               flat
             >
               <v-col cols="8">
-                <span> Payslip List</span>
+                <span> Payslips</span>
                 <v-icon @click="getDataFromApi()" class="mx-1 white--text"
-                  >mdi mdi-reload</v-icon
+                  >mdi-reload</v-icon
                 >
-
+                <v-icon @click="dialogVisible = true" class="mx-1 white--text"
+                  >mdi-filter</v-icon
+                >
                 <v-btn
                   v-if="selectedItems.length"
                   @click="generateNewpayslipsSelected"
@@ -207,11 +245,9 @@
                 </v-btn>
               </v-col>
               <v-col cols="4" class="text-right">
-                <v-icon
-                  @click="openPayslipDialog"
-                    class="mx-1 white--text"
-                    >mdi-receipt</v-icon
-                  >
+                <v-icon @click="openPayslipDialog" class="mx-1 white--text"
+                  >mdi-currency-usd</v-icon
+                >
                 <v-btn
                   v-if="downloadAllDisplayStatus"
                   download
@@ -463,7 +499,8 @@
                 </v-edit-dialog>
               </template>
               <template v-slot:item.payslip="{ item }">
-                <span v-if="item?.payroll?.basic_salary"
+                <span
+                  v-if="item?.payroll?.basic_salary"
                   @click="navigateToViewPDF(item.id)"
                   style="
                     font-size: 25px;
@@ -596,6 +633,7 @@
 <script>
 export default {
   data: () => ({
+    dialogVisible: false,
     server_datatable_totalItems: 1000,
     filter_employeeid: "",
     snack: false,
@@ -752,7 +790,7 @@ export default {
     },
     generatePayslipDialog: false,
     payslip_year: new Date().getFullYear(),
-    payslip_month: 1,
+    payslip_month: new Date().getMonth(),
     payslip_year_Popup: new Date().getFullYear(),
     payslip_month_Popup: new Date().getMonth(),
 
@@ -810,6 +848,12 @@ export default {
   },
 
   methods: {
+    fitleredMonthNames() {
+      let dt = new Date();
+      let py = this.payslip_year;
+      let mns = this.monthNames;
+      return mns.slice(0, py == dt.getFullYear() ? dt.getMonth() : 12);
+    },
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -835,11 +879,12 @@ export default {
       const month = this.payslip_month;
       const year = this.payslip_year;
 
-      return `${baseURL}/donwload-payslip-pdf?company_id=${id}&employee_id=${employee_id}&month=${month}&year=${year}`;
+      return `${baseURL}/render-payslip-by-employee?company_id=${id}&employee_id=${employee_id}&month=${month}&year=${year}`;
     },
-    filterSubmitaction() {
+    handleFilters() {
       this.selectedItems = [];
       this.allSelected = false;
+      this.fitleredMonthNames();
       this.getDataFromApi();
     },
 

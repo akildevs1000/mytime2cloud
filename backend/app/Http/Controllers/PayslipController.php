@@ -84,7 +84,7 @@ class PayslipController extends Controller
     public function generateWithEmployeeids(request $request)
     {
 
-        $request = $request->all();
+        // $request = $request->all();
 
         $employees = Employee::withOut("schedule")
             ->with("payroll", "designation")
@@ -175,14 +175,12 @@ class PayslipController extends Controller
             //code...
             $company_id = $employee->payroll->company_id;
             $employee_id = $employee->employee_id;
-
-            $conditions = ["company_id" => $company_id, "employee_id" => $employee_id];
             $month = $request['month']; // date('m');
             $dateObj = DateTime::createFromFormat('!m', $month);
             $monthName = $dateObj->format('F'); // March
 
             $year = $request['year']; //date('Y');
-            $attendances = Attendance::where($conditions)
+            $attendances = Attendance::where(["company_id" => $company_id, "employee_id" => $employee_id])
                 ->whereMonth('date', '=', $month)
                 ->whereIn('status', ['P', 'A'])
                 ->get();
@@ -192,6 +190,9 @@ class PayslipController extends Controller
             // $present = 29;
             // $absent = 1;
             $payroll = $employee->payroll;
+            $payroll->payslip_number = "#" . $employee_id  . (int) date("m") - 1 . (int) date("y");
+            $salary_type = $payroll->payroll_formula->salary_type;
+            $payroll->salary_type = ucwords(str_replace("_", " ", $salary_type));
 
             $salary_type = $payroll->payroll_formula->salary_type;
             $payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $payroll->basic_salary : $payroll->net_salary;
@@ -225,6 +226,7 @@ class PayslipController extends Controller
             $payroll->monthName = $monthName;
             $payroll->month = $month;
             $payroll->year = $year;
+            $payroll->date = date('j F Y');
             $payroll->presentDays = $present;
             $payroll->absentDays = $absent;
             $payroll['employee_id'] = $employee->employee_id;
@@ -251,12 +253,13 @@ class PayslipController extends Controller
         // return $this->generateWithEmployeeids($request);
         //code...
 
-        $Payroll = Payroll::where(["employee_id" => $id])->with("employee:id,employee_id,display_name,first_name,last_name")->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
-        $Payroll->payslip_number = "#" . $id . (int) date("d") . (int) date("my");
+        $Payroll = Payroll::where(["employee_id" => $id])->with(["company", "employee:id,employee_id,display_name,first_name,last_name"])->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
+        $Payroll->payslip_number = "#" . $id  . (int) date("m") - 1 . (int) date("y");
 
         $salary_type = $Payroll->payroll_formula->salary_type;
 
         $Payroll->salary_type = ucwords(str_replace("_", " ", $salary_type));
+        $Payroll->date = date('j F Y');
 
         $Payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $Payroll->basic_salary  : $Payroll->net_salary;
 
@@ -297,6 +300,7 @@ class PayslipController extends Controller
         $Payroll->salary_and_earnings = ($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY);
 
         $Payroll->finalSalary = ($Payroll->salary_and_earnings) - $Payroll->deductedSalary;
+
 
         return $Payroll;
     }
@@ -361,50 +365,16 @@ class PayslipController extends Controller
 
     public function downloadPayslipPdf(request $request)
     {
-
         $pdfFile_name = 'payslips/' . $request["company_id"] . '/' . $request["company_id"] . '_' . $request["employee_id"] . '_' . $request["month"] . '_' . $request["year"] . '_payslip.pdf';
 
         return Storage::download($pdfFile_name);
     }
 
-    public function renderPayslipByEmployee()
+    public function renderPayslipByEmployee(Request $request)
     {
-        $data = (object) [
-            "employee_id" => date("M"),
-            "first_name" => "first name",
-            "last_name" => "last name",
-            "position" => "position",
-            "monthName" => date("M"),
-            "year" => date("Y"),
-            "company" => (object)[
-                "name" => "testing",
-                "location" => "address"
-
-            ],
-            "earnings" => [
-                [
-                    "label" => "label name",
-                    "value" => 500
-                ]
-            ],
-            "salary_and_earnings" => 500,
-
-            "deductions" => [
-                [
-                    "label" => "label name",
-                    "value" => 100
-                ]
-            ],
-
-            "deducted_salary" => 200,
-
-            "present_days"  => 20,
-            "absent_days" => 10,
-            "earned_sub_total" => 1000,
-
-
-        ];
-
-        return Pdf::loadView('pdf.render-payslip', compact('data'))->stream();
+        $data = $this->show($request, $request->employee_id);
+        $data->month = date('F', mktime(0, 0, 0, $request->month, 1));
+        $data->year =  $request->year;
+        return Pdf::loadView('pdf.payslip', compact('data'))->download();
     }
 }
