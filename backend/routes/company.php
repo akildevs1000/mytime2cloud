@@ -153,6 +153,7 @@ Route::apiResource('employee', EmployeeController::class);
 Route::get('employeesList', [EmployeeController::class, 'employeesList']);
 Route::get('employeesByDepartment', [EmployeeController::class, 'employeesByDepartment']);
 Route::get('employeesBySubDepartment', [EmployeeController::class, 'employeesBySubDepartment']);
+Route::get('employeesByEmployeeId', [EmployeeController::class, 'employeesByEmployeeId']);
 Route::get('employeesByDesignation/{key}', [EmployeeController::class, 'employeesByDesignation']);
 Route::get('designationsByDepartment/{key}', [EmployeeController::class, 'designationsByDepartment']);
 Route::get('scheduled_employees', [EmployeeController::class, 'scheduled_employees']);

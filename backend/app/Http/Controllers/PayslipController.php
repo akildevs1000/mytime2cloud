@@ -248,54 +248,57 @@ class PayslipController extends Controller
 
     public function show(Request $request, $id)
     {
-
-        return $this->generateWithEmployeeids($request);
+        // return $this->generateWithEmployeeids($request);
         //code...
 
-        // $Payroll = Payroll::where(["employee_id" => $id])->first(["basic_salary", "net_salary", "earnings", "company_id"]);
+        $Payroll = Payroll::where(["employee_id" => $id])->with("employee:id,employee_id,display_name,first_name,last_name")->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
+        $Payroll->payslip_number = "#" . $id . (int) date("d") . (int) date("my");
 
-        // $salary_type = $Payroll->payroll_formula->salary_type;
-        // $Payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $Payroll->basic_salary  : $Payroll->net_salary;
+        $salary_type = $Payroll->payroll_formula->salary_type;
 
-        // $Payroll->perDaySalary = $this->getPerDaySalary($Payroll->SELECTEDSALARY ?? 0);
-        // $Payroll->perHourSalary = $this->getPerHourSalary($Payroll->perDaySalary ?? 0);
+        $Payroll->salary_type = ucwords(str_replace("_", " ", $salary_type));
 
-        // $conditions = ["company_id" => $request->company_id, "employee_id" => $request->employee_id];
+        $Payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $Payroll->basic_salary  : $Payroll->net_salary;
 
-        // $attendances = Attendance::where($conditions)
-        //     ->whereMonth('date', '=', date('m'))
-        //     ->whereIn('status', ['P', 'A'])
-        //     ->get();
+        $Payroll->perDaySalary = $this->getPerDaySalary($Payroll->SELECTEDSALARY ?? 0);
+        $Payroll->perHourSalary = $this->getPerHourSalary($Payroll->perDaySalary ?? 0);
 
-        // $Payroll->present = $attendances->where('status', 'P')->count();
-        // $Payroll->absent = $attendances->where('status', 'A')->count();
+        $conditions = ["company_id" => $request->company_id, "employee_id" => $request->employee_id];
 
-        // $Payroll->present = 20;
-        // $Payroll->absent = 10;
+        $attendances = Attendance::where($conditions)
+            ->whereMonth('date', '=', date('m'))
+            ->whereIn('status', ['P', 'A'])
+            ->get();
 
-        // $Payroll->earnedSalary = $Payroll->present * $Payroll->perDaySalary;
-        // $Payroll->deductedSalary = $Payroll->absent * $Payroll->perDaySalary;
-        // $Payroll->earningsCount = $Payroll->net_salary  - $Payroll->basic_salary;
+        $Payroll->present = $attendances->where('status', 'P')->count();
+        $Payroll->absent = $attendances->where('status', 'A')->count();
 
-        // $extraEarnings = [
-        //     "label" => "Basic",
-        //     "value" =>  $Payroll->SELECTEDSALARY
-        // ];
-        // $Payroll->earnings = array_merge([$extraEarnings], $Payroll->earnings);
+        // $Payroll->present = 0;
+        // $Payroll->absent = 0;
 
-        // $Payroll->deductions = [
-        //     [
-        //         "label" => "Abents",
-        //         "value" => $Payroll->deductedSalary
-        //     ]
-        // ];
+        $Payroll->earnedSalary = $Payroll->present * $Payroll->perDaySalary;
+        $Payroll->deductedSalary = $Payroll->absent * $Payroll->perDaySalary;
+        $Payroll->earningsCount = $Payroll->net_salary  - $Payroll->basic_salary;
 
-        // $Payroll->earnedSubTotal = ($Payroll->earningsCount) + ($Payroll->earnedSalary);
-        // $Payroll->salary_and_earnings = ($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY);
+        $extraEarnings = [
+            "label" => "Basic",
+            "value" =>  $Payroll->SELECTEDSALARY
+        ];
+        $Payroll->earnings = array_merge([$extraEarnings], $Payroll->earnings);
 
-        // $Payroll->finalSalary = ($Payroll->salary_and_earnings) - $Payroll->deductedSalary;
+        $Payroll->deductions = [
+            [
+                "label" => "Abents",
+                "value" => $Payroll->deductedSalary
+            ]
+        ];
 
-        // return $Payroll;
+        $Payroll->earnedSubTotal = ($Payroll->earningsCount) + ($Payroll->earnedSalary);
+        $Payroll->salary_and_earnings = ($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY);
+
+        $Payroll->finalSalary = ($Payroll->salary_and_earnings) - $Payroll->deductedSalary;
+
+        return $Payroll;
     }
 
     public function getPerHourSalary($perDaySalary)
