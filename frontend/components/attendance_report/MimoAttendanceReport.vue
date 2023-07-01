@@ -39,8 +39,7 @@
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-col md="12">
                     <v-menu ref="time_menu_ref" v-model="time_menu" :close-on-content-click="false" :nudge-right="40"
-                      :return-value.sync="payload.time" transition="scale-transition" offset-y max-width="290px"
-                      min-width="290px">
+                      :return-value.sync="payload.time" transition="scale-transition" offset-y>
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field v-model="editItems.time" label="Time" readonly v-bind="attrs" :rules="timeRules"
                           v-on="on"></v-text-field>
@@ -357,8 +356,7 @@
             </v-col>
             <v-col cols="12" md="6">
               <v-menu ref="manual_time_menu_ref" v-model="manual_time_menu" :close-on-content-click="false"
-                :nudge-right="40" :return-value.sync="log_payload.time" transition="scale-transition" offset-y
-                max-width="290px" min-width="290px">
+                :nudge-right="40" :return-value.sync="log_payload.time" transition="scale-transition" offset-y>
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field v-model="log_payload.time" label="Time" readonly v-bind="attrs" v-on="on">
                   </v-text-field>

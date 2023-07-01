@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`holiday_access`)">
+  <div v-if="can(`leavecount_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -32,12 +32,12 @@
             <v-row>
               <v-col cols="12">
                 <label for="" style="margin-bottom:5px">Select leave Type</label>
-                <v-autocomplete :items="leaveTypes" item-text="name" item-value="id" placeholder="Select Leave Type"
-                  v-model="editedItem.leave_type_id" :hide-details="!errors.leave_type_id" :error="errors.leave_type_id"
-                  :error-messages="errors && errors.leave_type_id
+                <v-autocomplete :items="UpdatedLeaveTypes" item-text="name" item-value="id"
+                  placeholder="Select Leave Type" v-model="editedItem.leave_type_id" :hide-details="!errors.leave_type_id"
+                  :error="errors.leave_type_id" :error-messages="errors && errors.leave_type_id
                     ? errors.leave_type_id[0]
                     : ''
-                    " dense outlined></v-autocomplete>
+                    " dense outlined :disabled="editedItem.id > -1"></v-autocomplete>
               </v-col>
 
               <!-- <v-col cols="12">
@@ -81,7 +81,7 @@
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
-                <v-btn v-if="can(`holiday_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
+                <v-btn v-if="can(`leavecount_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
                   Model }}
                   +</v-btn>
               </v-col>
@@ -97,7 +97,7 @@
               </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table v-if="can(`holiday_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
+          <v-data-table v-if="can(`leavecount_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
             :loading="loading" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }" class="elevation-1">
@@ -124,14 +124,14 @@
 
                   <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`holiday_edit`)" color="secondary" small @click="editItem(item)">
+                      <v-icon v-if="can(`leavecount_edit`)" color="secondary" small @click="editItem(item)">
                         mdi-pencil
                       </v-icon> Edit
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`holiday_delete`)" color="error" small @click="deleteItem(item)">
+                      <v-icon v-if="can(`leavecount_delete`)" color="error" small @click="deleteItem(item)">
                         {{ item.announcement === "customer" ? "" : "mdi-delete" }}
                       </v-icon> Delete
                     </v-list-item-title>
@@ -176,6 +176,7 @@ export default {
     TiptapVuetify,
   },
   data: () => ({
+    UpdatedLeaveTypes: [],
     attrs: {},
     leaveTypes: [],
     designations: [],
@@ -380,26 +381,26 @@ export default {
         },
       };
 
-
+      this.UpdatedLeaveTypes = [];
 
       this.$axios.get(`leave_type`, options).then(({ data }) => {
         this.leaveTypes = data.data;
         // if (this.editedIndex <= -1) {
 
-        //   let UpdatedLeaveTypes = [];
-        //   this.leaveTypes.forEach(leavetype => {
-        //     let alreadyExist = false;
-        //     this.data.forEach(group => {
-        //       if (group.leave_type_id == leavetype.id) {
-        //         alreadyExist = true;
-        //       }
-        //     });
 
-        //     if (!alreadyExist)
-        //       UpdatedLeaveTypes.push(leavetype);
-        //   });
+        this.leaveTypes.forEach(leavetype => {
+          let alreadyExist = false;
+          this.data.forEach(group => {
+            if (group.leave_type_id == leavetype.id) {
+              alreadyExist = true;
+            }
+          });
 
-        //   this.leaveTypes = UpdatedLeaveTypes;
+          if (!alreadyExist)
+            this.UpdatedLeaveTypes.push(leavetype);
+        });
+
+        // this.leaveTypes = UpdatedLeaveTypes;
 
         // }
 
@@ -487,13 +488,30 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
+    newItem(item) {
+      this.getLeaveTypes();
+      this.formTitle = "Add leave Type";
 
+      this.dialog = true;
+      this.error = [];
+      this.editedItem =
+      {
+        leave_type_id: "",
+        group_id: "",
+        leave_type_count: "",
+      }
+
+
+    },
     editItem(item) {
       this.formTitle = "Edit leave Type";
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
       this.error = [];
+
+
+      this.UpdatedLeaveTypes = this.leaveTypes;
 
     },
 

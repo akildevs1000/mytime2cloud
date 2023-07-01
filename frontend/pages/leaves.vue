@@ -405,7 +405,7 @@
                     <v-list-item-title style="cursor: pointer">
                       <v-icon v-if="can(`leave_application_view`)" color="primary" small @click="view(item)">
                         mdi-information
-                      </v-icon> View
+                      </v-icon>View Application
                     </v-list-item-title>
                   </v-list-item>
 
@@ -451,6 +451,7 @@ import {
 } from "tiptap-vuetify";
 
 export default {
+
   components: {
     TiptapVuetify,
   },
@@ -648,7 +649,9 @@ export default {
 
     this.todayDate = formattedDateTime;
 
-
+    setInterval(() => {
+      this.getDataFromApi();
+    }, 1000 * 60);
   },
 
   methods: {
@@ -688,7 +691,7 @@ export default {
       let minutes = ("0" + now.getMinutes()).slice(-2);
       let seconds = ("0" + now.getSeconds()).slice(-2);
 
-      let formattedDateTime = year + "-" + month + "-" + day + " " + hours + ":" + minutes;
+      let formattedDateTime = year + "-" + month + "-" + day;//+ " " + hours + ":" + minutes;
 
       return formattedDateTime;
     },

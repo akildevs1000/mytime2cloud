@@ -147,6 +147,48 @@ class EmployeeLeavesController extends Controller
             return $this->response('Employee Leave data is not available.', null, false);
         }
     }
+    public function newNotifications(Request $request)
+    {
+
+        $model = EmployeeLeaves::query();
+        $model->with(["leave_type", "employee.leave_group", "reporting"]);
+        $model->where('company_id', $request->company_id);
+        $model->where('status', 0);
+        $model->where('created_at', '>=', date('Y-m-d H:i:00', strtotime('-2 minutes')));
+
+        $data['new_leaves_data'] = $model->paginate($request->per_page ?? 100);
+
+        $model = EmployeeLeaves::query();
+        $model->with(["leave_type", "employee.leave_group", "reporting"]);
+        $model->where('company_id', $request->company_id);
+        $model->where('status', 0);
+
+        $data['total_pending_count'] = $model->count();
+        $data['status'] = true;
+        return $data;
+    }
+    public function newEmployeeNotifications(Request $request)
+    {
+
+        $model = EmployeeLeaves::query();
+        $model->with(["leave_type", "employee.leave_group", "reporting"]);
+        $model->where('company_id', $request->company_id);
+        $model->where('employee_id', $request->employee_id);
+        $model->where('status', '>', 0);
+        $model->where('created_at', '>=', date('Y-m-d H:i:00', strtotime('-2 minutes')));
+
+        $data['new_leaves_data'] = $model->paginate($request->per_page ?? 100);
+
+        $model = EmployeeLeaves::query();
+        $model->with(["leave_type", "employee.leave_group", "reporting"]);
+        $model->where('company_id', $request->company_id);
+        $model->where('employee_id', $request->employee_id);
+        $model->where('status', 0);
+
+        $data['total_pending_count'] = $model->count();
+        $data['status'] = true;
+        return $data;
+    }
     public function rejectLeave(Request $request, $leaveId)
     {
         $model = EmployeeLeaves::find($leaveId);
@@ -164,4 +206,5 @@ class EmployeeLeavesController extends Controller
             return $this->response('Employee Leave data is not available.', null, false);
         }
     }
+
 }

@@ -49,13 +49,15 @@
 
             <v-row>
               <v-col cols="12">
-                <label for="" style="padding-bottom:5px">Leave Type</label>
-                <v-autocomplete :items="leaveTypes" item-text="leave_type.name" item-value="leave_type.id"
-                  placeholder="Select Leave Type" v-model="editedItem.leave_type_id" :hide-details="!errors.leave_type_id"
-                  :error="errors.leave_type_id" :error-messages="errors && errors.leave_type_id
+                <label for="" style="padding-bottom:5px">Available Leave Count : <v-chip
+                    v-if="leave_available_count != ''" color="primary">{{ leave_available_count
+                    }}</v-chip></label>
+                <v-select @change="verifyAvailableCount" :items="leaveTypes" item-text="leave_type.name"
+                  item-value="leave_type.id" placeholder="Select Leave Type" v-model="editedItem.leave_type_id"
+                  :hide-details="!errors.leave_type_id" :error="errors.leave_type_id" :error-messages="errors && errors.leave_type_id
                     ? errors.leave_type_id[0]
                     : ''
-                    " dense outlined></v-autocomplete>
+                    " dense outlined></v-select>
               </v-col>
               <v-col cols="12">
                 <v-menu ref="from_menu" v-model="start_menu" :close-on-content-click="false"
@@ -102,7 +104,9 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn class="error" small @click="close"> Cancel </v-btn>
-          <v-btn class="primary" small @click="save">Save</v-btn>
+          <v-btn v-if="newLeaveApplication" class="primary" small @click="save">Save</v-btn>
+          <v-btn v-else class="danger" small>Reached maximum Leave count</v-btn>
+
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -227,11 +231,11 @@
             <v-card-actions class="mt-4">
               <v-btn class="error" small @click="close"> Close </v-btn>
               <v-spacer></v-spacer>
-              <v-btn class="warning" v-if="dialogViewObject.status == 0" small @click="rejectLeave(dialogViewObject.id)">
+              <!--  <v-btn class="warning" v-if="dialogViewObject.status == 0" small @click="rejectLeave(dialogViewObject.id)">
                 Reject </v-btn>
               <v-spacer></v-spacer>
               <v-btn class="primary" v-if="dialogViewObject.status == 0" small
-                @click="approveLeave(dialogViewObject.id)">Approve</v-btn>
+                @click="approveLeave(dialogViewObject.id)">Approve</v-btn>-->
             </v-card-actions>
           </v-container>
         </v-card-text>
@@ -253,12 +257,13 @@
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col>
-                <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="gotoGroupDetails('')"
+                <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="dialogLeaveGroup = true"
                   class="mb-2">Statistics <v-icon>mdi-information</v-icon></v-btn>
               </v-col>
               <v-col>
-                <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
-                  Model }}
+                <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="dialog = true; errors = []"
+                  class="mb-2">{{
+                    Model }}
                   +</v-btn>
               </v-col>
             </v-toolbar-items>
@@ -417,6 +422,8 @@ export default {
     TiptapVuetify,
   },
   data: () => ({
+    leave_available_count: '',
+    newLeaveApplication: true,
     filters: {},
     isFilter: false,
     DialogLeaveGroupData: [],
@@ -610,11 +617,28 @@ export default {
     let formattedDateTime = year + "-" + month + "-" + day;
 
     this.todayDate = formattedDateTime;
-
-
+    setInterval(() => {
+      this.getDataFromApi();
+    }, 1000 * 60);
+    this.gotoGroupDetails('');
   },
 
   methods: {
+
+    verifyAvailableCount(leaveTypeId) {
+
+
+      let filterObject = this.DialogLeaveGroupData.find(item => item.leave_type_id === leaveTypeId);
+
+      if (filterObject.leave_type_count - filterObject.employee_used >= 0) {
+        this.newLeaveApplication = true;
+      }
+      else {
+        this.newLeaveApplication = false;
+      }
+      this.leave_available_count = filterObject.employee_used + "/" + filterObject.leave_type_count;
+
+    },
     applyFilters(filter_column = '', filter_value = '') {
 
       this.getDataFromApi('', filter_column, filter_value);
@@ -651,7 +675,7 @@ export default {
       let minutes = ("0" + now.getMinutes()).slice(-2);
       let seconds = ("0" + now.getSeconds()).slice(-2);
 
-      let formattedDateTime = year + "-" + month + "-" + day + " " + hours + ":" + minutes;
+      let formattedDateTime = year + "-" + month + "-" + day;// + " " + hours + ":" + minutes;
 
       return formattedDateTime;
     },
@@ -684,7 +708,7 @@ export default {
         },
       };
       this.$axios.get('leave_groups/' + leaveGroupId, options).then(({ data }) => {
-        this.dialogLeaveGroup = true;
+        //  this.dialogLeaveGroup = true;
         this.DialogLeaveGroupData = data[0].leave_count;
 
       });
@@ -906,11 +930,6 @@ export default {
     save() {
 
 
-      console.log(this.$auth);
-      // this.editedItem.company_id = this.$auth.user.company.id;
-      // this.editedItem.employee_id = this.login_user_employee_id;
-      // this.editedItem.reporting_manager_id = this.$auth.user.reporting_manager_id;
-      // ;
 
       let options = {
         params: {
@@ -955,9 +974,13 @@ export default {
               this.errors = [];
               this.search = "";
             }
+
+
           })
           .catch((res) => console.log(res));
       }
+
+
     },
   },
 };

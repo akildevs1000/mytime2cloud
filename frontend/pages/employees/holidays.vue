@@ -141,40 +141,7 @@
                 </template>
               </v-edit-dialog>
             </template>
-            <template v-slot:item.action="{ item }">
 
-
-
-
-              <v-menu bottom left>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                    <v-icon>mdi-dots-vertical</v-icon>
-                  </v-btn>
-                </template>
-                <v-list width="120" dense v-if="can(`holiday_edit`) || can(`holiday_delete`)">
-
-                  <v-list-item @click="editItem(item)" v-if="can(`holiday_edit`)">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon color="secondary" small @click="editItem(item)">
-                        mdi-pencil
-                      </v-icon> Edit
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="deleteItem(item)" v-if="can(`holiday_delete`)">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon color="error" small @click="deleteItem(item)">
-                        {{ item.announcement === "customer" ? "" : "mdi-delete" }}
-                      </v-icon> Delete
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-
-
-
-
-            </template>
             <template v-slot:item.departments="{ item }">
               <span v-for="(dep, index) in item.departments" :key="index">
                 <v-chip small class="pa-2 ma-1" color="primary">
@@ -237,7 +204,7 @@ import {
 } from "tiptap-vuetify";
 
 export default {
-
+  layout: "employee",
   components: {
     TiptapVuetify,
   },
@@ -349,7 +316,7 @@ export default {
         value: "total_days",
       },
 
-      { text: "Actions", align: "center", value: "action", sortable: false },
+
     ],
     editedIndex: -1,
     editedItem: {

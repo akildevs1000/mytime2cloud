@@ -91,6 +91,28 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
+      <label class="px-2 text-overflow" v-on="on">
+        <v-icon v-if="pendingLeavesCount == 0">mdi mdi-bell</v-icon>
+        <span v-else>
+          <v-icon title="0 Pending leaves" @click="snackNotificationText != '' && snackNotification == true"
+            color="success">mdi mdi-bell-ring
+          </v-icon>
+          <v-chip title="Pending Count" color="black" style="text-color:#FFF" to="/employees/leave">{{
+            pendingLeavesCount }}</v-chip>
+        </span>
+
+
+
+      </label>
+      <v-snackbar top="top" v-model="snackNotification" location="right" :timeout="5000" :color="snackNotificationColor">
+        {{ snackNotificationText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snackNotification = false">
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
     </v-app-bar>
 
     <v-main class="main_bg">
@@ -164,6 +186,11 @@
 export default {
   data() {
     return {
+      pendingLeavesCount: 0,
+      snackNotificationText: "",
+      snackNotification: false,
+      snackNotificationColor: "black",
+
       miniVariant: false,
       right: true,
       rightDrawer: false,
@@ -222,7 +249,7 @@ export default {
         {
           icon: "mdi mdi-calendar-star-four-points",
           title: "Holidays",
-          to: "/holidays",
+          to: "/employees/holidays",
           menu: "holiday_access",
         },
         {
@@ -273,6 +300,10 @@ export default {
     });
 
     this.getCompanyDetails();
+    this.verifyLeaveNotifications();
+    setInterval(() => {
+      this.verifyLeaveNotifications();
+    }, 1000 * 60);
   },
 
   mounted() { },
@@ -295,6 +326,48 @@ export default {
     },
   },
   methods: {
+    verifyLeaveNotifications() {
+
+      let options = {
+        params: {
+          company_id: this.$auth.user.company.id,
+          employee_id: this.$auth.user.employee.id,
+        }
+      };
+
+      console.log(options);
+      this.$axios
+        .get(`employee_leaves_new_by_employee`, options)
+        .then(({ data }) => {
+          if (data.status && data.new_leaves_data.data[0]) {
+
+            let element = data.new_leaves_data.data[0];
+            //data.new_leaves_data.data.forEach(element => {
+
+
+            this.snackNotification = true;
+
+            if (element.status == 1) {
+              this.snackNotificationColor = "primary";
+              this.snackNotificationText = "Your Leave Application is Approved";
+            }
+            else if (element.status == 2) {
+              this.snackNotificationColor = "error";
+              this.snackNotificationText = "Your Leave Application is Rejected";
+            }
+
+
+
+
+            //});
+
+
+
+          }
+          this.pendingLeavesCount = data.total_pending_count;
+
+        });
+    },
     collapseSubItems() {
       this.menus.map((item) => (item.active = false));
     },
