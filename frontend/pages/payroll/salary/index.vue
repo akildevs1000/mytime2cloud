@@ -191,7 +191,7 @@
               flat
             >
               <v-col cols="8">
-                <span> Dashboard / Payslip List</span>
+                <span> Payslip List</span>
                 <v-icon @click="getDataFromApi()" class="mx-1 white--text"
                   >mdi mdi-reload</v-icon
                 >
@@ -207,20 +207,11 @@
                 </v-btn>
               </v-col>
               <v-col cols="4" class="text-right">
-                <v-btn
+                <v-icon
                   @click="openPayslipDialog"
-                  small
-                  dark
-                  class="primary mx-1 toolbar-button-design1"
-                  color="primary"
-                >
-                  Payslips Generation
-                  <v-icon
-                    @click="showFilters = !showFilters"
                     class="mx-1 white--text"
-                    >mdi mdi-currency-usd</v-icon
+                    >mdi-receipt</v-icon
                   >
-                </v-btn>
                 <v-btn
                   v-if="downloadAllDisplayStatus"
                   download
@@ -472,8 +463,8 @@
                 </v-edit-dialog>
               </template>
               <template v-slot:item.payslip="{ item }">
-                <span
-                  @click="navigateToViewPDF(item.system_user_id, item.id)"
+                <span v-if="item?.payroll?.basic_salary"
+                  @click="navigateToViewPDF(item.id)"
                   style="
                     font-size: 25px;
                     vertical-align: inherit;
@@ -760,12 +751,27 @@ export default {
       remark: "",
     },
     generatePayslipDialog: false,
-    payslip_year: "",
-    payslip_month: "",
+    payslip_year: new Date().getFullYear(),
+    payslip_month: 1,
+    payslip_year_Popup: new Date().getFullYear(),
+    payslip_month_Popup: new Date().getMonth(),
 
     selectedItems: [],
     allSelected: false,
-    monthNames: [],
+    monthNames: [
+      { value: 1, label: "January" },
+      { value: 2, label: "February" },
+      { value: 3, label: "March" },
+      { value: 4, label: "April" },
+      { value: 5, label: "May" },
+      { value: 6, label: "June" },
+      { value: 7, label: "July" },
+      { value: 8, label: "August" },
+      { value: 9, label: "September" },
+      { value: 10, label: "October" },
+      { value: 11, label: "November" },
+      { value: 12, label: "December" },
+    ],
   }),
 
   computed: {
@@ -797,20 +803,13 @@ export default {
   created() {
     this.loading = true;
     this.getDepartments();
-    this.generateMonthOptions();
     this.lastTenYears();
-    this.payslip_year = new Date().getFullYear();
-    this.payslip_month = new Date().getMonth();
-
-    this.payslip_year_Popup = new Date().getFullYear();
-    this.payslip_month_Popup = new Date().getMonth();
   },
   mounted() {
     this.getDataFromApi();
   },
 
   methods: {
-    datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -838,52 +837,20 @@ export default {
 
       return `${baseURL}/donwload-payslip-pdf?company_id=${id}&employee_id=${employee_id}&month=${month}&year=${year}`;
     },
-    getPdfDownloadlink(employee_id) {
-      let url = this.$axios.defaults.baseURL;
-      // url=url+""
-    },
     filterSubmitaction() {
       this.selectedItems = [];
       this.allSelected = false;
       this.getDataFromApi();
     },
 
-    navigateToViewPDF(system_user_id, id) {
-      let path =
-        "/payroll/salary/" +
-        system_user_id +
-        "_" +
-        id +
-        "_" +
-        this.payslip_month +
-        "_" +
-        this.payslip_year;
+    navigateToViewPDF(id) {
+      let path = `/payroll/salary/${id}_${this.payslip_month}_${this.payslip_year}`;
       this.$router.push(path);
     },
-    // navigatetoGeneratePDF(system_user_id, id) {
-    //   let path = "/payroll/salary/" + system_user_id + "_" + id;
-    //   this.$router.push(path);
-    // },
-    generateMonthOptions() {
-      const currentDate = new Date(); // Get the current date
-      const currentMonth = 0; //currentDate.getMonth(); // Get the current month (0-11)
 
-      // Generate options for the next 12 months
-      for (let i = 0; i < 12; i++) {
-        const month = new Date(currentDate.getFullYear(), currentMonth + i, 1);
-        const monthLabel = month.toLocaleString("default", { month: "long" });
-        this.monthNames.push({ value: i + 1, label: monthLabel });
-      }
-
-      // Select the current month by default
-      this.payslip_month = currentMonth + 1;
-    },
     lastTenYears() {
-      const currentYear = new Date().getFullYear();
-
-      for (let i = currentYear; i >= currentYear - 10; i--) {
-        this.dataYears.push(i);
-      }
+      const year = new Date().getFullYear();
+      this.dataYears = Array.from({ length: 10 }, (_, i) => year - i);
     },
     toggleSelectAll() {
       this.selectedItems = this.allSelected ? this.data.map((e) => e.id) : [];
@@ -900,11 +867,9 @@ export default {
       }
     },
     can(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
-      );
+      let { permissions, is_master } = this.$auth.user;
+
+      return permissions.some((e) => e.name == per || per == "/") || is_master;
     },
     res(id) {
       this.$axios.get(`employee/${id}`).then(({ data }) => {

@@ -23,6 +23,11 @@ class Payroll extends Model
         return $this->belongsTo(Company::class);
     }
 
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, "employee_id");
+    }
+
     public function payroll_formula()
     {
         return $this->hasOne(PayrollFormula::class, "company_id", "company_id");

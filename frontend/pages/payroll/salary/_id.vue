@@ -26,7 +26,7 @@
         <v-col cols="4" class="reds">
           <div class="text-center pt-2">
             <h5 class="text--grey">
-              <u>PAYSLIP FOR THE MONTH OF JUNE {{ currentYear }}</u>
+              <u>PAYSLIP</u>
             </h5>
           </div>
         </v-col>
@@ -34,7 +34,9 @@
           <div class="text-right">
             <div class="ml-2">
               <div style="border-top: 1px solid white">
-                <strong><u>PAYSLIP #49029</u></strong>
+                <strong
+                  ><u>PAYSLIP {{data.payslip_number}}</u></strong
+                >
               </div>
             </div>
           </div>
@@ -59,7 +61,12 @@
                     Employee Name
                   </th>
                   <td style="text-align: right; border-bottom: 1px solid #ccc">
-                    Francis
+                    <span v-if="employee && employee.first_name">{{
+                      employee.first_name
+                    }}</span>
+                    <span v-if="employee && employee.last_name">{{
+                      employee.last_name
+                    }}</span>
                   </td>
                 </tr>
                 <tr>
@@ -67,7 +74,7 @@
                     Employee Id
                   </th>
                   <td style="text-align: right; border-bottom: 1px solid #ccc">
-                    1111
+                    {{ empCode }}
                   </td>
                 </tr>
                 <tr>
@@ -75,7 +82,7 @@
                     Department
                   </th>
                   <td style="text-align: right; border-bottom: 1px solid #ccc">
-                    IT
+                    {{ (data.department && data.department.name) || "---" }}
                   </td>
                 </tr>
                 <tr>
@@ -83,7 +90,7 @@
                     Designation
                   </th>
                   <td style="text-align: right; border-bottom: 1px solid #ccc">
-                    Developer
+                    {{ (data.designation && data.designation.name) || "---" }}
                   </td>
                 </tr>
               </table>
@@ -112,10 +119,18 @@
                 </tr>
                 <tr>
                   <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Salary Type:
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    {{ data.salary_type }}
+                  </td>
+                </tr>
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
                     Presents
                   </th>
                   <td style="text-align: right; border-bottom: 1px solid #ccc">
-                    25
+                    {{ data.present }}
                   </td>
                 </tr>
                 <tr>
@@ -123,7 +138,7 @@
                     Absent
                   </th>
                   <td style="text-align: right; border-bottom: 1px solid #ccc">
-                    05
+                    {{ data.absent }}
                   </td>
                 </tr>
               </table>
@@ -356,9 +371,15 @@ export default {
       position: "",
       whatsapp: "",
     },
+    employee: {},
     earnings: [],
     deductions: [],
   }),
+  computed: {
+    // PaySlipNumber() {
+    //   return this.empCode + new Date().getMonth() + 1 + this.currentYear;
+    // },
+  },
   created() {
     // this.loading = true;
 
@@ -393,41 +414,37 @@ export default {
     getDataFromApi() {
       // this.loading = true;
       //let id = this.$route.params.id;
-      let [id, rowid, month, year] = this.$route.params.id.split("_");
-      let employee_ids = [];
-      employee_ids.push(rowid);
-      this.empCode = id;
+      let [employee_id, month, year] = this.$route.params.id.split("_");
+      this.empCode = employee_id;
 
       this.$axios
-        .get(`/payslip/${rowid}`, {
+        .get(`/payslip/${employee_id}`, {
           params: {
             company_id: this.$auth?.user?.company?.id,
-            employee_id: id,
-            month: month,
-            year: year,
-            employee_ids: employee_ids,
+            employee_id,
+            month,
+            year,
           },
         })
         .then(({ data }) => {
-          // console.log("Payslip", data);
-          this.data = data[0];
+          console.log("Payslip", data);
+          this.data = data;
+          this.employee = data.employee;
+          this.earnings = data.earnings;
+          this.deductions = data.deductions;
 
-          this.earnings = data[0].earnings;
-          this.deductions = data[0].deductions;
+          this.countdifference = data.earnings.length - data.deductions.length;
 
-          this.countdifference =
-            data[0].earnings.length - data[0].deductions.length;
-
-          this.getdownloadLink =
-            this.$axios.defaults.baseURL +
-            "/donwload-payslip-pdf?company_id=" +
-            this.$auth.user.company.id +
-            "&employee_id=" +
-            this.data.employee_id +
-            "&month=" +
-            this.data.month +
-            "&year=" +
-            this.data.year;
+          // this.getdownloadLink =
+          //   this.$axios.defaults.baseURL +
+          //   "/donwload-payslip-pdf?company_id=" +
+          //   this.$auth.user.company.id +
+          //   "&employee_id=" +
+          //   this.data.employee_id +
+          //   "&month=" +
+          //   this.data.month +
+          //   "&year=" +
+          //   this.data.year;
 
           // this.loading = false;
         });
