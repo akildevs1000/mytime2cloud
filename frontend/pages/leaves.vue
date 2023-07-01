@@ -651,7 +651,7 @@ export default {
 
     setInterval(() => {
       this.getDataFromApi();
-    }, 1000 * 30);
+    }, 1000 * 60);
   },
 
   methods: {
