@@ -610,7 +610,9 @@ export default {
     let formattedDateTime = year + "-" + month + "-" + day;
 
     this.todayDate = formattedDateTime;
-
+    setInterval(() => {
+      this.getDataFromApi();
+    }, 1000 * 30);
 
   },
 
@@ -651,7 +653,7 @@ export default {
       let minutes = ("0" + now.getMinutes()).slice(-2);
       let seconds = ("0" + now.getSeconds()).slice(-2);
 
-      let formattedDateTime = year + "-" + month + "-" + day + " " + hours + ":" + minutes;
+      let formattedDateTime = year + "-" + month + "-" + day;// + " " + hours + ":" + minutes;
 
       return formattedDateTime;
     },
@@ -955,9 +957,13 @@ export default {
               this.errors = [];
               this.search = "";
             }
+
+
           })
           .catch((res) => console.log(res));
       }
+
+
     },
   },
 };

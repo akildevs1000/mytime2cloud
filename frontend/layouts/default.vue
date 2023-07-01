@@ -58,6 +58,7 @@
       <v-menu nudge-bottom="50" transition="scale-transition" origin="center center" bottom left min-width="200"
         nudge-left="20">
         <template v-slot:activator="{ on, attrs }">
+
           <label class="px-2 text-overflow" v-bind="attrs" v-on="on">
             {{ getUser }}
           </label>
@@ -100,6 +101,27 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
+      <label class="px-2 text-overflow" v-on="on">
+        <v-icon v-if="pendingLeavesCount == 0">mdi mdi-bell</v-icon>
+        <span v-else>
+          <v-icon @click="snackNotificationText != '' && snackNotification == true" color="success">mdi
+            mdi-bell-ring </v-icon>
+          <v-chip title="Pending Count" color="black" style="text-color:#FFF" to="/leaves">{{
+            pendingLeavesCount }}</v-chip>
+        </span>
+
+
+
+      </label>
+      <v-snackbar top="top" v-model="snackNotification" location="right" :timeout="5000" :color="snackNotificationColor">
+        {{ snackNotificationText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snackNotification = false">
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
     </v-app-bar>
 
     <v-main class="main_bg">
@@ -173,6 +195,11 @@
 export default {
   data() {
     return {
+      pendingLeavesCount: 0,
+      snackNotificationText: "",
+      snackNotification: false,
+      snackNotificationColor: "black",
+
       miniVariant: false,
       right: true,
       rightDrawer: false,
@@ -443,6 +470,7 @@ export default {
     };
   },
   created() {
+
     let das = {
       icon: "mdi-home",
       title: "Dashboard",
@@ -451,6 +479,13 @@ export default {
     };
     let user = this.$auth.user;
     let permissions = user.permissions;
+
+
+    this.verifyLeaveNotifications();
+
+    setInterval(() => {
+      this.verifyLeaveNotifications();
+    }, 1000 * 60);
 
     if (user && user.is_master) {
       this.items = this.menus;
@@ -465,6 +500,7 @@ export default {
     });
 
     this.getCompanyDetails();
+
   },
 
   mounted() { },
@@ -493,6 +529,34 @@ export default {
     },
   },
   methods: {
+    verifyLeaveNotifications() {
+
+      let options = {
+        params: {
+          company_id: this.$auth.user.company.id
+        }
+      };
+
+      console.log(options);
+      this.$axios
+        .get(`employee_leaves_new`, options)
+        .then(({ data }) => {
+          if (data.status) {
+
+
+            data.new_leaves_data.data.forEach(element => {
+              this.snackNotification = true;
+
+              this.snackNotificationText = "New Leave Notification : From : " + element.employee.first_name + " " + element.employee.last_name;;
+            });
+
+
+            this.pendingLeavesCount = data.total_pending_count;
+          }
+
+
+        });
+    },
     collapseSubItems() {
       this.menus.map((item) => (item.active = false));
     },
@@ -514,6 +578,9 @@ export default {
     },
     goToSetting() {
       this.$router.push("/setting");
+    },
+    goToLeaves() {
+      this.$router.push("/leaves");
     },
     goToCompany() {
       let u = this.$auth.user.user_type;
@@ -805,7 +872,7 @@ tbody tr:nth-of-type(odd) {
 }
 
 .v-picker--date {
-  height: 330px !important;
+  height: 420px !important;
 }
 
 .table-search-header {

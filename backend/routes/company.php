@@ -283,6 +283,8 @@ Route::apiResource('holidays', HolidaysController::class);
 Route::apiResource('employee_leaves', EmployeeLeavesController::class);
 Route::get('employee_leaves/approve/{id}', [EmployeeLeavesController::class, 'approveLeave']);
 Route::get('employee_leaves/reject/{id}', [EmployeeLeavesController::class, 'rejectLeave']);
+Route::get('employee_leaves_new', [EmployeeLeavesController::class, 'newNotifications']);
+Route::get('employee_leaves_new_by_employee', [EmployeeLeavesController::class, 'newEmployeeNotifications']);
 
 //Leave Type
 Route::apiResource('leave_type', LeaveTypesController::class);

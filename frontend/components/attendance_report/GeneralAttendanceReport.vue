@@ -281,7 +281,7 @@
             <v-col cols="12" md="6">
               <v-menu ref="manual_time_menu_ref" v-model="manual_time_menu" :close-on-content-click="false"
                 :nudge-right="40" :return-value.sync="log_payload.time" transition="scale-transition" offset-y
-                max-width="290px" min-width="290px">
+                max-width="290px" min-height="320px">
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field v-model="log_payload.time" label="Time" readonly v-bind="attrs" v-on="on">
                   </v-text-field>
