@@ -8,14 +8,12 @@ use App\Models\ScheduleEmployee;
 use App\Http\Requests\ScheduleEmployee\StoreRequest;
 use App\Http\Requests\ScheduleEmployee\UpdateRequest;
 use App\Models\Company;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class ScheduleEmployeeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request, ScheduleEmployee $model)
     {
         return $model
@@ -23,15 +21,6 @@ class ScheduleEmployeeController extends Controller
             ->with("shift_type", "shift", "employee")
             ->paginate($request->per_page);
     }
-    // public function employees_by_departments_old(Employee $employee, Request $request, $id)
-    // {
-    //     return $employee->whereHas('schedule')
-    //         ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])
-    //         ->when($id != -1, function ($q) use ($id) {
-    //             $q->where("department_id", $id);
-    //         })
-    //         ->get(["first_name", "system_user_id", "employee_id"]);
-    // }
 
     public function employees_by_departments(Request $request, $id)
     {
@@ -279,5 +268,66 @@ class ScheduleEmployeeController extends Controller
             $str .= "<br>";
         }
         return $str;
+    }
+
+    public function scheduled_employees(Employee $employee, Request $request)
+    {
+        return $employee->where("company_id", $request->company_id)
+            ->whereHas('schedule', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            })->paginate($request->per_page);
+    }
+
+    public function not_scheduled_employees(Employee $employee, Request $request)
+    {
+        return $employee->where("company_id", $request->company_id)
+            ->whereDoesntHave('schedule', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            })
+            ->paginate($request->per_page);
+    }
+
+    public function scheduled_employees_index(Request $request)
+    {
+        $date = $request->date ?? date('Y-m-d');
+        $employee = ScheduleEmployee::query();
+        $model = $employee->where('company_id', $request->company_id);
+        // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        $model->whereDate('from_date', '<=', $date);
+        $model->whereDate('to_date', '>=', $date);
+        $model->when($request->filled('search_employee_name'), function ($q) use ($request) {
+            $key = strtolower($request->search_employee_name);
+            $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
+        });
+        $model->when($request->filled('search_schedule_name'), function ($q) use ($request) {
+            $key = strtolower($request->search_schedule_name);
+            $q->whereHas('roster', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+        });
+        $model->when($request->filled('search_shift_name'), function ($q) use ($request) {
+            $key = strtolower($request->search_shift_name);
+            $q->whereHas('shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+        });
+        $model->when($request->filled('search_shift_type'), function ($q) use ($request) {
+            $key = strtolower($request->search_shift_type);
+            $q->whereHas('shift_type', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+        });
+        $model->when($request->filled('search_employee_id'), function ($q) use ($request) {
+            $key = strtolower($request->search_employee_id);
+            $q->where('employee_id', 'ILIKE', "$key%");
+        });
+        $model->when($request->filled('search_from_date'), function ($q) use ($request) {
+            $key = strtolower($request->search_from_date);
+            $q->where('from_date', 'LIKE', "$key%");
+        });
+        $model->when($request->filled('search_to_date'), function ($q) use ($request) {
+            $key = strtolower($request->search_to_date);
+            $q->where('to_date', 'LIKE', "$key%");
+        });
+        $model = $this->custom_with($model, "shift", $request->company_id);
+        $model = $this->custom_with($model, "roster", $request->company_id);
+        $model = $this->custom_with($model, "employee", $request->company_id);
+
+        return $model
+            ->paginate($request->per_page ?? 20);
     }
 }

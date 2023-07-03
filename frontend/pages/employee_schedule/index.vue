@@ -624,7 +624,7 @@ export default {
     manual_shift: {},
     options: {},
     options_dialog: {},
-    endpoint: "scheduled_employees",
+    endpoint: "scheduled_employees_index",
     endpoint_dialog: "scheduled_employees_list",
     search: "",
     shifts_for_filter: [],

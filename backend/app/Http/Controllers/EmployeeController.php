@@ -270,57 +270,7 @@ class EmployeeController extends Controller
 
         return $data;
     }
-    public function scheduled_employees(Request $request)
-    {
-        $date = $request->date ?? date('Y-m-d');
-        $employee = ScheduleEmployee::query();
-        $model = $employee->where('company_id', $request->company_id);
-        // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-        $model->whereDate('from_date', '<=', $date);
-        $model->whereDate('to_date', '>=', $date);
-        $model->when($request->filled('search_employee_name'), function ($q) use ($request) {
-            $key = strtolower($request->search_employee_name);
-            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
-        });
-        $model->when($request->filled('search_schedule_name'), function ($q) use ($request) {
-            $key = strtolower($request->search_schedule_name);
-            $q->whereHas('roster', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
-        });
-        $model->when($request->filled('search_shift_name'), function ($q) use ($request) {
-            $key = strtolower($request->search_shift_name);
-            $q->whereHas('shift', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
-        });
-        $model->when($request->filled('search_shift_type'), function ($q) use ($request) {
-            $key = strtolower($request->search_shift_type);
-            $q->whereHas('shift_type', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
-        });
-        $model->when($request->filled('search_employee_id'), function ($q) use ($request) {
-            $key = strtolower($request->search_employee_id);
-            $q->where('employee_id', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('search_from_date'), function ($q) use ($request) {
-            $key = strtolower($request->search_from_date);
-            $q->where('from_date', 'LIKE', "$key%");
-        });
-        $model->when($request->filled('search_to_date'), function ($q) use ($request) {
-            $key = strtolower($request->search_to_date);
-            $q->where('to_date', 'LIKE', "$key%");
-        });
-        $model = $this->custom_with($model, "shift", $request->company_id);
-        $model = $this->custom_with($model, "roster", $request->company_id);
-        $model = $this->custom_with($model, "employee", $request->company_id);
-
-        return $model
-            ->paginate($request->per_page ?? 20);
-    }
-
-    public function scheduled_employees_list(Employee $employee, Request $request)
-    {
-        return $employee->where("company_id", $request->company_id)
-            ->whereHas('schedule', function ($q) use ($request) {
-                $q->where('company_id', $request->company_id);
-            })->paginate($request->per_page);
-    }
+    
     public function scheduled_employees_with_type(Employee $employee, Request $request)
     {
         return $employee->where("company_id", $request->company_id)
@@ -382,6 +332,9 @@ class EmployeeController extends Controller
     public function employeesByDepartment(Request $request)
     {
         $model = Employee::query();
+        $model->whereHas('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
         $model->where('company_id', $request->company_id);
 
         if (!in_array("---", $request->department_ids)) {
@@ -391,11 +344,17 @@ class EmployeeController extends Controller
         $model->with("department", function ($q) use ($request) {
             $q->whereCompanyId($request->company_id);
         });
+        $model->with("schedule", function ($q) use ($request) {
+            $q->whereCompanyId($request->company_id);
+        });
         return $model->paginate($request->per_page);
     }
     public function employeesBySubDepartment(Request $request)
     {
         $model = Employee::query();
+        $model->whereHas('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
         $model->whereCompanyId($request->company_id);
         if (!in_array("---", $request->sub_department_ids)) {
             $model->whereIn("sub_department_id", $request->sub_department_ids);
@@ -409,6 +368,9 @@ class EmployeeController extends Controller
         $model = Employee::query();
         $model->where('company_id', $request->company_id);
         $model->where('employee_id', $request->employee_search);
+        $model->whereHas('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
         return $model->paginate($request->per_page);
     }
     public function employeesByDesignation($id, Request $request)
