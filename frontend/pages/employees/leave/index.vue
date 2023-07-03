@@ -619,7 +619,7 @@ export default {
     this.todayDate = formattedDateTime;
     setInterval(() => {
       this.getDataFromApi();
-    }, 1000 * 60);
+    }, 1000 * 60 * 60);
     this.gotoGroupDetails('');
   },
 

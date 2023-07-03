@@ -199,6 +199,13 @@ class EmployeeController extends Controller
                 $q->whereHas('timezone', fn(Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezone_name%"));
             })
 
+            ->when($request->filled('payroll_basic_salary'), function ($q) use ($request) {
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('basic_salary', '>=', $request->payroll_basic_salary));
+            })
+            ->when($request->filled('payroll_net_salary'), function ($q) use ($request) {
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('net_salary', '>=', $request->payroll_net_salary));
+            })
+
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');
                 $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');

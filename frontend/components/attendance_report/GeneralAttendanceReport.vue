@@ -464,75 +464,20 @@
             }
               " class="elevation-1" model-value="data.id" :server-items-length="totalRowsCount">
             <template v-slot:item.date="{ item }">
-
-              <v-edit-dialog large save-text="Ok" cancel-text="Reset" @save="getDataFromApi_DatatablFilter('date')"
-                @cancel="getDataFromApi()" @open="datatable_open">
-                {{ item.date }}
-                <template v-slot:input>
-                  <v-date-picker v-model="datatable_filter_date" no-title scrollable>
-                    <v-spacer></v-spacer>
-                    <!-- <v-btn text color="primary" @click="daily_menu = false">
-                      Cancel
-                    </v-btn>
-                    <v-btn text color="primary" @click="
-                      set_date_save($refs.daily_menu, payload.daily_date)
-                      ">
-                      OK
-                    </v-btn> -->
-                  </v-date-picker>
-                </template>
-              </v-edit-dialog>
-
-
+              {{ item.date }}
             </template>
             <template v-slot:item.employee_id="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ item.employee_id }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi_DatatablFilter('search_employee_id', $event)"
-                    v-model="datatable_search_textbox" label="Search Employee Id "></v-text-field>
-                </template>
-              </v-edit-dialog>
-
+              {{ item.employee_id }}
             </template>
             <template v-slot:item.employee.first_name="{ item }">
-
-
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ item.employee.first_name }} {{ item.employee.last_name }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi_DatatablFilter('search_employee_name', $event)"
-                    v-model="datatable_search_textbox" label="Search Employee Name "></v-text-field>
-                </template>
-              </v-edit-dialog>
-
+              {{ item.employee.first_name }} {{ item.employee.last_name }}
             </template>
             <template v-slot:item.employee.department.name="{ item }">
-
-
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ item.employee.department.name }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi_DatatablFilter('search_department_name', $event)"
-                    v-model="datatable_search_textbox" label="Search Department Name "></v-text-field>
-                </template>
-              </v-edit-dialog>
-
+              {{ item.employee.department.name }}
             </template>
 
             <template v-slot:item.shift_type.name="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ item.shift_type.name }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi_DatatablFilter('search_shift_type_name', $event)"
-                    v-model="datatable_search_textbox" label="Search Shift Name "></v-text-field>
-                </template>
-              </v-edit-dialog>
-
+              {{ item.shift_type.name }}
             </template>
 
             <template v-slot:item.status="{ item }">
@@ -557,48 +502,16 @@
               <span v-else>---</span>
             </template>
             <template v-slot:item.in="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ item.in }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi_DatatablFilter('search_time_in', $event)"
-                    v-model="datatable_search_textbox" label="Search Time in "></v-text-field>
-                </template>
-              </v-edit-dialog>
-
+              {{ item.in }}
             </template>
             <template v-slot:item.out="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ item.out }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi_DatatablFilter('search_time_out', $event)"
-                    v-model="datatable_search_textbox" label="Search Time out "></v-text-field>
-                </template>
-              </v-edit-dialog>
-
+              {{ item.out }}
             </template>
             <template v-slot:item.total_hrs="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ item.total_hrs }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi_DatatablFilter('search_total_hours', $event)"
-                    v-model="datatable_search_textbox" label="Search Total Hours "></v-text-field>
-                </template>
-              </v-edit-dialog>
-
+              {{ item.total_hrs }}
             </template>
             <template v-slot:item.ot="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ item.ot }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi_DatatablFilter('search_ot', $event)"
-                    v-model="datatable_search_textbox" label="Search OT "></v-text-field>
-                </template>
-              </v-edit-dialog>
-
+              {{ item.ot }}
             </template>
             <!-- <template v-slot:item.device_in="{ item }">
               <v-tooltip v-if="item && item.device_in" top color="primary">

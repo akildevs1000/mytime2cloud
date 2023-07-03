@@ -281,28 +281,19 @@
                 </tr>
               </template>
               <template v-slot:item.employee_id="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
-                  <strong>{{ item.employee_id }} </strong><br /><span style="font-size: 12px">{{ item.system_user_id
-                  }}</span>
-                  <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterEmployeeid" v-model="datatable_search_textbox"
-                      label="Search Employee/Device Id"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+                <strong>{{ item.employee_id }} </strong><br /><span style="font-size: 12px">{{ item.system_user_id
+                }}</span>
               </template>
 
               <template v-slot:item.first_name="{ item, index }" style="width: 300px">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
-                  <v-row no-gutters>
-                    <v-col style="
+                <v-row no-gutters>
+                  <v-col style="
                         padding: 5px;
                         padding-left: 0px;
                         width: 50px;
                         max-width: 50px;
                       ">
-                      <v-img style="
+                    <v-img style="
                           border-radius: 50%;
                           height: auto;
                           width: 50px;
@@ -311,87 +302,47 @@
                           ? item.profile_picture
                           : '/no-profile-image.jpg'
                           ">
-                      </v-img>
-                    </v-col>
-                    <v-col style="padding: 10px">
-                      <strong>
-                        {{ item.first_name ? item.first_name : "---" }}
-                        {{ item.last_name ? item.last_name : "---" }}</strong>
-                      <div>
-                        {{
-                          item.designation ? caps(item.designation.name) : "---"
-                        }}
-                      </div>
-                    </v-col>
-                  </v-row>
-                  <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterEmployeeName" v-model="datatable_search_textbox"
-                      label="Type Employee Name"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+                    </v-img>
+                  </v-col>
+                  <v-col style="padding: 10px">
+                    <strong>
+                      {{ item.first_name ? item.first_name : "---" }}
+                      {{ item.last_name ? item.last_name : "---" }}</strong>
+                    <div>
+                      {{
+                        item.designation ? caps(item.designation.name) : "---"
+                      }}
+                    </div>
+                  </v-col>
+                </v-row>
               </template>
 
               <template v-slot:item.department_name="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
-                  <strong>{{ caps(item.department.name) }}</strong>
-                  <div>{{ caps(item.sub_department.name) }}</div>
-                  <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterDepartmentName" v-model="datatable_search_textbox"
-                      label="Search Department name"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+                <strong>{{ caps(item.department.name) }}</strong>
+                <div>{{ caps(item.sub_department.name) }}</div>
               </template>
               <template v-slot:item.phone_number="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
-                  {{ item.phone_number }}
-                  <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterPhoneNumber" v-model="datatable_search_textbox"
-                      label="Search Phone Number"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+                {{ item.phone_number }}
               </template>
               <template v-slot:item.user_email="{ item }" style="width: 200px">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
-                  {{ item.user.email }}
-                  <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterEmailid" v-model="datatable_search_textbox"
-                      label="Search Email"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+                {{ item.user.email }}
               </template>
               <template v-slot:item.schedule_shift_name="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
+                {{
+                  item.schedule &&
+                  item.schedule.shift &&
+                  item.schedule.shift.name
+                }}
+                <div>
                   {{
-                    item.schedule &&
-                    item.schedule.shift &&
-                    item.schedule.shift.name
+                    item.schedule && item.schedule.shift
+                    ? "Working Hours: " + item.schedule.shift.working_hours
+                    : ""
                   }}
-                  <div>
-                    {{
-                      item.schedule && item.schedule.shift
-                      ? "Working Hours: " + item.schedule.shift.working_hours
-                      : ""
-                    }}
-                  </div>
-                  <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterShiftname" v-model="datatable_search_textbox"
-                      label="Search Shift Name"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+                </div>
               </template>
               <template v-slot:item.timezone_name="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
-                  {{ item.timezone ? item.timezone.timezone_name : "" }}
-                  <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterTimezonename" v-model="datatable_search_textbox"
-                      label="Search Timezone"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+                {{ item.timezone ? item.timezone.timezone_name : "" }}
               </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>

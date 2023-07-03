@@ -101,7 +101,7 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
-      <label class="px-2 text-overflow" v-on="on">
+      <label class="px-2 text-overflow">
         <v-icon v-if="pendingLeavesCount == 0">mdi mdi-bell</v-icon>
         <span v-else>
           <v-icon @click="snackNotificationText != '' && snackNotification == true" color="success">mdi
@@ -485,7 +485,7 @@ export default {
 
     setInterval(() => {
       this.verifyLeaveNotifications();
-    }, 1000 * 60);
+    }, 1000 * 60 * 60);
 
     if (user && user.is_master) {
       this.items = this.menus;
@@ -538,7 +538,7 @@ export default {
         }
       };
 
-      console.log(options);
+
       this.$axios
         .get(`employee_leaves_new`, options)
         .then(({ data }) => {

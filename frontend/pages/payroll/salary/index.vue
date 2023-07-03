@@ -144,8 +144,9 @@
               <v-col cols="8">
 
                 <span> Payslips</span>
-                <v-icon @click="getDataFromApi()" class="mx-1 white--text">mdi-reload</v-icon>
-                <v-icon @click="dialogVisible = true" class="mx-1 white--text">mdi-filter</v-icon>
+                <v-icon @click="clearFilters()" class="mx-1 white--text">mdi-reload</v-icon>
+                <v-icon @click="dialogVisible = true" class="mx-1 white--text">mdi-filter-multiple</v-icon>
+                <v-icon @click="toggleFilter" class="mx-1 white--text">mdi-filter</v-icon>
                 <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected" small
                   class="primary toolbar-button-design1" color="primary">
 
@@ -207,15 +208,20 @@
               model-value="data.id" :loading="loading" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
               }" class="elevation-1" :server-items-length="totalRowsCount">
+              <template v-slot:header="{ props: { headers } }">
+                <tr v-if="isFilter">
+                  <td v-for="header in  headers " :key="header.text" class="table-search-header">
+                    <v-text-field style="margin-left: 10px;width:90%!important" v-if="header.filterable"
+                      autocomplete="off" v-model="filters[header.value]" id="header.value"
+                      @input="applyFilters(header.value, $event)" outlined height="10px" clearable></v-text-field>
+                    <template v-else>
+                      <!-- {{ header.text }} -->
+                    </template>
+                  </td>
+                </tr>
+              </template>
               <template v-slot:item.employee_id="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%"
-                  :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
-                  {{ item.employee_id }}
-                  <template v-slot:input>
-                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
-                      label="Search Employee Id"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+                {{ item.employee_id }}
               </template>
               <!-- <template v-slot:item.display_name="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
@@ -231,17 +237,15 @@
 
 
               </template> -->
-              <template v-slot:item.display_name="{ item, index }" style="width: 300px">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
-                  <v-row no-gutters>
-                    <v-col style="
+              <template v-slot:item.first_name="{ item, index }" style="width: 300px">
+                <v-row no-gutters>
+                  <v-col style="
                         padding: 5px;
                         padding-left: 0px;
                         width: 50px;
                         max-width: 50px;
                       ">
-                      <v-img style="
+                    <v-img style="
                           border-radius: 50%;
                           height: auto;
                           width: 50px;
@@ -250,36 +254,24 @@
                           ? item.profile_picture
                           : '/no-profile-image.jpg'
                           ">
-                      </v-img>
-                    </v-col>
-                    <v-col style="padding: 10px">
-                      <strong>
-                        {{ item.first_name ? item.first_name : "---" }}
-                        {{ item.last_name ? item.last_name : "---" }}</strong>
-                      <div>
-                        {{
-                          item.designation ? caps(item.designation.name) : "---"
-                        }}
-                      </div>
-                    </v-col>
-                  </v-row>
-                  <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterEmployeeName" v-model="datatable_search_textbox"
-                      label="Type Employee Name"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+                    </v-img>
+                  </v-col>
+                  <v-col style="padding: 10px">
+                    <strong>
+                      {{ item.first_name ? item.first_name : "---" }}
+                      {{ item.last_name ? item.last_name : "---" }}</strong>
+                    <div>
+                      {{
+                        item.designation ? caps(item.designation.name) : "---"
+                      }}
+                    </div>
+                  </v-col>
+                </v-row>
               </template>
 
-              <template v-slot:item.department.name="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                  @open="datatable_open">
-                  <strong>{{ caps(item.department.name) }}</strong>
-                  <div>{{ caps(item.sub_department.name) }}</div>
-                  <template v-slot:input>
-                    <v-text-field @input="getDataFromApi_FilterDepartmentName" v-model="datatable_search_textbox"
-                      label="Search Department name"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+              <template v-slot:item.department_name="{ item }">
+                <strong>{{ caps(item.department.name) }}</strong>
+                <div>{{ caps(item.sub_department.name) }}</div>
               </template>
               <template v-slot:item.year_month="{ item }">
                 {{ item.payroll_month }} / {{ item.payroll_year }}
@@ -308,24 +300,12 @@
                 </v-edit-dialog>
 
               </template> -->
-              <template v-slot:item.payroll.basic_salary="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
-                  {{ item.payroll && item.payroll.basic_salary }}
-                  <template v-slot:input>
-                    <v-text-field @input="datatable_searchBybasic_salary" v-model="datatable_search_textbox"
-                      label="Minimum Amount"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+              <template v-slot:item.payroll_basic_salary="{ item }">
+                {{ item.payroll && item.payroll.basic_salary }}
               </template>
 
-              <template v-slot:item.payroll.net_salary="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
-                  {{ item.payroll && item.payroll.net_salary }}
-                  <template v-slot:input>
-                    <v-text-field @input="datatable_searchBynet_salary" v-model="datatable_search_textbox"
-                      label="Minimum Amount"></v-text-field>
-                  </template>
-                </v-edit-dialog>
+              <template v-slot:item.payroll_net_salary="{ item }">
+                {{ item.payroll && item.payroll.net_salary }}
               </template>
               <template v-slot:item.payslip="{ item }">
                 <span v-if="item?.payroll?.basic_salary" @click="navigateToViewPDF(item.id)" style="
@@ -454,6 +434,8 @@
 <script>
 export default {
   data: () => ({
+    filters: {},
+    isFilter: false,
     totalRowsCount: 0,
     //server_datatable_totalItems: 1000,
     dialogVisible: false,
@@ -512,22 +494,25 @@ export default {
         align: "left",
         sortable: true,
         key: "employee_id",
+        filterable: true,
         value: "employee_id",
       },
       {
         text: "Name",
         align: "left",
         sortable: false,
+        filterable: true,
         key: "display_name",
-        value: "display_name",
+        value: "first_name",
       },
 
       {
         text: "Department",
         align: "left",
         sortable: false,
+        filterable: true,
         key: "department",
-        value: "department.name", //template name should be match
+        value: "department_name", //template name should be match
       },
 
       {
@@ -535,26 +520,30 @@ export default {
         align: "left",
         sortable: false,
         key: "year_month",
+        filterable: false,
         value: "year_month",
       },
       {
         text: "Basic Salary",
         align: "left",
         sortable: false,
+        filterable: true,
         key: "payrollbasic",
-        value: "payroll.basic_salary",
+        value: "payroll_basic_salary",
       },
       {
         text: "Net Salary",
         align: "left",
         sortable: false,
+        filterable: true,
         key: "net_salary",
-        value: "payroll.net_salary",
+        value: "payroll_net_salary",
       },
       {
         text: "Payslip",
         align: "left",
         sortable: false,
+        filterable: false,
         key: "payslip",
         value: "payslip",
       },
@@ -562,6 +551,7 @@ export default {
         text: "Actions",
         align: "left",
         sortable: false,
+        filterable: false,
         key: "actions",
         value: "actions",
       },
@@ -677,6 +667,18 @@ export default {
   },
 
   methods: {
+    toggleFilter() {
+      this.isFilter = !this.isFilter;
+    },
+    clearFilters() {
+      this.filters = {};
+
+      this.isFilter = false;
+      this.getDataFromApi();
+    },
+    applyFilters() {
+      this.getDataFromApi();
+    },
     fitleredMonthNames() {
       let dt = new Date();
       let py = this.payslip_year;
@@ -851,31 +853,32 @@ export default {
           department_id: department_id,
           year: this.payslip_year,
           month: this.payslip_month,
+          ...this.filters,
         },
       };
 
-      if (search_column_name != "") {
-        options.params.per_page = 1000;
-      }
+      // if (search_column_name != "") {
+      //   options.params.per_page = 1000;
+      // }
 
-      if (search_column_name == "search_department_name") {
-        options.params.search_department_name = "search_department_name";
-      } else if (search_column_name == "search_designation_name") {
-        options.params.search_designation_name = "search_designation_name";
-      } else if (search_column_name == "searchBybasic_salary") {
-        options.params.searchBybasic_salary = "searchBybasic_salary";
-      } else if (search_column_name == "searchBynet_salary") {
-        options.params.searchBynet_salary = "searchBynet_salary";
-      } else options.params.search_column_name = search_column_name;
+      // if (search_column_name == "search_department_name") {
+      //   options.params.search_department_name = "search_department_name";
+      // } else if (search_column_name == "search_designation_name") {
+      //   options.params.search_designation_name = "search_designation_name";
+      // } else if (search_column_name == "searchBybasic_salary") {
+      //   options.params.searchBybasic_salary = "searchBybasic_salary";
+      // } else if (search_column_name == "searchBynet_salary") {
+      //   options.params.searchBynet_salary = "searchBynet_salary";
+      // } else options.params.search_column_name = search_column_name;
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        if (search_column_name != "" && data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = "error";
-          this.snackText = "No Results Found";
-          this.loading = false;
-          return false;
-        }
+        // if (search_column_name != "" && data.data.length == 0) {
+        //   this.snack = true;
+        //   this.snackColor = "error";
+        //   this.snackText = "No Results Found";
+        //   this.loading = false;
+        //   return false;
+        // }
 
         this.data = data.data;
         this.totalRowsCount = data.total;

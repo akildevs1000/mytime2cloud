@@ -278,13 +278,13 @@
           <v-data-table v-if="can(`leave_application_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
             :loading="loading" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1">
+            }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in      headers     " :key="header.text" class="table-search-header">
                   <v-text-field style="padding-left: 10px;" v-if="header.filterable && header.text != 'Status'"
                     v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
-                    height="10px" clearable></v-text-field>
+                    height="10px" clearable autocomplete="off"></v-text-field>
 
                   <v-select class="filter-select-hidden-text" v-model="filters_select_all"
                     v-else-if="header.filterable && header.text == 'Status'" height="10px;width:5px" style="padding: 0px;"
@@ -300,7 +300,7 @@
                 </td>
               </tr>
             </template>
-            <template v-slot:item.name="{ item }">
+            <template v-slot:item.first_name="{ item }">
               <v-row no-gutters>
                 <v-col style="
                         padding: 5px;
@@ -339,7 +339,7 @@
             </template>
 
 
-            <template v-slot:item.leave_type_name="{ item }">
+            <template v-slot:item.leave_type_id="{ item }">
               {{ (item.leave_type.name) }}
             </template>
             <template v-slot:item.start_date="{ item }">
@@ -457,6 +457,8 @@ export default {
     TiptapVuetify,
   },
   data: () => ({
+    totalRowsCount: 0,
+    options: {},
     filters_select_all: "",
     viewEmployeeName: "",
     filters: {},
@@ -548,18 +550,18 @@ export default {
 
     ],
     headers: [
-      { text: "Employee Name", align: "left", sortable: true, filterable: true, key: "name", value: "name" },
+      { text: "Employee Name", align: "left", sortable: true, filterable: true, key: "name", value: "first_name" },
       {
         text: "Group Type",
         align: "left", filterable: true,
-        sortable: true,
+        sortable: false,
         value: "group_name",
       },
       {
         text: "Leave Type",
         align: "left", filterable: true,
         sortable: true,
-        value: "leave_type_name",
+        value: "leave_type_id",
       },
       {
         text: "Star Date",
@@ -632,7 +634,12 @@ export default {
   },
 
   watch: {
-
+    options: {
+      handler() {
+        this.getDataFromApi()
+      },
+      deep: true,
+    },
   },
   created() {
     this.loading = true;
@@ -653,7 +660,7 @@ export default {
 
     setInterval(() => {
       this.getDataFromApi();
-    }, 1000 * 60);
+    }, 1000 * 60 * 60);
   },
 
   methods: {
@@ -791,10 +798,16 @@ export default {
 
 
 
-      const { page, itemsPerPage } = this.options;
+      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       let options = {
         params: {
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           year: endDate.getFullYear(),
@@ -818,7 +831,7 @@ export default {
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
-
+        this.totalRowsCount = data.total;
 
         if (this.$auth)
           if (this.$auth.user)
