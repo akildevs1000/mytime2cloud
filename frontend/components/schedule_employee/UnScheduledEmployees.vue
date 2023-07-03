@@ -22,6 +22,10 @@
         itemsPerPageOptions: [50, 100, 500, 1000],
       }"
     >
+    <template v-slot:item.name="{ item }">
+        {{ item.first_name ? item.first_name : "---" }}
+        {{ item.last_name ? item.last_name : "---" }}
+      </template>
     </v-data-table>
     <v-dialog v-model="dialog" width="900">
       <v-card>
@@ -362,7 +366,7 @@ export default {
       {
         text: "Name",
         sortable: false,
-        value: "display_name",
+        value: "name",
       },
       {
         text: "Department",
