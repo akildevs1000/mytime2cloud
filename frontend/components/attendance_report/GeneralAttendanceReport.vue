@@ -462,7 +462,7 @@
             :options.sync="options" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }
-              " class="elevation-1" model-value="data.id">
+              " class="elevation-1" model-value="data.id" :server-items-length="totalRowsCount">
             <template v-slot:item.date="{ item }">
 
               <v-edit-dialog large save-text="Ok" cancel-text="Reset" @save="getDataFromApi_DatatablFilter('date')"
@@ -496,7 +496,7 @@
               </v-edit-dialog>
 
             </template>
-            <template v-slot:item.employee="{ item }">
+            <template v-slot:item.employee.first_name="{ item }">
 
 
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
@@ -666,6 +666,7 @@
 export default {
   props: ["main_report_type_props"],
   data: () => ({
+    totalRowsCount: 0,
     datatable_search_textbox: '',
     datatable_filter_date: '',
     filter_employeeid: '',
@@ -725,26 +726,26 @@ export default {
       {
         text: "Employee",
         align: "left",
-        sortable: true,
-        value: "employee",
+        sortable: false,
+        value: "employee.first_name",
         key: "item.employee"
       },
       {
         text: "Department",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "employee.department.name",
       },
       {
         text: "Shift Type",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "shift_type.name",
       },
       {
         text: "Shift",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "shift",
       },
       { text: "Status", align: "left", sortable: true, value: "status" },
@@ -828,10 +829,12 @@ export default {
     },
     options: {
       handler() {
-        // this.getDataFromApi();
+        this.getDataFromApi();
       },
       deep: true,
     },
+
+
   },
   created() {
     this.main_report_type = this.main_report_type_props;
@@ -1096,6 +1099,9 @@ export default {
 
       let late_early = this.payload.late_early;
 
+
+
+
       switch (late_early) {
         case "Select All":
           late_early = "SA";
@@ -1106,7 +1112,10 @@ export default {
           break;
       }
 
-      const { page, itemsPerPage } = this.options;
+      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       let u = this.$auth.user;
       if (u.user_type == "employee") {
@@ -1123,8 +1132,10 @@ export default {
       }
       let options = {
         params: {
-          per_page: itemsPerPage,
           page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.payload,
           status: this.getStatus(this.payload.status),
@@ -1146,6 +1157,8 @@ export default {
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
+
+        this.totalRowsCount = data.total;
       });
     },
 

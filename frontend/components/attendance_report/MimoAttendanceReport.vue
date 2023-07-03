@@ -457,6 +457,8 @@
           </v-toolbar>
 
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Weekly'">
+            <v-toolbar-title><span> Multi In/Out Report </span></v-toolbar-title>
+            <a @click="ProcessAttendance"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
@@ -488,6 +490,8 @@
           </v-toolbar>
 
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Monthly'">
+            <v-toolbar-title><span> Multi In/Out Report </span></v-toolbar-title>
+            <a @click="ProcessAttendance"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
@@ -521,6 +525,8 @@
             </v-tooltip>
           </v-toolbar>
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Custom'">
+            <v-toolbar-title><span> Multi In/Out Report </span></v-toolbar-title>
+            <a @click="ProcessAttendance"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
 
 
             <v-spacer></v-spacer>
@@ -570,7 +576,7 @@
             :options.sync="options" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }
-              " class="elevation-1" model-value="data.id">
+              " class="elevation-1" model-value="data.id" :server-items-length="totalRowsCount">
             <template v-slot:item.date="{ item }">
 
               <v-edit-dialog large save-text="Ok" cancel-text="Reset" @save="getDataFromApi_DatatablFilter('date')"
@@ -602,7 +608,7 @@
               </v-edit-dialog>
 
             </template>
-            <template v-slot:item.employee="{ item }">
+            <template v-slot:item.employee.first_name="{ item }">
 
 
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
@@ -709,6 +715,7 @@ export default {
   props: ["main_report_type_props"],
 
   data: () => ({
+    totalRowsCount: 0,
     datatable_search_textbox: '',
     datatable_filter_date: '',
     filter_employeeid: '',
@@ -770,8 +777,8 @@ export default {
       {
         text: "Name",
         align: "left",
-        sortable: true,
-        value: "employee",
+        sortable: false,
+        value: "employee.first_name",
         key: "item.employee"
       },
 
@@ -853,7 +860,7 @@ export default {
     },
     options: {
       handler() {
-        // this.getDataFromApi();
+        this.getDataFromApi();
       },
       deep: true,
     },
@@ -1132,7 +1139,10 @@ export default {
           break;
       }
 
-      const { page, itemsPerPage } = this.options;
+      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       let u = this.$auth.user;
       if (u.user_type == "employee") {
@@ -1140,8 +1150,10 @@ export default {
       }
       let options = {
         params: {
-          per_page: itemsPerPage,
           page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.payload,
           status: this.getStatus(this.payload.status),
@@ -1163,9 +1175,11 @@ export default {
           this.loading = false;
           return false;
         }
+
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
+        this.totalRowsCount = data.total;
       });
     },
 

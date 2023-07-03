@@ -327,7 +327,7 @@ export default {
   },
   methods: {
     verifyLeaveNotifications() {
-
+      if (!this.$auth.user.company.id) return false;
       let options = {
         params: {
           company_id: this.$auth.user.company.id,

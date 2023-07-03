@@ -531,6 +531,7 @@ export default {
   methods: {
     verifyLeaveNotifications() {
 
+      if (!this.$auth.user.company.id) return false;
       let options = {
         params: {
           company_id: this.$auth.user.company.id
@@ -889,7 +890,7 @@ tbody tr:nth-of-type(odd) {
 .table-search-header .v-text-field--outlined fieldset,
 .table-search-header .v-text-field--outlined .v-text-field__slot {
   height: 32px !important;
-  width: 80% !important;
+  width: 90% !important;
 }
 
 .table-search-header .v-text-field--outlined>.v-input__control>.v-input__slot {

@@ -19,3 +19,6 @@ Installation Guide:
 
 
 vue.js version2 crop image file 
+
+
+npm install --save vue-notification

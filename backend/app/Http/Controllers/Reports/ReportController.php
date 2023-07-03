@@ -18,7 +18,7 @@ class ReportController extends Controller
     {
 
         return $this->report($request)
-        // ->toSql();
+        //   ->toSql();
             ->paginate($request->per_page);
     }
 
@@ -112,12 +112,12 @@ class ReportController extends Controller
 
         $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
             $q->whereDate('date', $request->daily_date);
-            $q->orderBy("id", "desc");
+            //$q->orderBy("id", "desc");
         });
 
         $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
-            $q->orderBy("date", "asc");
+            // $q->orderBy("date", "asc");
         });
 
         // dd($request->all());
@@ -184,6 +184,17 @@ class ReportController extends Controller
         $model->when($request->filled('search_ot'), function ($q) use ($request) {
             $key = strtolower($request->search_ot);
             $q->where('ot', 'LIKE', "$key%");
+        });
+
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            $sortDesc = $request->input('sortDesc');
+
+            $q->orderBy($request->sortBy, $sortDesc == 'true' ? 'desc' : 'asc');
+
+        });
+        $model->when(!$request->filled('sortBy'), function ($q) use ($request) {
+            $q->orderBy('id', 'desc');
+
         });
         return $model;
     }

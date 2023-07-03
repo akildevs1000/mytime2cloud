@@ -84,7 +84,7 @@
           <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
             :options.sync="options" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1">
+            }" class="elevation-1" :server-items-length="totalRowsCount">
 
 
 
@@ -204,7 +204,8 @@
 <script>
 export default {
   data: () => ({
-    server_datatable_totalItems: 1000,
+    totalRowsCount: 0,
+    //server_datatable_totalItems: 10,
     datatable_search_textbox: '',
     datatable_searchById: '',
     filter_employeeid: '',
@@ -261,7 +262,7 @@ export default {
     options: {
       current: 1,
       total: 0,
-      itemsPerPage: 1000,
+      itemsPerPage: 10,
     },
     errors: [],
     response: "",
@@ -278,7 +279,7 @@ export default {
       {
         text: "Employee",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "employee.first_name", //sorting
         value: "employee", //edit purpose
         width: "300px",
@@ -286,7 +287,7 @@ export default {
       {
         text: "Department",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "department", //sorting
         value: "employee.department", //edit purpose
       },
@@ -300,14 +301,14 @@ export default {
       {
         text: "Device Name",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "device",
         value: "device.name",
       },
       {
         text: "Device Location",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "deviceid",
         value: "device.location",
       },
@@ -392,9 +393,17 @@ export default {
       this.getDataFromApi(this.endpoint, filter_column, filter_value);
     },
     getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
+      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
+
       this.payloadOptions = {
         params: {
-          per_page: this.server_datatable_totalItems,//this.options.itemsPerPage,
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.payload,
         },
@@ -415,10 +424,11 @@ export default {
             return false;
 
           }
-          this.server_datatable_totalItems = data.total;
+          //this.server_datatable_totalItems = data.total;
           this.data = data.data;
           this.total = data.total;
           this.loading = false;
+          this.totalRowsCount = data.total;
         });
     },
     searchIt() {

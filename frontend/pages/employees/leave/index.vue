@@ -763,6 +763,7 @@ export default {
     },
 
     clearFilters() {
+      this.filters = {};
       this.isFilter = false;
       this.getDataFromApi();
     },

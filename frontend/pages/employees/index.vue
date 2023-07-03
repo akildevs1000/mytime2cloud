@@ -47,8 +47,8 @@
                         offset-y max-width="290px" min-width="auto">
                         <template v-slot:activator="{ on, attrs }">
                           <v-text-field :hide-details="!errors.joining_date" :error-messages="errors && errors.joining_date
-                              ? errors.joining_date[0]
-                              : ''
+                            ? errors.joining_date[0]
+                            : ''
                             " v-model="employee.joining_date" persistent-hint append-icon="mdi-calendar" readonly
                             outlined dense v-bind="attrs" v-on="on"></v-text-field>
                         </template>
@@ -61,8 +61,8 @@
                     <label class="col-form-label">Display Name <span class="text-danger">*</span></label>
                     <v-text-field dense outlined :hide-details="!errors.display_name" type="text"
                       v-model="employee.display_name" :error="errors.display_name" :error-messages="errors && errors.display_name
-                          ? errors.display_name[0]
-                          : ''
+                        ? errors.display_name[0]
+                        : ''
                         "></v-text-field>
                   </v-col>
                   <v-col md="6" sm="12" cols="12" dense>
@@ -81,16 +81,16 @@
                     <label class="col-form-label">Employee ID <span class="text-danger">*</span></label>
                     <v-text-field dense outlined type="text" v-model="employee.employee_id"
                       :hide-details="!errors.employee_id" :error="errors.employee_id" :error-messages="errors && errors.employee_id
-                          ? errors.employee_id[0]
-                          : ''
+                        ? errors.employee_id[0]
+                        : ''
                         "></v-text-field>
                   </v-col>
                   <v-col md="6" cols="6" sm="6" dense>
                     <label class="col-form-label">Employee Device Id<span class="text-danger">*</span></label>
                     <v-text-field dense outlined type="text" v-model="employee.system_user_id"
                       :hide-details="!errors.system_user_id" :error="errors.system_user_id" :error-messages="errors && errors.system_user_id
-                          ? errors.system_user_id[0]
-                          : ''
+                        ? errors.system_user_id[0]
+                        : ''
                         "></v-text-field>
                   </v-col>
 
@@ -211,7 +211,9 @@
           <v-card elevation="0">
             <v-toolbar class="mb-2 white--text" color="background" dense flat>
               <span>{{ Model }}s </span>
-              <v-icon @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+              <v-icon class="ml-2" @click="clearFilters" dark>mdi mdi-reload</v-icon>
+              <a @click="toggleFilter"><v-icon color="white" class="mx-1 ml-2">mdi
+                  mdi-filter</v-icon></a>
               <v-spacer></v-spacer>
               <v-icon color="white" right dark @click="dialog = true">mdi-cloud-upload</v-icon>
               <v-icon color="white" right dark @click="export_submit">mdi-cloud-download</v-icon>
@@ -265,7 +267,19 @@
             <v-data-table dense v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
               :loading="loadinglinear" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
-              }" class="elevation-1">
+              }" class="elevation-1" :server-items-length="totalRowsCount">
+              <template v-slot:header="{ props: { headers } }">
+                <tr v-if="isFilter">
+                  <td v-for="header in  headers " :key="header.text" class="table-search-header">
+                    <v-text-field style="margin-left: 10px;width:90%!important" v-if="header.filterable"
+                      autocomplete="off" v-model="filters[header.value]" id="header.value"
+                      @input="applyFilters(header.value, $event)" outlined height="10px" clearable></v-text-field>
+                    <template v-else>
+                      <!-- {{ header.text }} -->
+                    </template>
+                  </td>
+                </tr>
+              </template>
               <template v-slot:item.employee_id="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
                   @open="datatable_open">
@@ -294,8 +308,8 @@
                           width: 50px;
                           max-width: 50px;
                         " :src="item.profile_picture
-                            ? item.profile_picture
-                            : '/no-profile-image.jpg'
+                          ? item.profile_picture
+                          : '/no-profile-image.jpg'
                           ">
                       </v-img>
                     </v-col>
@@ -317,7 +331,7 @@
                 </v-edit-dialog>
               </template>
 
-              <template v-slot:item.department.name="{ item }">
+              <template v-slot:item.department_name="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
                   @open="datatable_open">
                   <strong>{{ caps(item.department.name) }}</strong>
@@ -338,7 +352,7 @@
                   </template>
                 </v-edit-dialog>
               </template>
-              <template v-slot:item.user.email="{ item }" style="width: 200px">
+              <template v-slot:item.user_email="{ item }" style="width: 200px">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
                   @open="datatable_open">
                   {{ item.user.email }}
@@ -348,7 +362,7 @@
                   </template>
                 </v-edit-dialog>
               </template>
-              <template v-slot:item.schedule.shift.name="{ item }">
+              <template v-slot:item.schedule_shift_name="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
                   @open="datatable_open">
                   {{
@@ -369,7 +383,7 @@
                   </template>
                 </v-edit-dialog>
               </template>
-              <template v-slot:item.timezone.timezone_name="{ item }">
+              <template v-slot:item.timezone_name="{ item }">
                 <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
                   @open="datatable_open">
                   {{ item.timezone ? item.timezone.timezone_name : "" }}
@@ -454,6 +468,7 @@ export default {
   },
 
   data: () => ({
+    totalRowsCount: 0,
     joiningDate: null,
     joiningDateMenuOpen: false,
     showFilters: false,
@@ -531,7 +546,7 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 1000,
+      per_page: 10,
     },
     options: {},
     Model: "Employee",
@@ -573,14 +588,16 @@ export default {
         key: "first_name",
         value: "first_name",
         width: "300px",
+        filterable: true,
       },
       {
         text: "Department",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "department.name",
-        value: "department.name", //template name should be match for sorting sub table should be the same
+        value: "department_name", //template name should be match for sorting sub table should be the same
         width: "200px",
+        filterable: true,
       },
 
       {
@@ -590,27 +607,31 @@ export default {
         key: "mobile",
         value: "phone_number", // search and sorting enable if value matches with template name
         width: "150px",
+        filterable: true,
       },
       {
         text: "Email",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "email",
-        value: "user.email",
+        value: "user_email",
+        filterable: true,
       },
       {
         text: "Shift",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "shceduleshift", //sorting without . _
-        value: "schedule.shift.name",
+        value: "schedule_shift_name",
+        filterable: true,
       },
       {
         text: "Timezone",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "timezone",
-        value: "timezone.timezone_name",
+        value: "timezone_name",
+        filterable: true,
       },
       {
         text: "Options",
@@ -710,6 +731,14 @@ export default {
       { text: "Shift" },
       { text: "Actions" },
     ];
+  },
+  watch: {
+    options: {
+      handler() {
+        this.getDataFromApi()
+      },
+      deep: true,
+    },
   },
   methods: {
     closeViewDialog() {
@@ -846,6 +875,12 @@ export default {
     onPageChange() {
       this.getDataFromApi();
     },
+    clearFilters() {
+      this.filters = {};
+
+      this.isFilter = false;
+      this.getDataFromApi();
+    },
     getDataFromApi(url = this.endpoint) {
       //this.loading = true;
       this.loadinglinear = true;
@@ -857,12 +892,13 @@ export default {
       // if (!page)
       //   return false;
       //let page = this.pagination.current;
+
       let options = {
         params: {
           page: page,
           sortBy: sortedBy,
           sortDesc: sortedDesc,
-          per_page: this.server_datatable_totalItems, // itemsPerPage,//this.pagination.per_page,
+          per_page: itemsPerPage,//this.pagination.per_page,
           company_id: this.$auth.user.company.id,
           department_id: this.department_filter_id,
           ...this.filters,
@@ -871,9 +907,12 @@ export default {
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.data = data.data;
-        this.server_datatable_totalItems = data.total;
+        //this.server_datatable_totalItems = data.total;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
+
+
+        this.totalRowsCount = data.total;
 
         this.data.length == 0
           ? (this.displayErrormsg = true)

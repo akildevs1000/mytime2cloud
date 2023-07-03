@@ -24,39 +24,25 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    :style="{
-                      color: item.status ? '' : 'red',
-                    }"
-                    v-for="(item, index) in payslipsResultsmessages"
-                    :key="item.id"
-                  >
+                  <tr :style="{
+                    color: item.status ? '' : 'red',
+                  }" v-for="(item, index) in payslipsResultsmessages" :key="item.id">
                     <td>{{ index + 1 }}</td>
 
                     <td>{{ item.status_message }}</td>
                     <td class="text-right">
-                      <a
-                        v-if="item.status"
-                        :href="getdownloadLink(item.employee_id)"
-                        style="
+                      <a v-if="item.status" :href="getdownloadLink(item.employee_id)" style="
                           font-size: 25px;
                           vertical-align: inherit;
                           cursor: pointer;
-                        "
-                      >
-                        <v-icon small class="primary--text"
-                          >mdi-download</v-icon
-                        >
+                        ">
+                        <v-icon small class="primary--text">mdi-download</v-icon>
                       </a>
-                      <a
-                        v-if="!item.status"
-                        @click="navigatetoEmployeepage()"
-                        style="
+                      <a v-if="!item.status" @click="navigatetoEmployeepage()" style="
                           font-size: 14px;
                           vertical-align: inherit;
                           cursor: pointer;
-                        "
-                      >
+                        ">
                         Go to Employee Page
                       </a>
                     </td>
@@ -95,47 +81,19 @@
             <v-row class="mt-4">
               <v-col cols="5">
                 <div class="">Departments</div>
-                <v-select
-                  outlined
-                  dense
-                  x-small
-                  v-model="department_idPopup"
-                  item-text="name"
-                  item-value="id"
-                  :items="departments"
-                  placeholder="Department"
-                  solo
-                  flat
-                ></v-select>
+                <v-select outlined dense x-small v-model="department_idPopup" item-text="name" item-value="id"
+                  :items="departments" placeholder="Department" solo flat></v-select>
               </v-col>
 
               <v-col cols="3">
                 <div class="">Year</div>
-                <v-select
-                  outlined
-                  dense
-                  x-small
-                  v-model="payslip_year_Popup"
-                  :items="dataYears"
-                  placeholder="Year"
-                  solo
-                  flat
-                ></v-select>
+                <v-select outlined dense x-small v-model="payslip_year_Popup" :items="dataYears" placeholder="Year" solo
+                  flat></v-select>
               </v-col>
               <v-col cols="3">
                 <div class="">Month</div>
-                <v-select
-                  outlined
-                  dense
-                  x-small
-                  v-model="payslip_month_Popup"
-                  :items="monthNames"
-                  item-text="label"
-                  item-value="value"
-                  placeholder="Month"
-                  solo
-                  flat
-                ></v-select>
+                <v-select outlined dense x-small v-model="payslip_month_Popup" :items="monthNames" item-text="label"
+                  item-value="value" placeholder="Month" solo flat></v-select>
               </v-col>
 
               <v-card-actions>
@@ -145,12 +103,7 @@
                   </v-btn>-->
                 </v-col>
                 <v-col md="6" lg="6" class="text-right" style="padding: 0px">
-                  <v-btn
-                    class="primary"
-                    @click="generateNewpayslipsByDepartment"
-                    style
-                    >Generate Payslips</v-btn
-                  >
+                  <v-btn class="primary" @click="generateNewpayslipsByDepartment" style>Generate Payslips</v-btn>
                 </v-col>
               </v-card-actions>
             </v-row>
@@ -184,49 +137,22 @@
       <v-row>
         <v-col>
           <v-card class="mb-5" elevation="0">
-            <v-toolbar
-              class="rounded-md mb-2 white--text"
-              color="background"
-              dense
-              flat
-            >
+            <v-toolbar class="rounded-md mb-2 white--text" color="background" dense flat>
               <v-col cols="8">
                 <span> Payslip List</span>
-                <v-icon @click="getDataFromApi()" class="mx-1 white--text"
-                  >mdi mdi-reload</v-icon
-                >
+                <v-icon @click="getDataFromApi()" class="mx-1 white--text">mdi mdi-reload</v-icon>
 
-                <v-btn
-                  v-if="selectedItems.length"
-                  @click="generateNewpayslipsSelected"
-                  small
-                  class="primary toolbar-button-design1"
-                  color="primary"
-                >
+                <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected" small
+                  class="primary toolbar-button-design1" color="primary">
                   Payslips For selected
                 </v-btn>
               </v-col>
               <v-col cols="4" class="text-right">
-                <v-icon
-                  @click="openPayslipDialog"
-                    class="mx-1 white--text"
-                    >mdi-receipt</v-icon
-                  >
-                <v-btn
-                  v-if="downloadAllDisplayStatus"
-                  download
-                  :href="payslipsDownloadAllURL"
-                  small
-                  dark
-                  class="primary mx-1 toolbar-button-design1"
-                  color="primary"
-                >
+                <v-icon @click="openPayslipDialog" class="mx-1 white--text">mdi-receipt</v-icon>
+                <v-btn v-if="downloadAllDisplayStatus" download :href="payslipsDownloadAllURL" small dark
+                  class="primary mx-1 toolbar-button-design1" color="primary">
                   All Payslips
-                  <v-icon
-                    @click="showFilters = !showFilters"
-                    class="mx-1 white--text"
-                    >mdi mdi-download</v-icon
-                  >
+                  <v-icon @click="showFilters = !showFilters" class="mx-1 white--text">mdi mdi-download</v-icon>
                 </v-btn>
               </v-col>
             </v-toolbar>
@@ -272,37 +198,17 @@
                 </v-btn>
               </template>
             </v-snackbar>
-            <v-data-table
-              dense
-              show-select
-              v-model="selectedItems"
-              :headers="headers_table"
-              :items="data"
-              model-value="data.id"
-              :loading="loading"
-              :options.sync="options"
-              :footer-props="{
+            <v-data-table dense show-select v-model="selectedItems" :headers="headers_table" :items="data"
+              model-value="data.id" :loading="loading" :options.sync="options" :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
-              }"
-              class="elevation-1"
-            >
+              }" class="elevation-1" :server-items-length="totalRowsCount">
               <template v-slot:item.employee_id="{ item }">
-                <v-edit-dialog
-                  large
-                  save-text="Reset"
-                  cancel-text="Ok"
-                  style="margin-left: 4%"
-                  :return-value.sync="item.employee_id"
-                  @save="getDataFromApi()"
-                  @open="datatable_open"
-                >
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%"
+                  :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
                   {{ item.employee_id }}
                   <template v-slot:input>
-                    <v-text-field
-                      @input="datatable_searchById"
-                      v-model="datatable_search_textbox"
-                      label="Search Employee Id"
-                    ></v-text-field>
+                    <v-text-field @input="datatable_searchById" v-model="datatable_search_textbox"
+                      label="Search Employee Id"></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
@@ -320,47 +226,31 @@
 
 
               </template> -->
-              <template
-                v-slot:item.display_name="{ item, index }"
-                style="width: 300px"
-              >
-                <v-edit-dialog
-                  large
-                  save-text="Reset"
-                  cancel-text="Ok"
-                  style="margin-left: 4%"
-                  @save="getDataFromApi()"
-                  @open="datatable_open"
-                >
+              <template v-slot:item.display_name="{ item, index }" style="width: 300px">
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
+                  @open="datatable_open">
                   <v-row no-gutters>
-                    <v-col
-                      style="
+                    <v-col style="
                         padding: 5px;
                         padding-left: 0px;
                         width: 50px;
                         max-width: 50px;
-                      "
-                    >
-                      <v-img
-                        style="
+                      ">
+                      <v-img style="
                           border-radius: 50%;
                           height: auto;
                           width: 50px;
                           max-width: 50px;
-                        "
-                        :src="
-                          item.profile_picture
-                            ? item.profile_picture
-                            : '/no-profile-image.jpg'
-                        "
-                      >
+                        " :src="item.profile_picture
+                          ? item.profile_picture
+                          : '/no-profile-image.jpg'
+                          ">
                       </v-img>
                     </v-col>
                     <v-col style="padding: 10px">
                       <strong>
                         {{ item.first_name ? item.first_name : "---" }}
-                        {{ item.last_name ? item.last_name : "---" }}</strong
-                      >
+                        {{ item.last_name ? item.last_name : "---" }}</strong>
                       <div>
                         {{
                           item.designation ? caps(item.designation.name) : "---"
@@ -369,32 +259,20 @@
                     </v-col>
                   </v-row>
                   <template v-slot:input>
-                    <v-text-field
-                      @input="getDataFromApi_FilterEmployeeName"
-                      v-model="datatable_search_textbox"
-                      label="Type Employee Name"
-                    ></v-text-field>
+                    <v-text-field @input="getDataFromApi_FilterEmployeeName" v-model="datatable_search_textbox"
+                      label="Type Employee Name"></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
 
               <template v-slot:item.department.name="{ item }">
-                <v-edit-dialog
-                  large
-                  save-text="Reset"
-                  cancel-text="Ok"
-                  style="margin-left: 4%"
-                  @save="getDataFromApi()"
-                  @open="datatable_open"
-                >
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
+                  @open="datatable_open">
                   <strong>{{ caps(item.department.name) }}</strong>
                   <div>{{ caps(item.sub_department.name) }}</div>
                   <template v-slot:input>
-                    <v-text-field
-                      @input="getDataFromApi_FilterDepartmentName"
-                      v-model="datatable_search_textbox"
-                      label="Search Department name"
-                    ></v-text-field>
+                    <v-text-field @input="getDataFromApi_FilterDepartmentName" v-model="datatable_search_textbox"
+                      label="Search Department name"></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
@@ -426,62 +304,37 @@
 
               </template> -->
               <template v-slot:item.payroll.basic_salary="{ item }">
-                <v-edit-dialog
-                  large
-                  save-text="Reset"
-                  cancel-text="Ok"
-                  @save="getDataFromApi()"
-                  @open="datatable_open"
-                >
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
                   {{ item.payroll && item.payroll.basic_salary }}
                   <template v-slot:input>
-                    <v-text-field
-                      @input="datatable_searchBybasic_salary"
-                      v-model="datatable_search_textbox"
-                      label="Minimum Amount"
-                    ></v-text-field>
+                    <v-text-field @input="datatable_searchBybasic_salary" v-model="datatable_search_textbox"
+                      label="Minimum Amount"></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
 
               <template v-slot:item.payroll.net_salary="{ item }">
-                <v-edit-dialog
-                  large
-                  save-text="Reset"
-                  cancel-text="Ok"
-                  @save="getDataFromApi()"
-                  @open="datatable_open"
-                >
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
                   {{ item.payroll && item.payroll.net_salary }}
                   <template v-slot:input>
-                    <v-text-field
-                      @input="datatable_searchBynet_salary"
-                      v-model="datatable_search_textbox"
-                      label="Minimum Amount"
-                    ></v-text-field>
+                    <v-text-field @input="datatable_searchBynet_salary" v-model="datatable_search_textbox"
+                      label="Minimum Amount"></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
               <template v-slot:item.payslip="{ item }">
-                <span v-if="item?.payroll?.basic_salary"
-                  @click="navigateToViewPDF(item.id)"
-                  style="
+                <span v-if="item?.payroll?.basic_salary" @click="navigateToViewPDF(item.id)" style="
                     font-size: 25px;
                     vertical-align: inherit;
                     cursor: pointer;
-                  "
-                >
+                  ">
                   <v-icon small class="primary--text">mdi-eye</v-icon>
                 </span>
-                <a
-                  v-if="item.payslip_status"
-                  :href="getdownloadLink(item.employee_id)"
-                  style="
+                <a v-if="item.payslip_status" :href="getdownloadLink(item.employee_id)" style="
                     font-size: 25px;
                     vertical-align: inherit;
                     cursor: pointer;
-                  "
-                >
+                  ">
                   <v-icon small class="primary--text">mdi-download</v-icon>
                 </a>
               </template>
@@ -596,7 +449,8 @@
 <script>
 export default {
   data: () => ({
-    server_datatable_totalItems: 1000,
+    totalRowsCount: 0,
+    //server_datatable_totalItems: 1000,
     filter_employeeid: "",
     snack: false,
     snackColor: "",
@@ -656,7 +510,7 @@ export default {
       {
         text: "Name",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "display_name",
         value: "display_name",
       },
@@ -664,7 +518,7 @@ export default {
       {
         text: "Department",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "department",
         value: "department.name", //template name should be match
       },
@@ -679,14 +533,14 @@ export default {
       {
         text: "Basic Salary",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "payrollbasic",
         value: "payroll.basic_salary",
       },
       {
         text: "Net Salary",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "net_salary",
         value: "payroll.net_salary",
       },
@@ -798,6 +652,12 @@ export default {
     department_id() {
       this.pagination.current = 1;
       this.getDataFromApi();
+    },
+    options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true,
     },
   },
   created() {
@@ -959,11 +819,20 @@ export default {
     },
     getDataFromApi(url = this.endpoint, search_column_name = "") {
       this.loading = true;
-      let page = this.pagination.current;
+
       let department_id = this.department_id;
+      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
+
+
       let options = {
         params: {
-          per_page: this.server_datatable_totalItems, //this.pagination.per_page,
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           department_id: department_id,
           year: this.payslip_year,
@@ -995,8 +864,8 @@ export default {
         }
 
         this.data = data.data;
-
-        this.server_datatable_totalItems = data.total;
+        this.totalRowsCount = data.total;
+        //this.server_datatable_totalItems = data.total;
 
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
@@ -1216,7 +1085,7 @@ export default {
     openPayslipDialog() {
       this.generatePayslipDialog = true;
     },
-    closePopup() {},
+    closePopup() { },
   },
 };
 </script>
