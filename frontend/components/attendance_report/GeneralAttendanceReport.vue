@@ -479,20 +479,16 @@
 
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
-                <td v-for="header in      headers     " :key="header.text" class="table-search-header">
+                <td style="width:40px" v-for="header in      headers     " :key="header.text" class="table-search-header">
                   <v-text-field style="padding-left: 10px;" v-if="header.filterable" v-model="filters[header.value]"
                     id="header.value" @input="applyFilters(header.value, $event)" outlined height="10px" clearable
                     autocomplete="off"></v-text-field>
 
-                  <!-- <v-select class="filter-select-hidden-text" v-model="filters[header.value]"
-                    v-else-if="header.filterable && header.text == 'Status'" height="10px;width:5px" style="padding: 0px;"
-                    small density="compact" @change="applyFilters('status', $event)" clearable item-value="value"
-                    item-text="title" :items="[{ value: '', title: '' }, { value: 'Absent', title: 'A' }, {
-                      value: 'Present',
-                      title: 'Holiday'
-                    }]"></v-select> -->
+
                   <template v-else>
-                    <!-- {{ header.text }} -->
+
+                    <v-text-field style="display:none;" outlined height="10px" clearable
+                      autocomplete="off"></v-text-field>
                   </template>
                 </td>
               </tr>
@@ -672,7 +668,7 @@ export default {
     total: 0,
     headers: [
       { text: "Date", align: "left", sortable: true, filterable: false, value: "date" },
-      { text: "Employee ID", align: "left", sortable: true, filterable: true, value: "employee_id" },
+      { text: "Emp.ID", align: "left", sortable: true, filterable: true, value: "employee_id" },
       {
         text: "Employee",
         align: "left",
@@ -916,7 +912,7 @@ export default {
       this.fetch_logs();
     },
     applyFilters(name, value) {
-      if (value &&value.length < 2) return false;
+      if (value && value.length < 2) return false;
 
       this.getDataFromApi();
     },

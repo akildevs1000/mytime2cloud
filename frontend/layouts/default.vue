@@ -901,6 +901,10 @@ tbody tr:nth-of-type(odd) {
   min-height: 32px !important;
 }
 
+.table-search-header .v-input__append-inner {
+  width: 100%;
+}
+
 .table-search-header td {
   border: 0px !important;
   padding-top: 10px;
