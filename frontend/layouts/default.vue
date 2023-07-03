@@ -929,6 +929,10 @@ tbody tr:nth-of-type(odd) {
   font-size: 13px !important;
 }
 
+.table-search-header .v-input__icon--clear {
+  margin-right: 0px !important
+}
+
 @media (max-width: 500px) {
   .employeepage-seach-textfield {
     max-width: 68px;

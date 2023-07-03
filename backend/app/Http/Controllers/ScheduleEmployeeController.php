@@ -333,4 +333,18 @@ class ScheduleEmployeeController extends Controller
         return $model
             ->paginate($request->per_page ?? 20);
     }
+    public function scheduled_employees_with_type(Employee $employee, Request $request)
+    {
+        return $employee->where("company_id", $request->company_id)
+            ->whereHas('schedule')
+            ->withOut(["user", "department", "sub_department", "designation", "role", "schedule"])
+            ->when($request->filled('department_id'), function ($q) use ($request) {
+                $q->where('department_id', $request->department_id);
+            })
+            ->get(["first_name", "system_user_id", "employee_id", "display_name"]);
+
+        return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
+            $q->where('slug', '=', $request->shift_type);
+        })->get(["first_name", "system_user_id", "employee_id"]);
+    }
 }
