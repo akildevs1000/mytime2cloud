@@ -1,34 +1,32 @@
 <template>
-  <div v-if="can(`employee_schedule_access`)">
-    <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
-        {{ response }}
-      </v-snackbar>
-    </div>
-    <v-toolbar class="background">
-      <v-btn
-        class="mx-1 background white--text"
-        tile
-        small
-        style="border-bottom: 1px solid white !important"
-        @click="changeComponent('UnScheduledEmployees')"
-      >
-        UnScheduled Employees
+  <div>
+    <v-toolbar flat dense class="">
+      <v-btn small @click="arrangeShift" class="primary" color="primary"
+        >Arrange Shift(s)
       </v-btn>
-      <v-btn
-        class="mx-1 background white--text"
-        tile
-        small
-        style="border-bottom: 1px solid white !important"
-        @click="changeComponent('ScheduledEmployees')"
+      <v-icon color="primary" class="mx-2" @click="dialogVisible = true"
+        >mdi-filter</v-icon
       >
-        Scheduled Employees
-      </v-btn>
-      <v-spacer></v-spacer>
     </v-toolbar>
 
-    <component :is="currentComponent" />
-
+    <v-data-table
+      v-model="employee_ids"
+      show-select
+      item-key="id"
+      :headers="headers"
+      :items="employees"
+      :server-items-length="total"
+      :loading="loading"
+      :options.sync="options"
+      :footer-props="{
+        itemsPerPageOptions: [50, 100, 500, 1000],
+      }"
+    >
+    <template v-slot:item.name="{ item }">
+        {{ item.first_name ? item.first_name : "---" }}
+        {{ item.last_name ? item.last_name : "---" }}
+      </template>
+    </v-data-table>
     <v-dialog v-model="dialog" width="900">
       <v-card>
         <v-card-title class="text-h5">
@@ -291,22 +289,12 @@
       </v-card>
     </v-dialog>
   </div>
-  <NoAccess v-else />
 </template>
-<script>
-import ScheduledEmployees from "../../components/schedule_employee/ScheduledEmployees.vue";
-import UnScheduledEmployees from "../../components/schedule_employee/UnScheduledEmployees.vue";
 
+<script>
 export default {
-  components: { ScheduledEmployees, UnScheduledEmployees },
   data: () => ({
-    currentComponent: "UnScheduledEmployees",
     isActive: false,
-    activeTab: "tab-0",
-    tabs: [
-      { id: "schedule", label: "Schedule" },
-      { id: "unschedule", label: "Unschedule" },
-    ],
     filterLoader: false,
     dialogVisible: false,
     from_date: null,
@@ -314,12 +302,6 @@ export default {
 
     from_menu: [],
     to_menu: [],
-
-    pagination: {
-      current: 1,
-      total: 0,
-      per_page: 10,
-    },
 
     Module: "Employee Schedule",
     schedules_temp_list: [
@@ -331,18 +313,14 @@ export default {
       // },
     ],
     options: {},
-    options_dialog: {},
-    endpoint: "scheduled_employees",
-    endpoint_dialog: "scheduled_employees_list",
-    search: "",
-    dialog_search: "",
+    endpoint: "not_scheduled_employees",
     snackbar: false,
     dialog: false,
     employee_search: "",
     loading: false,
-    loading_dialog: false,
+    loading: false,
     total: 0,
-    total_dialog: 0,
+    total: 0,
 
     department_ids: ["---"],
     sub_department_ids: ["---"],
@@ -356,7 +334,7 @@ export default {
     isOverTime: false,
     is_edit: false,
     employees: [],
-    employees_dialog: [],
+    employees: [],
     departments: [],
     sub_departments: [],
     shifts: [
@@ -377,9 +355,8 @@ export default {
     max_date: [],
     min_date: [],
     errors: [],
-    headers_ids: [],
 
-    headers_dialog: [
+    headers: [
       {
         text: "Emp Id",
         align: "left",
@@ -389,7 +366,7 @@ export default {
       {
         text: "Name",
         sortable: false,
-        value: "display_name",
+        value: "name",
       },
       {
         text: "Department",
@@ -431,23 +408,10 @@ export default {
       },
       deep: true,
     },
-    options_dialog: {
-      handler() {
-        this.runMultipleFunctions();
-        if (!this.is_edit) {
-          this.getDataFromApi();
-        }
-      },
-      deep: true,
-    },
-    search() {
-      this.pagination.current = 1;
-      this.searchIt();
-    },
   },
   created() {
     this.loading = true;
-    // this.loading_dialog = true;
+    // this.loading = true;
     this.get_rosters();
     this.options = {
       params: {
@@ -461,13 +425,6 @@ export default {
   },
 
   methods: {
-    changeComponent(componentName) {
-      this.currentComponent = componentName;
-    },
-    toggleActiveState() {
-      this.isActive = !this.isActive;
-    },
-
     arrangeShift() {
       if (!this.employee_ids.length) {
         alert("Atleast one employee must be selected.");
@@ -556,9 +513,9 @@ export default {
         .catch((err) => console.log(err));
     },
     employeesByDepartment() {
-      this.loading_dialog = true;
+      this.loading = true;
 
-      const { page, itemsPerPage } = this.options_dialog;
+      const { page, itemsPerPage } = this.options;
 
       let options = {
         params: {
@@ -570,16 +527,16 @@ export default {
       };
 
       if (!this.department_ids.length) {
-        this.employees_dialog = [];
-        this.total_dialog = 0;
-        this.loading_dialog = false;
+        this.employees = [];
+        this.total = 0;
+        this.loading = false;
         return;
       }
 
       this.$axios.get("employeesByDepartment", options).then(({ data }) => {
-        this.employees_dialog = data.data;
-        this.total_dialog = data.total;
-        this.loading_dialog = false;
+        this.employees = data.data;
+        this.total = data.total;
+        this.loading = false;
       });
     },
 
@@ -593,7 +550,7 @@ export default {
         this.employeesByDepartment();
       } else if (e.length > 2) {
         this.filterLoader = true;
-        const { page, itemsPerPage } = this.options_dialog;
+        const { page, itemsPerPage } = this.options;
 
         let options = {
           params: {
@@ -604,17 +561,17 @@ export default {
           },
         };
         this.$axios.get("employeesByEmployeeId", options).then(({ data }) => {
-          this.employees_dialog = data.data;
-          this.total_dialog = data.total;
+          this.employees = data.data;
+          this.total = data.total;
           this.filterLoader = false;
         });
       }
     },
 
     getEmployeesBySubDepartment() {
-      this.loading_dialog = true;
+      this.loading = true;
 
-      const { page, itemsPerPage } = this.options_dialog;
+      const { page, itemsPerPage } = this.options;
 
       let options = {
         params: {
@@ -627,16 +584,16 @@ export default {
       };
 
       if (!this.sub_department_ids.length) {
-        this.loading_dialog = false;
+        this.loading = false;
         return;
       }
 
       this.$axios
         .get(`employeesBySubDepartment`, options)
         .then(({ data }) => {
-          this.employees_dialog = data.data;
-          this.total_dialog = data.total;
-          this.loading_dialog = false;
+          this.employees = data.data;
+          this.total = data.total;
+          this.loading = false;
         })
         .catch((err) => console.log(err));
     },
@@ -666,15 +623,14 @@ export default {
         u.is_master
       );
     },
-    //main
     getDataFromApi(url = this.endpoint) {
-      this.loading = false;
+      this.loading = true;
 
-      let page = this.pagination.current;
+      const { page, itemsPerPage } = this.options;
 
       let options = {
         params: {
-          per_page: this.pagination.per_page,
+          per_page: itemsPerPage,
           page: page,
           company_id: this.$auth.user.company.id,
         },
@@ -682,30 +638,10 @@ export default {
 
       this.$axios.get(url, options).then(({ data }) => {
         this.employees = data.data;
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
+        this.total = data.total;
         this.loading = false;
       });
     },
-    // getDataFromApi(url = this.endpoint_dialog) {
-    //   this.loading_dialog = true;
-
-    //   const { page, itemsPerPage } = this.options_dialog;
-
-    //   let options = {
-    //     params: {
-    //       per_page: itemsPerPage,
-    //       page: page,
-    //       company_id: this.$auth.user.company.id,
-    //     },
-    //   };
-
-    //   this.$axios.get(url, options).then(({ data }) => {
-    //     this.employees_dialog = data.data;
-    //     this.total_dialog = data.total;
-    //     this.loading_dialog = false;
-    //   });
-    // },
     searchIt() {
       let s = this.search.length;
       let search = this.search;
@@ -757,7 +693,7 @@ export default {
     },
 
     save() {
-      this.loading_dialog = true;
+      this.loading = true;
       this.errors = [];
 
       let payload = {
@@ -791,13 +727,13 @@ export default {
               this.errors = data.errors;
               this.custom_errors = [];
             }
-            this.loading_dialog = false;
+            this.loading = false;
             return;
           }
           this.dialog = false;
           this.response = data.message;
           this.snackbar = true;
-          this.loading_dialog = false;
+          this.loading = false;
           this.getDataFromApi();
         })
         .catch((err) => console.log(err));

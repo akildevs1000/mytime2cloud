@@ -319,8 +319,9 @@
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Daily'">
 
             <v-toolbar-title><span> General Report </span></v-toolbar-title>
-            <a @click="ProcessAttendance"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
-
+            <a @click="clearFilters()"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
+                mdi-filter</v-icon></a>
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
@@ -352,6 +353,10 @@
           </v-toolbar>
 
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Weekly'">
+            <v-toolbar-title><span> General Report </span></v-toolbar-title>
+            <a @click="clearFilters()"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
+                mdi-filter</v-icon></a>
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
@@ -383,6 +388,10 @@
           </v-toolbar>
 
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Monthly'">
+            <v-toolbar-title><span> General Report </span></v-toolbar-title>
+            <a @click="clearFilters()"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
+                mdi-filter</v-icon></a>
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
@@ -416,6 +425,10 @@
             </v-tooltip>
           </v-toolbar>
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Custom'">
+            <v-toolbar-title><span> General Report </span></v-toolbar-title>
+            <a @click="clearFilters()"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
+                mdi-filter</v-icon></a>
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
@@ -463,20 +476,42 @@
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }
               " class="elevation-1" model-value="data.id" :server-items-length="totalRowsCount">
+
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="header in      headers     " :key="header.text" class="table-search-header">
+                  <v-text-field style="padding-left: 10px;" v-if="header.filterable" v-model="filters[header.value]"
+                    id="header.value" @input="applyFilters(header.value, $event)" outlined height="10px" clearable
+                    autocomplete="off"></v-text-field>
+
+                  <!-- <v-select class="filter-select-hidden-text" v-model="filters[header.value]"
+                    v-else-if="header.filterable && header.text == 'Status'" height="10px;width:5px" style="padding: 0px;"
+                    small density="compact" @change="applyFilters('status', $event)" clearable item-value="value"
+                    item-text="title" :items="[{ value: '', title: '' }, { value: 'Absent', title: 'A' }, {
+                      value: 'Present',
+                      title: 'Holiday'
+                    }]"></v-select> -->
+                  <template v-else>
+                    <!-- {{ header.text }} -->
+                  </template>
+                </td>
+              </tr>
+            </template>
+
             <template v-slot:item.date="{ item }">
               {{ item.date }}
             </template>
             <template v-slot:item.employee_id="{ item }">
               {{ item.employee_id }}
             </template>
-            <template v-slot:item.employee.first_name="{ item }">
+            <template v-slot:item.employee_first_name="{ item }">
               {{ item.employee.first_name }} {{ item.employee.last_name }}
             </template>
-            <template v-slot:item.employee.department.name="{ item }">
+            <template v-slot:item.employee_department_name="{ item }">
               {{ item.employee.department.name }}
             </template>
 
-            <template v-slot:item.shift_type.name="{ item }">
+            <template v-slot:item.shift_type_name="{ item }">
               {{ item.shift_type.name }}
             </template>
 
@@ -579,6 +614,8 @@
 export default {
   props: ["main_report_type_props"],
   data: () => ({
+    filters: {},
+    isFilter: false,
     totalRowsCount: 0,
     datatable_search_textbox: '',
     datatable_filter_date: '',
@@ -634,43 +671,47 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "Date", align: "left", sortable: true, value: "date" },
-      { text: "Employee ID", align: "left", sortable: true, value: "employee_id" },
+      { text: "Date", align: "left", sortable: true, filterable: false, value: "date" },
+      { text: "Employee ID", align: "left", sortable: true, filterable: true, value: "employee_id" },
       {
         text: "Employee",
         align: "left",
         sortable: false,
-        value: "employee.first_name",
+        filterable: true,
+        value: "employee_first_name",
         key: "item.employee"
       },
       {
         text: "Department",
         align: "left",
         sortable: false,
-        value: "employee.department.name",
+        filterable: true,
+        value: "employee_department_name",
       },
       {
         text: "Shift Type",
         align: "left",
         sortable: false,
-        value: "shift_type.name",
+        filterable: true,
+        value: "shift_type_name",
       },
       {
         text: "Shift",
         align: "left",
         sortable: false,
+        filterable: true,
         value: "shift",
       },
-      { text: "Status", align: "left", sortable: true, value: "status" },
-      { text: "In", align: "left", sortable: true, value: "in" },
-      { text: "Out", align: "left", sortable: true, value: "out" },
+      { text: "Status", align: "left", sortable: true, filterable: false, value: "status" },
+      { text: "In", align: "left", sortable: true, filterable: true, value: "in" },
+      { text: "Out", align: "left", sortable: true, filterable: true, value: "out" },
       {
         text: "Total Hrs",
         align: "left",
-        sortable: true,
+        sortable: true, filterable: true,
         value: "total_hrs",
       },
-      { text: "OT", align: "left", sortable: true, value: "ot" },
+      { text: "OT", align: "left", sortable: true, filterable: true, value: "ot" },
       // {
       //   text: "Late coming",
       //   align: "left",
@@ -874,7 +915,19 @@ export default {
     ProcessAttendance() {
       this.fetch_logs();
     },
+    applyFilters(name, value) {
+      if (value &&value.length < 2) return false;
 
+      this.getDataFromApi();
+    },
+    toggleFilter() {
+      this.isFilter = !this.isFilter;
+    },
+    clearFilters() {
+      this.filters = {};
+      this.isFilter = false;
+      this.ProcessAttendance();
+    },
     getDeviceList() {
       let payload = {
         params: {
@@ -1043,6 +1096,7 @@ export default {
           return false;
         }
       }
+
       let options = {
         params: {
           page: page,
@@ -1054,6 +1108,7 @@ export default {
           status: this.getStatus(this.payload.status),
           late_early,
           ot: this.overtime ? 1 : 0,
+          ...this.filters,
         },
       };
       if (filter_column != '')

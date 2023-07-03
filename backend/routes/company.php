@@ -39,7 +39,6 @@ use App\Http\Controllers\RosterController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\SalaryTypeController;
 use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\ScheduleEmployeeController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\ShiftTypeController;
 use App\Http\Controllers\SubDepartmentController;
@@ -90,7 +89,6 @@ Route::get('sub-departments-by-departments', [SubDepartmentController::class, 's
 Route::apiResource('schedule', ScheduleController::class);
 Route::get('schedule/search/{key}', [ScheduleController::class, 'search']);
 Route::post('schedule/delete/selected', [ScheduleController::class, 'deleteSelected']);
-Route::post('schedule_employee/delete/selected', [ScheduleEmployeeController::class, 'deleteSelected']);
 
 // Designation
 Route::apiResource('designation', DesignationController::class);
@@ -156,16 +154,8 @@ Route::get('employeesBySubDepartment', [EmployeeController::class, 'employeesByS
 Route::get('employeesByEmployeeId', [EmployeeController::class, 'employeesByEmployeeId']);
 Route::get('employeesByDesignation/{key}', [EmployeeController::class, 'employeesByDesignation']);
 Route::get('designationsByDepartment/{key}', [EmployeeController::class, 'designationsByDepartment']);
-Route::get('scheduled_employees', [EmployeeController::class, 'scheduled_employees']);
 
-Route::put('scheduled_employee/{id}', [ScheduleEmployeeController::class, 'update']);
-
-Route::get('scheduled_employees_list', [EmployeeController::class, 'scheduled_employees_list']);
-Route::get('scheduled_employees_with_type', [EmployeeController::class, 'scheduled_employees_with_type']);
 Route::get('attendance_employees', [EmployeeController::class, 'attendance_employees']);
-Route::get('scheduled_employees/search/{key}', [EmployeeController::class, 'scheduled_employees_search']);
-
-Route::get('not_scheduled_employees', [EmployeeController::class, 'not_scheduled_employees']);
 
 Route::post('employee/validate', [EmployeeController::class, 'validateEmployee']);
 Route::post('employee/contact/validate', [EmployeeController::class, 'validateContact']);
@@ -225,7 +215,7 @@ Route::get('list_with_out_multi_in_out', [ShiftController::class, 'list_with_out
 
 Route::apiResource('time_table', TimeTableController::class);
 
-Route::apiResource('schedule_employees', ScheduleEmployeeController::class);
+
 
 Route::apiResource('shift_type', ShiftTypeController::class);
 
@@ -243,11 +233,7 @@ Route::get('odd_even_report', [ReportController::class, 'odd_even_report']);
 
 Route::get('attendance_logs_details', [AttendanceLogController::class, 'AttendanceLogsDetails']);
 
-Route::get('schedule_employees_logs', [ScheduleEmployeeController::class, 'logs']);
-Route::get('employees_by_departments/{id}', [ScheduleEmployeeController::class, 'employees_by_departments']);
-Route::get('/assignSchedule', function (Request $request) {
-    return (new ScheduleEmployeeController)->assignScheduleByManual($request);
-});
+
 
 // -----------------------Employee App-------------------------------
 

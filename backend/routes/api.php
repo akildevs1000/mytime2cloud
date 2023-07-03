@@ -12,5 +12,6 @@ include('timezone.php');
 include('employee_timezone_mapping.php');
 include('document.php');
 include('employee.php');
+include('schedule_employee.php');
 include('test.php');
 include('cron.php');

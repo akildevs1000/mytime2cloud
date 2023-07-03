@@ -238,8 +238,8 @@
       </v-snackbar>
       <v-data-table dense :headers="headers_table" :items="employees" model-value="data.id" :loading="loading"
         :options.sync="options" :footer-props="{
-          itemsPerPageOptions: [50, 100, 500, 1000],
-        }" class="elevation-1">
+          itemsPerPageOptions: [10, 50, 100, 500, 1000],
+        }" class="elevation-1" :server-items-length="totalRowsCount">
         <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
             <td v-for="header in  headers_table " :key="header.text" class="table-search-header">
@@ -252,83 +252,32 @@
             </td>
           </tr>
         </template>
-        <template v-slot:item.sno="{ item, index }">
-          <b>{{ ++index }}</b>
-        </template>
+
         <template v-slot:item.employee_id="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
-            {{ caps(item.employee.employee_id) }}
-            <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_employee_id', $event)"
-                label="Search Employee ID"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ caps(item.employee.employee_id) }}
         </template>
         <template v-slot:item.employee.first_name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
-            {{ caps(item.employee && item.employee.first_name) }}
-            {{ caps(item.employee && item.employee.last_name) }}
-            <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_employee_name', $event)"
-                label="Search Employee name"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ caps(item.employee && item.employee.first_name) }}
+          {{ caps(item.employee && item.employee.last_name) }}
         </template>
         <template v-slot:item.roster.name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
-            {{ caps(item.roster && item.roster.name) }}
-            <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_schedule_name', $event)"
-                label="Search Schedule name"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ caps(item.roster && item.roster.name) }}
         </template>
         <template v-slot:item.show_from_date="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
-            {{ item && item.from_date }}
-            <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_from_date', $event)"
-                label="Search From Date"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ item && item.from_date }}
         </template>
-        <template v-slot:item.show_to_date="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
-            {{ item && item.to_date }}
-            <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_to_date', $event)"
-                label="Search Shift name"></v-text-field>
-            </template>
-          </v-edit-dialog>
+        <template v-slot:item.show.to_date="{ item }">
+          {{ item && item.to_date }}
         </template>
         <template v-slot:item.isOverTime="{ item }">
           <v-icon v-if="item && item.isOverTime" color="success darken-1">mdi-check</v-icon>
           <v-icon v-else color="error">mdi-close</v-icon>
         </template>
         <template v-slot:item.shift.name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
-            {{ item.shift && item.shift.name }}
-            <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_shift_name', $event)"
-                label="Search Shift name"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ item.shift && item.shift.name }}
         </template>
         <template v-slot:item.shift_type.name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
-            {{ item.shift_type && item.shift_type.name }}
-            <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getSearchRecords('search_shift_type', $event)"
-                label="Search Shift Type"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ item.shift_type && item.shift_type.name }}
         </template>
         <template v-slot:item.action="{ item }">
           <v-menu bottom left>
@@ -355,20 +304,21 @@
         </template>
       </v-data-table>
     </v-card>
-    <v-row>
+    <!-- <v-row>
       <v-col md="12" class="float-right">
         <div class="float-right">
           <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
             :total-visible="12"></v-pagination>
         </div>
       </v-col>
-    </v-row>
+    </v-row> -->
   </div>
   <NoAccess v-else />
 </template>
 <script>
 export default {
   data: () => ({
+    totalRowsCount: 0,
 
     showFilters: false,
     filters: {},
@@ -398,7 +348,7 @@ export default {
     manual_shift: {},
     options: {},
     options_dialog: {},
-    endpoint: "scheduled_employees",
+    endpoint: "scheduled_employees_index",
     endpoint_dialog: "scheduled_employees_list",
     search: "",
     shifts_for_filter: [],
@@ -467,17 +417,11 @@ export default {
     //   },
     // ],
     headers_table: [
-      {
-        text: "#",
-        align: "center",
-        value: "sno",
-        sortable: false,
-        filterable: false,
-      },
+
       {
         text: "Emp Id",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "employee_id",
         filterable: true,
         filterName: 'employee_id'
@@ -485,7 +429,7 @@ export default {
       {
         text: "Name",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "employee.first_name",
         filterable: true,
         filterName: 'employee_first_name'
@@ -493,7 +437,7 @@ export default {
       {
         text: "	Current Schedule Name",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "roster.name",
         filterable: true,
         filterName: 'roster_name'
@@ -501,7 +445,7 @@ export default {
       {
         text: "Schedule Start",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "show_from_date",
         filterable: true,
         filterName: 'show_from_date'
@@ -509,7 +453,7 @@ export default {
       {
         text: "Schedule To Date",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "show.to_date",
         filterable: true,
         filterName: 'show_to_date'
@@ -519,13 +463,13 @@ export default {
         align: "left",
         sortable: true,
         value: "isOverTime",
-        filterable: true,
+        filterable: false,
         filterName: 'isOverTime'
       },
       {
         text: "Shift Name",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "shift.name",
         filterable: true,
         filterName: 'shift_name'
@@ -533,7 +477,7 @@ export default {
       {
         text: "Shift Type",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "shift_type.name",
         filterable: true,
         filterName: 'shift_type_name'
@@ -608,7 +552,7 @@ export default {
     },
     options: {
       handler() {
-        //this.getDataFromApi();
+        this.getDataFromApi();
       },
       deep: true,
     },
@@ -899,11 +843,19 @@ export default {
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       this.loading = true;
 
-      let page = this.pagination.current;
+
+
+      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       let options = {
         params: {
-          per_page: this.pagination.per_page,
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
           page: page,
           company_id: this.$auth.user.company.id,
           ...this.filters,
@@ -928,6 +880,8 @@ export default {
         if (this.employees.length == 0) {
           this.displayNoRecords = true;
         }
+
+        this.totalRowsCount = data.total;
       });
 
       this.loading = false;

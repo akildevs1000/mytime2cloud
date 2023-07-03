@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
-use Illuminate\Http\Request;
-use App\Models\ScheduleEmployee;
 use App\Http\Requests\ScheduleEmployee\StoreRequest;
 use App\Http\Requests\ScheduleEmployee\UpdateRequest;
 use App\Models\Company;
+use App\Models\Employee;
+use App\Models\ScheduleEmployee;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 class ScheduleEmployeeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request, ScheduleEmployee $model)
     {
         return $model
@@ -23,19 +20,10 @@ class ScheduleEmployeeController extends Controller
             ->with("shift_type", "shift", "employee")
             ->paginate($request->per_page);
     }
-    // public function employees_by_departments_old(Employee $employee, Request $request, $id)
-    // {
-    //     return $employee->whereHas('schedule')
-    //         ->withOut(["user", "department", "sub_department", "sub_department", "designation", "role", "schedule"])
-    //         ->when($id != -1, function ($q) use ($id) {
-    //             $q->where("department_id", $id);
-    //         })
-    //         ->get(["first_name", "system_user_id", "employee_id"]);
-    // }
 
     public function employees_by_departments(Request $request, $id)
     {
-        return  Employee::select("first_name", "system_user_id", "employee_id", "department_id", "display_name")
+        return Employee::select("first_name", "system_user_id", "employee_id", "department_id", "display_name")
             ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
             ->when($id != -1, function ($q) use ($id) {
                 $q->where("department_id", $id);
@@ -185,11 +173,10 @@ class ScheduleEmployeeController extends Controller
                 $model->where("employee_id", $row["employee_id"]);
                 $model->where("roster_id", $roster["id"]);
 
-
                 $arr = [
                     "shift_id" => $roster["shift_ids"][$index],
                     "shift_type_id" => $roster["shift_type_ids"][$index],
-                    "is_week" => 1
+                    "is_week" => 1,
                 ];
 
                 $model->update($arr);
@@ -263,11 +250,10 @@ class ScheduleEmployeeController extends Controller
                 $model->where("employee_id", $row["employee_id"]);
                 $model->where("roster_id", $roster["id"]);
 
-
                 $arr = [
                     "shift_id" => $roster["shift_ids"][$index],
                     "shift_type_id" => $roster["shift_type_ids"][$index],
-                    "is_week" => 1
+                    "is_week" => 1,
                 ];
 
                 $model->update($arr);
@@ -279,5 +265,72 @@ class ScheduleEmployeeController extends Controller
             $str .= "<br>";
         }
         return $str;
+    }
+
+    public function scheduled_employees(Employee $employee, Request $request)
+    {
+        return $employee->where("company_id", $request->company_id)
+            ->whereHas('schedule', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            })->paginate($request->per_page);
+    }
+
+    public function not_scheduled_employees(Employee $employee, Request $request)
+    {
+        return $employee->where("company_id", $request->company_id)
+            ->whereDoesntHave('schedule', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            })
+            ->paginate($request->per_page);
+    }
+
+    public function scheduled_employees_index(Request $request)
+    {
+        $date = $request->date ?? date('Y-m-d');
+        $employee = ScheduleEmployee::query();
+        $model = $employee->where('company_id', $request->company_id);
+        // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        $model->whereDate('from_date', '<=', $date);
+        $model->whereDate('to_date', '>=', $date);
+        $model->when($request->filled('employee_first_name'), function ($q) use ($request) {
+
+            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
+        });
+        $model->when($request->filled('roster_name'), function ($q) use ($request) {
+
+            $q->whereHas('roster', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->roster_name%"));
+        });
+        $model->when($request->filled('shift_name'), function ($q) use ($request) {
+
+            $q->whereHas('shift', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->shift_name%"));
+        });
+        $model->when($request->filled('shift_type_name'), function ($q) use ($request) {
+
+            $q->whereHas('shift_type', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
+        });
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+
+            //$q->where('employee_id', 'ILIKE', "$request->employee_id%");
+            $q->whereHas('employee', fn(Builder $query) => $query->where('employee_id', 'ILIKE', "$request->employee_id%"));
+        });
+        $model->when($request->filled('show_from_date'), function ($q) use ($request) {
+
+            $q->where('from_date', 'LIKE', "$request->show_from_date%");
+        });
+        $model->when($request->filled('show_to_date'), function ($q) use ($request) {
+
+            $q->where('to_date', 'LIKE', "$request->show_to_date%");
+        });
+        $model = $this->custom_with($model, "shift", $request->company_id);
+        $model = $this->custom_with($model, "roster", $request->company_id);
+        $model = $this->custom_with($model, "employee", $request->company_id);
+
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            $sortDesc = $request->input('sortDesc');
+            $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');
+        });
+
+        return $model
+            ->paginate($request->per_page ?? 20);
     }
 }
