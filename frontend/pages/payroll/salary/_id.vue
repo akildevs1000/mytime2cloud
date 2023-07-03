@@ -35,8 +35,12 @@
             <div class="ml-2">
               <div style="border-top: 1px solid white">
                 <strong
-                  ><u>PAYSLIP {{data.payslip_number}}</u></strong
-                >
+                  >Payslip No: {{ data.payslip_number }}
+                  <!-- {{ empCode }}{{ month }}{{ year }} -->
+                </strong>
+              </div>
+              <div style="border-top: 1px solid white">
+                <strong>Date: {{ data.date }} </strong>
               </div>
             </div>
           </div>
@@ -348,6 +352,8 @@ export default {
   data: () => ({
     tab: null,
     Model: "Payslip",
+    month: new Date().getMonth(),
+    year: new Date().getFullYear().toString().slice(-2),
     currentYear: "",
     currentMonth: "",
     getdownloadLink: "",

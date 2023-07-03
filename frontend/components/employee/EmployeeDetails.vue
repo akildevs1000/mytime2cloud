@@ -30,7 +30,7 @@
                 border-radius: 50%;
                 margin: 0 auto;
               "
-              :src="previewImage || '/no-profile-image.jpg'"
+              :src="employeeObject.profile_picture || '/no-profile-image.jpg'"
             ></v-img>
             <br />
             <div class="text-center">
