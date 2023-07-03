@@ -142,42 +142,22 @@
           <v-card class="mb-5" elevation="0">
             <v-toolbar class="rounded-md mb-2 white--text" color="background" dense flat>
               <v-col cols="8">
-                <<<<<<< HEAD <span> Payslip List</span>
-                  <v-icon @click="getDataFromApi()" class="mx-1 white--text">mdi mdi-reload</v-icon>
 
-                  <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected" small
-                    class="primary toolbar-button-design1" color="primary">
-                    =======
-                    <span> Payslips</span>
-                    <v-icon @click="getDataFromApi()" class="mx-1 white--text">mdi-reload</v-icon>
-                    <v-icon @click="dialogVisible = true" class="mx-1 white--text">mdi-filter</v-icon>
-                    <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected" small
-                      class="primary toolbar-button-design1" color="primary">
-                      >>>>>>> 6f5cc8af54b1d171954caa2025065799b7680223
-                      Payslips For selected
-                    </v-btn>
+                <span> Payslips</span>
+                <v-icon @click="getDataFromApi()" class="mx-1 white--text">mdi-reload</v-icon>
+                <v-icon @click="dialogVisible = true" class="mx-1 white--text">mdi-filter</v-icon>
+                <v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected" small
+                  class="primary toolbar-button-design1" color="primary">
+
+                  Payslips For selected
+                </v-btn>
               </v-col>
               <v-col cols="4" class="text-right">
-                <v-icon
-                  @click="openPayslipDialog"
-                    class="mx-1 white--text"
-                    >mdi-receipt</v-icon
-                  >
-                <v-btn
-                  v-if="downloadAllDisplayStatus"
-                  download
-                  :href="payslipsDownloadAllURL"
-                  small
-                  dark
-                  class="primary mx-1 toolbar-button-design1"
-                  color="primary"
-                >
+                <v-icon @click="openPayslipDialog" class="mx-1 white--text">mdi-receipt</v-icon>
+                <v-btn v-if="downloadAllDisplayStatus" download :href="payslipsDownloadAllURL" small dark
+                  class="primary mx-1 toolbar-button-design1" color="primary">
                   All Payslips
-                  <v-icon
-                    @click="showFilters = !showFilters"
-                    class="mx-1 white--text"
-                    >mdi mdi-download</v-icon
-                  >
+                  <v-icon @click="showFilters = !showFilters" class="mx-1 white--text">mdi mdi-download</v-icon>
                 </v-btn>
               </v-col>
             </v-toolbar>
@@ -348,23 +328,20 @@
                 </v-edit-dialog>
               </template>
               <template v-slot:item.payslip="{ item }">
-                <span v-if="item?.payroll?.basic_salary"
-                  @click="navigateToViewPDF(item.id)"
-                  style="
-                    font-size: 25px;
-                    vertical-align: inherit;
-                    cursor: pointer;
-                  "
-                >
-                  <v-icon small class="primary--text">mdi-eye</v-icon>
-                  </span>
-                  <a v-if="item.payslip_status" :href="getdownloadLink(item.employee_id)" style="
+                <span v-if="item?.payroll?.basic_salary" @click="navigateToViewPDF(item.id)" style="
                     font-size: 25px;
                     vertical-align: inherit;
                     cursor: pointer;
                   ">
-                    <v-icon small class="primary--text">mdi-download</v-icon>
-                  </a>
+                  <v-icon small class="primary--text">mdi-eye</v-icon>
+                </span>
+                <a v-if="item.payslip_status" :href="getdownloadLink(item.employee_id)" style="
+                    font-size: 25px;
+                    vertical-align: inherit;
+                    cursor: pointer;
+                  ">
+                  <v-icon small class="primary--text">mdi-download</v-icon>
+                </a>
               </template>
 
               <template v-slot:item.actions="{ item }">
