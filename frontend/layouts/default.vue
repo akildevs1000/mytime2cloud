@@ -890,7 +890,11 @@ tbody tr:nth-of-type(odd) {
 .table-search-header .v-text-field--outlined fieldset,
 .table-search-header .v-text-field--outlined .v-text-field__slot {
   height: 32px !important;
-  width: 90% !important;
+  width: 100% !important;
+}
+
+.table-search-header .v-input__icon--clear {
+  margin-right: 0px !important
 }
 
 .table-search-header .v-text-field--outlined>.v-input__control>.v-input__slot {
@@ -929,9 +933,7 @@ tbody tr:nth-of-type(odd) {
   font-size: 13px !important;
 }
 
-.table-search-header .v-input__icon--clear {
-  margin-right: 0px !important
-}
+
 
 @media (max-width: 500px) {
   .employeepage-seach-textfield {
