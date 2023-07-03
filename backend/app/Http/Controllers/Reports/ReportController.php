@@ -148,42 +148,42 @@ class ReportController extends Controller
 
         $model->with('schedule');
 
-        $model->when($request->filled('filter_date'), function ($q) use ($request) {
-            $q->whereDate('date', $request->filter_date);
+        $model->when($request->filled('date'), function ($q) use ($request) {
+            $q->whereDate('date', '=', $request->date);
         });
-        $model->when($request->filled('search_employee_id'), function ($q) use ($request) {
-            $q->where('employee_id', 'LIKE', "$request->search_employee_id%");
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+            $q->where('employee_id', 'LIKE', "$request->employee_id%");
         });
 
-        $model->when($request->filled('search_employee_name') && $request->search_employee_name != '', function ($q) use ($request) {
-            $key = strtolower($request->search_employee_name);
-            $q->whereHas('employee', fn(Builder $q) => $q->where('first_name', 'ILIKE', "$key%"));
+        $model->when($request->filled('employee_first_name') && $request->employee_first_name != '', function ($q) use ($request) {
+            // $key = strtolower($request->employee_first_name);
+            $q->whereHas('employee', fn(Builder $q) => $q->where('first_name', 'ILIKE', "$request->employee_first_name%"));
         });
-        $model->when($request->filled('search_department_name'), function ($q) use ($request) {
-            $key = strtolower($request->search_department_name);
-            $q->whereHas('employee.department', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+        $model->when($request->filled('employee_department_name'), function ($q) use ($request) {
+            // $key = strtolower($request->employee_department_name);
+            $q->whereHas('employee.department', fn(Builder $query) => $query->where('company_id', $request->company_id)->where('name', 'ILIKE', "$request->employee_department_name%"));
         });
-        if ($request->search_shift_type_name) {
-            $key = strtolower($request->search_shift_type_name);
-            $model->where(function ($q) use ($key) {
-                return $q->whereIn("shift_type_id", ShiftType::where('name', 'ILIKE', "$key%")->pluck("id"));
+        if ($request->shift) {
+            //$key = strtolower($request->shift_type_name);
+            $model->where(function ($q) use ($request) {
+                return $q->whereIn("shift_type_id", ShiftType::where('name', 'ILIKE', "$request->shift%")->pluck("id"));
             });
         }
-        $model->when($request->filled('search_time_in'), function ($q) use ($request) {
-            $key = strtolower($request->search_time_in);
-            $q->where('in', 'LIKE', "$key%");
+        $model->when($request->filled('in'), function ($q) use ($request) {
+            // $key = strtolower($request->in);
+            $q->where('in', 'LIKE', "$request->in%");
         });
-        $model->when($request->filled('search_time_out'), function ($q) use ($request) {
-            $key = strtolower($request->search_time_out);
-            $q->where('out', 'LIKE', "$key%");
+        $model->when($request->filled('out'), function ($q) use ($request) {
+            // $key = strtolower($request->out);
+            $q->where('out', 'LIKE', "$request->out%");
         });
-        $model->when($request->filled('search_total_hours'), function ($q) use ($request) {
-            $key = strtolower($request->search_total_hours);
-            $q->where('total_hrs', 'LIKE', "$key%");
+        $model->when($request->filled('total_hrs'), function ($q) use ($request) {
+            //$key = strtolower($request->total_hrs);
+            $q->where('total_hrs', 'LIKE', "$request->total_hrs%");
         });
-        $model->when($request->filled('search_ot'), function ($q) use ($request) {
-            $key = strtolower($request->search_ot);
-            $q->where('ot', 'LIKE', "$key%");
+        $model->when($request->filled('ot'), function ($q) use ($request) {
+            //$key = strtolower($request->ot);
+            $q->where('ot', 'LIKE', "$request->ot%");
         });
 
         $model->when($request->filled('sortBy'), function ($q) use ($request) {
