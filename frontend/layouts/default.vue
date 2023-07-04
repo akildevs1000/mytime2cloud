@@ -485,7 +485,7 @@ export default {
 
     setInterval(() => {
       this.verifyLeaveNotifications();
-    }, 1000 * 60 * 60);
+    }, 1000 * 60);
 
     if (user && user.is_master) {
       this.items = this.menus;
@@ -890,11 +890,19 @@ tbody tr:nth-of-type(odd) {
 .table-search-header .v-text-field--outlined fieldset,
 .table-search-header .v-text-field--outlined .v-text-field__slot {
   height: 32px !important;
-  width: 90% !important;
+  width: 100% !important;
+}
+
+.table-search-header .v-input__icon--clear {
+  margin-right: 0px !important
 }
 
 .table-search-header .v-text-field--outlined>.v-input__control>.v-input__slot {
   min-height: 32px !important;
+}
+
+.filter-select-hidden-text .v-input__append-inner {
+  width: 100%important;
 }
 
 .table-search-header td {
@@ -928,6 +936,8 @@ tbody tr:nth-of-type(odd) {
 .filter-select-hidden-text .v-select__selection {
   font-size: 13px !important;
 }
+
+
 
 @media (max-width: 500px) {
   .employeepage-seach-textfield {

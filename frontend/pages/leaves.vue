@@ -286,10 +286,10 @@
                     v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
                     height="10px" clearable autocomplete="off"></v-text-field>
 
-                  <v-select class="filter-select-hidden-text" v-model="filters_select_all"
-                    v-else-if="header.filterable && header.text == 'Status'" height="10px;width:5px" style="padding: 0px;"
-                    small density="compact" @change="applyFilters('status', $event)" clearable item-value="value"
-                    item-text="title" :items="[{ value: '', title: 'All' }, { value: 'approved', title: 'Approved' }, {
+                  <v-select class="filter-select-hidden-text" v-model="filters[header.value]"
+                    v-else-if="header.filterable && header.text == 'Status'" height="10px;width:5px"
+                    style="padding: 0px;width:100%" small density="compact" @change="applyFilters('status', $event)"
+                    clearable item-value="value" item-text="title" :items="[{ value: '', title: 'All' }, { value: 'approved', title: 'Approved' }, {
                       value: 'rejected',
                       title: 'Rejected'
                     }, { value: 'pending', title: 'Pending' }]"></v-select>
@@ -339,7 +339,7 @@
             </template>
 
 
-            <template v-slot:item.leave_type_id="{ item }">
+            <template v-slot:item.leave_type_name="{ item }">
               {{ (item.leave_type.name) }}
             </template>
             <template v-slot:item.start_date="{ item }">
@@ -550,7 +550,7 @@ export default {
 
     ],
     headers: [
-      { text: "Employee Name", align: "left", sortable: true, filterable: true, key: "name", value: "first_name" },
+      { text: "Employee Name", align: "left", sortable: false, filterable: true, key: "name", value: "first_name" },
       {
         text: "Group Type",
         align: "left", filterable: true,
@@ -560,8 +560,8 @@ export default {
       {
         text: "Leave Type",
         align: "left", filterable: true,
-        sortable: true,
-        value: "leave_type_id",
+        sortable: false,
+        value: "leave_type_name",
       },
       {
         text: "Star Date",
@@ -584,7 +584,7 @@ export default {
       {
         text: "Reporting Manager Name",
         align: "left",
-        sortable: true, filterable: true,
+        sortable: false, filterable: true,
         value: "reporting",
       },
       {
@@ -626,7 +626,7 @@ export default {
     selectAllEmployee: false,
     DialogEmployeesData: {},
     todayDate: "",
-    login_user_employee_id: "",
+    //login_user_employee_id: "",
   }),
 
   computed: {
@@ -811,13 +811,14 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           year: endDate.getFullYear(),
+          ...this.filters,
         },
       };
-      if (filter_column != '') {
+      // if (filter_column != '') {
 
-        options.params[filter_column] = filter_value;
+      //   options.params[filter_column] = filter_value;
 
-      }
+      // }
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
 
@@ -833,9 +834,14 @@ export default {
         this.loading = false;
         this.totalRowsCount = data.total;
 
-        if (this.$auth)
-          if (this.$auth.user)
-            this.login_user_employee_id = this.$auth.user.employee.id;
+        // try {
+        //   if (this.$auth)
+        //     if (this.$auth.user)
+        //       this.login_user_employee_id = this.$auth.user.employee.id;
+        // } catch (error) {
+
+        // }
+
       });
     },
 
@@ -965,7 +971,7 @@ export default {
       let options = {
         params: {
           company_id: this.$auth.user.company.id,
-          employee_id: this.login_user_employee_id,
+          //employee_id: this.login_user_employee_id,
           reporting_manager_id: this.$auth.user.reporting_manager_id,
           leave_type_id: this.editedItem.leave_type_id,
           start_date: this.editedItem.start_date,

@@ -20,8 +20,8 @@ class EmployeeLeavesController extends Controller
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
         });
-        $model->when($request->filled('name'), function ($q) use ($request) {
-            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->name%"));
+        $model->when($request->filled('first_name'), function ($q) use ($request) {
+            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->first_name%"));
         });
         $model->when($request->filled('group_name'), function ($q) use ($request) {
             $q->whereHas('employee.leave_group', fn(Builder $query) => $query->where('group_name', 'ILIKE', "$request->group_name%"));
@@ -54,7 +54,10 @@ class EmployeeLeavesController extends Controller
             }
 
         });
-
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            $sortDesc = $request->input('sortDesc');
+            $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');
+        });
         return $model;
     }
 

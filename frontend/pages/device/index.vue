@@ -33,7 +33,7 @@
 
 
         <v-spacer></v-spacer>
-        <v-toolbar-items>
+        <!-- <v-toolbar-items>
           <v-col class="toolbaritems-button-design1">
             <v-btn @click="dialog = true" small color="primary" class="primary mr-2 mb-2 toolbar-button-design1">
               <v-icon small>mdi mdi-whatsapp</v-icon> Whatsapp Test
@@ -43,7 +43,7 @@
               <v-icon small>mdi mdi-email</v-icon> Add Report Notification
             </v-btn>
           </v-col>
-        </v-toolbar-items>
+        </v-toolbar-items> -->
       </v-toolbar>
 
 

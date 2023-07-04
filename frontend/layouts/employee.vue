@@ -303,7 +303,7 @@ export default {
     this.verifyLeaveNotifications();
     setInterval(() => {
       this.verifyLeaveNotifications();
-    }, 1000 * 60 * 60);
+    }, 1000 * 60);
   },
 
   mounted() { },
