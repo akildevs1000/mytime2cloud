@@ -102,16 +102,16 @@ class PayslipController extends Controller
 
                 if ($this->getPayslipstatus($request["company_id"], $employee->employee_id, $request['month'], $request['year'])) {
                     $singleEmployee['status'] = true;
-                    $singleEmployee['status_message'] = $employee->employee_id . ': ' . $employee->display_name . " - Payslip Generated Successfully";
+                    $singleEmployee['status_message'] = $employee->employee_id . ': ' . $employee->first_name . ' ' . $employee->last_name . " - Payslip Generated Successfully";
                 } else {
                     $singleEmployee['status'] = false;
-                    $singleEmployee['status_message'] = $employee->employee_id . ': ' . $employee->display_name . " - Salary Details are not available";
+                    $singleEmployee['status_message'] = $employee->employee_id . ': ' . $employee->first_name . ' ' . $employee->last_name . " - Salary Details are not available";
                 }
             } catch (\Throwable $th) {
                 //throw $th;
 
                 $singleEmployee['status'] = false;
-                $singleEmployee['status_message'] = $employee->employee_id . ': ' . $employee->display_name . " -  Salary Details are not available";
+                $singleEmployee['status_message'] = $employee->employee_id . ': ' . $employee->first_name . ' ' . $employee->last_name . " -  Salary Details are not available";
             }
 
             $data[] = $singleEmployee;
@@ -190,7 +190,7 @@ class PayslipController extends Controller
             // $present = 29;
             // $absent = 1;
             $payroll = $employee->payroll;
-            $payroll->payslip_number = "#" . $employee_id  . (int) date("m") - 1 . (int) date("y");
+            $payroll->payslip_number = "#" . $employee_id . (int) date("m") - 1 . (int) date("y");
             $salary_type = $payroll->payroll_formula->salary_type;
             $payroll->salary_type = ucwords(str_replace("_", " ", $salary_type));
 
@@ -254,14 +254,14 @@ class PayslipController extends Controller
         //code...
 
         $Payroll = Payroll::where(["employee_id" => $id])->with(["company", "employee:id,employee_id,display_name,first_name,last_name"])->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
-        $Payroll->payslip_number = "#" . $id  . (int) date("m") - 1 . (int) date("y");
+        $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y");
 
         $salary_type = $Payroll->payroll_formula->salary_type;
 
         $Payroll->salary_type = ucwords(str_replace("_", " ", $salary_type));
         $Payroll->date = date('j F Y');
 
-        $Payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $Payroll->basic_salary  : $Payroll->net_salary;
+        $Payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $Payroll->basic_salary : $Payroll->net_salary;
 
         $Payroll->perDaySalary = $this->getPerDaySalary($Payroll->SELECTEDSALARY ?? 0);
         $Payroll->perHourSalary = $this->getPerHourSalary($Payroll->perDaySalary ?? 0);
@@ -281,26 +281,25 @@ class PayslipController extends Controller
 
         $Payroll->earnedSalary = $Payroll->present * $Payroll->perDaySalary;
         $Payroll->deductedSalary = $Payroll->absent * $Payroll->perDaySalary;
-        $Payroll->earningsCount = $Payroll->net_salary  - $Payroll->basic_salary;
+        $Payroll->earningsCount = $Payroll->net_salary - $Payroll->basic_salary;
 
         $extraEarnings = [
             "label" => "Basic",
-            "value" =>  $Payroll->SELECTEDSALARY
+            "value" => $Payroll->SELECTEDSALARY,
         ];
         $Payroll->earnings = array_merge([$extraEarnings], $Payroll->earnings);
 
         $Payroll->deductions = [
             [
                 "label" => "Abents",
-                "value" => $Payroll->deductedSalary
-            ]
+                "value" => $Payroll->deductedSalary,
+            ],
         ];
 
         $Payroll->earnedSubTotal = ($Payroll->earningsCount) + ($Payroll->earnedSalary);
         $Payroll->salary_and_earnings = ($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY);
 
         $Payroll->finalSalary = ($Payroll->salary_and_earnings) - $Payroll->deductedSalary;
-
 
         return $Payroll;
     }
@@ -374,7 +373,7 @@ class PayslipController extends Controller
     {
         $data = $this->show($request, $request->employee_id);
         $data->month = date('F', mktime(0, 0, 0, $request->month, 1));
-        $data->year =  $request->year;
+        $data->year = $request->year;
         return Pdf::loadView('pdf.payslip', compact('data'))->download();
     }
 }
