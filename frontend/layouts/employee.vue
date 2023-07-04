@@ -303,7 +303,7 @@ export default {
     this.verifyLeaveNotifications();
     setInterval(() => {
       this.verifyLeaveNotifications();
-    }, 1000 * 60 * 60);
+    }, 1000 * 60);
   },
 
   mounted() { },
@@ -327,10 +327,10 @@ export default {
   },
   methods: {
     verifyLeaveNotifications() {
-      if (!this.$auth.user.company.id || !this.$auth.user.company.id) return false;
+      if (!this.$auth.user?.company?.id) return false;
       let options = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user?.company?.id || 0,
           employee_id: this.$auth.user.employee.id,
         }
       };
