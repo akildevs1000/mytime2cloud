@@ -177,14 +177,7 @@
             </tr>
           </table> -->
         </v-card>
-        <!-- <v-row>
-          <v-col md="12" class="float-right">
-            <div class="float-right">
-              <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
-                :total-visible="12"></v-pagination>
-            </div>
-          </v-col>
-        </v-row> -->
+
       </v-col>
     </v-row>
   </div>

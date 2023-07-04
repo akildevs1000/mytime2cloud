@@ -100,7 +100,7 @@
             <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
                 mdi-reload</v-icon></a>
             <a style="padding-left:10px" @click="dialogFilter = true"><v-icon class="mx-1">mdi
-                mdi-filter</v-icon></a>
+                mdi-calendar-blank-outline</v-icon></a>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
@@ -166,35 +166,7 @@
 
 
             </template>
-            <template v-slot:item.departments="{ item }">
-              <span v-for="(dep, index) in item.departments" :key="index">
-                <v-chip small class="pa-2 ma-1" color="primary">
-                  {{ dep.name }}
-                </v-chip>
-              </span>
-            </template>
-            <template v-slot:item.employees="{ item }">
-              <span v-for="(emp, index) in item.employees.slice(0, 4)" :key="index">
-                <v-chip small class="p-2 ma-1" color="primary">
-                  <span>{{ emp.first_name }} {{ emp.last_name }} - {{ emp.employee_id }}</span>
-                </v-chip>
 
-              </span>
-              <v-chip small class="primary ma-1" style="color:black" @click="gotoDialogPage(item)"
-                v-if="item.employees.length > 4">
-                More..
-              </v-chip>
-            </template>
-            <template v-slot:item.description="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                <div style="width: 300px" class="pa-2">{{ item.description }}</div>
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'serach_description', $event)"
-                    v-model="datatable_search_textbox" label="Search Description"></v-text-field>
-                </template>
-              </v-edit-dialog>
-            </template>
             <template v-slot:no-data>
               <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
             </template>
