@@ -98,7 +98,9 @@ class EmployeeTimezoneMappingController extends Controller
             //update timezone id in employee table
             $data['timezone_id'] = $phpArray['timezone_id'];
             $record = Employee::find($list['id']);
-            $record->update($data);
+            if ($record) {
+                $record->update($data);
+            }
 
             $row = [];
             $row['name'] = $list['display_name'];

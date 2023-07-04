@@ -703,12 +703,7 @@ export default {
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
-    applyFilters() {
-      this.getDataFromApi();
-    },
-    toggleFilter() {
-      this.isFilter = !this.isFilter;
-    },
+
 
     datatable_cancel() {
       this.datatable_search_textbox = "";
@@ -825,6 +820,12 @@ export default {
     },
     onPageChange() {
       this.getDataFromApi();
+    },
+    applyFilters() {
+      this.getDataFromApi();
+    },
+    toggleFilter() {
+      this.isFilter = !this.isFilter;
     },
     clearFilters() {
       this.filters = {};

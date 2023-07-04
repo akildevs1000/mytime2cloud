@@ -114,7 +114,7 @@
                     <v-list-item-title style="cursor: pointer">
                       <v-icon v-if="can(`leave_group_view`)" color="primary" small @click="viewItem(item)">
                         mdi-eye
-                      </v-icon> Add Leave Types
+                      </v-icon> View
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="editItem(item)">

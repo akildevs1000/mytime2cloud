@@ -394,8 +394,9 @@
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Daily'">
 
             <v-toolbar-title><span> Multi In/Out Report </span></v-toolbar-title>
-            <a @click="ProcessAttendance"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
-
+            <a @click="clearFilters()"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
+                mdi-filter</v-icon></a>
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
@@ -458,7 +459,9 @@
 
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Weekly'">
             <v-toolbar-title><span> Multi In/Out Report </span></v-toolbar-title>
-            <a @click="ProcessAttendance"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a @click="clearFilters()"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
+                mdi-filter</v-icon></a>
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
@@ -491,7 +494,9 @@
 
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Monthly'">
             <v-toolbar-title><span> Multi In/Out Report </span></v-toolbar-title>
-            <a @click="ProcessAttendance"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a @click="clearFilters()"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
+                mdi-filter</v-icon></a>
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
@@ -526,8 +531,9 @@
           </v-toolbar>
           <v-toolbar class="background" dark flat v-if="payload.report_type == 'Custom'">
             <v-toolbar-title><span> Multi In/Out Report </span></v-toolbar-title>
-            <a @click="ProcessAttendance"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
-
+            <a @click="clearFilters()"> <v-icon style="padding-left:10px" class="">mdi-reload</v-icon></a>
+            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
+                mdi-filter</v-icon></a>
 
             <v-spacer></v-spacer>
 
@@ -577,13 +583,29 @@
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }
               " class="elevation-1" model-value="data.id" :server-items-length="totalRowsCount">
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td style="width:40px" v-for="header in      headers     " :key="header.text" class="table-search-header">
+                  <v-text-field style="padding-left: 10px;" v-if="header.filterable" v-model="filters[header.value]"
+                    id="header.value" @input="applyFilters(header.value, $event)" outlined height="10px" clearable
+                    autocomplete="off"></v-text-field>
+
+
+                  <template v-else>
+
+                    <v-text-field style="display:none;" outlined height="10px" clearable
+                      autocomplete="off"></v-text-field>
+                  </template>
+                </td>
+              </tr>
+            </template>
             <template v-slot:item.date="{ item }">
               {{ item.date }}
             </template>
             <template v-slot:item.employee_id="{ item }">
               {{ item.employee_id }}
             </template>
-            <template v-slot:item.employee.first_name="{ item }">
+            <template v-slot:item.employee_first_name="{ item }">
               {{ item.employee.first_name }} {{ item.employee.last_name }}
             </template>
             <template v-slot:item.status="{ item }">
@@ -680,6 +702,8 @@ export default {
   props: ["main_report_type_props"],
 
   data: () => ({
+    filters: {},
+    isFilter: false,
     totalRowsCount: 0,
     datatable_search_textbox: '',
     datatable_filter_date: '',
@@ -737,46 +761,47 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "Date", align: "left", sortable: true, value: "date", key: "date" },
-      { text: "E.ID", align: "left", sortable: true, value: "employee_id", key: "employee_id" },
+      { text: "Date", align: "left", sortable: true, filterable: false, value: "date", key: "date" },
+      { text: "Emp.ID", align: "left", sortable: true, filterable: true, value: "employee_id", key: "employee_id" },
       {
         text: "Name",
         align: "left",
         sortable: false,
-        value: "employee.first_name",
+        filterable: true,
+        value: "employee_first_name",
         key: "item.employee"
       },
 
-      { text: "In1", align: "left", sortable: true, value: "in1" },
-      { text: "Out1", align: "left", sortable: true, value: "out1" },
-      { text: "In2", align: "left", sortable: true, value: "in2" },
-      { text: "Out2", align: "left", sortable: true, value: "out2" },
-      { text: "In3", align: "left", sortable: true, value: "in3" },
-      { text: "Out3", align: "left", sortable: true, value: "out3" },
-      { text: "In4", align: "left", sortable: true, value: "in4" },
-      { text: "Out4", align: "left", sortable: true, value: "out4" },
-      { text: "In5", align: "left", sortable: true, value: "in5" },
-      { text: "Out5", align: "left", sortable: true, value: "out5" },
-      { text: "In6", align: "left", sortable: true, value: "in6" },
-      { text: "Out6", align: "left", sortable: true, value: "out6" },
-      { text: "In7", align: "left", sortable: true, value: "in7" },
-      { text: "Out7", align: "left", sortable: true, value: "out7" },
+      { text: "In1", align: "left", sortable: true, filterable: false, value: "in1" },
+      { text: "Out1", align: "left", sortable: true, filterable: false, value: "out1" },
+      { text: "In2", align: "left", sortable: true, filterable: false, value: "in2" },
+      { text: "Out2", align: "left", sortable: true, filterable: false, value: "out2" },
+      { text: "In3", align: "left", sortable: true, filterable: false, value: "in3" },
+      { text: "Out3", align: "left", sortable: true, filterable: false, value: "out3" },
+      { text: "In4", align: "left", sortable: true, filterable: false, value: "in4" },
+      { text: "Out4", align: "left", sortable: true, filterable: false, value: "out4" },
+      { text: "In5", align: "left", sortable: true, filterable: false, value: "in5" },
+      { text: "Out5", align: "left", sortable: true, filterable: false, value: "out5" },
+      { text: "In6", align: "left", sortable: true, filterable: false, value: "in6" },
+      { text: "Out6", align: "left", sortable: true, filterable: false, value: "out6" },
+      { text: "In7", align: "left", sortable: true, filterable: false, value: "in7" },
+      { text: "Out7", align: "left", sortable: true, filterable: false, value: "out7" },
 
       {
         text: "Total Hrs",
         align: "left",
-        sortable: true,
+        sortable: true, filterable: true,
         value: "total_hrs",
       },
       {
         text: "OT",
         align: "left",
-        sortable: true,
+        sortable: true, filterable: true,
         value: "ot",
       },
 
-      { text: "Status", align: "left", sortable: true, value: "status" },
-      { text: "Actions", value: "actions", sortable: false },
+      { text: "Status", align: "left", sortable: true, filterable: false, value: "status" },
+      { text: "Actions", value: "actions", filterable: false, sortable: false },
     ],
     payload: {
       from_date: null,
@@ -1088,7 +1113,19 @@ export default {
     fetch_logs() {
       this.getDataFromApi();
     },
+    applyFilters(name, value) {
+      if (value && value.length < 2) return false;
 
+      this.getDataFromApi();
+    },
+    toggleFilter() {
+      this.isFilter = !this.isFilter;
+    },
+    clearFilters() {
+      this.filters = {};
+      this.isFilter = false;
+      this.ProcessAttendance();
+    },
     getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
       this.loading = true;
 
@@ -1123,7 +1160,8 @@ export default {
           ...this.payload,
           status: this.getStatus(this.payload.status),
           late_early,
-          ot: this.overtime ? 1 : 0,
+          overtime: this.overtime ? 1 : 0,
+          ...this.filters,
         },
       };
       if (filter_column != '')

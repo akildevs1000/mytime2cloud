@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
-use Illuminate\Http\Request;
-use App\Models\ScheduleEmployee;
 use App\Http\Requests\ScheduleEmployee\StoreRequest;
 use App\Http\Requests\ScheduleEmployee\UpdateRequest;
 use App\Models\Company;
+use App\Models\Employee;
+use App\Models\ScheduleEmployee;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Http\Request;
 
 class ScheduleEmployeeController extends Controller
 {
@@ -24,7 +23,7 @@ class ScheduleEmployeeController extends Controller
 
     public function employees_by_departments(Request $request, $id)
     {
-        return  Employee::select("first_name", "system_user_id", "employee_id", "department_id", "display_name")
+        return Employee::select("first_name", "system_user_id", "employee_id", "department_id", "display_name")
             ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
             ->when($id != -1, function ($q) use ($id) {
                 $q->where("department_id", $id);
@@ -174,11 +173,10 @@ class ScheduleEmployeeController extends Controller
                 $model->where("employee_id", $row["employee_id"]);
                 $model->where("roster_id", $roster["id"]);
 
-
                 $arr = [
                     "shift_id" => $roster["shift_ids"][$index],
                     "shift_type_id" => $roster["shift_type_ids"][$index],
-                    "is_week" => 1
+                    "is_week" => 1,
                 ];
 
                 $model->update($arr);
@@ -252,11 +250,10 @@ class ScheduleEmployeeController extends Controller
                 $model->where("employee_id", $row["employee_id"]);
                 $model->where("roster_id", $roster["id"]);
 
-
                 $arr = [
                     "shift_id" => $roster["shift_ids"][$index],
                     "shift_type_id" => $roster["shift_type_ids"][$index],
-                    "is_week" => 1
+                    "is_week" => 1,
                 ];
 
                 $model->update($arr);
@@ -295,39 +292,59 @@ class ScheduleEmployeeController extends Controller
         // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
         $model->whereDate('from_date', '<=', $date);
         $model->whereDate('to_date', '>=', $date);
-        $model->when($request->filled('search_employee_name'), function ($q) use ($request) {
-            $key = strtolower($request->search_employee_name);
-            $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
+        $model->when($request->filled('employee_first_name'), function ($q) use ($request) {
+
+            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
         });
-        $model->when($request->filled('search_schedule_name'), function ($q) use ($request) {
-            $key = strtolower($request->search_schedule_name);
-            $q->whereHas('roster', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+        $model->when($request->filled('roster_name'), function ($q) use ($request) {
+
+            $q->whereHas('roster', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->roster_name%"));
         });
-        $model->when($request->filled('search_shift_name'), function ($q) use ($request) {
-            $key = strtolower($request->search_shift_name);
-            $q->whereHas('shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+        $model->when($request->filled('shift_name'), function ($q) use ($request) {
+
+            $q->whereHas('shift', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->shift_name%"));
         });
-        $model->when($request->filled('search_shift_type'), function ($q) use ($request) {
-            $key = strtolower($request->search_shift_type);
-            $q->whereHas('shift_type', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+        $model->when($request->filled('shift_type_name'), function ($q) use ($request) {
+
+            $q->whereHas('shift_type', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
         });
-        $model->when($request->filled('search_employee_id'), function ($q) use ($request) {
-            $key = strtolower($request->search_employee_id);
-            $q->where('employee_id', 'ILIKE', "$key%");
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+
+            //$q->where('employee_id', 'ILIKE', "$request->employee_id%");
+            $q->whereHas('employee', fn(Builder $query) => $query->where('employee_id', 'ILIKE', "$request->employee_id%"));
         });
-        $model->when($request->filled('search_from_date'), function ($q) use ($request) {
-            $key = strtolower($request->search_from_date);
-            $q->where('from_date', 'LIKE', "$key%");
+        $model->when($request->filled('show_from_date'), function ($q) use ($request) {
+
+            $q->where('from_date', 'LIKE', "$request->show_from_date%");
         });
-        $model->when($request->filled('search_to_date'), function ($q) use ($request) {
-            $key = strtolower($request->search_to_date);
-            $q->where('to_date', 'LIKE', "$key%");
+        $model->when($request->filled('show_to_date'), function ($q) use ($request) {
+
+            $q->where('to_date', 'LIKE', "$request->show_to_date%");
         });
         $model = $this->custom_with($model, "shift", $request->company_id);
         $model = $this->custom_with($model, "roster", $request->company_id);
         $model = $this->custom_with($model, "employee", $request->company_id);
 
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            $sortDesc = $request->input('sortDesc');
+            $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');
+        });
+
         return $model
             ->paginate($request->per_page ?? 20);
+    }
+    public function scheduled_employees_with_type(Employee $employee, Request $request)
+    {
+        return $employee->where("company_id", $request->company_id)
+            ->whereHas('schedule')
+            ->withOut(["user", "department", "sub_department", "designation", "role", "schedule"])
+            ->when($request->filled('department_id'), function ($q) use ($request) {
+                $q->where('department_id', $request->department_id);
+            })
+            ->get(["first_name", "system_user_id", "employee_id", "display_name"]);
+
+        return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
+            $q->where('slug', '=', $request->shift_type);
+        })->get(["first_name", "system_user_id", "employee_id"]);
     }
 }
