@@ -106,7 +106,7 @@ class ReportController extends Controller
             $q->where('early_going', "!=", "---");
         });
 
-        $model->when($request->ot == 1, function ($q) {
+        $model->when($request->overtime == 1, function ($q) {
             $q->where('ot', "!=", "---");
         });
 
