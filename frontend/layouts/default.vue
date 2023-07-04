@@ -937,7 +937,10 @@ tbody tr:nth-of-type(odd) {
   font-size: 13px !important;
 }
 
-
+.announcement-dropdown .v-select__selections {
+  height: 33px;
+  overflow: hidden;
+}
 
 @media (max-width: 500px) {
   .employeepage-seach-textfield {
