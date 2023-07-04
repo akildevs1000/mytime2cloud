@@ -624,7 +624,7 @@ export default {
     setInterval(() => {
       this.getDataFromApi();
     }, 1000 * 60 * 60);
-    this.gotoGroupDetails('');
+
   },
 
   methods: {
@@ -810,7 +810,7 @@ export default {
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
-
+        this.gotoGroupDetails('');
 
         if (this.$auth)
           if (this.$auth.user)

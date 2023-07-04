@@ -512,9 +512,14 @@
             </template>
 
             <template v-slot:item.status="{ item }">
-              <v-icon v-if="item.status == 'A'" color="error">mdi-close</v-icon>
-              <v-icon v-else-if="item.status == 'P'" color="success darken-1">mdi-check</v-icon>
-              <v-icon v-else-if="item.status == 'H'" color="grey darken-1">mdi-check</v-icon>
+              <span v-if="item.status == 'A'" color="error">Absent</span>
+              <span v-else-if="item.status == 'P'" color="success darken-1">Present
+              </span>
+              <span v-else-if="item.status == 'M'" small color="orange darken-1">Missing</span>
+              <!-- <v-icon v-if="item.status == 'A'" color="error">Absent</v-icon>
+              <v-icon v-else-if="item.status == 'P'" color="success darken-1">Present</v-icon>
+              <v-icon v-else-if="item.status == 'M'" small color="orange darken-1">Missing</v-icon> -->
+              <!-- <v-icon v-else-if="item.status == 'H'" color="grey darken-1">mdi-check</v-icon> -->
               <span v-else>{{ item.status }}</span>
             </template>
 
@@ -996,6 +1001,11 @@ export default {
         .get(`/scheduled_employees_with_type`, payload)
         .then(({ data }) => {
           this.scheduled_employees = data;
+
+          this.scheduled_employees.unshift({
+            system_user_id: "",
+            name_with_user_id: "Select All",
+          });
         });
     },
     // getDevices(options) {

@@ -16,43 +16,22 @@
             <v-row>
               <v-col cols="4">
                 <label for="">Title</label>
-                <v-text-field
-                  dense
-                  outlined
-                  v-model="editedItem.title"
-                  placeholder="Title"
-                  :error-messages="
-                    errors && errors.title ? errors.title[0] : ''
-                  "
-                ></v-text-field>
+                <v-text-field dense outlined v-model="editedItem.title" placeholder="Title" :error-messages="errors && errors.title ? errors.title[0] : ''
+                  "></v-text-field>
               </v-col>
               <!-- {{ employees_dialog }} -->
 
               <v-col cols="4">
                 <label for="">Department</label>
-                <v-autocomplete
-                  outlined
-                  dense
-                  @change="employeesByDepartment"
-                  v-model="editedItem.departments"
-                  :items="departments"
-                  multiple
-                  item-text="name"
-                  item-value="id"
-                  placeholder="Departments"
-                  :error-messages="
-                    errors && errors.departments ? errors.departments[0] : ''
-                  "
-                >
+                <v-autocomplete class="announcement-dropdown" dense @change="employeesByDepartment"
+                  v-model="editedItem.departments" :items="departments" multiple item-text="name" item-value="id"
+                  placeholder="Departments" :error-messages="errors && errors.departments ? errors.departments[0] : ''
+                    ">
                   <template v-if="departments.length" #prepend-item>
                     <v-list-item @click="toggleDepartmentSelection">
                       <v-list-item-action>
-                        <v-checkbox
-                          v-model="selectAllDepartment"
-                          :indeterminate="isIndeterminateDepartment"
-                          :true-value="true"
-                          :false-value="false"
-                        ></v-checkbox>
+                        <v-checkbox @click="toggleDepartmentSelection" v-model="selectAllDepartment"
+                          :indeterminate="isIndeterminateDepartment" :true-value="true" :false-value="false"></v-checkbox>
                       </v-list-item-action>
                       <v-list-item-content>
                         <v-list-item-title>
@@ -67,29 +46,15 @@
               </v-col>
               <v-col cols="4">
                 <label for="">Employee</label>
-                <v-autocomplete
-                  outlined
-                  dense
-                  v-model="editedItem.employees"
-                  :items="employees_dialog"
-                  multiple
-                  item-text="name_with_user_id"
-                  item-value="id"
-                  placeholder="Employees"
-                  :error-messages="
-                    errors && errors.employees ? errors.employees[0] : ''
-                  "
-                  color="background"
-                >
+                <v-autocomplete class="announcement-dropdown" dense v-model="editedItem.employees"
+                  :items="employees_dialog" multiple item-text="name_with_user_id" item-value="id" placeholder="Employees"
+                  :error-messages="errors && errors.employees ? errors.employees[0] : ''
+                    " color="background">
                   <template v-if="employees_dialog.length" #prepend-item>
                     <v-list-item @click="toggleEmployeeSelection">
                       <v-list-item-action>
-                        <v-checkbox
-                          v-model="selectAllEmployee"
-                          :indeterminate="isIndeterminateEmployee"
-                          :true-value="true"
-                          :false-value="false"
-                        ></v-checkbox>
+                        <v-checkbox @click="toggleEmployeeSelection" v-model="selectAllEmployee"
+                          :indeterminate="isIndeterminateEmployee" :true-value="true" :false-value="false"></v-checkbox>
                       </v-list-item-action>
                       <v-list-item-content>
                         <v-list-item-title>
@@ -104,88 +69,41 @@
               </v-col>
 
               <v-col cols="6">
-                <v-menu
-                  ref="from_menu"
-                  v-model="start_menu"
-                  :close-on-content-click="false"
-                  :return-value.sync="editedItem.start_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
+                <v-menu ref="from_menu" v-model="start_menu" :close-on-content-click="false"
+                  :return-value.sync="editedItem.start_date" transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">Start Date</div>
-                    <v-text-field
-                      outlined
-                      dense
-                      v-model="editedItem.start_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      :error-messages="
-                        errors && errors.start_date ? errors.start_date[0] : ''
-                      "
-                    >
+                    <v-text-field outlined dense v-model="editedItem.start_date" readonly v-bind="attrs" v-on="on"
+                      :error-messages="errors && errors.start_date ? errors.start_date[0] : ''
+                        ">
                     </v-text-field>
                   </template>
-                  <v-date-picker
-                    v-model="editedItem.start_date"
-                    no-title
-                    scrollable
-                  >
+                  <v-date-picker v-model="editedItem.start_date" no-title scrollable>
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="from_menu = false">
                       Cancel
                     </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="$refs.from_menu.save(editedItem.start_date)"
-                    >
+                    <v-btn text color="primary" @click="$refs.from_menu.save(editedItem.start_date)">
                       OK
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
               </v-col>
               <v-col cols="6">
-                <v-menu
-                  ref="end_menu"
-                  v-model="end_menu"
-                  :close-on-content-click="false"
-                  :return-value.sync="editedItem.end_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
+                <v-menu ref="end_menu" v-model="end_menu" :close-on-content-click="false"
+                  :return-value.sync="editedItem.end_date" transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">End Date</div>
-                    <v-text-field
-                      outlined
-                      dense
-                      v-model="editedItem.end_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      :error-messages="
-                        errors && errors.end_date ? errors.end_date[0] : ''
-                      "
-                    ></v-text-field>
+                    <v-text-field outlined dense v-model="editedItem.end_date" readonly v-bind="attrs" v-on="on"
+                      :error-messages="errors && errors.end_date ? errors.end_date[0] : ''
+                        "></v-text-field>
                   </template>
-                  <v-date-picker
-                    :min="editedItem.start_date"
-                    v-model="editedItem.end_date"
-                    no-title
-                    scrollable
-                  >
+                  <v-date-picker :min="editedItem.start_date" v-model="editedItem.end_date" no-title scrollable>
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="end_menu = false">
                       Cancel
                     </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="$refs.end_menu.save(editedItem.end_date)"
-                    >
+                    <v-btn text color="primary" @click="$refs.end_menu.save(editedItem.end_date)">
                       OK
                     </v-btn>
                   </v-date-picker>
@@ -193,14 +111,8 @@
               </v-col>
               <v-col cols="12">
                 <label for="">Description</label>
-                <v-textarea
-                  dense
-                  outlined
-                  v-model="editedItem.description"
-                  :error-messages="
-                    errors && errors.description ? errors.description[0] : ''
-                  "
-                >
+                <v-textarea dense outlined v-model="editedItem.description" :error-messages="errors && errors.description ? errors.description[0] : ''
+                  ">
                 </v-textarea>
                 <!-- <ClientOnly>
                   <tiptap-vuetify
@@ -234,17 +146,10 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-data-table
-                v-model="idsEmployeeList"
-                item-key="id"
-                :headers="headers_Dialog"
-                :items="DialogEmployeesData"
-                :loading="loading"
-                :footer-props="{
+              <v-data-table v-model="idsEmployeeList" item-key="id" :headers="headers_Dialog" :items="DialogEmployeesData"
+                :loading="loading" :footer-props="{
                   itemsPerPageOptions: [10, 50, 100, 500, 1000],
-                }"
-                class="elevation-1"
-              >
+                }" class="elevation-1">
                 <template v-slot:item.first_name="{ item }">
                   {{ item.first_name ? item.first_name : "---" }}
                   {{ item.last_name }}
@@ -275,19 +180,11 @@
       <v-col md="12">
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title
-              ><span> {{ Model }} List </span></v-toolbar-title
-            >
-            <a
-              style="padding-left: 10px"
-              title="Reload Page/Reset Form"
-              @click="getDataFromApi()"
-              ><v-icon class="mx-1">mdi mdi-reload</v-icon></a
-            >
+            <v-toolbar-title><span> {{ Model }} List </span></v-toolbar-title>
+            <a style="padding-left: 10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon
+                class="mx-1">mdi mdi-reload</v-icon></a>
             <v-spacer></v-spacer>
-            <v-icon v-if="can(`announcement_create`)" @click="dialog = true"
-              >mdi-plus</v-icon
-            >
+            <v-icon v-if="can(`announcement_create`)" @click="dialog = true">mdi-plus</v-icon>
           </v-toolbar>
           <!-- <v-text-field class=" form-control py-0 ma-1 mb-0 w-25 float-start custom-text-box floating
                   shadow-none" placeholder="Search..." solo flat @input="searchIt" v-model="search"
@@ -299,34 +196,17 @@
               <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table
-            v-if="can(`announcement_view`)"
-            v-model="ids"
-            item-key="id"
-            :headers="headers"
-            :items="data"
-            :loading="loading"
-            :footer-props="{
+          <v-data-table v-if="can(`announcement_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
+            :loading="loading" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }"
-            class="elevation-1"
-          >
+            }" class="elevation-1">
             <template v-slot:item.title="{ item }">
-              <v-edit-dialog
-                large
-                save-text="Reset"
-                cancel-text="Ok"
-                style="margin-left: 4%"
-                @save="getDataFromApi()"
-                @open="datatable_open"
-              >
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
+                @open="datatable_open">
                 {{ item.title }}
                 <template v-slot:input>
-                  <v-text-field
-                    @input="getDataFromApi('', 'serach_title', $event)"
-                    v-model="datatable_search_textbox"
-                    label="Search Title"
-                  ></v-text-field>
+                  <v-text-field @input="getDataFromApi('', 'serach_title', $event)" v-model="datatable_search_textbox"
+                    label="Search Title"></v-text-field>
                 </template>
               </v-edit-dialog>
             </template>
@@ -347,12 +227,7 @@
 
                   <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon
-                        v-if="can(`announcement_edit`)"
-                        color="secondary"
-                        small
-                        @click="editItem(item)"
-                      >
+                      <v-icon v-if="can(`announcement_edit`)" color="secondary" small @click="editItem(item)">
                         mdi-pencil
                       </v-icon>
                       Edit
@@ -360,12 +235,7 @@
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon
-                        v-if="can(`announcement_delete`)"
-                        color="error"
-                        small
-                        @click="deleteItem(item)"
-                      >
+                      <v-icon v-if="can(`announcement_delete`)" color="error" small @click="deleteItem(item)">
                         {{
                           item.announcement === "customer" ? "" : "mdi-delete"
                         }}
@@ -385,46 +255,27 @@
               </span>
             </template>
             <template v-slot:item.employees="{ item }">
-              <span
-                v-for="(emp, index) in item.employees.slice(0, 4)"
-                :key="index"
-              >
+              <span v-for="(emp, index) in item.employees.slice(0, 4)" :key="index">
                 <v-chip small class="p-2 ma-1" color="primary">
-                  <span
-                    >{{ emp.first_name }} {{ emp.last_name }} -
-                    {{ emp.employee_id }}</span
-                  >
+                  <span>{{ emp.first_name }} {{ emp.last_name }} -
+                    {{ emp.employee_id }}</span>
                 </v-chip>
                 <br>
               </span>
-              <v-chip
-                small
-                class="primary ma-1"
-                style="color: black"
-                @click="gotoDialogPage(item)"
-                v-if="item.employees.length > 4"
-              >
+              <v-chip small class="primary ma-1" style="color: black" @click="gotoDialogPage(item)"
+                v-if="item.employees.length > 4">
                 More..
               </v-chip>
             </template>
             <template v-slot:item.description="{ item }">
-              <v-edit-dialog
-                large
-                save-text="Reset"
-                cancel-text="Ok"
-                style="margin-left: 4%"
-                @save="getDataFromApi()"
-                @open="datatable_open"
-              >
+              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
+                @open="datatable_open">
                 <div style="width: 300px" class="pa-2">
                   {{ item.description }}
                 </div>
                 <template v-slot:input>
-                  <v-text-field
-                    @input="getDataFromApi('', 'serach_description', $event)"
-                    v-model="datatable_search_textbox"
-                    label="Search Description"
-                  ></v-text-field>
+                  <v-text-field @input="getDataFromApi('', 'serach_description', $event)"
+                    v-model="datatable_search_textbox" label="Search Description"></v-text-field>
                 </template>
               </v-edit-dialog>
             </template>
@@ -688,7 +539,7 @@ export default {
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
-    datatable_save() {},
+    datatable_save() { },
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
