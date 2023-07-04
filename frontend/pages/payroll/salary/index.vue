@@ -315,7 +315,7 @@
                   ">
                   <v-icon small class="primary--text">mdi-eye</v-icon>
                 </span>
-                <a v-if="item.payslip_status" :href="getdownloadLink(item.employee_id)" style="
+                <a v-if="item?.payroll?.basic_salary" :href="getdownloadLink(item.employee_id)" style="
                     font-size: 25px;
                     vertical-align: inherit;
                     cursor: pointer;
