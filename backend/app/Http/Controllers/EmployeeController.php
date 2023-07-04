@@ -270,34 +270,13 @@ class EmployeeController extends Controller
 
         return $data;
     }
-
-    public function scheduled_employees_with_type(Employee $employee, Request $request)
-    {
-        return $employee->where("company_id", $request->company_id)
-            ->whereHas('schedule')
-            ->withOut(["user", "department", "sub_department", "designation", "role", "schedule"])
-            ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->where('department_id', $request->department_id);
-            })
-            ->get(["first_name", "system_user_id", "employee_id", "display_name"]);
-
-        return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
-            $q->where('slug', '=', $request->shift_type);
-        })->get(["first_name", "system_user_id", "employee_id"]);
-    }
+    
     public function attendance_employees(Employee $employee, Request $request)
     {
         //
         return Attendance::with('employeeAttendance')->get('employee_id');
     }
-    public function not_scheduled_employees(Employee $employee, Request $request)
-    {
-        return $employee->where("company_id", $request->company_id)
-            ->whereDoesntHave('schedule', function ($q) use ($request) {
-                $q->where('company_id', $request->company_id);
-            })
-            ->paginate($request->per_page);
-    }
+    
     public function show(Employee $employee)
     {
         return $employee->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role"])->whereId($employee->id)->first();
