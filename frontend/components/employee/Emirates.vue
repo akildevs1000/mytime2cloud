@@ -224,6 +224,7 @@ export default {
             this.errors = [];
             this.snackbar = true;
             this.response = "Emirates Info has been added";
+            this.$emit("eventFromchild");
             this.close_emirate_info();
           }
         })

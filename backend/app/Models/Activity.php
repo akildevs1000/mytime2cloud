@@ -20,12 +20,17 @@ class Activity extends Model
      */
     public function employee()
     {
-        return $this->hasOne(Employee::class, 'id', 'user_id');
+        return $this->user()->with("employee");
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, "id", "user_id");
     }
 
 
     public function getDateTimeAttribute()
     {
-        return date("d-M-y h:i:sa", strtotime($this->created_at));
+        return date("d M Y", strtotime($this->created_at));
     }
 }

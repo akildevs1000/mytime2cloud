@@ -175,7 +175,9 @@
                   <strong style="width: 70px">Web Login</strong>
                   <v-switch disabled v-model="switchValue"></v-switch>
                 </div>
-                Last Login <br />08 June 2023
+                Last Login <br />
+                {{ last_login.date_time }}
+                <!-- 08 June 2023 -->
               </td>
             </tr>
             <tr>
@@ -340,6 +342,7 @@ export default {
     departments: [],
     department_id: "",
     payloadOptions: {},
+    last_login: {},
     document_list: [],
   }),
 
@@ -355,6 +358,7 @@ export default {
     this.getSubDepartments();
     this.getDesignations();
     this.getRoles();
+    this.getLastLogin();
 
     try {
       let employee_id = this.$route.params.id;
@@ -398,6 +402,14 @@ export default {
     },
   },
   methods: {
+    getLastLogin() {
+      //
+      this.$axios
+        .get(`activity/${(this.employeeObject.user_id = 1875)}?action=Login`)
+        .then(({ data }) => {
+          this.last_login = data.date_time;
+        });
+    },
     closeParentDialog() {
       this.$emit("close-parent-dialog");
     },
@@ -465,102 +477,11 @@ export default {
         this.roles = data.data;
       });
     },
-    saveCroppedImageStep2() {
-      this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
-
-      this.image_name = this.cropedImage;
-      this.previewImage = this.cropedImage;
-    },
     can() {
       return true;
     },
     close() {
       this.dialog = false;
-    },
-    onpick_attachment() {
-      this.$refs.attachment_input.click();
-    },
-    attachment(e) {
-      this.upload.name = e.target.files[0] || "";
-
-      let input = this.$refs.attachment_input;
-      let file = input.files;
-
-      if (file[0].size > 1024 * 1024) {
-        e.preventDefault();
-        this.errors["profile_picture"] = [
-          "File too big (> 1MB). Upload less than 1MB",
-        ];
-        return;
-      }
-
-      if (file && file[0]) {
-        let reader = new FileReader();
-        reader.onload = (e) => {
-          //croppedimage step6
-          // this.previewImage = e.target.result;
-
-          this.selectedFile = event.target.result;
-
-          this.$refs.cropper.replace(this.selectedFile);
-        };
-        reader.readAsDataURL(file[0]);
-        this.$emit("input", file[0]);
-      }
-    },
-    mapper(obj) {
-      let employee = new FormData();
-
-      for (let x in obj) {
-        if (obj[x]) {
-          employee.append(x, obj[x]);
-        }
-      }
-
-      employee.append("company_id", this.$auth.user.company.id);
-
-      return employee;
-    },
-    store_data() {
-      let final = Object.assign(this.employee);
-      let employee = this.mapper(final);
-
-      //croppedimageStep3
-      if (this.$refs.attachment_input.files[0]) {
-        this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
-
-        this.$refs.cropper.getCroppedCanvas().toBlob((blob) => {
-          // Create a FormData object and append the Blob as a file
-          //const formData = new FormData();
-          employee.append("profile_picture", blob, "cropped_image.jpg");
-          employee.append("attachment_input", blob, "cropped_image.jpg");
-
-          //croppedimagesptep4 //push to API in blob method only
-          this.saveToAPI(employee);
-        }, "image/jpeg");
-      } else {
-        employee.delete("profile_picture");
-        this.saveToAPI(employee);
-      }
-    },
-    saveToAPI(employee) {
-      this.$axios
-        .post(`/employee-update/${this.employeeId}`, employee)
-        .then(({ data }) => {
-          this.loading = false;
-
-          if (!data.status) {
-            this.errors = data.errors;
-          } else {
-            this.errors = [];
-            this.snackbar = true;
-            this.response = "Employees Updated successfully";
-            this.$emit("eventFromchild");
-
-            //this.employeeDialog = false;
-          }
-        })
-        .catch((e) => console.log(e));
     },
   },
 };

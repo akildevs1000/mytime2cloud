@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Controllers\Reports\ReportController;
+use App\Models\Activity;
 use App\Models\AttendanceLog;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -424,5 +425,18 @@ class Controller extends BaseController
         $filename = $file->getClientOriginalName();
         $file->move(public_path('documents/' . $id . "/"), $filename);
         return $filename;
+    }
+
+    public function recordActivity($user_id, $action, $type, $company_id)
+    {
+        return Activity::create([
+            "user_id" => $user_id,
+            "action" => $action,
+            "type" => $type,
+            "model_id" => $user_id,
+            "model_type" => "User",
+            "company_id" => $company_id,
+            "description" => "User with {$user_id} Id has been logged In.",
+        ]);
     }
 }

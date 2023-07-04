@@ -7,10 +7,35 @@ use Illuminate\Http\Request;
 
 class ActivityController extends Controller
 {
-    public function index(Activity $model, Request $request)
+    public function index(Request $request)
     {
-        return $model->with('employee:id,display_name')->orderByDesc("id")->paginate($request->per_page ?? 10);
+        return $this->filters($request)->orderByDesc("id")->paginate($request->per_page ?? 10);
     }
+
+    public function show(Request $request, $user_id)
+    {
+        return $this->filters($request)->where("user_id", $user_id)->first();
+    }
+
+    public function activitiesByUser(Request $request, $user_id)
+    {
+        return $this->filters($request)->where("user_id", $user_id)->orderByDesc("id")->get();
+    }
+
+    public function filters($request)
+    {
+        $model = Activity::query();
+
+        $model->when($request->filled("action"), function ($q) use ($request) {
+            return $q->where("action", $request->action);
+        });
+        $model->when($request->filled("type"), function ($q) use ($request) {
+            return $q->where("type", $request->type);
+        });
+        return $model->with('employee');
+    }
+
+
 
     public function store(Request $request)
     {
@@ -22,7 +47,7 @@ class ActivityController extends Controller
             } else {
                 return $this->response('Activity cannot create.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }

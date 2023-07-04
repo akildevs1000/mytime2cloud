@@ -43,6 +43,8 @@ class AuthController extends Controller
             $user->permissions = $employeeUser->assigned_employee_permissions->permission_names ?? [];
         }
 
+        $this->recordActivity($user->id, "Login", "Authentication", $user->company_id);
+
         return response()->json(['user' => $user], 200);
     }
 

@@ -135,6 +135,8 @@ Route::get('announcement/employee/{id}', [AnnouncementController::class, 'getAnn
 
 // activities
 Route::apiResource('activity', ActivityController::class);
+Route::get('activitiesByUser/{user_id}', [ActivityController::class, "activitiesByUser"]);
+
 
 // -----------------------Company App-------------------------------
 

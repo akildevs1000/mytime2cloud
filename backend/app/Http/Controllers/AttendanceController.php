@@ -229,7 +229,7 @@ class AttendanceController extends Controller
     public function runFunc($companyIDs, $previousDate)
     {
         $result = null;
-
+        $record = [];
         foreach ($companyIDs as $companyID => $employeesThatDoesNotExist) {
             $NumberOfEmployee = count($employeesThatDoesNotExist);
 
@@ -238,7 +238,7 @@ class AttendanceController extends Controller
                 continue;
             }
 
-            $record = [];
+           
             $employee_ids = [];
             foreach ($employeesThatDoesNotExist as $employee) {
                 $arr = [
