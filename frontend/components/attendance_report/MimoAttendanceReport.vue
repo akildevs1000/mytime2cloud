@@ -1160,7 +1160,7 @@ export default {
           ...this.payload,
           status: this.getStatus(this.payload.status),
           late_early,
-          ot: this.overtime ? 1 : 0,
+          // ot: this.overtime ? 1 : 0,
           ...this.filters,
         },
       };
