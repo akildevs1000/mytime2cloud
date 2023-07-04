@@ -95,7 +95,11 @@
                 <v-text-field dense outlined v-model="editedItem.reason" placeholder="Reason/Notes" :error-messages="errors && errors.reason ? errors.reason[0] : ''
                   "></v-text-field>
               </v-col>
+              <v-col cols="12" v-if="errors && errors.reporting_manager_id">
+                <label for="" style="padding-bottom:5px;color:red">Reporting Manager ID is not assigned. Contact Admin
+                </label>
 
+              </v-col>
 
             </v-row>
           </v-container>

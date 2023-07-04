@@ -117,7 +117,7 @@
                     " dense outlined></v-autocomplete>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Leave Manager </label>
+                <label class="col-form-label">Leave Manager/Reporting Manger </label>
                 <v-autocomplete :items="leave_managers" :item-text="getEmployeeName" item-value="id" placeholder="Select"
                   v-model="employee.reporting_manager_id" :hide-details="!errors.reporting_manager_id"
                   :error="errors.reporting_manager_id" :error-messages="errors && errors.reporting_manager_id

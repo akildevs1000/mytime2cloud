@@ -46,7 +46,7 @@
         </v-menu>
       </v-col>
       <v-col cols="12" sm="6" md="2">
-        <div class="mb-1">User ID</div>
+        <div class="mb-1">System User ID</div>
         <v-text-field @input="searchIt" v-model="payload.UserID" outlined dense placeholder="Search..."></v-text-field>
       </v-col>
       <v-col cols="12" sm="6" md="2">
@@ -269,7 +269,7 @@ export default {
     snackbar: false,
     headers_table: [
       {
-        text: "Emp.Id / Device Id",
+        text: "Emp.Id / User Id",
         align: "left",
         sortable: true,
         key: "UserID",

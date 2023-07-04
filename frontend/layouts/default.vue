@@ -485,7 +485,7 @@ export default {
 
     setInterval(() => {
       this.verifyLeaveNotifications();
-    }, 1000 * 60 * 60);
+    }, 1000 * 60);
 
     if (user && user.is_master) {
       this.items = this.menus;
@@ -901,8 +901,8 @@ tbody tr:nth-of-type(odd) {
   min-height: 32px !important;
 }
 
-.table-search-header .v-input__append-inner {
-  width: 100%;
+.filter-select-hidden-text .v-input__append-inner {
+  width: 100%important;
 }
 
 .table-search-header td {

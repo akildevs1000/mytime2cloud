@@ -286,10 +286,10 @@
                     v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
                     height="10px" clearable autocomplete="off"></v-text-field>
 
-                  <v-select class="filter-select-hidden-text"    v-model="filters[header.value]"
-                    v-else-if="header.filterable && header.text == 'Status'" height="10px;width:5px" style="padding: 0px;"
-                    small density="compact" @change="applyFilters('status', $event)" clearable item-value="value"
-                      item-text="title" :items="[{ value: '', title: 'All' }, { value: 'approved', title: 'Approved' }, {
+                  <v-select class="filter-select-hidden-text" v-model="filters[header.value]"
+                    v-else-if="header.filterable && header.text == 'Status'" height="10px;width:5px"
+                    style="padding: 0px;width:100%" small density="compact" @change="applyFilters('status', $event)"
+                    clearable item-value="value" item-text="title" :items="[{ value: '', title: 'All' }, { value: 'approved', title: 'Approved' }, {
                       value: 'rejected',
                       title: 'Rejected'
                     }, { value: 'pending', title: 'Pending' }]"></v-select>
