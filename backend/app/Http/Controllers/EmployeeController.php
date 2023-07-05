@@ -558,7 +558,9 @@ class EmployeeController extends Controller
         $arr["email"] = $request->email;
         $arr["company_id"] = $request->company_id;
         $arr["employee_role_id"] = $request->employee_role_id;
-        $arr['password'] = Hash::make($request->password ?? "secret");
+        if ($request->password != '') {
+            $arr['password'] = Hash::make($request->password ?? "secret");
+        }
 
         try {
             $user = User::updateOrCreate(['id' => $id], $arr);
