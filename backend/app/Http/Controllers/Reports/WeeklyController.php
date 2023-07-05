@@ -105,53 +105,11 @@ class WeeklyController extends Controller
             $file = fopen('php://output', 'w');
             $i = 0;
             fputcsv($file, [
-                "#",
-                "Date",
-                "E.ID",
-                "Name",
-                "In1",
-                "Out1",
-                "In2",
-                "Out2",
-                "In3",
-                "Out3",
-                "In4",
-                "Out4",
-                "In5",
-                "Out5",
-                "In6",
-                "Out6",
-                "In7",
-                "Out7",
-                "Total Hrs",
-                "OT",
-                "Status",
-
+                "#", "Date", "E.ID", "Name", "In1", "Out1", "In2", "Out2", "In3", "Out3", "In4", "Out4", "In5", "Out5", "In6", "Out6", "In7", "Out7", "Total Hrs", "OT", "Status"
             ]);
             foreach ($data as $col) {
                 fputcsv($file, [
-                    ++$i,
-                    $col['date'],
-                    $col['employee_id'] ?? "---",
-                    $col['employee']["display_name"] ?? "---",
-                    $col["in1"] ?? "---",
-                    $col["out1"] ?? "---",
-                    $col["in2"] ?? "---",
-                    $col["out2"] ?? "---",
-                    $col["in3"] ?? "---",
-                    $col["out3"] ?? "---",
-                    $col["in4"] ?? "---",
-                    $col["out4"] ?? "---",
-                    $col["in5"] ?? "---",
-                    $col["out5"] ?? "---",
-                    $col["in6"] ?? "---",
-                    $col["out6"] ?? "---",
-                    $col["in7"] ?? "---",
-                    $col["out7"] ?? "---",
-                    $col["total_hrs"] ?? "---",
-                    $col["ot"] ?? "---",
-                    $col["status"] ?? "---",
-
+                    ++$i, $col['date'], $col['employee_id'] ?? "---", $col['employee']["display_name"] ?? "---", $col["in1"] ?? "---", $col["out1"] ?? "---", $col["in2"] ?? "---", $col["out2"] ?? "---", $col["in3"] ?? "---", $col["out3"] ?? "---", $col["in4"] ?? "---", $col["out4"] ?? "---", $col["in5"] ?? "---", $col["out5"] ?? "---", $col["in6"] ?? "---", $col["out6"] ?? "---", $col["in7"] ?? "---", $col["out7"] ?? "---", $col["total_hrs"] ?? "---", $col["ot"] ?? "---", $col["status"] ?? "---",
                 ], ",");
             }
 
@@ -160,38 +118,6 @@ class WeeklyController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
-
-    // public function processPDF($request)
-    // {
-    //     $start = $request->from_date ?? date('Y-10-01');
-    //     $end = $request->to_date ?? date('Y-10-07');
-
-    //     $model = Attendance::query();
-    //     $model = $model->whereBetween('date', [$start, $end]);
-    //     $model->orderBy('date', 'asc');
-
-    //     $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-    //         $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
-    //         $q->whereIn('employee_id', $ids);
-    //     });
-
-    //     $data = $model->get()->groupBy(['employee_id', 'date']);
-
-    //     $pdf = App::make('dompdf.wrapper');
-
-    //     $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-    //     $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
-    //     $company['report_type'] = $this->getStatusText($request->status);
-    //     $company['start'] = $start;
-    //     $company['end'] = $end;
-
-
-    //     // return $company;
-
-
-    //     // return $this->getHTML($data, (object)$company);
-    //     return $pdf->loadHTML($this->getHTML($data, (object)$company));
-    // }
 
     public function processPDF($request)
     {
@@ -207,7 +133,7 @@ class WeeklyController extends Controller
         });
 
         $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
+            $ids = Employee::where("department_id", $request->department_id)->pluck("system_user_id");
             $q->whereIn('employee_id', $ids);
         });
 

@@ -206,7 +206,7 @@ class MonthlyController extends Controller
         $company['start'] = $start;
         $company['end'] = $end;
         $collection = $model->clone()->get();
-
+        
         $info = (object) [
             'total_absent' => $model->clone()->where('status', 'A')->count(),
             'total_present' => $model->clone()->where('status', 'P')->count(),
@@ -218,7 +218,7 @@ class MonthlyController extends Controller
             'total_leave' => 0,
             'department' => Department::find($request->department_id),
             'employee' => Employee::where([
-                "employee_id" => $request->employee_id,
+                "system_user_id" => $request->employee_id,
                 "company_id" => $companyID,
             ])->first(),
         ];
