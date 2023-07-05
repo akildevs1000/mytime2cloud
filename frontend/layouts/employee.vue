@@ -210,35 +210,35 @@ export default {
           to: "/",
           menu: "dashboard_access",
         },
-        {
-          icon: "mdi-account-outline",
-          title: "Profile",
-          to: "/employees/profile",
-          menu: "employee_payroll_access",
-        },
-        {
-          icon: "mdi-calendar-clock",
-          title: "Schedule",
-          to: "/employees/schedule",
-          menu: "logs_access",
-        },
-        {
-          icon: "mdi-cash",
-          title: "Salary details",
-          to: "/employees/salary",
-          menu: "logs_access",
-        },
-        {
-          icon: "mdi-calendar-today",
-          title: "attendance reports",
-          to: "/employees/attendance_reports",
-          menu: "logs_access",
-        },
+        // {
+        //   icon: "mdi-account-outline",
+        //   title: "Profile",
+        //   to: "/employees/profile",
+        //   menu: "employee_profile_access",
+        // },
+        // {
+        //   icon: "mdi-calendar-clock",
+        //   title: "Schedule",
+        //   to: "/employees/schedule",
+        //   menu: "employee_schedule_access",
+        // },
+        // {
+        //   icon: "mdi-cash",
+        //   title: "Salary details",
+        //   to: "/employees/salary",
+        //   menu: "employee_payroll_access",
+        // },
+        // {
+        //   icon: "mdi-calendar-today",
+        //   title: "attendance reports",
+        //   to: "/employees/attendance_reports",
+        //   menu: "attendance_report_access",
+        // },
         {
           icon: "mdi-clipboard-text-clock",
           title: "Attendances Logs",
           to: "/employees/logs",
-          menu: "logs_access",
+          menu: "attendance_report_access",
         },
         {
           icon: "mdi mdi-calendar-account",
@@ -256,7 +256,7 @@ export default {
           icon: "mdi-bell",
           title: "Announcements",
           to: "/employees/announcements",
-          menu: "logs_access",
+          menu: "announcement_access",
         },
       ],
       // -------
@@ -303,7 +303,7 @@ export default {
     this.verifyLeaveNotifications();
     setInterval(() => {
       this.verifyLeaveNotifications();
-    }, 1000 * 60);
+    }, 1000 * 60 * 60);
   },
 
   mounted() { },
@@ -314,6 +314,7 @@ export default {
     },
 
     getUser() {
+
       return this.$auth.user &&
         this.$auth.user.employee &&
         this.$auth.user.company

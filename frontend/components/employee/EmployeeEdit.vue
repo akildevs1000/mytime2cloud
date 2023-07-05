@@ -98,33 +98,8 @@
                     : ''
                     " dense outlined></v-autocomplete>
               </v-col>
-              <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Role </label>
-                <v-autocomplete :items="roles" item-text="name" item-value="id" placeholder="Select"
-                  v-model="employee.employee_role_id" :hide-details="!errors.employee_role_id"
-                  :error="errors.employee_role_id" :error-messages="errors && errors.employee_role_id
-                    ? errors.employee_role_id[0]
-                    : ''
-                    " dense outlined></v-autocomplete>
-              </v-col>
-              <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Leave Group Id</label>
-                <v-autocomplete :items="leave_groups" item-text="group_name" item-value="id" placeholder="Select"
-                  v-model="employee.leave_group_id" :hide-details="!errors.leave_group_id" :error="errors.leave_group_id"
-                  :error-messages="errors && errors.leave_group_id
-                    ? errors.leave_group_id[0]
-                    : ''
-                    " dense outlined></v-autocomplete>
-              </v-col>
-              <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Leave Manager/Reporting Manger </label>
-                <v-autocomplete :items="leave_managers" :item-text="getEmployeeName" item-value="id" placeholder="Select"
-                  v-model="employee.reporting_manager_id" :hide-details="!errors.reporting_manager_id"
-                  :error="errors.reporting_manager_id" :error-messages="errors && errors.reporting_manager_id
-                    ? errors.reporting_manager_id[0]
-                    : ''
-                    " dense outlined></v-autocomplete>
-              </v-col>
+
+
             </v-row>
           </v-col>
           <v-col class="col-sm-6">
@@ -218,7 +193,7 @@ export default {
       employee_id: "",
       system_user_id: "",
       profile_picture: "",
-      employee_role_id: "",
+      //employee_role_id: "",
       leave_group_id: "",
       reporting_manager_id: "",
     },
@@ -250,7 +225,7 @@ export default {
 
     this.payloadOptions = {
       params: {
-        per_page: 1000,
+        per_page: 10,
         company_id: this.$auth.user.company.id,
       },
     };
@@ -259,8 +234,8 @@ export default {
     this.getSubDepartments();
     this.getDesignations();
     this.getRoles();
-    this.getLeaveGroups();
-    this.getLeaveManagers();
+    //this.getLeaveGroups();
+    //this.getLeaveManagers();
 
     try {
 
@@ -310,27 +285,27 @@ export default {
 
       });
     },
-    getLeaveGroups() {
-      this.payloadOptions.params.company_id = this.$auth.user.company.id;
+    // getLeaveGroups() {
+    //   this.payloadOptions.params.company_id = this.$auth.user.company.id;
 
-      this.$axios.get(`leave_groups`, this.payloadOptions).then(({ data }) => {
-        this.leave_groups = data.data;
+    //   this.$axios.get(`leave_groups`, this.payloadOptions).then(({ data }) => {
+    //     this.leave_groups = data.data;
 
-      });
-    },
-    getLeaveManagers() {
+    //   });
+    // },
+    // getLeaveManagers() {
 
-      this.payloadOptions.params.company_id = this.$auth.user.company.id;
+    //   this.payloadOptions.params.company_id = this.$auth.user.company.id;
 
-      this.$axios.get(`employeesList`, this.payloadOptions).then(({ data }) => {
-        this.leave_managers = data.data;
+    //   this.$axios.get(`employeesList`, this.payloadOptions).then(({ data }) => {
+    //     this.leave_managers = data.data;
 
-      });
-    },
-    getEmployeeName(item) {
+    //   });
+    // },
+    // getEmployeeName(item) {
 
-      return item.first_name ? item.first_name + ' ' + item.last_name : '---';
-    },
+    //   return item.first_name ? item.first_name + ' ' + item.last_name : '---';
+    // },
     getInfo(id) {
       this.$axios
         .get(`employee-single/${id}`)
@@ -345,7 +320,7 @@ export default {
             department_id: data.department_id,
             sub_department_id: data.sub_department_id,
             designation_id: data.designation_id,
-            employee_role_id: data.user.employee_role_id,
+            //employee_role_id: data.user.employee_role_id,
             leave_group_id: data.leave_group_id,
             reporting_manager_id: data.reporting_manager_id,
           };

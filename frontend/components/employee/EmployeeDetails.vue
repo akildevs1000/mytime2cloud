@@ -1,37 +1,29 @@
 <template>
   <v-card>
-    <v-toolbar class="background" dense dark
-      >Profile Details
+    <v-toolbar class="background" dense dark>Profile Details
       <v-spacer></v-spacer>
-      <v-btn @click="openDocumentDrawer" small class="primary"
-        >Documents&nbsp;<v-icon small>
+      <v-btn @click="openDocumentDrawer" small class="primary">Documents&nbsp;<v-icon small>
           mdi-file
           <!-- mdi-open-in-new -->
-        </v-icon></v-btn
-      >
+        </v-icon></v-btn>
       &nbsp;
-      <v-btn @click="closeParentDialog" small class="grey"
-        >Close &nbsp;<v-icon small>
+      <v-btn @click="closeParentDialog" small class="grey">Close &nbsp;<v-icon small>
           mdi-close
           <!-- mdi-open-in-new -->
-        </v-icon></v-btn
-      >
+        </v-icon></v-btn>
     </v-toolbar>
 
     <v-card-text>
       <v-row class="pt-5">
         <v-col cols="3">
           <div class="mt-5" style="margin: 0 auto; width: 200px">
-            <v-img
-              style="
+            <v-img style="
                 width: 100%;
                 height: 200px;
                 border: 1px solid #5fafa3;
                 border-radius: 50%;
                 margin: 0 auto;
-              "
-              :src="employeeObject.profile_picture || '/no-profile-image.jpg'"
-            ></v-img>
+              " :src="employeeObject.profile_picture || '/no-profile-image.jpg'"></v-img>
             <br />
             <div class="text-center">
               <strong>{{ employeeObject.full_name }}</strong>
@@ -144,13 +136,10 @@
             </tr> -->
             <tr>
               <td>
-                <strong
-                  >Passport : {{ employeeObject.passport.country }} </strong
-                ><br />
+                <strong>Passport : {{ employeeObject.passport.country }} </strong><br />
                 {{ employeeObject.passport.passport_no }}<br />Expired on
                 <span v-if="employeeObject.passport.expiry_date">
-                  {{ formatDate(employeeObject.passport.expiry_date) }}</span
-                >
+                  {{ formatDate(employeeObject.passport.expiry_date) }}</span>
                 <span v-else> --- </span>
               </td>
             </tr>
@@ -160,8 +149,7 @@
                   employeeObject.emirate.emirate_id
                 }}<br />Expired on
                 <span v-if="employeeObject.emirate.expiry">
-                  {{ formatDate(employeeObject.emirate.expiry) }}</span
-                >
+                  {{ formatDate(employeeObject.emirate.expiry) }}</span>
                 <span v-else> --- </span>
               </td>
             </tr>
@@ -173,10 +161,10 @@
               <td>
                 <div style="display: flex; align-items: center; height: 30px">
                   <strong style="width: 70px">Web Login</strong>
-                  <v-switch disabled v-model="switchValue"></v-switch>
+                  <v-switch disabled v-model="employeeObject.status"></v-switch>
                 </div>
-                Last Login <br />
-                {{ last_login.date_time }}
+                Last Login :
+                {{ last_login }}
                 <!-- 08 June 2023 -->
               </td>
             </tr>
@@ -184,25 +172,24 @@
               <td>
                 <div style="display: flex; align-items: center; height: 30px">
                   <strong style="width: 90px">Mobile Login</strong>
-                  <v-switch disabled v-model="switchValue"></v-switch>
+                  <v-switch disabled v-model="employeeObject.mobile_application"></v-switch>
                 </div>
-                Last Login <br />08 June 2023
+                <!-- Last Login <br />08 June 2023 -->
               </td>
             </tr>
-            <tr>
+            <!-- <tr>
               <td>
                 <div style="display: flex; align-items: center; height: 30px">
                   <strong style="width: 70px">Overtime</strong>
                   <v-switch disabled v-model="switchValue"></v-switch>
                 </div>
               </td>
-            </tr>
+            </tr> -->
           </table>
         </v-col>
       </v-row>
       <v-navigation-drawer v-model="drawer" bottom temporary right fixed>
-        <v-toolbar class="background" dense dark
-          >Documents
+        <v-toolbar class="background" dense dark>Documents
           <v-spacer></v-spacer>
 
           <v-icon @click="drawer = false">
@@ -213,44 +200,36 @@
         <table style="width: 100%; border-collapse: collapse; margin: 5px">
           <thead>
             <tr>
-              <th
-                style="
+              <th style="
                   padding: 8px;
                   text-align: left;
                   border-bottom: 1px solid #ddd;
-                "
-              >
+                ">
                 Title
               </th>
-              <th
-                style="
+              <th style="
                   padding: 8px;
                   text-align: left;
                   border-bottom: 1px solid #ddd;
-                "
-              >
+                ">
                 Document
               </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(document, index) in document_list" :key="index">
-              <td
-                style="
+              <td style="
                   padding: 8px;
                   text-align: left;
                   border-bottom: 1px solid #ddd;
-                "
-              >
+                ">
                 {{ document.title }}
               </td>
-              <td
-                style="
+              <td style="
                   padding: 8px;
                   text-align: left;
                   border-bottom: 1px solid #ddd;
-                "
-              >
+                ">
                 <a :href="document.attachment" download target="_blank">
                   <v-icon color="primary"> mdi-download </v-icon>
                 </a>
@@ -365,7 +344,7 @@ export default {
       if (employee_id) {
         this.editItemId(employee_id);
       }
-    } catch (error) {}
+    } catch (error) { }
   },
   mounted() {
     //this.getDataFromApi();
@@ -405,7 +384,7 @@ export default {
     getLastLogin() {
       //
       this.$axios
-        .get(`activity/${(this.employeeObject.user_id = 1875)}?action=Login`)
+        .get(`activity/${(this.employeeObject.user_id)}?action=Login`)
         .then(({ data }) => {
           this.last_login = data.date_time;
         });

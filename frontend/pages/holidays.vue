@@ -363,9 +363,11 @@ export default {
     this.loading = true;
 
     let endDate = new Date();
+    this.filterYear = endDate.getFullYear();
+
     this.getDataFromApi();
     this.lastTenYears();
-    this.filterYear = endDate.getFullYear();
+
   },
 
   methods: {

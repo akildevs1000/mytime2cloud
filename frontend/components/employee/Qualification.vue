@@ -10,26 +10,16 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("certificate") }}</label>
-            <input
-              v-model="qualification_list.certificate"
-              type="text"
-              class="form-control"
-            />
-            <span
-              v-if="errors && errors.certificate"
-              class="text-danger mt-2"
-              >{{ errors.certificate[0] }}</span
-            >
+            <!-- <input v-model="qualification_list.certificate" type="text" class="form-control" /> -->
+            <v-text-field outlined dense small v-model="qualification_list.certificate"></v-text-field>
+            <span v-if="errors && errors.certificate" class="text-danger mt-2">{{ errors.certificate[0] }}</span>
           </div>
         </v-col>
         <v-col cols="6">
           <div class="form-group">
-            <label class="col-form-label">{{ caps("collage") }}</label>
-            <input
-              v-model="qualification_list.collage"
-              type="text"
-              class="form-control"
-            />
+            <label class="col-form-label">{{ caps("college ") }}</label>
+            <!-- <input v-model="qualification_list.collage" type="text" class="form-control" /> -->
+            <v-text-field outlined dense small v-model="qualification_list.collage"></v-text-field>
             <span v-if="errors && errors.collage" class="text-danger mt-2">{{
               errors.collage[0]
             }}</span>
@@ -38,11 +28,22 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("start date") }}</label>
-            <input
-              v-model="qualification_list.start"
-              class="form-control"
-              type="date"
-            />
+            <!-- <input v-model="qualification_list.start" class="form-control" type="date" /> -->
+            <v-menu ref="menu1" v-model="menu_start" :close-on-content-click="false"
+              :return-value.sync="qualification_list.start" transition="scale-transition" min-width="auto">
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field outlined dense small v-model="qualification_list.start" readonly v-bind="attrs"
+                  v-on="on"></v-text-field>
+              </template>
+              <v-date-picker @click="$refs.menu.save(qualification_list.start)" v-model="qualification_list.start"
+                no-title scrollable>
+                <v-spacer></v-spacer>
+                <v-btn text color="primary" @click="menu_start = false"> Cancel </v-btn>
+                <v-btn text color="primary" @click="$refs.menu1.save(qualification_list.start)">
+                  OK
+                </v-btn>
+              </v-date-picker>
+            </v-menu>
             <span v-if="errors && errors.start" class="text-danger mt-2">{{
               errors.start[0]
             }}</span>
@@ -51,11 +52,24 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("end date") }}</label>
-            <input
-              v-model="qualification_list.end"
-              type="date"
-              class="form-control"
-            />
+            <!-- <input v-model="qualification_list.end" type="date" class="form-control" /> -->
+
+
+            <v-menu ref="menu2" v-model="menu_end" :close-on-content-click="false"
+              :return-value.sync="qualification_list.end" transition="scale-transition" offset-y min-width="auto">
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field outlined dense small v-model="qualification_list.end" readonly v-bind="attrs"
+                  v-on="on"></v-text-field>
+              </template>
+              <v-date-picker @click="$refs.menu.save(qualification_list.end)" v-model="qualification_list.end" no-title
+                scrollable>
+                <v-spacer></v-spacer>
+                <v-btn text color="primary" @click="menu_end = false"> Cancel </v-btn>
+                <v-btn text color="primary" @click="$refs.menu2.save(qualification_list.end)">
+                  OK
+                </v-btn>
+              </v-date-picker>
+            </v-menu>
             <span v-if="errors && errors.end" class="text-danger mt-2">{{
               errors.end[0]
             }}</span>
@@ -64,11 +78,8 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("type") }}</label>
-            <input
-              v-model="qualification_list.type"
-              type="text"
-              class="form-control"
-            />
+            <!-- <input v-model="qualification_list.type" type="text" class="form-control" /> -->
+            <v-text-field outlined dense small v-model="qualification_list.type"></v-text-field>
             <span v-if="errors && errors.type" class="text-danger mt-2">{{
               errors.type[0]
             }}</span>
@@ -80,9 +91,7 @@
       </v-row>
       <v-row>
         <v-col cols="12" class="text-right">
-          <v-btn class="primary" small @click="save_qualification_info"
-            >Save</v-btn
-          >
+          <v-btn class="primary" small @click="save_qualification_info">Save</v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -98,7 +107,10 @@ export default {
       snackbar: false,
       response: "",
       errors: [],
+      menu: false,
       qualification_list: {},
+      menu_start: false,
+      menu_end: false,
     };
   },
   created() {
@@ -153,26 +165,8 @@ export default {
     close_qualification_info() {
       this.qualification_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
     },
   },
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #fbfdff;
-}
-</style>

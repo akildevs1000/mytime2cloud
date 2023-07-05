@@ -379,7 +379,7 @@ export default {
         .get("departments", options)
         .then(({ data }) => {
           this.departments = data.data;
-          this.departments.unshift({ id: "---", name: "All Departmetns" });
+          this.departments.unshift({ id: "---", name: "All Departments" });
         })
         .catch((err) => console.log(err));
     },
