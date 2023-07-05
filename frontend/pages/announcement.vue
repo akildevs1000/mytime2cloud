@@ -23,7 +23,7 @@
 
               <v-col cols="4">
                 <label for="">Department</label>
-                <v-autocomplete class="announcement-dropdown" dense @change="employeesByDepartment"
+                <v-autocomplete class="announcement-dropdown1" outlined dense @change="employeesByDepartment"
                   v-model="editedItem.departments" :items="departments" multiple item-text="name" item-value="id"
                   placeholder="Departments" :error-messages="errors && errors.departments ? errors.departments[0] : ''
                     ">
@@ -42,11 +42,19 @@
                       </v-list-item-content>
                     </v-list-item>
                   </template>
+                  <template v-slot:selection="{ item, index }">
+
+                    <span v-if="index === 0">{{ item.name }}</span>
+
+                    <span v-else-if="index === 1" class="grey--text text-caption">
+                      (+{{ editedItem.departments.length - 1 }} others)
+                    </span>
+                  </template>
                 </v-autocomplete>
               </v-col>
               <v-col cols="4">
                 <label for="">Employee</label>
-                <v-autocomplete class="announcement-dropdown" dense v-model="editedItem.employees"
+                <v-autocomplete class="announcement-dropdown1" outlined dense v-model="editedItem.employees"
                   :items="employees_dialog" multiple item-text="name_with_user_id" item-value="id" placeholder="Employees"
                   :error-messages="errors && errors.employees ? errors.employees[0] : ''
                     " color="background">
@@ -64,6 +72,14 @@
                         </v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
+                  </template>
+                  <template v-slot:selection="{ item, index }">
+
+                    <span v-if="index === 0">{{ item.first_name }} {{ item.last_name }}</span>
+
+                    <span v-else-if="index === 1" class="grey--text text-caption">
+                      (+{{ editedItem.employees.length - 1 }} others)
+                    </span>
                   </template>
                 </v-autocomplete>
               </v-col>

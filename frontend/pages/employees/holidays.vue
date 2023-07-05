@@ -6,7 +6,28 @@
       </v-snackbar>
     </div>
 
+    <v-dialog v-model="dialogFilter" width="300px">
 
+      <v-card elevation="0">
+        <v-toolbar color="background" dense flat dark>
+          <span> Select year</span>
+        </v-toolbar>
+        <v-divider class="py-0 my-0"></v-divider>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+
+                <v-select @change="getDataFromApi()" outlined dense x-small v-model="filterYear" :items="dataYears"
+                  placeholder="Year" solo flat></v-select>
+              </v-col>
+
+
+            </v-row>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
     <v-dialog v-model="dialog" width="500px">
       <v-card>
@@ -78,6 +99,8 @@
             <v-toolbar-title><span> Dashboard / {{ Model }} List</span></v-toolbar-title>
             <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
                 mdi-reload</v-icon></a>
+            <a style="padding-left:10px" @click="dialogFilter = true"><v-icon class="mx-1">mdi
+                mdi-calendar-blank-outline</v-icon> </a>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
@@ -100,77 +123,22 @@
           <v-data-table v-if="can(`holiday_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
             :loading="loading" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1">
+            }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
             <template v-slot:item.name="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ (item.name) }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'serach_name', $event)" v-model="datatable_search_textbox"
-                    label="Search Name"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ (item.name) }}
             </template>
             <template v-slot:item.start_date="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ (item.start_date) }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'search_start_date', $event)"
-                    v-model="datatable_search_textbox" label="Search Start Date"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ (item.start_date) }}
             </template>
             <template v-slot:item.end_date="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ (item.end_date) }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'search_end_date', $event)" v-model="datatable_search_textbox"
-                    label="Search End Date"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ (item.end_date) }}
             </template>
             <template v-slot:item.total_days="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ (item.total_days) }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'search_total_days', $event)"
-                    v-model="datatable_search_textbox" label="Search Total Days"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ (item.total_days) }}
             </template>
 
-            <template v-slot:item.departments="{ item }">
-              <span v-for="(dep, index) in item.departments" :key="index">
-                <v-chip small class="pa-2 ma-1" color="primary">
-                  {{ dep.name }}
-                </v-chip>
-              </span>
-            </template>
-            <template v-slot:item.employees="{ item }">
-              <span v-for="(emp, index) in item.employees.slice(0, 4)" :key="index">
-                <v-chip small class="p-2 ma-1" color="primary">
-                  <span>{{ emp.first_name }} {{ emp.last_name }} - {{ emp.employee_id }}</span>
-                </v-chip>
 
-              </span>
-              <v-chip small class="primary ma-1" style="color:black" @click="gotoDialogPage(item)"
-                v-if="item.employees.length > 4">
-                More..
-              </v-chip>
-            </template>
-            <template v-slot:item.description="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                <div style="width: 300px" class="pa-2">{{ item.description }}</div>
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'serach_description', $event)"
-                    v-model="datatable_search_textbox" label="Search Description"></v-text-field>
-                </template>
-              </v-edit-dialog>
-            </template>
+
             <template v-slot:no-data>
               <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
             </template>
@@ -184,6 +152,7 @@
 </template>
 <script>
 import {
+
   TiptapVuetify,
   Image,
   Heading,
@@ -209,6 +178,9 @@ export default {
     TiptapVuetify,
   },
   data: () => ({
+    dialogFilter: false,
+    options: {},
+    totalRowsCount: 0,
     formTitle: 'New Holiday Information',
     dialogEmployees: false,
     idsEmployeeList: [],
@@ -243,6 +215,7 @@ export default {
       HorizontalRule,
       Paragraph,
       HardBreak,
+
     ],
     // starting editor's content
     content: `
@@ -341,6 +314,8 @@ export default {
     selectAllDepartment: false,
     selectAllEmployee: false,
     DialogEmployeesData: {},
+    dataYears: [],
+    filterYear: '',
   }),
 
   computed: {
@@ -349,16 +324,28 @@ export default {
 
   watch: {
 
+    options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true,
+    },
   },
   created() {
     this.loading = true;
 
-
+    let endDate = new Date();
     this.getDataFromApi();
-
+    this.lastTenYears();
+    this.filterYear = endDate.getFullYear();
   },
 
   methods: {
+
+    lastTenYears() {
+      const year = new Date().getFullYear();
+      this.dataYears = Array.from({ length: 10 }, (_, i) => year - i);
+    },
     update_EdititemStart() {
 
       this.$refs.from_menu.save(this.editedItem.start_date)
@@ -466,17 +453,24 @@ export default {
       if (url == '') url = this.endpoint;
       this.loading = true;
 
-      let endDate = new Date();
 
 
 
-      const { page, itemsPerPage } = this.options;
+
+      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
+
 
       let options = {
         params: {
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
-          year: endDate.getFullYear(),
+          year: this.filterYear,
         },
       };
       if (filter_column != '') {
@@ -497,6 +491,9 @@ export default {
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
+
+        this.totalRowsCount = data.total;
+        this.dialogFilter = false;
       });
     },
     searchIt(e) {
