@@ -485,7 +485,7 @@ export default {
 
     setInterval(() => {
       this.verifyLeaveNotifications();
-    }, 1000 * 60);
+    }, 1000 * 60 * 60);
 
     if (user && user.is_master) {
       this.items = this.menus;

@@ -102,7 +102,7 @@ class EmployeeController extends Controller
 
         if ($request->employee_role_id) {
 
-            $user = User::where('id', $employee->user_id)->orWhere("employee_role_id", $request->employee_role_id)->first();
+            $user = User::where('id', $employee->user_id)->first();
 
             if ($user) {
                 $user->update(['employee_role_id' => $request->employee_role_id]);
@@ -162,7 +162,7 @@ class EmployeeController extends Controller
             ])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
+                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
             })
             //filters
             ->when($request->filled('employee_id'), function ($q) use ($request) {
@@ -184,26 +184,26 @@ class EmployeeController extends Controller
 
             ->when($request->filled('user_email'), function ($q) use ($request) {
                 // $q->where('local_email', 'LIKE', "$request->user_email%");
-                $q->whereHas('user', fn (Builder $query) => $query->where('email', 'ILIKE', "$request->user_email%"));
+                $q->whereHas('user', fn(Builder $query) => $query->where('email', 'ILIKE', "$request->user_email%"));
             })
             ->when($request->filled('department_name'), function ($q) use ($request) {
-                $q->whereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->department_name%"));
+                $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->department_name%"));
                 // $q->orWhereHas('sub_department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
             })
             ->when($request->filled('schedule_shift_name'), function ($q) use ($request) {
-                $q->whereHas('schedule.shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->schedule_shift_name%"));
-                $q->whereHas('schedule.shift', fn (Builder $query) => $query->whereNotNull('name'));
-                $q->whereHas('schedule.shift', fn (Builder $query) => $query->where('name', '<>', '---'));
+                $q->whereHas('schedule.shift', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->schedule_shift_name%"));
+                $q->whereHas('schedule.shift', fn(Builder $query) => $query->whereNotNull('name'));
+                $q->whereHas('schedule.shift', fn(Builder $query) => $query->where('name', '<>', '---'));
             })
             ->when($request->filled('timezone_name'), function ($q) use ($request) {
-                $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezone_name%"));
+                $q->whereHas('timezone', fn(Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezone_name%"));
             })
 
             ->when($request->filled('payroll_basic_salary'), function ($q) use ($request) {
-                $q->whereHas('payroll', fn (Builder $query) => $query->where('basic_salary', '>=', $request->payroll_basic_salary));
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('basic_salary', '>=', $request->payroll_basic_salary));
             })
             ->when($request->filled('payroll_net_salary'), function ($q) use ($request) {
-                $q->whereHas('payroll', fn (Builder $query) => $query->where('net_salary', '>=', $request->payroll_net_salary));
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('net_salary', '>=', $request->payroll_net_salary));
             })
 
             ->when($request->filled('sortBy'), function ($q) use ($request) {
@@ -226,22 +226,22 @@ class EmployeeController extends Controller
             ->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role", "payroll", "timezone"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
+                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
             })
             ->when($request->filled('search_column_name'), function ($q) use ($request, $text) {
                 $q->where($request->search_column_name, 'ILIKE', "$text%");
             })
             ->when($request->filled('search_department_name'), function ($q) use ($request, $text) {
-                $q->whereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$text%"));
+                $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$text%"));
             })
             ->when($request->filled('search_designation_name'), function ($q) use ($request, $text) {
-                $q->whereHas('designation', fn (Builder $query) => $query->where('name', 'ILIKE', "$text%"));
+                $q->whereHas('designation', fn(Builder $query) => $query->where('name', 'ILIKE', "$text%"));
             })
             ->when($request->filled('searchBybasic_salary'), function ($q) use ($request, $text) {
-                $q->whereHas('payroll', fn (Builder $query) => $query->where('basic_salary', '>=', $text));
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('basic_salary', '>=', $text));
             })
             ->when($request->filled('searchBynet_salary'), function ($q) use ($request, $text) {
-                $q->whereHas('payroll', fn (Builder $query) => $query->where('net_salary', '>=', $text));
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('net_salary', '>=', $text));
             })
 
             ->paginate($request->perPage ?? 20);
@@ -270,13 +270,13 @@ class EmployeeController extends Controller
 
         return $data;
     }
-    
+
     public function attendance_employees(Employee $employee, Request $request)
     {
         //
         return Attendance::with('employeeAttendance')->get('employee_id');
     }
-    
+
     public function show(Employee $employee)
     {
         return $employee->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role"])->whereId($employee->id)->first();
@@ -445,7 +445,7 @@ class EmployeeController extends Controller
                 ->with(["user", "department", "sub_department", "designation", "timezone"])
                 ->where('company_id', $request->company_id)
                 ->when($request->filled('department_id'), function ($q) use ($request) {
-                    $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
+                    $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
                 })
                 ->when($request->filled('search_employee_id'), function ($q) use ($request, $key) {
                     //$q->where('employee_id', 'LIKE', "$key%");
@@ -468,16 +468,16 @@ class EmployeeController extends Controller
                     $q->where('local_email', 'LIKE', "$key%");
                 })
                 ->when($request->filled('search_department_name'), function ($q) use ($request, $key) {
-                    $q->whereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+                    $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
                     // $q->orWhereHas('sub_department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
                 })
                 ->when($request->filled('search_shiftname'), function ($q) use ($request, $key) {
-                    $q->whereHas('schedule.shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
-                    $q->whereHas('schedule.shift', fn (Builder $query) => $query->whereNotNull('name'));
-                    $q->whereHas('schedule.shift', fn (Builder $query) => $query->where('name', '<>', '---'));
+                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->whereNotNull('name'));
+                    $q->whereHas('schedule.shift', fn(Builder $query) => $query->where('name', '<>', '---'));
                 })
                 ->when($request->filled('search_timezonename'), function ($q) use ($request, $key) {
-                    $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_name', 'ILIKE', "$key%"));
+                    $q->whereHas('timezone', fn(Builder $query) => $query->where('timezone_name', 'ILIKE', "$key%"));
                 })
                 ->paginate($request->perPage ?? 20);
         } else {
@@ -557,6 +557,7 @@ class EmployeeController extends Controller
         $arr["name"] = "null";
         $arr["email"] = $request->email;
         $arr["company_id"] = $request->company_id;
+        $arr["employee_role_id"] = $request->employee_role_id;
         $arr['password'] = Hash::make($request->password ?? "secret");
 
         try {

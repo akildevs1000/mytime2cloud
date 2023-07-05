@@ -98,15 +98,7 @@
                     : ''
                     " dense outlined></v-autocomplete>
               </v-col>
-              <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Role </label>
-                <v-autocomplete :items="roles" item-text="name" item-value="id" placeholder="Select"
-                  v-model="employee.employee_role_id" :hide-details="!errors.employee_role_id"
-                  :error="errors.employee_role_id" :error-messages="errors && errors.employee_role_id
-                    ? errors.employee_role_id[0]
-                    : ''
-                    " dense outlined></v-autocomplete>
-              </v-col>
+
               <v-col md="6" sm="12" cols="12">
                 <label class="col-form-label">Leave Group Id</label>
                 <v-autocomplete :items="leave_groups" item-text="group_name" item-value="id" placeholder="Select"
@@ -218,7 +210,7 @@ export default {
       employee_id: "",
       system_user_id: "",
       profile_picture: "",
-      employee_role_id: "",
+      //employee_role_id: "",
       leave_group_id: "",
       reporting_manager_id: "",
     },
@@ -345,7 +337,7 @@ export default {
             department_id: data.department_id,
             sub_department_id: data.sub_department_id,
             designation_id: data.designation_id,
-            employee_role_id: data.user.employee_role_id,
+            //employee_role_id: data.user.employee_role_id,
             leave_group_id: data.leave_group_id,
             reporting_manager_id: data.reporting_manager_id,
           };

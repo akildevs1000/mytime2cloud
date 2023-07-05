@@ -434,6 +434,7 @@
 <script>
 export default {
   data: () => ({
+    filterLoader: false,
     filters: {},
     isFilter: false,
     totalRowsCount: 0,
