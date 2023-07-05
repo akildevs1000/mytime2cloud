@@ -14,7 +14,7 @@ class ActivityController extends Controller
 
     public function show(Request $request, $user_id)
     {
-        return $this->filters($request)->where("user_id", $user_id)->first();
+        return $this->filters($request)->where("user_id", $user_id)->orderByDesc("id")->first();
     }
 
     public function activitiesByUser(Request $request, $user_id)
@@ -34,8 +34,6 @@ class ActivityController extends Controller
         });
         return $model->with('employee');
     }
-
-
 
     public function store(Request $request)
     {
