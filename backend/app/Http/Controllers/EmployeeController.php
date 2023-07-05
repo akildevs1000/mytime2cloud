@@ -791,7 +791,7 @@ class EmployeeController extends Controller
         $model
             ->where('employee_id', $request->employee_id)
             ->where('company_id', $request->company_id)
-            ->update($request->only(['status', 'overtime', 'mobile_application', 'leave_group_id', 'reporting_manager_id']));
+            ->update($request->only(['status', 'mobile_application', 'leave_group_id', 'reporting_manager_id']));
 
         return response()->json(['status' => true, 'message' => 'Setting successfully updated']);
     }

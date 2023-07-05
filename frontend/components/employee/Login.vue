@@ -7,7 +7,7 @@
     </div>
     <v-card>
       <v-card-text>
-        <v-dialog v-model="dialogCropping" width="500">
+        <v-dialog v-model="dialogCropping" width="400">
           <v-card style="padding-top: 20px">
             <v-card-text>
               <!-- <img :src="imageUrl" alt="Preview Image" /> -->
@@ -31,50 +31,46 @@
           </v-card>
         </v-dialog>
         <v-row>
-          <v-col col="6">
-            <v-row>
-              <v-col md="8" sm="8" cols="8" dense>
-                <label class="col-form-label">Email<span class="text-danger">*</span></label>
-                <v-text-field dense outlined :hide-details="!errors.email" type="text" v-model="employee.email"
-                  :error="errors.email" :error-messages="errors && errors.email ? errors.email[0] : ''"></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col md="8" sm="8" cols="8" dense>
-                <label class="col-form-label">Password</label>
-                <v-text-field dense outlined :hide-details="!errors.password" type="text" v-model="employee.password"
-                  :error="errors.password" :error-messages="errors && errors.password ? errors.password[0] : ''
-                    "></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col md="8" sm="8" cols="8" dense>
-                <label class="col-form-label">Confirm Password</label>
-                <v-text-field dense outlined :hide-details="!errors.password_confirmation" type="text"
-                  v-model="employee.password_confirmation" :error="errors.password_confirmation" :error-messages="errors && errors.password_confirmation
-                    ? errors.password_confirmation[0]
-                    : ''
-                    "></v-text-field>
-              </v-col>
-            </v-row>
+
+          <v-col md="6" sm="6" cols="6" dense>
+            <label class="col-form-label">Employee Roll <span class="text-danger">*</span></label>
+            <v-autocomplete :items="roles" item-text="name" item-value="id" placeholder="Select"
+              v-model="employee.employee_role_id" :hide-details="!errors.employee_role_id"
+              :error="errors.employee_role_id" :error-messages="errors && errors.employee_role_id
+                ? errors.employee_role_id[0]
+                : ''
+                " dense outlined></v-autocomplete>
           </v-col>
-          <v-col col="6">
-            <v-row>
-              <v-col md="8" sm="8" cols="8" dense>
-                <label class="col-form-label">Employee Roll <span class="text-danger">*</span></label>
-                <v-autocomplete :items="roles" item-text="name" item-value="id" placeholder="Select"
-                  v-model="employee.employee_role_id" :hide-details="!errors.employee_role_id"
-                  :error="errors.employee_role_id" :error-messages="errors && errors.employee_role_id
-                    ? errors.employee_role_id[0]
-                    : ''
-                    " dense outlined></v-autocomplete>
-              </v-col>
-            </v-row>
+        </v-row>
+        <v-row>
+          <v-col md="6" sm="6" cols="6" dense>
+            <label class="col-form-label">Email<span class="text-danger">*</span></label>
+            <v-text-field dense outlined :hide-details="!errors.email" type="text" v-model="employee.email"
+              :error="errors.email" :error-messages="errors && errors.email ? errors.email[0] : ''"></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col md="6" sm="6" cols="6" dense>
+            <label class="col-form-label">Password</label>
+            <v-text-field dense outlined :hide-details="!errors.password" type="text" v-model="employee.password"
+              :error="errors.password" :error-messages="errors && errors.password ? errors.password[0] : ''
+                "></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col md="6" sm="6" cols="4" dense>
+            <label class="col-form-label">Confirm Password</label>
+            <v-text-field dense outlined :hide-details="!errors.password_confirmation" type="text"
+              v-model="employee.password_confirmation" :error="errors.password_confirmation" :error-messages="errors && errors.password_confirmation
+                ? errors.password_confirmation[0]
+                : ''
+                "></v-text-field>
           </v-col>
         </v-row>
 
+
         <v-row>
-          <v-col cols="12" class="text-right">
+          <v-col cols="8" class="text-right">
             <v-btn v-if="can('employee_create')" small :loading="loading" color="primary" @click="submit">
               Submit
             </v-btn>

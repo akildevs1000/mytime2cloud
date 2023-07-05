@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-15">
+  <div class="mt-5">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" color="background">
         {{ response }}
@@ -7,16 +7,16 @@
     </div>
 
     <v-row>
-      <v-card class="mb-5 rounded-md" elevation="0">
-        <v-toolbar class=" " color="background" dense flat dark>
+      <v-card class="mb-5   " elevation="0">
+        <!-- <v-toolbar class=" " color="background" dense flat dark>
           <span> Settings</span>
           <v-spacer></v-spacer>
-        </v-toolbar>
-        <v-col cols="12">
+        </v-toolbar> -->
+        <v-col cols="12 " class="outlined" elevation="2">
 
           <v-col col="6">
             <v-col md="6" sm="12" cols="12">
-              <label class="col-form-label">Leave Group Name</label>
+              <label class="col-form-label"> <strong>Leave Group Name</strong></label>
               <v-autocomplete :items="leave_groups" item-text="group_name" item-value="id" placeholder="Select"
                 v-model="setting.leave_group_id" :hide-details="!errors.leave_group_id" :error="errors.leave_group_id"
                 :error-messages="errors && errors.leave_group_id
@@ -24,8 +24,8 @@
                   : ''
                   " dense outlined></v-autocomplete>
             </v-col>
-            <v-col md="6" sm="12" cols="12">
-              <label class="col-form-label">Leave Manager/Reporting Manger </label>
+            <v-col md="6" sm="12" cols="12" outlined>
+              <label class="col-form-label"><strong>Leave Manager/Reporting Manger</strong> </label>
               <v-autocomplete :items="leave_managers" :item-text="getEmployeeName" item-value="id" placeholder="Select"
                 v-model="setting.reporting_manager_id" :hide-details="!errors.reporting_manager_id"
                 :error="errors.reporting_manager_id" :error-messages="errors && errors.reporting_manager_id
@@ -38,31 +38,31 @@
 
           </v-col>
 
-          <v-col col="6">
+          <v-col col="6" outlined elevation="2">
 
-            <table style="width:100%">
+            <table style="width:70%">
               <tr>
-                <th>Employee Status</th>
+                <td><strong>Employee Status</strong></td>
                 <td>
                   <v-switch color="success" class="mt-0 ml-2" v-model="setting.status"></v-switch>
                 </td>
               </tr>
 
               <tr>
-                <th>Mobile App Login</th>
+                <td><strong>Mobile App Login</strong></td>
                 <td>
                   <v-switch color="success" class="mt-0 ml-2" v-model="setting.mobile_application"></v-switch>
                 </td>
               </tr>
 
-              <tr>
+              <!-- <tr>
                 <th>Over Time</th>
                 <td>
                   <div class="text-overline mb-1">
                     <v-switch color="success" class="mt-0 ml-2" v-model="setting.overtime"></v-switch>
                   </div>
                 </td>
-              </tr>
+              </tr> -->
               <tr>
                 <th> </th>
                 <td>
@@ -92,6 +92,7 @@ export default {
       leave_managers: [],
       leave_groups: [],
       errors: [],
+      loading: false,
     };
   },
   created() {
@@ -129,11 +130,14 @@ export default {
       return item.first_name ? item.first_name + ' ' + item.last_name : '---';
     },
     getInfo(id) {
+      this.loading = true;
       this.$axios.get(`employee/${id}`).then(({ data }) => {
         this.employeeId = data.id;
         this.setting = {
           ...data,
         };
+        this.loading = false;
+
       });
     },
     caps(str) {
@@ -149,7 +153,7 @@ export default {
         company_id: this.$auth?.user?.company?.id,
         employee_id: this.setting.employee_id,
         status: this.setting.status,
-        overtime: this.setting.overtime,
+        //overtime: this.setting.overtime,
         mobile_application: this.setting.mobile_application,
         leave_group_id: this.setting.leave_group_id,
         reporting_manager_id: this.setting.reporting_manager_id,
