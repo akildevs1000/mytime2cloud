@@ -30,14 +30,149 @@ class MultiInOutShiftController extends Controller
 
         $arr = [];
 
-        $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
+        $companies = $this->getModelDataByCompanyIdForFrontend($currentDate, $companyIds, $UserIDs, $shift_type_id);
+
+        if (!count($companies)) {
+            return $this->response("No Log(s) found", null, false);
+        }
 
         foreach ($companies as $company_id => $data) {
-            // return ScheduleEmployee::where("company_id",$company_id)->delete();
-            $arr[] = $this->processData($company_id, $data, $currentDate, $shift_type_id);
+            if (count($companies) == 1) {
+                $arr = $this->processDataForFrontend($company_id, $data, $currentDate, $shift_type_id);
+            } else {
+                $arr[] = $this->processDataForFrontend($company_id, $data, $currentDate, $shift_type_id);
+            }
+            return $this->response($arr, null, true);
         }
-        // return $arr;
-        return "Logs Count " . array_sum($arr);
+    }
+
+    public function getModelDataByCompanyIdForFrontend($currentDate, $companyIds, $UserIDs, $shift_type_id)
+    {
+        $model = AttendanceLog::query();
+
+        $model->where(function ($q) use ($currentDate, $companyIds, $UserIDs, $shift_type_id) {
+            $q->where("checked", false);
+            $q->where("company_id", '>', 0);
+
+            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
+                $q->whereIn("company_id", $companyIds);
+            });
+
+            $q->when(count($UserIDs) > 0, function ($q) use ($UserIDs) {
+                $q->whereIn("UserID", $UserIDs);
+            });
+
+            $q->whereDate("LogTime", $currentDate);
+        });
+
+        $nextDate = date('Y-m-d', strtotime($currentDate . '+ 1 day'));
+
+        $model->orWhere(function ($q) use ($nextDate, $companyIds, $UserIDs, $shift_type_id) {
+            $q->where("checked", false);
+            $q->where("company_id", '>', 0);
+
+            $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
+                $q->whereIn("company_id", $companyIds);
+            });
+
+            $q->when(count($UserIDs) > 0, function ($q) use ($UserIDs) {
+                $q->whereIn("UserID", $UserIDs);
+            });
+
+            $q->whereDate("LogTime", $nextDate);
+        });
+
+        // $model->with(["schedule"]);
+
+        $model->orderBy("LogTime");
+
+        return $model->get(["UserID", "company_id"])->groupBy(["company_id", "UserID"])->toArray();
+    }
+
+    public function processDataForFrontend($companyId, $data, $date, $shift_type_id)
+    {
+        $temp = [];
+        $items = [];
+        $UserIDs = [];
+
+        $result = [];
+
+
+
+        foreach ($data as $UserID => $data) {
+
+            $schedule = $this->getSchedule($date, $companyId, $UserID, $shift_type_id);
+
+            if (!$schedule) {
+                $result = "Employee with $UserID SYSTEM USER ID not scheduled yet.";
+                continue;
+            }
+
+
+            $UserIDs[] = $UserID;
+
+            $data = $this->getLogsWithInRange($companyId, $UserID, $schedule["range"], $shift_type_id);
+
+            $temp = [
+                "status" => count($data) == 1 ?  Attendance::MISSING : Attendance::PRESENT,
+                // "status" => count($data)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+                "shift_type_id" => $shift_type_id,
+                "date" => $date,
+                "company_id" => $companyId,
+                "shift_id" => $schedule['shift_id'],
+                "roster_id" => $schedule['roster_id'],
+                "employee_id" => $UserID,
+                "logs" => [],
+                "total_hrs" => 0,
+            ];
+
+            $totalMinutes = 0;
+
+            for ($i = 0; $i < count($data); $i++) {
+                $currentLog = $data[$i];
+                $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
+
+                $temp["logs"][] =  [
+                    "in" => $currentLog['time'],
+                    "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
+                    "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
+                    // $currentLog['LogTime'], $nextLog['time'] ?? "---"
+                ];
+
+                if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
+
+                    $parsed_out = strtotime($nextLog['time'] ?? 0);
+                    $parsed_in = strtotime($currentLog['time'] ?? 0);
+
+                    if ($parsed_in > $parsed_out) {
+                        $parsed_out += 86400;
+                    }
+
+                    $diff = $parsed_out - $parsed_in;
+
+                    $minutes = floor($diff / 60);
+
+                    $totalMinutes += $minutes > 0 ? $minutes : 0;
+                }
+
+                $temp["total_hrs"] = $this->minutesToHours($totalMinutes);
+
+                if ($schedule['isOverTime']) {
+                    $temp["ot"] = $this->calculatedOT($temp["total_hrs"], $schedule['working_hours'], $schedule['overtime_interval']);
+                }
+
+                $this->storeOrUpdate($temp);
+                $items[] = $temp;
+
+
+                $result[] = "Employee with $UserID SYSTEM USER ID logs has been rendered";
+
+                $i++;
+            }
+        }
+        AttendanceLog::whereIn("UserID",  $UserIDs)->whereDate("LogTime", $date)->where("company_id", $companyId)->update(["checked" => true]);
+
+        return $result;
     }
 
     public function getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id)
