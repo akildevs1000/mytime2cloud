@@ -7,7 +7,7 @@
     </div>
 
     <v-row>
-
+      <v-progress-linear :active="loading" color="primary" indeterminate></v-progress-linear>
 
       <v-col cols="6" xs="6" sm="12" md="6" lg="6" xl="6">
         <v-col md="12" sm="12" cols="12">
@@ -111,19 +111,19 @@ export default {
   methods: {
     getLeaveGroups() {
       this.payloadOptions.params.company_id = this.$auth.user.company.id;
-
+      this.loading = true;
       this.$axios.get(`leave_groups`, this.payloadOptions).then(({ data }) => {
         this.leave_groups = data.data;
-
+        this.loading = false;
       });
     },
     getLeaveManagers() {
-
+      this.loading = true;
       this.payloadOptions.params.company_id = this.$auth.user.company.id;
 
       this.$axios.get(`employeesList`, this.payloadOptions).then(({ data }) => {
         this.leave_managers = data.data;
-
+        this.loading = false;
       });
     },
     getEmployeeName(item) {
