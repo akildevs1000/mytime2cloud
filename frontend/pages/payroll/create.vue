@@ -169,6 +169,7 @@ export default {
       .get(`/payroll_formula/${this.payload.company_id}`)
       .then(({ data }) => {
         if (data) {
+          this.payload = data;
         }
       })
       .catch((e) => console.log(e));
