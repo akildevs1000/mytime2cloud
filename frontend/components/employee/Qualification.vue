@@ -29,20 +29,15 @@
           <div class="form-group">
             <label class="col-form-label">{{ caps("start date") }}</label>
             <!-- <input v-model="qualification_list.start" class="form-control" type="date" /> -->
-            <v-menu ref="menu1" v-model="menu_start" :close-on-content-click="false"
-              :return-value.sync="qualification_list.start" transition="scale-transition" min-width="auto">
+
+            <v-menu v-model="menu_start" :close-on-content-click="false" transition="scale-transition" offset-y
+              max-width="290px" min-width="auto">
               <template v-slot:activator="{ on, attrs }">
-                <v-text-field outlined dense small v-model="qualification_list.start" readonly v-bind="attrs"
-                  v-on="on"></v-text-field>
+                <v-text-field :hide-details="!qualification_list.start" :error-messages="errors.issue && errors.issue[0]"
+                  v-model="qualification_list.start" persistent-hint append-icon="mdi-calendar" readonly outlined dense
+                  v-bind="attrs" v-on="on"></v-text-field>
               </template>
-              <v-date-picker @click="$refs.menu.save(qualification_list.start)" v-model="qualification_list.start"
-                no-title scrollable>
-                <v-spacer></v-spacer>
-                <v-btn text color="primary" @click="menu_start = false"> Cancel </v-btn>
-                <v-btn text color="primary" @click="$refs.menu1.save(qualification_list.start)">
-                  OK
-                </v-btn>
-              </v-date-picker>
+              <v-date-picker v-model="qualification_list.start" no-title @input="menu_start = false"></v-date-picker>
             </v-menu>
             <span v-if="errors && errors.start" class="text-danger mt-2">{{
               errors.start[0]
@@ -52,23 +47,15 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("end date") }}</label>
-            <!-- <input v-model="qualification_list.end" type="date" class="form-control" /> -->
 
-
-            <v-menu ref="menu2" v-model="menu_end" :close-on-content-click="false"
-              :return-value.sync="qualification_list.end" transition="scale-transition" offset-y min-width="auto">
+            <v-menu v-model="menu_end" :close-on-content-click="false" transition="scale-transition" offset-y
+              max-width="290px" min-width="auto">
               <template v-slot:activator="{ on, attrs }">
-                <v-text-field outlined dense small v-model="qualification_list.end" readonly v-bind="attrs"
-                  v-on="on"></v-text-field>
+                <v-text-field :hide-details="!qualification_list.end" :error-messages="errors.issue && errors.issue[0]"
+                  v-model="qualification_list.end" persistent-hint append-icon="mdi-calendar" readonly outlined dense
+                  v-bind="attrs" v-on="on"></v-text-field>
               </template>
-              <v-date-picker @click="$refs.menu.save(qualification_list.end)" v-model="qualification_list.end" no-title
-                scrollable>
-                <v-spacer></v-spacer>
-                <v-btn text color="primary" @click="menu_end = false"> Cancel </v-btn>
-                <v-btn text color="primary" @click="$refs.menu2.save(qualification_list.end)">
-                  OK
-                </v-btn>
-              </v-date-picker>
+              <v-date-picker v-model="qualification_list.end" no-title @input="menu_end = false"></v-date-picker>
             </v-menu>
             <span v-if="errors && errors.end" class="text-danger mt-2">{{
               errors.end[0]

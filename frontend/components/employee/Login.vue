@@ -70,7 +70,7 @@
 
 
         <v-row>
-          <v-col cols="8" class="text-right">
+          <v-col cols="12" class="text-right">
             <v-btn v-if="can('employee_create')" small :loading="loading" color="primary" @click="submit">
               Submit
             </v-btn>
