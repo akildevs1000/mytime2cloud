@@ -44,10 +44,12 @@
                   </template>
                   <template v-slot:selection="{ item, index }">
 
-                    <span v-if="index === 0">{{ item.name }}</span>
-
-                    <span v-else-if="index === 1" class="grey--text text-caption">
-                      (+{{ editedItem.departments.length - 1 }} others)
+                    <span v-if="index === 0 && editedItem.departments.length == 1">{{ item.name }}</span>
+                    <span v-else-if="index === 1 && editedItem.departments.length == departments.length" class=" ">
+                      All Selected
+                    </span>
+                    <span v-else-if="index === 1" class=" ">
+                      Selected {{ editedItem.departments.length }} Department(s)
                     </span>
                   </template>
                 </v-autocomplete>
@@ -75,12 +77,23 @@
                   </template>
                   <template v-slot:selection="{ item, index }">
 
+                    <span v-if="index === 0 && editedItem.employees.length == 1">{{ item.first_name }} {{ item.last_name
+                    }}</span>
+                    <span v-else-if="index === 1 && editedItem.employees.length == employees_dialog.length" class=" ">
+                      All Selected
+                    </span>
+                    <span v-else-if="index === 1" class=" ">
+                      Selected {{ editedItem.employees.length }} Employee(s)
+                    </span>
+                  </template>
+                  <!-- <template v-slot:selection="{ item, index }">
+
                     <span v-if="index === 0">{{ item.first_name }} {{ item.last_name }}</span>
 
                     <span v-else-if="index === 1" class="grey--text text-caption">
                       (+{{ editedItem.employees.length - 1 }} others)
                     </span>
-                  </template>
+                  </template> -->
                 </v-autocomplete>
               </v-col>
 
@@ -264,22 +277,22 @@
             </template>
             <template v-slot:item.departments="{ item }">
               <span v-for="(dep, index) in item.departments" :key="index">
-                <v-chip small class="pa-2 ma-1" color="primary">
+                <v-span small class="pa-2 ma-1" color="primary">
                   {{ dep.name }}
-                </v-chip>
+                </v-span>
                 <br>
               </span>
             </template>
             <template v-slot:item.employees="{ item }">
               <span v-for="(emp, index) in item.employees.slice(0, 4)" :key="index">
-                <v-chip small class="p-2 ma-1" color="primary">
+                <v-span small class="p-2 ma-1" color="primary">
                   <span>{{ emp.first_name }} {{ emp.last_name }} -
                     {{ emp.employee_id }}</span>
-                </v-chip>
+                </v-span>
                 <br>
               </span>
-              <v-chip small class="primary ma-1" style="color: black" @click="gotoDialogPage(item)"
-                v-if="item.employees.length > 4">
+              <v-chip small class="primary ma-1" style="color: black;    margin-left: 10px!important;"
+                @click="gotoDialogPage(item)" v-if="item.employees.length > 4">
                 More..
               </v-chip>
             </template>
@@ -516,9 +529,14 @@ export default {
     selectAllDepartment(value) {
       if (value) {
         this.editedItem.departments = this.departments.map((e) => e.id);
+        this.employeesByDepartment();
       } else {
         this.editedItem.departments = [];
+
+        this.getEmployees();
       }
+
+
     },
 
     selectAllEmployee(value) {
@@ -605,7 +623,7 @@ export default {
           company_id: this.$auth.user.company.id,
         },
       };
-
+      this.employees_dialog = [];
       if (!this.editedItem.departments.length) {
         this.getEmployees();
         return;
