@@ -219,7 +219,7 @@
                 </v-row>
                 <v-row v-if="dialogViewObject.status == 0">
                   <v-col cols="4">
-                    <strong>Approve/Reject Notes </strong>
+                    <strong>{{ dialogViewObject.status == 1 ? "Approved" : "Rejected" }} Notes </strong>
                   </v-col>
                   <v-col cols="8">
                     <v-textarea rows="3" dense outlined v-model="editedItem.approve_reject_notes" placeholder="Notes"
@@ -466,6 +466,13 @@
                       </v-icon> Delete
                     </v-list-item-title>
                   </v-list-item> -->
+                  <v-list-item @click="view(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon v-if="can(`leave_application_view`)" color="primary" small @click="view(item)">
+                        mdi-information
+                      </v-icon>View Application
+                    </v-list-item-title>
+                  </v-list-item>
                   <v-list-item
                     @click="gotoGroupDetails(item.employee.leave_group_id, item.employee.id, item.employee.full_name)">
                     <v-list-item-title style=" cursor: pointer">
@@ -474,13 +481,7 @@
                       </v-icon> Statistics
                     </v-list-item-title>
                   </v-list-item>
-                  <v-list-item @click="view(item)">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_application_view`)" color="primary" small @click="view(item)">
-                        mdi-information
-                      </v-icon>View Application
-                    </v-list-item-title>
-                  </v-list-item>
+
 
                 </v-list>
               </v-menu>

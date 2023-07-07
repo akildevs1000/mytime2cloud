@@ -180,11 +180,13 @@
                 <v-row>
 
 
-                  <v-col cols="12">
-                    <v-btn cols="2" @click="addDocumentInfo" small dense class="align-right primary mb-2"
-                      style="float:right">Add
+                  <v-col cols="12" class="text-right">
+                    <v-btn title="Maximum file upload size is 100Kb" cols="2" @click="addDocumentInfo" small dense
+                      class="  primary mb-2" style="float:right">Add
                       Document +
                     </v-btn>
+
+
                   </v-col>
                 </v-row>
 
@@ -201,7 +203,7 @@
                   </v-col>
                   <v-col cols="5" class="file-upload">
                     <!-- <label class="col-form-label">File <span class="text-danger">*</span></label> -->
-                    <v-file-input @change="uploadFilesizevalidation($event, index)" small dense outlined v-model="d.file"
+                    <v-file-input @change="uploadFilesizeValidation($event, index)" small dense outlined v-model="d.file"
                       style="padding:0px">
                       <template v-slot:selection="{ text }" style="padding:0px">
                         <v-chip v-if="text" small label color="primary" class="ma-1" style="width:80%">
@@ -231,8 +233,9 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer></v-spacer>
           <v-btn class="error" small @click="close"> Cancel </v-btn>
+          <v-spacer></v-spacer>
+
           <v-btn v-if="newLeaveApplication" class="primary" small @click="save">Save</v-btn>
           <v-btn v-else class="danger" small>Reached maximum Leave count</v-btn>
 
@@ -348,7 +351,7 @@
 
                 <v-row v-if="dialogViewObject.status != 0">
                   <v-col cols="4">
-                    <strong>Approve/Reject Notes </strong>
+                    <strong>{{ dialogViewObject.status == 1 ? "Approved" : "Rejected" }} Notes </strong>
                   </v-col>
                   <v-col cols="8">
 
@@ -1292,7 +1295,7 @@ export default {
     //     }
     //   }
     // },
-    uploadFilesizevalidation(file, index) {
+    uploadFilesizeValidation(file, index) {
 
 
       if (file) {
@@ -1302,7 +1305,7 @@ export default {
             "status": false,
 
             "value": [
-              "File is too big (> 100kb). Upload less than 100Kb"
+              "Upload less than 100Kb. File is too big (> 100kb). "
             ]
           };
           return false;
@@ -1326,7 +1329,7 @@ export default {
 
 
 
-        if (e.file != '' && this.uploadFilesizevalidation(e.file, totalFiles)) {
+        if (e.file != '' && this.uploadFilesizeValidation(e.file, totalFiles)) {
 
 
           totalFiles++;
