@@ -28,7 +28,7 @@ class Employee extends Model
 
     public function schedule()
     {
-        return $this->hasOne(ScheduleEmployee::class, "employee_id", "system_user_id")->withDefault([
+        return $this->hasOne(ScheduleEmployee::class, "employee_id", "employee_id")->withDefault([
             "shift_type_id" => "---",
             "shift_type" => [
                 "name" => "---",

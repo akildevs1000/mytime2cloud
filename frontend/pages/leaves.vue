@@ -121,7 +121,6 @@
           <v-container>
             <v-row>
               <v-col cols="5">
-
                 <v-row>
                   <v-col cols="4">
                     <label for="">
@@ -300,22 +299,22 @@
             }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
-                <td v-for="header in      headers     " :key="header.text" class="table-search-header">
-                  <v-text-field style="padding-left: 10px;" v-if="header.filterable && header.text != 'Status'"
+                <td v-for="header in headers" :key="header.text">
+                  <v-text-field :hide-details="true" v-if="header.filterable && header.text != 'Status'"
                     v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
-                    height="10px" clearable autocomplete="off"></v-text-field>
+                    dense autocomplete="off"></v-text-field>
 
-                  <v-select class="filter-select-hidden-text" v-model="filters[header.value]"
-                    v-else-if="header.filterable && header.text == 'Status'" height="10px;width:5px"
-                    style="padding: 0px;width:100%" small density="compact" @change="applyFilters('status', $event)"
-                    clearable item-value="value" item-text="title" :items="[{ value: '', title: 'All' }, { value: 'approved', title: 'Approved' }, {
-                      value: 'rejected',
-                      title: 'Rejected'
-                    }, { value: 'pending', title: 'Pending' }]"></v-select>
-
-                  <template v-else>
-                    <!-- {{ header.text }} -->
-                  </template>
+                  <v-select :hide-details="true" @change="applyFilters('status', $event)" item-value="value"
+                    item-text="title" v-model="filters[header.value]" outlined dense
+                    v-else-if="header.filterable && header.text == 'Status'" :items="[
+                      { value: '', title: 'All' },
+                      { value: 'approved', title: 'Approved' },
+                      {
+                        value: 'rejected',
+                        title: 'Rejected',
+                      },
+                      { value: 'pending', title: 'Pending' },
+                    ]"></v-select>
                 </td>
               </tr>
             </template>
