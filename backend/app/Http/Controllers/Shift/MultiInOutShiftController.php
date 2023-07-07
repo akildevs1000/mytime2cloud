@@ -45,7 +45,7 @@ class MultiInOutShiftController extends Controller
         $model = AttendanceLog::query();
 
         $model->where(function ($q) use ($currentDate, $companyIds, $UserIDs, $shift_type_id) {
-            $q->where("checked", true);
+            $q->where("checked", false);
             $q->where("company_id", '>', 0);
 
             $q->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate) {
@@ -68,7 +68,7 @@ class MultiInOutShiftController extends Controller
         $nextDate = date('Y-m-d', strtotime($currentDate . '+ 1 day'));
 
         $model->orWhere(function ($q) use ($nextDate, $companyIds, $UserIDs, $shift_type_id) {
-            $q->where("checked", true);
+            $q->where("checked", false);
             $q->where("company_id", '>', 0);
 
             $q->whereHas("schedule", function ($q) use ($shift_type_id, $nextDate) {
