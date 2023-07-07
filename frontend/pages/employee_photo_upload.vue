@@ -239,7 +239,9 @@
                     {{ user.name }} : {{ user.device_id }}
                   </div>
                   <div col class="col-sm   d-flex flex-column  justify-center  ">
-                    <span style="color: red">{{ user.sdkDeviceResponse }}</span>
+                    <span v-if="user.sdkDeviceResponse == 'Success'" style="color: green">{{ user.sdkDeviceResponse
+                    }}</span>
+                    <span v-else style="color: red">{{ user.sdkDeviceResponse }}</span>
                   </div>
                 </div>
               </v-card-text>
