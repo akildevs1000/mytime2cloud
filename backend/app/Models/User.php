@@ -46,7 +46,6 @@ class User extends Authenticatable
         return $this->hasOne(AssignPermission::class, 'role_id', 'employee_role_id');
     }
 
-
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -77,7 +76,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Company::class, 'company_id');
     }
-
+    public function employeeData()
+    {
+        return $this->belongsTo(Employee::class, 'user_id', 'id');
+    }
     public function employee()
     {
         return $this->hasOne(Employee::class);

@@ -791,8 +791,10 @@ class EmployeeController extends Controller
         $model
             ->where('employee_id', $request->employee_id)
             ->where('company_id', $request->company_id)
-            ->update($request->only(['status', 'mobile_application', 'leave_group_id', 'reporting_manager_id']));
+            ->update($request->only(['overtime', 'status', 'leave_group_id', 'reporting_manager_id']));
 
+        $users = User::where('id', $request->user_id);
+        $users->update(['web_login_access' => $request->web_login_access, 'mobile_app_login_access' => $request->mobile_app_login_access]);
         return response()->json(['status' => true, 'message' => 'Setting successfully updated']);
     }
     public function employeeToReporter(Request $request, $id)

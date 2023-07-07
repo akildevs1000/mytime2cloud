@@ -6,6 +6,7 @@
       </v-snackbar>
     </div>
     <v-card>
+      <v-progress-linear :active="loading" color="primary" indeterminate></v-progress-linear>
       <v-card-text>
         <v-dialog v-model="dialogCropping" width="400">
           <v-card style="padding-top: 20px">
@@ -70,7 +71,7 @@
 
 
         <v-row>
-          <v-col cols="8" class="text-right">
+          <v-col cols="12" class="text-right">
             <v-btn v-if="can('employee_create')" small :loading="loading" color="primary" @click="submit">
               Submit
             </v-btn>
@@ -120,7 +121,7 @@ export default {
     Model: "Employee",
     endpoint: "employee",
     search: "",
-    loading: false,
+
     total: 0,
     next_page_url: "",
     prev_page_url: "",
@@ -179,13 +180,14 @@ export default {
   },
   methods: {
     async getInfo(id) {
+      this.loading = true;
       await this.$axios
         .get(`employee-single/${id}`)
         .then(({ data }) => {
           this.employee = data.user;
           this.employee.employee_id = id;
           this.employee.company_id = this.$auth.user.company.id;
-
+          this.loading = false;
         })
         .catch((err) => console.log(err));
     },
@@ -204,6 +206,7 @@ export default {
       this.dialog = false;
     },
     submit() {
+      this.loading = true;
       this.$axios
         .post(`/employee-login-update/${this.employee.id || 0}`, this.employee)
         .then(({ data }) => {
