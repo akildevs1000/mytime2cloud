@@ -142,7 +142,10 @@
     </v-row>
 
     <v-row justify="center">
-      <v-dialog v-model="renderReportByManualDialog" max-width="700px">
+      <v-dialog
+        v-model="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2"
+        max-width="700px"
+      >
         <v-card>
           <v-card-title class="primary darken-2">
             <span class="headline white--text"> Render Report </span>
@@ -206,7 +209,7 @@
             <v-btn
               class="error"
               small
-              @click="renderReportByManualDialog = false"
+              @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = false"
             >
               Cancel
             </v-btn>
@@ -235,13 +238,6 @@
               </v-row>
             </v-container>
           </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <!-- <v-btn class="error" small @click="generateLogsDialog = false">
-              Cancel
-            </v-btn> -->
-            <!-- <v-btn class="primary" small @click="update">Save</v-btn> -->
-          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-row>
@@ -742,7 +738,6 @@
               <span>Render Report</span>
             </v-tooltip>
           </v-toolbar>
-
           <v-toolbar
             class="background"
             dark
@@ -808,8 +803,37 @@
               </template>
               <span>CSV</span>
             </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="generateLogsDialog = true"
+                >
+                  <v-icon class="">mdi-plus-circle-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>Generate Log</span>
+            </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                >
+                  <v-icon class="">mdi-cached</v-icon>
+                </v-btn>
+              </template>
+              <span>Render Report</span>
+            </v-tooltip>
           </v-toolbar>
-
           <v-toolbar
             class="background"
             dark
@@ -874,6 +898,36 @@
                 </v-btn>
               </template>
               <span>CSV</span>
+            </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="generateLogsDialog = true"
+                >
+                  <v-icon class="">mdi-plus-circle-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>Generate Log</span>
+            </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                >
+                  <v-icon class="">mdi-cached</v-icon>
+                </v-btn>
+              </template>
+              <span>Render Report</span>
             </v-tooltip>
           </v-toolbar>
           <v-toolbar
@@ -941,6 +995,36 @@
                 </v-btn>
               </template>
               <span>CSV</span>
+            </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="generateLogsDialog = true"
+                >
+                  <v-icon class="">mdi-plus-circle-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>Generate Log</span>
+            </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                >
+                  <v-icon class="">mdi-cached</v-icon>
+                </v-btn>
+              </template>
+              <span>Render Report</span>
             </v-tooltip>
           </v-toolbar>
 

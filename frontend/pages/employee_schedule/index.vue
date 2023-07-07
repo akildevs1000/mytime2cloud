@@ -254,7 +254,7 @@
         </template>
 
         <template v-slot:item.employee_id="{ item }">
-          {{ caps(item.employee.employee_id) }}
+          {{ caps(item?.employee?.employee_id || "") }}
         </template>
         <template v-slot:item.employee.first_name="{ item }">
           {{ caps(item.employee && item.employee.first_name) }}

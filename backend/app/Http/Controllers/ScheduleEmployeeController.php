@@ -249,6 +249,7 @@ class ScheduleEmployeeController extends Controller
 
                 $model->where("employee_id", $row["employee_id"]);
                 $model->where("roster_id", $roster["id"]);
+                $model->orderByDesc("from_date");
 
                 $arr = [
                     "shift_id" => $roster["shift_ids"][$index],
@@ -290,28 +291,28 @@ class ScheduleEmployeeController extends Controller
         $employee = ScheduleEmployee::query();
         $model = $employee->where('company_id', $request->company_id);
         // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-        $model->whereDate('from_date', '<=', $date);
-        $model->whereDate('to_date', '>=', $date);
+        // $model->whereDate('from_date', '<=', $date);
+        // $model->whereDate('to_date', '>=', $date);
         $model->when($request->filled('employee_first_name'), function ($q) use ($request) {
 
-            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
+            $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
         });
         $model->when($request->filled('roster_name'), function ($q) use ($request) {
 
-            $q->whereHas('roster', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->roster_name%"));
+            $q->whereHas('roster', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->roster_name%"));
         });
         $model->when($request->filled('shift_name'), function ($q) use ($request) {
 
-            $q->whereHas('shift', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->shift_name%"));
+            $q->whereHas('shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->shift_name%"));
         });
         $model->when($request->filled('shift_type_name'), function ($q) use ($request) {
 
-            $q->whereHas('shift_type', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
+            $q->whereHas('shift_type', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
         });
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
 
             //$q->where('employee_id', 'ILIKE', "$request->employee_id%");
-            $q->whereHas('employee', fn(Builder $query) => $query->where('employee_id', 'ILIKE', "$request->employee_id%"));
+            $q->whereHas('employee', fn (Builder $query) => $query->where('employee_id', 'ILIKE', "$request->employee_id%"));
         });
         $model->when($request->filled('show_from_date'), function ($q) use ($request) {
 
@@ -331,7 +332,7 @@ class ScheduleEmployeeController extends Controller
         });
 
         return $model
-            ->paginate($request->per_page ?? 20);
+            ->orderByDesc("from_date")->paginate($request->per_page ?? 20);
     }
     public function scheduled_employees_with_type(Employee $employee, Request $request)
     {
