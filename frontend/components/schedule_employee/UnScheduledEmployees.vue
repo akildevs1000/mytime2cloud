@@ -334,7 +334,6 @@ export default {
     isOverTime: false,
     is_edit: false,
     employees: [],
-    employees: [],
     departments: [],
     sub_departments: [],
     shifts: [
@@ -697,7 +696,7 @@ export default {
       this.errors = [];
 
       let payload = {
-        employee_ids: this.employee_ids.map((e) => e.employee_id),
+        employee_ids: this.employee_ids.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company.id,
       };
