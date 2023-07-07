@@ -120,7 +120,7 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="6">
+              <v-col cols="5">
 
                 <v-row>
                   <v-col cols="4">
@@ -166,7 +166,7 @@
                 </v-row>
 
               </v-col>
-              <v-col col="6">
+              <v-col col="7">
 
 
                 <v-row>
@@ -217,15 +217,33 @@
                     <label for="">: {{ dialogViewObject.approved_datetime }}</label>
                   </v-col>
                 </v-row>
+                <v-row v-if="dialogViewObject.status == 0">
+                  <v-col cols="4">
+                    <strong>Approve/Reject Notes </strong>
+                  </v-col>
+                  <v-col cols="8">
+                    <v-textarea rows="3" dense outlined v-model="editedItem.approve_reject_notes" placeholder="Notes"
+                      :error-messages="errors && errors.approve_reject_notes ? errors.approve_reject_notes[0] : ''
+                        "></v-textarea>
+                  </v-col>
+                </v-row>
+                <v-row v-else>
+                  <v-col cols="4">
+                    <strong>Approve/Reject Notes </strong>
+                  </v-col>
+                  <v-col cols="8">
+
+                    : {{ dialogViewObject.approve_reject_notes }}
+                  </v-col>
+                </v-row>
 
               </v-col>
             </v-row>
             <v-row>
 
-              <v-col cols="2">
-                <strong><u>Leave Note</u> </strong>
-              </v-col>
-              <v-col cols="8">
+              <v-col cols="12">
+                <strong><u>Leave Notes</u> </strong>
+
                 <label for="">: {{ dialogViewObject.reason }}</label>
               </v-col>
 
@@ -233,7 +251,8 @@
             <v-card-actions class="mt-4">
               <v-btn class="error" small @click="close"> Close </v-btn>
               <v-spacer></v-spacer>
-              <v-btn class="warning" v-if="dialogViewObject.status == 0" small @click="rejectLeave(dialogViewObject.id)">
+              <v-btn class="warning text-center" v-if="dialogViewObject.status == 0" small
+                @click="rejectLeave(dialogViewObject.id)">
                 Reject </v-btn>
               <v-spacer></v-spacer>
               <v-btn class="primary" v-if="dialogViewObject.status == 0" small
@@ -608,18 +627,21 @@ export default {
       reason: "",
       start_date: null,
       end_date: null,
-
+      approve_reject_notes: "",
     },
     defaultItem: {
       leave_type_id: "",
       reason: "",
-
+      approve_reject_notes: "",
       start_date: null,
       end_date: null,
     },
     response: "",
     data: [],
-    errors: [],
+    errors: {
+
+
+    },
     options_dialog: {},
     employees_dialog: [],
     selectAllDepartment: false,
@@ -684,7 +706,7 @@ export default {
       this.dialogViewObject.leave_group_name = item.employee.leave_group ? item.employee.leave_group.group_name : '--';
       this.dialogViewObject.approved_datetime = item.updated_at ? this.getCurrentDateTime(item.updated_at) : '--';
       this.dialogViewObject.reporting_manager = item.reporting ? item.reporting.first_name + ' ' + item.reporting.last_name : '--';
-
+      this.dialogViewObject.approve_reject_notes = item.approve_reject_notes;
 
 
       this.dialogView = true;
@@ -919,45 +941,74 @@ export default {
       });
     },
     rejectLeave(leaveid) {
-      let options = {
-        params: {
 
-          company_id: this.$auth.user.company.id,
-        },
-      };
-      this.$axios.get(this.endpoint + "/reject/" + leaveid, options).then(({ data }) => {
+      if (this.editedItem.approve_reject_notes == '') {
+        this.errors = {
+          "status": false,
+          "approve_reject_notes": [
+            "Notes is required"
+          ]
+        };
+        this.errors.status = false;
 
-        if (!data.status) {
-          this.errors = data.errors;
-        } else {
-          this.snackbar = data.status;
-          this.response = data.message;
-          this.getDataFromApi();
-          this.dialogView = false;
-        }
+      }
+
+      else if (confirm("Are you sure to Reject Leave?")) {
+        let options = {
+          params: {
+            approve_reject_notes: this.editedItem.approve_reject_notes,
+            company_id: this.$auth.user.company.id,
+          },
+        };
+        this.$axios.get(this.endpoint + "/reject/" + leaveid, options).then(({ data }) => {
+
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.snackbar = data.status;
+            this.response = data.message;
+            this.getDataFromApi();
+            this.dialogView = false;
+          }
 
 
 
-      });
+        });
+      }
     },
     approveLeave(leaveid) {
-      let options = {
-        params: {
 
-          company_id: this.$auth.user.company.id,
-        },
-      };
-      this.$axios.get(this.endpoint + "/approve/" + leaveid, options).then(({ data }) => {
-        if (!data.status) {
-          this.errors = data.errors;
-        } else {
-          this.snackbar = data.status;
-          this.response = data.message;
-          this.getDataFromApi();
-          this.dialogView = false;
-        }
+      if (this.editedItem.approve_reject_notes == '') {
+        this.errors = {
+          "status": false,
+          "approve_reject_notes": [
+            "Notes is required"
+          ]
+        };
+        this.errors.status = false;
 
-      });
+      }
+
+      else if (confirm("Are you sure to Approve Leave?")) {
+        let options = {
+          params: {
+            approve_reject_notes: this.editedItem.approve_reject_notes,
+            company_id: this.$auth.user.company.id,
+          },
+        };
+        this.$axios.get(this.endpoint + "/approve/" + leaveid, options).then(({ data }) => {
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.snackbar = data.status;
+            this.response = data.message;
+            this.getDataFromApi();
+            this.dialogView = false;
+          }
+
+        });
+
+      }
     },
     save() {
 
