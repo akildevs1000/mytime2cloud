@@ -11,96 +11,149 @@
         <v-toolbar flat small dense dark class="background">
           <span class="headline">Employee - {{ viewEmployeeName }} </span>
         </v-toolbar>
-        <v-card-text style="padding:5px">
-
-          <v-data-table v-model="ids" item-key="id" :headers="headersGroupInfo" :items="DialogLeaveGroupData"
-            :loading="loading" :hide-default-footer="true" class="elevation-1">
-
+        <v-card-text style="padding: 5px">
+          <v-data-table
+            v-model="ids"
+            item-key="id"
+            :headers="headersGroupInfo"
+            :items="DialogLeaveGroupData"
+            :loading="loading"
+            :hide-default-footer="true"
+            class="elevation-1"
+          >
             <template v-slot:item.leave_type="{ item }" center>
               {{ item.leave_type.name }} ({{ item.leave_type.short_name }})
             </template>
             <template v-slot:item.total="{ item }">
-              <v-chip color="black" text-color="white"> {{ item.leave_type_count }}</v-chip>
+              <v-chip color="black" text-color="white">
+                {{ item.leave_type_count }}</v-chip
+              >
             </template>
             <template v-slot:item.approved="{ item }">
               <v-chip color="primary"> {{ item.employee_used }}</v-chip>
             </template>
             <template v-slot:item.available="{ item }">
-              <v-chip class="ma-2" color="green" text-color="white"> {{
-                item.leave_type_count - item.employee_used }}</v-chip>
+              <v-chip class="ma-2" color="green" text-color="white">
+                {{ item.leave_type_count - item.employee_used }}</v-chip
+              >
             </template>
-
           </v-data-table>
-
-
-
-
-
-
-
-
         </v-card-text>
-
-
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialog" width="500px">
       <v-card>
-
         <v-toolbar flat small dense dark class="background">
           <span class="headline"> Leave Application </span>
         </v-toolbar>
         <v-card-text>
           <v-container>
-
             <v-row>
               <v-col cols="12">
-                <label for="" style="padding-bottom:5px">Leave Type</label>
-                <v-autocomplete :items="leaveTypes" item-text="name" item-value="id" placeholder="Select Leave Type"
-                  v-model="editedItem.leave_type_id" :hide-details="!errors.leave_type_id" :error="errors.leave_type_id"
-                  :error-messages="errors && errors.leave_type_id
-                    ? errors.leave_type_id[0]
-                    : ''
-                    " dense outlined></v-autocomplete>
+                <label for="" style="padding-bottom: 5px">Leave Type</label>
+                <v-autocomplete
+                  :items="leaveTypes"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select Leave Type"
+                  v-model="editedItem.leave_type_id"
+                  :hide-details="!errors.leave_type_id"
+                  :error="errors.leave_type_id"
+                  :error-messages="
+                    errors && errors.leave_type_id
+                      ? errors.leave_type_id[0]
+                      : ''
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
               </v-col>
               <v-col cols="12">
-                <v-menu ref="from_menu" v-model="start_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.start_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="from_menu"
+                  v-model="start_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.start_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">From Date</div>
-                    <v-text-field style="height:45px" outlined dense v-model="editedItem.start_date" readonly
-                      v-bind="attrs" v-on="on" :error-messages="errors && errors.start_date ? errors.start_date[0] : ''
-                        ">
+                    <v-text-field
+                      style="height: 45px"
+                      outlined
+                      dense
+                      v-model="editedItem.start_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      :error-messages="
+                        errors && errors.start_date ? errors.start_date[0] : ''
+                      "
+                    >
                     </v-text-field>
                   </template>
-                  <v-date-picker v-model="editedItem.start_date" small no-title scrollable :min="todayDate"
-                    @change="update_EdititemStart">
-
+                  <v-date-picker
+                    v-model="editedItem.start_date"
+                    small
+                    no-title
+                    scrollable
+                    :min="todayDate"
+                    @change="update_EdititemStart"
+                  >
                   </v-date-picker>
                 </v-menu>
               </v-col>
 
               <v-col cols="12">
-                <v-menu ref="end_menu" v-model="end_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.end_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="end_menu"
+                  v-model="end_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.end_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">End Date</div>
-                    <v-text-field style="height:45px" outlined dense v-model="editedItem.end_date" readonly v-bind="attrs"
-                      v-on="on" :error-messages="errors && errors.end_date ? errors.end_date[0] : ''
-                        "></v-text-field>
+                    <v-text-field
+                      style="height: 45px"
+                      outlined
+                      dense
+                      v-model="editedItem.end_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      :error-messages="
+                        errors && errors.end_date ? errors.end_date[0] : ''
+                      "
+                    ></v-text-field>
                   </template>
-                  <v-date-picker small v-model="editedItem.end_date" @change="update_EdititemEnd"
-                    :min="editedItem.start_date" no-title scrollable>
+                  <v-date-picker
+                    small
+                    v-model="editedItem.end_date"
+                    @change="update_EdititemEnd"
+                    :min="editedItem.start_date"
+                    no-title
+                    scrollable
+                  >
                   </v-date-picker>
                 </v-menu>
               </v-col>
               <v-col cols="12">
-                <label for="" style="padding-bottom:5px">Reason</label>
-                <v-text-field dense outlined v-model="editedItem.reason" placeholder="Reason/Notes" :error-messages="errors && errors.reason ? errors.reason[0] : ''
-                  "></v-text-field>
+                <label for="" style="padding-bottom: 5px">Reason</label>
+                <v-text-field
+                  dense
+                  outlined
+                  v-model="editedItem.reason"
+                  placeholder="Reason/Notes"
+                  :error-messages="
+                    errors && errors.reason ? errors.reason[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
-
-
             </v-row>
           </v-container>
         </v-card-text>
@@ -121,7 +174,6 @@
           <v-container>
             <v-row>
               <v-col cols="6">
-
                 <v-row>
                   <v-col cols="4">
                     <label for="">
@@ -137,7 +189,9 @@
                     <strong>Group Name</strong>
                   </v-col>
                   <v-col cols="8">
-                    <label for="">: {{ dialogViewObject.leave_group_name }}</label>
+                    <label for=""
+                      >: {{ dialogViewObject.leave_group_name }}</label
+                    >
                   </v-col>
                 </v-row>
                 <v-row>
@@ -164,11 +218,8 @@
                     <label for="">: {{ dialogViewObject.to_date }}</label>
                   </v-col>
                 </v-row>
-
               </v-col>
               <v-col col="6">
-
-
                 <v-row>
                   <v-col cols="4">
                     <strong>Applied Date </strong>
@@ -182,7 +233,9 @@
                     <strong>Reporting Manager </strong>
                   </v-col>
                   <v-col cols="8">
-                    <label for="">: {{ dialogViewObject.reporting_manager }}</label>
+                    <label for=""
+                      >: {{ dialogViewObject.reporting_manager }}</label
+                    >
                   </v-col>
                 </v-row>
                 <v-row>
@@ -190,15 +243,33 @@
                     <strong>Status </strong>
                   </v-col>
                   <v-col cols="8">
-                    <label for="">: <v-chip v-if="dialogViewObject.status == 1" small class="p-2 mx-1" color="primary">
+                    <label for=""
+                      >:
+                      <v-chip
+                        v-if="dialogViewObject.status == 1"
+                        small
+                        class="p-2 mx-1"
+                        color="primary"
+                      >
                         Approved
                       </v-chip>
-                      <v-chip v-if="dialogViewObject.status == 2" small class="p-2 mx-1" color="error">
+                      <v-chip
+                        v-if="dialogViewObject.status == 2"
+                        small
+                        class="p-2 mx-1"
+                        color="error"
+                      >
                         Rejected
                       </v-chip>
-                      <v-chip v-if="dialogViewObject.status == 0" small class="p-2 mx-1" color="secondary">
+                      <v-chip
+                        v-if="dialogViewObject.status == 0"
+                        small
+                        class="p-2 mx-1"
+                        color="secondary"
+                      >
                         Pending
-                      </v-chip></label>
+                      </v-chip></label
+                    >
                   </v-col>
                 </v-row>
                 <v-row v-if="dialogViewObject.status == 1">
@@ -206,7 +277,9 @@
                     <strong>Approved Date </strong>
                   </v-col>
                   <v-col cols="8">
-                    <label for="">: {{ dialogViewObject.approved_datetime }}</label>
+                    <label for=""
+                      >: {{ dialogViewObject.approved_datetime }}</label
+                    >
                   </v-col>
                 </v-row>
                 <v-row v-else-if="dialogViewObject.status == 2">
@@ -214,48 +287,62 @@
                     <strong>Rejected Date </strong>
                   </v-col>
                   <v-col cols="8">
-                    <label for="">: {{ dialogViewObject.approved_datetime }}</label>
+                    <label for=""
+                      >: {{ dialogViewObject.approved_datetime }}</label
+                    >
                   </v-col>
                 </v-row>
-
               </v-col>
             </v-row>
             <v-row>
-
               <v-col cols="2">
                 <strong><u>Leave Note</u> </strong>
               </v-col>
               <v-col cols="8">
                 <label for="">: {{ dialogViewObject.reason }}</label>
               </v-col>
-
             </v-row>
             <v-card-actions class="mt-4">
               <v-btn class="error" small @click="close"> Close </v-btn>
               <v-spacer></v-spacer>
-              <v-btn class="warning" v-if="dialogViewObject.status == 0" small @click="rejectLeave(dialogViewObject.id)">
-                Reject </v-btn>
+              <v-btn
+                class="warning"
+                v-if="dialogViewObject.status == 0"
+                small
+                @click="rejectLeave(dialogViewObject.id)"
+              >
+                Reject
+              </v-btn>
               <v-spacer></v-spacer>
-              <v-btn class="primary" v-if="dialogViewObject.status == 0" small
-                @click="approveLeave(dialogViewObject.id)">Approve</v-btn>
+              <v-btn
+                class="primary"
+                v-if="dialogViewObject.status == 0"
+                small
+                @click="approveLeave(dialogViewObject.id)"
+                >Approve</v-btn
+              >
             </v-card-actions>
           </v-container>
         </v-card-text>
-
-
       </v-card>
     </v-dialog>
     <v-row>
       <v-col md="12">
-
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> Dashboard / Applications List</span></v-toolbar-title>
-            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="clearFilters()"><v-icon class="mx-1">mdi
-                mdi-reload</v-icon></a>
+            <v-toolbar-title
+              ><span> Dashboard / Applications List</span></v-toolbar-title
+            >
+            <a
+              style="padding-left: 10px"
+              title="Reload Page/Reset Form"
+              @click="clearFilters()"
+              ><v-icon class="mx-1">mdi mdi-reload</v-icon></a
+            >
 
-            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
-                mdi-filter</v-icon></a>
+            <a style="padding-left: 10px" @click="toggleFilter"
+              ><v-icon class="mx-1">mdi mdi-filter</v-icon></a
+            >
             <v-spacer></v-spacer>
             <!-- <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
@@ -270,101 +357,163 @@
             {{ snackText }}
 
             <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false">
-                Close
-              </v-btn>
+              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table v-if="can(`leave_application_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
-            :loading="loading" :footer-props="{
+          <v-data-table
+            v-if="can(`leave_application_view`)"
+            v-model="ids"
+            item-key="id"
+            :headers="headers"
+            :items="data"
+            :loading="loading"
+            :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
+            }"
+            class="elevation-1"
+            :options.sync="options"
+            :server-items-length="totalRowsCount"
+          >
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
-                <td v-for="header in      headers     " :key="header.text" class="table-search-header">
-                  <v-text-field style="padding-left: 10px;" v-if="header.filterable && header.text != 'Status'"
-                    v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
-                    height="10px" clearable autocomplete="off"></v-text-field>
+                <td v-for="header in headers" :key="header.text">
+                  <v-text-field
+                    :hide-details="true"
+                    v-if="header.filterable && header.text != 'Status'"
+                    v-model="filters[header.value]"
+                    id="header.value"
+                    @input="applyFilters(header.value, $event)"
+                    outlined
+                    dense
+                    autocomplete="off"
+                  ></v-text-field>
 
-                  <v-select class="filter-select-hidden-text" v-model="filters[header.value]"
-                    v-else-if="header.filterable && header.text == 'Status'" height="10px;width:5px"
-                    style="padding: 0px;width:100%" small density="compact" @change="applyFilters('status', $event)"
-                    clearable item-value="value" item-text="title" :items="[{ value: '', title: 'All' }, { value: 'approved', title: 'Approved' }, {
-                      value: 'rejected',
-                      title: 'Rejected'
-                    }, { value: 'pending', title: 'Pending' }]"></v-select>
-
-                  <template v-else>
-                    <!-- {{ header.text }} -->
-                  </template>
+                  <v-select
+                    :hide-details="true"
+                    @change="applyFilters('status', $event)"
+                    item-value="value"
+                    item-text="title"
+                    v-model="filters[header.value]"
+                    outlined
+                    dense
+                    v-else-if="header.filterable && header.text == 'Status'"
+                    :items="[
+                      { value: '', title: 'All' },
+                      { value: 'approved', title: 'Approved' },
+                      {
+                        value: 'rejected',
+                        title: 'Rejected',
+                      },
+                      { value: 'pending', title: 'Pending' },
+                    ]"
+                  ></v-select>
                 </td>
               </tr>
             </template>
             <template v-slot:item.first_name="{ item }">
               <v-row no-gutters>
-                <v-col style="
-                        padding: 5px;
-                        padding-left: 0px;
-                        width: 50px;
-                        max-width: 50px;
-                      ">
-                  <v-img style="
-                          border-radius: 50%;
-                          height: auto;
-                          width: 50px;
-                          max-width: 50px;
-                        " :src="item.employee.profile_picture
-                          ? item.employee.profile_picture
-                          : '/no-profile-image.jpg'
-                          ">
+                <v-col
+                  style="
+                    padding: 5px;
+                    padding-left: 0px;
+                    width: 50px;
+                    max-width: 50px;
+                  "
+                >
+                  <v-img
+                    style="
+                      border-radius: 50%;
+                      height: auto;
+                      width: 50px;
+                      max-width: 50px;
+                    "
+                    :src="
+                      item.employee.profile_picture
+                        ? item.employee.profile_picture
+                        : '/no-profile-image.jpg'
+                    "
+                  >
                   </v-img>
                 </v-col>
                 <v-col style="padding: 10px">
                   <strong>
-                    {{ item.employee.first_name ? item.employee.first_name : "---" }}
-                    {{ item.employee.last_name ? item.employee.last_name : "---" }}</strong>
+                    {{
+                      item.employee.first_name
+                        ? item.employee.first_name
+                        : "---"
+                    }}
+                    {{
+                      item.employee.last_name ? item.employee.last_name : "---"
+                    }}</strong
+                  >
                   <div>
                     {{
-                      item.employee.designation ? (item.employee.designation.name) : "---"
+                      item.employee.designation
+                        ? item.employee.designation.name
+                        : "---"
                     }}
                   </div>
                 </v-col>
               </v-row>
             </template>
             <template v-slot:item.group_name="{ item }">
-              <v-chip @click="gotoGroupDetails(item.employee.leave_group_id, item.employee.id, item.employee.full_name)">
+              <v-chip
+                @click="
+                  gotoGroupDetails(
+                    item.employee.leave_group_id,
+                    item.employee.id,
+                    item.employee.full_name
+                  )
+                "
+              >
                 {{
                   item.employee.leave_group &&
-                  item.employee.leave_group.group_name }} </v-chip>
+                  item.employee.leave_group.group_name
+                }}
+              </v-chip>
             </template>
-
 
             <template v-slot:item.leave_type_name="{ item }">
-              {{ (item.leave_type.name) }}
+              {{ item.leave_type.name }}
             </template>
             <template v-slot:item.start_date="{ item }">
-              {{ (item.start_date) }}
+              {{ item.start_date }}
             </template>
             <template v-slot:item.end_date="{ item }">
-              {{ (item.end_date) }}
+              {{ item.end_date }}
             </template>
             <template v-slot:item.reason="{ item }">
-              {{ (item.reason.substr(0, 30) + '...') }}
+              {{ item.reason.substr(0, 30) + "..." }}
             </template>
             <template v-slot:item.reporting="{ item }">
-              {{ (item.reporting.first_name) }} {{ (item.reporting.last_name) }}
+              {{ item.reporting.first_name }} {{ item.reporting.last_name }}
             </template>
             <template v-slot:item.created_at="{ item }">
               {{ getCurrentDateTime(item.created_at) }}
             </template>
             <template v-slot:item.status="{ item }">
-              <v-chip v-if="item.status == 1" small class="p-2 mx-1" color="primary">
+              <v-chip
+                v-if="item.status == 1"
+                small
+                class="p-2 mx-1"
+                color="primary"
+              >
                 Approved
               </v-chip>
-              <v-chip v-if="item.status == 2" small class="p-2 mx-1" color="error">
+              <v-chip
+                v-if="item.status == 2"
+                small
+                class="p-2 mx-1"
+                color="error"
+              >
                 Rejected
               </v-chip>
-              <v-chip v-if="item.status == 0" small class="p-2 mx-1" color="secondary">
+              <v-chip
+                v-if="item.status == 0"
+                small
+                class="p-2 mx-1"
+                color="secondary"
+              >
                 Pending
               </v-chip>
             </template>
@@ -377,7 +526,6 @@
                   </v-btn>
                 </template>
                 <v-list width="120" dense>
-
                   <!-- <v-list-item @click="editItem(item)" v-if="item.status == 0">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon v-if="can(`leave_application_edit`)" color="secondary" small @click="editItem(item)">
@@ -385,7 +533,6 @@
                       </v-icon> Edit
                     </v-list-item-title>
                   </v-list-item> -->
-
 
                   <!-- <v-list-item @click="deleteItem(item)" v-if="item.status == 0">
                     <v-list-item-title style="cursor: pointer">
@@ -395,29 +542,39 @@
                     </v-list-item-title>
                   </v-list-item> -->
                   <v-list-item
-                    @click="gotoGroupDetails(item.employee.leave_group_id, item.employee.id, item.employee.full_name)">
-                    <v-list-item-title style=" cursor: pointer">
-                      <v-icon v-if="can(`leave_application_view`)" color="primary" small>
+                    @click="
+                      gotoGroupDetails(
+                        item.employee.leave_group_id,
+                        item.employee.id,
+                        item.employee.full_name
+                      )
+                    "
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon
+                        v-if="can(`leave_application_view`)"
+                        color="primary"
+                        small
+                      >
                         mdi-calendar
-                      </v-icon> Statistics
+                      </v-icon>
+                      Statistics
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="view(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_application_view`)" color="primary" small @click="view(item)">
-                        mdi-information
-                      </v-icon>View Application
+                      <v-icon
+                        v-if="can(`leave_application_view`)"
+                        color="primary"
+                        small
+                        @click="view(item)"
+                      >
+                        mdi-information </v-icon
+                      >View Application
                     </v-list-item-title>
                   </v-list-item>
-
                 </v-list>
               </v-menu>
-
-
-
-
-
-
             </template>
             <template v-slot:no-data>
               <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
@@ -452,7 +609,6 @@ import {
 } from "tiptap-vuetify";
 
 export default {
-
   components: {
     TiptapVuetify,
   },
@@ -480,18 +636,17 @@ export default {
       leave_group_name: "",
       reporting_manager: "",
       approved_datetime: "",
-
     },
     leaveTypes: [],
-    formTitle: 'New Leave Application',
+    formTitle: "New Leave Application",
     dialogEmployees: false,
     idsEmployeeList: [],
     //editor
-    datatable_search_textbox: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     extensions: [
       History,
       Blockquote,
@@ -547,55 +702,69 @@ export default {
       { text: "Total", align: "center", key: "name", value: "total" },
       { text: "Approved", align: "center", key: "name", value: "approved" },
       { text: "Available", align: "center", key: "name", value: "available" },
-
     ],
     headers: [
-      { text: "Employee Name", align: "left", sortable: false, filterable: true, key: "name", value: "first_name" },
+      {
+        text: "Employee Name",
+        align: "left",
+        sortable: false,
+        filterable: true,
+        key: "name",
+        value: "first_name",
+      },
       {
         text: "Group Type",
-        align: "left", filterable: true,
+        align: "left",
+        filterable: true,
         sortable: false,
         value: "group_name",
       },
       {
         text: "Leave Type",
-        align: "left", filterable: true,
+        align: "left",
+        filterable: true,
         sortable: false,
         value: "leave_type_name",
       },
       {
         text: "Star Date",
-        align: "left", filterable: true,
+        align: "left",
+        filterable: true,
         sortable: true,
         value: "start_date",
       },
       {
         text: "End Date",
-        align: "left", filterable: true,
+        align: "left",
+        filterable: true,
         sortable: true,
         value: "end_date",
       },
       {
         text: "Leave Note",
-        align: "left", filterable: true,
+        align: "left",
+        filterable: true,
         sortable: true,
         value: "reason",
       },
       {
         text: "Reporting Manager Name",
         align: "left",
-        sortable: false, filterable: true,
+        sortable: false,
+        filterable: true,
         value: "reporting",
       },
       {
         text: "Applied On ",
         align: "left",
-        sortable: true, filterable: true,
+        sortable: true,
+        filterable: true,
         value: "created_at",
       },
       {
         text: "Status",
-        align: "left", filterable: true,
+        align: "left",
+        filterable: true,
         sortable: true,
         value: "status",
       },
@@ -608,7 +777,6 @@ export default {
       reason: "",
       start_date: null,
       end_date: null,
-
     },
     defaultItem: {
       leave_type_id: "",
@@ -629,21 +797,18 @@ export default {
     //login_user_employee_id: "",
   }),
 
-  computed: {
-
-  },
+  computed: {},
 
   watch: {
     options: {
       handler() {
-        this.getDataFromApi()
+        this.getDataFromApi();
       },
       deep: true,
     },
   },
   created() {
     this.loading = true;
-
 
     this.getDataFromApi();
     this.getLeaveTypes();
@@ -652,7 +817,6 @@ export default {
     let year = now.getFullYear();
     let day = ("0" + now.getDate()).slice(-2);
     let month = ("0" + (now.getMonth() + 1)).slice(-2);
-
 
     let formattedDateTime = year + "-" + month + "-" + day;
 
@@ -664,31 +828,37 @@ export default {
   },
 
   methods: {
-    applyFilters(filter_column = '', filter_value = '') {
-
-      this.getDataFromApi('', filter_column, filter_value);
+    applyFilters(filter_column = "", filter_value = "") {
+      this.getDataFromApi("", filter_column, filter_value);
     },
     toggleFilter() {
       this.isFilter = !this.isFilter;
     },
     view(item) {
       this.dialogViewObject.id = item.id;
-      this.dialogViewObject.employee_name = item.employee.first_name + " " + item.employee.last_name;
+      this.dialogViewObject.employee_name =
+        item.employee.first_name + " " + item.employee.last_name;
       this.dialogViewObject.leave_type = item.leave_type.name;
       this.dialogViewObject.from_date = item.start_date;
       this.dialogViewObject.to_date = item.end_date;
-      this.dialogViewObject.approved_manager = item.reporting.first_name + " " + item.reporting.last_name;
+      this.dialogViewObject.approved_manager =
+        item.reporting.first_name + " " + item.reporting.last_name;
       this.dialogViewObject.status = item.status;
       this.dialogViewObject.reason = item.reason;
-      this.dialogViewObject.applied_date = this.getCurrentDateTime(item.created_at);
-      this.dialogViewObject.leave_group_name = item.employee.leave_group ? item.employee.leave_group.group_name : '--';
-      this.dialogViewObject.approved_datetime = item.updated_at ? this.getCurrentDateTime(item.updated_at) : '--';
-      this.dialogViewObject.reporting_manager = item.reporting ? item.reporting.first_name + ' ' + item.reporting.last_name : '--';
-
-
+      this.dialogViewObject.applied_date = this.getCurrentDateTime(
+        item.created_at
+      );
+      this.dialogViewObject.leave_group_name = item.employee.leave_group
+        ? item.employee.leave_group.group_name
+        : "--";
+      this.dialogViewObject.approved_datetime = item.updated_at
+        ? this.getCurrentDateTime(item.updated_at)
+        : "--";
+      this.dialogViewObject.reporting_manager = item.reporting
+        ? item.reporting.first_name + " " + item.reporting.last_name
+        : "--";
 
       this.dialogView = true;
-
     },
     getCurrentDateTime(date) {
       let now = new Date(date);
@@ -700,53 +870,45 @@ export default {
       let minutes = ("0" + now.getMinutes()).slice(-2);
       let seconds = ("0" + now.getSeconds()).slice(-2);
 
-      let formattedDateTime = year + "-" + month + "-" + day;//+ " " + hours + ":" + minutes;
+      let formattedDateTime = year + "-" + month + "-" + day; //+ " " + hours + ":" + minutes;
 
       return formattedDateTime;
     },
     update_EdititemStart() {
-
-      this.$refs.from_menu.save(this.editedItem.start_date)
+      this.$refs.from_menu.save(this.editedItem.start_date);
       this.from_menu = false;
-
     },
     update_EdititemEnd() {
-
-      this.$refs.end_menu.save(this.editedItem.end_date)
+      this.$refs.end_menu.save(this.editedItem.end_date);
       this.end_menu = false;
-
-
-
     },
     gotoGroupDetails(leaveGroupId, employee_id, employee_name) {
-
       this.viewEmployeeName = employee_name;
       let options = {
         params: {
           per_page: 1000,
           company_id: this.$auth.user.company.id,
-          employee_id: employee_id
+          employee_id: employee_id,
         },
       };
-      this.$axios.get('leave_groups/' + leaveGroupId, options).then(({ data }) => {
-        this.dialogLeaveGroup = true;
-        this.DialogLeaveGroupData = data[0].leave_count;
-
-      });
-
+      this.$axios
+        .get("leave_groups/" + leaveGroupId, options)
+        .then(({ data }) => {
+          this.dialogLeaveGroup = true;
+          this.DialogLeaveGroupData = data[0].leave_count;
+        });
     },
     gotoDialogPage(item) {
       // console.log('item', item);
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -767,8 +929,6 @@ export default {
       this.scrollInvoked++;
     },
     getLeaveTypes() {
-
-
       let options = {
         params: {
           per_page: 1000,
@@ -786,17 +946,14 @@ export default {
       this.getDataFromApi();
     },
 
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
-
-      if (url == '') {
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+      if (url == "") {
         url = this.endpoint;
         //
       }
       this.loading = true;
 
       let endDate = new Date();
-
-
 
       const { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
@@ -821,11 +978,10 @@ export default {
       // }
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-        if (filter_column != '' && data.data.length == 0) {
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           //return false;
         }
@@ -841,17 +997,14 @@ export default {
         // } catch (error) {
 
         // }
-
       });
     },
-
 
     editItem(item) {
       this.formTitle = "Edit leaves Information";
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
-
     },
 
     delteteSelectedRecords() {
@@ -921,53 +1074,47 @@ export default {
     rejectLeave(leaveid) {
       let options = {
         params: {
-
           company_id: this.$auth.user.company.id,
         },
       };
-      this.$axios.get(this.endpoint + "/reject/" + leaveid, options).then(({ data }) => {
-
-        if (!data.status) {
-          this.errors = data.errors;
-        } else {
-          this.snackbar = data.status;
-          this.response = data.message;
-          this.getDataFromApi();
-          this.dialogView = false;
-        }
-
-
-
-      });
+      this.$axios
+        .get(this.endpoint + "/reject/" + leaveid, options)
+        .then(({ data }) => {
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.snackbar = data.status;
+            this.response = data.message;
+            this.getDataFromApi();
+            this.dialogView = false;
+          }
+        });
     },
     approveLeave(leaveid) {
       let options = {
         params: {
-
           company_id: this.$auth.user.company.id,
         },
       };
-      this.$axios.get(this.endpoint + "/approve/" + leaveid, options).then(({ data }) => {
-        if (!data.status) {
-          this.errors = data.errors;
-        } else {
-          this.snackbar = data.status;
-          this.response = data.message;
-          this.getDataFromApi();
-          this.dialogView = false;
-        }
-
-      });
+      this.$axios
+        .get(this.endpoint + "/approve/" + leaveid, options)
+        .then(({ data }) => {
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.snackbar = data.status;
+            this.response = data.message;
+            this.getDataFromApi();
+            this.dialogView = false;
+          }
+        });
     },
     save() {
-
-
       console.log(this.$auth);
       this.editedItem.company_id = this.$auth.user.company.id;
       this.editedItem.employee_id = this.login_user_employee_id;
-      this.editedItem.reporting_manager_id = this.$auth.user.reporting_manager_id;
-      ;
-
+      this.editedItem.reporting_manager_id =
+        this.$auth.user.reporting_manager_id;
       let options = {
         params: {
           company_id: this.$auth.user.company.id,
@@ -980,9 +1127,6 @@ export default {
         },
       };
 
-
-
-
       if (this.editedIndex > -1) {
         this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, options.params)
@@ -990,7 +1134,6 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
             } else {
-
               this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
@@ -1021,5 +1164,3 @@ export default {
   },
 };
 </script>
-
-

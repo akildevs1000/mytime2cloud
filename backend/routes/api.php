@@ -15,3 +15,4 @@ include('employee.php');
 include('schedule_employee.php');
 include('test.php');
 include('cron.php');
+include('render_report.php');
