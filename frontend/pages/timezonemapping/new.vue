@@ -215,7 +215,9 @@
                     {{ user.name }} : {{ user.device_id }}
                   </div>
                   <div class="col-sm" style="padding-top:21px">
-                    <span style="color: red">{{ user.sdkDeviceResponse }}</span>
+                    <span v-if="user.sdkDeviceResponse == 'Success'" style="color: green">{{ user.sdkDeviceResponse
+                    }}</span>
+                    <span v-else style="color: red">{{ user.sdkDeviceResponse }}</span>
                   </div>
 
                 </div>

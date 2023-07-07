@@ -13,9 +13,9 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $user = User::where('email', $request->email)->first();
-        if (!$user->web_login_access) {
+        if (!$user->web_login_access && !$user->is_master) {
             throw ValidationException::withMessages([
-                'email' => ['No web login access. Contact Admin.'],
+                'email' => ['Login access is not available. Please Contact your Admin.'],
             ]);
         } elseif (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([

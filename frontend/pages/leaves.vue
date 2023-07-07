@@ -242,11 +242,64 @@
             <v-row>
 
               <v-col cols="12">
-                <strong><u>Leave Notes</u> </strong>
+                <strong> Leave Notes </strong>
 
                 <label for="">: {{ dialogViewObject.reason }}</label>
               </v-col>
 
+            </v-row>
+            <v-row>
+
+              <label><strong>Uploaded Documents</strong> ({{ document_list.length }})</label>
+              <v-col cols="12" v-if="document_list.length">
+                <table style="border-collapse: collapse; width: 100%">
+                  <thead>
+                    <tr>
+                      <th style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  ">
+                        Title
+                      </th>
+                      <th style="
+                    border: 1px solid #dddddd;
+                    text-align: center;
+                    padding: 8px;
+                  ">
+                        File
+                      </th>
+
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="( d, index ) in  document_list " :key="index">
+                      <td style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  ">
+                        {{ d.key }}
+                      </td>
+                      <td style="
+                    border: 1px solid #dddddd;
+                    text-align: center;
+                    padding: 8px;
+                  ">
+                        <a :href="d.value" target="_blank">
+                          <v-btn small class="primary">
+                            View Uploaded File <v-icon>mdi-open-window</v-icon>
+                          </v-btn>
+                        </a>
+                      </td>
+
+                    </tr>
+                    <!-- Add more rows as needed -->
+                  </tbody>
+                </table>
+
+
+              </v-col>
             </v-row>
             <v-card-actions class="mt-4">
               <v-btn class="error" small @click="close"> Close </v-btn>
@@ -451,6 +504,7 @@
 </template>
 <script>
 import {
+
   TiptapVuetify,
   Image,
   Heading,
@@ -476,6 +530,7 @@ export default {
     TiptapVuetify,
   },
   data: () => ({
+    document_list: [],
     totalRowsCount: 0,
     options: {},
     filters_select_all: "",
@@ -711,6 +766,24 @@ export default {
 
       this.dialogView = true;
 
+      this.document_list = [];
+
+      this.getInfo(item.id);
+
+    },
+    getInfo(leave_id) {
+      this.$axios
+        .get(`employee_document`, {
+          params: {
+            company_id: this.$auth?.user?.company?.id,
+            //employee_id: this.login_user_employee_id,
+            leave_id: leave_id
+          },
+        })
+        .then(({ data }) => {
+          this.document_list = data;
+          this.loading = false;
+        });
     },
     getCurrentDateTime(date) {
       let now = new Date(date);

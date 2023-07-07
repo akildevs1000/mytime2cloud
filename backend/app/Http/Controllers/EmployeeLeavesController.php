@@ -138,6 +138,7 @@ class EmployeeLeavesController extends Controller
         $model = EmployeeLeaves::find($leaveId);
         if ($model) {
             $model->status = 1;
+            $model->approve_reject_notes = $request->approve_reject_notes;
             $record = $model->save();
 
             if ($record) {
@@ -197,6 +198,7 @@ class EmployeeLeavesController extends Controller
         $model = EmployeeLeaves::find($leaveId);
         if ($model) {
             $model->status = 2;
+            $model->approve_reject_notes = $request->approve_reject_notes;
             $record = $model->save();
 
             if ($record) {
