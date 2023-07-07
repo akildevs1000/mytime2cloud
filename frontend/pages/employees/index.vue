@@ -9,17 +9,33 @@
       <v-dialog v-model="dialogCropping" width="500">
         <v-card style="padding-top: 20px">
           <v-card-text>
-            <VueCropper v-show="selectedFile" ref="cropper" :src="selectedFile" alt="Source Image" :aspectRatio="1"
-              :autoCropArea="0.9" :viewMode="3"></VueCropper>
+            <VueCropper
+              v-show="selectedFile"
+              ref="cropper"
+              :src="selectedFile"
+              alt="Source Image"
+              :aspectRatio="1"
+              :autoCropArea="0.9"
+              :viewMode="3"
+            ></VueCropper>
           </v-card-text>
 
           <v-card-actions>
             <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
-              <v-btn class="danger btn btn-danger text-left" text @click="closePopup()" style="float: left">Cancel</v-btn>
+              <v-btn
+                class="danger btn btn-danger text-left"
+                text
+                @click="closePopup()"
+                style="float: left"
+                >Cancel</v-btn
+              >
             </div>
             <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
-              <v-btn class="primary btn btn-danger text-right"
-                @click="saveCroppedImageStep2(), (dialog = false)">Crop</v-btn>
+              <v-btn
+                class="primary btn btn-danger text-right"
+                @click="saveCroppedImageStep2(), (dialog = false)"
+                >Crop</v-btn
+              >
             </div>
           </v-card-actions>
         </v-card>
@@ -35,92 +51,203 @@
               <v-col md="6" sm="12" cols="12" dense>
                 <v-row>
                   <v-col md="6" sm="12" cols="12">
-                    <label class="col-form-label">Title <span class="text-danger">*</span></label>
-                    <v-select v-model="employee.title" :items="titleItems" :hide-details="!errors.title"
-                      :error="errors.title" :error-messages="errors && errors.title ? errors.title[0] : ''
-                        " dense outlined></v-select>
+                    <label class="col-form-label"
+                      >Title <span class="text-danger">*</span></label
+                    >
+                    <v-select
+                      v-model="employee.title"
+                      :items="titleItems"
+                      :hide-details="!errors.title"
+                      :error="errors.title"
+                      :error-messages="
+                        errors && errors.title ? errors.title[0] : ''
+                      "
+                      dense
+                      outlined
+                    ></v-select>
                   </v-col>
                   <v-col md="6" sm="12" cols="12">
-                    <label class="col-form-label">Joining Date <span class="text-danger">*</span></label>
+                    <label class="col-form-label"
+                      >Joining Date <span class="text-danger">*</span></label
+                    >
                     <div>
-                      <v-menu v-model="joiningDateMenuOpen" :close-on-content-click="false" transition="scale-transition"
-                        offset-y max-width="290px" min-width="auto">
+                      <v-menu
+                        v-model="joiningDateMenuOpen"
+                        :close-on-content-click="false"
+                        transition="scale-transition"
+                        offset-y
+                        max-width="290px"
+                        min-width="auto"
+                      >
                         <template v-slot:activator="{ on, attrs }">
-                          <v-text-field :hide-details="!errors.joining_date" :error-messages="errors && errors.joining_date
-                            ? errors.joining_date[0]
-                            : ''
-                            " v-model="employee.joining_date" persistent-hint append-icon="mdi-calendar" readonly
-                            outlined dense v-bind="attrs" v-on="on"></v-text-field>
+                          <v-text-field
+                            :hide-details="!errors.joining_date"
+                            :error-messages="
+                              errors && errors.joining_date
+                                ? errors.joining_date[0]
+                                : ''
+                            "
+                            v-model="employee.joining_date"
+                            persistent-hint
+                            append-icon="mdi-calendar"
+                            readonly
+                            outlined
+                            dense
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
                         </template>
-                        <v-date-picker style="min-height: 320px" v-model="employee.joining_date" no-title
-                          @input="joiningDateMenuOpen = false"></v-date-picker>
+                        <v-date-picker
+                          style="min-height: 320px"
+                          v-model="employee.joining_date"
+                          no-title
+                          @input="joiningDateMenuOpen = false"
+                        ></v-date-picker>
                       </v-menu>
                     </div>
                   </v-col>
                   <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label">Display Name <span class="text-danger">*</span></label>
-                    <v-text-field dense outlined :hide-details="!errors.display_name" type="text"
-                      v-model="employee.display_name" :error="errors.display_name" :error-messages="errors && errors.display_name
-                        ? errors.display_name[0]
-                        : ''
-                        "></v-text-field>
+                    <label class="col-form-label"
+                      >Display Name <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.display_name"
+                      type="text"
+                      v-model="employee.display_name"
+                      :error="errors.display_name"
+                      :error-messages="
+                        errors && errors.display_name
+                          ? errors.display_name[0]
+                          : ''
+                      "
+                    ></v-text-field>
                   </v-col>
                   <v-col md="6" sm="12" cols="12" dense>
-                    <label class="col-form-label">First Name <span class="text-danger">*</span></label>
-                    <v-text-field dense outlined :hide-details="!errors.first_name" type="text"
-                      v-model="employee.first_name" :error="errors.first_name" :error-messages="errors && errors.first_name ? errors.first_name[0] : ''
-                        "></v-text-field>
+                    <label class="col-form-label"
+                      >First Name <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.first_name"
+                      type="text"
+                      v-model="employee.first_name"
+                      :error="errors.first_name"
+                      :error-messages="
+                        errors && errors.first_name ? errors.first_name[0] : ''
+                      "
+                    ></v-text-field>
                   </v-col>
                   <v-col md="6" sm="12" cols="12" dense>
-                    <label class="col-form-label">Last Name <span class="text-danger">*</span></label>
-                    <v-text-field dense outlined :hide-details="!errors.last_name" type="text"
-                      v-model="employee.last_name" :error="errors.last_name" :error-messages="errors && errors.last_name ? errors.last_name[0] : ''
-                        "></v-text-field>
+                    <label class="col-form-label"
+                      >Last Name <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.last_name"
+                      type="text"
+                      v-model="employee.last_name"
+                      :error="errors.last_name"
+                      :error-messages="
+                        errors && errors.last_name ? errors.last_name[0] : ''
+                      "
+                    ></v-text-field>
                   </v-col>
                   <v-col md="6" cols="6" sm="6" dense>
-                    <label class="col-form-label">Employee ID <span class="text-danger">*</span></label>
-                    <v-text-field dense outlined type="text" v-model="employee.employee_id"
-                      :hide-details="!errors.employee_id" :error="errors.employee_id" :error-messages="errors && errors.employee_id
-                        ? errors.employee_id[0]
-                        : ''
-                        "></v-text-field>
+                    <label class="col-form-label"
+                      >Employee ID <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.employee_id"
+                      :hide-details="!errors.employee_id"
+                      :error="errors.employee_id"
+                      :error-messages="
+                        errors && errors.employee_id
+                          ? errors.employee_id[0]
+                          : ''
+                      "
+                    ></v-text-field>
                   </v-col>
                   <v-col md="6" cols="6" sm="6" dense>
-                    <label class="col-form-label">Employee Device Id<span class="text-danger">*</span></label>
-                    <v-text-field dense outlined type="text" v-model="employee.system_user_id"
-                      :hide-details="!errors.system_user_id" :error="errors.system_user_id" :error-messages="errors && errors.system_user_id
-                        ? errors.system_user_id[0]
-                        : ''
-                        "></v-text-field>
+                    <label class="col-form-label"
+                      >Employee Device Id<span class="text-danger"
+                        >*</span
+                      ></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.system_user_id"
+                      :hide-details="!errors.system_user_id"
+                      :error="errors.system_user_id"
+                      :error-messages="
+                        errors && errors.system_user_id
+                          ? errors.system_user_id[0]
+                          : ''
+                      "
+                    ></v-text-field>
                   </v-col>
 
                   <v-col md="12" cols="12" sm="12" dense>
                     <label class="col-form-label">Email (optional)</label>
-                    <v-text-field dense outlined type="text" v-model="employee.email" :hide-details="!errors.email"
-                      :error="errors.email" :error-messages="errors && errors.email ? errors.email[0] : ''
-                        "></v-text-field>
+                    <v-text-field
+                      dense
+                      outlined
+                      type="text"
+                      v-model="employee.email"
+                      :hide-details="!errors.email"
+                      :error="errors.email"
+                      :error-messages="
+                        errors && errors.email ? errors.email[0] : ''
+                      "
+                    ></v-text-field>
                   </v-col>
                 </v-row>
               </v-col>
               <v-col class="col-sm-6">
-                <div class="form-group pt-15" style="margin: 0 auto; width: 200px">
-                  <v-img style="
+                <div
+                  class="form-group pt-15"
+                  style="margin: 0 auto; width: 200px"
+                >
+                  <v-img
+                    style="
                       width: 100%;
                       height: 200px;
                       border: 1px solid #5fafa3;
                       border-radius: 50%;
                       margin: 0 auto;
-                    " :src="previewImage || '/no-profile-image.jpg'"></v-img>
+                    "
+                    :src="previewImage || '/no-profile-image.jpg'"
+                  ></v-img>
                   <br />
-                  <v-btn small class="form-control primary" @click="onpick_attachment">{{ !upload.name ? "Upload" :
-                    "Change" }} Profile Image
+                  <v-btn
+                    small
+                    class="form-control primary"
+                    @click="onpick_attachment"
+                    >{{ !upload.name ? "Upload" : "Change" }} Profile Image
                     <v-icon right dark>mdi-cloud-upload</v-icon>
                   </v-btn>
-                  <input required type="file" @change="attachment" style="display: none" accept="image/*"
-                    ref="attachment_input" />
+                  <input
+                    required
+                    type="file"
+                    @change="attachment"
+                    style="display: none"
+                    accept="image/*"
+                    ref="attachment_input"
+                  />
 
-                  <span v-if="errors && errors.profile_picture" class="text-danger mt-2">{{ errors.profile_picture[0]
-                  }}</span>
+                  <span
+                    v-if="errors && errors.profile_picture"
+                    class="text-danger mt-2"
+                    >{{ errors.profile_picture[0] }}</span
+                  >
                 </div>
               </v-col>
             </v-row>
@@ -130,11 +257,21 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn small color="grey white--text" @click="employeeDialog = false">
+            <v-btn
+              small
+              color="grey white--text"
+              @click="employeeDialog = false"
+            >
               Close
             </v-btn>
 
-            <v-btn v-if="can('employee_create')" small :loading="loading" color="primary" @click="store_data">
+            <v-btn
+              v-if="can('employee_create')"
+              small
+              :loading="loading"
+              color="primary"
+              @click="store_data"
+            >
               Submit
             </v-btn>
           </v-card-actions>
@@ -142,18 +279,36 @@
       </v-dialog>
       <v-dialog v-model="editDialog" width="1200" :key="employeeId">
         <v-card>
-          <v-tabs v-model="tab" background-color="primary" centered dark icons-and-text>
+          <v-tabs
+            v-model="tab"
+            background-color="primary"
+            centered
+            dark
+            icons-and-text
+          >
             <v-tabs-slider></v-tabs-slider>
 
-            <v-tab v-for="(item, index) in tabMenu" :key="index" :href="item.value">
+            <v-tab
+              v-for="(item, index) in tabMenu"
+              :key="index"
+              :href="item.value"
+            >
               {{ item.text }}
               <v-icon>{{ item.icon }}</v-icon>
             </v-tab>
           </v-tabs>
           <v-card-text>
             <v-tabs-items v-model="tab">
-              <v-tab-item v-for="(tb, index) in tabMenu" :key="index" :value="`${index}`">
-                <component :is="getComponent(tab)" :employeeId="employeeId" @eventFromchild="getDataFromApi" />
+              <v-tab-item
+                v-for="(tb, index) in tabMenu"
+                :key="index"
+                :value="`${index}`"
+              >
+                <component
+                  :is="getComponent(tab)"
+                  :employeeId="employeeId"
+                  @eventFromchild="getDataFromApi"
+                />
               </v-tab-item>
             </v-tabs-items>
           </v-card-text>
@@ -161,7 +316,10 @@
       </v-dialog>
       <div class="text-center">
         <v-dialog v-model="viewDialog" width="1200" :key="employeeId">
-          <EmployeeDetails @close-parent-dialog="closeViewDialog" :employeeObject="employeeObject" />
+          <EmployeeDetails
+            @close-parent-dialog="closeViewDialog"
+            :employeeObject="employeeObject"
+          />
         </v-dialog>
       </div>
       <v-dialog v-model="dialog" max-width="500px">
@@ -173,8 +331,13 @@
                   <span class="headline">Import Employee</span>
                 </v-col>
                 <v-col cols="12">
-                  <v-file-input accept="text/csv" v-model="files" placeholder="Upload your file" label="File"
-                    prepend-icon="mdi-paperclip">
+                  <v-file-input
+                    accept="text/csv"
+                    v-model="files"
+                    placeholder="Upload your file"
+                    label="File"
+                    prepend-icon="mdi-paperclip"
+                  >
                     <template v-slot:selection="{ text }">
                       <v-chip v-if="text" small label color="primary">
                         {{ text }}
@@ -184,7 +347,11 @@
                   <br />
                   <a href="/employees.csv" download> Download Sample</a>
                   <br />
-                  <span v-if="errors && errors.length > 0" class="error--text">{{ errors[0] }}</span>
+                  <span
+                    v-if="errors && errors.length > 0"
+                    class="error--text"
+                    >{{ errors[0] }}</span
+                  >
                 </v-col>
               </v-row>
             </v-container>
@@ -194,7 +361,13 @@
             <v-spacer></v-spacer>
             <v-btn class="error" small @click="close"> Cancel </v-btn>
 
-            <v-btn class="primary" :loading="btnLoader" small @click="importEmployee">Save</v-btn>
+            <v-btn
+              class="primary"
+              :loading="btnLoader"
+              small
+              @click="importEmployee"
+              >Save</v-btn
+            >
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -211,14 +384,29 @@
           <v-card elevation="0">
             <v-toolbar class="mb-2 white--text" color="background" dense flat>
               <span>{{ Model }}s </span>
-              <v-icon class="ml-2" @click="clearFilters" dark>mdi mdi-reload</v-icon>
-              <a @click="toggleFilter"><v-icon color="white" class="mx-1 ml-2">mdi
-                  mdi-filter</v-icon></a>
+              <v-icon class="ml-2" @click="clearFilters" dark
+                >mdi mdi-reload</v-icon
+              >
+              <a @click="toggleFilter"
+                ><v-icon color="white" class="mx-1 ml-2"
+                  >mdi mdi-filter</v-icon
+                ></a
+              >
               <v-spacer></v-spacer>
-              <v-icon color="white" right dark @click="dialog = true">mdi-cloud-upload</v-icon>
-              <v-icon color="white" right dark @click="export_submit">mdi-cloud-download</v-icon>
-              <v-icon color="white" right dark v-if="can('employee_create')"
-                @click="employeeDialog = true">mdi-plus</v-icon>
+              <v-icon color="white" right dark @click="dialog = true"
+                >mdi-cloud-upload</v-icon
+              >
+              <v-icon color="white" right dark @click="export_submit"
+                >mdi-cloud-download</v-icon
+              >
+              <v-icon
+                color="white"
+                right
+                dark
+                v-if="can('employee_create')"
+                @click="employeeDialog = true"
+                >mdi-plus</v-icon
+              >
               <!-- <v-btn
                 v-if="can('employee_import_access')"
                 small
@@ -264,16 +452,38 @@
                   :hide-details="true"
                 ></v-select> -->
             </v-toolbar>
-            <v-data-table dense v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
-              :loading="loadinglinear" :options.sync="options" :footer-props="{
+            <v-data-table
+              dense
+              v-model="selectedItems"
+              :headers="headers_table"
+              :items="data"
+              model-value="data.id"
+              :loading="loadinglinear"
+              :options.sync="options"
+              :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
-              }" class="elevation-1" :server-items-length="totalRowsCount">
+              }"
+              class="elevation-1"
+              :server-items-length="totalRowsCount"
+            >
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
-                  <td v-for="header in  headers " :key="header.text" class="table-search-header">
-                    <v-text-field style="margin-left: 10px;width:90%!important" v-if="header.filterable"
-                      autocomplete="off" v-model="filters[header.value]" id="header.value"
-                      @input="applyFilters(header.value, $event)" outlined height="10px" clearable></v-text-field>
+                  <td
+                    v-for="header in headers"
+                    :key="header.text"
+                    class="table-search-header"
+                  >
+                    <v-text-field
+                      style="margin-left: 10px; width: 90% !important"
+                      v-if="header.filterable"
+                      autocomplete="off"
+                      v-model="filters[header.value]"
+                      id="header.value"
+                      @input="applyFilters(header.value, $event)"
+                      outlined
+                      height="10px"
+                      clearable
+                    ></v-text-field>
                     <template v-else>
                       <!-- {{ header.text }} -->
                     </template>
@@ -281,33 +491,45 @@
                 </tr>
               </template>
               <template v-slot:item.employee_id="{ item }">
-                <strong>{{ item.employee_id }} </strong><br /><span style="font-size: 12px">{{ item.system_user_id
-                }}</span>
+                <strong>{{ item.employee_id }} </strong><br /><span
+                  style="font-size: 12px"
+                  >{{ item.system_user_id }}</span
+                >
               </template>
 
-              <template v-slot:item.first_name="{ item, index }" style="width: 300px">
+              <template
+                v-slot:item.first_name="{ item, index }"
+                style="width: 300px"
+              >
                 <v-row no-gutters>
-                  <v-col style="
-                        padding: 5px;
-                        padding-left: 0px;
+                  <v-col
+                    style="
+                      padding: 5px;
+                      padding-left: 0px;
+                      width: 50px;
+                      max-width: 50px;
+                    "
+                  >
+                    <v-img
+                      style="
+                        border-radius: 50%;
+                        height: auto;
                         width: 50px;
                         max-width: 50px;
-                      ">
-                    <v-img style="
-                          border-radius: 50%;
-                          height: auto;
-                          width: 50px;
-                          max-width: 50px;
-                        " :src="item.profile_picture
+                      "
+                      :src="
+                        item.profile_picture
                           ? item.profile_picture
                           : '/no-profile-image.jpg'
-                          ">
+                      "
+                    >
                     </v-img>
                   </v-col>
                   <v-col style="padding: 10px">
                     <strong>
                       {{ item.first_name ? item.first_name : "---" }}
-                      {{ item.last_name ? item.last_name : "---" }}</strong>
+                      {{ item.last_name ? item.last_name : "---" }}</strong
+                    >
                     <div>
                       {{
                         item.designation ? caps(item.designation.name) : "---"
@@ -331,14 +553,16 @@
                 {{
                   item.schedule &&
                   item.schedule.shift &&
-                  item.schedule.shift.name
+                  item.schedule.shift.name || "---"
                 }}
-                <div>
-                  {{
-                    item.schedule && item.schedule.shift
-                    ? "Working Hours: " + item.schedule.shift.working_hours
-                    : ""
-                  }}
+                <div
+                  v-if="
+                    item.schedule &&
+                    item.schedule.shift &&
+                    item.schedule.shift.working_hours
+                  "
+                >
+                  Working Hours: {{ item.schedule.shift.working_hours }}
                 </div>
               </template>
               <template v-slot:item.timezone_name="{ item }">
@@ -686,7 +910,7 @@ export default {
   watch: {
     options: {
       handler() {
-        this.getDataFromApi()
+        this.getDataFromApi();
       },
       deep: true,
     },
@@ -703,7 +927,6 @@ export default {
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
-
 
     datatable_cancel() {
       this.datatable_search_textbox = "";
@@ -734,7 +957,7 @@ export default {
     close() {
       this.dialog = false;
       this.errors = [];
-      setTimeout(() => { }, 300);
+      setTimeout(() => {}, 300);
     },
     json_to_csv(json) {
       let data = json.map((e) => ({
@@ -850,7 +1073,7 @@ export default {
           page: page,
           sortBy: sortedBy,
           sortDesc: sortedDesc,
-          per_page: itemsPerPage,//this.pagination.per_page,
+          per_page: itemsPerPage, //this.pagination.per_page,
           company_id: this.$auth.user.company.id,
           department_id: this.department_filter_id,
           ...this.filters,
@@ -862,7 +1085,6 @@ export default {
         //this.server_datatable_totalItems = data.total;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
-
 
         this.totalRowsCount = data.total;
 

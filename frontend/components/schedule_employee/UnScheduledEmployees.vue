@@ -22,7 +22,7 @@
         itemsPerPageOptions: [50, 100, 500, 1000],
       }"
     >
-    <template v-slot:item.name="{ item }">
+      <template v-slot:item.name="{ item }">
         {{ item.first_name ? item.first_name : "---" }}
         {{ item.last_name ? item.last_name : "---" }}
       </template>
@@ -697,7 +697,7 @@ export default {
       this.errors = [];
 
       let payload = {
-        employee_ids: this.employee_ids.map((e) => e.system_user_id),
+        employee_ids: this.employee_ids.map((e) => e.employee_id),
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company.id,
       };
