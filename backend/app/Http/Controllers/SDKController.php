@@ -122,14 +122,17 @@ class SDKController extends Controller
                 $returnMsg = Http::withoutVerifying()->withHeaders([
                     'Content-Type' => 'application/json',
                 ])->post($url, $newArray);
+                $returnMessage[] = $returnMsg['data'][0];
             } catch (\Exception $e) {
                 $returnMsg = [
                     "status" => 102,
                     "message" => $e->getMessage(),
                 ];
 
+                $returnMessage[] = $returnMsg;
+
             }
-            $returnMessage[] = $returnMsg['data'][0];
+
         }
         $finalReturnCotnent = ["data" => $returnMessage, "status" => 200,
             "message" => "",
