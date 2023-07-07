@@ -17,6 +17,7 @@ use App\Http\Controllers\DocumentInfoController;
 use App\Http\Controllers\DutyOrganizerController;
 use App\Http\Controllers\EmiratesController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeLeaveDocumentController;
 use App\Http\Controllers\EmployeeLeavesController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\HolidaysController;
@@ -137,7 +138,6 @@ Route::get('announcement/employee/{id}', [AnnouncementController::class, 'getAnn
 Route::apiResource('activity', ActivityController::class);
 Route::get('activitiesByUser/{user_id}', [ActivityController::class, "activitiesByUser"]);
 
-
 // -----------------------Company App-------------------------------
 
 // Company Auth
@@ -217,8 +217,6 @@ Route::get('list_with_out_multi_in_out', [ShiftController::class, 'list_with_out
 
 Route::apiResource('time_table', TimeTableController::class);
 
-
-
 Route::apiResource('shift_type', ShiftTypeController::class);
 
 Route::get('custom_report', [ReportController::class, 'custom_report']);
@@ -234,8 +232,6 @@ Route::get('overnight_report', [ReportController::class, 'overnight_report']);
 Route::get('odd_even_report', [ReportController::class, 'odd_even_report']);
 
 Route::get('attendance_logs_details', [AttendanceLogController::class, 'AttendanceLogsDetails']);
-
-
 
 // -----------------------Employee App-------------------------------
 
@@ -274,6 +270,8 @@ Route::get('employee_leaves/approve/{id}', [EmployeeLeavesController::class, 'ap
 Route::get('employee_leaves/reject/{id}', [EmployeeLeavesController::class, 'rejectLeave']);
 Route::get('employee_leaves_new', [EmployeeLeavesController::class, 'newNotifications']);
 Route::get('employee_leaves_new_by_employee', [EmployeeLeavesController::class, 'newEmployeeNotifications']);
+
+Route::apiResource('employee_document', EmployeeLeaveDocumentController::class);
 
 //Leave Type
 Route::apiResource('leave_type', LeaveTypesController::class);

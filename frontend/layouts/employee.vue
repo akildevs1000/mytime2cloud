@@ -432,3 +432,8 @@ export default {
   },
 };
 </script>
+<style>
+.file-upload .v-input__slot {
+  padding: 0px !important;
+}
+</style>

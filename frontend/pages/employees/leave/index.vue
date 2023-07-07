@@ -38,20 +38,28 @@
 
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialog" width="500px">
+    <v-dialog v-model="dialog" width="1000px">
       <v-card>
 
         <v-toolbar flat small dense dark class="background">
-          <span class="headline">New Leave Application </span>
+          <span class="headline" v-if="editedIndex == -1">New Leave Application </span>
+          <span class="headline" v-else>Edit Application </span>
         </v-toolbar>
         <v-card-text>
           <v-container>
 
             <v-row>
+
               <v-col cols="12">
-                <label for="" style="padding-bottom:5px">Available Leave Count : <v-chip
-                    v-if="leave_available_count != ''" color="primary">{{ leave_available_count
+                <label style="padding-bottom:5px">Available Leave Count : <v-chip v-if="leave_available_count != ''"
+                    color="primary">{{ leave_available_count
                     }}</v-chip></label>
+              </v-col>
+
+
+              <v-col cols="6">
+
+                <label for="" style="padding-bottom:5px">Select leave Type</label>
                 <v-select @change="verifyAvailableCount" :items="leaveTypes" item-text="leave_type.name"
                   item-value="leave_type.id" placeholder="Select Leave Type" v-model="editedItem.leave_type_id"
                   :hide-details="!errors.leave_type_id" :error="errors.leave_type_id" :error-messages="errors && errors.leave_type_id
@@ -59,11 +67,11 @@
                     : ''
                     " dense outlined></v-select>
               </v-col>
-              <v-col cols="12">
+              <v-col cols="6">
                 <v-menu ref="from_menu" v-model="start_menu" :close-on-content-click="false"
                   :return-value.sync="editedItem.start_date" transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
-                    <div class="mb-1">From Date</div>
+                    <label for="" style="padding-bottom:5px">From Date</label>
                     <v-text-field style="height:45px" outlined dense v-model="editedItem.start_date" readonly
                       v-bind="attrs" v-on="on" :error-messages="errors && errors.start_date ? errors.start_date[0] : ''
                         ">
@@ -75,8 +83,12 @@
                   </v-date-picker>
                 </v-menu>
               </v-col>
-
-              <v-col cols="12">
+              <v-col cols="6">
+                <label for="" style="padding-bottom:5px">Reason</label>
+                <v-text-field dense outlined v-model="editedItem.reason" placeholder="Reason/Notes" :error-messages="errors && errors.reason ? errors.reason[0] : ''
+                  "></v-text-field>
+              </v-col>
+              <v-col cols="6">
                 <v-menu ref="end_menu" v-model="end_menu" :close-on-content-click="false"
                   :return-value.sync="editedItem.end_date" transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
@@ -90,17 +102,130 @@
                   </v-date-picker>
                 </v-menu>
               </v-col>
-              <v-col cols="12">
-                <label for="" style="padding-bottom:5px">Reason</label>
-                <v-text-field dense outlined v-model="editedItem.reason" placeholder="Reason/Notes" :error-messages="errors && errors.reason ? errors.reason[0] : ''
-                  "></v-text-field>
-              </v-col>
+
               <v-col cols="12" v-if="errors && errors.reporting_manager_id">
                 <label for="" style="padding-bottom:5px;color:red">Reporting Manager ID is not assigned. Contact Admin
                 </label>
 
-              </v-col>
 
+              </v-col>
+              <label><strong>Uploaded Documents</strong> ({{ document_list.length }})</label>
+              <v-col cols="12" v-if="document_list.length && editedItem.status == 0">
+
+                <table style="border-collapse: collapse; width: 100%">
+                  <thead>
+                    <tr>
+                      <th style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  ">
+                        Title
+                      </th>
+                      <th style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  ">
+                        File
+                      </th>
+                      <th style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  ">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="( d, index ) in  document_list " :key="index">
+                      <td style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  ">
+                        {{ d.key }}
+                      </td>
+                      <td style="
+                    border: 1px solid #dddddd;
+                    text-align: center;
+                    padding: 8px;
+                  ">
+                        <a :href="d.value" target="_blank">
+                          <v-btn small class="primary">
+                            View Uploaded file <v-icon>mdi-open-window</v-icon>
+                          </v-btn>
+                        </a>
+                      </td>
+                      <td style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  ">
+                        <v-icon color="error" @click="delete_document(d.id, d.leave_id)">
+                          mdi-delete
+                        </v-icon>
+                      </td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                  </tbody>
+                </table>
+
+
+              </v-col>
+              <v-col cols="12">
+
+
+                <v-row>
+
+
+                  <v-col cols="12">
+                    <v-btn cols="2" @click="addDocumentInfo" small dense class="align-right primary mb-2"
+                      style="float:right">Add
+                      Document +
+                    </v-btn>
+                  </v-col>
+                </v-row>
+
+                <v-row v-for="( d, index ) in  Document.items " :key="index">
+
+                  <v-col cols="5">
+                    <!-- {{ index }}
+  {{ errorsFileUpload[index] }} -->
+                    <!-- <label class="col-form-label">Title <span class="text-danger">*</span></label> -->
+                    <v-text-field small dense outlined v-model="d.title" placeholder="Title"></v-text-field>
+                    <!-- <span v-if="errorsFileUpload[index] && errorsFileUpload[index].title" class="text-danger mt-2">{{
+    errorsFileUpload[index].title
+  }}</span> -->
+                  </v-col>
+                  <v-col cols="5" class="file-upload">
+                    <!-- <label class="col-form-label">File <span class="text-danger">*</span></label> -->
+                    <v-file-input @change="uploadFilesizevalidation($event, index)" small dense outlined v-model="d.file"
+                      style="padding:0px">
+                      <template v-slot:selection="{ text }" style="padding:0px">
+                        <v-chip v-if="text" small label color="primary" class="ma-1" style="width:80%">
+                          {{ text }}
+                        </v-chip>
+                      </template>
+                    </v-file-input>
+
+                    <span v-if="errorsFileUpload[index] && errorsFileUpload[index].value" class="text-danger mt-5">{{
+                      errorsFileUpload[index].value[0]
+                    }}</span>
+                  </v-col>
+                  <v-col cols="1">
+                    <v-icon class="error--text mt-1 " @click="removeItem(index)">mdi-delete</v-icon>
+                  </v-col>
+                </v-row>
+                <!-- <v-row>
+<v-col cols="12">
+  <v-btn :disabled="!Document.items.length" class="primary" small
+    @click="save_document_info">Save</v-btn>
+</v-col>
+</v-row> -->
+
+              </v-col>
             </v-row>
           </v-container>
         </v-card-text>
@@ -122,7 +247,8 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="6">
+
+              <v-col cols="5">
 
                 <v-row>
                   <v-col cols="4">
@@ -168,7 +294,7 @@
                 </v-row>
 
               </v-col>
-              <v-col col="6">
+              <v-col col="7">
 
 
                 <v-row>
@@ -220,18 +346,74 @@
                   </v-col>
                 </v-row>
 
-              </v-col>
-            </v-row>
-            <v-row>
+                <v-row v-if="dialogViewObject.status != 0">
+                  <v-col cols="4">
+                    <strong>Approve/Reject Notes </strong>
+                  </v-col>
+                  <v-col cols="8">
 
-              <v-col cols="2">
-                <strong><u>Leave Note</u> </strong>
+                    : {{ dialogViewObject.approve_reject_notes }}
+                  </v-col>
+                </v-row>
+
               </v-col>
-              <v-col cols="8">
+              <v-col cols="12">
+                <strong> Leave Notes </strong>:
                 <label for="">: {{ dialogViewObject.reason }}</label>
               </v-col>
+              <label><strong>Uploaded Documents</strong> ({{ document_list.length }})</label>
+              <v-col cols="12" v-if="document_list.length">
 
+                <table style="border-collapse: collapse; width: 100%">
+                  <thead>
+                    <tr>
+                      <th style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  ">
+                        Title
+                      </th>
+                      <th style="
+                    border: 1px solid #dddddd;
+                    text-align: center;
+                    padding: 8px;
+                  ">
+                        File
+                      </th>
+
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="( d, index ) in  document_list " :key="index">
+                      <td style="
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  ">
+                        {{ d.key }}
+                      </td>
+                      <td style="
+                    border: 1px solid #dddddd;
+                    text-align: center;
+                    padding: 8px;
+                  ">
+                        <a :href="d.value" target="_blank">
+                          <v-btn small class="primary">
+                            View Uploaded File <v-icon>mdi-open-window</v-icon>
+                          </v-btn>
+                        </a>
+                      </td>
+
+                    </tr>
+                    <!-- Add more rows as needed -->
+                  </tbody>
+                </table>
+
+
+              </v-col>
             </v-row>
+
             <v-card-actions class="mt-4">
               <v-btn class="error" small @click="close"> Close </v-btn>
               <v-spacer></v-spacer>
@@ -265,7 +447,7 @@
                   class="mb-2">Statistics <v-icon>mdi-information</v-icon></v-btn>
               </v-col>
               <v-col>
-                <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="dialog = true; errors = []"
+                <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="openNewDialog()"
                   class="mb-2">{{
                     Model }}
                   +</v-btn>
@@ -285,23 +467,26 @@
           <v-data-table v-if="can(`leave_application_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
             :loading="loading" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1">
+            }
+              " class="elevation-1">
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
-                <td v-for="header in headers" :key="header.text" class="table-search-header">
-                  <v-text-field style="padding-left: 10px;" v-if="header.filterable && header.text != 'Status'"
+                <td v-for="header in headers" :key="header.text">
+                  <v-text-field :hide-details="true" v-if="header.filterable && header.text != 'Status'"
                     v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
-                    height="10px" clearable></v-text-field>
-                  <v-select class="filter-select-hidden-text" v-else-if="header.filterable && header.text == 'Status'"
-                    height="10px;width:5px" style="padding: 0px;" small density="compact"
-                    @change="applyFilters('status', $event)" clearable item-value="value" item-text="title" :items="[{ value: '', title: 'All' }, { value: 'approved', title: 'Approved' }, {
-                      value: 'rejected',
-                      title: 'Rejected'
-                    }, { value: 'pending', title: 'Pending' }]"></v-select>
+                    dense autocomplete="off"></v-text-field>
 
-                  <template v-else>
-                    <!-- {{ header.text }} -->
-                  </template>
+                  <v-select :hide-details="true" @change="applyFilters('status', $event)" item-value="value"
+                    item-text="title" v-model="filters[header.value]" outlined dense
+                    v-else-if="header.filterable && header.text == 'Status'" :items="[
+                      { value: '', title: 'All' },
+                      { value: 'approved', title: 'Approved' },
+                      {
+                        value: 'rejected',
+                        title: 'Rejected',
+                      },
+                      { value: 'pending', title: 'Pending' },
+                    ]"></v-select>
                 </td>
               </tr>
             </template>
@@ -354,22 +539,10 @@
                 </template>
                 <v-list width="120" dense>
 
-                  <v-list-item @click="editItem(item)" v-if="item.status == 0">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_application_edit`)" color="secondary" small @click="editItem(item)">
-                        mdi-pencil
-                      </v-icon> Edit
-                    </v-list-item-title>
-                  </v-list-item>
 
 
-                  <v-list-item @click="deleteItem(item)" v-if="item.status == 0">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_application_delete`)" color="error" small @click="deleteItem(item)">
-                        {{ item.announcement === "customer" ? "" : "mdi-delete" }}
-                      </v-icon> Delete
-                    </v-list-item-title>
-                  </v-list-item>
+
+
                   <v-list-item @click="view(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon v-if="can(`leave_application_view`)" color="primary" small @click="view(item)">
@@ -377,7 +550,20 @@
                       </v-icon> View
                     </v-list-item-title>
                   </v-list-item>
-
+                  <v-list-item @click="editItem(item)" v-if="item.status == 0">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon v-if="can(`leave_application_edit`)" color="secondary" small @click="editItem(item)">
+                        mdi-pencil
+                      </v-icon> Edit
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="deleteItem(item)" v-if="item.status == 0">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon v-if="can(`leave_application_delete`)" color="error" small @click="deleteItem(item)">
+                        {{ item.announcement === "customer" ? "" : "mdi-delete" }}
+                      </v-icon> Delete
+                    </v-list-item-title>
+                  </v-list-item>
                 </v-list>
               </v-menu>
 
@@ -426,6 +612,24 @@ export default {
     TiptapVuetify,
   },
   data: () => ({
+    valid: true,
+    documents: false,
+    response: "",
+    errors: [],
+    errorsFileUpload: [],
+    FileRules: [
+      (value) =>
+        !value ||
+        value.size < 200000 ||
+        "File size should be less than 200 KB!",
+    ],
+    TitleRules: [(v) => !!v || "Title is required"],
+    Document: {
+      items: [],
+    },
+    document_list: [],
+
+
     leave_available_count: '',
     newLeaveApplication: true,
     filters: {},
@@ -586,7 +790,7 @@ export default {
     },
     response: "",
     data: [],
-    errors: [],
+    //errors: [],
     options_dialog: {},
     employees_dialog: [],
     selectAllDepartment: false,
@@ -604,7 +808,14 @@ export default {
 
   },
   created() {
+
     this.loading = true;
+    this.errors = {
+      "status": false,
+
+      "value": [""]
+    };
+    this.errorsFileUpload = [];
 
 
     this.getDataFromApi();
@@ -663,10 +874,12 @@ export default {
       this.dialogViewObject.leave_group_name = item.employee.leave_group ? item.employee.leave_group.group_name : '--';
       this.dialogViewObject.approved_datetime = item.updated_at ? this.getCurrentDateTime(item.updated_at) : '--';
       this.dialogViewObject.reporting_manager = item.reporting ? item.reporting.first_name + ' ' + item.reporting.last_name : '--';
+      this.dialogViewObject.approve_reject_notes = item.approve_reject_notes;
 
-
-
+      this.document_list = [];
       this.dialogView = true;
+      this.getInfo(item.id);
+
 
     },
     getCurrentDateTime(date) {
@@ -749,6 +962,28 @@ export default {
     onScroll() {
       this.scrollInvoked++;
     },
+    openNewDialog() {
+      this.editedItem = {
+        leave_type_id: "",
+        reason: "",
+        start_date: null,
+        end_date: null,
+
+      };
+      this.errors = [];
+      this.errorsFileUpload = [];
+      // this.Document.items = [{
+      //   title: "", file: ""
+      // }];
+      this.dialog = true;
+      this.document_list = [];
+      this.Document = {
+        items: [],
+      };
+
+
+
+    },
     getLeaveTypesByGroupId(leaveGroupId) {
 
 
@@ -824,6 +1059,13 @@ export default {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
+      this.document_list = [];
+      this.Document = {
+        items: [],
+      };
+      this.errorsFileUpload = [];
+      this.getInfo(this.editedItem.id);
+      this.verifyAvailableCount(this.editedItem.leave_type_id);
 
     },
 
@@ -932,7 +1174,7 @@ export default {
 
       });
     },
-    save() {
+    async save() {
 
 
 
@@ -949,12 +1191,14 @@ export default {
       };
 
       if (this.editedIndex > -1) {
-        this.$axios
+        await this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, options.params)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {
+              this.save_document_info(this.editedItem.id);
+
 
               this.getDataFromApi();
               this.snackbar = data.status;
@@ -972,6 +1216,10 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
             } else {
+
+              this.save_document_info(data.record.id);
+
+
               this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
@@ -986,6 +1234,166 @@ export default {
       }
 
 
+    },
+
+
+    can(item) {
+      return true;
+    },
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
+      } else {
+        let res = str.toString();
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+    },
+
+    addDocumentInfo() {
+      this.Document.items.push({
+        title: "",
+        file: "Upload File",
+      });
+    },
+    getInfo(leave_id) {
+      this.$axios
+        .get(`employee_document`, {
+          params: {
+            company_id: this.$auth?.user?.company?.id,
+            employee_id: this.login_user_employee_id,
+            leave_id: leave_id
+          },
+        })
+        .then(({ data }) => {
+          this.document_list = data;
+          this.loading = false;
+        });
+    },
+
+    // handleFileChange(file, index) {
+
+
+    //   if (file) {
+    //     if (file && file.size > 1024 * 100) {
+
+    //       this.errorsFileUpload[index] = {
+    //         "status": false,
+    //         // "approve_reject_notes": [
+    //         //   "Notes is required"
+    //         // ],
+    //         "value": [
+    //           "File too big (> 100kb). Upload less than 100Kb"
+    //         ]
+    //       };
+    //       this.snackbar = true;
+    //       this.response = file.name + " File too big (> 100kb). Upload less than 100Kb";
+    //       return false;
+
+    //     }
+    //   }
+    // },
+    uploadFilesizevalidation(file, index) {
+
+
+      if (file) {
+        if (file && file.size > 1024 * 100) {
+
+          this.errorsFileUpload[index] = {
+            "status": false,
+
+            "value": [
+              "File is too big (> 100kb). Upload less than 100Kb"
+            ]
+          };
+          return false;
+
+        } else {
+          this.errorsFileUpload[index] = {};
+          console.log(this.errorsFileUpload);
+          return true;
+        }
+      }
+    },
+    save_document_info(leave_id) {
+      let options = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      let payload = new FormData();
+      let totalFiles = 0;
+      this.Document.items.forEach((e) => {
+
+
+
+        if (e.file != '' && this.uploadFilesizevalidation(e.file, totalFiles)) {
+
+
+          totalFiles++;
+          payload.append(`items[][key]`, e.title);
+          payload.append(`items[][value]`, e.file || {});
+        }
+      });
+      if (totalFiles) {
+        payload.append(`company_id`, this.$auth?.user?.company?.id);
+        payload.append(`leave_id`, leave_id);
+        payload.append(`employee_id`, this.login_user_employee_id);
+
+
+        this.$axios
+          .post(`employee_document`, payload, options)
+          .then(({ data }) => {
+            this.loading = false;
+
+            if (!data.status) {
+              //this.errorsFileUpload = data.errors;
+            } else {
+              // this.errorsFileUpload = [];
+              this.snackbar = true;
+              this.response = data.message;
+              this.getInfo(leave_id);
+              //this.Document.items = [{ title: "", file: "" }];
+              //this.close_document_info();
+            }
+          })
+          .catch((e) => console.log(e));
+
+      }
+    },
+
+    close_document_info() {
+      this.documents = false;
+      this.errors = [];
+    },
+
+    removeItem(index) {
+      this.errorsFileUpload[index] = {
+        "status": true,
+        "value": []
+      };
+      this.Document.items.splice(index, 1);
+    },
+
+    delete_document(id, leave_id) {
+      confirm(
+        "Are you sure you wish to delete , to mitigate any inconvenience in future."
+      ) &&
+        this.$axios
+          .delete(`employee_document/${id}`)
+          .then(({ data }) => {
+            this.loading = false;
+
+            if (!data.status) {
+              this.errors = data.errors;
+            } else {
+              this.errors = [];
+              this.snackbar = true;
+              this.response = data.message;
+              this.getInfo(leave_id);
+              this.close_document_info();
+            }
+          })
+          .catch((e) => console.log(e));
     },
   },
 };

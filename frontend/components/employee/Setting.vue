@@ -175,7 +175,7 @@ export default {
           } else {
             this.errors = [];
             this.snackbar = true;
-            this.response = "Setting has been successfully updated";
+            this.response = "Settings has been successfully updated";
 
           }
         })
