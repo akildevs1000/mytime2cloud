@@ -105,40 +105,76 @@ class SDKController extends Controller
 
         $personList = $data['personList'];
         $snList = $data['snList'];
-        $returnMessage = [];
-        foreach ($snList as $key => $value) {
-            # code...
-            // $newArray = [];
-            // $newArray['personList'] = $personList;
-            // $newArray['snList'][] = $value;
-
-            $newArray = [
-                "personList" => $personList,
-                "snList" => [$value],
-            ];
+        $returnFinalMessage = [];
+        $devicePersonsArray = [];
+        foreach ($snList as $key => $device) {
 
             $returnMsg = '';
-            try {
+
+            foreach ($personList as $keyPerson => $valuePerson) {
+                # code...
+                $newArray = [
+                    "personList" => [$valuePerson],
+                    "snList" => [$device],
+                ];
+                // try {
                 $returnMsg = Http::withoutVerifying()->withHeaders([
                     'Content-Type' => 'application/json',
                 ])->post($url, $newArray);
-                $returnMessage[] = $returnMsg['data'][0];
-            } catch (\Exception $e) {
-                $returnMsg = [
-                    "status" => 102,
-                    "message" => $e->getMessage(),
-                ];
+                if ($returnMsg && $returnMsg['data']) {
+                    $returnFinalMessage[] = $returnMsg['data'][0];
+                    $devicePersonsArray[] = [$device => $returnMsg['data'][0]['userList']];
+                } else {
+                    $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
+                    $returnFinalMessage[] = $returnMsg;
+                }
 
-                $returnMessage[] = $returnMsg;
+                // } catch (\Exception $e) {
+                //     $returnMsg = [
+                //         "status" => 102,
+                //         "message" => $e->getMessage(),
+                //     ];
 
+                //     $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
+
+                //     $returnFinalMessage[] = $returnMsg;
+
+                // }
             }
-
         }
-        $finalReturnCotnent = ["data" => $returnMessage, "status" => 200,
+        $returnContent = ["data" => $returnFinalMessage, "status" => 200,
             "message" => "",
             "transactionType" => 0];
-        return $finalReturnCotnent;
+        return $returnContent;
 
+    }
+    public function mergeDevicePersonslist($data)
+    {
+        $mergedData = [];
+
+        foreach ($data as $item) {
+            $sn = $item['sn'];
+            $userList = $item['userList'];
+
+            if (array_key_exists($sn, $mergedData)) {
+                if (!empty($userList)) {
+                    $mergedData[$sn] = array_merge($mergedData[$sn], $userList);
+                }
+            } else {
+                $mergedData[$sn] = $userList;
+            }
+        }
+
+        $mergedList = [];
+
+        foreach ($mergedData as $sn => $userList) {
+            $mergedList[] = [
+                "sn" => $sn,
+                "userList" => $userList,
+            ];
+        }
+
+        print_r($mergedList);
     }
     public function processSDKRequestBulk($url, $data)
     {
