@@ -142,10 +142,7 @@
     </v-row>
 
     <v-row justify="center">
-      <v-dialog
-        v-model="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2"
-        max-width="700px"
-      >
+      <v-dialog v-model="reportSync" max-width="700px">
         <v-card>
           <v-card-title class="primary darken-2">
             <span class="headline white--text"> Render Report </span>
@@ -206,11 +203,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              class="error"
-              small
-              @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = false"
-            >
+            <v-btn class="error" small @click="reportSync = false">
               Cancel
             </v-btn>
             <v-btn class="primary" small @click="update_process_by_manual"
@@ -730,7 +723,7 @@
                   text
                   v-bind="attrs"
                   v-on="on"
-                  @click="renderReportByManualDialog = true"
+                  @click="reportSync = true"
                 >
                   <v-icon class="">mdi-cached</v-icon>
                 </v-btn>
@@ -826,7 +819,7 @@
                   text
                   v-bind="attrs"
                   v-on="on"
-                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                  @click="reportSync = true"
                 >
                   <v-icon class="">mdi-cached</v-icon>
                 </v-btn>
@@ -922,7 +915,7 @@
                   text
                   v-bind="attrs"
                   v-on="on"
-                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                  @click="reportSync = true"
                 >
                   <v-icon class="">mdi-cached</v-icon>
                 </v-btn>
@@ -1019,7 +1012,7 @@
                   text
                   v-bind="attrs"
                   v-on="on"
-                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                  @click="reportSync = true"
                 >
                   <v-icon class="">mdi-cached</v-icon>
                 </v-btn>
@@ -1236,7 +1229,7 @@ export default {
     add_manual_log: false,
     dialog: false,
     generateLogsDialog: false,
-    renderReportByManualDialog: false,
+    reportSync: false,
     from_date: null,
     from_menu: false,
     to_date: null,

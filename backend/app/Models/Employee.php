@@ -28,7 +28,7 @@ class Employee extends Model
 
     public function schedule()
     {
-        return $this->hasOne(ScheduleEmployee::class, "employee_id", "employee_id")
+        return $this->hasOne(ScheduleEmployee::class, "employee_id", "system_user_id")
             ->where('from_date', '<=', date('Y-m-d'))
             ->where('to_date', '>=', date('Y-m-d'))
             ->orderBy('from_date', 'desc')

@@ -630,7 +630,7 @@
                   text
                   v-bind="attrs"
                   v-on="on"
-                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                  @click="reportSync = true"
                 >
                   <v-icon class="">mdi-cached</v-icon>
                 </v-btn>
@@ -725,7 +725,7 @@
                   text
                   v-bind="attrs"
                   v-on="on"
-                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                  @click="reportSync = true"
                 >
                   <v-icon class="">mdi-cached</v-icon>
                 </v-btn>
@@ -820,7 +820,7 @@
                   text
                   v-bind="attrs"
                   v-on="on"
-                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                  @click="reportSync = true"
                 >
                   <v-icon class="">mdi-cached</v-icon>
                 </v-btn>
@@ -914,7 +914,7 @@
                   text
                   v-bind="attrs"
                   v-on="on"
-                  @click="qqfesc80rqna4ljmv0ga2m5m6f58twm7nqc27h0gx2 = true"
+                  @click="reportSync = true"
                 >
                   <v-icon class="">mdi-cached</v-icon>
                 </v-btn>
@@ -1131,7 +1131,7 @@
     </v-row>
 
     <v-row justify="center">
-      <v-dialog v-model="renderReportByManualDialog" max-width="700px">
+      <v-dialog v-model="reportSync" max-width="700px">
         <v-card>
           <v-card-title class="primary darken-2">
             <span class="headline white--text"> Render Report </span>
@@ -1195,7 +1195,7 @@
             <v-btn
               class="error"
               small
-              @click="renderReportByManualDialog = false"
+              @click="reportSync = false"
             >
               Cancel
             </v-btn>
@@ -1225,7 +1225,7 @@ export default {
     date: null,
     filter_employeeid: "",
     generateLogsDialog: false,
-    renderReportByManualDialog: false,
+    reportSync: false,
     isCompany: true,
     time_table_dialog: false,
     log_details: false,
