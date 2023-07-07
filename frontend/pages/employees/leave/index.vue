@@ -109,7 +109,14 @@
 
 
               </v-col>
-              <label><strong>Uploaded Documents</strong> ({{ document_list.length }})</label>
+              <v-col cols="12">
+                <label v-if="editedIndex != -1"><strong> Uploaded Documents </strong> ({{ document_list.length }})</label>
+
+                <v-btn title="Maximum file upload size is 100Kb" cols="2" @click="openDialogUploadDocuments" small dense
+                  class="  primary mb-2" style="float:right">Add
+                  Document +
+                </v-btn>
+              </v-col>
               <v-col cols="12" v-if="document_list.length && editedItem.status == 0">
 
                 <table style="border-collapse: collapse; width: 100%">
@@ -174,7 +181,28 @@
 
 
               </v-col>
-              <v-col cols="12">
+
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn class="error" small @click="close"> Cancel </v-btn>
+          <v-spacer></v-spacer>
+
+          <v-btn v-if="newLeaveApplication" class="primary" small @click="save">Save</v-btn>
+          <v-btn v-else class="danger" small>Reached maximum Leave count</v-btn>
+
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialogUploadDocuments" width="800px" height="400px">
+      <v-card>
+        <v-card-text>
+          <v-container>
+            <v-row>
+
+              <v-col cols="12" style="min-height:200px">
 
 
                 <v-row>
@@ -193,16 +221,12 @@
                 <v-row v-for="( d, index ) in  Document.items " :key="index">
 
                   <v-col cols="5">
-                    <!-- {{ index }}
-  {{ errorsFileUpload[index] }} -->
-                    <!-- <label class="col-form-label">Title <span class="text-danger">*</span></label> -->
+
                     <v-text-field small dense outlined v-model="d.title" placeholder="Title"></v-text-field>
-                    <!-- <span v-if="errorsFileUpload[index] && errorsFileUpload[index].title" class="text-danger mt-2">{{
-    errorsFileUpload[index].title
-  }}</span> -->
+
                   </v-col>
                   <v-col cols="5" class="file-upload">
-                    <!-- <label class="col-form-label">File <span class="text-danger">*</span></label> -->
+
                     <v-file-input @change="uploadFilesizeValidation($event, index)" small dense outlined v-model="d.file"
                       style="padding:0px">
                       <template v-slot:selection="{ text }" style="padding:0px">
@@ -220,26 +244,20 @@
                     <v-icon class="error--text mt-1 " @click="removeItem(index)">mdi-delete</v-icon>
                   </v-col>
                 </v-row>
-                <!-- <v-row>
-<v-col cols="12">
-  <v-btn :disabled="!Document.items.length" class="primary" small
-    @click="save_document_info">Save</v-btn>
-</v-col>
-</v-row> -->
+
 
               </v-col>
+              <v-card-actions>
+                <v-btn class="error" small @click="closeDialogUploadDocuments"> Cancel/Clear </v-btn>
+                <v-spacer></v-spacer>
+
+                <v-btn class="primary" small @click="SaveDocumentsDialog">Save</v-btn>
+
+
+              </v-card-actions>
             </v-row>
           </v-container>
         </v-card-text>
-
-        <v-card-actions>
-          <v-btn class="error" small @click="close"> Cancel </v-btn>
-          <v-spacer></v-spacer>
-
-          <v-btn v-if="newLeaveApplication" class="primary" small @click="save">Save</v-btn>
-          <v-btn v-else class="danger" small>Reached maximum Leave count</v-btn>
-
-        </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialogView" width="1000px">
@@ -615,6 +633,7 @@ export default {
     TiptapVuetify,
   },
   data: () => ({
+    dialogUploadDocuments: false,
     valid: true,
     documents: false,
     response: "",
@@ -628,7 +647,10 @@ export default {
     ],
     TitleRules: [(v) => !!v || "Title is required"],
     Document: {
-      items: [],
+      items: {
+        title: "",
+        file: "",
+      },
     },
     document_list: [],
 
@@ -842,7 +864,32 @@ export default {
   },
 
   methods: {
+    openDialogUploadDocuments() {
+      // this.Document = {
+      //   items: [],
+      // };
+      // this.Document.items.push({
+      //   title: "",
+      //   file: "",
+      // });
+      this.dialogUploadDocuments = true
+    },
+    closeDialogUploadDocuments() {
+      this.Document = {
+        items: [],
+      };
+      this.Document.items.push({
+        title: "",
+        file: "",
+      });
+      this.errors = [];
+      this.errorsFileUpload = [];
+      this.dialogUploadDocuments = false;
+    },
+    SaveDocumentsDialog() {
 
+      this.dialogUploadDocuments = false;
+    },
     verifyAvailableCount(leaveTypeId) {
 
 
@@ -975,14 +1022,16 @@ export default {
       };
       this.errors = [];
       this.errorsFileUpload = [];
-      // this.Document.items = [{
-      //   title: "", file: ""
-      // }];
+
       this.dialog = true;
       this.document_list = [];
       this.Document = {
         items: [],
       };
+      this.Document.items.push({
+        title: "",
+        file: "",
+      });
 
 
 
@@ -1066,6 +1115,11 @@ export default {
       this.Document = {
         items: [],
       };
+      this.Document.items.push({
+        title: "",
+        file: "",
+      });
+
       this.errorsFileUpload = [];
       this.getInfo(this.editedItem.id);
       this.verifyAvailableCount(this.editedItem.leave_type_id);
@@ -1255,7 +1309,7 @@ export default {
     addDocumentInfo() {
       this.Document.items.push({
         title: "",
-        file: "Upload File",
+        file: "",
       });
     },
     getInfo(leave_id) {
