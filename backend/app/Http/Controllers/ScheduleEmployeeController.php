@@ -291,8 +291,8 @@ class ScheduleEmployeeController extends Controller
         $employee = ScheduleEmployee::query();
         $model = $employee->where('company_id', $request->company_id);
         // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-        // $model->whereDate('from_date', '<=', $date);
-        // $model->whereDate('to_date', '>=', $date);
+        $model->whereDate('from_date', '<=', $date);
+        $model->whereDate('to_date', '>=', $date);
         $model->when($request->filled('employee_first_name'), function ($q) use ($request) {
 
             $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
