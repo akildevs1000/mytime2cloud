@@ -103,6 +103,43 @@ class SDKController extends Controller
     public function processSDKRequest($url, $data)
     {
 
+        $personList = $data['personList'];
+        $snList = $data['snList'];
+        $returnMessage = [];
+        foreach ($snList as $key => $value) {
+            # code...
+            // $newArray = [];
+            // $newArray['personList'] = $personList;
+            // $newArray['snList'][] = $value;
+
+            $newArray = [
+                "personList" => $personList,
+                "snList" => [$value],
+            ];
+
+            $returnMsg = '';
+            try {
+                $returnMsg = Http::withoutVerifying()->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->post($url, $newArray);
+            } catch (\Exception $e) {
+                $returnMsg = [
+                    "status" => 102,
+                    "message" => $e->getMessage(),
+                ];
+
+            }
+            $returnMessage[] = $returnMsg['data'][0];
+        }
+        $finalReturnCotnent = ["data" => $returnMessage, "status" => 200,
+            "message" => "",
+            "transactionType" => 0];
+        return $finalReturnCotnent;
+
+    }
+    public function processSDKRequestBulk($url, $data)
+    {
+
         try {
             return Http::withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
