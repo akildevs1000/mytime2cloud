@@ -108,6 +108,17 @@ class SDKController extends Controller
         $snList = $data['snList'];
         $returnFinalMessage = [];
         $devicePersonsArray = [];
+
+        // if (env("APP_ENV") != "local") {
+        //     try {
+        //         exec('php /var/www/staging/ideahrms/backend/artisan queue:work  ');
+        //     } catch (\Throwable $th) {
+        //         Log::channel('jobs')->error('artisan queue:work. Error Details: ' . $th);
+
+        //     }
+
+        // }
+
         foreach ($snList as $key => $device) {
 
             $returnMsg = '';
