@@ -153,7 +153,6 @@ class SDKController extends Controller
         // $emailJobs = new TimezonePhotoUploadJob();
         // $this->dispatch($emailJobs);
 
-        return $data;
         $data = json_decode($data, true);
         $return = TimezonePhotoUploadJob::dispatch($data);
         // echo exec("php artisan backup:run --only-db");
