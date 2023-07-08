@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\TimezonePhotoUploadJob;
 use App\Models\Device;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
@@ -102,6 +103,60 @@ class SDKController extends Controller
     }
     public function processSDKRequest($url, $data)
     {
+        $data = '{
+            "personList": [
+              {
+                "name": "ARAVIN",
+                "userCode": 1001,
+                "faceImage": "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686213736.jpg"
+              },
+              {
+                "name": "francis",
+                "userCode": 1006,
+                "faceImage": "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686330253.jpg"
+              },
+              {
+                "name": "kumar",
+                "userCode": 1005,
+                "faceImage": "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686330320.jpg"
+              },
+              {
+                "name": "NIJAM",
+                "userCode": 670,
+                "faceImage": "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1688228907.jpg"
+              },
+              {
+                "name": "saran",
+                "userCode": 1002,
+                "faceImage": "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686579375.jpg"
+              },
+              {
+                "name": "sowmi",
+                "userCode": 1003,
+                "faceImage": "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686330142.jpg"
+              },
+              {
+                "name": "syed",
+                "userCode": 1004,
+                "faceImage": "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686329973.jpg"
+              },
+              {
+                "name": "venu",
+                "userCode": 1007,
+                "faceImage": "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686578674.jpg"
+              }
+            ],
+            "snList": [
+              "OX-8862021010076","OX-11111111"
+            ]
+          }';
+        // $emailJobs = new TimezonePhotoUploadJob();
+        // $this->dispatch($emailJobs);
+        $data = json_decode($data, true);
+        $return = TimezonePhotoUploadJob::dispatch($data);
+        // echo exec("php artisan backup:run --only-db");
+        echo date("Y-m-d H:i:s");
+        return json_encode($return, true);
 
         $personList = $data['personList'];
         $snList = $data['snList'];
