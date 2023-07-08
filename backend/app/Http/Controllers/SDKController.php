@@ -108,6 +108,11 @@ class SDKController extends Controller
         $snList = $data['snList'];
         $returnFinalMessage = [];
         $devicePersonsArray = [];
+
+        if (env("APP_ENV") != "local") {
+            exec('php artisan queue:work');
+        }
+
         foreach ($snList as $key => $device) {
 
             $returnMsg = '';
