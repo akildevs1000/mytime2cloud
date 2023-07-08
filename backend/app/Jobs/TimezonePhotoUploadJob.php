@@ -20,11 +20,12 @@ class TimezonePhotoUploadJob implements ShouldQueue
      * @return void
      */
 
-    public $data;
+    public $data, $url;
 
-    public function __construct($data)
+    public function __construct($data, $url)
     {
         $this->data = $data;
+        $this->url = $url;
     }
 
     /**
@@ -33,6 +34,64 @@ class TimezonePhotoUploadJob implements ShouldQueue
      * @return void
      */
     public function handle()
+    {
+
+        $returnMsg = "";
+
+        try {
+            $returnMsg = Http::timeout(60)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($this->url, $this->data);
+
+        } catch (\Exception $e) {
+            $returnMsg = [
+                "status" => 102,
+                "message" => $e->getMessage(),
+            ];
+
+        }
+
+        //$returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
+        $returnContent = ["data" => $returnMsg, "status" => 200,
+            "message" => "",
+            "transactionType" => 0];
+
+        Log::channel('jobs')->info('TimezonePhotoUpload' . json_encode($returnContent, true));
+
+        return $returnContent;
+    }
+
+    public function mergeDevicePersonslist($data)
+    {
+        $mergedData = [];
+
+        foreach ($data as $item) {
+            $sn = $item['sn'];
+            $userList = $item['userList'];
+
+            if (array_key_exists($sn, $mergedData)) {
+                if (!empty($userList)) {
+                    $mergedData[$sn] = array_merge($mergedData[$sn], $userList);
+                }
+            } else {
+                $mergedData[$sn] = $item;
+            }
+        }
+
+        $mergedList = [];
+
+        foreach ($mergedData as $sn => $userList) {
+            $mergedList[] = [
+                "sn" => $sn,
+                "state" => $userList['state'],
+                "message" => $userList['message'],
+                "userList" => $userList['userList'],
+            ];
+        }
+        return $mergedList;
+    }
+
+    public function handle_old()
     {
 
         Log::channel('jobs')->info('TimezonePhotoUpload - Started' . date('Y-m-d H:i:s'));
@@ -94,35 +153,5 @@ class TimezonePhotoUploadJob implements ShouldQueue
         Log::channel('jobs')->info('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
 
         return $returnContent;
-    }
-
-    public function mergeDevicePersonslist($data)
-    {
-        $mergedData = [];
-
-        foreach ($data as $item) {
-            $sn = $item['sn'];
-            $userList = $item['userList'];
-
-            if (array_key_exists($sn, $mergedData)) {
-                if (!empty($userList)) {
-                    $mergedData[$sn] = array_merge($mergedData[$sn], $userList);
-                }
-            } else {
-                $mergedData[$sn] = $item;
-            }
-        }
-
-        $mergedList = [];
-
-        foreach ($mergedData as $sn => $userList) {
-            $mergedList[] = [
-                "sn" => $sn,
-                "state" => $userList['state'],
-                "message" => $userList['message'],
-                "userList" => $userList['userList'],
-            ];
-        }
-        return $mergedList;
     }
 }

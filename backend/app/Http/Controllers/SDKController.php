@@ -103,6 +103,77 @@ class SDKController extends Controller
     }
     public function processSDKRequest($url, $data)
     {
+
+        $personList = $data['personList'];
+        $snList = $data['snList'];
+        $returnFinalMessage = [];
+        $devicePersonsArray = [];
+        foreach ($snList as $key => $device) {
+
+            $returnMsg = '';
+
+            foreach ($personList as $keyPerson => $valuePerson) {
+                # code...
+                $newArray = [
+                    "personList" => [$valuePerson],
+                    "snList" => [$device],
+                ];
+
+                $return = TimezonePhotoUploadJob::dispatch($newArray, $this->endpoint);
+
+            }
+        }
+        $returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
+        $returnContent = ["data" => $returnFinalMessage, "status" => 200,
+            "message" => "",
+            "transactionType" => 0];
+        return $returnContent;
+
+    }
+    public function mergeDevicePersonslist($data)
+    {
+        $mergedData = [];
+
+        foreach ($data as $item) {
+            $sn = $item['sn'];
+            $userList = $item['userList'];
+
+            if (array_key_exists($sn, $mergedData)) {
+                if (!empty($userList)) {
+                    $mergedData[$sn] = array_merge($mergedData[$sn], $userList);
+                }
+            } else {
+                $mergedData[$sn] = $item;
+            }
+        }
+
+        $mergedList = [];
+
+        foreach ($mergedData as $sn => $userList) {
+            $mergedList[] = [
+                "sn" => $sn,
+                "state" => $userList['state'],
+                "message" => $userList['message'],
+                "userList" => $userList['userList'],
+            ];
+        }
+        return $mergedList;
+    }
+    public function processSDKRequestBulk($url, $data)
+    {
+
+        try {
+            return Http::withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($url, $data);
+        } catch (\Exception $e) {
+            return [
+                "status" => 102,
+                "message" => $e->getMessage(),
+            ];
+            // You can log the error or perform any other necessary actions here
+        }
+
         // $data = '{
         //     "personList": [
         //       {
@@ -158,87 +229,6 @@ class SDKController extends Controller
         // // echo exec("php artisan backup:run --only-db");
 
         // return json_encode($return, true);
-
-        $personList = $data['personList'];
-        $snList = $data['snList'];
-        $returnFinalMessage = [];
-        $devicePersonsArray = [];
-        foreach ($snList as $key => $device) {
-
-            $returnMsg = '';
-
-            foreach ($personList as $keyPerson => $valuePerson) {
-                # code...
-                $newArray = [
-                    "personList" => [$valuePerson],
-                    "snList" => [$device],
-                ];
-
-                $return = TimezonePhotoUploadJob::dispatch($newArray);
-
-                // } catch (\Exception $e) {
-                //     $returnMsg = [
-                //         "status" => 102,
-                //         "message" => $e->getMessage(),
-                //     ];
-
-                //     $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
-
-                //     $returnFinalMessage[] = $returnMsg;
-
-                // }
-            }
-        }
-        $returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
-        $returnContent = ["data" => $returnFinalMessage, "status" => 200,
-            "message" => "",
-            "transactionType" => 0];
-        return $returnContent;
-
-    }
-    public function mergeDevicePersonslist($data)
-    {
-        $mergedData = [];
-
-        foreach ($data as $item) {
-            $sn = $item['sn'];
-            $userList = $item['userList'];
-
-            if (array_key_exists($sn, $mergedData)) {
-                if (!empty($userList)) {
-                    $mergedData[$sn] = array_merge($mergedData[$sn], $userList);
-                }
-            } else {
-                $mergedData[$sn] = $item;
-            }
-        }
-
-        $mergedList = [];
-
-        foreach ($mergedData as $sn => $userList) {
-            $mergedList[] = [
-                "sn" => $sn,
-                "state" => $userList['state'],
-                "message" => $userList['message'],
-                "userList" => $userList['userList'],
-            ];
-        }
-        return $mergedList;
-    }
-    public function processSDKRequestBulk($url, $data)
-    {
-
-        try {
-            return Http::withoutVerifying()->withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post($url, $data);
-        } catch (\Exception $e) {
-            return [
-                "status" => 102,
-                "message" => $e->getMessage(),
-            ];
-            // You can log the error or perform any other necessary actions here
-        }
     }
     public function getDevicesCountForTimezone(Request $request)
     {
