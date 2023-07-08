@@ -197,9 +197,7 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.report_report();
-            this.snackbar = true;
-            this.response = "Log generate successfully";
+            this.report_report(data);
           }
         })
         .catch(({ message }) => {
@@ -207,18 +205,28 @@ export default {
           this.response = message;
         });
     },
-    report_report() {
+    report_report(parentData) {
       let payload = {
         params: {
           date: this.log_payload.date,
-          UserIDs: [this.log_payload.user_id],
-          company_ids: [this.$auth.user.company.id],
+          UserID: this.log_payload.user_id,
+          company_id: this.$auth.user.company.id,
         },
       };
 
       this.$axios
-        .get("/processByManual", payload)
+        .get("/render_multi_inout_report", payload)
         .then(({ data }) => {
+          this.snackbar = true;
+
+          let message = parentData.message;
+
+          if (!data.status) {
+            message = `${message}. But ${data.message}`;
+          }
+
+          this.response = message;
+
           this.$emit("update-data-table");
         })
         .catch((e) => console.log(e));
