@@ -138,6 +138,12 @@ class SingleShiftController extends Controller
         return $this->runFunc($currentDate, $companyIds, $UserIDs);
     }
 
+    public function processByManualSingle(Request $request)
+    {
+        $currentDate = $request->input('date', $this->getCurrentDate());
+        return $this->runFunc($currentDate, [$request->company_id], [$request->UserID]);
+    }
+
     public function runFunc($currentDate, $companyIds, $UserIDs)
     {
         foreach ($companyIds as $company_id) {

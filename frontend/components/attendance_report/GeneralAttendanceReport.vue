@@ -1122,7 +1122,10 @@
           <v-card-text>
             <v-container>
               <v-row>
-                <GenerateLog @update-data-table="getDataFromApi()" />
+                <GenerateLog
+                  endpoint="render_general_report"
+                  @update-data-table="getDataFromApi()"
+                />
               </v-row>
             </v-container>
           </v-card-text>
@@ -1192,11 +1195,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              class="error"
-              small
-              @click="reportSync = false"
-            >
+            <v-btn class="error" small @click="reportSync = false">
               Cancel
             </v-btn>
             <v-btn class="primary" small @click="update_process_by_manual"
@@ -1803,7 +1802,25 @@ export default {
           .catch((e) => console.log(e));
       }
     },
+    update_process_by_manual() {
+      let payload = {
+        params: {
+          date: this.editItems.date,
+          UserID: this.editItems.UserID,
+          company_id: this.$auth.user.company.id,
+        },
+      };
 
+      this.$axios
+        .get("/render_general_report", payload)
+        .then(({ data }) => {
+          this.loading = false;
+          this.snackbar = true;
+          this.response = data.message;
+          this.ProcessAttendance();
+        })
+        .catch((e) => console.log(e));
+    },
     viewItem(item) {
       this.log_list = [];
       let options = {

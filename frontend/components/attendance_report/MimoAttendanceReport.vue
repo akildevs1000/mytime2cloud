@@ -227,7 +227,10 @@
           <v-card-text>
             <v-container>
               <v-row>
-                <GenerateLog @update-data-table="getDataFromApi()" />
+                <GenerateLog
+                  endpoint="render_multi_inout_report"
+                  @update-data-table="getDataFromApi()"
+                />
               </v-row>
             </v-container>
           </v-card-text>

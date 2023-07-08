@@ -57,6 +57,14 @@ class RenderController extends Controller
         return $this->response("The Logs has been render against $UserID SYSTEM USER ID.", null, true);
     }
 
+    public function renderGeneral(Request $request)
+    {
+        (new FiloShiftController)->processByManualSingle($request);
+        (new SingleShiftController)->processByManualSingle($request);
+
+        return $this->response("The Logs has been render against {$request->UserID} SYSTEM USER ID.", null, true);
+    }
+
     public function getLogs($currentDate, $company_id, $UserID, $shift_type_id)
     {
         $model = AttendanceLog::query();
