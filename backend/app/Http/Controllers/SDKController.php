@@ -108,9 +108,9 @@ class SDKController extends Controller
         $snList = $data['snList'];
         $returnFinalMessage = [];
         $devicePersonsArray = [];
-
-        if (env("APP_ENV") != "local") {
-            exec('php artisan queue:work');
+        return exec('php artisan queue:work redis --');
+        if (env("APP_ENV") == "local") {
+            return exec('php artisan queue:work redis --');
         }
 
         foreach ($snList as $key => $device) {
