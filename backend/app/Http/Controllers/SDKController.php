@@ -154,10 +154,10 @@ class SDKController extends Controller
         // $this->dispatch($emailJobs);
 
         // $data = json_decode($data, true);
-        $return = TimezonePhotoUploadJob::dispatch($data);
-        // echo exec("php artisan backup:run --only-db");
+        // $return = TimezonePhotoUploadJob::dispatch($data);
+        // // echo exec("php artisan backup:run --only-db");
 
-        return json_encode($return, true);
+        // return json_encode($return, true);
 
         $personList = $data['personList'];
         $snList = $data['snList'];
@@ -173,17 +173,8 @@ class SDKController extends Controller
                     "personList" => [$valuePerson],
                     "snList" => [$device],
                 ];
-                // try {
-                $returnMsg = Http::timeout(60)->withoutVerifying()->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])->post($url, $newArray);
-                if ($returnMsg && $returnMsg['data']) {
-                    $returnFinalMessage[] = $returnMsg['data'][0];
-                    //$devicePersonsArray[] = [$device => $returnMsg['data'][0]['userList']];
-                } else {
-                    $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
-                    $returnFinalMessage[] = $returnMsg;
-                }
+
+                $return = TimezonePhotoUploadJob::dispatch($newArray);
 
                 // } catch (\Exception $e) {
                 //     $returnMsg = [
