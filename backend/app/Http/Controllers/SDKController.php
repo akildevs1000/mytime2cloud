@@ -123,7 +123,7 @@ class SDKController extends Controller
                 ])->post($url, $newArray);
                 if ($returnMsg && $returnMsg['data']) {
                     $returnFinalMessage[] = $returnMsg['data'][0];
-                    $devicePersonsArray[] = [$device => $returnMsg['data'][0]['userList']];
+                    //$devicePersonsArray[] = [$device => $returnMsg['data'][0]['userList']];
                 } else {
                     $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
                     $returnFinalMessage[] = $returnMsg;
@@ -142,6 +142,7 @@ class SDKController extends Controller
                 // }
             }
         }
+        $returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
         $returnContent = ["data" => $returnFinalMessage, "status" => 200,
             "message" => "",
             "transactionType" => 0];
@@ -161,7 +162,7 @@ class SDKController extends Controller
                     $mergedData[$sn] = array_merge($mergedData[$sn], $userList);
                 }
             } else {
-                $mergedData[$sn] = $userList;
+                $mergedData[$sn] = $item;
             }
         }
 
@@ -170,11 +171,12 @@ class SDKController extends Controller
         foreach ($mergedData as $sn => $userList) {
             $mergedList[] = [
                 "sn" => $sn,
-                "userList" => $userList,
+                "state" => $userList['state'],
+                "message" => $userList['message'],
+                "userList" => $userList['userList'],
             ];
         }
-
-        print_r($mergedList);
+        return $mergedList;
     }
     public function processSDKRequestBulk($url, $data)
     {
