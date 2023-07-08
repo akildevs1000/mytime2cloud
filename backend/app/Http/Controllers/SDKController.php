@@ -118,7 +118,7 @@ class SDKController extends Controller
                     "snList" => [$device],
                 ];
                 // try {
-                $returnMsg = Http::withoutVerifying()->withHeaders([
+                $returnMsg = Http::timeout(60)->withoutVerifying()->withHeaders([
                     'Content-Type' => 'application/json',
                 ])->post($url, $newArray);
                 if ($returnMsg && $returnMsg['data']) {
