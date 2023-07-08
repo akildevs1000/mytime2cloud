@@ -108,9 +108,9 @@ class SDKController extends Controller
         $snList = $data['snList'];
         $returnFinalMessage = [];
         $devicePersonsArray = [];
-        return exec('php artisan queue:work redis --');
+        return exec('php /var/www/staging/ideahrms/backend/artisan queue:work  ');
         if (env("APP_ENV") == "local") {
-            return exec('php artisan queue:work redis --');
+            return exec('php /var/www/staging/ideahrms/backend/artisan queue:work  ');
         }
 
         foreach ($snList as $key => $device) {
