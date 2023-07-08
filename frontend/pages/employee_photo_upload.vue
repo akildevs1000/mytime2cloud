@@ -947,11 +947,8 @@ export default {
 
       this.loading_dialog = true;
       this.errors = [];
-
-
-
+      let personListArray = [];
       this.rightEmployees.forEach(async (item) => {
-        let personListArray = [];
         let person = {
           name: item.display_name,
           userCode: parseInt(item.system_user_id),
@@ -962,9 +959,22 @@ export default {
         personListArray.push(person);
 
 
+      });
+
+      this.rightDevices.forEach(async (item) => {
+        // let person = {
+        //   name: item.display_name,
+        //   userCode: parseInt(item.system_user_id),
+
+        //   //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
+        //   faceImage: item.profile_picture
+        // };
+        // personListArray.push(person);
+
+
         let payload = {
           personList: personListArray,
-          snList: this.rightDevices.map((e) => e.device_id),
+          snList: [item.device_id],
         };
 
         if (payload.snList && payload.snList.length === 0) {
