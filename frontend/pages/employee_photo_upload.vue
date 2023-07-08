@@ -78,8 +78,8 @@
                 v-on:dblclick="counter += 1, moveToRightEmp(user.id, user.timezone)" :key="user.id">
                 <v-row>
                   <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox class="col    " v-model="leftSelectedEmp" :value="user.id" primary
-                      hide-details></v-checkbox>
+                    <v-checkbox v-if="user.profile_picture" class="col    " v-model="leftSelectedEmp" :value="user.id"
+                      primary hide-details></v-checkbox>
                   </v-col>
                   <v-col col="2" class=" col     " style="padding-top:21px">
 
@@ -188,11 +188,16 @@
                 v-model="leftSelectedDevices" :key="user.id">
                 <div class="row">
                   <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
-                      v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+                    <v-checkbox v-if="user.status.name == 'active'" hideDetails
+                      class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
+                      primary hide-details></v-checkbox>
                   </v-col>
                   <div col-4 class="col   " style="padding-top:21px">
                     {{ user.name }} : {{ user.device_id }}
+                    <span style="color:green" v-if="user.status.name == 'active'">
+                      Online</span>
+                    <span style="color:red" v-else>Offline
+                    </span>
                   </div>
                 </div>
               </v-card-text>
@@ -419,11 +424,19 @@ export default {
       this.errors = [];
       this.response = "";
 
-      $.extend(this.rightEmployees, {
-        sdkEmpResponse: "",
+      // $.extend(this.rightEmployees, {
+      //   sdkEmpResponse: "",
+      // });
+      // $.extend(this.rightDevices, {
+      //   sdkDeviceResponse: "",
+      // });
+      this.rightEmployees.forEach((element) => {
+        element["sdkEmpResponse"] = "Success";
+
       });
-      $.extend(this.rightDevices, {
-        sdkDeviceResponse: "",
+      this.rightDevices.forEach((element) => {
+        element["sdkDeviceResponse"] = "Success";
+
       });
     },
 
@@ -606,7 +619,7 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company.id,
-          cols: ["id", "location", "name", "device_id"],
+          //cols: ["id", "location", "name", "device_id", "status:id"],
         },
       };
       let page = 1;
@@ -697,8 +710,13 @@ export default {
       this.verifySubmitButton();
     },
     allmoveToRightEmp() {
-      this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
-      this.leftEmployees = [];
+      // this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
+      // this.leftEmployees = [];
+
+      this.rightEmployees = this.rightEmployees.concat(this.leftEmployees.filter((el) => el.profile_picture != null));
+
+      this.leftEmployees = this.leftEmployees.filter((el) => el.profile_picture == null);
+
       this.rightEmployees = this.sortObject(this.rightEmployees);
       this.verifySubmitButton();
     },
@@ -806,8 +824,13 @@ export default {
       this.verifySubmitButton();
     },
     allmoveToRightDevices() {
-      this.rightDevices = this.rightDevices.concat(this.leftDevices);
-      this.leftDevices = [];
+      ///this.rightDevices = this.rightDevices.concat(this.leftDevices);
+      //this.leftDevices = [];
+
+
+      this.rightDevices = this.rightDevices.concat(this.leftDevices.filter((el) => el.status.name == "active"));
+
+      this.leftDevices = this.leftDevices.filter((el) => el.status.name == "inactive");
 
       this.rightDevices = this.sortObjectD(this.rightDevices);
       this.verifySubmitButton();
@@ -935,7 +958,7 @@ export default {
       this.leftSelectedDevices.pop(id);
       this.verifySubmitButton();
     },
-    onSubmit() {
+    onSubmit_new() {
 
       this.displaybutton = false;
       this.loading = true;
@@ -962,6 +985,7 @@ export default {
       });
 
       this.rightDevices.forEach(async (item) => {
+
         // let person = {
         //   name: item.display_name,
         //   userCode: parseInt(item.system_user_id),
@@ -996,7 +1020,7 @@ export default {
 
 
           this.snackbar.show = true;
-          this.response = "Employee(s) has been upload";
+          this.response = "Employee(s) pictures has been uploaded";
 
           let jsrightEmployees = this.rightEmployees;
           let SDKSuccessStatus = true;
@@ -1055,6 +1079,7 @@ export default {
             //   sdkDeviceResponse:
             //     deviceStatusResponse != "" ? deviceStatusResponse : " Success",
             // });
+
             elementDevice["sdkDeviceResponse"] =
               deviceStatusResponse != "" ? deviceStatusResponse : "Success";
             this.errors = [];
@@ -1096,7 +1121,7 @@ export default {
       });
 
     },
-    async onSubmit_old() {
+    async onSubmit() {
 
       this.displaybutton = false;
       this.loading = true;
@@ -1146,67 +1171,61 @@ export default {
 
 
         this.snackbar.show = true;
-        this.response = "Employee(s) has been upload";
+        this.response = "Employee(s) Pictures  has been uploaded";
 
         let jsrightEmployees = this.rightEmployees;
         let SDKSuccessStatus = true;
         this.rightDevices.forEach((elementDevice) => {
-          let SdkResponseDeviceobject = data.data.find(
-            (e) => e.sn == elementDevice.device_id
-          );
+
+          // let SdkResponseDeviceobject = data.data.find(
+          //   (e) => e.sn == elementDevice.device_id
+          // );
 
 
-          let deviceStatusResponse = "";
-          let EmpStatusResponse = "";
+          // let deviceStatusResponse = "";
+          // let EmpStatusResponse = "";
 
-          if (SdkResponseDeviceobject.message == "") {
-            deviceStatusResponse = "Success";
-          } else if (
-            SdkResponseDeviceobject.message == "The device was not found"
-          ) {
-            deviceStatusResponse = "The device was not found or offline";
-            SDKSuccessStatus = false;
-          } else if (SdkResponseDeviceobject.message == "person info error") {
-            let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-            jsrightEmployees.forEach((element) => {
-              let systemUserid = element.system_user_id;
-              SDKSuccessStatus = false;
+          // if (SdkResponseDeviceobject.message == "") {
+          //   deviceStatusResponse = "Success";
+          // } else if (
+          //   SdkResponseDeviceobject.message == "The device was not found"
+          // ) {
+          //   deviceStatusResponse = "The device was not found or offline";
+          //   SDKSuccessStatus = false;
+          // } else if (SdkResponseDeviceobject.message == "person info error") {
+          //   let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
+          //   jsrightEmployees.forEach((element) => {
+          //     let systemUserid = element.system_user_id;
+          //     SDKSuccessStatus = false;
 
-              element["sdkEmpResponse"] = "Success";
-              let selectedEmpobject = SDKUseridArray.find(
-                (e) => e.userCode == systemUserid
-              );
-              EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-              deviceStatusResponse = "";
-
-
-              if (EmpStatusResponse != "") {
-                //Adding extra parameters for Employee object
-                if (selectedEmpobject) {
-                  element["sdkEmpResponse"] = "person photo error ";
-                  // $.extend(element, {
-                  //   sdkEmpResponse: "person info error ",
-                  // });
-                } else {
-                  // $.extend(element, {
-                  //   sdkEmpResponse: " Success",
-                  // });
-                  element["sdkEmpResponse"] = "Success";
-                }
-              }
+          //     element["sdkEmpResponse"] = "Success";
+          //     let selectedEmpobject = SDKUseridArray.find(
+          //       (e) => e.userCode == systemUserid
+          //     );
+          //     EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
+          //     deviceStatusResponse = "";
 
 
-            });
-          } else {
-          }
+          //     if (EmpStatusResponse != "") {
 
-          //Adding extra parameters for Devices object
-          // $.extend(elementDevice, {
-          //   sdkDeviceResponse:
-          //     deviceStatusResponse != "" ? deviceStatusResponse : " Success",
-          // });
-          elementDevice["sdkDeviceResponse"] =
-            deviceStatusResponse != "" ? deviceStatusResponse : "Success";
+          //       if (selectedEmpobject) {
+
+          //       } else {
+
+          //         element["sdkEmpResponse"] = "Success";
+          //       }
+          //     }
+
+
+          //   });
+          // } else {
+          // }
+          jsrightEmployees.forEach((element) => {
+            element["sdkEmpResponse"] = "Success";
+
+          });
+
+          elementDevice["sdkDeviceResponse"] = "Success";
           this.errors = [];
 
           this.loading = false;

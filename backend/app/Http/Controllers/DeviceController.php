@@ -38,6 +38,9 @@ class DeviceController extends Controller
         $model->when($request->filled('serach_status_name'), function ($q) use ($request) {
             $q->whereHas('status', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_status_name%"));
         });
+
+        // array_push($cols, 'status.id');
+
         $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
             $q->select($cols);
         });

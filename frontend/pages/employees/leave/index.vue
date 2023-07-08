@@ -1359,7 +1359,7 @@ export default {
             "status": false,
 
             "value": [
-              "Upload less than 100Kb. File is too big (> 100kb). "
+              "Upload less than 100Kb.   "
             ]
           };
           return false;
