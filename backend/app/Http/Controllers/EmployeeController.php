@@ -157,9 +157,12 @@ class EmployeeController extends Controller
                 },
             ])
             ->with([
-                "reportTo", "schedule", "department", "sub_department", "designation", "payroll", "timezone", "passport",
+                "reportTo", "department", "sub_department", "designation", "payroll", "timezone", "passport",
                 "emirate", "qualification", "bank", "leave_group",
             ])
+            ->with(["schedule" => function ($q) {
+                $q->with("roster");
+            }])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
                 $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));

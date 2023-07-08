@@ -1829,13 +1829,13 @@ export default {
       let payload = {
         params: {
           date: this.editItems.date,
-          UserIDs: [this.editItems.UserID],
-          company_ids: [this.$auth.user.company.id],
+          UserID: this.editItems.UserID,
+          company_id: this.$auth.user.company.id,
         },
       };
 
       this.$axios
-        .get("/processByManual", payload)
+        .get("/render_multi_inout_report", payload)
         .then(({ data }) => {
           this.loading = false;
           this.snackbar = true;

@@ -551,9 +551,10 @@
               </template>
               <template v-slot:item.schedule_shift_name="{ item }">
                 {{
-                  item.schedule &&
-                  item.schedule.shift &&
-                  item.schedule.shift.name || "---"
+                  (item.schedule &&
+                    item.schedule.shift &&
+                    getCurrentShift(item.schedule)) ||
+                  "---"
                 }}
                 <div
                   v-if="
@@ -916,6 +917,14 @@ export default {
     },
   },
   methods: {
+    getCurrentShift(item) {
+      // Define an array of day names
+      const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const dayName = daysOfWeek[new Date().getDay()];
+      const { shift_name } = item.roster.json.find((e) => e.day == dayName);
+
+      return shift_name;
+    },
     closeViewDialog() {
       this.viewDialog = false;
     },
