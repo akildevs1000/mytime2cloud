@@ -1,4 +1,4 @@
-<template>
+<template >
   <div style="width: 100% !important">
     <div>
       <v-row>
@@ -149,7 +149,11 @@
                   </v-col>
                   <v-col col="4">
 
-                    <span style="color: red">{{ user.sdkEmpResponse }}</span>
+
+
+                    <span v-if="user.sdkEmpResponse == 'Success'" style="color: green">{{ user.sdkEmpResponse
+                    }}</span>
+                    <span v-else style="color: red">{{ user.sdkEmpResponse }}</span>
 
                   </v-col>
                 </div>
@@ -269,7 +273,7 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button v-if="displaybutton" :loading="loading" @click="onSubmit" type="button" id="save"
+                <button :disabled='!displaybutton' :loading="loading" @click="onSubmit" type="button" id="save"
                   class="btn primary btn-block white--text v-size--default">
                   Submit
                 </button>
@@ -291,7 +295,7 @@ export default {
       loading: false,
       counter: 0,
       devices_dialog: [],
-      displaybutton: true,
+      displaybutton: false,
       progressloading: false,
       searchInput: "",
       snackbar: {
@@ -424,6 +428,7 @@ export default {
     },
 
     onSubmit_old() {
+
       this.resetErrorMessages();
 
       if (this.timezonesselected == "") {
@@ -546,7 +551,7 @@ export default {
                     });
                   } else {
                     $.extend(element, {
-                      sdkEmpResponse: " Success",
+                      sdkEmpResponse: "Success",
                     });
                   }
                 }
@@ -559,7 +564,7 @@ export default {
             //Adding extra parameters for Devices object
             $.extend(rightDevicesobj, {
               sdkDeviceResponse:
-                deviceStatusResponse != "" ? deviceStatusResponse : " Success",
+                deviceStatusResponse != "" ? deviceStatusResponse : "Success",
             });
             this.errors = [];
           });
@@ -676,15 +681,26 @@ export default {
           }
         }
       }),
+    verifySubmitButton() {
+      if (this.rightEmployees.length > 0 && this.rightDevices.length > 0) {
+        this.displaybutton = true;
+      }
+      else {
+        this.displaybutton = false;
+      }
+    },
     allmoveToLeftemp() {
       this.leftEmployees = this.leftEmployees.concat(this.rightEmployees);
       this.rightEmployees = [];
       this.leftEmployees = this.sortObject(this.leftEmployees);
+
+      this.verifySubmitButton();
     },
     allmoveToRightEmp() {
       this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
       this.leftEmployees = [];
       this.rightEmployees = this.sortObject(this.rightEmployees);
+      this.verifySubmitButton();
     },
     moveToLeftempOption2() {
 
@@ -713,6 +729,8 @@ export default {
 
         this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
       }
+
+      this.verifySubmitButton();
     },
     moveToLeftemp(id) {
       this.rightSelectedEmp.push(id);
@@ -739,6 +757,7 @@ export default {
       this.leftEmployees = this.sortObject(this.leftEmployees);
 
       this.rightSelectedEmp.pop(id);
+      this.verifySubmitButton();
     },
     check: function (id, e) {
 
@@ -775,7 +794,7 @@ export default {
       for (let i = 0; i < _leftSelectedEmp_length; i++) {
         this.leftSelectedEmp.pop(this.leftSelectedEmp[i]);
       }
-
+      this.verifySubmitButton();
     },
 
     /* Devices---------------------------------------- */
@@ -784,12 +803,14 @@ export default {
       this.rightDevices = [];
 
       this.leftDevices = this.sortObjectD(this.leftDevices);
+      this.verifySubmitButton();
     },
     allmoveToRightDevices() {
       this.rightDevices = this.rightDevices.concat(this.leftDevices);
       this.leftDevices = [];
 
       this.rightDevices = this.sortObjectD(this.rightDevices);
+      this.verifySubmitButton();
     },
     moveToLeftDevicesOption2() {
 
@@ -820,7 +841,7 @@ export default {
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
         this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
       }
-
+      this.verifySubmitButton();
     },
     moveToLeftDevices(id) {
 
@@ -851,6 +872,8 @@ export default {
       this.leftDevices = this.sortObjectD(this.leftDevices);
 
       this.rightSelectedDevices.pop(id);
+      this.verifySubmitButton();
+
     },
     moveToRightDevicesOption2() {
 
@@ -882,7 +905,7 @@ export default {
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
         this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
       }
-
+      this.verifySubmitButton();
     },
     moveToRightDevices(id) {
       this.leftSelectedDevices.push(id);
@@ -910,11 +933,172 @@ export default {
       this.rightDevices = this.sortObjectD(this.rightDevices);
 
       this.leftSelectedDevices.pop(id);
+      this.verifySubmitButton();
     },
+    onSubmit() {
 
-    async onSubmit() {
+      this.displaybutton = false;
+      this.loading = true;
+      if (this.rightEmployees.length == 0) {
+        this.response = this.response + " Atleast select one Employee Details";
+      } else if (this.rightDevices.length == 0) {
+        this.response = this.response + " Atleast select one Device Details";
+      }
+
+      this.loading_dialog = true;
+      this.errors = [];
+      let personListArray = [];
+      this.rightEmployees.forEach(async (item) => {
+        let person = {
+          name: item.display_name,
+          userCode: parseInt(item.system_user_id),
+
+          //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
+          faceImage: item.profile_picture
+        };
+        personListArray.push(person);
 
 
+      });
+
+      this.rightDevices.forEach(async (item) => {
+        // let person = {
+        //   name: item.display_name,
+        //   userCode: parseInt(item.system_user_id),
+
+        //   //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
+        //   faceImage: item.profile_picture
+        // };
+        // personListArray.push(person);
+
+
+        let payload = {
+          personList: personListArray,
+          snList: [item.device_id],
+        };
+
+        if (payload.snList && payload.snList.length === 0) {
+          alert(`Atleast one device must be selected`);
+          return false;
+        }
+
+        this.devices_dialog.forEach((e) => {
+          e.state = "---";
+          e.message = "---";
+        });
+
+        //try {
+        const { data } = await this.$axios.post(`/Person/AddRange`, payload);
+
+
+        if (data.status == 200) {
+          this.loading_dialog = false;
+
+
+          this.snackbar.show = true;
+          this.response = "Employee(s) has been upload";
+
+          let jsrightEmployees = this.rightEmployees;
+          let SDKSuccessStatus = true;
+          this.rightDevices.forEach((elementDevice) => {
+            let SdkResponseDeviceobject = data.data.find(
+              (e) => e.sn == elementDevice.device_id
+            );
+
+
+            let deviceStatusResponse = "";
+            let EmpStatusResponse = "";
+
+            if (SdkResponseDeviceobject.message == "") {
+              deviceStatusResponse = "Success";
+            } else if (
+              SdkResponseDeviceobject.message == "The device was not found"
+            ) {
+              deviceStatusResponse = "The device was not found or offline";
+              SDKSuccessStatus = false;
+            } else if (SdkResponseDeviceobject.message == "person info error") {
+              let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
+              jsrightEmployees.forEach((element) => {
+                let systemUserid = element.system_user_id;
+                SDKSuccessStatus = false;
+
+                element["sdkEmpResponse"] = "Success";
+                let selectedEmpobject = SDKUseridArray.find(
+                  (e) => e.userCode == systemUserid
+                );
+                EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
+                deviceStatusResponse = "";
+
+
+                if (EmpStatusResponse != "") {
+                  //Adding extra parameters for Employee object
+                  if (selectedEmpobject) {
+                    element["sdkEmpResponse"] = "person photo error ";
+                    // $.extend(element, {
+                    //   sdkEmpResponse: "person info error ",
+                    // });
+                  } else {
+                    // $.extend(element, {
+                    //   sdkEmpResponse: " Success",
+                    // });
+                    element["sdkEmpResponse"] = "Success";
+                  }
+                }
+
+
+              });
+            } else {
+            }
+
+            //Adding extra parameters for Devices object
+            // $.extend(elementDevice, {
+            //   sdkDeviceResponse:
+            //     deviceStatusResponse != "" ? deviceStatusResponse : " Success",
+            // });
+            elementDevice["sdkDeviceResponse"] =
+              deviceStatusResponse != "" ? deviceStatusResponse : "Success";
+            this.errors = [];
+
+            this.loading = false;
+          });
+
+          // data.data.forEach((e) => {
+          //   const index = this.devices_dialog.findIndex(
+          //     (item) => item.device_id === e.sn
+          //   );
+          //   if (index !== -1) {
+          //     const updatedElement = {
+          //       ...this.devices_dialog[index],
+          //       state: e.state,
+          //       message: e.message || "Success",
+          //     };
+
+          //     this.devices_dialog.splice(index, 1, updatedElement);
+          //   }
+          // });
+        }
+        else {
+          this.loading_dialog = false;
+          this.snackbar.show = true;
+          this.response = data.message;
+
+          this.loading = false;
+
+        }
+
+        this.displaybutton = true;
+        // } catch (error) {
+        //   this.loading_dialog = false;
+        //   this.snackbar = true;
+        //   this.response = error.message;
+
+        // }
+      });
+
+    },
+    async onSubmit_old() {
+
+      this.displaybutton = false;
       this.loading = true;
       if (this.rightEmployees.length == 0) {
         this.response = this.response + " Atleast select one Employee Details";
@@ -1022,7 +1206,7 @@ export default {
           //     deviceStatusResponse != "" ? deviceStatusResponse : " Success",
           // });
           elementDevice["sdkDeviceResponse"] =
-            deviceStatusResponse != "" ? deviceStatusResponse : " Success";
+            deviceStatusResponse != "" ? deviceStatusResponse : "Success";
           this.errors = [];
 
           this.loading = false;
@@ -1051,6 +1235,8 @@ export default {
         this.loading = false;
 
       }
+
+      this.displaybutton = true;
       // } catch (error) {
       //   this.loading_dialog = false;
       //   this.snackbar = true;
@@ -1063,7 +1249,7 @@ export default {
   },
 };
 </script>
-
+<!--
 <style scoped>
 .container select {
   height: 200px;
@@ -1078,4 +1264,4 @@ export default {
   width: 80%;
   margin-bottom: 5px;
 }
-</style>
+</style> -->
