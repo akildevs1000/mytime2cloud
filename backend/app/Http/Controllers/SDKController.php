@@ -156,7 +156,7 @@ class SDKController extends Controller
         $data = json_decode($data, true);
         $return = TimezonePhotoUploadJob::dispatch($data);
         // echo exec("php artisan backup:run --only-db");
-        echo date("Y-m-d H:i:s");
+
         return json_encode($return, true);
 
         $personList = $data['personList'];

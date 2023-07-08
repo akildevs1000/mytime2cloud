@@ -36,7 +36,7 @@ class TimezonePhotoUploadJob implements ShouldQueue
     {
 
         Log::channel('jobs')->info('TimezonePhotoUpload - Started' . date('Y-m-d H:i:s'));
-        return false;
+        // return false;
         $url = "https://stagingsdk.ideahrms.com/Person/AddRange";
         // $data = json_decode($this->data, true);
         $data = $this->data;
