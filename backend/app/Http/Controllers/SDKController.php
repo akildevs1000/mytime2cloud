@@ -115,9 +115,12 @@ class SDKController extends Controller
         $returnFinalMessage = [];
         $devicePersonsArray = [];
 
-        // if (env("APP_ENV") != "local") {
+        //if (env("APP_ENV") != "local")
+        // {
         //     try {
-        //         exec('php  artisan queue:work  ');
+
+        //         Artisan::call('queue:work');
+        //         //  exec('php artisan queue:work');
         //     } catch (\Throwable $th) {
         //         Log::channel('jobs')->error('artisan queue:work. Error Details: ' . $th);
 
