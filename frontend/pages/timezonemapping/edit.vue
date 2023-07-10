@@ -68,7 +68,7 @@
                         : '#b4b0b0',
                   }" style="padding-top:21px">
                     {{ user.employee_id }}: {{ user.first_name }} {{ user.last_name }}:
-                    <span v-if="user.timezone">
+                    <span v-if="user.timezone && user.timezone.timezone_id != 1">
                       {{ user.timezone.timezone_name == '---' ? '---' : user.timezone.timezone_name +
                         ' Assigned'
                       }}

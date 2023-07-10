@@ -77,7 +77,7 @@
                         : '#b4b0b0',
                   }" style="padding-top:21px">
                     {{ user.employee_id }}: {{ user.first_name }} {{ user.last_name }}:
-                    <span v-if="user.timezone">
+                    <span v-if="user.timezone && user.timezone.timezone_id != 1">
                       {{ user.timezone.timezone_name == '---' ? '---' : user.timezone.timezone_name +
                         ' Assigned'
                       }}
@@ -256,8 +256,8 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button v-if="displaybutton" :loading="loading" @click="onSubmit" type="button" id="save"
-                  class="btn primary btn-block white--text v-size--default">
+                <button v-if="displaybutton" :disabled='!displaybutton' :loading="loading" @click="onSubmit" type="button"
+                  id="save" class="btn primary btn-block white--text v-size--default">
                   Submit
                 </button>
               </div>
@@ -274,7 +274,7 @@
 export default {
   data() {
     return {
-      displaybutton: true,
+      displaybutton: false,
       progressloading: false,
       searchInput: "",
       snackbar: {
@@ -564,6 +564,8 @@ export default {
           this.response = "Device Communication is not available ";
           return false;
         }
+
+        this.displaybutton = true;
       });
     },
     goback() {
