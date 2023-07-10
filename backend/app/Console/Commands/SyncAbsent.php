@@ -4,13 +4,14 @@ namespace App\Console\Commands;
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
+use App\Http\Controllers\Shift\RenderController;
 use App\Models\AttendanceLog;
 use App\Models\Device;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NotifyIfLogsDoesNotGenerate;
-
+use Illuminate\Http\Request;
 
 class SyncAbsent extends Command
 {
@@ -19,7 +20,7 @@ class SyncAbsent extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_absent';
+    protected $signature = 'task:sync_absent  {id}';
 
     /**
      * The console command description.
@@ -35,8 +36,10 @@ class SyncAbsent extends Command
      */
     public function handle()
     {
+        $id = $this->argument('id');
+
         try {
-            echo (new AttendanceController)->SyncAbsent();
+            echo (new RenderController)->renderAbsentCron($id);
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncAbsent. Error Details: ' . $th);
             echo "[" . date("Y-m-d H:i:s") . "] Cron: SyncAbsent. Error occurred while inserting logs.\n";

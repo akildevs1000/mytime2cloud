@@ -309,4 +309,90 @@ class RenderController extends Controller
             return false;
         }
     }
+
+    public function renderAbsent(Request $request, $company_id = 0)
+    {
+        $date = $request->date ?? date('Y-m-d', strtotime('-1 day'));
+
+        $model = ScheduleEmployee::query();
+
+        $model->where("company_id", $company_id);
+
+        $model->whereNot("shift_id", -1);
+
+        $model->whereDoesntHave("attendances", function ($q) use ($company_id, $date) {
+            $q->whereDate('date', $date);
+            $q->where("company_id", $company_id);
+        });
+
+        $missingEmployees = $model->get(["employee_id", "shift_type_id"]);
+
+        $records = [];
+
+        foreach ($missingEmployees as $missingEmployee) {
+            $records[] = [
+                "company_id" => $company_id,
+                "date" => $date,
+                "status" => "A",
+                "employee_id" => $missingEmployee->employee_id,
+                "shift_id" => -2,
+                "shift_type_id" => $missingEmployee->shift_type_id,
+            ];
+        }
+
+        if (!count($records)) {
+            return "No employee found";
+        }
+
+        try {
+            Attendance::insert($records);
+
+            return count($records) . " Employee has been marked as Absent";
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function renderAbsentCron($company_id = 0)
+    {
+        $date = date('Y-m-d', strtotime('-1 day'));
+
+        $model = ScheduleEmployee::query();
+
+        $model->where("company_id", $company_id);
+
+        $model->whereNot("shift_id", -1);
+
+        $model->whereDoesntHave("attendances", function ($q) use ($company_id, $date) {
+            $q->whereDate('date', $date);
+            $q->where("company_id", $company_id);
+        });
+
+        $missingEmployees = $model->get(["employee_id", "shift_type_id"]);
+
+        $records = [];
+
+        foreach ($missingEmployees as $missingEmployee) {
+            $records[] = [
+                "company_id" => $company_id,
+                "date" => $date,
+                "status" => "A",
+                "employee_id" => $missingEmployee->employee_id,
+                "shift_id" => -2,
+                "shift_type_id" => $missingEmployee->shift_type_id,
+            ];
+        }
+
+        if (!count($records)) {
+            return "No employee found";
+        }
+
+        try {
+            Attendance::insert($records);
+
+            return count($records) . " Employee has been marked as Absent";
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }
