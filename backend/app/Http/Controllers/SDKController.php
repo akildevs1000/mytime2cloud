@@ -7,9 +7,7 @@ use App\Models\Device;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class SDKController extends Controller
 {
@@ -117,17 +115,17 @@ class SDKController extends Controller
         $returnFinalMessage = [];
         $devicePersonsArray = [];
 
-        if (env("APP_ENV") != "local") {
-            try {
+        // if (env("APP_ENV") != "local") {
+        //     try {
 
-                Artisan::call('queue:work');
-                //  exec('php artisan queue:work');
-            } catch (\Throwable $th) {
-                Log::channel('jobs')->error('artisan queue:work. Error Details: ' . $th);
+        //         Artisan::call('queue:work');
+        //         //  exec('php artisan queue:work');
+        //     } catch (\Throwable $th) {
+        //         Log::channel('jobs')->error('artisan queue:work. Error Details: ' . $th);
 
-            }
+        //     }
 
-        }
+        // }
 
         foreach ($snList as $key => $device) {
 
