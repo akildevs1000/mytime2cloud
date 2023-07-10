@@ -11,3 +11,4 @@ Route::get('render_multi_inout_report', [RenderController::class, 'renderMultiIn
 Route::get('render_general_report', [RenderController::class, 'renderGeneral']);
 
 Route::get('render_off/{company_id}', [RenderController::class, 'renderOff']);
+Route::get('render_absent/{company_id}', [RenderController::class, 'renderAbsent']);

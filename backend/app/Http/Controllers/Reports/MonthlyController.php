@@ -188,7 +188,7 @@ class MonthlyController extends Controller
         });
 
         $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
+            $ids = Employee::where("department_id", $request->department_id)->pluck("system_user_id");
             $q->whereIn('employee_id', $ids);
         });
 
@@ -210,6 +210,7 @@ class MonthlyController extends Controller
         $info = (object) [
             'total_absent' => $model->clone()->where('status', 'A')->count(),
             'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_off' => $model->clone()->where('status', 'O')->count(),
             'total_missing' => $model->clone()->where('status', '---')->count(),
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),

@@ -76,14 +76,14 @@
                     <tr class="summary-header" style="border: none;background-color:#eeeeee">
                         <th style="text-align: center; border :none; padding:5px">Present</th>
                         <th style="text-align: center; border :none">Absent</th>
-                        <th style="text-align: center; border :none">Leave</th>
+                        <th style="text-align: center; border :none">Week Off</th>
                     </tr>
                     <tr style="border: none">
                         <td style="text-align: center; border :none; padding:5px;color:green">
                             {{ $info->total_present }}
                         </td>
                         <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
-                        <td style="text-align: center; border :none;color:red">{{ $info->total_leave ?? 0 }}</td>
+                        <td style="text-align: center; border :none;color:gray">{{ $info->total_off ?? 0 }}</td>
                     </tr>
                 </table>
                 <br>
@@ -180,6 +180,8 @@
                     $statusColor = 'green';
                 } elseif ($employee->status == 'A') {
                     $statusColor = 'red';
+                } elseif ($employee->status == 'O') {
+                    $statusColor = 'gray';
                 } elseif ($employee->status == '---') {
                     $statusColor = '#f34100ed';
                 }

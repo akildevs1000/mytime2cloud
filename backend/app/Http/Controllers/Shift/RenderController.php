@@ -153,7 +153,7 @@ class RenderController extends Controller
 
         $model->orderBy("LogTime");
 
-        return $model->get()->toArray();
+        return $model->get(["LogTime", "DeviceID", "UserID", "company_id"])->toArray();
     }
 
     public function getSchedule($currentDate, $companyId, $UserID, $shift_type_id)
