@@ -335,6 +335,14 @@ export default {
     this.getTimezonesFromApi();
   },
   methods: {
+    verifySubmitButton() {
+      if (this.rightEmployees.length > 0 && this.rightDevices.length > 0) {
+        this.displaybutton = true;
+      }
+      else {
+        this.displaybutton = false;
+      }
+    },
     fetch_logs() { },
     loadDepartmentemployees() {
       //this.loading = true;
@@ -650,10 +658,12 @@ export default {
         }
       }),
     allmoveToLeftemp() {
+
       this.resetErrorMessages();
       this.leftEmployees = this.leftEmployees.concat(this.rightEmployees);
       this.rightEmployees = [];
       this.leftEmployees = this.sortObject(this.leftEmployees);
+      this.verifySubmitButton();
     },
     allmoveToRightEmp() {
       this.resetErrorMessages();
@@ -663,6 +673,7 @@ export default {
 
       this.leftEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name != '---' && el.timezone.timezone_id != 1);
       this.rightEmployees = this.sortObject(this.rightEmployees);
+      this.verifySubmitButton();
     },
     moveToLeftempOption2() {
       this.resetErrorMessages();
@@ -693,7 +704,7 @@ export default {
 
         this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
       }
-
+      this.verifySubmitButton();
     },
 
     moveToRightEmpOption2() {
@@ -720,6 +731,7 @@ export default {
       for (let i = 0; i < _leftSelectedEmp_length; i++) {
         this.leftSelectedEmp.pop(this.leftSelectedEmp[i]);
       }
+      this.verifySubmitButton();
     },
     /* Devices---------------------------------------- */
     allmoveLeftDevices() {
@@ -728,6 +740,7 @@ export default {
       this.rightDevices = [];
 
       this.leftDevices = this.sortObjectD(this.leftDevices);
+      this.verifySubmitButton();
     },
     allmoveRightDevices() {
       this.resetErrorMessages();
@@ -740,6 +753,7 @@ export default {
 
       console.log("this.rightDevices", this.rightDevices);
       this.rightDevices = this.sortObjectD(this.rightDevices);
+      this.verifySubmitButton();
     },
     moveToLeftDevicesOption2() {
       this.resetErrorMessages();
@@ -772,6 +786,7 @@ export default {
 
         this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
       }
+      this.verifySubmitButton();
     },
 
     moveToRightDevicesOption2() {
@@ -801,6 +816,7 @@ export default {
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
         this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
       }
+      this.verifySubmitButton();
     },
   },
 };
