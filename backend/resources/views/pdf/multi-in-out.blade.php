@@ -259,7 +259,7 @@
                             <td style="text-align: center; border :none;color:orange">
                                 {{ getStatus($employee->toArray())['M'] ?? 0 }}
                             </td>
-                            <td colspan="2" style="text-align: center; border :none; padding:5px;color:black">
+                            <td style="text-align: center; border :none; padding:5px;color:black">
                                 {{ $empTotWrkHrs ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:black">
