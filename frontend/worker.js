@@ -57,7 +57,7 @@ socket.onmessage = async ({ data }) => {
 
     if (UserCode > 0) {
 
-      RecordDate = RecordDate.replace("T", " ");
+      RecordDate = RecordDate.replace("T", " ").replace(/:\d+$/, '');
 
       const sanitizedValues = [
         UserCode,
