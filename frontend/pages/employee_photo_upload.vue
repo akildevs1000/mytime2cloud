@@ -430,12 +430,12 @@ export default {
       // $.extend(this.rightDevices, {
       //   sdkDeviceResponse: "",
       // });
-      this.rightEmployees.forEach((element) => {
-        element["sdkEmpResponse"] = "Success";
+      this.leftEmployees.forEach((element) => {
+        element["sdkEmpResponse"] = "";
 
       });
-      this.rightDevices.forEach((element) => {
-        element["sdkDeviceResponse"] = "Success";
+      this.leftDevices.forEach((element) => {
+        element["sdkDeviceResponse"] = "";
 
       });
     },
@@ -703,6 +703,7 @@ export default {
       }
     },
     allmoveToLeftemp() {
+      this.resetErrorMessages();
       this.leftEmployees = this.leftEmployees.concat(this.rightEmployees);
       this.rightEmployees = [];
       this.leftEmployees = this.sortObject(this.leftEmployees);
@@ -710,6 +711,7 @@ export default {
       this.verifySubmitButton();
     },
     allmoveToRightEmp() {
+      this.resetErrorMessages();
       // this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
       // this.leftEmployees = [];
 
@@ -721,7 +723,7 @@ export default {
       this.verifySubmitButton();
     },
     moveToLeftempOption2() {
-
+      this.resetErrorMessages();
 
       if (!this.rightSelectedEmp.length) return;
       //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
@@ -751,6 +753,7 @@ export default {
       this.verifySubmitButton();
     },
     moveToLeftemp(id) {
+      this.resetErrorMessages();
       this.rightSelectedEmp.push(id);
       if (!this.rightSelectedEmp.length) return;
 
@@ -786,7 +789,8 @@ export default {
     },
 
     moveToRightEmpOption2() {
-
+      this.resetErrorMessages();
+      this.resetErrorMessages();
       if (!this.leftSelectedEmp.length) return;
 
       let _leftSelectedEmp_length = this.leftSelectedEmp.length;
@@ -817,6 +821,7 @@ export default {
 
     /* Devices---------------------------------------- */
     allmoveToLeftDevices() {
+      this.resetErrorMessages();
       this.leftDevices = this.leftDevices.concat(this.rightDevices);
       this.rightDevices = [];
 
@@ -824,6 +829,7 @@ export default {
       this.verifySubmitButton();
     },
     allmoveToRightDevices() {
+      this.resetErrorMessages();
       ///this.rightDevices = this.rightDevices.concat(this.leftDevices);
       //this.leftDevices = [];
 
@@ -836,7 +842,7 @@ export default {
       this.verifySubmitButton();
     },
     moveToLeftDevicesOption2() {
-
+      this.resetErrorMessages();
 
       if (!this.rightSelectedDevices.length) return;
 
@@ -867,7 +873,7 @@ export default {
       this.verifySubmitButton();
     },
     moveToLeftDevices(id) {
-
+      this.resetErrorMessages();
       this.rightSelectedDevices.push(id);
 
 
@@ -900,7 +906,7 @@ export default {
     },
     moveToRightDevicesOption2() {
 
-
+      this.resetErrorMessages();
 
       if (!this.leftSelectedDevices.length) return;
 
@@ -931,6 +937,7 @@ export default {
       this.verifySubmitButton();
     },
     moveToRightDevices(id) {
+      this.resetErrorMessages();
       this.leftSelectedDevices.push(id);
 
       if (!this.leftSelectedDevices.length) return;
@@ -958,8 +965,8 @@ export default {
       this.leftSelectedDevices.pop(id);
       this.verifySubmitButton();
     },
-    onSubmit_new() {
-
+    onSubmit_old() {
+      this.resetErrorMessages();
       this.displaybutton = false;
       this.loading = true;
       if (this.rightEmployees.length == 0) {
@@ -1163,7 +1170,7 @@ export default {
       });
 
       //try {
-      const { data } = await this.$axios.post(`/Person/AddRange`, payload);
+      const { data } = await this.$axios.post(`/Person/AddRange/Photos`, payload);
 
 
       if (data.status == 200) {
