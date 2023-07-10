@@ -12,9 +12,8 @@ Route::put('scheduled_employee/{id}', [ScheduleEmployeeController::class, 'updat
 Route::get('scheduled_employees', [ScheduleEmployeeController::class, 'scheduled_employees']);
 Route::get('not_scheduled_employees', [ScheduleEmployeeController::class, 'not_scheduled_employees']);
 Route::post('schedule_employee/delete/selected', [ScheduleEmployeeController::class, 'deleteSelected']);
-Route::get('/assignSchedule', function (Request $request) {
-    return (new ScheduleEmployeeController)->assignScheduleByManual($request);
-});
+
+Route::post('/assignSchedule', [ScheduleEmployeeController::class, 'assignScheduleByManual']);
 
 Route::get('scheduled_employees_index', [ScheduleEmployeeController::class, 'scheduled_employees_index']);
 

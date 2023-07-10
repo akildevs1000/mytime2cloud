@@ -59,10 +59,80 @@ class RenderController extends Controller
 
     public function renderGeneral(Request $request)
     {
-        (new FiloShiftController)->processByManualSingle($request);
-        (new SingleShiftController)->processByManualSingle($request);
+        $this->processByManualGeneralSingle($request);
+        // (new SingleShiftController)->processByManualSingle($request);
 
         return $this->response("The Logs has been render against {$request->UserID} SYSTEM USER ID.", null, true);
+    }
+
+    public function processByManualGeneralSingle(Request $request)
+    {
+        $date       = $request->date;
+        $company_id = $request->company_id;
+        $UserID     = $request->UserID;
+
+        $schedule = $this->getSchedule($date, $company_id, $UserID, 1);
+
+        if (!$schedule) {
+            return $this->response("Employee with $UserID SYSTEM USER ID is not scheduled yet.", null, false);
+        }
+
+        $model = AttendanceLog::query();
+
+        $model->whereDate("LogTime", $date);
+        $model->where("company_id", $company_id);
+        $model->where("UserID", $UserID);
+
+        $model->whereHas("schedule", function ($q) use ($company_id) {
+            $q->where('shift_type_id', 1);
+            $q->where("company_id", $company_id);
+        });
+
+        $model->distinct("LogTime");
+
+        $count = $model->count();
+
+        $data = [$model->clone()->orderBy("LogTime")->first(), $model->orderBy("LogTime", "desc")->first()];
+
+        if (!$count) {
+            return $this->response("No Logs found", null, false);
+        }
+
+        $arr = [];
+        $arr["company_id"] = $company_id;
+        $arr["date"] = $date;
+        $arr["employee_id"] = $UserID;
+        $arr["shift_type_id"] = 1;
+        $arr["shift_id"] = $schedule["shift_id"];
+        $arr["roster_id"] = $schedule["roster_id"];
+        $arr["device_id_in"] = $data[0]["DeviceID"];
+        $arr["in"] = $data[0]["time"];
+
+        if ($count > 1) {
+            $arr["status"] = "P";
+            $arr["device_id_out"] = $data[1]["DeviceID"];
+            $arr["out"] = $data[1]["time"];
+            $arr["total_hrs"] = $this->getTotalHrsMins($data[0]["time"], $data[1]["time"]);
+
+            if ($schedule["isOverTime"]) {
+                $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $schedule['working_hours'], $schedule['overtime_interval']);
+            }
+        }
+
+        try {
+
+            Attendance::where([
+                'date' => $arr["date"],
+                'employee_id' => $arr["employee_id"],
+                'company_id' => $arr['company_id']
+            ])->delete();
+
+            Attendance::create($arr);
+
+            return $this->response("Total " . count($data) . " Log(s) Processed.", null, true);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     public function getLogs($currentDate, $company_id, $UserID, $shift_type_id)
@@ -79,7 +149,7 @@ class RenderController extends Controller
         $model->where("UserID", $UserID);
         $model->whereDate("LogTime", $currentDate);
 
-        $model->select('LogTime', 'UserID', 'company_id', 'DeviceID')->distinct();
+        $model->distinct("LogTime");
 
         $model->orderBy("LogTime");
 
@@ -187,6 +257,39 @@ class RenderController extends Controller
             $model->where("company_id", $items['company_id'])->delete();
 
             return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function renderOff($company_id = 0, $date = null)
+    {
+        $date = $date ?? date("Y-m-d");
+
+        try {
+            $model = ScheduleEmployee::query();
+            $model->where("shift_id", -1);
+            $model->where("company_id", $company_id);
+            $employees = $model->get(["employee_id", "shift_type_id"]);
+
+            $records = [];
+
+            foreach ($employees as $employee) {
+                $records[] = [
+                    "company_id" => $company_id,
+                    "date" => $date ?? date("Y-m-d"),
+                    "status" => "OFF",
+                    "employee_id" => $employee->employee_id,
+                    "shift_id" => $employee->employee_id,
+                    "shift_type_id" => $employee->shift_type_id,
+                ];
+            }
+
+            Attendance::where(["date" => $date, "company_id" => $company_id, "status" => "O"])->delete();
+
+            Attendance::insert($records);
+
+            return count($records) . " Employee has been marked as OFF";
         } catch (\Exception $e) {
             return false;
         }
