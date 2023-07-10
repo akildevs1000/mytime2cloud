@@ -22,7 +22,7 @@
       </v-row>
       <v-row>
         <v-col cols="4">
-          <v-select @change="loadDepartmentemployees" v-model="departmentselected" :items="departments" dense outlined
+          <v-select @change="loadDepartmentemployees" v-model="departmentSelected" :items="departments" dense outlined
             item-value="id" item-text="name" hide-details label="Department" :search-input.sync="searchInput"></v-select>
         </v-col>
         <v-col cols="4">
@@ -51,10 +51,12 @@
 
                   <v-col class=" col-1   " style="padding:0px">
                     <v-checkbox
-                      v-if="(!user.timezone) || (user.timezone.timezone_name == '---' || user.timezone.timezone_name == departmentselected)"
+                      v-if="(!user.timezone) || (user.timezone.timezone_name == '---' || user.timezone.timezone_name == departmentSelected)"
                       hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
                       :value="user.id" primary hide-details></v-checkbox>
 
+                    <v-checkbox title="Timezone is already Assigned" v-else disabled hideDetails
+                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
                     <!-- <v-checkbox v-if="!(user.timezone && user.timezone.timezone_name)" hideDetails
                       class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp" :value="user.id"
                       primary hide-details></v-checkbox> -->
@@ -67,7 +69,9 @@
                   }" style="padding-top:21px">
                     {{ user.employee_id }}: {{ user.display_name }}:
                     <span v-if="user.timezone">
-                      {{ user.timezone.timezone_name }}
+                      {{ user.timezone.timezone_name == '---' ? '---' : user.timezone.timezone_name +
+                        ' Assigned'
+                      }}
                     </span>
                   </div>
                   <div class="col-sm"></div>
@@ -113,6 +117,7 @@
                   <v-col class=" col-1   " style="padding:0px">
                     <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
                       :value="user.id" primary hide-details></v-checkbox>
+
                   </v-col>
                   <div class="col-sm" style="padding-top:21px;color:#000000">
                     {{ user.employee_id }} : {{ user.display_name }}
@@ -155,6 +160,8 @@
                     <v-checkbox v-if="user.status.name == 'active'" hideDetails
                       class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
                       primary hide-details></v-checkbox>
+                    <v-checkbox v-else title="Device is offline" disabled hideDetails
+                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
                   </v-col>
                   <div class="col" style="padding-top:21px;color:#000000">
                     {{ user.name }} : {{ user.device_id }}
@@ -293,7 +300,7 @@ export default {
       endpointDevise: "device",
       endPointMapping: "employee_timezone_mapping",
       leftSelectedEmp: [],
-      departmentselected: [],
+      departmentSelected: [],
       departments: [],
       leftEmployees: [],
       rightSelectedEmp: [],
@@ -391,7 +398,7 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company.id,
-          department_id: this.departmentselected,
+          department_id: this.departmentSelected,
           cols: ["id", "employee_id", "display_name"],
         },
       };
@@ -793,8 +800,11 @@ export default {
     },
     allmoveToRightDevices() {
       this.resetErrorMessages();
-      this.rightDevices = this.rightDevices.concat(this.leftDevices);
-      this.leftDevices = [];
+
+
+      this.rightDevices = this.rightDevices.concat(this.leftDevices.filter((el) => el.status.name == "active"));
+      this.leftDevices = this.leftDevices.filter((el) => el.status.name == "inactive");
+
 
       this.rightDevices = this.sortObjectD(this.rightDevices);
     },

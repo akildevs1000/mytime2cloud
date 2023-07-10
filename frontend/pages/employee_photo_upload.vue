@@ -80,6 +80,8 @@
                   <v-col class=" col-1   " style="padding:0px">
                     <v-checkbox v-if="user.profile_picture" class="col    " v-model="leftSelectedEmp" :value="user.id"
                       primary hide-details></v-checkbox>
+                    <v-checkbox v-else title="Profile Pic is not available" disabled hideDetails
+                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
                   </v-col>
                   <v-col col="2" class=" col     " style="padding-top:21px">
 
@@ -191,6 +193,8 @@
                     <v-checkbox v-if="user.status.name == 'active'" hideDetails
                       class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
                       primary hide-details></v-checkbox>
+                    <v-checkbox title="Device is offline" v-else disabled hideDetails
+                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
                   </v-col>
                   <div col-4 class="col   " style="padding-top:21px">
                     {{ user.name }} : {{ user.device_id }}

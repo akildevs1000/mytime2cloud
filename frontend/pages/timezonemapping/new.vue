@@ -67,6 +67,8 @@
                     <v-checkbox v-if="user.timezone.timezone_name == '---'" hideDetails
                       class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp" :value="user.id"
                       primary hide-details></v-checkbox>
+                    <v-checkbox title="Timezone is already Assigned" v-else disabled hideDetails
+                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
                   </v-col>
                   <div class="col-sm" :style="{
                     color:
@@ -76,7 +78,9 @@
                   }" style="padding-top:21px">
                     {{ user.employee_id }}: {{ user.display_name }}:
                     <span v-if="user.timezone">
-                      {{ user.timezone.timezone_name }}
+                      {{ user.timezone.timezone_name == '---' ? '---' : user.timezone.timezone_name +
+                        ' Assigned'
+                      }}
                     </span>
                   </div>
                   <div class="col-sm"></div>
@@ -122,6 +126,7 @@
                   <v-col class=" col-1   " style="padding:0px">
                     <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
                       :value="user.id" primary hide-details></v-checkbox>
+
                   </v-col>
                   <div class="col-sm" style="padding-top:21px;color:#000000">
                     {{ user.employee_id }} : {{ user.display_name }}
@@ -164,7 +169,8 @@
                     <v-checkbox v-if="user.status.name == 'active'" hideDetails
                       class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
                       primary hide-details></v-checkbox>
-
+                    <v-checkbox v-else title="Device is offline" disabled hideDetails
+                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
                   </v-col>
                   <div class="col-sm" style="padding-top:21px;color:#000000">
                     {{ user.name }} : {{ user.device_id }}
