@@ -262,14 +262,19 @@ class RenderController extends Controller
         }
     }
 
-    public function renderOff($company_id = 0, $date = null)
+    public function renderOff(Request $request, $company_id = 0)
     {
-        $date = $date ?? date("Y-m-d");
+        $date = $request->date ?? date("Y-m-d");
+        $UserIds = $request->UserIds ?? [];
 
         try {
             $model = ScheduleEmployee::query();
-            $model->where("shift_id", -1);
+            // $model->where("shift_id", -1);
             $model->where("company_id", $company_id);
+            $model->when(count($UserIds), function ($q) use ($UserIds) {
+                return $q->whereIn("employee_id", $UserIds);
+            });
+
             $employees = $model->get(["employee_id", "shift_type_id"]);
 
             $records = [];
@@ -278,16 +283,26 @@ class RenderController extends Controller
                 $records[] = [
                     "company_id" => $company_id,
                     "date" => $date ?? date("Y-m-d"),
-                    "status" => "OFF",
+                    "status" => "O",
                     "employee_id" => $employee->employee_id,
                     "shift_id" => $employee->employee_id,
                     "shift_type_id" => $employee->shift_type_id,
                 ];
             }
 
-            Attendance::where(["date" => $date, "company_id" => $company_id, "status" => "O"])->delete();
+            $model = Attendance::query();
+            // $model->where("shift_id", -1);
+            $model->where("company_id", $company_id);
+            $model->where("date", $date);
+            $model->where("status", "O");
 
-            Attendance::insert($records);
+            $model->when(count($UserIds), function ($q) use ($UserIds) {
+                return $q->whereIn("employee_id", $UserIds);
+            });
+
+            $model->delete();
+
+            $model->insert($records);
 
             return count($records) . " Employee has been marked as OFF";
         } catch (\Exception $e) {

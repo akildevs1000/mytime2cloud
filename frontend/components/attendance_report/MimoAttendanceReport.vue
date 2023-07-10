@@ -1094,12 +1094,9 @@
               <span v-else-if="item.status == 'M'" small color="orange darken-1"
                 >Missing</span
               >
-              <!-- <v-icon v-if="item.status == 'A'" color="error">Absent</v-icon>
-              <v-icon v-else-if="item.status == 'P'" color="success darken-1">Present
-              </v-icon>
-              <v-icon v-else-if="item.status == 'M'" small color="orange darken-1">Missing</v-icon> -->
-              <!-- <v-icon v-else-if="item.status == 'H'" color="grey darken-1">mdi-check</v-icon> -->
-              <span v-else>{{ item.status }}</span>
+              <span v-else-if="item.status == 'O'" small color="gray"
+                >Week Off</span
+              >
             </template>
 
             <template v-slot:item.shift="{ item }">
