@@ -39,42 +39,42 @@
         </v-col>
       </v-row>
       <v-row>
+
         <v-col cols="5">
           <v-toolbar color="background" dense flat dark>
             <span>All Employees List</span>
           </v-toolbar>
           <div>
             <v-card class="timezoneedit-displaylist">
+
               <v-card-text class="timezoneedit-displaylistview" v-for="(user, index) in leftEmployees" :id="user.id"
                 v-model="leftSelectedEmp" :key="user.id">
                 <div class="row">
 
                   <v-col class=" col-1   " style="padding:0px">
                     <v-checkbox
-                      v-if="(!user.timezone) || (user.timezone.timezone_name == '---' || user.timezone.timezone_name == departmentSelected)"
+                      v-if="(!user.timezone) || (user.timezone.timezone_name == '---' || user.timezone.timezone_id == timezonesselected || user.timezone.timezone_id == 1)"
                       hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
                       :value="user.id" primary hide-details></v-checkbox>
 
-                    <v-checkbox title="Timezone is already Assigned" v-else disabled hideDetails
-                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
-                    <!-- <v-checkbox v-if="!(user.timezone && user.timezone.timezone_name)" hideDetails
-                      class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp" :value="user.id"
-                      primary hide-details></v-checkbox> -->
+                    <v-checkbox v-else input-value="true" value disabled hide-details
+                      class="col-1   d-flex flex-column  justify-center "></v-checkbox>
+
                   </v-col>
-                  <div class="col-sm" :style="{
+                  <div class="col-8" :style="{
                     color:
                       user.timezone && user.timezone.timezone_name
                         ? '#000000'
                         : '#b4b0b0',
                   }" style="padding-top:21px">
-                    {{ user.employee_id }}: {{ user.display_name }}:
+                    {{ user.employee_id }}: {{ user.first_name }} {{ user.last_name }}:
                     <span v-if="user.timezone">
                       {{ user.timezone.timezone_name == '---' ? '---' : user.timezone.timezone_name +
                         ' Assigned'
                       }}
                     </span>
                   </div>
-                  <div class="col-sm"></div>
+                  <div class="col-3"></div>
                 </div>
               </v-card-text>
             </v-card>
@@ -114,13 +114,14 @@
               <v-card-text class="timezoneedit-displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
                 v-model="rightSelectedEmp" :key="user.id">
                 <div class="row">
+
                   <v-col class=" col-1   " style="padding:0px">
                     <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
                       :value="user.id" primary hide-details></v-checkbox>
 
                   </v-col>
                   <div class="col-sm" style="padding-top:21px;color:#000000">
-                    {{ user.employee_id }} : {{ user.display_name }}
+                    {{ user.employee_id }} : {{ user.first_name }} {{ user.last_name }}
                   </div>
                   <div class="col-sm" style="padding-top:21px">
                     <span style="color: red">{{ user.sdkEmpResponse }}</span>
@@ -160,8 +161,8 @@
                     <v-checkbox v-if="user.status.name == 'active'" hideDetails
                       class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
                       primary hide-details></v-checkbox>
-                    <v-checkbox v-else title="Device is offline" disabled hideDetails
-                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
+                    <v-checkbox v-else title="Device is offline" input-value="true" value disabled hide-details
+                      class="col-1   d-flex flex-column  justify-center "></v-checkbox>
                   </v-col>
                   <div class="col" style="padding-top:21px;color:#000000">
                     {{ user.name }} : {{ user.device_id }}
@@ -363,6 +364,12 @@ export default {
       this.$axios.get(`${url}/${this.mappingtId}`, options).then(({ data }) => {
 
         this.rightEmployees = data.employee_id;
+
+        let url1 = "get_employeeswith_timezonename_id";
+        this.$axios.get(`get_employeeswith_timezonename_id/${data.timezone_id}`, options).then(({ data }) => {
+
+          this.rightEmployees = data.data;
+        });
         this.rightDevices = data.device_id;
 
         this.timezonesselected = parseInt(data.timezone_id);
@@ -377,6 +384,9 @@ export default {
 
             this.leftEmployees.splice(selectedindex, 1);
           });
+        //let leftEmployees = this.leftEmployees;
+        //this.leftEmployees = leftEmployees.filter((el) => el.timezone.timezone_name == '---');
+        //this.rightEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name != '---');
 
         this.rightDevices
           .map((e) => ({ id: e.id }))
@@ -657,7 +667,7 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company.id,
-          cols: ["id", "employee_id", "display_name", "first_name"],
+          cols: ["id", "employee_id", "display_name", "first_name", "last_name"],
         },
       };
       let page = 1;
@@ -723,9 +733,9 @@ export default {
       this.resetErrorMessages();
       // this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
       // this.leftEmployees = [];
-      this.rightEmployees = this.rightEmployees.concat(this.leftEmployees.filter((el) => el.timezone.timezone_name == '---'));
+      this.rightEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name == '---' || el.timezone.timezone_id == this.timezonesselected || el.timezone.timezone_id == 1);
 
-      this.leftEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name != '---');
+      this.leftEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_id != 1);
 
       this.rightEmployees = this.sortObject(this.rightEmployees);
     },

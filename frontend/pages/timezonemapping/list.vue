@@ -300,6 +300,8 @@ export default {
       }
     },
     getDataFromApi(url = this.endpoint, additional_params) {
+
+      this.data = [];
       let page = this.pagination.current;
       let options = {
         params: {

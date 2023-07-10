@@ -6,6 +6,7 @@ use App\Http\Requests\EmployeeTimezoneMapping\StoreRequest;
 use App\Http\Requests\EmployeeTimezoneMapping\UpdateRequest;
 use App\Models\Employee;
 use App\Models\EmployeeTimezoneMapping;
+use App\Models\Timezone;
 use function PHPUnit\Framework\isJson;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class EmployeeTimezoneMappingController extends Controller
     public function index(EmployeeTimezoneMapping $model, Request $request)
     {
 
-        return $model->where('company_id', $request->company_id)->paginate($request->per_page);
+        return $model::with(["timezone"])->where('company_id', $request->company_id)->paginate($request->per_page);
     }
 
     public function gettimezonesinfo_search(Request $request, $text)
@@ -197,6 +198,17 @@ class EmployeeTimezoneMappingController extends Controller
                 }
 
             })
+            ->get();
+        return $employees;
+    }
+    public function get_employeeswith_timezonename_id(Employee $employee, Request $request, $id)
+    {
+
+        $employees['data'] = $employee
+            ->with(["timezone"])
+            ->where('company_id', $request->company_id)
+
+            ->whereIn('timezone_id', Timezone::where('timezone_id', $id)->where('company_id', $request->company_id)->select('timezone_id')->get())
             ->get();
         return $employees;
     }
