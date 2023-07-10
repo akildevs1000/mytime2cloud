@@ -212,7 +212,7 @@ Route::get('/open_door_always', function (Request $request) {
     // return "Awesome APIs";
 });
 
-Route::get('/check_device_health', function (Request $request) {
+Route::get('/check_device_health_old', function (Request $request) {
 
     $devices = Device::pluck("device_id");
 
@@ -255,9 +255,9 @@ Route::get('/check_device_health', function (Request $request) {
 
     echo "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
 });
-Route::get('/check_device_health_testing', function (Request $request) {
+Route::get('/check_device_health', function (Request $request) {
 
-    $devices = Device::where("company_id", "8")->pluck("device_id");
+    $devices = Device::pluck("device_id");
 
     $total_iterations = 0;
     $online_devices_count = 0;
