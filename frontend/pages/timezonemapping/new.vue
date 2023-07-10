@@ -77,7 +77,7 @@
                         : '#b4b0b0',
                   }" style="padding-top:21px">
                     {{ user.employee_id }}: {{ user.first_name }} {{ user.last_name }}:
-                    <span v-if="user.timezone">
+                    <span v-if="user.timezone && user.timezone.timezone_id != 1">
                       {{ user.timezone.timezone_name == '---' ? '---' : user.timezone.timezone_name +
                         ' Assigned'
                       }}
@@ -256,8 +256,8 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button v-if="displaybutton" :loading="loading" @click="onSubmit" type="button" id="save"
-                  class="btn primary btn-block white--text v-size--default">
+                <button v-if="displaybutton" :disabled='!displaybutton' :loading="loading" @click="onSubmit" type="button"
+                  id="save" class="btn primary btn-block white--text v-size--default">
                   Submit
                 </button>
               </div>
@@ -274,7 +274,7 @@
 export default {
   data() {
     return {
-      displaybutton: true,
+      displaybutton: false,
       progressloading: false,
       searchInput: "",
       snackbar: {
@@ -335,6 +335,14 @@ export default {
     this.getTimezonesFromApi();
   },
   methods: {
+    verifySubmitButton() {
+      if (this.rightEmployees.length > 0 && this.rightDevices.length > 0) {
+        this.displaybutton = true;
+      }
+      else {
+        this.displaybutton = false;
+      }
+    },
     fetch_logs() { },
     loadDepartmentemployees() {
       //this.loading = true;
@@ -564,6 +572,8 @@ export default {
           this.response = "Device Communication is not available ";
           return false;
         }
+
+        this.displaybutton = true;
       });
     },
     goback() {
@@ -648,10 +658,12 @@ export default {
         }
       }),
     allmoveToLeftemp() {
+
       this.resetErrorMessages();
       this.leftEmployees = this.leftEmployees.concat(this.rightEmployees);
       this.rightEmployees = [];
       this.leftEmployees = this.sortObject(this.leftEmployees);
+      this.verifySubmitButton();
     },
     allmoveToRightEmp() {
       this.resetErrorMessages();
@@ -661,6 +673,7 @@ export default {
 
       this.leftEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name != '---' && el.timezone.timezone_id != 1);
       this.rightEmployees = this.sortObject(this.rightEmployees);
+      this.verifySubmitButton();
     },
     moveToLeftempOption2() {
       this.resetErrorMessages();
@@ -691,7 +704,7 @@ export default {
 
         this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
       }
-
+      this.verifySubmitButton();
     },
 
     moveToRightEmpOption2() {
@@ -718,6 +731,7 @@ export default {
       for (let i = 0; i < _leftSelectedEmp_length; i++) {
         this.leftSelectedEmp.pop(this.leftSelectedEmp[i]);
       }
+      this.verifySubmitButton();
     },
     /* Devices---------------------------------------- */
     allmoveLeftDevices() {
@@ -726,6 +740,7 @@ export default {
       this.rightDevices = [];
 
       this.leftDevices = this.sortObjectD(this.leftDevices);
+      this.verifySubmitButton();
     },
     allmoveRightDevices() {
       this.resetErrorMessages();
@@ -738,6 +753,7 @@ export default {
 
       console.log("this.rightDevices", this.rightDevices);
       this.rightDevices = this.sortObjectD(this.rightDevices);
+      this.verifySubmitButton();
     },
     moveToLeftDevicesOption2() {
       this.resetErrorMessages();
@@ -770,6 +786,7 @@ export default {
 
         this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
       }
+      this.verifySubmitButton();
     },
 
     moveToRightDevicesOption2() {
@@ -799,6 +816,7 @@ export default {
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
         this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
       }
+      this.verifySubmitButton();
     },
   },
 };

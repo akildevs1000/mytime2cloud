@@ -9,3 +9,4 @@ Route::get('/get_employeeswith_timezonename', [EmployeeTimezoneMappingController
 Route::post('/deletetimezone', [EmployeeTimezoneMappingController::class, 'deleteTimezone']);
 Route::get('/gettimezonesinfo', [EmployeeTimezoneMappingController::class, 'gettimezonesinfo']);
 Route::get('/gettimezonesinfo/search/{key}', [EmployeeTimezoneMappingController::class, 'gettimezonesinfo_search']);
+Route::get('/get_employeeswith_timezonename_id/{id}', [EmployeeTimezoneMappingController::class, 'get_employeeswith_timezonename_id']);
