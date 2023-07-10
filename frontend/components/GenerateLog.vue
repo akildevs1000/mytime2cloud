@@ -120,6 +120,7 @@
 
 <script>
 export default {
+  props: ["endpoint"],
   data: () => ({
     Model: "Generate Log",
     endpoint: "attendance_logs",
@@ -197,7 +198,10 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.report_report(data);
+            this.report_report();
+
+            this.snackbar = true;
+            this.response = data.message;
           }
         })
         .catch(({ message }) => {
@@ -205,7 +209,7 @@ export default {
           this.response = message;
         });
     },
-    report_report(parentData) {
+    report_report() {
       let payload = {
         params: {
           date: this.log_payload.date,
@@ -213,20 +217,10 @@ export default {
           company_id: this.$auth.user.company.id,
         },
       };
-
       this.$axios
-        .get("/render_multi_inout_report", payload)
+        .get(this.endpoint, payload)
         .then(({ data }) => {
-          this.snackbar = true;
-
-          let message = parentData.message;
-
-          if (!data.status) {
-            message = `${message}. But ${data.message}`;
-          }
-
-          this.response = message;
-
+          this.loading = false;
           this.$emit("update-data-table");
         })
         .catch((e) => console.log(e));

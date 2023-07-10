@@ -8,14 +8,4 @@ use App\Http\Controllers\Shift\SingleShiftController;
 use Illuminate\Http\Request;
 
 Route::get('render_multi_inout_report', [RenderController::class, 'renderMultiInOut']);
-
-
-Route::get('/processByManual', function (Request $request) {
-
-    return [
-        "MultiInOut" => (new MultiInOutShiftController)->processByManual($request),
-        // "Single" => (new SingleShiftController)->processByManual($request),
-        // "FILO" => (new FiloShiftController)->processByManual($request),
-
-    ];
-});
+Route::get('render_general_report', [RenderController::class, 'renderGeneral']);
