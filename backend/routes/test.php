@@ -1,19 +1,19 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceLogController;
+use App\Http\Controllers\Shift\MultiInOutShiftController;
+use App\Mail\ReportNotificationMail;
+use App\Models\Attendance;
 use App\Models\Device;
 use App\Models\Employee;
-use App\Models\Attendance;
-use Illuminate\Http\Request;
 use App\Models\ReportNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Mail\ReportNotificationMail;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\AttendanceLogController;
-use App\Http\Controllers\Shift\MultiInOutShiftController;
-use Illuminate\Support\Facades\Http;
 
 Route::get('/syncLogsScript', function (Request $request) {
 
@@ -63,7 +63,6 @@ Route::get('/test', function (Request $request) {
         // Process the data
     }
 
-
     return;
 
     $Attendance = new AttendanceController;
@@ -76,14 +75,12 @@ Route::get('/test', function (Request $request) {
     //     return User::whereIn("id",$user_ids)->update(["company_id" => $request->company_id]);
     // }
 
-
-
     echo phpversion();
 
-    echo  "<br>";
+    echo "<br>";
 
     $one = 1;
-    $arr1 = [&$one, 2, 3];
+    $arr1 = [ &$one, 2, 3];
     $arr2 = [0, ...$arr1];
     var_dump($arr2);
 
@@ -94,7 +91,7 @@ Route::get('/test', function (Request $request) {
         "to" => "971502848071",
         "message_type" => "text",
         "text" => "This is a WhatsApp Message sent from the ideahrms",
-        "channel" => "whatsapp"
+        "channel" => "whatsapp",
     ];
 
     // return (new WhatsappController)->toSendNotification($data);
@@ -125,8 +122,6 @@ Route::get('/test', function (Request $request) {
     // return "Awesome APIs";
 });
 
-
-
 Route::get('/open_door', function (Request $request) {
 
     $curl = curl_init();
@@ -151,7 +146,6 @@ Route::get('/open_door', function (Request $request) {
     curl_close($curl);
     echo $response;
 
-
     // return "Awesome APIs";
 });
 
@@ -164,8 +158,6 @@ Route::post('/upload-users', function (Request $request) {
         $request["expiry"] = "2089-12-31 23:59:59";
 
         // make the POST request using Laravel's HTTP client
-
-
 
         $response = Http::withoutVerifying()->withHeaders([
             'Content-Type' => 'application/json',
@@ -193,8 +185,6 @@ Route::post('/upload-users', function (Request $request) {
     return $request->all();
 });
 
-
-
 Route::get('/open_door_always', function (Request $request) {
 
     $curl = curl_init();
@@ -219,7 +209,6 @@ Route::get('/open_door_always', function (Request $request) {
     curl_close($curl);
     echo $response;
 
-
     // return "Awesome APIs";
 });
 
@@ -238,6 +227,58 @@ Route::get('/check_device_health', function (Request $request) {
 
             // CURLOPT_URL => "https://sdk.ideahrms.com/CheckDeviceHealth/$device_id",
             // CURLOPT_URL => "http://139.59.69.241:5000/CheckDeviceHealth/$device_id",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $status = json_decode($response)->status;
+
+        if ($status !== 200) {
+            $offline_devices_count++;
+        } else {
+            $online_devices_count++;
+        }
+
+        Device::where("device_id", $device_id)->update(["status_id" => $status == 200 ? 1 : 2]);
+
+        $total_iterations++;
+    }
+
+    echo "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+});
+Route::get('/check_device_health_testing', function (Request $request) {
+
+    $devices = Device::where("company_id", "8")->pluck("device_id");
+
+    $total_iterations = 0;
+    $online_devices_count = 0;
+    $offline_devices_count = 0;
+
+    foreach ($devices as $device_id) {
+        $curl = curl_init();
+        $sdk_url = '';
+        if (env("APP_ENV") != "production") {
+            $sdk_url = env("SDK_STAGING_COMM_URL");
+        }
+
+        if ($sdk_url == '') {
+            $sdk_url = env("SDK_PRODUCTION_COMM_URL");
+        }
+
+        curl_setopt_array($curl, array(
+
+            // CURLOPT_URL => "https://sdk.ideahrms.com/CheckDeviceHealth/$device_id",
+            // CURLOPT_URL => "http://139.59.69.241:5000/CheckDeviceHealth/$device_id",
+            CURLOPT_URL => "$sdk_url/CheckDeviceHealth/$device_id",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -291,7 +332,6 @@ Route::get('/close_door', function (Request $request) {
     curl_close($curl);
     echo $response;
 
-
     // return "Awesome APIs";
 });
 
@@ -303,7 +343,7 @@ Route::get('/generate_attendance_log', function (Request $request) {
     for ($i = 1; $i <= 5; $i++) {
         for ($j = 13; $j <= 13; $j++) {
             for ($k = 1; $k <= 1; $k++) {
-                $time =  rand(8, 20);
+                $time = rand(8, 20);
                 $time = $time < 10 ? '0' . $time : $time;
                 $arr[] = [
                     'UserID' => $i,
@@ -351,9 +391,6 @@ Route::post('/upload', function (Request $request) {
     $data['file'] = $file;
 });
 
-
-
-
 Route::get('/test/whatsapp', function () {
     $curl = curl_init();
 
@@ -379,7 +416,7 @@ Route::get('/test/whatsapp', function () {
                         }',
         CURLOPT_HTTPHEADER => array(
             'Content-Type: application/json',
-            'Authorization: Bearer EAAP9IfKKSo0BALkTWKQE6xLcyfO3eyGt69Y7SH6EfpCmKCAGb1AZCuptzmnPf5qsRZBaj4WYqSXbbxDEvaOD6WiiFwklq4P0FvASsBYOigDTrEhC3geXTNLFZCzQ1wTxNthkfzI4wSfG0KF79rrvh7cEIKdyx7mvM4ZC06MHNZBYg78yYrfGZCIcbtDUnegflDudZB5e2i9AZBDCIJ81o2xa'
+            'Authorization: Bearer EAAP9IfKKSo0BALkTWKQE6xLcyfO3eyGt69Y7SH6EfpCmKCAGb1AZCuptzmnPf5qsRZBaj4WYqSXbbxDEvaOD6WiiFwklq4P0FvASsBYOigDTrEhC3geXTNLFZCzQ1wTxNthkfzI4wSfG0KF79rrvh7cEIKdyx7mvM4ZC06MHNZBYg78yYrfGZCIcbtDUnegflDudZB5e2i9AZBDCIJ81o2xa',
         ),
     ));
 
