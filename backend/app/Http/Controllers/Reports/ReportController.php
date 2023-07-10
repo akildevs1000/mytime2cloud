@@ -18,7 +18,7 @@ class ReportController extends Controller
     {
 
         return $this->report($request)
-        //   ->toSql();
+            //   ->toSql();
             ->paginate($request->per_page);
     }
 
@@ -157,11 +157,11 @@ class ReportController extends Controller
 
         $model->when($request->filled('employee_first_name') && $request->employee_first_name != '', function ($q) use ($request) {
             // $key = strtolower($request->employee_first_name);
-            $q->whereHas('employee', fn(Builder $q) => $q->where('first_name', 'ILIKE', "$request->employee_first_name%"));
+            $q->whereHas('employee', fn (Builder $q) => $q->where('first_name', 'ILIKE', "$request->employee_first_name%"));
         });
         $model->when($request->filled('employee_department_name'), function ($q) use ($request) {
             // $key = strtolower($request->employee_department_name);
-            $q->whereHas('employee.department', fn(Builder $query) => $query->where('company_id', $request->company_id)->where('name', 'ILIKE', "$request->employee_department_name%"));
+            $q->whereHas('employee.department', fn (Builder $query) => $query->where('company_id', $request->company_id)->where('name', 'ILIKE', "$request->employee_department_name%"));
         });
         if ($request->shift) {
             //$key = strtolower($request->shift_type_name);
@@ -190,11 +190,9 @@ class ReportController extends Controller
             $sortDesc = $request->input('sortDesc');
 
             $q->orderBy($request->sortBy, $sortDesc == 'true' ? 'desc' : 'asc');
-
         });
         $model->when(!$request->filled('sortBy'), function ($q) use ($request) {
-            $q->orderBy('id', 'desc');
-
+            $q->orderBy('date', 'asc');
         });
         return $model;
     }
