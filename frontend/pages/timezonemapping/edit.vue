@@ -57,7 +57,7 @@
                       hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
                       :value="user.id" primary hide-details></v-checkbox>
 
-                    <v-checkbox v-else input-value="true" value disabled hide-details
+                    <v-checkbox v-else indeterminate value disabled hide-details
                       class="col-1   d-flex flex-column  justify-center "></v-checkbox>
 
                   </v-col>
@@ -161,7 +161,7 @@
                     <v-checkbox v-if="user.status.name == 'active'" hideDetails
                       class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
                       primary hide-details></v-checkbox>
-                    <v-checkbox v-else title="Device is offline" input-value="true" value disabled hide-details
+                    <v-checkbox v-else indeterminate title="Device is offline" value disabled hide-details
                       class="col-1   d-flex flex-column  justify-center "></v-checkbox>
                   </v-col>
                   <div class="col" style="padding-top:21px;color:#000000">
