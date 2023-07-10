@@ -80,18 +80,16 @@
                   <v-col class=" col-1   " style="padding:0px">
                     <v-checkbox v-if="user.profile_picture" class="col    " v-model="leftSelectedEmp" :value="user.id"
                       primary hide-details></v-checkbox>
-                    <v-checkbox v-else title="Profile Pic is not available" disabled hideDetails
-                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
+                    <v-checkbox v-else indeterminate value disabled hide-details
+                      class="col-1   d-flex flex-column  justify-center "></v-checkbox>
                   </v-col>
                   <v-col col="2" class=" col     " style="padding-top:21px">
 
                     {{ user.employee_id }}: {{ user.display_name }}
                   </v-col>
                   <v-col col=" 2">
-                    <v-img style="border-radius: 50%;   width: 40px" :src="user.profile_picture
-                      ? user.profile_picture
-                      : '/no-profile-image.jpg'
-                      ">
+                    <v-img v-if="user.profile_picture != ''" style="border-radius: 50%;   width: 40px"
+                      :src="user.profile_picture">
                     </v-img>
                   </v-col>
                 </v-row>
@@ -130,7 +128,7 @@
           </v-toolbar>
           <div>
             <v-card class="photo-displaylist">
-              <v-card-text class="photo-displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
+              <v-card-text class="photo-displaylistview" v-for="(user, index) in   rightEmployees  " :id="user.id"
                 v-model="rightSelectedEmp" :key="user.id">
                 <div class="row">
                   <v-col class=" col-1   " style="padding:0px">
@@ -143,10 +141,8 @@
 
                   </v-col>
                   <v-col col="4">
-                    <span><v-img style="border-radius: 50%;   width: 40px" :src="user.profile_picture
-                      ? user.profile_picture
-                      : '/no-profile-image.jpg'
-                      ">
+                    <span><v-img v-if="user.profile_picture != ''" style="border-radius: 50%;   width: 40px"
+                        :src="user.profile_picture">
                       </v-img></span>
                   </v-col>
                   <v-col col="4">
@@ -186,15 +182,15 @@
           </v-toolbar>
           <div>
             <v-card class="photo-displaylist">
-              <v-card-text class="photo-displaylistview" v-for="(user, index) in leftDevices" :id="user.id"
+              <v-card-text class="photo-displaylistview" v-for="(  user, index  ) in   leftDevices  " :id="user.id"
                 v-model="leftSelectedDevices" :key="user.id">
                 <div class="row">
                   <v-col class=" col-1   " style="padding:0px">
                     <v-checkbox v-if="user.status.name == 'active'" hideDetails
                       class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
                       primary hide-details></v-checkbox>
-                    <v-checkbox title="Device is offline" v-else disabled hideDetails
-                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
+                    <v-checkbox v-else indeterminate value disabled hide-details
+                      class="col-1   d-flex flex-column  justify-center "></v-checkbox>
                   </v-col>
                   <div col-4 class="col   " style="padding-top:21px">
                     {{ user.name }} : {{ user.device_id }}
@@ -240,7 +236,7 @@
           </v-toolbar>
           <div>
             <v-card class="photo-displaylist">
-              <v-card-text class="photo-displaylistview" v-for="(user, index) in rightDevices" :id="user.id"
+              <v-card-text class="photo-displaylistview" v-for="(  user, index  ) in   rightDevices  " :id="user.id"
                 v-model="rightSelectedDevices" :key="user.id">
                 <div class="row">
 

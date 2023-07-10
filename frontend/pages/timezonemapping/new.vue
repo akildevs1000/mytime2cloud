@@ -416,7 +416,7 @@ export default {
     },
     onSubmit() {
       this.resetErrorMessages();
-
+      this.displaybutton = false;
       if (this.timezonesselected == "") {
         this.response = this.response + "Timezones not selected";
       } else if (this.rightEmployees.length == 0) {
@@ -488,7 +488,7 @@ export default {
 
       let SDKSuccessStatus = true;
       this.$axios.post(`${url}`, options).then(({ data }) => {
-        this.displaybutton = false;
+
         if (data.record.SDKResponse) {
           this.loading = false;
 
