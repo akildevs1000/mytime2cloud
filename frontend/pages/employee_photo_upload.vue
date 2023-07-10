@@ -58,9 +58,9 @@
             </button> -->
 
 
-            <v-btn class="primary" @click="goback" style> <v-icon color="white">mdi
+            <!-- <v-btn class="primary" @click="goback" style> <v-icon color="white">mdi
                 mdi-format-list-bulleted-square</v-icon>
-              View List</v-btn>
+              View List</v-btn> -->
           </div>
         </v-col>
       </v-row>
@@ -80,6 +80,8 @@
                   <v-col class=" col-1   " style="padding:0px">
                     <v-checkbox v-if="user.profile_picture" class="col    " v-model="leftSelectedEmp" :value="user.id"
                       primary hide-details></v-checkbox>
+                    <v-checkbox v-else title="Profile Pic is not available" disabled hideDetails
+                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
                   </v-col>
                   <v-col col="2" class=" col     " style="padding-top:21px">
 
@@ -191,6 +193,8 @@
                     <v-checkbox v-if="user.status.name == 'active'" hideDetails
                       class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
                       primary hide-details></v-checkbox>
+                    <v-checkbox title="Device is offline" v-else disabled hideDetails
+                      class="col-1   d-flex flex-column  justify-center " primary hide-details></v-checkbox>
                   </v-col>
                   <div col-4 class="col   " style="padding-top:21px">
                     {{ user.name }} : {{ user.device_id }}
@@ -1182,59 +1186,12 @@ export default {
 
         let jsrightEmployees = this.rightEmployees;
         let SDKSuccessStatus = true;
+        jsrightEmployees.forEach((element) => {
+          element["sdkEmpResponse"] = "Success";
+        });
         this.rightDevices.forEach((elementDevice) => {
-
-          // let SdkResponseDeviceobject = data.data.find(
-          //   (e) => e.sn == elementDevice.device_id
-          // );
-
-
-          // let deviceStatusResponse = "";
-          // let EmpStatusResponse = "";
-
-          // if (SdkResponseDeviceobject.message == "") {
-          //   deviceStatusResponse = "Success";
-          // } else if (
-          //   SdkResponseDeviceobject.message == "The device was not found"
-          // ) {
-          //   deviceStatusResponse = "The device was not found or offline";
-          //   SDKSuccessStatus = false;
-          // } else if (SdkResponseDeviceobject.message == "person info error") {
-          //   let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-          //   jsrightEmployees.forEach((element) => {
-          //     let systemUserid = element.system_user_id;
-          //     SDKSuccessStatus = false;
-
-          //     element["sdkEmpResponse"] = "Success";
-          //     let selectedEmpobject = SDKUseridArray.find(
-          //       (e) => e.userCode == systemUserid
-          //     );
-          //     EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-          //     deviceStatusResponse = "";
-
-
-          //     if (EmpStatusResponse != "") {
-
-          //       if (selectedEmpobject) {
-
-          //       } else {
-
-          //         element["sdkEmpResponse"] = "Success";
-          //       }
-          //     }
-
-
-          //   });
-          // } else {
-          // }
-          jsrightEmployees.forEach((element) => {
-            element["sdkEmpResponse"] = "Success";
-
-          });
-
           elementDevice["sdkDeviceResponse"] = "Success";
           this.errors = [];
-
           this.loading = false;
         });
 

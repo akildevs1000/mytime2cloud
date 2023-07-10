@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\Device;
 use Illuminate\Console\Command;
+
 // use Illuminate\Support\Facades\Log as Logger;
 // use Illuminate\Support\Facades\Mail;
 // use App\Mail\NotifyIfLogsDoesNotGenerate;
-
 
 class CheckDeviceHealth extends Command
 {
@@ -40,9 +40,18 @@ class CheckDeviceHealth extends Command
 
         foreach ($devices as $device_id) {
             $curl = curl_init();
+            //"http://139.59.69.241:5000/CheckDeviceHealth/$device_id"
+            $sdk_url = '';
+            if (env("APP_ENV") != "production") {
+                $sdk_url = env("SDK_STAGING_COMM_URL");
+            }
 
+            if ($sdk_url == '') {
+                $sdk_url = "http://139.59.69.241:5000";
+            }
+             
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "http://139.59.69.241:5000/CheckDeviceHealth/$device_id",
+                CURLOPT_URL => " $sdk_url/CheckDeviceHealth/$device_id",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -76,7 +85,7 @@ class CheckDeviceHealth extends Command
 
         $result = "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found";
 
-        $message =  $meta . " " . $result . ".\n";
+        $message = $meta . " " . $result . ".\n";
         echo $message;
     }
 }

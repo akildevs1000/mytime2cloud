@@ -33,5 +33,8 @@ function getDatesInRange(startDate, endDate) {
 
   php artisan queue:work
 
-  nohup php artisan queue:work --daemon &
+  nohup php artisan queue:work --daemon &   
+  //background run   
 
+SDK  Live port : 9001
+SDK  Live port : 9001

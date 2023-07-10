@@ -2,13 +2,9 @@
 
 namespace App\Console;
 
-use App\Mail\ReportNotificationMail;
-use App\Models\Company;
 use App\Models\PayrollSetting;
-use App\Models\ReportNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Support\Facades\Mail;
 
 class Kernel extends ConsoleKernel
 {
@@ -89,14 +85,12 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/$date-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-
-
-        // $schedule
-        //     ->command('task:check_device_health')
-        //     ->everyThirtyMinutes()
-        //     ->withoutOverlapping()
-        //     ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule
+            ->command('task:check_device_health')
+            ->everyThirtyMinutes()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:sync_absent')
             // ->everyMinute()
@@ -146,7 +140,6 @@ class Kernel extends ConsoleKernel
         //     ->appendOutputTo(storage_path("logs/pdf.log"))
         //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-
         if (env("APP_ENV") == "production") {
             $schedule
                 ->command('task:db_backup')
@@ -164,9 +157,6 @@ class Kernel extends ConsoleKernel
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
-
-
-
         // // -----------for test-------------
 
         // $schedule
@@ -181,7 +171,6 @@ class Kernel extends ConsoleKernel
         // ReportNotification
 
         // $models = ReportNotification::get();
-
 
         // foreach ($models as $model) {
 
