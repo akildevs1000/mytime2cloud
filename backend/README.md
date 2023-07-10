@@ -29,3 +29,9 @@ function getDatesInRange(startDate, endDate) {
   Payslip references
 
   https://www.youtube.com/watch?v=AY3EEGGHV3Y
+
+
+  php artisan queue:work
+
+  nohup php artisan queue:work --daemon &
+

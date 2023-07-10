@@ -88,20 +88,26 @@ class SDKController extends Controller
         }
         return $arr;
     }
+    public function PersonAddRangePhotos(Request $request)
+    {
+        $url = "{$this->endpoint}/Person/AddRange";
 
+        return $this->processSDKRequestJob($url, $request->all());
+    }
     public function PersonAddRange(Request $request)
     {
         $url = "{$this->endpoint}/Person/AddRange";
 
-        return $this->processSDKRequest($url, $request->all());
+        return $this->processSDKRequestBulk($url, $request->all());
     }
+
     public function PersonAddRangeWithData($data)
     {
         $url = "{$this->endpoint}/Person/AddRange";
 
-        return $this->processSDKRequest($url, $data);
+        return $this->processSDKRequestBulk($url, $data);
     }
-    public function processSDKRequest($url, $data)
+    public function processSDKRequestJob($url, $data)
     {
 
         $personList = $data['personList'];
@@ -111,7 +117,7 @@ class SDKController extends Controller
 
         // if (env("APP_ENV") != "local") {
         //     try {
-        //         exec('php /var/www/staging/ideahrms/backend/artisan queue:work  ');
+        //         exec('php  artisan queue:work  ');
         //     } catch (\Throwable $th) {
         //         Log::channel('jobs')->error('artisan queue:work. Error Details: ' . $th);
 
@@ -174,7 +180,7 @@ class SDKController extends Controller
     {
 
         try {
-            return Http::withoutVerifying()->withHeaders([
+            return Http::timeout(60)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, $data);
         } catch (\Exception $e) {
