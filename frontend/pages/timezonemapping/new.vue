@@ -161,12 +161,18 @@
                 v-model="leftSelectedDevices" :key="user.id">
                 <div class="row">
                   <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
-                      v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+                    <v-checkbox v-if="user.status.name == 'active'" hideDetails
+                      class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
+                      primary hide-details></v-checkbox>
 
                   </v-col>
                   <div class="col-sm" style="padding-top:21px;color:#000000">
                     {{ user.name }} : {{ user.device_id }}
+
+                    <span style="color:green" v-if="user.status.name == 'active'">
+                      Online</span>
+                    <span style="color:red" v-else>Offline
+                    </span>
                   </div>
                 </div>
               </v-card-text>
@@ -387,10 +393,10 @@ export default {
       this.errors = [];
       this.response = "";
 
-      $.extend(this.rightEmployees, {
+      $.extend(this.leftEmployees, {
         sdkEmpResponse: "",
       });
-      $.extend(this.rightDevices, {
+      $.extend(this.leftDevices, {
         sdkDeviceResponse: "",
       });
     },
@@ -564,7 +570,7 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company.id,
-          cols: ["id", "location", "name", "device_id"],
+          //cols: ["id", "location", "name", "device_id"],
         },
       };
       let page = 1;
@@ -636,17 +642,22 @@ export default {
         }
       }),
     allmoveToLeftemp() {
+      this.resetErrorMessages();
       this.leftEmployees = this.leftEmployees.concat(this.rightEmployees);
       this.rightEmployees = [];
       this.leftEmployees = this.sortObject(this.leftEmployees);
     },
     allmoveToRightEmp() {
-      this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
-      this.leftEmployees = [];
+      this.resetErrorMessages();
+      // this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
+      // this.leftEmployees = [];
+      this.rightEmployees = this.rightEmployees.concat(this.leftEmployees.filter((el) => el.timezone.timezone_name == '---'));
+
+      this.leftEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name != '---');
       this.rightEmployees = this.sortObject(this.rightEmployees);
     },
     moveToLeftempOption2() {
-
+      this.resetErrorMessages();
       if (!this.rightSelectedEmp.length) return;
 
 
@@ -678,7 +689,7 @@ export default {
     },
 
     moveToRightEmpOption2() {
-
+      this.resetErrorMessages();
       if (!this.leftSelectedEmp.length) return;
 
       let _leftSelectedEmp_length = this.leftSelectedEmp.length;
@@ -704,19 +715,26 @@ export default {
     },
     /* Devices---------------------------------------- */
     allmoveLeftDevices() {
+      this.resetErrorMessages();
       this.leftDevices = this.leftDevices.concat(this.rightDevices);
       this.rightDevices = [];
 
       this.leftDevices = this.sortObjectD(this.leftDevices);
     },
     allmoveRightDevices() {
-      this.rightDevices = this.rightDevices.concat(this.leftDevices);
-      this.leftDevices = [];
+      this.resetErrorMessages();
+      //this.rightDevices = this.rightDevices.concat(this.leftDevices);
+      //this.leftDevices = [];
+
+      this.rightDevices = this.rightDevices.concat(this.leftDevices.filter((el) => el.status.name == "active"));
+
+      this.leftDevices = this.leftDevices.filter((el) => el.status.name == "inactive");
+
       console.log("this.rightDevices", this.rightDevices);
       this.rightDevices = this.sortObjectD(this.rightDevices);
     },
     moveToLeftDevicesOption2() {
-
+      this.resetErrorMessages();
 
       if (!this.rightSelectedDevices.length) return;
 
@@ -749,7 +767,7 @@ export default {
     },
 
     moveToRightDevicesOption2() {
-
+      this.resetErrorMessages();
       if (!this.leftSelectedDevices.length) return;
 
       let _leftSelectedDevices_length = this.leftSelectedDevices.length;

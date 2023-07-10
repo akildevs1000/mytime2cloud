@@ -119,8 +119,7 @@ class SDKController extends Controller
         // {
         //     try {
 
-        //         Artisan::call('queue:work');
-        //         //  exec('php artisan queue:work');
+        // exec('php artisan queue:work');
         //     } catch (\Throwable $th) {
         //         Log::channel('jobs')->error('artisan queue:work. Error Details: ' . $th);
 

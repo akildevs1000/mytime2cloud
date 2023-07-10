@@ -58,9 +58,9 @@
             </button> -->
 
 
-            <v-btn class="primary" @click="goback" style> <v-icon color="white">mdi
+            <!-- <v-btn class="primary" @click="goback" style> <v-icon color="white">mdi
                 mdi-format-list-bulleted-square</v-icon>
-              View List</v-btn>
+              View List</v-btn> -->
           </div>
         </v-col>
       </v-row>
@@ -1182,59 +1182,12 @@ export default {
 
         let jsrightEmployees = this.rightEmployees;
         let SDKSuccessStatus = true;
+        jsrightEmployees.forEach((element) => {
+          element["sdkEmpResponse"] = "Success";
+        });
         this.rightDevices.forEach((elementDevice) => {
-
-          // let SdkResponseDeviceobject = data.data.find(
-          //   (e) => e.sn == elementDevice.device_id
-          // );
-
-
-          // let deviceStatusResponse = "";
-          // let EmpStatusResponse = "";
-
-          // if (SdkResponseDeviceobject.message == "") {
-          //   deviceStatusResponse = "Success";
-          // } else if (
-          //   SdkResponseDeviceobject.message == "The device was not found"
-          // ) {
-          //   deviceStatusResponse = "The device was not found or offline";
-          //   SDKSuccessStatus = false;
-          // } else if (SdkResponseDeviceobject.message == "person info error") {
-          //   let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-          //   jsrightEmployees.forEach((element) => {
-          //     let systemUserid = element.system_user_id;
-          //     SDKSuccessStatus = false;
-
-          //     element["sdkEmpResponse"] = "Success";
-          //     let selectedEmpobject = SDKUseridArray.find(
-          //       (e) => e.userCode == systemUserid
-          //     );
-          //     EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-          //     deviceStatusResponse = "";
-
-
-          //     if (EmpStatusResponse != "") {
-
-          //       if (selectedEmpobject) {
-
-          //       } else {
-
-          //         element["sdkEmpResponse"] = "Success";
-          //       }
-          //     }
-
-
-          //   });
-          // } else {
-          // }
-          jsrightEmployees.forEach((element) => {
-            element["sdkEmpResponse"] = "Success";
-
-          });
-
           elementDevice["sdkDeviceResponse"] = "Success";
           this.errors = [];
-
           this.loading = false;
         });
 
