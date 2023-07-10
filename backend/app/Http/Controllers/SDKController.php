@@ -38,7 +38,7 @@ class SDKController extends Controller
         asort($data);
 
         $url = "{$this->endpoint}/{$id}/WriteTimeGroup";
-        $sdkResponse = $this->processSDKRequest($url, $data);
+        $sdkResponse = $this->processSDKRequestBulk($url, $data);
 
         return $sdkResponse;
     }
