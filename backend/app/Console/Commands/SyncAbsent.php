@@ -20,7 +20,7 @@ class SyncAbsent extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_absent  {id}';
+    protected $signature = 'task:sync_absent {id}';
 
     /**
      * The console command description.
