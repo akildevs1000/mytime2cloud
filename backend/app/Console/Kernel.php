@@ -40,17 +40,6 @@ class Kernel extends ConsoleKernel
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
-        $companyIds = Company::pluck("id");
-
-        foreach ($companyIds as $companyId) {
-
-            $schedule
-                ->command("task:sync_absent $companyId")
-                // ->everyMinute()
-                ->dailyAt('00:15')
-                ->appendOutputTo(storage_path("$date-absents-$companyId.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        }
 
         $schedule
             ->command('task:sync_all_shifts')
@@ -100,7 +89,7 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:check_device_health')
-            ->everyThirtyMinutes()
+            // ->everyThirtyMinutes()
             ->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -162,6 +151,19 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('4:00')
                 //->hourly()
                 ->appendOutputTo(storage_path("logs/restart_sdk.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        }
+
+        $companyIds = Company::pluck("id");
+
+        foreach ($companyIds as $companyId) {
+
+            $schedule
+                ->command("task:sync_absent $companyId")
+                // ->everyMinute()
+                ->dailyAt('3:30')
+                ->runInBackground()
+                ->appendOutputTo(storage_path("$date-absents-$companyId.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
