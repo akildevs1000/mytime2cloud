@@ -1,16 +1,15 @@
 <template>
   <v-card>
-    <v-toolbar class="background" dense dark>Profile Details
+    <v-toolbar class="primary  white--text background " dense dark>Profile Details
       <v-spacer></v-spacer>
       <v-btn @click="openDocumentDrawer" small class="primary">Documents&nbsp;<v-icon small>
           mdi-file
           <!-- mdi-open-in-new -->
         </v-icon></v-btn>
       &nbsp;
-      <v-btn @click="closeParentDialog" small class="grey">Close &nbsp;<v-icon small>
-          mdi-close
-          <!-- mdi-open-in-new -->
-        </v-icon></v-btn>
+      <v-icon @click="closeParentDialog" outlined dark color="white">
+        mdi mdi-close-circle
+      </v-icon>
     </v-toolbar>
 
     <v-card-text>
@@ -192,9 +191,9 @@
         <v-toolbar class="background" dense dark>Documents
           <v-spacer></v-spacer>
 
-          <v-icon @click="drawer = false">
-            mdi-close
-            <!-- mdi-open-in-new -->
+
+          <v-icon @click="drawer = false" outlined dark color="white">
+            mdi mdi-close-circle
           </v-icon>
         </v-toolbar>
         <table style="width: 100%; border-collapse: collapse; margin: 5px">
