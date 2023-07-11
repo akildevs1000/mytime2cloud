@@ -942,6 +942,12 @@ tbody tr:nth-of-type(odd) {
   overflow: hidden;
 }
 
+.dialog-close-button {
+  margin-top: -35px px;
+
+  margin-right: -26px;
+}
+
 @media (max-width: 500px) {
   .employeepage-seach-textfield {
     max-width: 68px;
