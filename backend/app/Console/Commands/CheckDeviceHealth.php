@@ -49,9 +49,9 @@ class CheckDeviceHealth extends Command
             if ($sdk_url == '') {
                 $sdk_url = "http://139.59.69.241:5000";
             }
-             
+            //echo $sdk_url;
             curl_setopt_array($curl, array(
-                CURLOPT_URL => " $sdk_url/CheckDeviceHealth/$device_id",
+                CURLOPT_URL => "$sdk_url/CheckDeviceHealth/$device_id",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -64,18 +64,23 @@ class CheckDeviceHealth extends Command
             $response = curl_exec($curl);
 
             curl_close($curl);
+            if ($response != '' && $response != null) {
+                $status = json_decode($response)->status;
 
-            $status = json_decode($response)->status;
+                if ($status !== 200) {
+                    $offline_devices_count++;
+                } else {
+                    $online_devices_count++;
+                }
 
-            if ($status !== 200) {
-                $offline_devices_count++;
+                Device::where("device_id", $device_id)->update(["status_id" => $status == 200 ? 1 : 2]);
+
+                $total_iterations++;
+
             } else {
-                $online_devices_count++;
+                echo "Error\n";
+
             }
-
-            Device::where("device_id", $device_id)->update(["status_id" => $status == 200 ? 1 : 2]);
-
-            $total_iterations++;
         }
 
         $date = date("Y-m-d H:i:s");
