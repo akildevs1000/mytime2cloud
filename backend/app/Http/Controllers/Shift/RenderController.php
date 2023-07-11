@@ -20,7 +20,6 @@ class RenderController extends Controller
 
     public function renderMultiInOut(Request $request)
     {
-
         $shift_type_id = 2;
 
         $company_id = $request->company_id;
@@ -29,7 +28,7 @@ class RenderController extends Controller
 
         $currentDate = $request->date ?? date('Y-m-d');
 
-        $schedule = $this->getSchedule($currentDate, $company_id, $UserID, $shift_type_id);
+        $schedule = $this->getScheduleMultiInOut($currentDate, $company_id, $UserID, $shift_type_id);
 
         if (!$schedule) {
             return $this->response("Employee with $UserID SYSTEM USER ID is not scheduled yet.", null, false);
@@ -63,19 +62,11 @@ class RenderController extends Controller
 
     public function renderGeneral(Request $request)
     {
-        $this->processByManualGeneralSingle($request);
-        // (new SingleShiftController)->processByManualSingle($request);
-
-        return $this->response("The Logs has been render against {$request->UserID} SYSTEM USER ID.", null, true);
-    }
-
-    public function processByManualGeneralSingle(Request $request)
-    {
         $date       = $request->date;
         $company_id = $request->company_id;
         $UserID     = $request->UserID;
 
-        $schedule = $this->getSchedule($date, $company_id, $UserID, 1);
+        $schedule = $this->getScheduleGeneral($date, $company_id, $UserID);
 
         if (!$schedule) {
             return $this->response("Employee with $UserID SYSTEM USER ID is not scheduled yet.", null, false);
@@ -88,7 +79,7 @@ class RenderController extends Controller
         $model->where("UserID", $UserID);
 
         $model->whereHas("schedule", function ($q) use ($company_id) {
-            $q->where('shift_type_id', 1);
+            $q->whereNot('shift_type_id', 2);
             $q->where("company_id", $company_id);
         });
 
@@ -106,11 +97,21 @@ class RenderController extends Controller
         $arr["company_id"] = $company_id;
         $arr["date"] = $date;
         $arr["employee_id"] = $UserID;
-        $arr["shift_type_id"] = 1;
+        $arr["shift_type_id"] = $schedule["shift_type_id"];
         $arr["shift_id"] = $schedule["shift_id"];
         $arr["roster_id"] = $schedule["roster_id"];
         $arr["device_id_in"] = $data[0]["DeviceID"];
         $arr["in"] = $data[0]["time"];
+
+        if ($schedule["shift_type_id"] == 4 && $schedule["shift_type_id"] == 6) {
+
+            $LateComing = $this->calculatedLateComing($arr["in"], $schedule["on_duty_time"], $schedule["late_time"]);
+
+            if ($LateComing) {
+                $arr["status"] = "A";
+                $arr["late_coming"] = $LateComing;
+            }
+        }
 
         if ($count > 1) {
             $arr["status"] = "P";
@@ -120,6 +121,15 @@ class RenderController extends Controller
 
             if ($schedule["isOverTime"]) {
                 $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $schedule['working_hours'], $schedule['overtime_interval']);
+            }
+
+            if ($schedule["shift_type_id"] == 4 && $schedule["shift_type_id"] == 6) {
+                $EarlyGoing = $this->calculatedEarlyGoing($arr["in"], $schedule["off_duty_time"], $schedule["early_time"]);
+
+                if ($EarlyGoing) {
+                    $arr["status"] = "A";
+                    $arr["early_going"] = $EarlyGoing;
+                }
             }
         }
 
@@ -132,8 +142,7 @@ class RenderController extends Controller
             ])->delete();
 
             Attendance::create($arr);
-
-            return $this->response("Total " . count($data) . " Log(s) Processed.", null, true);
+            return $this->response("The Log(s) has been render against {$request->UserID} SYSTEM USER ID.", null, true);
         } catch (\Exception $e) {
             return false;
         }
@@ -160,31 +169,24 @@ class RenderController extends Controller
         return $model->get(["LogTime", "DeviceID", "UserID", "company_id"])->toArray();
     }
 
-    public function getSchedule($currentDate, $companyId, $UserID, $shift_type_id)
+    public function getScheduleMultiInOut($currentDate, $companyId, $UserID, $shift_type_id)
     {
         $schedule = ScheduleEmployee::where('company_id', $companyId)
             ->where("employee_id", $UserID)
             ->where("shift_type_id", $shift_type_id)
             ->first();
 
-        if (!$schedule || !$schedule->shift) {
-            return false;
-        }
+        return $this->getSchedule($currentDate, $schedule);
+    }
 
-        $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
+    public function getScheduleGeneral($currentDate, $companyId, $UserID)
+    {
+        $schedule = ScheduleEmployee::where('company_id', $companyId)
+            ->where("employee_id", $UserID)
+            ->whereNot("shift_type_id", 2)
+            ->first();
 
-        $start_range = $currentDate . " " . $schedule->shift->on_duty_time;
-
-        $end_range = $nextDate . " " . $schedule->shift->off_duty_time;
-
-        return [
-            "roster_id" => $schedule["roster_id"],
-            "shift_id" => $schedule["shift_id"],
-            "range" => [$start_range, $end_range],
-            "isOverTime" => $schedule["isOverTime"],
-            "working_hours" => $schedule["shift"]["working_hours"],
-            "overtime_interval" => $schedule["shift"]["overtime_interval"],
-        ];
+        return $this->getSchedule($currentDate, $schedule);
     }
 
     public function processLogs($data, $schedule)

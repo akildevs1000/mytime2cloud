@@ -439,4 +439,71 @@ class Controller extends BaseController
             "description" => "User with {$user_id} Id has been logged In.",
         ]);
     }
+
+    public function calculatedLateComing($time, $on_duty_time, $grace)
+    {
+
+        $interval_time = date("i", strtotime($grace));
+
+        $late_condition = strtotime("$on_duty_time + $interval_time minute");
+
+        $in = strtotime($time);
+
+        if ($in < $late_condition) {
+            return true;
+        }
+
+        $diff = abs((strtotime($on_duty_time) - $in));
+
+        $h = floor($diff / 3600);
+        $m = floor($diff % 3600) / 60;
+        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+    }
+
+    public function calculatedEarlyGoing($time, $off_duty_time, $grace)
+    {
+        $interval_time = date("i", strtotime($grace));
+
+        $late_condition = strtotime("$off_duty_time - $interval_time minute");
+
+        $out = strtotime($time);
+
+        if ($out > $late_condition) {
+            return true;
+        }
+
+        $diff = abs((strtotime($off_duty_time) - $out));
+
+        $h = floor($diff / 3600);
+        $m = floor($diff % 3600) / 60;
+        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+    }
+
+    public function getSchedule($currentDate, $schedule)
+    {
+
+        if (!$schedule || !$schedule->shift) {
+            return false;
+        }
+
+        $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
+
+        $start_range = $currentDate . " " . $schedule->shift->on_duty_time;
+
+        $end_range = $nextDate . " " . $schedule->shift->off_duty_time;
+
+        return [
+            "roster_id" => $schedule["roster_id"],
+            "shift_id" => $schedule["shift_id"],
+            "shift_type_id" => $schedule["shift_type_id"],
+            "range" => [$start_range, $end_range],
+            "isOverTime" => $schedule["isOverTime"],
+            "working_hours" => $schedule["shift"]["working_hours"],
+            "overtime_interval" => $schedule["shift"]["overtime_interval"],
+            "on_duty_time" => $schedule["shift"]["on_duty_time"],
+            "late_time" => $schedule["shift"]["late_time"],
+            "off_duty_time" => $schedule["shift"]["off_duty_time"],
+            "early_time" => $schedule["shift"]["early_time"],
+        ];
+    }
 }
