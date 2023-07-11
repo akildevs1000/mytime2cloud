@@ -156,6 +156,7 @@ class WeeklyController extends Controller
         $info = (object) [
             'total_absent' => $model->clone()->where('status', 'A')->count(),
             'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_off' => $model->clone()->where('status', 'O')->count(),
             'total_missing' => $model->clone()->where('status', '---')->count(),
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
@@ -163,7 +164,7 @@ class WeeklyController extends Controller
             'report_type' => $request->report_type ?? "",
             'total_leave' => 0,
             'department' => Department::find($request->department_id),
-            'employee' => Employee::whereEmployeeId($request->employee_id)->first(),
+            'employee' => Employee::whereEmployeeId($request->employee_id)->whereCompanyId($request->company_id)->first(),
         ];
 
         if ($request->employee_id && $request->filled('employee_id')) {
