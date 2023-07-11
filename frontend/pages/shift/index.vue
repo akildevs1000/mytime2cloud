@@ -7,19 +7,28 @@
     </div>
     <v-card elevation="0" v-if="can(`shift_view`)">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <v-toolbar-title
-          ><span> {{ Model }} List</span></v-toolbar-title
-        >
-        <a
-          style="padding-left: 10px"
-          title="Reload Page/Reset Form"
-          @click="getDataFromApi"
-          ><v-icon class="mx-1">mdi mdi-reload</v-icon></a
-        >
+        <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+            </v-btn>
+          </template>
+          <span>Reload</span>
+        </v-tooltip>
+        <!-- <a style="padding-left: 10px" title="Reload Page/Reset Form" @click="getDataFromApi"><v-icon class="mx-1">mdi
+            mdi-reload</v-icon></a> -->
         <v-spacer></v-spacer>
-        <v-icon @click="goToCreate" small disabledv-if="can(`shift_create`)"
-          >mdi-plus</v-icon
-        >
+
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="goToCreate">
+              <v-icon color="white" right dark>mdi-plus-circle</v-icon>
+            </v-btn>
+          </template>
+          <span>Add New Shift Details</span>
+        </v-tooltip>
+
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -28,58 +37,30 @@
           <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
         </template>
       </v-snackbar>
-      <v-data-table
-        dense
-        :headers="headers_table"
-        :items="data"
-        model-value="data.id"
-        :loading="loading"
-        :options.sync="options"
-        :footer-props="{
+      <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
+        :options.sync="options" :footer-props="{
           itemsPerPageOptions: [10, 50, 100, 500, 1000],
-        }"
-        class="elevation-1"
-      >
+        }" class="elevation-1">
         <template v-slot:item.sno="{ item, index }">
           <b>{{ ++index }}</b>
         </template>
         <template v-slot:item.name="{ item }">
-          <v-edit-dialog
-            large
-            save-text="Reset"
-            cancel-text="Ok"
-            style="margin-left: 4%"
-            @cancel="getDataFromApi()"
-            @save="getDataFromApi()"
-            @open="datatable_open"
-          >
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
             {{ item.name }}
             <template v-slot:input>
-              <v-text-field
-                v-model="datatable_search_textbox"
-                @input="getRecords('search_shift_name', $event)"
-                label="Search Shift name"
-              ></v-text-field>
+              <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_shift_name', $event)"
+                label="Search Shift name"></v-text-field>
             </template>
           </v-edit-dialog>
         </template>
         <template v-slot:item.shift_type.name="{ item }">
-          <v-edit-dialog
-            large
-            save-text="Reset"
-            cancel-text="Ok"
-            style="margin-left: 4%"
-            @cancel="getDataFromApi()"
-            @save="getDataFromApi()"
-            @open="datatable_open"
-          >
+          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
+            @save="getDataFromApi()" @open="datatable_open">
             {{ item.shift_type.name }}
             <template v-slot:input>
-              <v-text-field
-                v-model="datatable_search_textbox"
-                @input="getRecords('search_shift_type', $event)"
-                label="Search Shift Type"
-              ></v-text-field>
+              <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_shift_type', $event)"
+                label="Search Shift Type"></v-text-field>
             </template>
           </v-edit-dialog>
         </template>

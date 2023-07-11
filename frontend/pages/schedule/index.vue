@@ -117,135 +117,102 @@
       </v-card>
     </v-dialog> -->
 
-    <v-dialog v-model="editDialog" max-width="35%" persistent>
-      <v-card class="pb-0 mb-0">
-        <v-toolbar class="rounded-md" color="background" dense flat dark>
-          <span>Edit Schedule</span>
-        </v-toolbar>
-        <v-card-text class="pb-0 mb-0">
-          <v-container>
-            <v-card-title>
-              <v-row>
-                <v-col md="6">
-                  <v-text-field
-                    :hide-details="true"
-                    v-model="editName"
-                    placeholder="Name"
-                    outlined
-                    dense
-                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"
-                  ></v-text-field>
-                  <small
-                    style="font-size: 12px"
-                    v-if="errors && errors.name"
-                    class="error--text ma-0 pa-0"
-                    >{{ errors.name[0] }}</small
-                  >
-                </v-col>
-              </v-row>
-              <table style="width: 100%">
-                <tr style="font-size: 15px">
-                  <td style="width: 130px; text-align: center">
-                    <label class="col-form-label"><b>Day</b></label>
-                  </td>
-                  <td style="max-width: 150px; text-align: center">
-                    <label class="col-form-label"><b>Shifts</b></label>
-                  </td>
-                  <td style="text-align: center; width: 120px">
-                    <label class="col-form-label"><b>From</b></label>
-                  </td>
-                  <td style="text-align: center; width: 120px">
-                    <label class="col-form-label"><b>To</b></label>
-                  </td>
-                </tr>
-                <!-- <pre> {{ editShifts }}</pre> -->
-                <tr
-                  v-for="(item, index) in editShifts"
-                  :key="index"
-                  style="text-align: center; font-size: 15px"
-                >
-                  <td style="width: 80px; text-align: center">
-                    <label class="col-form-label"
-                      ><b>{{ item.day }}</b></label
-                    >
-                  </td>
-                  <td
-                    style="
+    <v-dialog v-model="editDialog" max-width="35%">
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          Edit Schedule
+          <v-spacer></v-spacer>
+          <v-icon @click="editDialog = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col md="6" mt-2 class="mt-2">
+              <v-text-field :hide-details="true" v-model="editName" placeholder="Name" outlined dense
+                :class="errors && errors.name ? 'mb-0' : 'mb-2'"></v-text-field>
+              <small style="font-size: 12px" v-if="errors && errors.name" class="error--text ma-0 pa-0">{{
+                errors.name[0] }}</small>
+            </v-col>
+          </v-row>
+          <table style="width: 100%">
+            <tr style="font-size: 15px">
+              <td style="width: 130px; text-align: center">
+                <label class="col-form-label"><b>Day</b></label>
+              </td>
+              <td style="max-width: 150px; text-align: center">
+                <label class="col-form-label"><b>Shifts</b></label>
+              </td>
+              <td style="text-align: center; width: 120px">
+                <label class="col-form-label"><b>From</b></label>
+              </td>
+              <td style="text-align: center; width: 120px">
+                <label class="col-form-label"><b>To</b></label>
+              </td>
+            </tr>
+            <!-- <pre> {{ editShifts }}</pre> -->
+            <tr v-for="(item, index) in editShifts" :key="index" style="text-align: center; font-size: 15px">
+              <td style="width: 80px; text-align: center">
+                <label class="col-form-label"><b>{{ item.day }}</b></label>
+              </td>
+              <td style="
                       width: 400px;
                       text-align: left;
                       padding: 8px 0px 0px 0px;
-                    "
-                  >
-                    <v-select
-                      class="mx-5 py-0"
-                      :items="shifts"
-                      dense
-                      outlined
-                      item-text="name"
-                      item-value="id"
-                      placeholder="Select"
-                      :hide-details="true"
-                      v-model="item.shift_id"
-                    >
-                    </v-select>
-                    <small
-                      class="error--text text-left py-0 my-0"
-                      v-if="!shift[index] && errors && errors.shift_ids"
-                      style="margin-left: 20px; font-size: 12px"
-                    >
-                      {{ errors.shift_ids[0] }}
-                    </small>
-                  </td>
-                  <td style="max-width: 150px; text-align: center">
-                    <label class="col-form-label">
-                      {{ getFrom(item.shift_id) }}
-                    </label>
-                  </td>
-                  <td style="max-width: 150px; text-align: center">
-                    <label class="col-form-label">{{
-                      getTo(item.shift_id)
-                    }}</label>
-                  </td>
-                </tr>
-              </table>
-            </v-card-title>
-            <v-card-actions class="mr-1">
-              <v-spacer></v-spacer>
-              <v-btn class="error" small @click="close"> Cancel </v-btn>
-              <v-btn class="primary" small @click="update_schedule"
-                >Update</v-btn
-              >
-            </v-card-actions>
-          </v-container>
+                    ">
+                <v-select class="mx-5 py-0" :items="shifts" dense outlined item-text="name" item-value="id"
+                  placeholder="Select" :hide-details="true" v-model="item.shift_id">
+                </v-select>
+                <small class="error--text text-left py-0 my-0" v-if="!shift[index] && errors && errors.shift_ids"
+                  style="margin-left: 20px; font-size: 12px">
+                  {{ errors.shift_ids[0] }}
+                </small>
+              </td>
+              <td style="max-width: 150px; text-align: center">
+                <label class="col-form-label">
+                  {{ getFrom(item.shift_id) }}
+                </label>
+              </td>
+              <td style="max-width: 150px; text-align: center">
+                <label class="col-form-label">{{
+                  getTo(item.shift_id)
+                }}</label>
+              </td>
+            </tr>
+          </table>
+
+
+          <v-card-actions class="mr-1">
+            <v-spacer></v-spacer>
+            <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
+            <v-btn class="primary" small @click="update_schedule">Update</v-btn>
+          </v-card-actions>
+
         </v-card-text>
+
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialog" max-width="35%" persistent>
-      <v-card class="pb-0 mb-0">
-        <v-toolbar class="rounded-md" color="background" dense flat dark>
-          <span>{{ formTitle }} Schedule</span>
-        </v-toolbar>
+    <v-dialog v-model="dialog" max-width="35%">
 
-        <v-card-text class="pb-0 mb-0">
+
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          {{ formTitle }} Schedule
+          <v-spacer></v-spacer>
+          <v-icon @click="dialog = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
           <v-container>
             <v-card-title>
               <v-row>
                 <v-col md="6">
-                  <v-text-field
-                    :hide-details="true"
-                    v-model="name"
-                    placeholder="Name"
-                    outlined
-                    dense
-                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"
-                  ></v-text-field>
-                  <small
-                    style="font-size: 12px"
-                    v-if="errors && errors.name"
-                    class="error--text ma-0 pa-0"
-                    >{{ errors.name[0] }}</small
-                  >
+                  <v-text-field :hide-details="true" v-model="name" placeholder="Name" outlined dense
+                    :class="errors && errors.name ? 'mb-0' : 'mb-2'"></v-text-field>
+                  <small style="font-size: 12px" v-if="errors && errors.name" class="error--text ma-0 pa-0">{{
+                    errors.name[0] }}</small>
                 </v-col>
               </v-row>
               <table style="width: 100%">
@@ -263,43 +230,23 @@
                     <label class="col-form-label"><b>To</b></label>
                   </td>
                 </tr>
-                <tr
-                  v-for="(item, index) in days"
-                  :key="index"
-                  style="text-align: center; font-size: 15px"
-                >
+                <tr v-for="(item, index) in days" :key="index" style="text-align: center; font-size: 15px">
                   <td style="width: 80px; text-align: center">
-                    <label class="col-form-label"
-                      ><b>{{ item }}</b></label
-                    >
+                    <label class="col-form-label"><b>{{ item }}</b></label>
                   </td>
-                  <td
-                    style="
+                  <td style="
                       width: 400px;
                       text-align: left;
                       padding: 8px 0px 0px 0px;
-                    "
-                  >
+                    ">
                     <!-- {{ shift }}
                     {{ shift[index] }} -->
-                    <v-select
-                      class="mx-5 py-0"
-                      :items="shifts"
-                      dense
-                      outlined
-                      item-text="name"
-                      item-value="id"
-                      v-model="shift[index]"
-                      placeholder="Select"
-                      :hide-details="true"
-                      @change="getTimeRange(shift[index])"
-                    >
+                    <v-select class="mx-5 py-0" :items="shifts" dense outlined item-text="name" item-value="id"
+                      v-model="shift[index]" placeholder="Select" :hide-details="true"
+                      @change="getTimeRange(shift[index])">
                     </v-select>
-                    <small
-                      class="error--text text-left py-0 my-0"
-                      v-if="!shift[index] && errors && errors.shift_ids"
-                      style="margin-left: 20px; font-size: 12px"
-                    >
+                    <small class="error--text text-left py-0 my-0" v-if="!shift[index] && errors && errors.shift_ids"
+                      style="margin-left: 20px; font-size: 12px">
                       {{ errors.shift_ids[0] }}
                     </small>
                   </td>
@@ -318,7 +265,7 @@
             </v-card-title>
             <v-card-actions class="mr-1">
               <v-spacer></v-spacer>
-              <v-btn class="error" small @click="close"> Cancel </v-btn>
+              <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
               <v-btn class="primary" small @click="save">Save</v-btn>
             </v-card-actions>
           </v-container>
@@ -330,14 +277,24 @@
       <v-card elevation="0" v-if="can(`shift_view`)">
         <v-toolbar class="rounded-md" color="background" dense flat dark>
           <v-toolbar-title><span> Schedule List</span></v-toolbar-title>
-          <a
-            style="padding-left: 10px"
-            title="Reload Page/Reset Form"
-            @click="get_schedule"
-            ><v-icon class="mx-1">mdi mdi-reload</v-icon></a
-          >
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                <v-icon color="white" class="ml-2" @click="get_schedule" dark>mdi mdi-reload</v-icon>
+              </v-btn>
+            </template>
+            <span>Reload</span>
+          </v-tooltip>
           <v-spacer></v-spacer>
-          <v-icon small @click="dialog = true">mdi-plus</v-icon>
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                <v-icon color="white" class="ml-2" @click="dialog = true" dark>mdi mdi-plus-circle</v-icon>
+              </v-btn>
+            </template>
+            <span>Add New Schedule</span>
+          </v-tooltip>
+
         </v-toolbar>
         <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
           {{ snackText }}
@@ -346,48 +303,25 @@
             <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
           </template>
         </v-snackbar>
-        <v-data-table
-          dense
-          :headers="headers_table"
-          :items="scheduleData"
-          model-value="data.id"
-          :loading="loading"
-          :options.sync="options"
-          :footer-props="{
+        <v-data-table dense :headers="headers_table" :items="scheduleData" model-value="data.id" :loading="loading"
+          :options.sync="options" :footer-props="{
             itemsPerPageOptions: [10, 50, 100, 500, 1000],
-          }"
-          class="elevation-1"
-        >
+          }" class="elevation-1">
           <template v-slot:item.sno="{ item, index }">
             <b>{{ ++index }}</b>
           </template>
           <template v-slot:item.name="{ item }">
-            <v-edit-dialog
-              large
-              save-text="Reset"
-              cancel-text="Ok"
-              style="margin-left: 4%"
-              @cancel="get_schedule()"
-              @save="get_schedule()"
-              @open="datatable_open"
-            >
+            <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="get_schedule()"
+              @save="get_schedule()" @open="datatable_open">
               {{ item.name }}
               <template v-slot:input>
-                <v-text-field
-                  v-model="datatable_search_textbox"
-                  @input="get_schedule('search_shift_name', $event)"
-                  label="Search Shift name"
-                ></v-text-field>
+                <v-text-field v-model="datatable_search_textbox" @input="get_schedule('search_shift_name', $event)"
+                  label="Search Shift name"></v-text-field>
               </template>
             </v-edit-dialog>
           </template>
           <template v-slot:item.description="{ item }">
-            <v-chip
-              small
-              class="primary ma-1"
-              v-for="(j, s) in item.json"
-              :key="s"
-            >
+            <v-chip small class="primary ma-1" v-for="(j, s) in item.json" :key="s">
               {{ j.day }} {{ j.time }} {{ getShiftType(j.shift_id) }}
             </v-chip>
           </template>
@@ -601,7 +535,7 @@ export default {
     this.get_schedule();
   },
   methods: {
-    datatable_save() {},
+    datatable_save() { },
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -612,7 +546,7 @@ export default {
       this.loading = false;
       //this.datatable_search_textbox = '';
     },
-    getUpdateData(index, shift_id, day) {},
+    getUpdateData(index, shift_id, day) { },
 
     can(per) {
       let u = this.$auth.user;
@@ -828,12 +762,12 @@ table {
   border-collapse: collapse;
 }
 
-table > thead {
+table>thead {
   background-color: #00bcd4;
   color: #fff;
 }
 
-table > thead th {
+table>thead th {
   padding: 15px;
 }
 
@@ -843,7 +777,7 @@ table td {
   padding: 10px 15px;
 }
 
-table > tbody > tr > td > img {
+table>tbody>tr>td>img {
   display: inline-block;
   width: 60px;
   height: 60px;
@@ -853,16 +787,16 @@ table > tbody > tr > td > img {
   box-shadow: 0 2px 6px #0003;
 }
 
-table > tbody > tr {
+table>tbody>tr {
   background-color: #fff;
   transition: 0.3s ease-in-out;
 }
 
-table > tbody > tr:nth-child(even) {
+table>tbody>tr:nth-child(even) {
   background-color: rgb(238, 238, 238);
 }
 
-table > tbody > tr:hover {
+table>tbody>tr:hover {
   filter: drop-shadow(0px 2px 6px #0002);
 }
 </style>
