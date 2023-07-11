@@ -62,7 +62,7 @@ class CheckDeviceHealth extends Command
             ));
 
             $response = curl_exec($curl);
-            echo $response;
+
             curl_close($curl);
             if ($response) {
                 $status = json_decode($response)->status;
