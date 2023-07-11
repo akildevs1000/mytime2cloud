@@ -132,4 +132,9 @@ class Attendance extends Model
             //$builder->orderBy('id', 'desc');
         });
     }
+
+    public function last_reason()
+    {
+        return $this->hasOne(Reason::class, 'reasonable_id');
+    }
 }

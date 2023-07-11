@@ -179,23 +179,12 @@ class AttendanceLogController extends Controller
     public function GenerateManualLog(Request $request)
     {
         try {
-            $log = AttendanceLog::create($request->only(['UserID', 'LogTime', 'DeviceID', 'company_id']));
+            AttendanceLog::create($request->only(['UserID', 'LogTime', 'DeviceID', 'company_id']));
 
-            $created = Reason::create([
-                'reason' => $request->reason,
-                'user_id' => $request->user_id,
-                'reasonable_id' => $log->id,
-                'reasonable_type' => "App\Models\AttendanceLog",
-            ]);
-
-            if ($created) {
-                // $Attendance = new AttendanceController;
-                // $Attendance->SyncAttendance();
-                return [
-                    'status' => true,
-                    'message' => 'Log Successfully Updated',
-                ];
-            }
+            return [
+                'status' => true,
+                'message' => 'Log Successfully Updated',
+            ];
         } catch (\Throwable $th) {
             throw $th;
         }

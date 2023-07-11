@@ -69,7 +69,7 @@ class ReportController extends Controller
         $model = Attendance::query();
 
         $model->where('company_id', $request->company_id);
-        $model->with('shift_type');
+        $model->with(['shift_type', 'last_reason']);
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
         });
@@ -103,7 +103,7 @@ class ReportController extends Controller
         });
 
         $model->when($request->status == "ME", function ($q) {
-            $q->where('status', "ME");
+            $q->whereHas('last_reason');
         });
 
         $model->when($request->late_early == "L", function ($q) {

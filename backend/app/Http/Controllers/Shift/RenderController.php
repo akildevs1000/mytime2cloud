@@ -11,16 +11,27 @@ use App\Models\ScheduleEmployee;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Models\Reason;
 use App\Models\Schedule;
 
 class RenderController extends Controller
 {
 
-    public $update_date;
+    public $manual_entry;
+
+    public $reason;
+
+    public $updated_by;
 
     public function renderMultiInOut(Request $request)
     {
         $shift_type_id = 2;
+
+        $this->manual_entry = $request->manual_entry ?? false;
+
+        $this->reason = $request->reason ?? null;
+
+        $this->updated_by = $request->updated_by ?? 0;
 
         $company_id = $request->company_id;
 
@@ -248,9 +259,19 @@ class RenderController extends Controller
 
             $attendance->fill($items)->save();
 
+            if ($this->manual_entry) {
+
+                Reason::create([
+                    'reason' => $this->reason,
+                    'user_id' => $this->updated_by,
+                    'reasonable_id' => $attendance->id,
+                    'reasonable_type' => "App\Models\Attendance",
+                ]);
+            }
+
             return true;
         } catch (\Exception $e) {
-            return false;
+            return $e;
         }
     }
 
