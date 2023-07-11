@@ -1,43 +1,43 @@
 <template>
   <div v-if="can(`employee_access`)">
-    <!-- <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      crossorigin="anonymous"
-    />
-    <link
-      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
-      rel="stylesheet"
-    /> -->
+
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
       </v-snackbar>
     </div>
     <v-row class=" ">
-      <!-- <v-col cols="8">
-        <h3>{{ Model }}</h3>
-        <div>Dashboard / {{ Model }}</div>
-      </v-col>
-      <v-col cols="4" class="text-right">
 
-      </v-col> -->
 
       <v-col cols="12">
-        <!-- <v-toolbar class="rounded-md" color="background" dense flat dark>
-          <span> {{ Model }} List</span>
-        </v-toolbar> -->
 
         <v-card class="mb-5 rounded-md " elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <span> {{ Model }} </span>
-            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
-                mdi-reload</v-icon></a>
+
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                </v-btn>
+              </template>
+              <span>Reload</span>
+            </v-tooltip>
+
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col class="toolbaritems-button-design">
-                <v-btn @click="goToCreatePage()" small dark class="primary pt-4 pb-4">Create New +
-                </v-btn>
+
+                <v-tooltip top color="primary">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                      <v-icon color="white" class="ml-2" @click="goToCreatePage()" dark>mdi mdi-plus-circle</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Add New Timezone</span>
+                </v-tooltip>
+
+
               </v-col>
 
 

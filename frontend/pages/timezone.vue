@@ -6,12 +6,17 @@
       </v-snackbar>
     </div>
     <v-dialog v-model="dialog" max-width="1100">
-      <v-card>
-        <v-card-title>
-          {{ Module }}
-        </v-card-title>
 
-        <v-card-text>
+
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          {{ Module }}
+          <v-spacer></v-spacer>
+          <v-icon @click="dialog = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text class="mt-2">
           <v-row>
             <v-col>
               <input style="padding-top: 8px;" class="form-control" v-model="editedItem.timezone_name" />
@@ -88,22 +93,34 @@
         </v-card-text>
 
         <v-card-actions v-if="!readOnly">
-          <v-btn small color="primary" @click="submit">Submit</v-btn>
           <v-btn small color="background white--text" @click="reset">Reset</v-btn>
-          <v-btn small color="grey white--text" @click="close">Close</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn small color="primary" @click="submit">Submit</v-btn>
+
+
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="syncDeviceDialog" max-width="1100">
+
+
       <v-card>
-        <v-card-title>
+        <v-card-title dense class=" primary  white--text background">
           Sync Device
+          <v-spacer></v-spacer>
+          <v-icon @click="syncDeviceDialog = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
         </v-card-title>
         <v-card-text>
+
+
+
+
           <v-progress-linear v-if="loading_devicesync" :active="loading_devicesync" :indeterminate="loading_devicesync"
             absolute color="primary"></v-progress-linear>
-          <table style="width:100%;">
+          <table style="width:100%;" class="mt-2">
             <thead>
               <tr class="background white--text" dark>
                 <th style="width:20%;">Device ID</th>
@@ -125,9 +142,9 @@
               </tr>
             </tbody>
           </table>
-          <br />
+          <!-- <br />
           <v-btn small color="grey white--text" @click="syncDeviceDialog = false">
-            Close</v-btn>
+            Close</v-btn> -->
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -151,14 +168,40 @@
     <v-card>
 
       <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <v-toolbar-title><span> Timezones List</span></v-toolbar-title> <a style="padding-left:10px"
-          title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi mdi-reload</v-icon></a>
+        <v-toolbar-title><span> Timezones List</span></v-toolbar-title>
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+            </v-btn>
+          </template>
+          <span>Reload</span>
+        </v-tooltip>
+
+
+
         <v-spacer></v-spacer>
-        <v-btn @click="openDeviceDialog" small color="primary" class=" mr-2">
-          Sync Device <v-icon class="mx-1">mdi-laptop</v-icon>
-        </v-btn>
-        <v-btn @click="dialog = true" small color="primary" class=" ">
-          {{ Module }} <v-icon class="mx-1">mdi-plus</v-icon></v-btn>
+
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+              <v-btn @click="openDeviceDialog" small color="primary" class=" mr-2">
+                Sync Device <v-icon class="mx-1">mdi-laptop</v-icon>
+              </v-btn>
+            </v-btn>
+          </template>
+          <span>Sync To Devices</span>
+        </v-tooltip>
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+              <v-btn @click="dialog = true" small color="primary" class=" ">
+                {{ Module }} <v-icon class="mx-1">mdi-plus</v-icon></v-btn>
+            </v-btn>
+          </template>
+          <span>Add New Timezone</span>
+        </v-tooltip>
+
 
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">

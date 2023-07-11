@@ -35,6 +35,7 @@ function getDatesInRange(startDate, endDate) {
 
   nohup php artisan queue:work --daemon &   
   //background run   
+  php artisan task:check_device_health
 
 SDK  Live port : 9001
 SDK  Live port : 9001
