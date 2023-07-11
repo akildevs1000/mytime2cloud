@@ -102,6 +102,10 @@ class ReportController extends Controller
             $q->where('status', "M");
         });
 
+        $model->when($request->status == "ME", function ($q) {
+            $q->where('status', "ME");
+        });
+
         $model->when($request->late_early == "L", function ($q) {
             $q->where('late_coming', "!=", "---");
         });
