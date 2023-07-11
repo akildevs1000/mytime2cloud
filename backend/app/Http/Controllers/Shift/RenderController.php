@@ -37,6 +37,10 @@ class RenderController extends Controller
 
         $data = $this->getLogs($currentDate, $company_id, $UserID, $shift_type_id);
 
+        if (!count($data)) {
+            return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
+        }
+
         $AttendancePayload = [
             "status" => count($data)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
             "shift_type_id" => $shift_type_id,
