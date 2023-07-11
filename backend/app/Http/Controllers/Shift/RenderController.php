@@ -252,20 +252,6 @@ class RenderController extends Controller
         }
     }
 
-    public function deleteOldRecord($items)
-    {
-        try {
-            $model = Attendance::query();
-            $model->whereDate("date", $items['date']);
-            $model->where("employee_id", $items['employee_id']);
-            $model->where("company_id", $items['company_id'])->delete();
-
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
     public function renderOff(Request $request, $company_id = 0)
     {
         $date = $request->date ?? date("Y-m-d");
@@ -316,7 +302,9 @@ class RenderController extends Controller
 
     public function renderAbsent(Request $request, $company_id = 0)
     {
-        return $this->renderAbsentScript($company_id, $request->date);
+        $msg = $this->renderAbsentScript($company_id, $request->date);
+
+        return $msg;
     }
 
     public function renderAbsentCron($company_id = 0)
@@ -334,8 +322,8 @@ class RenderController extends Controller
 
         $model->whereNot("shift_id", -1);
 
-        $model->whereDoesntHave("attendances", function ($q) use ($company_id, $date) {
-            $q->whereDate('date', $date);
+        $model->whereDoesntHave("attendance_logs", function ($q) use ($company_id, $date) {
+            $q->whereDate('LogTime', $date);
             $q->where("company_id", $company_id);
         });
 
@@ -359,11 +347,33 @@ class RenderController extends Controller
         }
 
         try {
-            Attendance::insert($records);;
+
+            $UserIds = array_column($records, "employee_id");
+
+            $model = Attendance::query();
+            $model->where("company_id", $company_id);
+            $model->where("date", $date);
+            $model->whereIn("employee_id", $UserIds);
+            $model->delete();
+            $model->insert($records);
 
             $NumberOfEmployee = count($records);
 
-            return "$NumberOfEmployee employee(s) absent. Employee IDs: " . array_column($records, "employee_id");
+            return "$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds);
+        } catch (\Exception $e) {
+            return $e;
+        }
+    }
+
+    public function deleteOldRecord($items)
+    {
+        try {
+            $model = Attendance::query();
+            $model->whereDate("date", $items['date']);
+            $model->where("employee_id", $items['employee_id']);
+            $model->where("company_id", $items['company_id'])->delete();
+
+            return true;
         } catch (\Exception $e) {
             return false;
         }
