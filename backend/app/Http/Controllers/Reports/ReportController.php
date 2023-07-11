@@ -94,6 +94,10 @@ class ReportController extends Controller
             $q->where('status', "A");
         });
 
+        $model->when($request->status == "O", function ($q) {
+            $q->where('status', "O");
+        });
+
         $model->when($request->status == "M", function ($q) {
             $q->where('status', "M");
         });

@@ -65,6 +65,11 @@ class ScheduleEmployee extends Model
         return $this->hasMany(Attendance::class, 'employee_id', 'employee_id');
     }
 
+    public function attendance_logs()
+    {
+        return $this->hasMany(AttendanceLog::class, 'UserID', 'employee_id');
+    }
+
     // public function device()
     // {
     //     return $this->hasOneThrough(AttendanceLog::class, Device::class,"employee_id","device_id","id","id");
