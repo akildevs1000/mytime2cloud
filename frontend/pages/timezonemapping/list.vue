@@ -85,7 +85,7 @@
             <template v-slot:item.employees="{ item }">
 
               <v-chip small class="primary ma-1" v-for="(subitem, index) in item.employee_id.slice(0, 3)" :key="index">
-                {{ caps(subitem.display_name + " : " + subitem.employee_id) }}
+                {{ caps(subitem.first_name + " " + subitem.last_name + " : " + subitem.employee_id) }}
 
               </v-chip>
               <v-btn small warning @click="displayView(item.id)" v-if="item.employee_id.length > 3">
@@ -161,7 +161,7 @@ export default {
       tableColumns: [],
       loading: false,
       snackbar: false,
-      color: "primary",
+      color: "black",
       pagination: {
         current: 1,
         total: 0,
@@ -314,13 +314,13 @@ export default {
         options.params['additional_params'] = additional_params;
       this.loading = true;
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        if (additional_params != '' && data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
-          this.loading = false;
-          return false;
-        }
+        // if (additional_params != '' && data.data.length == 0) {
+        //   this.snack = true;
+        //   this.snackColor = 'error';
+        //   this.snackText = 'No Results Found';
+        //   this.loading = false;
+        //   return false;
+        // }
         this.data = data.data;
         this.total = this.data.length;
         this.pagination.current = data.current_page;

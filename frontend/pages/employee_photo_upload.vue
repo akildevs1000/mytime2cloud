@@ -89,7 +89,7 @@
                   </v-col>
                   <v-col col=" 2">
                     <v-img v-if="user.profile_picture != ''" style="border-radius: 50%;   width: 40px"
-                      :src="user.profile_picture">
+                      :src="user.profile_picture || '/no-profile-image.jpg'">
                     </v-img>
                   </v-col>
                 </v-row>
