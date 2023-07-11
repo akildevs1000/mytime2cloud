@@ -63,6 +63,6 @@ class AttendanceLog extends Model
     }
     public function last_reason()
     {
-        return $this->hasOne(Reason::class, "id", "reasonable_id");
+        return $this->hasOne(Reason::class, "id", "reasonable_id")->latest();
     }
 }

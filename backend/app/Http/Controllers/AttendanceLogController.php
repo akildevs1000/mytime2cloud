@@ -17,6 +17,9 @@ class AttendanceLogController extends Controller
     {
 
         return $model->where("company_id", $request->company_id)
+            ->with('last_reason', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            })
             ->with('employee', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
@@ -45,19 +48,19 @@ class AttendanceLogController extends Controller
             })
             ->when($request->filled('search_device_name'), function ($q) use ($request) {
                 $key = strtolower($request->search_device_name);
-                $q->whereHas('device', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+                $q->whereHas('device', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
             })
             ->when($request->filled('search_device_location'), function ($q) use ($request) {
                 $key = strtolower($request->search_device_location);
-                $q->whereHas('device', fn(Builder $query) => $query->where('location', 'ILIKE', "$key%"));
+                $q->whereHas('device', fn (Builder $query) => $query->where('location', 'ILIKE', "$key%"));
             })
             ->when($request->filled('search_employee_name'), function ($q) use ($request) {
                 $key = strtolower($request->search_employee_name);
-                $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
+                $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
             })
             ->when($request->filled('search_department_name'), function ($q) use ($request) {
                 $key = strtolower($request->search_department_name);
-                $q->whereHas('employee.department', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+                $q->whereHas('employee.department', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
             })
 
             ->when($request->filled('search_device_id'), function ($q) use ($request) {
@@ -447,7 +450,7 @@ class AttendanceLogController extends Controller
         });
         $model->when($request->filled('search_device_name'), function ($q) use ($request) {
             $key = strtolower($request->search_device_name);
-            $q->whereHas('device', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+            $q->whereHas('device', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
         });
         $model->when($request->filled('search_device_id'), function ($q) use ($request) {
             $q->where('DeviceID', 'LIKE', "$request->search_device_id%");
