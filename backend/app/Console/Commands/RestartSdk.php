@@ -34,7 +34,7 @@ class RestartSdk extends Command
             echo "SDK restarted successfully\n";
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: RestartSdk. Error Details: ' . $th);
-            echo "[" . date("Y-m-d H:i:s") . "] Cron: SyncAbsent. Error occurred while inserting logs.\n";
+            echo "[" . date("Y-m-d H:i:s") . "] Cron: RestartSdk. Error occurred while inserting logs.\n";
         }
     }
 }
