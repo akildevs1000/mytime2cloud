@@ -17,9 +17,6 @@ class AttendanceLogController extends Controller
     {
 
         return $model->where("company_id", $request->company_id)
-            ->with('last_reason', function ($q) use ($request) {
-                $q->where('company_id', $request->company_id);
-            })
             ->with('employee', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
