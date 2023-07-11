@@ -669,7 +669,7 @@ export default {
       this.resetErrorMessages();
       // this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
       // this.leftEmployees = [];
-      this.rightEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name == '---' || el.timezone.timezone_id == 1)
+      this.rightEmployees = this.rightEmployees.concat(this.leftEmployees.filter((el) => el.timezone.timezone_name == '---' || el.timezone.timezone_id == 1));
 
       this.leftEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name != '---' && el.timezone.timezone_id != 1);
       this.rightEmployees = this.sortObject(this.rightEmployees);
@@ -746,12 +746,8 @@ export default {
       this.resetErrorMessages();
       //this.rightDevices = this.rightDevices.concat(this.leftDevices);
       //this.leftDevices = [];
-
       this.rightDevices = this.rightDevices.concat(this.leftDevices.filter((el) => el.status.name == "active"));
-
       this.leftDevices = this.leftDevices.filter((el) => el.status.name == "inactive");
-
-      console.log("this.rightDevices", this.rightDevices);
       this.rightDevices = this.sortObjectD(this.rightDevices);
       this.verifySubmitButton();
     },

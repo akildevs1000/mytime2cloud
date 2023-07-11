@@ -742,9 +742,9 @@ export default {
       this.resetErrorMessages();
       // this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
       // this.leftEmployees = [];
-      this.rightEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name == '---' || el.timezone.timezone_id == this.timezonesselected || el.timezone.timezone_id == 1);
+      this.rightEmployees = this.rightEmployees.concat(this.leftEmployees.filter((el) => el.timezone.timezone_name == '---' || el.timezone.timezone_id == 1));
 
-      this.leftEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_id != 1);
+      this.leftEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_id != 1 && el.timezone.timezone_id != this.timezonesselected);
 
       this.rightEmployees = this.sortObject(this.rightEmployees);
       this.verifySubmitButton();
