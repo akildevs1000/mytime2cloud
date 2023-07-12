@@ -5,13 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-row class="mt-5 mb-5">
-      <v-col cols="6">
-        <h3>Device</h3>
-        <div>Dashboard / Device</div>
-      </v-col>
-      <v-col cols="6"> </v-col>
-    </v-row>
+
 
     <v-row>
       <!-- <v-col xs="12" sm="12" md="3" cols="12">
@@ -24,13 +18,19 @@
       </v-col> -->
     </v-row>
 
-    <v-card class="mb-5" elevation="0">
+    <v-card class="mb-5 mt-3" elevation="0">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
         <v-toolbar-title><span> Devices List</span></v-toolbar-title>
 
-        <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
-            mdi-reload</v-icon></a>
 
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+            </v-btn>
+          </template>
+          <span>Reload</span>
+        </v-tooltip>
 
         <v-spacer></v-spacer>
         <!-- <v-toolbar-items>
@@ -423,20 +423,3 @@ export default {
 };
 </script>
 
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  text-align: left;
-  padding: 7px;
-}
-
-tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-</style>

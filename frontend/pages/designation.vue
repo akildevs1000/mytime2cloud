@@ -19,12 +19,14 @@
 
     <v-row>
       <v-dialog v-model="dialogForm" :fullscreen="false" width="500px">
-        <v-card elevation="0">
-          <v-toolbar color="background" dense flat dark>
+        <v-card>
+          <v-card-title dense class=" primary  white--text background">
             <span>{{ formTitle }} {{ Model }}</span>
-
-          </v-toolbar>
-          <v-divider class="py-0 my-0"></v-divider>
+            <v-spacer></v-spacer>
+            <v-icon @click="dialogForm = false" outlined dark color="white">
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
           <v-card-text>
             <v-container>
               <v-row class="mt-2">
@@ -41,8 +43,8 @@
                   <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
                 </v-col>
                 <v-card-actions>
-                  <v-col md="6" lg="6" style="padding: 0px">
-                    <v-btn class="error" @click="close"> Cancel </v-btn></v-col>
+                  <!-- <v-col md="6" lg="6" style="padding: 0px">
+                    <v-btn class="error" @click="close"> Cancel </v-btn></v-col> -->
                   <v-col md="6" lg="6" class="text-right" style="padding: 0px">
                     <v-btn class="primary" @click="save">Save</v-btn>
                   </v-col>
@@ -56,8 +58,14 @@
         <v-card class="mb-5" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> {{ Model }}s List</span></v-toolbar-title>
-            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
-                mdi-reload</v-icon></a>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                </v-btn>
+              </template>
+              <span>Reload</span>
+            </v-tooltip>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col>

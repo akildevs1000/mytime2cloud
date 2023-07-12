@@ -71,15 +71,20 @@
                 </v-checkbox>
               </th>
             </tr>
-            <v-btn v-if="can(`assign_permission_edit`)" dark small color="primary" class="mx-1 my-4" @click="save(item)">
-              Submit
-            </v-btn>
+
+
+          </table>
+
+          <v-card-actions>
             <v-btn v-if="can(`assign_permission_delete`)" dark small color="error" class="mx-1 my-4"
               @click="deleteItem(item)">
               Delete
             </v-btn>
-          </table>
-
+            <v-spacer></v-spacer>
+            <v-btn v-if="can(`assign_permission_edit`)" dark small color="primary" class="mx-1 my-4 " @click="save(item)">
+              Submit
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>

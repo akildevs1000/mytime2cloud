@@ -14,7 +14,8 @@
           <v-container>
             <v-row>
               <v-col cols="12">
-                <v-text-field outlined dense v-model="editedItem.name" label="Role"></v-text-field>
+                <v-label>Role Name</v-label>
+                <v-text-field class="mt-1" outlined dense v-model="editedItem.name"></v-text-field>
                 <span v-if="errors && errors.name" class="error--text">
                   {{ errors.name[0] }}</span>
               </v-col>
@@ -160,6 +161,10 @@ export default {
 
   methods: {
     dispalyNewDialog() {
+      this.errors = [];
+      this.editedItem = { name: "" };
+      this.editedIndex = -1;
+      this.formTitle = "New";
       this.dialogNewRole = true;
     },
 
@@ -301,11 +306,4 @@ export default {
   },
 };
 </script>
-<style scoped>
-.toolbar-button-design {
-  height: 38px !important;
-  /* vertical-align: bottom; */
-  margin: auto;
-  border-radius: 5px;
-}
-</style>
+

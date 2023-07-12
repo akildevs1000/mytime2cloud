@@ -8,11 +8,15 @@
     <div v-if="can(`employee_view`)">
       <v-row>
         <v-dialog v-model="dialogFormDesignation" :fullscreen="false" width="500px">
-          <v-card elevation="0">
-            <v-toolbar color="background" dense flat dark>
+
+          <v-card>
+            <v-card-title dense class=" primary  white--text background">
               <span>New Designation</span>
-            </v-toolbar>
-            <v-divider class="py-0 my-0"></v-divider>
+              <v-spacer></v-spacer>
+              <v-icon @click="dialogFormDesignation = false" outlined dark color="white">
+                mdi mdi-close-circle
+              </v-icon>
+            </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row class="mt-2">
@@ -30,9 +34,10 @@
                   </v-col>
                   <v-card-actions>
                     <v-col md="6" lg="6" style="padding: 0px">
-                      <v-btn class="error" @click="close">
+                      <!-- <v-btn class="error" @click="close">
                         Cancel
-                      </v-btn></v-col>
+                      </v-btn> -->
+                    </v-col>
                     <v-col md="6" lg="6" class="text-right" style="padding: 0px">
                       <v-btn class="primary" @click="savenewDesignation">Save</v-btn>
                     </v-col>
@@ -43,11 +48,14 @@
           </v-card>
         </v-dialog>
         <v-dialog v-model="dialogFormSubdepartment" :fullscreen="false" width="500px">
-          <v-card elevation="0">
-            <v-toolbar color="background" dense flat dark>
-              <span>New Sub Department </span>
-            </v-toolbar>
-            <v-divider class="py-0 my-0"></v-divider>
+          <v-card>
+            <v-card-title dense class=" primary  white--text background">
+              <span>New Sub Department</span>
+              <v-spacer></v-spacer>
+              <v-icon @click="dialogFormSubdepartment = false" outlined dark color="white">
+                mdi mdi-close-circle
+              </v-icon>
+            </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row class="mt-2">
@@ -67,9 +75,10 @@
 
                   <v-card-actions>
                     <v-col md="6" lg="6" style="padding: 0px">
-                      <v-btn class="error" @click="close">
+                      <!-- <v-btn class="error" @click="close">
                         Cancel
-                      </v-btn></v-col>
+                      </v-btn> -->
+                    </v-col>
                     <v-col md="6" lg="6" class="text-right" style="padding: 0px">
                       <v-btn class="primary" @click="saveSubDepartment">Save</v-btn>
                     </v-col>
@@ -80,11 +89,15 @@
           </v-card>
         </v-dialog>
         <v-dialog v-model="dialogForm" :fullscreen="false" width="500px">
-          <v-card elevation="0">
-            <v-toolbar color="background" dense flat dark>
+
+          <v-card>
+            <v-card-title dense class=" primary  white--text background">
               <span>{{ formTitle }} {{ Model }}</span>
-            </v-toolbar>
-            <v-divider class="py-0 my-0"></v-divider>
+              <v-spacer></v-spacer>
+              <v-icon @click="dialogForm = false" outlined dark color="white">
+                mdi mdi-close-circle
+              </v-icon>
+            </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row class="">
@@ -92,26 +105,27 @@
                     <label class="col-form-label">Department Name<span class="text-danger">*</span></label>
                     <v-text-field dense outlined :hide-details="!errors.name" type="text" v-model="editedItem.name"
                       :error="errors.name" :error-messages="errors && errors.name ? errors.name[0] : ''
-                        "></v-text-field>
+                        " placeholder="Department Name"></v-text-field>
                   </v-col>
                   <v-col md="12" sm="12" cols="12" dense>
                     <label class="col-form-label">Email<span class="text-danger">*</span></label>
                     <v-text-field dense outlined :hide-details="!errors.email" type="text" v-model="editedItem.email"
                       :error="errors.email" :error-messages="errors && errors.email ? errors.email[0] : ''
-                        "></v-text-field>
+                        " placeholder="Email"></v-text-field>
                   </v-col>
                   <v-col md="12" sm="12" cols="12" dense>
                     <label class="col-form-label">Password<span class="text-danger">*</span></label>
-                    <v-text-field dense outlined :hide-details="!errors.password" type="text"
+                    <v-text-field dense outlined :hide-details="!errors.password" :type="show1 ? 'text' : 'password'"
                       v-model="editedItem.password" :error="errors.password" :error-messages="errors && errors.password ? errors.password[0] : ''
-                        "></v-text-field>
+                        " placeholder="Password" @click:append="show1 = !show1"
+                      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"></v-text-field>
                   </v-col>
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-col md="12" sm="12" cols="12" class="pa-0 text-right">
-                      <v-btn small dark class="background" @click="close">
+                      <!-- <v-btn small dark class="background" @click="close">
                         Cancel
-                      </v-btn>
+                      </v-btn> -->
                       <v-btn small class="primary" @click="save">Save</v-btn>
                     </v-col>
                   </v-card-actions>
@@ -124,9 +138,20 @@
           <v-card class="mb-5 rounded-md" elevation="0">
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
-              <a style="padding-left: 10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon
-                  class="mx-1">mdi mdi-reload</v-icon></a>
+
+
+              <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                    <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                  </v-btn>
+                </template>
+                <span>Reload</span>
+              </v-tooltip>
               <v-spacer></v-spacer>
+              <v-btn to="/designation" small class="primary  mr-1">
+                View Designations
+              </v-btn>
               <v-btn @click="newDesignation" small class="primary">
                 Designation +
               </v-btn>
@@ -197,6 +222,7 @@
                   v-if="item.children.length > 3">
                   View all..
                 </v-chip>
+
               </template>
               <template v-slot:item.designations="{ item }">
                 <v-edit-dialog v-if="item.children.length > 0" large save-text="Reset" cancel-text="Ok"
@@ -217,10 +243,13 @@
                       " v-model="datatable_search_textbox" label="Search   Designation name"></v-text-field>
                   </template>
                 </v-edit-dialog>
-                <v-chip small class="primary ma-1" style="color: black" to="/designation"
+                <!-- <v-chip small class="primary ma-1" style="color: black" to="/designation"
                   v-if="item.designations.length > 3">
                   View all
                 </v-chip>
+                <v-chip small class="primary ma-1" style="color: black" to="/designation" v-else>
+                  View
+                </v-chip> -->
               </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
@@ -266,6 +295,7 @@
 <script>
 export default {
   data: () => ({
+    show1: false,
     dialogFormDesignation: false,
 
     new_Designation_name: "",

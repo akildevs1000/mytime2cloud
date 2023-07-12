@@ -30,11 +30,15 @@
     </v-dialog>
 
     <v-dialog v-model="dialog" width="500px">
-      <v-card>
-        <v-toolbar flat small dense dark class="background">
-          <span class="headline">{{ formTitle }} </span>
-        </v-toolbar>
 
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          <span class="headline">{{ formTitle }} </span>
+          <v-spacer></v-spacer>
+          <v-icon @click="dialog = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
         <v-card-text>
           <v-container>
 
@@ -85,7 +89,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="error" small @click="close"> Cancel </v-btn>
+          <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
           <v-btn class="primary" small @click="save">Save</v-btn>
         </v-card-actions>
       </v-card>
@@ -97,10 +101,24 @@
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> Dashboard / {{ Model }} List</span></v-toolbar-title>
-            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
-                mdi-reload</v-icon></a>
-            <a style="padding-left:10px" @click="dialogFilter = true"><v-icon class="mx-1">mdi
-                mdi-calendar-blank-outline</v-icon></a>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                </v-btn>
+              </template>
+              <span>Reload</span>
+            </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="dialogFilter = true" dark>mdi
+                    mdi-calendar-blank-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>Select Year</span>
+            </v-tooltip>
+
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
