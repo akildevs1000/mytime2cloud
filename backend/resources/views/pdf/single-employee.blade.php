@@ -93,7 +93,7 @@
                         <th style="text-align: center; border :none">Week Off</th>
                     </tr>
                     <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:green">
+                        <td style="text-align: center; border :none; padding:5px;color:orange">
                             {{ $info->total_missing }}
                         </td>
                         <td style="text-align: center; border :none;color:gray">{{ $info->total_off ?? 0 }}</td>
