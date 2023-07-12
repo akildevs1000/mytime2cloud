@@ -76,18 +76,32 @@
                     <tr class="summary-header" style="border: none;background-color:#eeeeee">
                         <th style="text-align: center; border :none; padding:5px">Present</th>
                         <th style="text-align: center; border :none">Absent</th>
-                        <th style="text-align: center; border :none">Week Off</th>
                     </tr>
                     <tr style="border: none">
                         <td style="text-align: center; border :none; padding:5px;color:green">
                             {{ $info->total_present }}
                         </td>
                         <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
+                    </tr>
+                </table>
+                <table class="summary-table"
+                    style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
+                    <tr style="border: none">
+                    </tr>
+                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                        <th style="text-align: center; border :none; padding:5px">Missing</th>
+                        <th style="text-align: center; border :none">Week Off</th>
+                    </tr>
+                    <tr style="border: none">
+                        <td style="text-align: center; border :none; padding:5px;color:green">
+                            {{ $info->total_missing }}
+                        </td>
                         <td style="text-align: center; border :none;color:gray">{{ $info->total_off ?? 0 }}</td>
                     </tr>
                 </table>
                 <br>
             </td>
+            
             </td>
         </tr>
     </table>
@@ -182,6 +196,8 @@
                     $statusColor = 'red';
                 } elseif ($employee->status == 'O') {
                     $statusColor = 'gray';
+                } elseif ($employee->status == 'M') {
+                    $statusColor = 'orange';
                 } elseif ($employee->status == '---') {
                     $statusColor = '#f34100ed';
                 }
