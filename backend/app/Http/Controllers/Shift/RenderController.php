@@ -278,11 +278,26 @@ class RenderController extends Controller
     public function renderOff(Request $request, $company_id = 0)
     {
         $date = $request->date ?? date("Y-m-d");
+
         $UserIds = $request->UserIds ?? [];
 
+        $msg =  $this->renderOffScript($company_id, $date, $UserIds);
+
+        return $msg;
+    }
+
+    public function renderOffCron($company_id = 0)
+    {
+        $msg =  $this->renderOffScript($company_id,  date("Y-m-d"));
+
+        return $this->getMeta("Sync Off", $msg . ".\n");
+    }
+
+    public function renderOffScript($company_id, $date, $UserIds = [])
+    {
         try {
             $model = ScheduleEmployee::query();
-            // $model->where("shift_id", -1);
+            $model->where("shift_id", -1);
             $model->where("company_id", $company_id);
             $model->when(count($UserIds), function ($q) use ($UserIds) {
                 return $q->whereIn("employee_id", $UserIds);
@@ -304,7 +319,7 @@ class RenderController extends Controller
             }
 
             $model = Attendance::query();
-            // $model->where("shift_id", -1);
+            $model->where("shift_id", -1);
             $model->where("company_id", $company_id);
             $model->where("date", $date);
             $model->where("status", "O");
@@ -316,8 +331,13 @@ class RenderController extends Controller
             $model->delete();
 
             $model->insert($records);
+            
+            $UserIds = array_column($records, "employee_id");
 
-            return count($records) . " Employee has been marked as OFF";
+            $NumberOfEmployee = count($records);
+
+            return "$NumberOfEmployee Employee has been marked as OFF: " . json_encode($UserIds);
+
         } catch (\Exception $e) {
             return false;
         }

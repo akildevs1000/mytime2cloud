@@ -159,6 +159,17 @@ class Kernel extends ConsoleKernel
         foreach ($companyIds as $companyId) {
 
             $schedule
+                ->command("task:sync_off $companyId")
+                // ->everyMinute()
+                ->dailyAt('1:30')
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/$date-offs-$companyId.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        }
+
+        foreach ($companyIds as $companyId) {
+
+            $schedule
                 ->command("task:sync_absent $companyId")
                 // ->everyMinute()
                 ->dailyAt('3:30')
@@ -166,17 +177,6 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("$date-absents-$companyId.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
-
-        // // -----------for test-------------
-
-        // $schedule
-        //     ->command('task:sync_absent')
-        //     ->everyMinute()
-        //     // ->dailyAt('1:00')
-        //     ->appendOutputTo(storage_path("logs/$date-absents.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-        // return;
 
         // ReportNotification
 
