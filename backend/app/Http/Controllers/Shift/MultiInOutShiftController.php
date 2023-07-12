@@ -95,7 +95,7 @@ class MultiInOutShiftController extends Controller
         return $model->get(["UserID", "company_id"])->groupBy(["company_id", "UserID"])->toArray();
     }
 
-    public function getSchedule($currentDate, $companyId, $UserID, $shift_type_id)
+    public function getMultiInOutSchedule($currentDate, $companyId, $UserID, $shift_type_id)
     {
         $schedule = ScheduleEmployee::where('company_id', $companyId)
             ->where("employee_id", $UserID)
@@ -145,7 +145,7 @@ class MultiInOutShiftController extends Controller
 
         foreach ($data as $UserID => $data) {
 
-            $schedule = $this->getSchedule($date, $companyId, $UserID, $shift_type_id);
+            $schedule = $this->getMultiInOutSchedule($date, $companyId, $UserID, $shift_type_id);
 
             if (!$schedule) {
                 continue;
