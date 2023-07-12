@@ -22,7 +22,7 @@ class Holidays extends Model
 
         // Order by name ASC
         static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('id', 'desc');
+            $builder->orderBy('start_date', 'asc');
         });
     }
 }

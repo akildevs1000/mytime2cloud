@@ -106,8 +106,8 @@
         <span v-else>
           <v-icon @click="snackNotificationText != '' && snackNotification == true" color="success">mdi
             mdi-bell-ring </v-icon>
-          <v-chip title="Pending Count" color="black" style="text-color:#FFF" to="/leaves">{{
-            pendingLeavesCount }}</v-chip>
+          <v-chip title="Pending Count" bold color="white" style="color:black" to="/leaves"><strong>{{
+            pendingLeavesCount }}</strong></v-chip>
         </span>
 
 

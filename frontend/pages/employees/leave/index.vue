@@ -7,11 +7,16 @@
     </div>
 
     <v-dialog v-model="dialogLeaveGroup" width="600px">
+
       <v-card>
-        <v-toolbar flat small dense dark class="background">
-          <span class="headline">Statistics </span>
-        </v-toolbar>
-        <v-card-text style="padding:5px">
+        <v-card-title dense class=" primary  white--text background">
+          Statistics
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogLeaveGroup = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
 
           <v-data-table v-model="ids" item-key="id" :headers="headersGroupInfo" :items="DialogLeaveGroupData"
             :hide-default-footer="true" class="elevation-1">
@@ -39,12 +44,17 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialog" width="1000px">
-      <v-card>
 
-        <v-toolbar flat small dense dark class="background">
+
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
           <span class="headline" v-if="editedIndex == -1">New Leave Application </span>
           <span class="headline" v-else>Edit Application </span>
-        </v-toolbar>
+          <v-spacer></v-spacer>
+          <v-icon @click="dialog = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
         <v-card-text>
           <v-container>
 
@@ -110,7 +120,8 @@
 
               </v-col>
               <v-col cols="12">
-                <label v-if="editedIndex != -1"><strong> Uploaded Documents </strong> ({{ document_list.length }})</label>
+                <label v-if="editedIndex != -1"><strong> Uploaded Documents </strong> ({{ document_list.length
+                }})</label>
 
                 <v-btn title="Maximum file upload size is 100Kb" cols="2" @click="openDialogUploadDocuments" small dense
                   class="  primary mb-2" style="float:right">Add
@@ -187,7 +198,7 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-btn class="error" small @click="close"> Cancel </v-btn>
+
           <v-spacer></v-spacer>
 
           <v-btn v-if="newLeaveApplication" class="primary" small @click="save">Save</v-btn>
@@ -197,7 +208,15 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialogUploadDocuments" width="800px" height="400px">
+
       <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          Documents
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogUploadDocuments = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
@@ -261,10 +280,15 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialogView" width="1000px">
+
       <v-card>
-        <v-toolbar flat small dense dark class="background">
-          <span class="headline">Leave Information </span>
-        </v-toolbar>
+        <v-card-title dense class=" primary  white--text background">
+          Leave Information
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogView = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
@@ -435,15 +459,7 @@
               </v-col>
             </v-row>
 
-            <v-card-actions class="mt-4">
-              <v-btn class="error" small @click="close"> Close </v-btn>
-              <v-spacer></v-spacer>
-              <!--  <v-btn class="warning" v-if="dialogViewObject.status == 0" small @click="rejectLeave(dialogViewObject.id)">
-                Reject </v-btn>
-              <v-spacer></v-spacer>
-              <v-btn class="primary" v-if="dialogViewObject.status == 0" small
-                @click="approveLeave(dialogViewObject.id)">Approve</v-btn>-->
-            </v-card-actions>
+
           </v-container>
         </v-card-text>
 
@@ -456,16 +472,32 @@
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> Dashboard / Applications List</span></v-toolbar-title>
-            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="clearFilters()"><v-icon class="mx-1">mdi
-                mdi-reload</v-icon></a>
 
-            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
-                mdi-filter</v-icon></a>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                </v-btn>
+              </template>
+              <span>Reload</span>
+            </v-tooltip>
+
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="toggleFilter" dark>mdi
+                    mdi-filter</v-icon>
+                </v-btn>
+              </template>
+              <span>Filter</span>
+            </v-tooltip>
+
+
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col>
                 <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="dialogLeaveGroup = true"
-                  class="mb-2">Statistics <v-icon>mdi-information</v-icon></v-btn>
+                  class="mb-2"> leaves count <v-icon>mdi-information</v-icon></v-btn>
               </v-col>
               <v-col>
                 <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="openNewDialog()"

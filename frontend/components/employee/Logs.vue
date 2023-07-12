@@ -52,8 +52,15 @@
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> Attendances Logs</span></v-toolbar-title>
 
-            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="firstLoad"><v-icon class="mx-1">mdi
-                mdi-reload</v-icon></a>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="firstLoad()" dark>mdi mdi-reload</v-icon>
+                </v-btn>
+              </template>
+              <span>Reload</span>
+            </v-tooltip>
+
           </v-toolbar>
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
             {{ snackText }}
@@ -231,7 +238,7 @@ export default {
   },
   methods: {
     firstLoad() {
-      this.loading = true;
+
 
       this.payload.from_date = this.getDate();
       this.payload.to_date = this.getDate();
@@ -239,6 +246,7 @@ export default {
       this.payload.to_date_txt = this.getDate();
 
       this.payload.UserID = this.$auth.user.employee.id;
+      this.getDataFromApi();
     },
     datatable_open() {
       this.datatable_search_textbox = '';
@@ -300,7 +308,7 @@ export default {
           this.loading = false;
         });
     },
-    searchIt() { 
+    searchIt() {
       this.payload.from_date_txt = this.payload.from_date;
       this.payload.to_date_txt = this.payload.to_date;
 
