@@ -95,31 +95,14 @@ class MultiInOutShiftController extends Controller
         return $model->get(["UserID", "company_id"])->groupBy(["company_id", "UserID"])->toArray();
     }
 
-    public function getSchedule($currentDate, $companyId, $UserID, $shift_type_id)
+    public function getMultiInOutSchedule($currentDate, $companyId, $UserID, $shift_type_id)
     {
         $schedule = ScheduleEmployee::where('company_id', $companyId)
             ->where("employee_id", $UserID)
             ->where("shift_type_id", $shift_type_id)
             ->first();
 
-        if (!$schedule || !$schedule->shift) {
-            return false;
-        }
-
-        $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
-
-        $start_range = $currentDate . " " . $schedule->shift->on_duty_time;
-
-        $end_range = $nextDate . " " . $schedule->shift->off_duty_time;
-
-        return [
-            "roster_id" => $schedule["roster_id"],
-            "shift_id" => $schedule["shift_id"],
-            "range" => [$start_range, $end_range],
-            "isOverTime" => $schedule["isOverTime"],
-            "working_hours" => $schedule["shift"]["working_hours"],
-            "overtime_interval" => $schedule["shift"]["overtime_interval"],
-        ];
+        return $this->getSchedule($currentDate, $schedule);
     }
 
     public function getLogsWithInRange($companyId, $UserID, $range, $shift_type_id)
@@ -145,10 +128,10 @@ class MultiInOutShiftController extends Controller
 
         foreach ($data as $UserID => $data) {
 
-            $schedule = $this->getSchedule($date, $companyId, $UserID, $shift_type_id);
+            $schedule = $this->getMultiInOutSchedule($date, $companyId, $UserID, $shift_type_id);
 
             if (!$schedule) {
-                continue;
+                return $this->response("Employee with $UserID SYSTEM USER ID is not scheduled yet.", null, false);
             }
 
             $UserIDs[] = $UserID;
