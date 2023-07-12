@@ -207,12 +207,11 @@
                 <template #placeholder> Loading... </template>
               </ClientOnly>
             </v-col>
-
-            <v-col cols="12">
-              <v-btn small color="primary" @click="store">
-                Submit
-              </v-btn>
+            <v-spacer></v-spacer>
+            <v-col col="2" class="text-end">
+              <v-btn small color="primary" @click="store"> Submit </v-btn>
             </v-col>
+
           </v-row>
         </v-container>
       </v-card>
