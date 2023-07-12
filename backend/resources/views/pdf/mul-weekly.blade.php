@@ -136,31 +136,39 @@
                 <td style="border: nosne;text-align:right" colspan="4">
                     <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                            <th style="text-align: center; border :none; padding:5px">EID</th>
-                            <th colspan="2" style="text-align: center; border :none">Name</th>
+                            <th colspan="2" style="text-align: center; border :none; padding:5px">EID</th>
+                            <th style="text-align: center; border :none">Name</th>
                         </tr>
                         <tr style="border: none">
-                            <td style="text-align: center; border :none; padding:5px;font-size:11px">
+                            <td colspan="2" style="text-align: center; border :none; padding:5px;font-size:11px">
                                 {{ $empID ?? '---' }}
                             </td>
-                            <td colspan="2" style="text-align: center; border:none;font-size:11px">
+                            <td style="text-align: center; border:none;font-size:11px">
                                 {{ $empName ?? '---' }}
                             </td>
                         </tr>
 
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                            <th style="text-align: center; border :none; padding:5px">Present</th>
+                            <th colspan="2" style="text-align: center; border :none; padding:5px">Present</th>
                             <th style="text-align: center; border :none">Absent</th>
-                            <th style="text-align: center; border :none">Missing</th>
                         </tr>
                         <tr style="border: none">
-                            <td style="text-align: center; border :none; padding:5px;color:green">
+                            <td colspan="2" style="text-align: center; border :none; padding:5px;color:green">
                                 {{ getStatus($employee->toArray())['P'] }}
                             </td>
                             <td style="text-align: center; border :none;color:red">
                                 {{ getStatus($employee->toArray())['A'] ?? 0 }}</td>
-                            <td style="text-align: center; border :none;color:orange">
-                                {{ getStatus($employee->toArray())['M'] ?? 0 }}</td>
+                        </tr>
+                        <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                            <th colspan="2" style="text-align: center; border :none; padding:5px">Missing</th>
+                            <th style="text-align: center; border :none">Week Off</th>
+                        </tr>
+                        <tr style="border: none">
+                            <td colspan="2" style="text-align: center; border :none; padding:5px;color:orange">
+                                {{ getStatus($employee->toArray())['M'] }}
+                            </td>
+                            <td style="text-align: center; border :none;color:gray">
+                                {{ getStatus($employee->toArray())['O'] ?? 0 }}</td>
                         </tr>
                         <tr class="summary-header" style="border: none;background-color:#eeeeee ">
                             <th colspan="2" style="text-align: center; border :none; padding:5px">Work Hours</th>
@@ -249,21 +257,18 @@
             <tr class="my-break">
                 <td colspan="17"></td>
             </tr>
+            {{-- @php $i = 0; @endphp --}}
         @endforeach
     </table>
     @php
         
         function getStatus($employeeData)
         {
-            return [
-                'A' => 10,
-                'P' => 15,
-                'M' => 20,
-            ];
-        
             $countA = 0;
             $countP = 0;
             $countM = 0;
+            $countO = 0;
+        
             foreach ($employeeData as $employee) {
                 if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
                     throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
@@ -275,12 +280,15 @@
                     $countP++;
                 } elseif ($status == 'M') {
                     $countM++;
+                } elseif ($status == 'O') {
+                    $countO++;
                 }
             }
             return [
                 'A' => $countA,
                 'P' => $countP,
                 'M' => $countM,
+                'O' => $countO,
             ];
         }
         
