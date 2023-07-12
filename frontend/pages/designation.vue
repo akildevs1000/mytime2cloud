@@ -5,8 +5,8 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-row class="mt-5 mb-5">
-      <v-col cols="6">
+    <!-- <v-row class="mt-5 mb-5">
+      <v-col cols="12">
         <div class="text-right">
 
           <v-btn small class="primary" to="/department">
@@ -15,7 +15,7 @@
 
         </div>
       </v-col>
-    </v-row>
+    </v-row> -->
 
     <v-row>
       <v-dialog v-model="dialogForm" :fullscreen="false" width="500px">
@@ -86,7 +86,7 @@
           <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
             :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1">
+            }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
             <template v-slot:item.sno="{ item, index }">
               {{ ++index }}
             </template>
@@ -134,48 +134,7 @@
               </v-menu>
             </template>
           </v-data-table>
-          <!-- <table>
-            <tr>
-              <th class="ps-5">#</th>
-              <th>Designation</th>
-              <th>Department</th>
-              <th class="text-center">Action</th>
-            </tr>
-            <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
-              color="primary"></v-progress-linear>
-            <tr v-for="(item, index) in data" :key="index">
-              <td class="ps-5">
-                <b>{{ ++index }}</b>
-              </td>
-              <td>{{ caps(item.name || "---") }}</td>
-              <td>
-                {{ caps(item.department && item.department.name) }}
-              </td>
-              <td class="text-center">
-                <v-menu bottom left>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                      <v-icon>mdi-dots-vertical</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list width="120" dense>
-                    <v-list-item @click="editItem(item)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-pencil </v-icon>
-                        Edit
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item @click="deleteItem(item)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="error" small> mdi-delete </v-icon>
-                        Delete
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </td>
-            </tr>
-          </table> -->
+
         </v-card>
 
       </v-col>
@@ -187,6 +146,12 @@
 <script>
 export default {
   data: () => ({
+    totalRowsCount: 0,
+
+    showFilters: false,
+    filters: {},
+    isFilter: false,
+
     datatable_search_textbox: '',
     filter_employeeid: '',
     snack: false,
@@ -254,6 +219,14 @@ export default {
   },
 
   watch: {
+
+    options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true,
+    },
+
     dialog(val) {
       val || this.close();
       this.errors = [];
@@ -315,10 +288,18 @@ export default {
       if (url == '') url = this.endpoint;
       this.loading = true;
 
-      let page = this.pagination.current;
+
+      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       let options = {
         params: {
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
           per_page: this.pagination.per_page,
           company_id: this.$auth.user.company.id,
         },
@@ -337,7 +318,9 @@ export default {
           this.loading = false;
           return false;
         }
+        this.totalRowsCount = data.total;
         this.data = data.data;
+
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;

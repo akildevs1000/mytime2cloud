@@ -6,12 +6,12 @@
       </v-snackbar>
     </div>
     <div v-if="!preloader">
-      <v-row class="mt-5 mb-5">
+      <!-- <v-row class="mt-5 mb-5">
         <v-col cols="10">
           <h3>Report Notification</h3>
           <div>Dashboard / Report Notification</div>
         </v-col>
-      </v-row>
+      </v-row> -->
       <v-card elevation="0" class="pa-3">
         <v-card-title>
           <label class="col-form-label"><b>Create Report Notification </b></label>

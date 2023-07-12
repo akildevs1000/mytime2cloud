@@ -34,7 +34,7 @@ class Designation extends Model
 
         // Order by name ASC
         static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('id', 'desc');
+           // $builder->orderBy('id', 'desc');
         });
     }
 }

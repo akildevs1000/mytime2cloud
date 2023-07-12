@@ -6,33 +6,35 @@
           {{ response }}
         </v-snackbar>
       </div>
-      <v-row class="mt-5 mb-10">
-        <v-col cols="10">
-          <h3>Company</h3>
-          <div>Dashboard / Company / Edit</div>
-        </v-col>
-      </v-row>
+
       <v-row>
         <v-col>
-          <v-card>
-            <v-tabs class="pt-3" color="primary" :vertical="vertical">
+          <v-card color="background">
+            <v-tabs class="pt-3" :vertical="vertical" background-color="background" dark>
+              <v-tabs-slider color="white"></v-tabs-slider>
               <v-tab>
-                <v-icon> mdi-domain </v-icon>
+                <v-icon left> mdi-domain </v-icon>
+                <span>Profile</span>
               </v-tab>
               <v-tab>
-                <v-icon> fab fa-wpforms </v-icon>
+                <v-icon left> fab fa-wpforms </v-icon>
+                <span>License</span>
               </v-tab>
               <v-tab>
-                <v-icon> mdi-account </v-icon>
+                <v-icon left> mdi-account </v-icon>
+                <span>Contact</span>
               </v-tab>
               <v-tab>
-                <v-icon> mdi-earth </v-icon>
+                <v-icon left> mdi-earth </v-icon>
+                <span>Location</span>
               </v-tab>
               <v-tab>
-                <v-icon> mdi-file </v-icon>
+                <v-icon left> mdi-file </v-icon>
+                <span>Documents</span>
               </v-tab>
               <v-tab>
-                <v-icon> mdi-lock </v-icon>
+                <v-icon left> mdi-lock </v-icon>
+                <span>Password</span>
               </v-tab>
 
               <v-tab-item>
@@ -396,7 +398,7 @@
     "></v-text-field>
                     </v-col>
                     <v-col cols="12">
-                      <div class="text-left">
+                      <div class="text-right">
                         <v-btn v-if="can('setting_company_change_password_access')" dark small :loading="loading_password"
                           color="primary" @click="update_setting">
                           Submit

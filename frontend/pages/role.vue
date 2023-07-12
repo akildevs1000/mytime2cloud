@@ -1,16 +1,20 @@
 <template>
   <div v-if="can(`role_access`)">
     <v-dialog v-model="dialogNewRole" width="500">
-      <v-card>
-        <!-- <v-toolbar flat dark class="background">
-          {{ formTitle }} {{ Model }}
-        </v-toolbar> -->
 
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          {{ formTitle }} {{ Model }}
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogNewRole = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
               <v-col cols="12">
-                <v-text-field v-model="editedItem.name" label="Role"></v-text-field>
+                <v-text-field outlined dense v-model="editedItem.name" label="Role"></v-text-field>
                 <span v-if="errors && errors.name" class="error--text">
                   {{ errors.name[0] }}</span>
               </v-col>
@@ -21,7 +25,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="error" small @click="close"> Cancel </v-btn>
+          <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
           <v-btn class="background" dark small @click="save">Save</v-btn>
         </v-card-actions>
       </v-card>
@@ -51,39 +55,44 @@
             itemsPerPageOptions: [50, 100, 500, 1000],
           }" class="elevation-1">
           <template v-slot:top>
+
             <v-card class="mb-5 rounded-md mt-3" elevation="0">
               <v-toolbar class="rounded-md" style="border-radius: 5px 5px 0px 0px" color="background" dense flat dark>
                 <span> Dashboard / Roles List</span>
-
+                <v-tooltip top color="primary">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                      <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Reload</span>
+                </v-tooltip>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
                   <!-- <v-col>
                     <v-btn v-if="can(`role_deleted`)" small color="error  " class="mr-2 mb-2"
                       @click="delteteSelectedRecords">Delete Selected Records</v-btn>
                   </v-col> -->
-
                   <v-col>
-                    <v-btn v-if="can(`role_deleted`)" small color="primary" class="mr-2 mb-2"
-                      @click="dispalyNewDialog()">Create New +
-                    </v-btn>
+                    <v-tooltip top color="primary">
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                          <v-icon color="white" class="ml-2" @click="dispalyNewDialog()" dark>mdi mdi-plus-circle</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Add New Role</span>
+                    </v-tooltip>
                   </v-col>
-
-
                 </v-toolbar-items>
               </v-toolbar>
             </v-card>
-
-            <v-toolbar flat>
-
+            <!-- <v-toolbar flat>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-text-field @input="searchIt" v-model="search" label="Search" single-line hide-details></v-text-field>
-            </v-toolbar>
+            </v-toolbar> -->
           </template>
           <template v-slot:item.name="{ item }">
-
             {{ item.name }}
-
-
           </template>
           <template v-slot:item.action="{ item }">
             <v-icon v-if="can(`role_edit`)" color="secondary" small class="mr-2" @click="editItem(item)">

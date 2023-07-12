@@ -40,7 +40,6 @@ class Kernel extends ConsoleKernel
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
-
         $schedule
             ->command('task:sync_all_shifts')
             // ->dailyAt('4:00')
@@ -89,11 +88,10 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:check_device_health')
-            // ->everyThirtyMinutes()
+            ->everyThirtyMinutes()
             ->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
 
         // PDF
         // $schedule
