@@ -1104,7 +1104,7 @@
                   >Week Off</span
                 >
 
-                <span class="primary--text" v-if="item.last_reason">
+                <span class="primary--text" v-if="item.is_manual_entry">
                   (Manual Entry)
                 </span>
               </div>
@@ -1234,7 +1234,7 @@ export default {
     time_menu: false,
     manual_time_menu: false,
     Model: "Attendance Reports",
-    endpoint: "report_multi_in_out",
+    endpoint_index: "report_multi_in_out",
     search: "",
     snackbar: false,
     add_manual_log: false,
@@ -1513,10 +1513,10 @@ export default {
     },
     getDataFromApi_DatatablFilter(filter_column, e) {
       if (filter_column != "date")
-        this.getDataFromApi(`${this.endpoint}`, filter_column, e);
+        this.getDataFromApi(`${this.endpoint_index}`, filter_column, e);
       else
         this.getDataFromApi(
-          `${this.endpoint}`,
+          `${this.endpoint_index}`,
           "filter_date",
           this.datatable_filter_date
         );
@@ -1746,7 +1746,7 @@ export default {
       this.isFilter = false;
       this.ProcessAttendance();
     },
-    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+    getDataFromApi(url = this.endpoint_index, filter_column = "", filter_value = "") {
       this.loading = true;
 
       let late_early = this.payload.late_early;

@@ -1010,7 +1010,7 @@
                 <span v-else-if="item.status == 'O'" small color="gray"
                   >Week Off</span
                 >
-                <span class="primary--text" v-if="item.last_reason">
+                <span class="primary--text" v-if="item.is_manual_entry">
                   (Manual Entry)
                 </span>
               </div>
@@ -1801,8 +1801,8 @@ export default {
             } else {
               this.snackbar = true;
               this.response = data.message;
-              this.editItems = [];
-              this.getDataFromApi();
+              // this.editItems = [];
+              this.update_process_by_manual();
               this.close();
             }
           })
@@ -1827,7 +1827,7 @@ export default {
           this.loading = false;
           this.snackbar = true;
           this.response = data.message;
-          this.ProcessAttendance();
+          this.getDataFromApi();
         })
         .catch((e) => console.log(e));
     },
