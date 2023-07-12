@@ -319,7 +319,7 @@ class RenderController extends Controller
             }
 
             $model = Attendance::query();
-            $model->where("shift_id", -1);
+            // $model->where("shift_id", -1);
             $model->where("company_id", $company_id);
             $model->where("date", $date);
             $model->where("status", "O");

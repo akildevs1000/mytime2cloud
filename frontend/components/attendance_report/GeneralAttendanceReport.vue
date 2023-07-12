@@ -997,7 +997,7 @@
 
             <template v-slot:item.status="{ item }">
               <div class="primary--text" v-if="item.last_reason">
-                Manually Edited
+                Manual Entry
               </div>
               <div v-else>
                 <span v-if="item.status == 'A'" color="error">Absent</span>
