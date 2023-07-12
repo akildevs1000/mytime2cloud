@@ -1,27 +1,15 @@
 <template>
   <div>
     <v-toolbar flat dense class="">
-      <v-btn small @click="arrangeShift" class="primary" color="primary"
-        >Arrange Shift(s)
+      <v-btn small @click="arrangeShift" class="primary" color="primary">Arrange Shift(s)
       </v-btn>
-      <v-icon color="primary" class="mx-2" @click="dialogVisible = true"
-        >mdi-filter</v-icon
-      >
+      <v-icon color="primary" class="mx-2" @click="dialogVisible = true">mdi-filter</v-icon>
     </v-toolbar>
 
-    <v-data-table
-      v-model="employee_ids"
-      show-select
-      item-key="id"
-      :headers="headers"
-      :items="employees"
-      :server-items-length="total"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
+    <v-data-table v-model="employee_ids" show-select item-key="id" :headers="headers" :items="employees"
+      :server-items-length="total" :loading="loading" :options.sync="options" :footer-props="{
         itemsPerPageOptions: [50, 100, 500, 1000],
-      }"
-    >
+      }">
       <template v-slot:item.name="{ item }">
         {{ item.first_name ? item.first_name : "---" }}
         {{ item.last_name ? item.last_name : "---" }}
@@ -44,15 +32,8 @@
           <v-row>
             <v-col md="3">
               <div class="">Schedule List</div>
-              <v-autocomplete
-                outlined
-                dense
-                x-small
-                v-model="item.schedule_id"
-                :items="rosters"
-                item-value="schedule_id"
-                item-text="name"
-              ></v-autocomplete>
+              <v-autocomplete outlined dense x-small v-model="item.schedule_id" :items="rosters" item-value="schedule_id"
+                item-text="name"></v-autocomplete>
             </v-col>
             <v-col md="3">
               <div class="mb-6">
@@ -94,25 +75,11 @@
                   </v-date-picker>
                 </v-menu> -->
 
-                <v-menu
-                  ref="from_menu"
-                  v-model="from_menu[i]"
-                  :close-on-content-click="false"
-                  :return-value.sync="item.from_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
+                <v-menu ref="from_menu" v-model="from_menu[i]" :close-on-content-click="false"
+                  :return-value.sync="item.from_date" transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      :hide-details="true"
-                      outlined
-                      dense
-                      v-model="item.from_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field :hide-details="true" outlined dense v-model="item.from_date" readonly v-bind="attrs"
+                      v-on="on"></v-text-field>
                   </template>
                   <v-date-picker v-model="item.from_date" no-title scrollable>
                     <!-- :min="min_date[i]" -->
@@ -120,13 +87,9 @@
                     <v-btn text color="primary" @click="from_menu[i] = false">
                       Cancel
                     </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="
-                        set_date_save($refs.from_menu[i], item.from_date, i)
-                      "
-                    >
+                    <v-btn text color="primary" @click="
+                      set_date_save($refs.from_menu[i], item.from_date, i)
+                      ">
                       OK
                     </v-btn>
                   </v-date-picker>
@@ -161,25 +124,11 @@
                   ></v-date-picker>
                 </v-menu> -->
 
-                <v-menu
-                  ref="to_menu"
-                  v-model="to_menu[i]"
-                  :close-on-content-click="false"
-                  :return-value.sync="item.to_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
+                <v-menu ref="to_menu" v-model="to_menu[i]" :close-on-content-click="false"
+                  :return-value.sync="item.to_date" transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      :hide-details="true"
-                      outlined
-                      dense
-                      v-model="item.to_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field :hide-details="true" outlined dense v-model="item.to_date" readonly v-bind="attrs"
+                      v-on="on"></v-text-field>
                   </template>
                   <v-date-picker v-model="item.to_date" no-title scrollable>
                     <!-- :min="max_date[i]" -->
@@ -188,11 +137,7 @@
                     <v-btn text color="primary" @click="to_menu[i] = false">
                       Cancel
                     </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="set_date_save($refs.to_menu[i], item.to_date, i)"
-                    >
+                    <v-btn text color="primary" @click="set_date_save($refs.to_menu[i], item.to_date, i)">
                       OK
                     </v-btn>
                   </v-date-picker>
@@ -202,17 +147,12 @@
             <v-col md="2">
               <div>
                 Overtime Allowed
-                <v-checkbox
-                  style="margin-top: -8px"
-                  v-model="item.is_over_time"
-                ></v-checkbox>
+                <v-checkbox style="margin-top: -8px" v-model="item.is_over_time"></v-checkbox>
               </div>
             </v-col>
             <v-col md="1">
               <div></div>
-              <v-icon v-if="i" @click="removeItem(i)" color="error"
-                >mdi-delete</v-icon
-              >
+              <v-icon v-if="i" @click="removeItem(i)" color="error">mdi-delete</v-icon>
             </v-col>
           </v-row>
         </v-card-text>
@@ -227,65 +167,38 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialogVisible" max-width="500px">
-      <v-card flat dense class="white--text">
-        <v-card-title class="background">
-          <span class="headline">Filter</span>
+
+
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          Filter
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogVisible = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
         </v-card-title>
-        <v-progress-linear
-          v-if="filterLoader"
-          indeterminate
-          color="primary"
-        ></v-progress-linear>
+
+        <v-progress-linear v-if="filterLoader" indeterminate color="primary"></v-progress-linear>
 
         <br />
 
         <v-card-text>
           <div>
-            <v-autocomplete
-              placeholder="Department"
-              outlined
-              dense
-              @change="runMultipleFunctions"
-              v-model="department_ids"
-              multiple
-              x-small
-              :items="departments"
-              item-value="id"
-              item-text="name"
-              :disabled="is_edit == true ? true : false"
-            ></v-autocomplete>
-            <v-autocomplete
-              placeholder="Sub Department"
-              outlined
-              dense
-              @change="runMultipleFunctions"
-              v-model="department_ids"
-              multiple
-              x-small
-              :items="sub_departments"
-              item-value="id"
-              item-text="name"
-              :disabled="is_edit == true ? true : false"
-            ></v-autocomplete>
-            <v-text-field
-              label="Search Employee by ID"
-              outlined
-              @input="dialogSearchByEmployeeID"
-              dense
-              v-model="employee_search"
-              append-icon="mdi-magnify"
-              single-line
-              hide-details
-            ></v-text-field>
+            <v-autocomplete placeholder="Department" outlined dense @change="runMultipleFunctions"
+              v-model="department_ids" multiple x-small :items="departments" item-value="id" item-text="name"
+              :disabled="is_edit == true ? true : false"></v-autocomplete>
+            <v-autocomplete placeholder="Sub Department" outlined dense @change="runMultipleFunctions"
+              v-model="department_ids" multiple x-small :items="sub_departments" item-value="id" item-text="name"
+              :disabled="is_edit == true ? true : false"></v-autocomplete>
+            <v-text-field label="Search Employee by ID" outlined @input="dialogSearchByEmployeeID" dense
+              v-model="employee_search" append-icon="mdi-magnify" single-line hide-details></v-text-field>
           </div>
         </v-card-text>
 
-        <v-card-actions>
+        <!-- <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn dark color="background" @click="dialogVisible = false"
-            >Close</v-btn
-          >
-        </v-card-actions>
+          <v-btn dark color="background" @click="dialogVisible = false">Close</v-btn>
+        </v-card-actions> -->
       </v-card>
     </v-dialog>
   </div>
