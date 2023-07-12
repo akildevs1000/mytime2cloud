@@ -59,6 +59,7 @@ class RenderController extends Controller
             "employee_id" => $UserID,
             "shift_id" => $schedule['shift_id'],
             "roster_id" => $schedule['roster_id'],
+            "is_manual_entry" => $this->manual_entry,
         ];
 
         $logs = $this->processLogs($data, $schedule);
@@ -73,8 +74,16 @@ class RenderController extends Controller
 
     public function renderGeneral(Request $request)
     {
+        $this->manual_entry = $request->manual_entry ?? false;
+
+        $this->reason = $request->reason ?? null;
+
+        $this->updated_by = $request->updated_by ?? 0;
+
         $date       = $request->date;
+
         $company_id = $request->company_id;
+
         $UserID     = $request->UserID;
 
         $schedule = $this->getScheduleGeneral($date, $company_id, $UserID);
@@ -113,19 +122,20 @@ class RenderController extends Controller
         $arr["roster_id"] = $schedule["roster_id"];
         $arr["device_id_in"] = $data[0]["DeviceID"];
         $arr["in"] = $data[0]["time"];
+        $arr["status"] = "P";
+
 
         if ($schedule["shift_type_id"] == 4 && $schedule["shift_type_id"] == 6) {
 
             $LateComing = $this->calculatedLateComing($arr["in"], $schedule["on_duty_time"], $schedule["late_time"]);
 
             if ($LateComing) {
-                $arr["status"] = "A";
+                // $arr["status"] = "A";
                 $arr["late_coming"] = $LateComing;
             }
         }
 
         if ($count > 1) {
-            $arr["status"] = "P";
             $arr["device_id_out"] = $data[1]["DeviceID"];
             $arr["out"] = $data[1]["time"];
             $arr["total_hrs"] = $this->getTotalHrsMins($data[0]["time"], $data[1]["time"]);
@@ -138,10 +148,11 @@ class RenderController extends Controller
                 $EarlyGoing = $this->calculatedEarlyGoing($arr["in"], $schedule["off_duty_time"], $schedule["early_time"]);
 
                 if ($EarlyGoing) {
-                    $arr["status"] = "A";
+                    // $arr["status"] = "A";
                     $arr["early_going"] = $EarlyGoing;
                 }
             }
+            $arr["is_manual_entry"] = $this->manual_entry;
         }
 
         try {
@@ -331,13 +342,12 @@ class RenderController extends Controller
             $model->delete();
 
             $model->insert($records);
-            
+
             $UserIds = array_column($records, "employee_id");
 
             $NumberOfEmployee = count($records);
 
             return "$NumberOfEmployee Employee has been marked as OFF: " . json_encode($UserIds);
-
         } catch (\Exception $e) {
             return false;
         }

@@ -211,7 +211,7 @@ class MonthlyController extends Controller
             'total_absent' => $model->clone()->where('status', 'A')->count(),
             'total_present' => $model->clone()->where('status', 'P')->count(),
             'total_off' => $model->clone()->where('status', 'O')->count(),
-            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_missing' => $model->clone()->where('status', 'M')->count(),
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),

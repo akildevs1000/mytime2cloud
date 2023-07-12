@@ -103,7 +103,7 @@ class ReportController extends Controller
         });
 
         $model->when($request->status == "ME", function ($q) {
-            $q->whereHas('last_reason');
+            $q->where('is_manual_entry', true);
         });
 
         $model->when($request->late_early == "L", function ($q) {

@@ -996,10 +996,7 @@
             </template>
 
             <template v-slot:item.status="{ item }">
-              <div class="primary--text" v-if="item.last_reason">
-                Manual Entry
-              </div>
-              <div v-else>
+              <div>
                 <span v-if="item.status == 'A'" color="error">Absent</span>
                 <span v-else-if="item.status == 'P'" color="success darken-1"
                   >Present
@@ -1013,6 +1010,9 @@
                 <span v-else-if="item.status == 'O'" small color="gray"
                   >Week Off</span
                 >
+                <span class="primary--text" v-if="item.is_manual_entry">
+                  (Manual Entry)
+                </span>
               </div>
             </template>
 
@@ -1801,8 +1801,8 @@ export default {
             } else {
               this.snackbar = true;
               this.response = data.message;
-              this.editItems = [];
-              this.getDataFromApi();
+              // this.editItems = [];
+              this.update_process_by_manual();
               this.close();
             }
           })
@@ -1827,7 +1827,7 @@ export default {
           this.loading = false;
           this.snackbar = true;
           this.response = data.message;
-          this.ProcessAttendance();
+          this.getDataFromApi();
         })
         .catch((e) => console.log(e));
     },
