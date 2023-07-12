@@ -226,6 +226,8 @@
                         $statusColor = 'red';
                     } elseif ($employee->status == 'M') {
                         $statusColor = 'orange';
+                    } elseif ($employee->status == 'O') {
+                        $statusColor = 'gray';
                     } else {
                         $statusColor = '#f34100ed';
                     }
