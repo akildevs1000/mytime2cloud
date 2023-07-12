@@ -7,15 +7,18 @@
     </div>
 
     <v-dialog v-model="dialogLeaveGroup" width="500px">
-      <v-card>
-        <v-toolbar flat small dense dark class="background">
-          <span class="headline">Employee - {{ viewEmployeeName }} </span>
-        </v-toolbar>
-        <v-card-text style="padding:5px">
 
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          <span>Employee - {{ viewEmployeeName }} </span>
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogLeaveGroup = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
           <v-data-table v-model="ids" item-key="id" :headers="headersGroupInfo" :items="DialogLeaveGroupData"
             :loading="loading" :hide-default-footer="true" class="elevation-1">
-
             <template v-slot:item.leave_type="{ item }" center>
               {{ item.leave_type.name }} ({{ item.leave_type.short_name }})
             </template>
@@ -114,9 +117,13 @@
     </v-dialog>
     <v-dialog v-model="dialogView" width="1000px">
       <v-card>
-        <v-toolbar flat small dense dark class="background">
-          <span class="headline">Leave Information </span>
-        </v-toolbar>
+        <v-card-title dense class=" primary  white--text background">
+          Leave Information
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogView = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
@@ -302,9 +309,9 @@
               </v-col>
             </v-row>
             <v-card-actions class="mt-4">
-              <v-btn class="error" small @click="close"> Close </v-btn>
+              <!-- <v-btn class="error" small @click="close"> Close </v-btn> -->
               <v-spacer></v-spacer>
-              <v-btn class="warning text-center" v-if="dialogViewObject.status == 0" small
+              <v-btn class="error text-right" v-if="dialogViewObject.status == 0" small
                 @click="rejectLeave(dialogViewObject.id)">
                 Reject </v-btn>
               <v-spacer></v-spacer>
@@ -323,11 +330,28 @@
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> Dashboard / Applications List</span></v-toolbar-title>
-            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="clearFilters()"><v-icon class="mx-1">mdi
-                mdi-reload</v-icon></a>
 
-            <a style="padding-left:10px" @click="toggleFilter"><v-icon class="mx-1">mdi
-                mdi-filter</v-icon></a>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="clearFilters()" dark>mdi mdi-reload</v-icon>
+                </v-btn>
+              </template>
+              <span>Reload</span>
+            </v-tooltip>
+
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="toggleFilter" dark>mdi
+                    mdi-filter</v-icon>
+                </v-btn>
+              </template>
+              <span>Filter</span>
+            </v-tooltip>
+
+
+
             <v-spacer></v-spacer>
             <!-- <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
@@ -450,22 +474,7 @@
                 </template>
                 <v-list width="120" dense>
 
-                  <!-- <v-list-item @click="editItem(item)" v-if="item.status == 0">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_application_edit`)" color="secondary" small @click="editItem(item)">
-                        mdi-pencil
-                      </v-icon> Edit
-                    </v-list-item-title>
-                  </v-list-item> -->
 
-
-                  <!-- <v-list-item @click="deleteItem(item)" v-if="item.status == 0">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_application_delete`)" color="error" small @click="deleteItem(item)">
-                        {{ item.announcement === "customer" ? "" : "mdi-delete" }}
-                      </v-icon> Delete
-                    </v-list-item-title>
-                  </v-list-item> -->
                   <v-list-item @click="view(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon v-if="can(`leave_application_view`)" color="primary" small @click="view(item)">
@@ -618,10 +627,10 @@ export default {
     loading: false,
     total: 0,
     headersGroupInfo: [
-      { text: "Leave Type", align: "left", key: "name", value: "leave_type" },
-      { text: "Total", align: "center", key: "name", value: "total" },
-      { text: "Approved", align: "center", key: "name", value: "approved" },
-      { text: "Available", align: "center", key: "name", value: "available" },
+      { text: "Leave Type", align: "left", sortable: false, key: "name", value: "leave_type" },
+      { text: "Total", align: "center", sortable: false, key: "name", value: "total" },
+      { text: "Approved", align: "center", sortable: false, key: "name", value: "approved" },
+      { text: "Available", align: "center", sortable: false, key: "name", value: "available" },
 
     ],
     headers: [
@@ -815,7 +824,7 @@ export default {
 
     },
     gotoGroupDetails(leaveGroupId, employee_id, employee_name) {
-
+      this.dialogLeaveGroup = true;
       this.viewEmployeeName = employee_name;
       let options = {
         params: {
@@ -825,7 +834,7 @@ export default {
         },
       };
       this.$axios.get('leave_groups/' + leaveGroupId, options).then(({ data }) => {
-        this.dialogLeaveGroup = true;
+
         this.DialogLeaveGroupData = data[0].leave_count;
 
       });
