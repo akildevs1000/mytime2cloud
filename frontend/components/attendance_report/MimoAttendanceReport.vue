@@ -1089,10 +1089,7 @@
               {{ item.employee.first_name }} {{ item.employee.last_name }}
             </template>
             <template v-slot:item.status="{ item }">
-              <div class="primary--text" v-if="item.last_reason">
-                Manual Entry
-              </div>
-              <div v-else>
+              <div>
                 <span v-if="item.status == 'A'" color="error">Absent</span>
                 <span v-else-if="item.status == 'P'" color="success darken-1"
                   >Present
@@ -1106,6 +1103,10 @@
                 <span v-else-if="item.status == 'O'" small color="gray"
                   >Week Off</span
                 >
+
+                <span class="primary--text" v-if="item.last_reason">
+                  (Manual Entry)
+                </span>
               </div>
             </template>
 
