@@ -19,102 +19,51 @@
               <v-col md="6">
                 <v-row>
                   <v-col md="12">
-                    <label class="col-form-label"
-                      >Title <span class="text-danger">*</span></label
-                    >
-                    <v-select
-                      v-model="payload.title"
-                      :items="titleItems"
-                      :hide-details="!errors.title"
-                      :error="errors.title"
-                      :error-messages="
-                        errors && errors.title ? errors.title[0] : ''
-                      "
-                      dense
-                      outlined
-                    ></v-select>
+                    <label class="col-form-label">Title <span class="text-danger">*</span></label>
+                    <v-select v-model="payload.title" :items="titleItems" :hide-details="!errors.title"
+                      :error="errors.title" :error-messages="errors && errors.title ? errors.title[0] : ''
+                        " dense outlined></v-select>
                   </v-col>
                   <v-col md="12">
-                    <label class="col-form-label"
-                      >Display Name <span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      :hide-details="!errors.display_name"
-                      type="text"
-                      v-model="payload.display_name"
-                      :error="errors.display_name"
-                      :error-messages="
-                        errors && errors.display_name
-                          ? errors.display_name[0]
-                          : ''
-                      "
-                    ></v-text-field>
+                    <label class="col-form-label">Display Name <span class="text-danger">*</span></label>
+                    <v-text-field dense outlined :hide-details="!errors.display_name" type="text"
+                      v-model="payload.display_name" :error="errors.display_name" :error-messages="errors && errors.display_name
+                        ? errors.display_name[0]
+                        : ''
+                        "></v-text-field>
                   </v-col>
                   <v-col md="12">
-                    <label class="col-form-label"
-                      >Employee Device ID
-                      <span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="payload.system_user_id"
-                      :hide-details="!errors.system_user_id"
-                      :error="errors.system_user_id"
-                      :error-messages="
-                        errors && errors.system_user_id
-                          ? errors.system_user_id[0]
-                          : ''
-                      "
-                    ></v-text-field>
+                    <label class="col-form-label">Employee Device ID
+                      <span class="text-danger">*</span></label>
+                    <v-text-field dense outlined type="text" v-model="payload.system_user_id"
+                      :hide-details="!errors.system_user_id" :error="errors.system_user_id" :error-messages="errors && errors.system_user_id
+                        ? errors.system_user_id[0]
+                        : ''
+                        "></v-text-field>
                   </v-col>
                   <v-col md="12">
-                    <label class="col-form-label"
-                      >Employee Id<span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="payload.employee_id"
-                      :hide-details="!errors.employee_id"
-                      :error="errors.employee_id"
-                      :error-messages="
-                        errors && errors.employee_id
-                          ? errors.employee_id[0]
-                          : ''
-                      "
-                    ></v-text-field>
+                    <label class="col-form-label">Employee Id<span class="text-danger">*</span></label>
+                    <v-text-field dense outlined type="text" v-model="payload.employee_id"
+                      :hide-details="!errors.employee_id" :error="errors.employee_id" :error-messages="errors && errors.employee_id
+                        ? errors.employee_id[0]
+                        : ''
+                        "></v-text-field>
                   </v-col>
                 </v-row>
               </v-col>
               <v-col md="6">
                 <div style="text-align: center;" class="mt-5">
-                  <v-img
-                    style="width: 50%; margin: 0 auto; border-radius: 50%;"
-                    :src="previewImage || '/no-profile-image.jpg'"
-                  ></v-img>
-                  <v-btn x-small class="btn primary" @click="onpick_attachment"
-                    >{{ !upload.name ? "Upload" : "Change" }} Profile Image
+                  <v-img style="width: 50%; margin: 0 auto; border-radius: 50%;"
+                    :src="previewImage || '/no-profile-image.jpg'"></v-img>
+                  <v-btn x-small class="btn primary" @click="onpick_attachment">{{ !upload.name ? "Upload" : "Change" }}
+                    Profile Image
                     <v-icon right dark>mdi-cloud-upload</v-icon>
                   </v-btn>
-                  <input
-                    required
-                    type="file"
-                    @change="attachment"
-                    style="display: none"
-                    accept="image/*"
-                    ref="attachment_input"
-                  />
+                  <input required type="file" @change="attachment" style="display: none" accept="image/*"
+                    ref="attachment_input" />
 
-                  <span
-                    v-if="errors && errors.profile_picture"
-                    class="text-danger mt-2"
-                    >{{ errors.profile_picture[0] }}</span
-                  >
+                  <span v-if="errors && errors.profile_picture" class="text-danger mt-2">{{ errors.profile_picture[0]
+                  }}</span>
                 </div>
               </v-col>
             </v-row>
@@ -123,13 +72,8 @@
             <v-row>
               <v-col cols="12">
                 <div class="text-right">
-                  <v-btn
-                    v-if="can('employee_create')"
-                    small
-                    :loading="loading"
-                    color="primary"
-                    @click="validate_employee"
-                  >
+                  <v-btn v-if="can('employee_create')" small :loading="loading" color="primary"
+                    @click="validate_employee">
                     Submit
                   </v-btn>
                 </div>
@@ -281,8 +225,6 @@ export default {
       let input = this.$refs.attachment_input;
       let file = input.files;
 
-      console.log("file", file);
-
       if (file[0].size > 1024 * 1024) {
         e.preventDefault();
         this.errors["profile_picture"] = [
@@ -318,12 +260,6 @@ export default {
       let payload = this.mapper(this.payload);
 
       const file = this.$refs.attachment_input.files[0];
-      console.log("file", file);
-      // if (!file) {
-      //   e.preventDefault();
-      //   alert("No file chosen");
-      //   return;
-      // }
 
       if (file.size > 1024 * 1024) {
         e.preventDefault();

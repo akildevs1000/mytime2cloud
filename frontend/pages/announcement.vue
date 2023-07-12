@@ -6,11 +6,15 @@
       </v-snackbar>
     </div>
     <v-dialog v-model="dialog" max-width="60%">
-      <v-card>
-        <v-card-title>
-          <span class="headline">{{ formTitle }} {{ Model }}</span>
-        </v-card-title>
 
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          {{ formTitle }} {{ Model }}
+          <v-spacer></v-spacer>
+          <v-icon @click="dialog = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
@@ -162,16 +166,21 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="error" small @click="close"> Cancel </v-btn>
+          <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
           <v-btn class="primary" small @click="save">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialogEmployees" max-width="60%">
-      <v-card class="rounded-md" elevation="0">
-        <v-toolbar class="rounded-md" color="background" dense flat dark>
-          <v-toolbar-title><span> Employees List</span></v-toolbar-title>
-        </v-toolbar>
+
+      <v-card>
+        <v-card-title dense class=" primary  white--text background">
+          Employees List
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogEmployees = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
@@ -210,10 +219,23 @@
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> {{ Model }} List </span></v-toolbar-title>
-            <a style="padding-left: 10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon
-                class="mx-1">mdi mdi-reload</v-icon></a>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                </v-btn>
+              </template>
+              <span>Reload</span>
+            </v-tooltip>
             <v-spacer></v-spacer>
-            <v-icon v-if="can(`announcement_create`)" @click="dialog = true">mdi-plus</v-icon>
+            <v-tooltip top color="primary" v-if="can(`announcement_create`)">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="dialog = true" dark>mdi mdi-plus-circle</v-icon>
+                </v-btn>
+              </template>
+              <span>New Announcement</span>
+            </v-tooltip>
           </v-toolbar>
           <!-- <v-text-field class=" form-control py-0 ma-1 mb-0 w-25 float-start custom-text-box floating
                   shadow-none" placeholder="Search..." solo flat @input="searchIt" v-model="search"
@@ -277,18 +299,19 @@
             </template>
             <template v-slot:item.departments="{ item }">
               <span v-for="(dep, index) in item.departments" :key="index">
-                <v-span small class="pa-2 ma-1" color="primary">
+                <span small class="pa-2 ma-1" color="primary">
                   {{ dep.name }}
-                </v-span>
-                <br>
+                </span>
               </span>
+
             </template>
             <template v-slot:item.employees="{ item }">
               <span v-for="(emp, index) in item.employees.slice(0, 4)" :key="index">
-                <v-span small class="p-2 ma-1" color="primary">
+                <span small class="p-2 ma-1" color="primary">
                   <span>{{ emp.first_name }} {{ emp.last_name }} -
-                    {{ emp.employee_id }}</span>
-                </v-span>
+                    {{ emp.employee_id }}
+                  </span>
+                </span>
                 <br>
               </span>
               <v-chip small class="primary ma-1" style="color: black;    margin-left: 10px!important;"
@@ -741,6 +764,7 @@ export default {
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.employees_dialog = data.data;
+        this.loading = false;
       });
     },
 

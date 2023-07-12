@@ -45,6 +45,7 @@
                 <v-card-actions>
                   <!-- <v-col md="6" lg="6" style="padding: 0px">
                     <v-btn class="error" @click="close"> Cancel </v-btn></v-col> -->
+                  <v-spacer></v-spacer>
                   <v-col md="6" lg="6" class="text-right" style="padding: 0px">
                     <v-btn class="primary" @click="save">Save</v-btn>
                   </v-col>
