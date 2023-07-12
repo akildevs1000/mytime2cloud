@@ -104,7 +104,8 @@
           <v-icon title="0 Pending leaves" color="success">mdi mdi-bell-ring
           </v-icon>
         </v-badge> -->
-        <v-badge :color="pendingLeavesCount > 0 ? 'red' : 'black'" :content="pendingLeavesCount">
+        <v-badge @click="navigateToLeavePage()" :color="pendingLeavesCount > 0 ? 'red' : 'black'"
+          :content="pendingLeavesCount">
           <v-icon @click="navigateToLeavePage()">mdi
             mdi-bell-ring</v-icon>
         </v-badge>
