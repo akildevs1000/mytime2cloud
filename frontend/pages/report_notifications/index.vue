@@ -14,11 +14,14 @@
         <div class="text-center">
           <v-dialog v-model="dialog" width="500">
             <v-card>
-              <v-card-title class="text-h5 primary white--text mb-5">
-                Send test Message to whatsapp
+              <v-card-title dense class=" primary  white--text background">
+                Send Test message to Whatsapp
+                <v-spacer></v-spacer>
+                <v-icon @click="dialog = false" outlined dark color="white">
+                  mdi mdi-close-circle
+                </v-icon>
               </v-card-title>
-
-              <v-card-text>
+              <v-card-text class="mt-4">
                 <v-text-field dense outlined placeholder="number" v-model="number">
 
                 </v-text-field>
@@ -27,7 +30,7 @@
                 </v-textarea>
               </v-card-text>
 
-              <v-divider></v-divider>
+              <!-- <v-divider></v-divider> -->
 
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -43,15 +46,22 @@
             <v-card class="mb-5" elevation="0">
               <v-toolbar class="rounded-md" color="background" dense flat dark>
                 <v-toolbar-title><span> Notifications List</span></v-toolbar-title>
+                <v-tooltip top color="primary">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                      <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Reload</span>
+                </v-tooltip>
 
-                <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon
-                    class="mx-1">mdi
-                    mdi-reload</v-icon></a>
 
 
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
                   <v-col class="toolbaritems-button-design1">
+
+
                     <v-btn @click="dialog = true" small color="primary" class="primary mr-2 mb-2 toolbar-button-design1">
                       <v-icon small>mdi mdi-whatsapp</v-icon> Whatsapp Test
                     </v-btn>
