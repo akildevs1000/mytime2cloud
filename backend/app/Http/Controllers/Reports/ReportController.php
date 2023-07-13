@@ -205,4 +205,47 @@ class ReportController extends Controller
         });
         return $model;
     }
+
+    // Scopes
+
+    // $model = Attendance::query()
+    // ->dateRange($start, $end)
+    // ->company($companyID)
+    // ->status($request->status)
+    // ->lateOrEarly($request->late_early)
+    // ->orderBy('date', 'asc')
+    // ->get();
+
+
+    // public function scopeDateRange($query, $start, $end)
+    // {
+    //     return $query->whereBetween('date', [$start, $end]);
+    // }
+
+    // public function scopeCompany($query, $companyId)
+    // {
+    //     return $query->where('company_id', $companyId);
+    // }
+
+    // public function scopeStatus($query, $status)
+    // {
+    //     if ($status === 'P' || $status === 'A' || $status === 'O' || $status === 'M') {
+    //         return $query->where('status', $status);
+    //     } elseif ($status === 'ME') {
+    //         return $query->where('is_manual_entry', true);
+    //     } else {
+    //         return $query;
+    //     }
+    // }
+
+    // public function scopeLateOrEarly($query, $lateEarly)
+    // {
+    //     if ($lateEarly === 'L') {
+    //         return $query->where('late_coming', '!=', '---');
+    //     } elseif ($lateEarly === 'E') {
+    //         return $query->where('early_going', '!=', '---');
+    //     } else {
+    //         return $query;
+    //     }
+    // }
 }
