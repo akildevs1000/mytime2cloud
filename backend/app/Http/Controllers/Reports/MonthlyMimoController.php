@@ -88,6 +88,7 @@ class MonthlyMimoController extends Controller
             $q->whereIn('employee_id', $ids);
         });
 
+        
         $data = $model->get()->groupBy(['employee_id', 'date']);
 
         $pdf = App::make('dompdf.wrapper');
