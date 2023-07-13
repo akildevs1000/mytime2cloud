@@ -1902,7 +1902,7 @@ export default {
         case "All":
           return "SA";
         case "Missing":
-          return "---";
+          return "M";
         case "Manual Entry":
           return "ME";
         case "Off":
