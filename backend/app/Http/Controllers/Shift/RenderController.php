@@ -62,12 +62,7 @@ class RenderController extends Controller
 
         $logs = $this->processLogs($data, $schedule);
 
-        $result = $this->storeOrUpdate($AttendancePayload + $logs);
-
-        if (!$result) {
-            return $this->response("The Logs cannnot render against $UserID SYSTEM USER ID.", null, false);
-        }
-        return $this->response("The Logs has been render against $UserID SYSTEM USER ID.", null, true);
+        return $this->storeOrUpdate($AttendancePayload + $logs);
     }
 
     public function renderGeneral(Request $request)
@@ -152,39 +147,21 @@ class RenderController extends Controller
             }
         }
 
+        return $this->storeOrUpdate($arr);
+    }
+
+    public function createReason($id)
+    {
+        if (empty($this->reason)) return false;
+
         try {
-
-            // Attendance::where([
-            //     'date' => $arr["date"],
-            //     'employee_id' => $arr["employee_id"],
-            //     'company_id' => $arr['company_id']
-            // ])->delete();
-
-
-            // $attendance = Attendance::create($arr);
-
-
-            $attendance = Attendance::firstOrNew([
-                'date' => $arr['date'],
-                'employee_id' => $arr['employee_id'],
-                'company_id' => $arr['company_id']
+            Reason::create([
+                'reason' => $this->reason,
+                'user_id' => $this->updated_by,
+                'reasonable_id' => $id,
+                'reasonable_type' => "App\Models\Attendance",
             ]);
-
-            $attendance->fill($arr)->save();
-
-
-
-            if (!empty($this->reason)) {
-                Reason::create([
-                    'reason' => $this->reason,
-                    'user_id' => $this->updated_by,
-                    'reasonable_id' => $attendance->id,
-                    'reasonable_type' => "App\Models\Attendance",
-                ]);
-            }
-
-
-            return $this->response("The Log(s) has been render against {$request->UserID} SYSTEM USER ID.", null, true);
+            return true;
         } catch (\Exception $e) {
             return false;
         }
@@ -280,7 +257,6 @@ class RenderController extends Controller
     public function storeOrUpdate($items)
     {
         try {
-            $this->deleteOldRecord($items);
 
             $attendance = Attendance::firstOrNew([
                 'date' => $items['date'],
@@ -290,14 +266,12 @@ class RenderController extends Controller
 
             $attendance->fill($items)->save();
 
-            Reason::create([
-                'reason' => $this->reason,
-                'user_id' => $this->updated_by,
-                'reasonable_id' => $attendance->id,
-                'reasonable_type' => "App\Models\Attendance",
-            ]);
+            $result = $this->createReason($attendance->id);
 
-            return true;
+            if (!$result) {
+                return $this->response("The Logs cannnot render against " . $items['employee_id'] . " SYSTEM USER ID.", null, false);
+            }
+            return $this->response("The Logs has been render against " . $items['employee_id'] . " SYSTEM USER ID.", null, true);
         } catch (\Exception $e) {
             return $e;
         }
