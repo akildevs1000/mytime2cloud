@@ -36,18 +36,9 @@ class TimezonePhotoUploadJob implements ShouldQueue
     public function handle()
     {
 
+        Log::channel('jobs')->info('TimezonePhotoUpload - Started' . date('Y-m-d H:i:s'));
         // return false;
         $url = "https://stagingsdk.ideahrms.com/Person/AddRange";
-
-        $url = '';
-        if (env("APP_ENV") != "production") {
-            $url = env("SDK_STAGING_COMM_URL");
-        }
-
-        if ($url == '') {
-            $url = "http://139.59.69.241:5000";
-        }
-        $url = $url . "/Person/AddRange";
         // $data = json_decode($this->data, true);
         $data = $this->data;
         $personList = $data['personList'];
@@ -73,14 +64,14 @@ class TimezonePhotoUploadJob implements ShouldQueue
 
         //         print_r($newArray);
         // try {
-        $returnMsg = Http::withoutVerifying()->withHeaders([
+        $returnMsg = Http::timeout(60)->withoutVerifying()->withHeaders([
             'Content-Type' => 'application/json',
         ])->post($url, $data);
         if ($returnMsg && $returnMsg['data']) {
             $returnFinalMessage[] = $returnMsg['data'][0];
             //$devicePersonsArray[] = [$device => $returnMsg['data'][0]['userList']];
         } else {
-            //$returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
+            // $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
             $returnFinalMessage[] = $returnMsg;
         }
 
@@ -108,8 +99,8 @@ class TimezonePhotoUploadJob implements ShouldQueue
 
         ///Log::custom('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
 
-        Log::channel('jobs')->info('TimezonePhotoUpload' . $url . '\n' . json_encode($data, true) . '\n' . json_encode($returnContent, true));
-        // Log::channel('jobs')->info('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
+        Log::channel('jobs')->info('TimezonePhotoUpload' . json_encode($returnContent, true));
+        Log::channel('jobs')->info('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
 
         return $returnContent;
     }

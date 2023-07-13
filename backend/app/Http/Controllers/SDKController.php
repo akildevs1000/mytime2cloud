@@ -137,7 +137,7 @@ class SDKController extends Controller
                     "personList" => [$valuePerson],
                     "snList" => [$device],
                 ];
-                // $newArray[] = $newArray;
+                $newArray[] = $newArray;
                 $return = TimezonePhotoUploadJob::dispatch($newArray, $this->endpoint);
 
             }
