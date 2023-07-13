@@ -59,7 +59,7 @@ class RenderController extends Controller
             "employee_id" => $UserID,
             "shift_id" => $schedule['shift_id'],
             "roster_id" => $schedule['roster_id'],
-            "is_manual_entry" => $this->manual_entry,
+            "is_manual_entry" => true,
         ];
 
         $logs = $this->processLogs($data, $schedule);
@@ -122,7 +122,8 @@ class RenderController extends Controller
         $arr["roster_id"] = $schedule["roster_id"];
         $arr["device_id_in"] = $data[0]["DeviceID"];
         $arr["in"] = $data[0]["time"];
-        $arr["status"] = "P";
+        $arr["status"] = "M";
+        $arr["is_manual_entry"] = true;
 
 
         if ($schedule["shift_type_id"] == 4 && $schedule["shift_type_id"] == 6) {
@@ -136,6 +137,7 @@ class RenderController extends Controller
         }
 
         if ($count > 1) {
+            $arr["status"] = "P";
             $arr["device_id_out"] = $data[1]["DeviceID"];
             $arr["out"] = $data[1]["time"];
             $arr["total_hrs"] = $this->getTotalHrsMins($data[0]["time"], $data[1]["time"]);
@@ -152,7 +154,6 @@ class RenderController extends Controller
                     $arr["early_going"] = $EarlyGoing;
                 }
             }
-            $arr["is_manual_entry"] = $this->manual_entry;
         }
 
         try {
