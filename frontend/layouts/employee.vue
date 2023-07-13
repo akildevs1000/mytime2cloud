@@ -109,7 +109,7 @@
           <v-icon @click="navigateToLeavePage()">mdi
             mdi-bell-ring</v-icon>
         </v-badge>
-        <v-badge @click="navigateToLeavePage()" color="black" content="0">
+        <v-badge v-else @click="navigateToLeavePage()" color="black" content="0">
           <v-icon @click="navigateToLeavePage()">mdi
             mdi-bell-ring</v-icon>
         </v-badge>
