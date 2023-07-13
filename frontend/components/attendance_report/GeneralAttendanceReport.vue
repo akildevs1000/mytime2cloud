@@ -1122,6 +1122,9 @@
         <v-card class="darken-1">
           <v-toolbar class="primary" dense dark flat>
             <span class="text-h5 pa-2">Log Details</span>
+            <v-spacer></v-spacer>
+            Total logs
+            <b class="background--text mx-1">({{ log_list.length }})</b>
           </v-toolbar>
           <v-card-text>
             <div class="pt-5">
@@ -1322,7 +1325,7 @@ export default {
         align: "left",
         sortable: false,
         filterable: true,
-        value: "employee_department_name",
+        value: "employee.department.name",
       },
       {
         text: "Shift Type",

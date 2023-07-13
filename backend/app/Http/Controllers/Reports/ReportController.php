@@ -140,6 +140,7 @@ class ReportController extends Controller
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
+            $q->with('department');
         });
 
         $model->with('device_in', function ($q) use ($request) {
