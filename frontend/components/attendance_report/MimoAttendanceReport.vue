@@ -1104,9 +1104,29 @@
                   >Week Off</span
                 >
 
-                <span class="primary--text" v-if="item.is_manual_entry">
-                  (Manual Entry)
-                </span>
+                <v-tooltip top color="primary">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="primary" text v-bind="attrs" v-on="on">
+                      (ME)
+                    </v-btn>
+                  </template>
+                  <!-- <div>Manual Entry</div> -->
+                  <div>
+                    Reason: {{ item.last_reason && item.last_reason.reason }}
+                  </div>
+                  <div>
+                    Added By:
+                    {{
+                      item.last_reason &&
+                      item.last_reason.user &&
+                      item.last_reason.user.email
+                    }}
+                  </div>
+                  <div>
+                    Created At:
+                    {{ item.last_reason && item.last_reason.created_at }}
+                  </div>
+                </v-tooltip>
               </div>
             </template>
 
@@ -1746,7 +1766,11 @@ export default {
       this.isFilter = false;
       this.ProcessAttendance();
     },
-    getDataFromApi(url = this.endpoint_index, filter_column = "", filter_value = "") {
+    getDataFromApi(
+      url = this.endpoint_index,
+      filter_column = "",
+      filter_value = ""
+    ) {
       this.loading = true;
 
       let late_early = this.payload.late_early;
