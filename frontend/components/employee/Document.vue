@@ -70,49 +70,73 @@
         </v-card>
 
       </v-row>
-      <transition name="fade">
-        <v-form v-if="displayForm" class="mt-5" ref="form" method="post" v-model="valid" lazy-validation>
+      <v-dialog v-model="dialogUploadDocuments" width="800px">
+        <v-card>
+          <v-card-title dense class=" primary  white--text background">
+            Documents
+            <v-spacer></v-spacer>
+            <v-icon @click="dialogUploadDocuments = false" outlined dark color="white">
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12" class=" text-right">
 
-          <v-row v-for="(d, index) in Document.items" :key="index">
-            <v-col cols="5">
-              <label for="">Title <span color="error"></span></label>
-              <v-text-field solo dense outlined v-model="d.title" :rules="TitleRules" label="Title"></v-text-field>
-              <span v-if="errors && errors.title" class="text-danger mt-2">{{
-                errors.title[0]
-              }}</span>
-            </v-col>
-            <v-col cols="5">
-              <div class="form-group">
-                <label for="">Title <span color="error"></span></label>
-                <v-file-input solo dense outlined v-model="d.file" placeholder="Upload your file" label="Attachment"
-                  :rules="FileRules">
-                  <template v-slot:selection="{ text }">
-                    <v-chip v-if="text" small label color="primary">
-                      {{ text }}
-                    </v-chip>
-                  </template>
-                </v-file-input>
+                  <v-icon color="primary" @click="addDocumentFile">mdi-plus-circle</v-icon>
 
-                <span v-if="errors && errors.attachment" class="text-danger mt-2">{{ errors.attachment[0] }}</span>
-              </div>
-            </v-col>
-            <v-col cols="2">
-              <div class="form-group">
-                <v-btn dark class="error mt-5" fab @click="removeItem(index)" x-small>
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </div>
-            </v-col>
-          </v-row>
+                </v-col>
+                <v-form v-if="displayForm" class="mt-5" ref="form" method="post" v-model="valid" lazy-validation>
 
-          <v-row>
-            <v-col cols="12" class="text-right">
-              <v-btn :disabled="!Document.items.length" class="primary" small @click="save_document_info">Save</v-btn>
-            </v-col>
-          </v-row>
+                  <v-row v-for="(d, index) in Document.items" :key="index">
+                    <v-col cols="5">
+                      <label for="">Title <span color="error"></span></label>
+                      <v-text-field solo dense outlined v-model="d.title" :rules="TitleRules"
+                        label="Title"></v-text-field>
+                      <span v-if="errors && errors.title" class="text-danger mt-2">{{
+                        errors.title[0]
+                      }}</span>
+                    </v-col>
+                    <v-col cols="5">
+                      <div class="form-group">
+                        <label for="">Title <span color="error"></span></label>
+                        <v-file-input solo dense outlined v-model="d.file" placeholder="Upload your file"
+                          label="Attachment" :rules="FileRules">
+                          <template v-slot:selection="{ text }">
+                            <v-chip v-if="text" small label color="primary">
+                              {{ text }}
+                            </v-chip>
+                          </template>
+                        </v-file-input>
 
-        </v-form>
-      </transition>
+                        <span v-if="errors && errors.attachment" class="text-danger mt-2">{{ errors.attachment[0]
+                        }}</span>
+                      </div>
+                    </v-col>
+                    <v-col cols="2">
+                      <div class="form-group">
+                        <v-btn dark class="error mt-5" fab @click="removeItem(index)" x-small>
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+
+                  <v-row>
+                    <v-col cols="12" class="text-right">
+                      <v-btn :disabled="!Document.items.length" class="primary" small
+                        @click="save_document_info">Save</v-btn>
+                    </v-col>
+                  </v-row>
+
+                </v-form>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+
+      </v-dialog>
     </v-container>
   </div>
 </template>
@@ -122,6 +146,7 @@ export default {
   props: ["employeeId"],
   data() {
     return {
+      dialogUploadDocuments: false,
       loading: false,
       snackbar: false,
       valid: false,
@@ -172,6 +197,8 @@ export default {
     },
 
     addDocumentInfo() {
+
+      this.dialogUploadDocuments = true;
       // this.Document.items.push({
       //   title: "",
       //   file: "",
@@ -179,6 +206,13 @@ export default {
       this.valid = true;
       this.Document.items = [{ title: "", file: "" }];
       this.displayForm = true;
+    },
+
+    addDocumentFile() {
+      this.Document.items.push({
+        title: "",
+        file: "",
+      });
     },
 
     save_document_info() {
@@ -206,6 +240,8 @@ export default {
       this.$axios
         .post(`documentinfo`, payload, options)
         .then(({ data }) => {
+
+          this.dialogUploadDocuments = false;
           this.loading = false;
 
           if (!data.status) {
@@ -222,6 +258,9 @@ export default {
           }
         })
         .catch((e) => console.log(e));
+
+
+
     },
 
     getDocumentInfo(id) {
@@ -239,8 +278,8 @@ export default {
     },
 
     removeItem(index) {
-      //this.Document.items.splice(index, 1);
-      this.displayForm = false;
+      this.Document.items.splice(index, 1);
+      //this.displayForm = false;
     },
 
     delete_document(id) {

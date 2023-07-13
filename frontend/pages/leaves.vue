@@ -748,9 +748,22 @@ export default {
     setInterval(() => {
       this.getDataFromApi();
     }, 1000 * 60 * 60);
+
+    this.socketConnection();
   },
 
   methods: {
+    socketConnection() {
+      this.socket = new WebSocket("ws://localhost:8080");
+
+      this.socket.onmessage = ({ data }) => {
+        console.log(data);
+        // let json = JSON.parse(data).Data;
+        // if (json && json.UserCode > 0) {
+
+        // }
+      };
+    },
     applyFilters(filter_column = '', filter_value = '') {
 
       this.getDataFromApi('', filter_column, filter_value);
