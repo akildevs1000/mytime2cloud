@@ -41,7 +41,7 @@ class TimezonePhotoUploadJob implements ShouldQueue
 
         $url = '';
         if (env("APP_ENV") != "production") {
-            $sdk_urlurl = env("SDK_STAGING_COMM_URL");
+            $url = env("SDK_STAGING_COMM_URL");
         }
 
         if ($url == '') {
