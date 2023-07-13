@@ -27,8 +27,6 @@ class RenderController extends Controller
     {
         $shift_type_id = 2;
 
-        $this->manual_entry = $request->manual_entry ?? false;
-
         $this->reason = $request->reason ?? null;
 
         $this->updated_by = $request->updated_by ?? 0;
@@ -74,8 +72,6 @@ class RenderController extends Controller
 
     public function renderGeneral(Request $request)
     {
-        $this->manual_entry = $request->manual_entry ?? false;
-
         $this->reason = $request->reason ?? null;
 
         $this->updated_by = $request->updated_by ?? 0;
@@ -158,13 +154,36 @@ class RenderController extends Controller
 
         try {
 
-            Attendance::where([
-                'date' => $arr["date"],
-                'employee_id' => $arr["employee_id"],
-                'company_id' => $arr['company_id']
-            ])->delete();
+            // Attendance::where([
+            //     'date' => $arr["date"],
+            //     'employee_id' => $arr["employee_id"],
+            //     'company_id' => $arr['company_id']
+            // ])->delete();
 
-            Attendance::create($arr);
+
+            // $attendance = Attendance::create($arr);
+
+
+            $attendance = Attendance::firstOrNew([
+                'date' => $arr['date'],
+                'employee_id' => $arr['employee_id'],
+                'company_id' => $arr['company_id']
+            ]);
+
+            $attendance->fill($arr)->save();
+
+
+
+            if (!empty($this->reason)) {
+                Reason::create([
+                    'reason' => $this->reason,
+                    'user_id' => $this->updated_by,
+                    'reasonable_id' => $attendance->id,
+                    'reasonable_type' => "App\Models\Attendance",
+                ]);
+            }
+
+
             return $this->response("The Log(s) has been render against {$request->UserID} SYSTEM USER ID.", null, true);
         } catch (\Exception $e) {
             return false;
@@ -271,15 +290,12 @@ class RenderController extends Controller
 
             $attendance->fill($items)->save();
 
-            if ($this->manual_entry) {
-
-                Reason::create([
-                    'reason' => $this->reason,
-                    'user_id' => $this->updated_by,
-                    'reasonable_id' => $attendance->id,
-                    'reasonable_type' => "App\Models\Attendance",
-                ]);
-            }
+            Reason::create([
+                'reason' => $this->reason,
+                'user_id' => $this->updated_by,
+                'reasonable_id' => $attendance->id,
+                'reasonable_type' => "App\Models\Attendance",
+            ]);
 
             return true;
         } catch (\Exception $e) {

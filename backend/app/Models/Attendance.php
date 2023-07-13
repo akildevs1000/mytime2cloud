@@ -135,6 +135,6 @@ class Attendance extends Model
 
     public function last_reason()
     {
-        return $this->hasOne(Reason::class, 'reasonable_id');
+        return $this->hasOne(Reason::class, 'reasonable_id','id')->latest();
     }
 }

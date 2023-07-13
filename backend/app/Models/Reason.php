@@ -9,7 +9,13 @@ class Reason extends Model
 {
     use HasFactory;
 
+    protected $with = ["user"];
+
     protected $guarded = [];
+
+    protected $casts = [
+        "created_at" => "datetime:d-M-y"
+    ];
 
     /**
      * Get the user that owns the Reason
@@ -20,5 +26,4 @@ class Reason extends Model
     {
         return $this->belongsTo(User::class);
     }
-
 }

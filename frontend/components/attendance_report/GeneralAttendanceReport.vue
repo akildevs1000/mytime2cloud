@@ -996,24 +996,42 @@
             </template>
 
             <template v-slot:item.status="{ item }">
-              <div>
-                <span v-if="item.status == 'A'" color="error">Absent</span>
-                <span v-else-if="item.status == 'P'" color="success darken-1"
-                  >Present
-                </span>
-                <span
-                  v-else-if="item.status == 'M'"
-                  small
-                  color="orange darken-1"
-                  >Missing</span
-                >
-                <span v-else-if="item.status == 'O'" small color="gray"
-                  >Week Off</span
-                >
-                <span class="primary--text" v-if="item.is_manual_entry">
-                  (Manual Entry)
-                </span>
-              </div>
+              <span v-if="item.status == 'A'" color="error">Absent</span>
+              <span v-else-if="item.status == 'P'" color="success darken-1"
+                >Present
+              </span>
+              <span v-else-if="item.status == 'M'" small color="orange darken-1"
+                >Missing</span
+              >
+              <span v-else-if="item.status == 'O'" small color="gray"
+                >Week Off
+              </span>
+              <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn color="primary" text v-bind="attrs" v-on="on">
+                    (ME)
+                  </v-btn>
+                </template>
+                <!-- <div>Manual Entry</div> -->
+                <div v-if="item.last_reason">
+                  <div>
+                    Reason: {{ item.last_reason && item.last_reason.reason }}
+                  </div>
+                  <div>
+                    Added By:
+                    {{
+                      item.last_reason &&
+                      item.last_reason.user &&
+                      item.last_reason.user.email
+                    }}
+                  </div>
+                  <div>
+                    Created At:
+                    {{ item.last_reason && item.last_reason.created_at }}
+                  </div>
+                </div>
+                <div v-else>No Reason Added</div>
+              </v-tooltip>
             </template>
 
             <template v-slot:item.shift="{ item }">

@@ -111,7 +111,18 @@
           errors.time[0]
         }}</span>
       </v-col>
-
+      <v-col cols="12">
+        <v-textarea
+          filled
+          label="Reason"
+          v-model="reason"
+          auto-grow
+          required
+        ></v-textarea>
+        <span v-if="errors && errors.reason" class="error--text">
+          {{ errors.reason[0] }}
+        </span>
+      </v-col>
       <v-col col="2" class="text-end">
         <v-btn small color="primary" @click="store_schedule"> Submit </v-btn>
       </v-col>
@@ -130,6 +141,8 @@ export default {
 
     loading: false,
     time_menu: false,
+
+    reason: null,
 
     log_payload: {
       user_id: null,
@@ -198,7 +211,7 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.report_report();
+            this.render_report();
 
             this.snackbar = true;
             this.response = data.message;
@@ -209,12 +222,15 @@ export default {
           this.response = message;
         });
     },
-    report_report() {
+    render_report() {
       let payload = {
         params: {
           date: this.log_payload.date,
           UserID: this.log_payload.user_id,
           company_id: this.$auth.user.company.id,
+          user_id: this.$auth.user.id,
+          updated_by : this.$auth.user.id,
+          reason: this.reason,
         },
       };
       this.$axios

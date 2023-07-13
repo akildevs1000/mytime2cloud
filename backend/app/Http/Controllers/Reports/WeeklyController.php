@@ -128,7 +128,39 @@ class WeeklyController extends Controller
         $model = $model->whereBetween('date', [$start, $end]);
         $model->where('company_id', $request->company_id);
         $model->orderBy('date', 'asc');
-        // return   $model->get();
+
+        $model->when($request->status == "P", function ($q) {
+            $q->where('status', "P");
+        });
+
+        $model->when($request->status == "A", function ($q) {
+            $q->where('status', "A");
+        });
+
+        $model->when($request->status == "O", function ($q) {
+            $q->where('status', "O");
+        });
+
+        $model->when($request->status == "M", function ($q) {
+            $q->where('status', "M");
+        });
+
+        $model->when($request->status == "ME", function ($q) {
+            $q->where('is_manual_entry', true);
+        });
+
+        $model->when($request->late_early == "L", function ($q) {
+            $q->where('late_coming', "!=", "---");
+        });
+
+        $model->when($request->late_early == "E", function ($q) {
+            $q->where('early_going', "!=", "---");
+        });
+
+        $model->when($request->overtime == 1, function ($q) {
+            $q->where('ot', "!=", "---");
+        });
+
         $model->when($request->employee_id && $request->employee_id != "", function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
         });
@@ -154,7 +186,7 @@ class WeeklyController extends Controller
             'total_absent' => $model->clone()->where('status', 'A')->count(),
             'total_present' => $model->clone()->where('status', 'P')->count(),
             'total_off' => $model->clone()->where('status', 'O')->count(),
-            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_missing' => $model->clone()->where('status', 'M')->count(),
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
