@@ -36,71 +36,27 @@ class TimezonePhotoUploadJob implements ShouldQueue
     public function handle()
     {
 
-        Log::channel('jobs')->info('TimezonePhotoUpload - Started' . date('Y-m-d H:i:s'));
-        // return false;
-        $url = "https://stagingsdk.ideahrms.com/Person/AddRange";
-        // $data = json_decode($this->data, true);
         $data = $this->data;
-        $personList = $data['personList'];
-        $snList = $data['snList'];
+
         $returnFinalMessage = [];
         $devicePersonsArray = [];
 
-        // $newArray1 = [
-        //     "personList" => $personList,
-        //     "snList" => $snList,
-        // ];
-        // print_r($newArray1);
-        // foreach ($snList as $key => $device) {
-
-        //     $returnMsg = '';
-
-        //     foreach ($personList as $keyPerson => $valuePerson) {
-        //         # code...
-        //         $newArray = [
-        //             "personList" => [$valuePerson],
-        //             "snList" => [$device],
-        //         ];
-
-        //         print_r($newArray);
-        // try {
         $returnMsg = Http::timeout(60)->withoutVerifying()->withHeaders([
             'Content-Type' => 'application/json',
-        ])->post($url, $data);
+        ])->post($this->url, $data);
         if ($returnMsg && $returnMsg['data']) {
             $returnFinalMessage[] = $returnMsg['data'][0];
             //$devicePersonsArray[] = [$device => $returnMsg['data'][0]['userList']];
         } else {
-            // $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
+            //$returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
             $returnFinalMessage[] = $returnMsg;
         }
 
-        // } catch (\Exception $e) {
-        //     $returnMsg = [
-        //         "status" => 102,
-        //         "message" => $e->getMessage(),
-        //     ];
-
-        //     $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
-
-        //     $returnFinalMessage[] = $returnMsg;
-
-        // }
-        //     }
-        // }
-        //$returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
         $returnContent = ["data" => $returnFinalMessage, "status" => 200,
             "message" => "",
             "transactionType" => 0];
-        // print_r($returnContent);
-        //echo json_encode($returnContent, true);
 
-        //Log::custom('TimezonePhotoUpload' . json_encode($returnContent, true));
-
-        ///Log::custom('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
-
-        Log::channel('jobs')->info('TimezonePhotoUpload' . json_encode($returnContent, true));
-        Log::channel('jobs')->info('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
+        Log::channel('jobs')->info('TimezonePhotoUpload ' . json_encode($returnContent, true));
 
         return $returnContent;
     }

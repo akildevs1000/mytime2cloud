@@ -115,18 +115,18 @@ class SDKController extends Controller
         $returnFinalMessage = [];
         $devicePersonsArray = [];
 
-        //if (env("APP_ENV") != "local")
-        // {
-        //     try {
+         
+        $sdk_url = '';
+        if (env("APP_ENV") == "production") {
+            $sdk_url = env("SDK_PRODUCTION_COMM_URL");
+        } else {
+            $sdk_url = env("SDK_STAGING_COMM_URL");
+        }
 
-        // exec('php artisan queue:work');
-        //     } catch (\Throwable $th) {
-        //         Log::channel('jobs')->error('artisan queue:work. Error Details: ' . $th);
-
-        //     }
-
-        // }
-
+        if ($sdk_url == '') {
+            return false;
+        }
+        $sdk_url = $sdk_url . '/Person/AddRange';
         foreach ($snList as $key => $device) {
 
             $returnMsg = '';
@@ -137,8 +137,8 @@ class SDKController extends Controller
                     "personList" => [$valuePerson],
                     "snList" => [$device],
                 ];
-                $newArray[] = $newArray;
-                $return = TimezonePhotoUploadJob::dispatch($newArray, $this->endpoint);
+                // $newArray[] = $newArray;
+                $return = TimezonePhotoUploadJob::dispatch($newArray, $sdk_url);
 
             }
         }
