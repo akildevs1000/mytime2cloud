@@ -206,7 +206,7 @@ class MonthlyController extends Controller
         $company['start'] = $start;
         $company['end'] = $end;
         $collection = $model->clone()->get();
-        
+
         $info = (object) [
             'total_absent' => $model->clone()->where('status', 'A')->count(),
             'total_present' => $model->clone()->where('status', 'P')->count(),
