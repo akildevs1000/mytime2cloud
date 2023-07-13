@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\TimezonePhotoUploadJob;
 use App\Models\Device;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
@@ -138,11 +137,13 @@ class SDKController extends Controller
                     "snList" => [$device],
                 ];
                 // $newArray[] = $newArray;
-                $return = TimezonePhotoUploadJob::dispatch($newArray, $this->endpoint);
+                //$return = TimezonePhotoUploadJob::dispatch($newArray, $this->endpoint);
+
+                $returnFinalMessage = $this->processSDKRequestBulk($this->endpoint, $newArray);
 
             }
         }
-        $returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
+        //$returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
         $returnContent = ["data" => $returnFinalMessage, "status" => 200,
             "message" => "",
             "transactionType" => 0];

@@ -33,86 +33,6 @@ class TimezonePhotoUploadJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
-    {
-
-        // return false;
-        $url = "https://stagingsdk.ideahrms.com/Person/AddRange";
-
-        $url = '';
-        if (env("APP_ENV") != "production") {
-            $url = env("SDK_STAGING_COMM_URL");
-        }
-
-        if ($url == '') {
-            $url = "http://139.59.69.241:5000";
-        }
-        $url = $url . "/Person/AddRange";
-        // $data = json_decode($this->data, true);
-        $data = $this->data;
-        $personList = $data['personList'];
-        $snList = $data['snList'];
-        $returnFinalMessage = [];
-        $devicePersonsArray = [];
-
-        // $newArray1 = [
-        //     "personList" => $personList,
-        //     "snList" => $snList,
-        // ];
-        // print_r($newArray1);
-        // foreach ($snList as $key => $device) {
-
-        //     $returnMsg = '';
-
-        //     foreach ($personList as $keyPerson => $valuePerson) {
-        //         # code...
-        //         $newArray = [
-        //             "personList" => [$valuePerson],
-        //             "snList" => [$device],
-        //         ];
-
-        //         print_r($newArray);
-        // try {
-        $returnMsg = Http::withoutVerifying()->withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post($url, $data);
-        if ($returnMsg && $returnMsg['data']) {
-            $returnFinalMessage[] = $returnMsg['data'][0];
-            //$devicePersonsArray[] = [$device => $returnMsg['data'][0]['userList']];
-        } else {
-            //$returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
-            $returnFinalMessage[] = $returnMsg;
-        }
-
-        // } catch (\Exception $e) {
-        //     $returnMsg = [
-        //         "status" => 102,
-        //         "message" => $e->getMessage(),
-        //     ];
-
-        //     $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
-
-        //     $returnFinalMessage[] = $returnMsg;
-
-        // }
-        //     }
-        // }
-        //$returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
-        $returnContent = ["data" => $returnFinalMessage, "status" => 200,
-            "message" => "",
-            "transactionType" => 0];
-        // print_r($returnContent);
-        //echo json_encode($returnContent, true);
-
-        //Log::custom('TimezonePhotoUpload' . json_encode($returnContent, true));
-
-        ///Log::custom('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
-
-        Log::channel('jobs')->info('TimezonePhotoUpload' . $url . '\n' . json_encode($data, true) . '\n' . json_encode($returnContent, true));
-        // Log::channel('jobs')->info('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
-
-        return $returnContent;
-    }
 
     public function mergeDevicePersonslist($data)
     {
@@ -144,12 +64,22 @@ class TimezonePhotoUploadJob implements ShouldQueue
         return $mergedList;
     }
 
-    public function handle_old()
+    public function handle()
     {
 
-        Log::channel('jobs')->info('TimezonePhotoUpload - Started' . date('Y-m-d H:i:s'));
-        // return false;
-        $url = "https://stagingsdk.ideahrms.com/Person/AddRange";
+        //$url = "https://stagingsdk.ideahrms.com/Person/AddRange";
+
+        $url = '';
+        if (env("APP_ENV") != "production") {
+            $url = env("SDK_STAGING_COMM_URL");
+        } else {
+            $url = env("SDK_PRODUCTION_COMM_URL");
+        }
+
+        if ($url == '') {
+            return false;
+        }
+        $url = $url . "/Person/AddRange";
         // $data = json_decode($this->data, true);
         $data = $this->data;
         $personList = $data['personList'];
@@ -167,7 +97,7 @@ class TimezonePhotoUploadJob implements ShouldQueue
                     "snList" => [$device],
                 ];
                 // try {
-                $returnMsg = Http::timeout(60)->withoutVerifying()->withHeaders([
+                $returnMsg = Http::withoutVerifying()->withHeaders([
                     'Content-Type' => 'application/json',
                 ])->post($url, $newArray);
                 if ($returnMsg && $returnMsg['data']) {
@@ -178,33 +108,98 @@ class TimezonePhotoUploadJob implements ShouldQueue
                     $returnFinalMessage[] = $returnMsg;
                 }
 
-                // } catch (\Exception $e) {
-                //     $returnMsg = [
-                //         "status" => 102,
-                //         "message" => $e->getMessage(),
-                //     ];
-
-                //     $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
-
-                //     $returnFinalMessage[] = $returnMsg;
-
-                // }
             }
         }
-        //$returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
+
         $returnContent = ["data" => $returnFinalMessage, "status" => 200,
             "message" => "",
             "transactionType" => 0];
-        // print_r($returnContent);
-        //echo json_encode($returnContent, true);
 
-        //Log::custom('TimezonePhotoUpload' . json_encode($returnContent, true));
-
-        ///Log::custom('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
-
-        Log::channel('jobs')->info('TimezonePhotoUpload' . json_encode($returnContent, true));
-        Log::channel('jobs')->info('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
+        Log::channel('jobs')->info('Timezone - PhotoUpload - ' . json_encode($returnContent, true));
 
         return $returnContent;
     }
+
+    /*public function handlenew()
+{
+
+// return false;
+$url = "https://stagingsdk.ideahrms.com/Person/AddRange";
+
+$url = '';
+if (env("APP_ENV") != "production") {
+$url = env("SDK_STAGING_COMM_URL");
+}
+
+if ($url == '') {
+$url = "http://139.59.69.241:5000";
+}
+$url = $url . "/Person/AddRange";
+// $data = json_decode($this->data, true);
+$data = $this->data;
+$personList = $data['personList'];
+$snList = $data['snList'];
+$returnFinalMessage = [];
+$devicePersonsArray = [];
+
+// $newArray1 = [
+//     "personList" => $personList,
+//     "snList" => $snList,
+// ];
+// print_r($newArray1);
+// foreach ($snList as $key => $device) {
+
+//     $returnMsg = '';
+
+//     foreach ($personList as $keyPerson => $valuePerson) {
+//         # code...
+//         $newArray = [
+//             "personList" => [$valuePerson],
+//             "snList" => [$device],
+//         ];
+
+//         print_r($newArray);
+// try {
+
+$returnMsg = Http::withoutVerifying()->withHeaders([
+'Content-Type' => 'application/json',
+])->post($url, $data);
+if ($returnMsg && $returnMsg['data']) {
+$returnFinalMessage[] = $returnMsg['data'][0];
+//$devicePersonsArray[] = [$device => $returnMsg['data'][0]['userList']];
+} else {
+//$returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
+$returnFinalMessage[] = $returnMsg;
+}
+
+// } catch (\Exception $e) {
+//     $returnMsg = [
+//         "status" => 102,
+//         "message" => $e->getMessage(),
+//     ];
+
+//     $returnMsg = ["sn" => $device, "state" => false, "message" => "The device was not found - Network issue", "userList" => null];
+
+//     $returnFinalMessage[] = $returnMsg;
+
+// }
+//     }
+// }
+//$returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
+$returnContent = ["data" => $returnFinalMessage, "status" => 200,
+"message" => "",
+"transactionType" => 0];
+// print_r($returnContent);
+//echo json_encode($returnContent, true);
+
+//Log::custom('TimezonePhotoUpload' . json_encode($returnContent, true));
+
+///Log::custom('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
+
+Log::channel('jobs')->info('TimezonePhotoUpload' . $url . '\n' . json_encode($data, true) . '\n' . json_encode($returnContent, true));
+// Log::channel('jobs')->info('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
+
+return $returnContent;
+}
+ */
 }
