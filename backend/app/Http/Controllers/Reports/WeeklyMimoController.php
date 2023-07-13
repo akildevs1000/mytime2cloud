@@ -84,7 +84,7 @@ class WeeklyMimoController extends Controller
         $model->orderBy('date', 'asc');
 
         $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $ids = Employee::where("department_id", $request->department_id)->pluck("employee_id");
+            $ids = Employee::where("department_id", $request->department_id)->pluck("system_user_id");
             $q->whereIn('employee_id', $ids);
         });
 
