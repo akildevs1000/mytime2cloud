@@ -563,7 +563,7 @@ export default {
             });
 
 
-            // this.pendingLeavesCount = data.total_pending_count;
+            this.pendingLeavesCount = data.total_pending_count;
           }
 
 
