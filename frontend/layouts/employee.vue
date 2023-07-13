@@ -91,16 +91,24 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
-      <label class="px-2 text-overflow">
-        <v-icon v-if="pendingLeavesCount == 0">mdi mdi-bell</v-icon>
+      <label class="px-2  ">
+        <!-- <v-icon v-if="pendingLeavesCount == 0">mdi mdi-bell</v-icon>
         <span v-else>
           <v-icon title="0 Pending leaves" @click="snackNotificationText != '' && snackNotification == true"
             color="success">mdi mdi-bell-ring
           </v-icon>
-          <v-chip title="Pending Count" color="black" style="text-color:#FFF" to="/employees/leave">{{
-            pendingLeavesCount }}</v-chip>
-        </span>
-
+          <v-chip title="Pending Count" color="white" style="color:black" to="/employees/leave"><strong>{{
+            pendingLeavesCount }}</strong></v-chip>
+        </span> -->
+        <!-- <v-badge color="red" :content="pendingLeavesCount">
+          <v-icon title="0 Pending leaves" color="success">mdi mdi-bell-ring
+          </v-icon>
+        </v-badge> -->
+        <v-badge @click="navigateToLeavePage()" :color="pendingLeavesCount > 0 ? 'red' : 'black'"
+          :content="pendingLeavesCount">
+          <v-icon @click="navigateToLeavePage()">mdi
+            mdi-bell-ring</v-icon>
+        </v-badge>
 
 
       </label>
@@ -327,6 +335,9 @@ export default {
     },
   },
   methods: {
+    navigateToLeavePage() {
+      this.$router.push("/employees/leave");
+    },
     verifyLeaveNotifications() {
       if (!this.$auth.user?.company?.id) return false;
       let options = {
@@ -432,8 +443,4 @@ export default {
   },
 };
 </script>
-<style>
-.file-upload .v-input__slot {
-  padding: 0px !important;
-}
-</style>
+

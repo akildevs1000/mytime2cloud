@@ -97,10 +97,26 @@
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> Dashboard / {{ Model }} List</span></v-toolbar-title>
-            <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getDataFromApi()"><v-icon class="mx-1">mdi
-                mdi-reload</v-icon></a>
+
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                </v-btn>
+              </template>
+              <span>Reload</span>
+            </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="dialogFilter = true" dark>mdi
+                    mdi-calendar-blank-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ filterYear }}</span>
+            </v-tooltip>
             <a style="padding-left:10px" @click="dialogFilter = true"><v-icon class="mx-1">mdi
-                mdi-calendar-blank-outline</v-icon> </a>
+              </v-icon> </a>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
@@ -273,19 +289,19 @@ export default {
       {
         text: "Start Date",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "start_date",
       },
       {
         text: "End Date",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "end_date",
       },
       {
         text: "Total Days",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "total_days",
       },
 

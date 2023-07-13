@@ -101,16 +101,20 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
-      <label class="px-2 text-overflow">
-        <v-icon v-if="pendingLeavesCount == 0">mdi mdi-bell</v-icon>
+      <label class="px-2  ">
+        <!-- <v-icon v-if="pendingLeavesCount == 0">mdi mdi-bell</v-icon>
         <span v-else>
           <v-icon @click="snackNotificationText != '' && snackNotification == true" color="success">mdi
             mdi-bell-ring </v-icon>
-          <v-chip title="Pending Count" color="black" style="text-color:#FFF" to="/leaves">{{
-            pendingLeavesCount }}</v-chip>
-        </span>
+          <v-chip title="Pending Count" bold color="white" style="color:black" to="/leaves"><strong>{{
+            pendingLeavesCount }}</strong></v-chip>
+        </span> -->
 
-
+        <v-badge @click="navigateToLeavePage()" :color="pendingLeavesCount > 0 ? 'red' : 'black'"
+          :content="pendingLeavesCount">
+          <v-icon @click="navigateToLeavePage()">mdi
+            mdi-bell-ring</v-icon>
+        </v-badge>
 
       </label>
       <v-snackbar top="top" v-model="snackNotification" location="right" :timeout="5000" :color="snackNotificationColor">
@@ -529,6 +533,9 @@ export default {
     },
   },
   methods: {
+    navigateToLeavePage() {
+      this.$router.push("/leaves");
+    },
     verifyLeaveNotifications() {
 
       if (!this.$auth.user?.company?.id) return false;
