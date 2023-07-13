@@ -108,7 +108,7 @@ class TimezonePhotoUploadJob implements ShouldQueue
 
         ///Log::custom('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
 
-        Log::channel('jobs')->info('TimezonePhotoUpload' . $url . '-' . json_encode($returnContent, true));
+        Log::channel('jobs')->info('TimezonePhotoUpload' . $url . '\n' . json_encode($data, true) . '\n' . json_encode($returnContent, true));
         // Log::channel('jobs')->info('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
 
         return $returnContent;
