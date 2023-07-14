@@ -203,6 +203,7 @@ export default {
       snackNotification: false,
       snackNotificationColor: "black",
 
+      socketConnectionStatus: 0,
       miniVariant: false,
       right: true,
       rightDrawer: false,
@@ -298,7 +299,14 @@ export default {
     };
     let user = this.$auth.user;
     let permissions = user.permissions;
+    this.verifyLeaveNotifications();
 
+    setInterval(() => {
+      console.log('interval', this.socketConnectionStatus);
+      if (this.socketConnectionStatus != 1) { //socket connection is closed
+        this.verifyLeaveNotifications();
+      }
+    }, 1000 * 60 * 1);
     if (user && user.is_master) {
       this.items = this.menus;
       // this.items.unshift(das);
@@ -312,10 +320,10 @@ export default {
     });
 
     this.getCompanyDetails();
-    this.verifyLeaveNotifications();
-    setInterval(() => {
-      this.verifyLeaveNotifications();
-    }, 1000 * 60 * 60);
+
+    // setInterval(() => {
+    //   this.verifyLeaveNotifications();
+    // }, 1000 * 60 * 60);
   },
 
   mounted() { },
@@ -342,47 +350,101 @@ export default {
     navigateToLeavePage() {
       this.$router.push("/employees/leave");
     },
+
     verifyLeaveNotifications() {
-      if (!this.$auth.user?.company?.id) return false;
-      let options = {
-        params: {
-          company_id: this.$auth.user?.company?.id || 0,
-          employee_id: this.$auth.user.employee.id,
+      let company_id = this.$auth.user.company.id;
+      let employee_id = this.$auth.user.employee.id;
+      console.log(company_id);
+      if (!process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
+      let ws = new WebSocket(process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
+
+      ws.onopen = function () {
+
+        this.socketConnectionStatus = ws.readyState;
+        const data = {
+          company_id: company_id,
+          employee_id: employee_id
+        };
+        ws.send(JSON.stringify(data)); // this works
+
+      };
+      ws.onclose = function () {
+
+        this.socketConnectionStatus = 0;
+
+      };
+      ws.onmessage = ({ data }) => {
+
+        data = JSON.parse(data);
+        console.log('Socket', data);
+        if (data.status && data.new_leaves_data[0]) {
+
+          let element = data.new_leaves_data[0];
+          //data.new_leaves_data.data.forEach(element => {
+
+
+
+
+          if (element.status == 1) {
+            console.log('Notification Content', element);
+            this.snackNotification = true;
+            this.snackNotificationColor = "background";
+            this.snackNotificationText = "Your Leave Application is Approved";
+          }
+          else if (element.status == 2) {
+            console.log('Notification Content', element);
+            this.snackNotification = true;
+            this.snackNotificationColor = "error";
+            this.snackNotificationText = "Your Leave Application is Rejected";
+          }
+          console.log(this.snackNotificationText);
         }
+        this.pendingLeavesCount = data.total_pending_count;
       };
 
-      this.$axios
-        .get(`employee_leaves_new_by_employee`, options)
-        .then(({ data }) => {
-          if (data.status && data.new_leaves_data.data[0]) {
 
-            let element = data.new_leaves_data.data[0];
-            //data.new_leaves_data.data.forEach(element => {
-
-
-            this.snackNotification = true;
-
-            if (element.status == 1) {
-              this.snackNotificationColor = "primary";
-              this.snackNotificationText = "Your Leave Application is Approved";
-            }
-            else if (element.status == 2) {
-              this.snackNotificationColor = "error";
-              this.snackNotificationText = "Your Leave Application is Rejected";
-            }
-
-
-
-
-            //});
-
-
-
-          }
-          this.pendingLeavesCount = data.total_pending_count;
-
-        });
     },
+    // verifyLeaveNotifications_old() {
+    //   if (!this.$auth.user?.company?.id) return false;
+    //   let options = {
+    //     params: {
+    //       company_id: this.$auth.user?.company?.id || 0,
+    //       employee_id: this.$auth.user.employee.id,
+    //     }
+    //   };
+
+    //   this.$axios
+    //     .get(`employee_leaves_new_by_employee`, options)
+    //     .then(({ data }) => {
+    //       if (data.status && data.new_leaves_data.data[0]) {
+
+    //         let element = data.new_leaves_data.data[0];
+    //         //data.new_leaves_data.data.forEach(element => {
+
+
+    //         this.snackNotification = true;
+
+    //         if (element.status == 1) {
+    //           this.snackNotificationColor = "primary";
+    //           this.snackNotificationText = "Your Leave Application is Approved";
+    //         }
+    //         else if (element.status == 2) {
+    //           this.snackNotificationColor = "error";
+    //           this.snackNotificationText = "Your Leave Application is Rejected";
+    //         }
+
+
+
+
+    //         //});
+
+
+
+    //       }
+    //       this.pendingLeavesCount = data.total_pending_count;
+
+    //     });
+    // },
     collapseSubItems() {
       this.menus.map((item) => (item.active = false));
     },

@@ -163,7 +163,7 @@ class EmployeeLeavesController extends Controller
         $data['new_leaves_data'] = $model->paginate($request->per_page ?? 100);
 
         $model = EmployeeLeaves::query();
-        $model->with(["leave_type", "employee.leave_group", "reporting"]);
+        //$model->with(["leave_type", "employee.leave_group", "reporting"]);
         $model->where('company_id', $request->company_id);
         $model->where('status', 0);
 

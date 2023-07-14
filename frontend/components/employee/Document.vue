@@ -91,7 +91,7 @@
 
                   <v-row v-for="(d, index) in Document.items" :key="index">
                     <v-col cols="5">
-                      <label for="">Title <span color="error"></span></label>
+                      <label for="" class="py-2">Title <span color="error"></span></label>
                       <v-text-field solo dense outlined v-model="d.title" :rules="TitleRules"
                         label="Title"></v-text-field>
                       <span v-if="errors && errors.title" class="text-danger mt-2">{{
@@ -100,7 +100,7 @@
                     </v-col>
                     <v-col cols="5">
                       <div class="form-group">
-                        <label for="">Title <span color="error"></span></label>
+                        <label for="" class="px-8 py-2">Select File <span color="error"></span></label>
                         <v-file-input solo dense outlined v-model="d.file" placeholder="Upload your file"
                           label="Attachment" :rules="FileRules">
                           <template v-slot:selection="{ text }">

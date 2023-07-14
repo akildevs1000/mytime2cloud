@@ -864,6 +864,7 @@ export default {
   watch: {
 
   },
+
   created() {
 
     this.loading = true;
@@ -896,6 +897,7 @@ export default {
   },
 
   methods: {
+
     openDialogUploadDocuments() {
       // this.Document = {
       //   items: [],
