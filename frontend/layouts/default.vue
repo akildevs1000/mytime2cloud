@@ -565,7 +565,7 @@ export default {
       let company_id = this.$auth.user.company.id;
 
 
-      // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
+      if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
       this.socket = new WebSocket(process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
 
       this.socket.onopen = function () {
