@@ -553,55 +553,55 @@ export default {
 
 
 
-      // 0	CONNECTING	Socket has been created.The connection is not yet open.
-      // 1	OPEN	The connection is open and ready to communicate.
-      // 2	CLOSING	The connection is in the process of closing.
-      // 3	CLOSED
+      // // 0	CONNECTING	Socket has been created.The connection is not yet open.
+      // // 1	OPEN	The connection is open and ready to communicate.
+      // // 2	CLOSING	The connection is in the process of closing.
+      // // 3	CLOSED
 
-      let company_id = this.$auth.user.company.id;
-      console.log('1', process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
-      console.log('2', process.env.SOCKET_ENDPOINT);
-
-
-      // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
-      this.socket = new WebSocket("wss://stagingsdk.ideahrms.com/WebSocket");
-
-      this.socket.onopen = function () {
-
-        this.socketConnectionStatus = this.socket.readyState;
-
-        const data = {
-          company_id: company_id,
-
-        };
-        this.socket.send(JSON.stringify(data)); // this works
-
-      };
-      this.socket.onclose = function () {
-
-        this.socketConnectionStatus = 0;
-
-      };
-      this.socket.onmessage = ({ data }) => {
+      // let company_id = this.$auth.user.company.id;
+      // console.log('1', process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
+      // console.log('2', process.env.SOCKET_ENDPOINT);
 
 
+      // // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
+      // this.socket = new WebSocket("wss://stagingsdk.ideahrms.com/WebSocket");
 
-        data = JSON.parse(data);
-        console.log('Socket', data);
-        if (data.status && data.new_leaves_data[0]) {
+      // this.socket.onopen = function () {
 
-          let element = data.new_leaves_data[0];
-          //data.new_leaves_data.data.forEach(element => {
-          console.log('Notification Content', element);
+      //   this.socketConnectionStatus = this.socket.readyState;
 
-          this.snackNotification = true;
-          this.snackNotificationText = "New Leave Notification - From : " + element.first_name + " " + element.last_name;
-          console.log(this.snackNotificationText);
+      //   const data = {
+      //     company_id: company_id,
+
+      //   };
+      //   this.socket.send(JSON.stringify(data)); // this works
+
+      // };
+      // this.socket.onclose = function () {
+
+      //   this.socketConnectionStatus = 0;
+
+      // };
+      // this.socket.onmessage = ({ data }) => {
 
 
-        }
-        this.pendingLeavesCount = data.total_pending_count;
-      };
+
+      //   data = JSON.parse(data);
+      //   console.log('Socket', data);
+      //   if (data.status && data.new_leaves_data[0]) {
+
+      //     let element = data.new_leaves_data[0];
+      //     //data.new_leaves_data.data.forEach(element => {
+      //     console.log('Notification Content', element);
+
+      //     this.snackNotification = true;
+      //     this.snackNotificationText = "New Leave Notification - From : " + element.first_name + " " + element.last_name;
+      //     console.log(this.snackNotificationText);
+
+
+      //   }
+      //   this.pendingLeavesCount = data.total_pending_count;
+      // };
 
 
     },

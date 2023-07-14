@@ -365,6 +365,15 @@ export default {
     this.get_announcements();
     this.first_login_auth = this.$auth.user.first_login;
 
+    this.verifyLeaveNotifications();
+
+    setInterval(() => {
+      console.log('socketConnectionStatus', this.socketConnectionStatus);
+      if (this.socketConnectionStatus != 1) { //socket connection is closed
+        this.verifyLeaveNotifications();
+      }
+    }, 1000 * 60);
+
     // this.generalreportIframeSrc=  this.$axios.defaults.baseURL +
     //     "daily?company_id=8&status=SA&daily_date=2023-05-31&department_id=-1&report_type=Daily",
   },
@@ -400,6 +409,62 @@ export default {
     },
   },
   methods: {
+    verifyLeaveNotifications() {
+
+
+
+      // 0	CONNECTING	Socket has been created.The connection is not yet open.
+      // 1	OPEN	The connection is open and ready to communicate.
+      // 2	CLOSING	The connection is in the process of closing.
+      // 3	CLOSED
+
+      let company_id = this.$auth.user.company.id;
+      console.log('1', process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
+      console.log('2', process.env.SOCKET_ENDPOINT);
+
+
+      // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
+      this.socket = new WebSocket("wss://stagingsdk.ideahrms.com/WebSocket");
+
+      this.socket.onopen = function () {
+
+        this.socketConnectionStatus = this.socket.readyState;
+
+        const data = {
+          company_id: company_id,
+
+        };
+        this.socket.send(JSON.stringify(data)); // this works
+
+      };
+      this.socket.onclose = function () {
+
+        this.socketConnectionStatus = 0;
+
+      };
+      this.socket.onmessage = ({ data }) => {
+
+
+
+        data = JSON.parse(data);
+        console.log('Socket', data);
+        if (data.status && data.new_leaves_data[0]) {
+
+          let element = data.new_leaves_data[0];
+          //data.new_leaves_data.data.forEach(element => {
+          console.log('Notification Content', element);
+
+          this.snackNotification = true;
+          this.snackNotificationText = "New Leave Notification - From : " + element.first_name + " " + element.last_name;
+          console.log(this.snackNotificationText);
+
+
+        }
+        this.pendingLeavesCount = data.total_pending_count;
+      };
+
+
+    },
     openDialog(announcement) {
       this.dialogData = announcement;
       this.dialog = true;
