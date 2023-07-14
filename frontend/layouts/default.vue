@@ -512,7 +512,7 @@ export default {
     this.verifyLeaveNotifications();
 
     setInterval(() => {
-      console.log('socketConnectionStatus', this.socketConnectionStatus);
+
       if (this.socketConnectionStatus != 1) { //socket connection is closed
         this.verifyLeaveNotifications();
       }
@@ -563,8 +563,6 @@ export default {
       // 3	CLOSED
 
       let company_id = this.$auth.user.company.id;
-      console.log('1', process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
-      console.log('2', process.env.SOCKET_ENDPOINT);
 
 
       // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
@@ -591,16 +589,13 @@ export default {
 
 
         data = JSON.parse(data);
-        console.log('Socket', data);
         if (data.status && data.new_leaves_data[0]) {
 
           let element = data.new_leaves_data[0];
           //data.new_leaves_data.data.forEach(element => {
-          console.log('Notification Content', element);
 
           this.snackNotification = true;
           this.snackNotificationText = "New Leave Notification - From : " + element.first_name + " " + element.last_name;
-          console.log(this.snackNotificationText);
 
 
         }

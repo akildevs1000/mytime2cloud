@@ -299,14 +299,7 @@ export default {
     };
     let user = this.$auth.user;
     let permissions = user.permissions;
-    this.verifyLeaveNotifications();
 
-    setInterval(() => {
-      console.log('interval', this.socketConnectionStatus);
-      if (this.socketConnectionStatus != 1) { //socket connection is closed
-        this.verifyLeaveNotifications();
-      }
-    }, 1000 * 60 * 1);
     if (user && user.is_master) {
       this.items = this.menus;
       // this.items.unshift(das);
@@ -326,7 +319,15 @@ export default {
     // }, 1000 * 60 * 60);
   },
 
-  mounted() { },
+  mounted() {
+    this.verifyLeaveNotifications();
+
+    setInterval(() => {
+      if (this.socketConnectionStatus != 1) { //socket connection is closed
+        this.verifyLeaveNotifications();
+      }
+    }, 1000 * 60 * 1);
+  },
 
   computed: {
     changeColor() {
@@ -352,55 +353,49 @@ export default {
     },
 
     verifyLeaveNotifications() {
-      // let company_id = this.$auth.user.company.id;
-      // let employee_id = this.$auth.user.employee.id;
-      // console.log(company_id);
-      // if (!process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
-      // let ws = new WebSocket(process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
+      let company_id = this.$auth.user.company.id;
+      let employee_id = this.$auth.user.employee.id;
 
-      // ws.onopen = function () {
+      if (!process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
+      let ws = new WebSocket(process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
 
-      //   this.socketConnectionStatus = ws.readyState;
-      //   const data = {
-      //     company_id: company_id,
-      //     employee_id: employee_id
-      //   };
-      //   ws.send(JSON.stringify(data)); // this works
+      ws.onopen = function () {
 
-      // };
-      // ws.onclose = function () {
+        this.socketConnectionStatus = ws.readyState;
+        const data = {
+          company_id: company_id,
+          employee_id: employee_id
+        };
+        ws.send(JSON.stringify(data)); // this works
 
-      //   this.socketConnectionStatus = 0;
+      };
+      ws.onclose = function () {
 
-      // };
-      // ws.onmessage = ({ data }) => {
+        this.socketConnectionStatus = 0;
 
-      //   data = JSON.parse(data);
-      //   console.log('Socket', data);
-      //   if (data.status && data.new_leaves_data[0]) {
+      };
+      ws.onmessage = ({ data }) => {
 
-      //     let element = data.new_leaves_data[0];
-      //     //data.new_leaves_data.data.forEach(element => {
+        data = JSON.parse(data);
+        if (data.status && data.new_leaves_data[0]) {
 
+          let element = data.new_leaves_data[0];
+          //data.new_leaves_data.data.forEach(element => {
 
+          if (element.status == 1) {
+            this.snackNotification = true;
+            this.snackNotificationColor = "background";
+            this.snackNotificationText = "Your Leave Application is Approved";
+          }
+          else if (element.status == 2) {
+            this.snackNotification = true;
+            this.snackNotificationColor = "error";
+            this.snackNotificationText = "Your Leave Application is Rejected";
+          }
 
-
-      //     if (element.status == 1) {
-      //       console.log('Notification Content', element);
-      //       this.snackNotification = true;
-      //       this.snackNotificationColor = "background";
-      //       this.snackNotificationText = "Your Leave Application is Approved";
-      //     }
-      //     else if (element.status == 2) {
-      //       console.log('Notification Content', element);
-      //       this.snackNotification = true;
-      //       this.snackNotificationColor = "error";
-      //       this.snackNotificationText = "Your Leave Application is Rejected";
-      //     }
-      //     console.log(this.snackNotificationText);
-      //   }
-      //   this.pendingLeavesCount = data.total_pending_count;
-      // };
+        }
+        this.pendingLeavesCount = data.total_pending_count;
+      };
 
 
     },
