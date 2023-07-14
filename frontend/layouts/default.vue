@@ -552,52 +552,52 @@ export default {
 
 
 
-      // // 0	CONNECTING	Socket has been created.The connection is not yet open.
-      // // 1	OPEN	The connection is open and ready to communicate.
-      // // 2	CLOSING	The connection is in the process of closing.
-      // // 3	CLOSED
-      // console.log("User: ", this.$auth);
-      // let company_id = this.$auth.user.company.id;
-      // console.log(process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
-      // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
-      // let ws = new WebSocket(process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
+      // 0	CONNECTING	Socket has been created.The connection is not yet open.
+      // 1	OPEN	The connection is open and ready to communicate.
+      // 2	CLOSING	The connection is in the process of closing.
+      // 3	CLOSED
+      console.log("User: ", this.$auth);
+      let company_id = this.$auth.user.company.id;
+      console.log(process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
+      if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
+      let ws = new WebSocket(process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
 
-      // ws.onopen = function () {
+      ws.onopen = function () {
 
-      //   this.socketConnectionStatus = ws.readyState;
+        this.socketConnectionStatus = ws.readyState;
 
-      //   const data = {
-      //     company_id: company_id,
+        const data = {
+          company_id: company_id,
 
-      //   };
-      //   ws.send(JSON.stringify(data)); // this works
+        };
+        ws.send(JSON.stringify(data)); // this works
 
-      // };
-      // ws.onclose = function () {
+      };
+      ws.onclose = function () {
 
-      //   this.socketConnectionStatus = 0;
+        this.socketConnectionStatus = 0;
 
-      // };
-      // ws.onmessage = ({ data }) => {
-
-
-
-      //   data = JSON.parse(data);
-      //   console.log('Socket', data);
-      //   if (data.status && data.new_leaves_data[0]) {
-
-      //     let element = data.new_leaves_data[0];
-      //     //data.new_leaves_data.data.forEach(element => {
-      //     console.log('Notification Content', element);
-
-      //     this.snackNotification = true;
-      //     this.snackNotificationText = "New Leave Notification - From : " + element.first_name + " " + element.last_name;
-      //     console.log(this.snackNotificationText);
+      };
+      ws.onmessage = ({ data }) => {
 
 
-      //   }
-      //   this.pendingLeavesCount = data.total_pending_count;
-      // };
+
+        data = JSON.parse(data);
+        console.log('Socket', data);
+        if (data.status && data.new_leaves_data[0]) {
+
+          let element = data.new_leaves_data[0];
+          //data.new_leaves_data.data.forEach(element => {
+          console.log('Notification Content', element);
+
+          this.snackNotification = true;
+          this.snackNotificationText = "New Leave Notification - From : " + element.first_name + " " + element.last_name;
+          console.log(this.snackNotificationText);
+
+
+        }
+        this.pendingLeavesCount = data.total_pending_count;
+      };
 
 
     },
