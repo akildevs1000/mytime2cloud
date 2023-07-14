@@ -30,12 +30,24 @@ function getDatesInRange(startDate, endDate) {
 
   https://www.youtube.com/watch?v=AY3EEGGHV3Y
 
-
+//SDK photo upload process
+php artisan queue:restart
   php artisan queue:work
 
   nohup php artisan queue:work --daemon &   
+  
   //background run   
   php artisan task:check_device_health
+
+// node socket
+  nohup node leaveNotifications --daemon &
+   nohup node employeeLeaveNotifications --daemon &
+
+   //view nohup services node
+    pgrep -a node
+    kill 155555
+
+
 
 SDK  Live port : 9001
 SDK  Live port : 9001

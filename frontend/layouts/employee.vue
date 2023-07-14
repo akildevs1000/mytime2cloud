@@ -352,55 +352,55 @@ export default {
     },
 
     verifyLeaveNotifications() {
-      let company_id = this.$auth.user.company.id;
-      let employee_id = this.$auth.user.employee.id;
-      console.log(company_id);
-      if (!process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
-      let ws = new WebSocket(process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
+      // let company_id = this.$auth.user.company.id;
+      // let employee_id = this.$auth.user.employee.id;
+      // console.log(company_id);
+      // if (!process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
+      // let ws = new WebSocket(process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
 
-      ws.onopen = function () {
+      // ws.onopen = function () {
 
-        this.socketConnectionStatus = ws.readyState;
-        const data = {
-          company_id: company_id,
-          employee_id: employee_id
-        };
-        ws.send(JSON.stringify(data)); // this works
+      //   this.socketConnectionStatus = ws.readyState;
+      //   const data = {
+      //     company_id: company_id,
+      //     employee_id: employee_id
+      //   };
+      //   ws.send(JSON.stringify(data)); // this works
 
-      };
-      ws.onclose = function () {
+      // };
+      // ws.onclose = function () {
 
-        this.socketConnectionStatus = 0;
+      //   this.socketConnectionStatus = 0;
 
-      };
-      ws.onmessage = ({ data }) => {
+      // };
+      // ws.onmessage = ({ data }) => {
 
-        data = JSON.parse(data);
-        console.log('Socket', data);
-        if (data.status && data.new_leaves_data[0]) {
+      //   data = JSON.parse(data);
+      //   console.log('Socket', data);
+      //   if (data.status && data.new_leaves_data[0]) {
 
-          let element = data.new_leaves_data[0];
-          //data.new_leaves_data.data.forEach(element => {
-
-
+      //     let element = data.new_leaves_data[0];
+      //     //data.new_leaves_data.data.forEach(element => {
 
 
-          if (element.status == 1) {
-            console.log('Notification Content', element);
-            this.snackNotification = true;
-            this.snackNotificationColor = "background";
-            this.snackNotificationText = "Your Leave Application is Approved";
-          }
-          else if (element.status == 2) {
-            console.log('Notification Content', element);
-            this.snackNotification = true;
-            this.snackNotificationColor = "error";
-            this.snackNotificationText = "Your Leave Application is Rejected";
-          }
-          console.log(this.snackNotificationText);
-        }
-        this.pendingLeavesCount = data.total_pending_count;
-      };
+
+
+      //     if (element.status == 1) {
+      //       console.log('Notification Content', element);
+      //       this.snackNotification = true;
+      //       this.snackNotificationColor = "background";
+      //       this.snackNotificationText = "Your Leave Application is Approved";
+      //     }
+      //     else if (element.status == 2) {
+      //       console.log('Notification Content', element);
+      //       this.snackNotification = true;
+      //       this.snackNotificationColor = "error";
+      //       this.snackNotificationText = "Your Leave Application is Rejected";
+      //     }
+      //     console.log(this.snackNotificationText);
+      //   }
+      //   this.pendingLeavesCount = data.total_pending_count;
+      // };
 
 
     },
