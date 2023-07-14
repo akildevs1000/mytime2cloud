@@ -4,28 +4,14 @@
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
       </v-snackbar>
-    </div>
+      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+        {{ snackText }}
 
-    <v-row>
-      <v-radio-group
-        row
-        v-model="main_report_type"
-        :items="['General Report', 'Multi In/Out Report']"
-        item-text="['General Report', 'Multi In/Out Report']"
-      >
-        <v-radio
-          @click="change_mani_report_type('')"
-          label="Multi In/Out Report"
-          value=""
-        ></v-radio>
-        <v-radio
-          checked="true"
-          @click="change_mani_report_type('General Report')"
-          label="General Report"
-          value="General Report"
-        ></v-radio>
-      </v-radio-group>
-    </v-row>
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
+        </template>
+      </v-snackbar>
+    </div>
 
     <v-row justify="center">
       <div class="text-center">
@@ -691,20 +677,13 @@
     <v-row>
       <v-col>
         <v-card class="mb-5" elevation="0">
-          <v-toolbar
-            class="background"
-            dark
-            flat
-            v-if="payload.report_type == 'Daily'"
-          >
-            <v-toolbar-title
-              ><span> Multi In/Out Report </span></v-toolbar-title
-            >
-            <a @click="clearFilters()">
-              <v-icon style="padding-left: 10px" class="">mdi-reload</v-icon></a
-            >
-            <a style="padding-left: 10px" @click="attendancFilters = true"
-              ><v-icon class="mx-1">mdi mdi-filter</v-icon></a
+          <v-toolbar class="background" dark flat>
+            <v-toolbar-title>
+              <span> Multi In/Out Report </span>
+            </v-toolbar-title>
+            <v-icon @click="clearFilters()" class="ml-1">mdi-reload</v-icon>
+            <v-icon @click="attendancFilters = true" class="ml-1"
+              >mdi-filter</v-icon
             >
             <v-spacer></v-spacer>
 
@@ -723,6 +702,7 @@
               </template>
               <span>Generate Log</span>
             </v-tooltip>
+
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
@@ -739,159 +719,6 @@
               <span>Render Report</span>
             </v-tooltip>
           </v-toolbar>
-          <v-toolbar
-            class="background"
-            dark
-            flat
-            v-if="payload.report_type == 'Weekly'"
-          >
-            <v-toolbar-title
-              ><span> Multi In/Out Report </span></v-toolbar-title
-            >
-            <a @click="clearFilters()">
-              <v-icon style="padding-left: 10px" class="">mdi-reload</v-icon></a
-            >
-            <a style="padding-left: 10px" @click="attendancFilters = true"
-              ><v-icon class="mx-1">mdi mdi-filter</v-icon></a
-            >
-            <v-spacer></v-spacer>
-
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="generateLogsDialog = true"
-                >
-                  <v-icon class="">mdi-plus-circle-outline</v-icon>
-                </v-btn>
-              </template>
-              <span>Generate Log</span>
-            </v-tooltip>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="reportSync = true"
-                >
-                  <v-icon class="">mdi-cached</v-icon>
-                </v-btn>
-              </template>
-              <span>Render Report</span>
-            </v-tooltip>
-          </v-toolbar>
-          <v-toolbar
-            class="background"
-            dark
-            flat
-            v-if="payload.report_type == 'Monthly'"
-          >
-            <v-toolbar-title
-              ><span> Multi In/Out Report </span></v-toolbar-title
-            >
-            <a @click="clearFilters()">
-              <v-icon style="padding-left: 10px" class="">mdi-reload</v-icon></a
-            >
-            <a style="padding-left: 10px" @click="attendancFilters = true"
-              ><v-icon class="mx-1">mdi mdi-filter</v-icon></a
-            >
-            <v-spacer></v-spacer>
-
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="generateLogsDialog = true"
-                >
-                  <v-icon class="">mdi-plus-circle-outline</v-icon>
-                </v-btn>
-              </template>
-              <span>Generate Log</span>
-            </v-tooltip>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="reportSync = true"
-                >
-                  <v-icon class="">mdi-cached</v-icon>
-                </v-btn>
-              </template>
-              <span>Render Report</span>
-            </v-tooltip>
-          </v-toolbar>
-          <v-toolbar
-            class="background"
-            dark
-            flat
-            v-if="payload.report_type == 'Custom'"
-          >
-            <v-toolbar-title
-              ><span> Multi In/Out Report </span></v-toolbar-title
-            >
-            <a @click="clearFilters()">
-              <v-icon style="padding-left: 10px" class="">mdi-reload</v-icon></a
-            >
-            <a style="padding-left: 10px" @click="toggleFilter"
-              ><v-icon class="mx-1">mdi mdi-filter</v-icon></a
-            >
-
-            <v-spacer></v-spacer>
-
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="generateLogsDialog = true"
-                >
-                  <v-icon class="">mdi-plus-circle-outline</v-icon>
-                </v-btn>
-              </template>
-              <span>Generate Log</span>
-            </v-tooltip>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="reportSync = true"
-                >
-                  <v-icon class="">mdi-cached</v-icon>
-                </v-btn>
-              </template>
-              <span>Render Report</span>
-            </v-tooltip>
-          </v-toolbar>
-
-          <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-            {{ snackText }}
-
-            <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-            </template>
-          </v-snackbar>
           <v-data-table
             dense
             v-if="can(`attendance_report_view`)"

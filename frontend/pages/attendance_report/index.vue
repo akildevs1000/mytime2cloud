@@ -1,12 +1,20 @@
 <template>
   <div>
-    <!-- <GenerateLog /> -->
-    <div v-if="this.$store.state.main_report_type == 'General Report'">
-      <GeneralAttendanceReport :main_report_type_props="this.$store.state.main_report_type" />
-    </div>
-    <div v-else>
-      <MimoAttendanceReport :main_report_type_props="this.$store.state.main_report_type" />
-    </div>
+    <v-row>
+      <v-radio-group row v-model="currentComponent">
+        <v-radio
+          @click="currentComponent == 'MimoAttendanceReport'"
+          label="Multi In/Out Report"
+          value="MimoAttendanceReport"
+        ></v-radio>
+        <v-radio
+          @click="currentComponent == 'GeneralAttendanceReport'"
+          label="General Report"
+          value="GeneralAttendanceReport"
+        ></v-radio>
+      </v-radio-group>
+    </v-row>
+    <component :is="currentComponent" />
   </div>
 </template>
 <script>
@@ -14,14 +22,9 @@ import GeneralAttendanceReport from "../../components/attendance_report/GeneralA
 import MimoAttendanceReport from "../../components/attendance_report/MimoAttendanceReport.vue";
 export default {
   data() {
-    return {};
-  },
-  created() { },
-
-  computed: {
-    getmeth() {
-      this.txt = this.$store.state.main_report_type;
-    },
+    return {
+      currentComponent: "GeneralAttendanceReport",
+    };
   },
 
   components: { GeneralAttendanceReport, MimoAttendanceReport },
