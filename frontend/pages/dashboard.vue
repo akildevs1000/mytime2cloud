@@ -1,8 +1,17 @@
 <template>
   <div v-if="can(`dashboard_access`)">
     <div v-if="!loading">
-      <v-dialog v-model="dialogGeneralreport" :fullscreen="false" max-width="1200px">
-        <iframe v-if="iframeDisplay" :src="iframeUrl" frameborder="0" style="width:100%;height:600px"></iframe>
+      <v-dialog
+        v-model="dialogGeneralreport"
+        :fullscreen="false"
+        max-width="1200px"
+      >
+        <iframe
+          v-if="iframeDisplay"
+          :src="iframeUrl"
+          frameborder="0"
+          style="width: 100%; height: 600px"
+        ></iframe>
       </v-dialog>
       <v-row>
         <v-col md="12">
@@ -26,7 +35,16 @@
           </nuxt-link>
         </v-alert> -->
         </v-col>
-        <v-col v-for="(i, index) in items" :key="index" xs="12" sm="12" cols="12" md="4" lg="4" xl="2">
+        <v-col
+          v-for="(i, index) in items"
+          :key="index"
+          xs="12"
+          sm="12"
+          cols="12"
+          md="4"
+          lg="4"
+          xl="2"
+        >
           <div class="card p-2" :class="i.color" style="min-height: 168px">
             <div class="card-statistic-3">
               <div class="card-icon card-icon-large">
@@ -36,20 +54,31 @@
                 <h4 class="card-title text-capitalize">{{ i.title }}</h4>
                 <span class="data-1"> {{ i.value }}</span>
                 <p class="mb-0 text-sm">
-                  <span style="cursor: pointer;" class="handcursor font-11" @click="showDialogGeneralreport(i.link)">
+                  <span
+                    style="cursor: pointer"
+                    class="handcursor font-11"
+                    @click="showDialogGeneralreport(i.link)"
+                  >
                     <span class="mr-2">
                       <v-icon dark small>mdi-arrow-right</v-icon>
                     </span>
-                    <span class="text-nowrap regular-font">View General Report</span>
+                    <span class="text-nowrap regular-font"
+                      >View General Report</span
+                    >
                   </span>
                 </p>
                 <p class="mb-0 text-sm">
-                  <span style="cursor: pointer;" class="handcursor font-11"
-                    @click="showDialogGeneralreport(i.multi_in_out)">
+                  <span
+                    style="cursor: pointer"
+                    class="handcursor font-11"
+                    @click="showDialogGeneralreport(i.multi_in_out)"
+                  >
                     <span class="mr-2">
                       <v-icon dark small>mdi-arrow-right</v-icon>
                     </span>
-                    <span class="text-nowrap regular-font">View Multi In/Out Report</span>
+                    <span class="text-nowrap regular-font"
+                      >View Multi In/Out Report</span
+                    >
                   </span>
                 </p>
               </div>
@@ -65,13 +94,17 @@
               <div class="card-content text-center">
                 <h4 class="card-title text-capitalize">Total Employees</h4>
                 <span class="data-1" style="font-size: 50px">
-                  {{ total_employees_count_display }}</span>
+                  {{ total_employees_count_display }}</span
+                >
               </div>
             </div>
           </div>
         </v-col>
         <v-col xs="12" sm="12" cols="12" md="4" lg="4" xl="2">
-          <div class="card p-2" style="min-height: 168px; background-color: rgb(193 14 14 / 6%)">
+          <div
+            class="card p-2"
+            style="min-height: 168px; background-color: rgb(193 14 14 / 6%)"
+          >
             <div class="card-statistic-3" style="padding: 0px">
               <div class="card-content">
                 <div class="card-icon card-icon-large">
@@ -82,8 +115,6 @@
             </div>
           </div>
         </v-col>
-
-
       </v-row>
       <v-row>
         <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="4">
@@ -94,25 +125,44 @@
         </v-col>
 
         <v-col cols="12" xs="12" sm="12" md="12" lg="12" xl="4">
-          <v-card style="height:500px">
+          <v-card style="height: 500px">
             <v-toolbar color="primary" dark flat>
               <v-toolbar-title>Announcements</v-toolbar-title>
             </v-toolbar>
             <v-list style="min-height: 430px">
-              <v-list-item v-for="(announcement, index) in announcements" :key="index">
+              <v-list-item
+                v-for="(announcement, index) in announcements"
+                :key="index"
+              >
                 <v-list-item-content>
-                  <v-list-item-title>{{ announcement.title }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ getExcerpt(announcement.description, 30) }}&nbsp;
-                    <v-chip x-small color="background" dark @click="openDialog(announcement)">Read More
-                      <v-icon x-small>mdi-chevron-right</v-icon></v-chip>
+                  <v-list-item-title>{{
+                    announcement.title
+                  }}</v-list-item-title>
+                  <v-list-item-subtitle
+                    >{{ getExcerpt(announcement.description, 30) }}&nbsp;
+                    <v-chip
+                      x-small
+                      color="background"
+                      dark
+                      @click="openDialog(announcement)"
+                      >Read More
+                      <v-icon x-small>mdi-chevron-right</v-icon></v-chip
+                    >
                   </v-list-item-subtitle>
-                  <v-list-item-subtitle>When:
-                    <b class="primary--text" v-if="getCurrentDate == announcement.start_date">{{ announcement.start_date
-                    }}</b>
+                  <v-list-item-subtitle
+                    >When:
+                    <b
+                      class="primary--text"
+                      v-if="getCurrentDate == announcement.start_date"
+                      >{{ announcement.start_date }}</b
+                    >
                     <span v-else>{{ announcement.start_date }}</span>
                     -
-                    <b class="primary--text" v-if="getCurrentDate == announcement.end_date">{{ announcement.end_date
-                    }}</b>
+                    <b
+                      class="primary--text"
+                      v-if="getCurrentDate == announcement.end_date"
+                      >{{ announcement.end_date }}</b
+                    >
                     <span v-else>{{ announcement.end_date }}</span>
                   </v-list-item-subtitle>
                   <v-divider></v-divider>
@@ -126,102 +176,142 @@
                     <v-card-title class="text-h5 primary white--text">
                       Announcement Detail
                       <v-spacer></v-spacer>
-                      <v-icon color="background" dark @click="dialog = false">mdi-close</v-icon>
+                      <v-icon color="background" dark @click="dialog = false"
+                        >mdi-close</v-icon
+                      >
                     </v-card-title>
 
                     <v-card-text class="mt-3">
-                      <table style="
-                        font-family: arial, sans-serif;
-                        border-collapse: collapse;
-                        width: 100%;
-                      ">
+                      <table
+                        style="
+                          font-family: arial, sans-serif;
+                          border-collapse: collapse;
+                          width: 100%;
+                        "
+                      >
                         <tr>
-                          <th style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
+                          <th
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
                             Title
                           </th>
-                          <td style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
+                          <td
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
                             {{ dialogData.title }}
                           </td>
                         </tr>
                         <tr>
-                          <th style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
+                          <th
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
                             Description
                           </th>
-                          <td style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
+                          <td
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
                             {{ dialogData.description }}
                           </td>
                         </tr>
                         <tr>
-                          <th style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
+                          <th
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
                             Departments
                           </th>
-                          <td style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
-                            <v-chip class="primary mx-1" x-small v-for="(
-                              department, dIndex
-                            ) in dialogData.departments" :key="dIndex">{{ department.name }}</v-chip>
+                          <td
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
+                            <v-chip
+                              class="primary mx-1"
+                              x-small
+                              v-for="(
+                                department, dIndex
+                              ) in dialogData.departments"
+                              :key="dIndex"
+                              >{{ department.name }}</v-chip
+                            >
                           </td>
                         </tr>
                         <tr>
-                          <th style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
+                          <th
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
                             Employees
                           </th>
-                          <td style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
-                            <v-chip class="primary mx-1" x-small v-for="(employee, eIndex) in dialogData.employees"
-                              :key="eIndex">{{ employee.display_name }}</v-chip>
+                          <td
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
+                            <v-chip
+                              class="primary mx-1"
+                              x-small
+                              v-for="(employee, eIndex) in dialogData.employees"
+                              :key="eIndex"
+                              >{{ employee.display_name }}</v-chip
+                            >
                           </td>
                         </tr>
                         <tr>
-                          <th style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
+                          <th
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
                             When
                           </th>
-                          <td style="
-                            border: 1px solid #dddddd;
-                            text-align: left;
-                            padding: 8px;
-                          ">
-                            <b class="primary--text" v-if="getCurrentDate == dialogData.start_date">{{
-                              dialogData.start_date
-                            }}</b>
+                          <td
+                            style="
+                              border: 1px solid #dddddd;
+                              text-align: left;
+                              padding: 8px;
+                            "
+                          >
+                            <b
+                              class="primary--text"
+                              v-if="getCurrentDate == dialogData.start_date"
+                              >{{ dialogData.start_date }}</b
+                            >
                             <span v-else>{{ dialogData.start_date }}</span>
                             -
-                            <b class="primary--text" v-if="getCurrentDate == dialogData.end_date">{{ dialogData.end_date
-                            }}</b>
+                            <b
+                              class="primary--text"
+                              v-if="getCurrentDate == dialogData.end_date"
+                              >{{ dialogData.end_date }}</b
+                            >
                             <span v-else>{{ dialogData.end_date }}</span>
                           </td>
                         </tr>
@@ -365,19 +455,21 @@ export default {
     this.get_announcements();
     this.first_login_auth = this.$auth.user.first_login;
 
-    this.verifyLeaveNotifications();
-
-    setInterval(() => {
-      console.log('socketConnectionStatus', this.socketConnectionStatus);
-      if (this.socketConnectionStatus != 1) { //socket connection is closed
-        this.verifyLeaveNotifications();
-      }
-    }, 1000 * 60);
+    // this.verifyLeaveNotifications();
 
     // this.generalreportIframeSrc=  this.$axios.defaults.baseURL +
     //     "daily?company_id=8&status=SA&daily_date=2023-05-31&department_id=-1&report_type=Daily",
   },
   mounted() {
+    this.verifyLeaveNotifications();
+
+    setInterval(() => {
+      console.log("socketConnectionStatus", this.socketConnectionStatus);
+      if (this.socketConnectionStatus != 1) {
+        //socket connection is closed
+        this.verifyLeaveNotifications();
+      }
+    }, 1000 * 60);
     //this.updateCartcart2();
 
     //this.animateNumberEmployeesCount();
@@ -410,60 +502,47 @@ export default {
   },
   methods: {
     verifyLeaveNotifications() {
-
-
-
       // 0	CONNECTING	Socket has been created.The connection is not yet open.
       // 1	OPEN	The connection is open and ready to communicate.
       // 2	CLOSING	The connection is in the process of closing.
       // 3	CLOSED
 
       let company_id = this.$auth.user.company.id;
-      console.log('1', process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
-      console.log('2', process.env.SOCKET_ENDPOINT);
-
+      console.log("1", process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
+      console.log("2", process.env.SOCKET_ENDPOINT);
 
       // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
-      this.socket = new WebSocket(process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
+      this.socket = new WebSocket(process.env.SOCKET_ENDPOINT);
 
       this.socket.onopen = function () {
-
         this.socketConnectionStatus = this.socket.readyState;
 
         const data = {
           company_id: company_id,
-
         };
         this.socket.send(JSON.stringify(data)); // this works
-
       };
       this.socket.onclose = function () {
-
         this.socketConnectionStatus = 0;
-
       };
       this.socket.onmessage = ({ data }) => {
-
-
-
         data = JSON.parse(data);
-        console.log('Socket', data);
+        console.log("Socket", data);
         if (data.status && data.new_leaves_data[0]) {
-
           let element = data.new_leaves_data[0];
           //data.new_leaves_data.data.forEach(element => {
-          console.log('Notification Content', element);
+          console.log("Notification Content", element);
 
           this.snackNotification = true;
-          this.snackNotificationText = "New Leave Notification - From : " + element.first_name + " " + element.last_name;
+          this.snackNotificationText =
+            "New Leave Notification - From : " +
+            element.first_name +
+            " " +
+            element.last_name;
           console.log(this.snackNotificationText);
-
-
         }
         this.pendingLeavesCount = data.total_pending_count;
       };
-
-
     },
     openDialog(announcement) {
       this.dialogData = announcement;
@@ -491,7 +570,7 @@ export default {
           const progress = elapsed / this.animationDuration;
           this.total_employees_count_display = Math.round(
             startValue +
-            (this.total_employees_count_api - startValue) * progress
+              (this.total_employees_count_api - startValue) * progress
           );
 
           // Request next animation frame
@@ -548,7 +627,6 @@ export default {
           //this.logs = res.data;
           this.online_device_count = res.data.online;
           this.offline_device_count = res.data.offline;
-
 
           this.items2 = [
             {
