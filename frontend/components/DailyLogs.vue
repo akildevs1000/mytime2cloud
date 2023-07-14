@@ -5,7 +5,25 @@
   <v-row v-else>
     <v-col xs="12" sm="12" cols="12" md="12" lg="12" xl="12">
       <v-card style="height: 500px">
-        <v-toolbar flat class="mb-15 pt-1">
+        <v-toolbar color="primary" dark flat>
+          <v-toolbar-title>Recent Logs</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-tooltip v-if="logs && logs.length > 0" top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn dense class="mr-2 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                <v-icon color="white" class="ml-2" @click="goToemployeelog()" dark>mdi-grid</v-icon>
+              </v-btn>
+            </template>
+            <span>Logs List</span>
+          </v-tooltip>
+
+          <v-select @change="getRecords" v-model="number_of_records" :hide-details="true" outlined dense
+            placeholder="Select Number of Records" :items="[10, 20, 50, 100]"
+            style="max-width: 200px !important"></v-select>
+
+        </v-toolbar>
+
+        <!-- <v-toolbar flat class="mb-15 pt-1">
           <h5>
             Recent Logs
             <v-icon v-if="logs && logs.length > 0" @click="goToemployeelog()">mdi-grid</v-icon>
@@ -15,12 +33,12 @@
           <v-select @change="getRecords" v-model="number_of_records" :hide-details="true" outlined dense
             placeholder="Select Number of Records" :items="[10, 20, 50, 100]"
             style="max-width: 200px !important"></v-select>
-        </v-toolbar>
+        </v-toolbar> -->
         <v-slide-group class="px-4 pb-3 mb-5" active-class="success" show-arrows>
           <div></div>
 
           <v-slide-item v-for="(item, index) in logs" :key="index">
-            <v-card style="border-radius: 2rem !important; height: 90%" class="custom-card mx-2 my-2">
+            <v-card style="border-radius: 2rem !important;  " class="custom-card mx-2 my-2">
               <div style="size: cover" class="d-flex justify-center primary banner pt-5">
                 <v-img class="image-box" :src="(item.employee && item.employee.profile_picture) ||
                   '/no-profile-image.jpg'
