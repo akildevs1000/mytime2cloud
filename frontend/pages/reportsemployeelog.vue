@@ -15,9 +15,15 @@
           <v-card class="mb-5" elevation="0">
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <v-toolbar-title><span> Recent Logs</span></v-toolbar-title>
+              <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                    <v-icon color="white" class="ml-2" @click="getRecords()" dark>mdi mdi-reload</v-icon>
+                  </v-btn>
+                </template>
+                <span>Reload</span>
+              </v-tooltip>
 
-              <a style="padding-left:10px" title="Reload Page/Reset Form" @click="getRecords()"><v-icon class="mx-1">mdi
-                  mdi-reload</v-icon></a>
             </v-toolbar>
             <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
               {{ snackText }}
@@ -393,21 +399,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  text-align: left;
-  padding: 7px;
-}
-
-tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-</style>
