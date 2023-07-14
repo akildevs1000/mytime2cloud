@@ -424,7 +424,7 @@ export default {
 
 
       // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
-      this.socket = new WebSocket("wss://stagingsdk.ideahrms.com/WebSocket");
+      this.socket = new WebSocket(process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT);
 
       this.socket.onopen = function () {
 
