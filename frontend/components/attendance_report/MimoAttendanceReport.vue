@@ -792,7 +792,7 @@
 
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn color="primary" text v-bind="attrs" v-on="on">
+                    <v-btn v-if="item.is_manual_entry" color="primary" text v-bind="attrs" v-on="on">
                       (ME)
                     </v-btn>
                   </template>
