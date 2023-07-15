@@ -196,7 +196,7 @@
             </v-card>
           </v-card>
         </v-col>
-        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="12">
+        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="3">
           <v-card elevation="1" style="min-height: 445px">
             <v-toolbar class="background" dense dark>
               <div><b>Announcements</b></div>
@@ -409,7 +409,7 @@
             </v-container>
           </v-card>
         </v-col>
-        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="12">
+        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="3">
           <v-card elevation="1" style="min-height: 445px">
             <v-toolbar class="background" dense dark>
               <div><b>Attendance Report (Current Month)</b></div>
@@ -419,7 +419,7 @@
             </v-container>
           </v-card>
         </v-col>
-        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="12">
+        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="3">
           <v-card elevation="1">
             <v-toolbar class="background" dense dark>
               <div><b>Activity</b></div>
