@@ -18,6 +18,7 @@ use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
 use App\Models\ScheduleEmployee;
+use App\Models\Timezone;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -209,11 +210,41 @@ class EmployeeController extends Controller
                 $q->whereHas('payroll', fn(Builder $query) => $query->where('net_salary', '>=', $request->payroll_net_salary));
             })
 
+            // ->when($request->filled('sortBy'), function ($q) use ($request) {
+            //     $sortDesc = $request->input('sortDesc');
+            //     $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');
+            // })
+
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');
-                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');
-            })
+                if (strpos($request->sortBy, '.')) {
+                    if ($request->sortBy == 'department.name') {
+                        $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
 
+                    } else
+                    if ($request->sortBy == 'user.email') {
+                        $q->orderBy(User::select("email")->whereColumn("users.id", "employees.user_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                    } else
+                    if ($request->sortBy == 'schedule.shift_name') {
+                        // $q->orderBy(Schedule::select("shift")->whereColumn("schedule_employees.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                    } else
+                    if ($request->sortBy == 'schedule.shift_name') {
+                        // $q->orderBy(Schedule::select("shift")->whereColumn("schedule_employees.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                    } else
+                    if ($request->sortBy == 'timezone.name') {
+                        $q->orderBy(Timezone::select("timezone_name")->whereColumn("timezones.id", "employees.timezone_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                    }
+
+                } else {
+                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
+
+                }
+
+            })
             ->paginate($request->per_page ?? 100);
         $data = $this->getPayslipstatus($data, $request);
 

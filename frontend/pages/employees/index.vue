@@ -324,15 +324,29 @@
               }" class="elevation-1" :server-items-length="totalRowsCount">
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
-                  <td v-for="header in headers" :key="header.text" class="table-search-header">
-                    <v-text-field style="margin-left: 10px; width: 90% !important" v-if="header.filterable"
-                      autocomplete="off" v-model="filters[header.value]" id="header.value"
-                      @input="applyFilters(header.value, $event)" outlined height="10px" clearable></v-text-field>
-                    <template v-else>
-                      <!-- {{ header.text }} -->
-                    </template>
+                  <td v-for="header in headers" :key="header.text">
+                    <v-text-field :hide-details="true" v-if="header.filterable && header.text != 'Status'"
+                      v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)"
+                      outlined dense autocomplete="off"></v-text-field>
+                    <!-- <span v-if="header.filterSpecial && header.value == 'department.name'">
+                        <v-select outlined dense small v-model="department_idPopup" item-text="name" item-value="id"
+                          :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo
+                          flat></v-select> -->
+                    <v-select :hide-details="true" @change="applyFilters('status', $event)" item-value="value"
+                      item-text="title" v-model="filters[header.value]" outlined dense
+                      v-else-if="header.filterable && header.text == 'Status'" :items="[
+                        { value: '', title: 'All' },
+                        { value: 'approved', title: 'Approved' },
+                        {
+                          value: 'rejected',
+                          title: 'Rejected',
+                        },
+                        { value: 'pending', title: 'Pending' },
+                      ]"></v-select>
                   </td>
                 </tr>
+
+
               </template>
               <template v-slot:item.employee_id="{ item }">
                 <strong>{{ item.employee_id }} </strong><br /><span style="font-size: 12px">{{ item.system_user_id
@@ -371,17 +385,17 @@
                 </v-row>
               </template>
 
-              <template v-slot:item.department_name="{ item }">
+              <template v-slot:item.department.name="{ item }">
                 <strong>{{ caps(item.department.name) }}</strong>
                 <div>{{ caps(item.sub_department.name) }}</div>
               </template>
               <template v-slot:item.phone_number="{ item }">
                 {{ item.phone_number }}
               </template>
-              <template v-slot:item.user_email="{ item }" style="width: 200px">
+              <template v-slot:item.user.email="{ item }" style="width: 200px">
                 {{ item.user.email }}
               </template>
-              <template v-slot:item.schedule_shift_name="{ item }">
+              <template v-slot:item.schedule.shift_name="{ item }">
                 {{
                   (item.schedule &&
                     item.schedule.shift &&
@@ -395,7 +409,7 @@
                   Working Hours: {{ item.schedule.shift.working_hours }}
                 </div>
               </template>
-              <template v-slot:item.timezone_name="{ item }">
+              <template v-slot:item.timezone.name="{ item }">
                 {{ item.timezone ? item.timezone.timezone_name : "" }}
               </template>
               <template v-slot:item.options="{ item }">
@@ -473,6 +487,7 @@ export default {
   },
 
   data: () => ({
+    departments: [],
     totalRowsCount: 0,
     joiningDate: null,
     joiningDateMenuOpen: false,
@@ -585,6 +600,7 @@ export default {
         value: "employee_id",
         filterable: true,
         width: "150px",
+        filterSpecial: false
       },
       {
         text: "Name",
@@ -594,15 +610,17 @@ export default {
         value: "first_name",
         width: "300px",
         filterable: true,
+        filterSpecial: false
       },
       {
         text: "Department",
         align: "left",
-        sortable: false,
+        sortable: true,
         key: "department.name",
-        value: "department_name", //template name should be match for sorting sub table should be the same
+        value: "department.name", //template name should be match for sorting sub table should be the same
         width: "200px",
         filterable: true,
+        filterSpecial: true
       },
 
       {
@@ -613,30 +631,34 @@ export default {
         value: "phone_number", // search and sorting enable if value matches with template name
         width: "150px",
         filterable: true,
+        filterSpecial: false
       },
       {
         text: "Email",
         align: "left",
-        sortable: false,
+        sortable: true,
         key: "email",
-        value: "user_email",
+        value: "user.email",
         filterable: true,
+        filterSpecial: false
       },
       {
         text: "Shift",
         align: "left",
         sortable: false,
         key: "shceduleshift", //sorting without . _
-        value: "schedule_shift_name",
+        value: "schedule.shift_name",
         filterable: true,
+        filterSpecial: false
       },
       {
         text: "Timezone",
         align: "left",
-        sortable: false,
+        sortable: true,
         key: "timezone",
-        value: "timezone_name",
+        value: "timezone.name",
         filterable: true,
+        filterSpecial: false
       },
       {
         text: "Options",
@@ -649,6 +671,7 @@ export default {
   }),
 
   async created() {
+
     this.loading = false;
     this.boilerplate = true;
 
