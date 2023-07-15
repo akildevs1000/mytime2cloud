@@ -58,7 +58,7 @@ class Employee extends Model
             "timezone_name" => "---",
         ]);
     }
-
+   
     public function designation()
     {
         return $this->belongsTo(Designation::class)->withDefault([
@@ -203,34 +203,34 @@ class Employee extends Model
     public function scopeFilter($query, $search)
     {
         $search = strtolower($search);
-        $query->when($search ?? false, fn ($query, $search) =>
-        $query->where(
-            fn ($query) => $query
-                ->where('employee_id', $search)
-                ->orWhere(DB::raw('lower(first_name)'), 'Like', '%' . $search . '%')
-                ->orWhere(DB::raw('lower(last_name)'), 'Like', '%' . $search . '%')
-                ->orWhere(DB::raw('lower(phone_number)'), 'Like', '%' . $search . '%')
-                ->orWhere(DB::raw('lower(local_email)'), 'Like', '%' . $search . '%')
-                ->orWhere(DB::raw('lower(system_user_id)'), 'Like', '%' . $search . '%')
-                ->whereNotNull('first_name')
-            // ->orWhere('whatsapp_number', 'Like', '%' . $search . '%')
-            // ->orWhere('phone_relative_number', 'Like', '%' . $search . '%')
-            // ->orWhere('whatsapp_relative_number', 'Like', '%' . $search . '%')
-            // ->orWhereHas(
-            //     'user',
-            //     fn ($query) =>
-            //     $query->Where('email', 'Like', '%' . $search . '%')
-            // )
-            // ->orWhereHas(
-            //     'designation',
-            //     fn ($query) =>
-            //     $query->Where('name', 'Like', '%' . $search . '%')
-            // )
-            // ->orWhereHas(
-            //     'department',
-            //     fn ($query) =>
-            //     $query->Where('name', 'Like', '%' . $search . '%')
-            // )
-        ));
+        $query->when($search ?? false, fn($query, $search) =>
+            $query->where(
+                fn($query) => $query
+                    ->where('employee_id', $search)
+                    ->orWhere(DB::raw('lower(first_name)'), 'Like', '%' . $search . '%')
+                    ->orWhere(DB::raw('lower(last_name)'), 'Like', '%' . $search . '%')
+                    ->orWhere(DB::raw('lower(phone_number)'), 'Like', '%' . $search . '%')
+                    ->orWhere(DB::raw('lower(local_email)'), 'Like', '%' . $search . '%')
+                    ->orWhere(DB::raw('lower(system_user_id)'), 'Like', '%' . $search . '%')
+                    ->whereNotNull('first_name')
+                    // ->orWhere('whatsapp_number', 'Like', '%' . $search . '%')
+                    // ->orWhere('phone_relative_number', 'Like', '%' . $search . '%')
+                    // ->orWhere('whatsapp_relative_number', 'Like', '%' . $search . '%')
+                    // ->orWhereHas(
+                    //     'user',
+                    //     fn ($query) =>
+                    //     $query->Where('email', 'Like', '%' . $search . '%')
+                    // )
+                    // ->orWhereHas(
+                    //     'designation',
+                    //     fn ($query) =>
+                    //     $query->Where('name', 'Like', '%' . $search . '%')
+                    // )
+                    // ->orWhereHas(
+                    //     'department',
+                    //     fn ($query) =>
+                    //     $query->Where('name', 'Like', '%' . $search . '%')
+                    // )
+            ));
     }
 }

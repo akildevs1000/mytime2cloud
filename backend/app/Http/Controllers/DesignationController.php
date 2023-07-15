@@ -21,8 +21,9 @@ class DesignationController extends Controller
             ->when($request->filled('serach_department_name'), function ($q) use ($request) {
                 $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_department_name%"));
             })
-             ->when($request->filled('sortBy'), function ($q) use ($request) {
-                $sortDesc = $request->input('sortDesc');                 if (strpos($request->sortBy, '.')) {
+            ->when($request->filled('sortBy'), function ($q) use ($request) {
+                $sortDesc = $request->input('sortDesc');
+                if (strpos($request->sortBy, '.')) {
                     if ($request->sortBy == 'department.name') {
                         $q->orderBy(Department::select("name")->whereColumn("departments.id", "designations.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
                     }

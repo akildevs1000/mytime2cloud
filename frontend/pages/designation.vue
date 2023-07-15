@@ -309,7 +309,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          per_page: this.pagination.per_page,
+
           company_id: this.$auth.user.company.id,
         },
       };

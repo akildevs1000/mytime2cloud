@@ -249,27 +249,25 @@
 
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on"
-                    @click="dialog = true">
-                    <v-icon color="white" right dark>mdi-cloud-upload</v-icon>
+                  <v-btn dense x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
+                    <v-icon color="white" right dark size="x-large">mdi-cloud-upload</v-icon>
                   </v-btn>
                 </template>
                 <span>Import</span>
               </v-tooltip>
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on"
-                    @click="export_submit">
-                    <v-icon color="white" right dark>mdi-cloud-download</v-icon>
+                  <v-btn dense x-small :ripple="false" text v-bind="attrs" v-on="on" @click="export_submit">
+                    <v-icon color="white" right size="x-large" dark>mdi-cloud-download</v-icon>
                   </v-btn>
                 </template>
                 <span>Download</span>
               </v-tooltip>
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on"
+                  <v-btn dense x-small class="ma-0 px-0" :ripple="false" text v-bind="attrs" v-on="on"
                     @click="employeeDialog = true">
-                    <v-icon color="white" right dark v-if="can('employee_create')">mdi-plus-circle</v-icon>
+                    <v-icon color="white" right size="x-large" dark v-if="can('employee_create')">mdi-plus-circle</v-icon>
                   </v-btn>
                 </template>
                 <span>Add New Employee</span>

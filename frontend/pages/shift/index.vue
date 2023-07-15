@@ -10,8 +10,8 @@
         <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+            <v-btn dense x-small :ripple="false" text v-bind="attrs" v-on="on">
+              <v-icon color="white" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
             </v-btn>
           </template>
           <span>Reload</span>
@@ -22,8 +22,9 @@
 
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on" @click="goToCreate">
-              <v-icon color="white" right dark>mdi-plus-circle</v-icon>
+
+            <v-btn dense x-small :ripple="false" text v-bind="attrs" v-on="on" @click="goToCreate">
+              <v-icon color="white" @click="getDataFromApi()" dark>mdi mdi-plus-circle</v-icon>
             </v-btn>
           </template>
           <span>Add New Shift Details</span>

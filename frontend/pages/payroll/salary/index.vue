@@ -190,7 +190,7 @@
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                      <v-icon @click="openPayslipDialog" class="mx-1 white--text">mdi-cash-multiple</v-icon>
+                      <v-icon @click="openPayslipDialog" class="mx-1 white--text">mdi-briefcase-outline</v-icon>
                     </v-btn>
                   </template>
                   <span>Generate Payslips by Department</span>
@@ -209,11 +209,11 @@
                 </v-tooltip> -->
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
+                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on"
+                      v-if="downloadAllDisplayStatus" download :href="payslipsDownloadAllURL" small>
+                      <v-icon @click="showFilters = !showFilters" class="mx-1 white--text">mdi
+                        mdi-download</v-icon>
 
-                    <v-btn dense v-if="downloadAllDisplayStatus" download v-bind="attrs" :href="payslipsDownloadAllURL"
-                      v-on="on" small dark class="ma-0 px-0 primary mx-1 toolbar-button-design1" color="primary">
-                      All Payslips
-                      <v-icon @click="showFilters = !showFilters" class="mx-1 white--text">mdi mdi-download</v-icon>
                     </v-btn>
                   </template>
                   <span>Download All Payslips</span>

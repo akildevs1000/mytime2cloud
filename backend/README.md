@@ -34,18 +34,25 @@ function getDatesInRange(startDate, endDate) {
 php artisan queue:restart
   php artisan queue:work
 
-  nohup php artisan queue:work --daemon &   
+  nohup php artisan queue:work  
   
   //background run   
   php artisan task:check_device_health
 
 // node socket
-  nohup node leaveNotifications --daemon &
-   nohup node employeeLeaveNotifications --daemon &
+  nohup node leaveNotifications  
+   nohup node employeeLeaveNotifications  
 
    //view nohup services node
     pgrep -a node
     kill 155555
+
+
+/etc/nginx/sites-available to   allow iframes edit configuration
+sudo systemctl restart nginx
+
+$ sudo systemctl restart nginx
+
 
 
 
