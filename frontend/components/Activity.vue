@@ -21,11 +21,10 @@
           <v-col>
             <strong>{{ item.action }}</strong>
             <div class="text-caption">
-              By
               <strong class="primary--text">{{
                 item.employee && item.employee.display_name
               }}</strong>
-              at {{ item.date_time }}
+              {{ item.date_time }}
             </div>
           </v-col>
         </v-row>
