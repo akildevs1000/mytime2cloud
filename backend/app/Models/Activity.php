@@ -31,6 +31,6 @@ class Activity extends Model
 
     public function getDateTimeAttribute()
     {
-        return date("d M Y", strtotime($this->created_at));
+        return date("d M Y H:i", strtotime($this->created_at));
     }
 }
