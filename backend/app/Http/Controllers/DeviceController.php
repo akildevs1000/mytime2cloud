@@ -105,9 +105,23 @@ class DeviceController extends Controller
     public function getLastRecordsHistory($id = 0, $count = 0, Request $request)
     {
 
+        // return Employee::select("system_user_id")->where('company_id', $request->company_id)->get();
+
         $model = AttendanceLog::query();
-        $model->with(['device', 'employee']);
+        $model->with(array('employee' => function ($query) use ($request) {
+            $query->where('company_id', $request->company_id);
+        }))->first();
+        $model->with(['device']);
         $model->where('company_id', $id);
+
+        $model->whereIn('UserID', function ($query) use ($request) {
+            // $model1 = Employee::query();
+            // $model1->select("system_user_id")->where('employees.company_id', $request->company_id);
+
+            $query->select('system_user_id')->from('employees')->where('employees.company_id', $request->company_id);
+
+        });
+
         $model->when($request->filled('search_time'), function ($q) use ($request) {
             $key = date('Y-m-d') . ' ' . $request->search_time;
             $q->Where('LogTime', 'LIKE', "$key%");
@@ -117,35 +131,35 @@ class DeviceController extends Controller
             //$q->Where(DB::raw('lower(DeviceID)'), 'LIKE', "$key%");
             $q->Where('DeviceID', 'LIKE', "$key%");
         });
-        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+        // $model->when($request->filled('sortBy'), function ($q) use ($request) {
 
-            $sortDesc = $request->input('sortDesc');
-            if (strpos($request->sortBy, '.')) {
-                if ($request->sortBy == 'employee.first_name') {
-                    $q->orderBy(Employee::select("first_name")->where('employees.company_id', $request->company_id)->whereColumn("employees.system_user_id", "attendance_logs.UserID"), $sortDesc == 'true' ? 'desc' : 'asc');
-                }
-                if ($request->sortBy == 'employee.department') {
-                    // $q->orderBy(Employee::with(['department' => function ($query) {
-                    //     $query->select('name');
-                    // }])->where('employees.company_id', $request->company_id)->whereColumn("employees.system_user_id", "attendance_logs.UserID"), $sortDesc == 'true' ? 'desc' : 'asc');
-                }
-                if ($request->sortBy == 'device.device_name') {
-                    $q->orderBy(Device::select("name")->where('devices.company_id', $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
-                }
-                if ($request->sortBy == 'device.device_id') {
-                    $q->orderBy(Device::select("device_id")->where('devices.company_id', $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
-                }
-                if ($request->sortBy == 'device.location') {
-                    $q->orderBy(Device::select("location")->where('devices.company_id', $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
-                }
-            } else {
-                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{
+        //     $sortDesc = $request->input('sortDesc');
+        //     if (strpos($request->sortBy, '.')) {
+        //         if ($request->sortBy == 'employee.first_name') {
+        //             $q->orderBy(Employee::select("first_name")->where('employees.company_id', $request->company_id)->whereColumn("employees.system_user_id", "attendance_logs.UserID"), $sortDesc == 'true' ? 'desc' : 'asc');
+        //         }
+        //         if ($request->sortBy == 'employee.department') {
+        //             // $q->orderBy(Employee::with(['department' => function ($query) {
+        //             //     $query->select('name');
+        //             // }])->where('employees.company_id', $request->company_id)->whereColumn("employees.system_user_id", "attendance_logs.UserID"), $sortDesc == 'true' ? 'desc' : 'asc');
+        //         }
+        //         if ($request->sortBy == 'device.device_name') {
+        //             $q->orderBy(Device::select("name")->where('devices.company_id', $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
+        //         }
+        //         if ($request->sortBy == 'device.device_id') {
+        //             $q->orderBy(Device::select("device_id")->where('devices.company_id', $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
+        //         }
+        //         if ($request->sortBy == 'device.location') {
+        //             $q->orderBy(Device::select("location")->where('devices.company_id', $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
+        //         }
+        //     } else {
+        //         $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{
 
-                }
+        //         }
 
-            }
+        //     }
 
-        });
+        // });
         if (!$request->sortBy) {
 
             $model->orderBy("LogTime", 'desc');
@@ -192,26 +206,26 @@ class DeviceController extends Controller
             $employee = Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
                 ->where('company_id', $id)
                 ->where('system_user_id', $log->UserID)
-                // ->when($request->filled('search_employee_name'), function ($q) use ($request) {
+            // ->when($request->filled('search_employee_name'), function ($q) use ($request) {
 
-                //     $key = strtolower($request->search_employee_name);
-                //     $q->where(function ($q) use ($key) {
-                //         $q->Where(DB::raw('lower(first_name)'), 'LIKE', "$key%");
-                //         $q->orWhere(DB::raw('lower(last_name)'), 'LIKE', "$key%");
-                //     });
-                // })
-                // ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
-                //     $key = strtolower($request->search_system_user_id);
-                //     $q->Where(DB::raw('lower(system_user_id)'), 'LIKE', "$key%");
-                // })
-                // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
-                //     $key = strtolower($request->search_employee_id);
-                //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
-                // })
-                // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
-                //     $key = strtolower($request->search_employee_id);
-                //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
-                // })
+            //     $key = strtolower($request->search_employee_name);
+            //     $q->where(function ($q) use ($key) {
+            //         $q->Where(DB::raw('lower(first_name)'), 'LIKE', "$key%");
+            //         $q->orWhere(DB::raw('lower(last_name)'), 'LIKE', "$key%");
+            //     });
+            // })
+            // ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
+            //     $key = strtolower($request->search_system_user_id);
+            //     $q->Where(DB::raw('lower(system_user_id)'), 'LIKE', "$key%");
+            // })
+            // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
+            //     $key = strtolower($request->search_employee_id);
+            //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
+            // })
+            // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
+            //     $key = strtolower($request->search_employee_id);
+            //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
+            // })
 
                 ->first(['first_name', 'last_name', 'employee_id', 'display_name', 'profile_picture', 'company_id']);
 
