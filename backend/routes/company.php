@@ -56,7 +56,6 @@ Route::post('/employee_to_reporter/{id}', [EmployeeController::class, 'employeeT
 Route::get('/employee_reporters', [EmployeeController::class, 'employeeReporters']);
 Route::delete('/employee_remove_reporters/{id}', [EmployeeController::class, 'employeeRemoveReporter']);
 Route::get('/reporter_by_employee/{id}', [EmployeeController::class, 'getReporterByEmployee']);
-Route::get('/employee-count', [CountController::class, 'employeeCounts']);
 
 // reset password
 Route::post('/reset-password', [ResetPasswordController::class, 'sendCode']);
