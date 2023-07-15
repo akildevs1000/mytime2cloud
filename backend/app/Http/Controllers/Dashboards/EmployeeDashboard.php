@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class EmployeeDashboard extends Controller
 {
@@ -78,14 +79,26 @@ class EmployeeDashboard extends Controller
 
     public function getEmployeeAttendanceRecords($request)
     {
-        $model = Attendance::query();
+        $cacheKey = 'employee_attendance_records:' . $request->company_id . "_" . $request->employee_id;
 
-        $model->where("company_id", $request->company_id ?? 0);
+        return Cache::remember($cacheKey, now()->endOfDay(), function () use ($request) {
 
-        $model->where('employee_id', $request->employee_id);
+            $model = Attendance::query();
 
-        $model->whereMonth('date', date('m'));
+            $model->where('company_id', $request->company_id ?? 0);
 
-        return $model->whereIn("status", ["P", "A", "M", "O"])->get();
+            $model->where('employee_id', $request->employee_id);
+
+            $model->whereMonth('date', now()->month);
+
+            return $model->whereIn('status', ['P', 'A', 'M', 'O'])->get();
+        });
+    }
+
+    public function clearEmployeeCache($request)
+    {
+        $cacheKey = 'employee_attendance_records:' . $request->company_id . "_" . $request->employee_id;
+
+        Cache::forget($cacheKey);
     }
 }
