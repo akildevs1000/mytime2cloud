@@ -10,42 +10,42 @@ use Illuminate\Http\Request;
 class EmployeeDashboard extends Controller
 {
 
-    public function statistics(Request $request)
+    public function statistics(Request $request): array
     {
-        
-        $cId = $request->company_id;
-        $eId = $request->employee_id;
+        $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
+
+        $records = $this->getEmployeeAttendanceRecords($request);
 
         return [
             [
-                "title" => "Total Presents",
-                "value" => $this->getStatsByStatus($cId, $eId, "P"),
-                "icon" => "fas fa-calendar-check",
-                "color" => "l-bg-green-dark",
-                "link" => $this->getLink($request, "P"),
+                'title' => 'Total Presents',
+                'value' => $this->getStatusCount($records, 'P') . '/' . $daysInMonth,
+                'icon' => 'fas fa-calendar-check',
+                'color' => 'l-bg-green-dark',
+                'link' => $this->getLink($request, 'P'),
             ],
             [
-                "title" => "Total Absence",
-                "value" => $this->getStatsByStatus($cId, $eId, "A"),
-                "icon" => "fas fa-calendar-times",
-                "color" => "l-bg-orange-dark",
-                "link" => $this->getLink($request, "A"),
+                'title' => 'Total Absence',
+                'value' => $this->getStatusCount($records, 'A') . '/' . $daysInMonth,
+                'icon' => 'fas fa-calendar-times',
+                'color' => 'l-bg-orange-dark',
+                'link' => $this->getLink($request, 'A'),
             ],
             [
-                "title" => "Total Missing",
-                "value" => $this->getStatsByStatus($cId, $eId, "M"),
-                "icon" => "fas fa-clock",
-                "color" => "l-bg-cyan-dark",
-                "link" => $this->getLink($request, "M"),
+                'title' => 'Total Missing',
+                'value' => $this->getStatusCount($records, 'M') . '/' . $daysInMonth,
+                'icon' => 'fas fa-clock',
+                'color' => 'l-bg-cyan-dark',
+                'link' => $this->getLink($request, 'M'),
             ],
             [
-                "title" => "Total Off",
-                "value" => $this->getStatsByStatus($cId, $eId, "O"),
-                "icon" => "fas fa-clock",
-                "color" => "l-bg-purple-dark",
-                "link" => $this->getLink($request, "O"),
-                "border_color" => "526C78",
-            ]
+                'title' => 'Total Off',
+                'value' => $this->getStatusCount($records, 'O') . '/' . $daysInMonth,
+                'icon' => 'fas fa-clock',
+                'color' => 'l-bg-purple-dark',
+                'link' => $this->getLink($request, 'O'),
+                'border_color' => '526C78',
+            ],
         ];
     }
 
@@ -71,22 +71,21 @@ class EmployeeDashboard extends Controller
         return $url;
     }
 
-    public function getStatsByStatus($company_id, $employee_id, $status)
+    private function getStatusCount($records, $status): int
     {
-        $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
+        return $records->where('status', $status)->count();
+    }
 
+    public function getEmployeeAttendanceRecords($request)
+    {
         $model = Attendance::query();
 
-        $model->where("company_id", $company_id ?? 0);
+        $model->where("company_id", $request->company_id ?? 0);
 
-        $model->where('employee_id', $employee_id);
+        $model->where('employee_id', $request->employee_id);
 
         $model->whereMonth('date', date('m'));
 
-        $model->where('status', $status);
-
-        $count = $model->count();
-
-        return "$count/$daysInMonth";
+        return $model->whereIn("status", ["P", "A", "M", "O"])->get();
     }
 }
