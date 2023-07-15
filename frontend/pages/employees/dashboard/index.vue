@@ -65,10 +65,10 @@
         <v-col cols="12" md="12" lg="6" xl="6">
           <v-card elevation="1" style="min-height: 445px">
             <v-toolbar class="background" dense dark>
-              <div><b>Attendance Logs</b></div>
+              <div><b>Attendance Logs (Recent Logs)</b></div>
               <v-spacer></v-spacer>
-              <v-btn to="/employees/logs" small class="primary"
-                >View More &nbsp;<v-icon>mdi-eye</v-icon></v-btn
+              <v-icon @click="navigateToRoute(`/employees/logs`)"
+                >mdi-eye-outline</v-icon
               >
             </v-toolbar>
             <v-container>
@@ -87,7 +87,7 @@
                   <tbody>
                     <tr v-for="(item, index) in attendance_logs" :key="index">
                       <td>{{ item.UserID }}</td>
-                      <td>{{ item.time }}</td>
+                      <td>{{ item.date }} {{ item.time   }}</td>
                       <td>{{ item.device.name }}</td>
                       <td>{{ item.device.device_id }}</td>
                     </tr>
@@ -201,8 +201,8 @@
             <v-toolbar class="background" dense dark>
               <div><b>Announcements</b></div>
               <v-spacer></v-spacer>
-              <v-btn small class="primary" to="/employees/announcements"
-                >View More &nbsp;<v-icon>mdi-eye</v-icon></v-btn
+              <v-icon @click="navigateToRoute(`/employees/announcements`)"
+                >mdi-eye-outline</v-icon
               >
             </v-toolbar>
             <v-container>
@@ -537,6 +537,9 @@ export default {
     },
   },
   methods: {
+    navigateToRoute(value) {
+      this.$router.push(value);
+    },
     getCurrentDate() {
       // Get the current date
       const date = new Date();
@@ -616,6 +619,7 @@ export default {
         params: {
           per_page: 10,
           company_id: this.$auth.user.company.id,
+          UserID: this.$auth.user.employee.system_user_id,
         },
       };
       this.$axios
