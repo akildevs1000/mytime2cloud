@@ -120,13 +120,21 @@
             </v-tooltip>
 
             <v-spacer></v-spacer>
-            <v-toolbar-items>
+            <v-tooltip top color="primary" v-if="can(`holiday_create`)">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
+                  <v-icon dark white>mdi-plus-circle</v-icon>
+                </v-btn>
+              </template>
+              <span>Add Holiday</span>
+            </v-tooltip>
+            <!-- <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
                 <v-btn v-if="can(`holiday_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
                   Model }}
                   +</v-btn>
               </v-col>
-            </v-toolbar-items>
+            </v-toolbar-items> -->
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
