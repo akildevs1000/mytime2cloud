@@ -62,7 +62,7 @@
             </div>
           </div>
         </v-col>
-        <v-col cols="12" md="12" lg="6" xl="6">
+        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="6">
           <v-card elevation="1" style="min-height: 445px">
             <v-toolbar class="background" dense dark>
               <div><b>Attendance Logs (Recent Logs)</b></div>
@@ -87,7 +87,7 @@
                   <tbody>
                     <tr v-for="(item, index) in attendance_logs" :key="index">
                       <td>{{ item.UserID }}</td>
-                      <td>{{ item.date }} {{ item.time   }}</td>
+                      <td>{{ item.date }} {{ item.time }}</td>
                       <td>{{ item.device.name }}</td>
                       <td>{{ item.device.device_id }}</td>
                     </tr>
@@ -196,7 +196,7 @@
             </v-card>
           </v-card>
         </v-col>
-        <v-col cols="12" md="6" lg="6" xl="3">
+        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="12">
           <v-card elevation="1" style="min-height: 445px">
             <v-toolbar class="background" dense dark>
               <div><b>Announcements</b></div>
@@ -409,7 +409,7 @@
             </v-container>
           </v-card>
         </v-col>
-        <v-col cols="12" md="6" lg="6" xl="3">
+        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="12">
           <v-card elevation="1" style="min-height: 445px">
             <v-toolbar class="background" dense dark>
               <div><b>Attendance Report (Current Month)</b></div>
@@ -419,7 +419,7 @@
             </v-container>
           </v-card>
         </v-col>
-        <v-col cols="12" md="6" lg="6" xl="3">
+        <v-col cols="12" xs="12" sm="12" md="6" lg="6" xl="12">
           <v-card elevation="1">
             <v-toolbar class="background" dense dark>
               <div><b>Activity</b></div>
