@@ -55,10 +55,10 @@ export default {
     this.loading = false;
     let options = {
       company_id: this.$auth.user.company.id,
-      employee_id: this.$auth.user.employee.employee_id,
+      employee_id: this.$auth.user.employee.system_user_id,
     };
     this.$axios
-      .get(`employee-count`, { params: options })
+      .get(`employee-statistics`, { params: options })
       .then(async ({ data }) => {
         this.data = data;
         this.chartOptions.labels = await data.map((e) => e.title);
