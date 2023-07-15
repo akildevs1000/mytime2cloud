@@ -34,7 +34,7 @@
           xs="12"
           sm="12"
           md="3"
-          lg="6"
+          lg="3"
           xl="3"
           v-for="(i, index) in items"
           :key="index"
