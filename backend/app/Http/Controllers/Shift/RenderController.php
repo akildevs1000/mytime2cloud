@@ -102,8 +102,8 @@ class RenderController extends Controller
         $data = [$model->clone()->orderBy("LogTime")->first(), $model->orderBy("LogTime", "desc")->first()];
 
         if (!$count) {
-            return $this->renderAbsent($company_id, $request);
-            // return $this->response("No Logs found", null, false);
+            $msg = $this->renderAbsent($company_id, $request);
+            return $this->response("No Logs found. " . $msg, null, false);
         }
 
         $arr = [];
@@ -409,8 +409,8 @@ class RenderController extends Controller
             $model->insert($records);
 
             $NumberOfEmployee = count($records);
-
-            return $this->response("$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds), null, false);
+            
+            return "$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds);
         } catch (\Exception $e) {
             return $e;
         }
