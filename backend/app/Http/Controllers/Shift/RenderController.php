@@ -46,6 +46,7 @@ class RenderController extends Controller
         $data = $this->getLogs($currentDate, $company_id, $UserID, $shift_type_id);
 
         if (!count($data)) {
+            return $this->renderAbsentScript($company_id, $currentDate);
             return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
         }
 
@@ -403,7 +404,7 @@ class RenderController extends Controller
 
             $NumberOfEmployee = count($records);
 
-            return "$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds);
+            return $this->response("$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds), null, false);
         } catch (\Exception $e) {
             return $e;
         }
