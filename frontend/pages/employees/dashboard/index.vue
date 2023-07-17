@@ -46,7 +46,7 @@
               </div>
               <div class="card-content">
                 <h4 class="card-title text-capitalize">{{ i.title }}</h4>
-                <span class="data-1"> {{ i.value }}</span>
+                <span class="data-1"> {{ i.value }} / {{ daysCount }}</span>
                 <p class="mb-0 text-sm">
                   <span
                     class="handcursor font-11"
@@ -518,12 +518,19 @@ export default {
       dialogData: {},
       announcements: [],
       attendance_logs: [],
+      daysCount: 0,
     };
   },
   created() {
     this.initialize();
     this.get_announcements();
     this.first_login_auth = this.$auth.user.first_login;
+
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // Months are zero-based, so we add 1
+
+    this.daysCount = new Date(year, month, 0).getDate();
 
     // this.generalreportIframeSrc=  this.$axios.defaults.baseURL +
     //     "daily?company_id=8&status=SA&daily_date=2023-05-31&department_id=-1&report_type=Daily",

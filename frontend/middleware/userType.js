@@ -5,17 +5,18 @@ const data = ({ $auth, redirect }) => {
         case 'master':
             redirect('/master');
             break;
-
         case 'company':
             redirect('/dashboard');
             break;
-
         case 'employee':
             redirect('/employees/dashboard');
             break;
+        case 'manager':
+            redirect('/manager/dashboard');
+            break;
 
         default:
-            redirect('/');
+            redirect('/dashboard');
             break;
     }
 };
