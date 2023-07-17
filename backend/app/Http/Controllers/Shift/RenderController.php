@@ -49,8 +49,6 @@ class RenderController extends Controller
             return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
         }
 
-        return;
-
         $AttendancePayload = [
             "status" => count($data)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
             "shift_type_id" => $shift_type_id,
