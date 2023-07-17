@@ -272,51 +272,6 @@
                 </template>
                 <span>Add New Employee</span>
               </v-tooltip>
-
-              <!-- <v-btn
-                v-if="can('employee_import_access')"
-                small
-                dark
-                class="primary mx-1"
-                @click="dialog = true"
-              >
-                Import <v-icon right dark>mdi-cloud-upload</v-icon>
-              </v-btn>
-              <v-btn
-                v-if="can('employee_export_access')"
-                small
-                dark
-                class="primary mx-1"
-                @click="export_submit"
-              >
-                Export <v-icon right dark>mdi-cloud-download</v-icon>
-              </v-btn>
-              <v-btn
-                v-if="can('employee_create')"
-                @click="employeeDialog = true"
-                small
-                dark
-                class="primary"
-                >{{ Model }}<v-icon right dark>mdi-plus</v-icon>
-              </v-btn> -->
-              <!-- <v-icon
-                  @click="showFilters = !showFilters"
-                  class="mx-1 white--text"
-                  >mdi mdi-filter</v-icon
-                > -->
-              <!-- <v-select
-                  v-if="showFilters"
-                  @change="getDataFromApi()"
-                  v-model="department_filter_id"
-                  item-text="name"
-                  item-value="id"
-                  :items="[{ name: `All Departments`, id: `` }, ...departments]"
-                  placeholder="Department"
-                  solo
-                  dense
-                  flat
-                  :hide-details="true"
-                ></v-select> -->
             </v-toolbar>
             <v-data-table dense v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
               :loading="loadinglinear" :options.sync="options" :footer-props="{
@@ -325,24 +280,25 @@
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
                   <td v-for="header in headers" :key="header.text">
-                    <v-text-field :hide-details="true" v-if="header.filterable && header.text != 'Status'"
-                      v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)"
+                    <v-text-field :hide-details="true" v-if="header.filterable && !header.filterSpecial"
+                      v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)"
                       outlined dense autocomplete="off"></v-text-field>
-                    <!-- <span v-if="header.filterSpecial && header.value == 'department.name'">
-                        <v-select outlined dense small v-model="department_idPopup" item-text="name" item-value="id"
-                          :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo
-                          flat></v-select> -->
-                    <v-select :hide-details="true" @change="applyFilters('status', $event)" item-value="value"
-                      item-text="title" v-model="filters[header.value]" outlined dense
-                      v-else-if="header.filterable && header.text == 'Status'" :items="[
-                        { value: '', title: 'All' },
-                        { value: 'approved', title: 'Approved' },
-                        {
-                          value: 'rejected',
-                          title: 'Rejected',
-                        },
-                        { value: 'pending', title: 'Pending' },
-                      ]"></v-select>
+
+                    <v-select :id="header.key" :hide-details="true"
+                      v-if="header.filterSpecial && header.value == 'department.name.id'" outlined dense small
+                      v-model="filters[header.key]" item-text="name" item-value="id"
+                      :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo flat
+                      @change="applyFilters(header.key, id)"></v-select>
+                    <v-select :id="header.key" :hide-details="true"
+                      v-if="header.filterSpecial && header.value == 'schedule.shift_name'" outlined dense small
+                      v-model="filters[header.key]" item-text="name" item-value="id"
+                      :items="[{ name: `All Shifts`, id: `` }, ...shifts]" placeholder="Shift" solo flat
+                      @change="applyFilters(header.key, id)"></v-select>
+                    <v-select :id="header.key" :hide-details="true"
+                      v-if="header.filterSpecial && header.value == 'timezone.name'" outlined dense small
+                      v-model="filters[header.key]" item-text="timezone_name" item-value="timezone_id"
+                      :items="[{ name: `All Timezones`, timezone_name: `All Timezones`, timezone_id: '', id: `` }, ...timezones]"
+                      placeholder="Timezone" solo flat @change="applyFilters(header.key, id)"></v-select>
                   </td>
                 </tr>
 
@@ -385,7 +341,7 @@
                 </v-row>
               </template>
 
-              <template v-slot:item.department.name="{ item }">
+              <template v-slot:item.department.name.id="{ item }">
                 <strong>{{ caps(item.department.name) }}</strong>
                 <div>{{ caps(item.sub_department.name) }}</div>
               </template>
@@ -488,6 +444,8 @@ export default {
 
   data: () => ({
     departments: [],
+    shifts: [],
+    timezones: [],
     totalRowsCount: 0,
     joiningDate: null,
     joiningDateMenuOpen: false,
@@ -616,8 +574,8 @@ export default {
         text: "Department",
         align: "left",
         sortable: true,
-        key: "department.name",
-        value: "department.name", //template name should be match for sorting sub table should be the same
+        key: "department_name_id",
+        value: "department.name.id", //template name should be match for sorting sub table should be the same
         width: "200px",
         filterable: true,
         filterSpecial: true
@@ -646,10 +604,10 @@ export default {
         text: "Shift",
         align: "left",
         sortable: false,
-        key: "shceduleshift", //sorting without . _
+        key: "shceduleshift_id", //sorting without . _
         value: "schedule.shift_name",
         filterable: true,
-        filterSpecial: false
+        filterSpecial: true
       },
       {
         text: "Timezone",
@@ -658,7 +616,7 @@ export default {
         key: "timezone",
         value: "timezone.name",
         filterable: true,
-        filterSpecial: false
+        filterSpecial: true
       },
       {
         text: "Options",
@@ -684,9 +642,11 @@ export default {
 
     this.getDataFromApi();
     this.getDepartments();
+    this.getShifts();
+    this.getTimezone();
   },
   mounted() {
-    this.getDataFromApi();
+    //this.getDataFromApi();
     this.tabMenu = [
       {
         text: "Profile",
@@ -909,6 +869,7 @@ export default {
       this.getDataFromApi();
     },
     toggleFilter() {
+      // this.filters = {};
       this.isFilter = !this.isFilter;
     },
     clearFilters() {
@@ -921,14 +882,14 @@ export default {
       //this.loading = true;
       this.loadinglinear = true;
 
-      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
-      // if (!page)
-      //   return false;
-      //let page = this.pagination.current;
-
+      //console.log(page);
+      // if (this.filters) {
+      //   page = 1;
+      // }
       let options = {
         params: {
           page: page,
@@ -1052,6 +1013,29 @@ export default {
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
         this.departments.unshift({ name: "All Departments", id: "" });
+      });
+    },
+    getShifts() {
+
+      let options = {
+        per_page: 1000,
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios.get("shift", { params: options }).then(({ data }) => {
+        this.shifts = data.data;
+        //this.shifts.unshift({ name: "All Shifts", id: "" });
+      });
+    },
+    getTimezone() {
+
+      let options = {
+        per_page: 1000,
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios.get("timezone", { params: options }).then(({ data }) => {
+        this.timezones = data.data;
+        // this.timezones.unshift({ name: "All Timezones", id: "" });
+        this.timezones.unshift({ timezone_name: "24HOURS", id: "1", timezone_id: '1' });
       });
     },
     editItem(item) {

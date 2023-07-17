@@ -270,33 +270,33 @@
               }" class="elevation-1" :server-items-length="totalRowsCount">
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
-                  <td v-for="header in headers" :key="header.text" class="table-search-header">
-                    <v-text-field style="margin-left: 10px; width: 90% !important" v-if="header.filterable"
-                      autocomplete="off" v-model="filters[header.value]" id="header.value"
-                      @input="applyFilters(header.value, $event)" outlined height="10px" clearable></v-text-field>
-                    <template v-else>
-                      <!-- {{ header.text }} -->
-                    </template>
+                  <td v-for="header in headers" :key="header.text">
+                    <v-text-field :hide-details="true" v-if="header.filterable && !header.filterSpecial"
+                      v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)"
+                      outlined dense autocomplete="off"></v-text-field>
+
+                    <v-select :id="header.key" :hide-details="true"
+                      v-if="header.filterSpecial && header.value == 'department_name'" outlined dense small
+                      v-model="filters[header.key]" item-text="name" item-value="id"
+                      :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo flat
+                      @change="applyFilters(header.key, id)"></v-select>
+                    <v-select :id="header.key" :hide-details="true"
+                      v-if="header.filterSpecial && header.value == 'schedule.shift_name'" outlined dense small
+                      v-model="filters[header.key]" item-text="name" item-value="id"
+                      :items="[{ name: `All Shifts`, id: `` }, ...shifts]" placeholder="Shift" solo flat
+                      @change="applyFilters(header.key, id)"></v-select>
+                    <v-select :id="header.key" :hide-details="true"
+                      v-if="header.filterSpecial && header.value == 'timezone.name'" outlined dense small
+                      v-model="filters[header.key]" item-text="timezone_name" item-value="timezone_id"
+                      :items="[{ name: `All Timezones`, timezone_name: `All Timezones`, timezone_id: '', id: `` }, ...timezones]"
+                      placeholder="Timezone" solo flat @change="applyFilters(header.key, id)"></v-select>
                   </td>
                 </tr>
               </template>
               <template v-slot:item.employee_id="{ item }">
                 {{ item.employee_id }}
               </template>
-              <!-- <template v-slot:item.display_name="{ item }">
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
-                  :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
-                  {{ item.first_name }} {{ item.last_name }}
-                  <template v-slot:input>
-                    <v-text-field @input="datatable_searchByName" v-model="datatable_search_textbox"
-                      label="Search Employee Name"></v-text-field>
-                  </template>
-                </v-edit-dialog>
 
-
-
-
-              </template> -->
               <template v-slot:item.first_name="{ item, index }" style="width: 300px">
                 <v-row no-gutters>
                   <v-col style="
@@ -336,30 +336,7 @@
               <template v-slot:item.year_month="{ item }">
                 {{ item.payroll_month }} / {{ item.payroll_year }}
               </template>
-              <!-- <template v-slot:item.designation.name="{ item }">
 
-
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
-                  {{ caps(item.designation && item.designation.name) }}
-                  <template v-slot:input>
-                    <v-text-field @input="datatable_searchByDesignationName" v-model="datatable_search_textbox"
-                      label="Search Department Name"></v-text-field>
-                  </template>
-                </v-edit-dialog>
-
-              </template>
-              <template v-slot:item.department.name="{ item }">
-
-
-                <v-edit-dialog large save-text="Reset" cancel-text="Ok" @save="getDataFromApi()" @open="datatable_open">
-                  {{ caps(item.department && item.department.name) }}
-                  <template v-slot:input>
-                    <v-text-field @input="datatable_searchByDepartmentName" v-model="datatable_search_textbox"
-                      label="Search Department Name"></v-text-field>
-                  </template>
-                </v-edit-dialog>
-
-              </template> -->
               <template v-slot:item.payroll_basic_salary="{ item }">
                 {{ item.payroll && item.payroll.basic_salary }}
               </template>
@@ -410,79 +387,8 @@
                 </v-menu>
               </template>
             </v-data-table>
-
-            <!-- <table class="employee-table">
-              <tr>
-                <th>
-                  <v-checkbox v-model="allSelected" primary hide-details @click="toggleSelectAll"></v-checkbox>
-                </th>
-                <th v-for="(item, index) in headers" :key="index">
-                  {{ item.text }}
-                </th>
-              </tr>
-              <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
-                color="primary"></v-progress-linear>
-              <tr v-for="(item, index) in data" :key="index">
-                <td>
-                  <v-checkbox v-model="selectedItems" :value="item.id" :key="item.id" primary hide-details></v-checkbox>
-                </td>
-                <td class="text-center">
-                  <b>{{ ++index }}</b>
-                </td>
-                <td>{{ item.employee_id || "---" }}</td>
-                <td>{{ item.display_name || "---" }}</td>
-                <td>{{ payslip_year }}/{{ payslip_month }}</td>
-                <td>{{ caps(item && item.designation.name) }}</td>
-                <td>{{ caps(item.department && item.department.name) }}</td>
-                <td>{{ item.payroll && item.payroll.basic_salary }}</td>
-                <td>{{ item.payroll && item.payroll.net_salary }}</td>
-                <td>
-
-
-                  <span @click="navigateToViewPDF(item.system_user_id, item.id)" style="
-                      font-size: 25px;
-                      vertical-align: inherit;
-                      cursor: pointer;
-                    ">
-                    <v-icon small class="primary--text">mdi-eye</v-icon>
-                  </span>
-                  <a v-if="item.payslip_status" :href="getdownloadLink(item.employee_id)" style="
-                      font-size: 25px;
-                      vertical-align: inherit;
-                      cursor: pointer;
-                    ">
-                    <v-icon small class="primary--text">mdi-download</v-icon>
-                  </a>
-                </td>
-                <td>
-                  <v-menu bottom left>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                        <v-icon>mdi-dots-vertical</v-icon>
-                      </v-btn>
-                    </template>
-                    <v-list width="120" dense>
-                      <v-list-item @click="editItem(item)">
-                        <v-list-item-title style="cursor: pointer">
-                          <v-icon color="secondary" small> mdi-pencil </v-icon>
-                          Edit
-                        </v-list-item-title>
-                      </v-list-item>
-
-                    </v-list>
-                  </v-menu>
-                </td>
-              </tr>
-            </table> -->
           </v-card>
-          <!-- <v-row>
-            <v-col lg="12" class="float-right">
-              <div class="float-right">
-                <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
-                  :total-visible="5"></v-pagination>
-              </div>
-            </v-col>
-          </v-row> -->
+
         </v-col>
       </v-row>
       <div></div>
@@ -565,6 +471,7 @@ export default {
         filterable: true,
         key: "display_name",
         value: "first_name",
+        filterSpecial: false,
       },
 
       {
@@ -572,8 +479,9 @@ export default {
         align: "left",
         sortable: false,
         filterable: true,
-        key: "department",
+        key: "department_id",
         value: "department_name", //template name should be match
+        filterSpecial: true,
       },
 
       {
@@ -583,6 +491,7 @@ export default {
         key: "year_month",
         filterable: false,
         value: "year_month",
+        filterSpecial: false,
       },
       {
         text: "Basic Salary",
@@ -591,6 +500,7 @@ export default {
         filterable: true,
         key: "payrollbasic",
         value: "payroll_basic_salary",
+        filterSpecial: false,
       },
       {
         text: "Net Salary",
@@ -599,6 +509,7 @@ export default {
         filterable: true,
         key: "net_salary",
         value: "payroll_net_salary",
+
       },
       {
         text: "Payslip",
@@ -607,6 +518,7 @@ export default {
         filterable: false,
         key: "payslip",
         value: "payslip",
+        filterSpecial: false,
       },
       {
         text: "Actions",
@@ -898,10 +810,14 @@ export default {
       this.loading = true;
 
       let department_id = this.department_id;
-      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
+
+      // if (this.filters) {
+      //   page = 1;
+      // }
 
       let options = {
         params: {

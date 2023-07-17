@@ -151,6 +151,7 @@ class EmployeeController extends Controller
 
     public function index(Employee $employee, Request $request)
     {
+
         $data = $employee
             ->with([
                 "user" => function ($q) {
@@ -177,7 +178,8 @@ class EmployeeController extends Controller
                 });
             })
             ->when($request->filled('phone_number'), function ($q) use ($request) {
-                $q->where('phone_number', 'LIKE', "$request->phone_number%");
+
+                $q->where('phone_number', 'ILIKE', "$request->phone_number%");
             })
             ->when($request->filled('first_name'), function ($q) use ($request) {
                 $q->where(function ($q) use ($request) {
@@ -190,9 +192,14 @@ class EmployeeController extends Controller
                 // $q->where('local_email', 'LIKE', "$request->user_email%");
                 $q->whereHas('user', fn(Builder $query) => $query->where('email', 'ILIKE', "$request->user_email%"));
             })
-            ->when($request->filled('department_name'), function ($q) use ($request) {
-                $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->department_name%"));
-                // $q->orWhereHas('sub_department', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+            ->when($request->filled('department_name_id'), function ($q) use ($request) {
+                // $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->department_name%"));
+                $q->whereHas('department', fn(Builder $query) => $query->where('id', $request->department_name_id));
+
+            })
+            ->when($request->filled('shceduleshift_id'), function ($q) use ($request) {
+                $q->whereHas('schedule', fn(Builder $query) => $query->where('shift_id', $request->shceduleshift_id));
+
             })
             ->when($request->filled('schedule_shift_name'), function ($q) use ($request) {
                 $q->whereHas('schedule.shift', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->schedule_shift_name%"));
@@ -201,6 +208,9 @@ class EmployeeController extends Controller
             })
             ->when($request->filled('timezone_name'), function ($q) use ($request) {
                 $q->whereHas('timezone', fn(Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezone_name%"));
+            })
+            ->when($request->filled('timezone'), function ($q) use ($request) {
+                $q->whereHas('timezone', fn(Builder $query) => $query->where('timezone_id', $request->timezone));
             })
 
             ->when($request->filled('payroll_basic_salary'), function ($q) use ($request) {
@@ -218,16 +228,12 @@ class EmployeeController extends Controller
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');
                 if (strpos($request->sortBy, '.')) {
-                    if ($request->sortBy == 'department.name') {
+                    if ($request->sortBy == 'department.name.id') {
                         $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
 
                     } else
                     if ($request->sortBy == 'user.email') {
                         $q->orderBy(User::select("email")->whereColumn("users.id", "employees.user_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-
-                    } else
-                    if ($request->sortBy == 'schedule.shift_name') {
-                        // $q->orderBy(Schedule::select("shift")->whereColumn("schedule_employees.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
 
                     } else
                     if ($request->sortBy == 'schedule.shift_name') {
@@ -244,8 +250,8 @@ class EmployeeController extends Controller
 
                 }
 
-            })
-            ->paginate($request->per_page ?? 100);
+            })->paginate($request->per_page ?? 100);
+
         $data = $this->getPayslipstatus($data, $request);
 
         return $data;

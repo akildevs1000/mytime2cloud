@@ -9,7 +9,6 @@ use App\Models\AutoShift;
 use App\Models\Shift;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ShiftController extends Controller
 {
@@ -22,13 +21,13 @@ class ShiftController extends Controller
     {
         $model = Shift::query();
         $model->with("shift_type");
-        $model->when($request->filled('search_shift_name'), function ($q) use ($request) {
-            $key = strtolower($request->search_shift_name);
-            $q->where(DB::raw('lower(name)'), 'LIKE', "$key%");
+        $model->when($request->filled('name'), function ($q) use ($request) {
+            //$key = strtolower($request->name);
+            $q->where('name', 'ILIKE', "$request->name%");
         });
-        $model->when($request->filled('search_shift_type'), function ($q) use ($request) {
-            $key = strtolower($request->search_shift_type);
-            $q->whereHas('shift_type', fn(Builder $query) => $query->where(DB::raw('lower(name)'), 'LIKE', "$key%"));
+        $model->when($request->filled('shift_type_name'), function ($q) use ($request) {
+            //$key = strtolower($request->search_shift_type);
+            $q->whereHas('shift_type', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
         });
 
         $model->where('company_id', $request->company_id);
