@@ -279,13 +279,16 @@ class RenderController extends Controller
         }
     }
 
-    public function renderOff(Request $request, $company_id = 0)
+    public function renderOff($company_id = 0, Request $request)
     {
-        $date = $request->date ?? date("Y-m-d");
+        $msg =  $this->renderOffScript($company_id, $request->date, $request->UserID);
 
-        $UserIds = $request->UserIds ?? [];
+        return $msg;
+    }
 
-        $msg =  $this->renderOffScript($company_id, $date, $UserIds);
+    public function renderAbsent($company_id = 0, Request $request)
+    {
+        $msg = $this->renderAbsentScript($company_id, $request->date, $request->UserID);
 
         return $msg;
     }
@@ -297,14 +300,19 @@ class RenderController extends Controller
         return $this->getMeta("Sync Off", $msg . ".\n");
     }
 
-    public function renderOffScript($company_id, $date, $UserIds = [])
+    public function renderOffScript($company_id, $date, $user_id = 0)
     {
         try {
             $model = ScheduleEmployee::query();
-            $model->where("shift_id", -1);
+
             $model->where("company_id", $company_id);
-            $model->when(count($UserIds), function ($q) use ($UserIds) {
-                return $q->whereIn("employee_id", $UserIds);
+
+            $model->when($user_id, function ($q) use ($user_id) {
+                $q->where("employee_id", $user_id);
+            });
+
+            $model->when(!$user_id, function ($q) {
+                $q->where("shift_id", -1);
             });
 
             $employees = $model->get(["employee_id", "shift_type_id"]);
@@ -326,10 +334,10 @@ class RenderController extends Controller
             // $model->where("shift_id", -1);
             $model->where("company_id", $company_id);
             $model->where("date", $date);
-            $model->where("status", "O");
+            $model->whereIn("status", ["P", "A", "M", "O"]);
 
-            $model->when(count($UserIds), function ($q) use ($UserIds) {
-                return $q->whereIn("employee_id", $UserIds);
+            $model->when($user_id, function ($q) use ($user_id) {
+                return $q->where("employee_id", $user_id);
             });
 
             $model->delete();
@@ -344,13 +352,6 @@ class RenderController extends Controller
         } catch (\Exception $e) {
             return false;
         }
-    }
-
-    public function renderAbsent($company_id = 0, Request $request)
-    {
-        $msg = $this->renderAbsentScript($company_id, $request->date, $request->UserID);
-
-        return $msg;
     }
 
     public function renderAbsentCron($company_id = 0)
