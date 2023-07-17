@@ -345,7 +345,7 @@
                 {{ item.payroll && item.payroll.net_salary }}
               </template>
               <template v-slot:item.payslip="{ item }">
-                <span v-if="item?.payroll?.basic_salary" @click="navigateToViewPDF(item.id)" style="
+                <span v-if="item?.payroll?.basic_salary" @click="navigateToViewPDF(item.employee_id)" style="
                     font-size: 25px;
                     vertical-align: inherit;
                     cursor: pointer;

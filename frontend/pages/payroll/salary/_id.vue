@@ -145,6 +145,22 @@
                     {{ data.absent }}
                   </td>
                 </tr>
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Off
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    {{ data.off }}
+                  </td>
+                </tr>
+                <tr>
+                  <th style="text-align: left; border-bottom: 1px solid #ccc">
+                    Missing
+                  </th>
+                  <td style="text-align: right; border-bottom: 1px solid #ccc">
+                    {{ data.missing }}
+                  </td>
+                </tr>
               </table>
             </v-card-text>
           </v-card>
