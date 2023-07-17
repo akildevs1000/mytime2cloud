@@ -79,6 +79,17 @@ class EmployeeDashboard extends Controller
 
     public function getEmployeeAttendanceRecords($request)
     {
+        $model = Attendance::query();
+
+        $model->where('company_id', $request->company_id ?? 0);
+
+        $model->where('employee_id', $request->employee_id);
+
+        $model->whereMonth('date', now()->month);
+
+        return $model->whereIn('status', ['P', 'A', 'M', 'O'])->get();
+
+        // working code with cache
         $cacheKey = 'employee_attendance_records:' . $request->company_id . "_" . $request->employee_id;
 
         return Cache::remember($cacheKey, now()->endOfDay(), function () use ($request) {
