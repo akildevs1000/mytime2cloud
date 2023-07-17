@@ -882,10 +882,14 @@ export default {
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       this.loading = true;
 
-      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
+
+      // if (this.filters) {
+      //   page = 1;
+      // }
 
       let options = {
         params: {

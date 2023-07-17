@@ -16,6 +16,14 @@
           </template>
           <span>Reload</span>
         </v-tooltip>
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on">
+              <v-icon dark white @click="toggleFilter">mdi-filter</v-icon>
+            </v-btn>
+          </template>
+          <span>Filter</span>
+        </v-tooltip>
         <!-- <a style="padding-left: 10px" title="Reload Page/Reset Form" @click="getDataFromApi"><v-icon class="mx-1">mdi
             mdi-reload</v-icon></a> -->
         <v-spacer></v-spacer>
@@ -42,28 +50,27 @@
         :options.sync="options" :footer-props="{
           itemsPerPageOptions: [10, 50, 100, 500, 1000],
         }" class="elevation-1">
+        <template v-slot:header="{ props: { headers } }">
+          <tr v-if="isFilter">
+            <td v-for="header in headers" :key="header.text">
+              <v-text-field :hide-details="true" v-if="header.filterable && !header.filterSpecial"
+                v-model="filters[header.key]" :id="header.value" @input="applyFilters(header.key, $event)" outlined dense
+                autocomplete="off"></v-text-field>
+
+
+
+            </td>
+          </tr>
+
+
+        </template>
         <template v-slot:item.sno="{ item, index }">
           <b>{{ ++index }}</b>
         </template>
         <template v-slot:item.name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
-            {{ item.name }}
-            <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_shift_name', $event)"
-                label="Search Shift name"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ item.name }}
         </template>
-        <template v-slot:item.shift_type.name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getDataFromApi()"
-            @save="getDataFromApi()" @open="datatable_open">
-            {{ item.shift_type.name }}
-            <template v-slot:input>
-              <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_shift_type', $event)"
-                label="Search Shift Type"></v-text-field>
-            </template>
-          </v-edit-dialog>
+        <template v-slot:item.shift_type.name="{ item }"> {{ item.shift_type.name }}
         </template>
 
         <template v-slot:item.on_duty_time="{ item }">
@@ -115,44 +122,6 @@
           </v-icon>
         </template>
       </v-data-table>
-
-      <!-- <table>
-        <tr>
-          <th v-for="(i, index) in headers" :key="index">{{ i.text }}</th>
-        </tr>
-        <tr v-for="(item, index) in data" :key="index">
-          <td>{{ item && item.name }}</td>
-          <td>{{ item && item.shift_type.name }}</td>
-
-          <td>{{ item && item.on_duty_time }}</td>
-          <td>{{ item && item.beginning_in }}</td>
-          <td>{{ item && item.ending_in }}</td>
-          <td>{{ item && item.late_time }}</td>
-          <td>{{ item && item.gap_in }}</td>
-
-          <td>{{ item && item.off_duty_time }}</td>
-          <td>{{ item && item.beginning_out }}</td>
-          <td>{{ item && item.ending_out }}</td>
-          <td>{{ item && item.early_time }}</td>
-          <td>{{ item && item.gap_out }}</td>
-
-          <td>{{ item && item.absent_min_in }}</td>
-          <td>{{ item && item.absent_min_out }}</td>
-
-          <td>{{ item && item.working_hours }}</td>
-          <td>{{ item && item.overtime_interval }}</td>
-
-
-          <td style="text-align: center">
-            <v-icon color="primary" small class="mr-2" @click="editItem(item)">
-              mdi-pencil
-            </v-icon>
-            <v-icon color="error" small @click="deleteItem(item)">
-              mdi-delete
-            </v-icon>
-          </td>
-        </tr>
-      </table> -->
     </v-card>
 
     <NoAccess v-else />
@@ -162,6 +131,10 @@
 <script>
 export default {
   data: () => ({
+    totalRowsCount: 0,
+    isFilter: false,
+    filters: {},
+    shifts: [],
     datatable_search_textbox: "",
     datatable_searchById: "",
     filter_employeeid: "",
@@ -198,26 +171,24 @@ export default {
       { text: "Actions" },
     ],
     headers_table: [
-      {
-        text: "#",
-        align: "left",
-        sortable: true,
 
-        value: "sno", // template name
-      },
       {
         text: "Name",
         align: "left",
         sortable: true,
         key: "name",
         value: "name",
+        filterable: true,
+        filterSpecial: false,
       },
       {
         text: "Shift Type",
         align: "left",
         sortable: true,
-        key: "name",
+        key: "shift_type_name",
         value: "shift_type.name",
+        filterable: true,
+        filterSpecial: false,
       },
 
       {
@@ -226,6 +197,8 @@ export default {
         sortable: true,
         key: "on_duty_time",
         value: "on_duty_time",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Start In",
@@ -233,6 +206,8 @@ export default {
         sortable: true,
         key: "beginning_in",
         value: "beginning_in",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Ending In",
@@ -240,6 +215,8 @@ export default {
         sortable: true,
         key: "ending_in",
         value: "ending_in",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Late In",
@@ -247,6 +224,8 @@ export default {
         sortable: true,
         key: "late_time",
         value: "late_time",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Gap In",
@@ -254,6 +233,8 @@ export default {
         sortable: true,
         key: "gap_in",
         value: "gap_in",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Out",
@@ -261,6 +242,8 @@ export default {
         sortable: true,
         key: "off_duty_time",
         value: "off_duty_time",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Start Out",
@@ -268,6 +251,8 @@ export default {
         sortable: true,
         key: "beginning_out",
         value: "beginning_out",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Ending Out",
@@ -275,6 +260,8 @@ export default {
         sortable: true,
         key: "ending_out",
         value: "ending_out",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Early Out",
@@ -282,6 +269,8 @@ export default {
         sortable: true,
         key: "early_time",
         value: "early_time",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Gap Out",
@@ -289,6 +278,8 @@ export default {
         sortable: true,
         key: "gap_out",
         value: "gap_out",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Absent In",
@@ -296,6 +287,8 @@ export default {
         sortable: true,
         key: "absent_min_in",
         value: "absent_min_in",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Absent Out",
@@ -303,6 +296,8 @@ export default {
         sortable: true,
         key: "absent_min_out",
         value: "absent_min_out",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Working Hrs",
@@ -310,6 +305,8 @@ export default {
         sortable: true,
         key: "working_hours",
         value: "working_hours",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "OT Interval",
@@ -317,6 +314,8 @@ export default {
         sortable: true,
         key: "overtime_interval",
         value: "overtime_interval",
+        filterable: false,
+        filterSpecial: false,
       },
       // { text: "Off Days" },
       {
@@ -343,9 +342,25 @@ export default {
   created() {
     this.loading = true;
     this.getDataFromApi();
+    this.getShifts();
   },
 
   methods: {
+    getShifts() {
+
+      let options = {
+        per_page: 1000,
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios.get("shift", { params: options }).then(({ data }) => {
+        this.shifts = data.data;
+        //this.shifts.unshift({ name: "All Shifts", id: "" });
+      });
+    },
+    toggleFilter() {
+      // this.filters = {};
+      this.isFilter = !this.isFilter;
+    },
     goToCreate() {
       this.$router.push(`/shift/create`);
     },
@@ -392,17 +407,25 @@ export default {
     getRecords(filter_column = "", filter_value = "") {
       this.getDataFromApi(this.endpoint, filter_column, filter_value);
     },
-
+    applyFilters() {
+      this.getDataFromApi();
+    },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       this.loading = true;
 
-      const { page, itemsPerPage } = this.options;
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       let options = {
         params: {
           page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
+          ...this.filters,
         },
       };
       if (filter_column != "") options.params[filter_column] = filter_value;
@@ -415,6 +438,7 @@ export default {
           this.loading = false;
           return false;
         }
+        this.totalRowsCount = data.total;
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
