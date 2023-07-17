@@ -269,17 +269,17 @@ class PayslipController extends Controller
         $conditions = ["company_id" => $request->company_id, "employee_id" => $Payroll->employee->system_user_id];
 
         $attendances = Attendance::where($conditions)
-            ->whereMonth('date', '=', date('m'))
-            ->whereIn('status', ['P', 'A'])
+            ->whereMonth('date', '=', $request->month <= 9 ? "0" . $request->month : date("m"))
+            ->whereIn('status', ['P', 'A', 'M', 'O'])
             ->get();
 
-        $Payroll->present = $attendances->where('status', 'P')->count();
+        $Payroll->present = $attendances->whereIn('status', 'P')->count();
         $Payroll->absent = $attendances->where('status', 'A')->count();
+        $Payroll->missing = $attendances->where('status', 'M')->count();
+        $Payroll->off = $attendances->where('status', 'O')->count();
 
-        // $Payroll->present = 0;
-        // $Payroll->absent = 0;
 
-        $Payroll->earnedSalary = $Payroll->present * $Payroll->perDaySalary;
+        $Payroll->earnedSalary = ($Payroll->present + $Payroll->off) * $Payroll->perDaySalary;
         $Payroll->deductedSalary = $Payroll->absent * $Payroll->perDaySalary;
         $Payroll->earningsCount = $Payroll->net_salary - $Payroll->basic_salary;
 
