@@ -253,7 +253,7 @@ class PayslipController extends Controller
         // return $this->generateWithEmployeeids($request);
         //code...
 
-        $Payroll = Payroll::where(["employee_id" => $id])->with(["company", "employee:id,employee_id,display_name,first_name,last_name"])->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
+        $Payroll = Payroll::where(["employee_id" => $id])->with(["company", "employee:id,employee_id,system_user_id,display_name,first_name,last_name"])->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
         $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y");
 
         $salary_type = $Payroll->payroll_formula->salary_type;
@@ -266,20 +266,20 @@ class PayslipController extends Controller
         $Payroll->perDaySalary = $this->getPerDaySalary($Payroll->SELECTEDSALARY ?? 0);
         $Payroll->perHourSalary = $this->getPerHourSalary($Payroll->perDaySalary ?? 0);
 
-        $conditions = ["company_id" => $request->company_id, "employee_id" => $request->employee_id];
+        $conditions = ["company_id" => $request->company_id, "employee_id" => $Payroll->employee->system_user_id];
 
         $attendances = Attendance::where($conditions)
-            ->whereMonth('date', '=', date('m'))
-            ->whereIn('status', ['P', 'A'])
+            ->whereMonth('date', '=', $request->month <= 9 ? "0" . $request->month : date("m"))
+            ->whereIn('status', ['P', 'A', 'M', 'O'])
             ->get();
 
-        $Payroll->present = $attendances->where('status', 'P')->count();
+        $Payroll->present = $attendances->whereIn('status', 'P')->count();
         $Payroll->absent = $attendances->where('status', 'A')->count();
+        $Payroll->missing = $attendances->where('status', 'M')->count();
+        $Payroll->off = $attendances->where('status', 'O')->count();
 
-        // $Payroll->present = 0;
-        // $Payroll->absent = 0;
 
-        $Payroll->earnedSalary = $Payroll->present * $Payroll->perDaySalary;
+        $Payroll->earnedSalary = ($Payroll->present + $Payroll->off) * $Payroll->perDaySalary;
         $Payroll->deductedSalary = $Payroll->absent * $Payroll->perDaySalary;
         $Payroll->earningsCount = $Payroll->net_salary - $Payroll->basic_salary;
 

@@ -629,7 +629,7 @@ export default {
       let { user_id, date, time, device_id } = this.log_payload;
       let log_payload = {
         UserID: user_id,
-        LogTime: date + " " + time + ":00",
+        LogTime: date + " " + time,
         DeviceID: device_id,
         company_id: this.$auth.user.company.id,
       };

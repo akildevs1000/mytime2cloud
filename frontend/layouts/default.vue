@@ -273,13 +273,13 @@ export default {
           icon: "mdi-calendar-today",
           title: `Reports`,
           open_menu: false,
-          menu: "payroll_access",
+          menu: "attendance_report_access",
           hasChildren: [
             {
               icon: "mdi-chart-box-outline",
               title: "Attendance Report",
               to: "/attendance_report",
-              menu: "payroll_access",
+              menu: "attendance_report_access",
             },
 
             {

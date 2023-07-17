@@ -46,8 +46,7 @@ class RenderController extends Controller
         $data = $this->getLogs($currentDate, $company_id, $UserID, $shift_type_id);
 
         if (!count($data)) {
-            return $this->renderAbsent($company_id, $request);
-            // return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
+            return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
         }
 
         $AttendancePayload = [
@@ -102,8 +101,7 @@ class RenderController extends Controller
         $data = [$model->clone()->orderBy("LogTime")->first(), $model->orderBy("LogTime", "desc")->first()];
 
         if (!$count) {
-            return $this->renderAbsent($company_id, $request);
-            // return $this->response("No Logs found", null, false);
+            return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
         }
 
         $arr = [];
@@ -268,9 +266,12 @@ class RenderController extends Controller
 
             $attendance->fill($items)->save();
 
-            $result = $this->createReason($attendance->id);
+            if ($this->reason) {
+                $result = $this->createReason($attendance->id);
+            }
 
-            if (!$result) {
+
+            if (!$attendance) {
                 return $this->response("The Logs cannnot render against " . $items['employee_id'] . " SYSTEM USER ID.", null, false);
             }
             return $this->response("The Logs has been render against " . $items['employee_id'] . " SYSTEM USER ID.", null, true);
@@ -281,23 +282,21 @@ class RenderController extends Controller
 
     public function renderOff($company_id = 0, Request $request)
     {
-        $msg =  $this->renderOffScript($company_id, $request->date, $request->UserID);
-
-        return $msg;
+        return $this->renderOffScript($company_id, $request->date, $request->UserID);
     }
 
     public function renderAbsent($company_id = 0, Request $request)
     {
-        $msg = $this->renderAbsentScript($company_id, $request->date, $request->UserID);
-
-        return $msg;
+        return $this->renderAbsentScript($company_id, $request->date, $request->UserID);
     }
 
     public function renderOffCron($company_id = 0)
     {
-        $msg =  $this->renderOffScript($company_id,  date("Y-m-d"));
+        $result =  $this->renderOffScript($company_id,  date("Y-m-d"));
 
-        return $this->getMeta("Sync Off", $msg . ".\n");
+        $UserIds = json_encode($result);
+
+        return $this->getMeta("Sync Off", "$UserIds Employee has been marked as OFF" . ".\n");
     }
 
     public function renderOffScript($company_id, $date, $user_id = 0)
@@ -346,9 +345,7 @@ class RenderController extends Controller
 
             $UserIds = array_column($records, "employee_id");
 
-            $NumberOfEmployee = count($records);
-
-            return "$NumberOfEmployee Employee has been marked as OFF: " . json_encode($UserIds);
+            return $UserIds;
         } catch (\Exception $e) {
             return false;
         }
@@ -410,7 +407,7 @@ class RenderController extends Controller
 
             $NumberOfEmployee = count($records);
 
-            return $this->response("$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds), null, false);
+            return "$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds);
         } catch (\Exception $e) {
             return $e;
         }
