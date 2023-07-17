@@ -930,7 +930,7 @@ export default {
       let { user_id, date, time, device_id } = this.log_payload;
       let log_payload = {
         UserID: user_id,
-        LogTime: date + " " + time + ":00",
+        LogTime: date + " " + time,
         DeviceID: device_id,
         company_id: this.$auth.user.company.id
       };
@@ -1072,7 +1072,7 @@ export default {
       if (this.$refs.form.validate()) {
         let payload = {
           UserID: this.editItems.UserID,
-          LogTime: this.editItems.date + " " + this.editItems.time + ":00",
+          LogTime: this.editItems.date + " " + this.editItems.time,
           DeviceID: this.editItems.device_id,
           user_id: this.editItems.UserID,
           company_id: this.$auth.user.company.id,
