@@ -102,7 +102,8 @@ class RenderController extends Controller
         $data = [$model->clone()->orderBy("LogTime")->first(), $model->orderBy("LogTime", "desc")->first()];
 
         if (!$count) {
-            return $this->response("No Logs found", null, false);
+            return $this->renderAbsent($company_id, $request);
+            // return $this->response("No Logs found", null, false);
         }
 
         $arr = [];
