@@ -409,7 +409,7 @@ class RenderController extends Controller
             $model->insert($records);
 
             $NumberOfEmployee = count($records);
-            
+
             return "$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds);
         } catch (\Exception $e) {
             return $e;
