@@ -266,9 +266,12 @@ class RenderController extends Controller
 
             $attendance->fill($items)->save();
 
-            $result = $this->createReason($attendance->id);
+            if ($this->reason) {
+                $result = $this->createReason($attendance->id);
+            }
 
-            if (!$result) {
+
+            if (!$attendance) {
                 return $this->response("The Logs cannnot render against " . $items['employee_id'] . " SYSTEM USER ID.", null, false);
             }
             return $this->response("The Logs has been render against " . $items['employee_id'] . " SYSTEM USER ID.", null, true);
@@ -290,9 +293,9 @@ class RenderController extends Controller
     public function renderOffCron($company_id = 0)
     {
         $result =  $this->renderOffScript($company_id,  date("Y-m-d"));
-        
+
         $UserIds = json_encode($result);
-        
+
         return $this->getMeta("Sync Off", "$UserIds Employee has been marked as OFF" . ".\n");
     }
 
