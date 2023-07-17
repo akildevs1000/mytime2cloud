@@ -158,7 +158,7 @@ class Kernel extends ConsoleKernel
                 // ->everyMinute()
                 ->dailyAt('00:30')
                 ->runInBackground()
-                ->appendOutputTo(storage_path("$date-absents-$companyId.log"))
+                ->appendOutputTo(storage_path("logs/$date-absents-$companyId.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
