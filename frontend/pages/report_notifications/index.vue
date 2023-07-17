@@ -58,20 +58,40 @@
 
 
                 <v-spacer></v-spacer>
-                <v-toolbar-items>
+
+
+
+
+                <v-tooltip top color="primary">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
+                      <v-icon dark white>mdi mdi-whatsapp</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Whatsapp Test</span>
+                </v-tooltip>
+                <v-tooltip top color="primary">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" to="/report_notifications/create">
+                      <v-icon dark white>mdi-email</v-icon>
+                    </v-btn>
+                  </template>
+                  <span> Add Report Notification</span>
+                </v-tooltip>
+                <!-- <v-toolbar-items>
                   <v-col class="toolbaritems-button-design1">
-
-
                     <v-btn @click="dialog = true" small color="primary" class="primary mr-2 mb-2 toolbar-button-design1">
-                      <v-icon small>mdi mdi-whatsapp</v-icon> Whatsapp Test
+                      <v-icon small>mdi mdi-whatsapp</v-icon>
                     </v-btn>
                     <v-btn color="primary" small class="primary mr-2 mb-2 toolbar-button-design1"
                       to="/report_notifications/create">
-                      <v-icon small>mdi mdi-email</v-icon> Add Report Notification
+                      <v-icon small>mdi mdi-email</v-icon>
                     </v-btn>
                   </v-col>
-                </v-toolbar-items>
+                </v-toolbar-items> -->
               </v-toolbar>
+
+
 
 
               <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">

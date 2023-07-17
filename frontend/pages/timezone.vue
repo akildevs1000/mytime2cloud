@@ -182,21 +182,19 @@
 
         <v-spacer></v-spacer>
 
+
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-btn @click="openDeviceDialog" small color="primary" class=" mr-2">
-                Sync Device <v-icon class="mx-1">mdi-laptop</v-icon>
-              </v-btn>
+            <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="openDeviceDialog">
+              <v-icon dark white>mdi-laptop</v-icon>
             </v-btn>
           </template>
           <span>Sync To Devices</span>
         </v-tooltip>
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-btn @click="dialog = true" small color="primary" class=" ">
-                {{ Module }} <v-icon class="mx-1">mdi-plus</v-icon></v-btn>
+            <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
+              <v-icon dark white>mdi-plus-circle</v-icon>
             </v-btn>
           </template>
           <span>Add New Timezone</span>

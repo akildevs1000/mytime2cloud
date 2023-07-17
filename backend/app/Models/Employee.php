@@ -58,7 +58,7 @@ class Employee extends Model
             "timezone_name" => "---",
         ]);
     }
-   
+
     public function designation()
     {
         return $this->belongsTo(Designation::class)->withDefault([
@@ -171,7 +171,7 @@ class Employee extends Model
 
         // Order by name ASC
         static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('id', 'desc');
+            // $builder->orderBy('id', 'desc');
         });
     }
 

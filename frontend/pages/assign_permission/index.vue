@@ -31,22 +31,21 @@
 
         <v-card class="mb-5" elevation="0" v-for="(item, index) in data" :key="index">
 
-          <!-- <v-toolbar class="rounded-md" color="background" dense flat dark>
-              <span> {{ item.role && item.role.name }}</span>
-            </v-toolbar> -->
-
-
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> {{ item.role && capsTitle(item.role.name) }}</span></v-toolbar-title>
 
 
             <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-col class="toolbaritems-button-design1">
-                <v-btn v-if="can(`assign_permission_create`)" small color="primary" to="/assign_permission/create"
-                  class="mb-2">{{ Module }} +</v-btn>
-              </v-col>
-            </v-toolbar-items>
+
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" to="/assign_permission/create">
+                  <v-icon dark white @click="clearFilters()">mdi-plus-circle</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ Module }} </span>
+            </v-tooltip>
+
           </v-toolbar>
 
 

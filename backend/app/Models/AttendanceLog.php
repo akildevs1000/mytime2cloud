@@ -35,7 +35,7 @@ class AttendanceLog extends Model
     public function getDateAttribute()
     {
         return date("d-M-y", strtotime($this->LogTime));
-    }
+    } 
 
     public function getEditDateAttribute()
     {

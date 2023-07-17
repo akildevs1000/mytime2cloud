@@ -215,6 +215,8 @@
 <script>
 export default {
   data: () => ({
+
+    checkDeviceHealthCount: 0,
     datatable_search_textbox: '',
     filter_employeeid: '',
     snack: false,
@@ -378,7 +380,7 @@ export default {
     onPageChange() {
       this.getDataFromApi();
     },
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
+    async getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
 
       if (url == '') url = this.endpoint;
       this.loading = true;
@@ -396,7 +398,7 @@ export default {
           options.params[filter_column] = filter_value;
 
       }
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+      await this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
 
         if (filter_column != '' && data.data.length == 0) {
           this.snack = true;
@@ -409,6 +411,18 @@ export default {
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
+        if (this.checkDeviceHealthCount == 0)
+          this.updateDevicesHealth();
+
+      });
+    },
+    async updateDevicesHealth() {
+
+      let url = process.env.BACKEND_URL + "/check_device_health";
+      this.checkDeviceHealthCount = 1;
+      await this.$axios.get(url).then(({ data }) => {
+
+
       });
     },
 
