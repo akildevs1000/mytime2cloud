@@ -46,9 +46,10 @@ class RenderController extends Controller
         $data = $this->getLogs($currentDate, $company_id, $UserID, $shift_type_id);
 
         if (!count($data)) {
-            return $this->renderAbsent($company_id, $request);
-            // return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
+            return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
         }
+
+        return;
 
         $AttendancePayload = [
             "status" => count($data)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
@@ -102,8 +103,7 @@ class RenderController extends Controller
         $data = [$model->clone()->orderBy("LogTime")->first(), $model->orderBy("LogTime", "desc")->first()];
 
         if (!$count) {
-            $msg = $this->renderAbsent($company_id, $request);
-            return $this->response("No Logs found. " . $msg, null, false);
+            return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
         }
 
         $arr = [];
@@ -281,23 +281,21 @@ class RenderController extends Controller
 
     public function renderOff($company_id = 0, Request $request)
     {
-        $msg =  $this->renderOffScript($company_id, $request->date, $request->UserID);
-
-        return $msg;
+        return $this->renderOffScript($company_id, $request->date, $request->UserID);
     }
 
     public function renderAbsent($company_id = 0, Request $request)
     {
-        $msg = $this->renderAbsentScript($company_id, $request->date, $request->UserID);
-
-        return $msg;
+        return $this->renderAbsentScript($company_id, $request->date, $request->UserID);
     }
 
     public function renderOffCron($company_id = 0)
     {
-        $msg =  $this->renderOffScript($company_id,  date("Y-m-d"));
-
-        return $this->getMeta("Sync Off", $msg . ".\n");
+        $result =  $this->renderOffScript($company_id,  date("Y-m-d"));
+        
+        $UserIds = json_encode($result);
+        
+        return $this->getMeta("Sync Off", "$UserIds Employee has been marked as OFF" . ".\n");
     }
 
     public function renderOffScript($company_id, $date, $user_id = 0)
@@ -346,9 +344,7 @@ class RenderController extends Controller
 
             $UserIds = array_column($records, "employee_id");
 
-            $NumberOfEmployee = count($records);
-
-            return "$NumberOfEmployee Employee has been marked as OFF: " . json_encode($UserIds);
+            return $UserIds;
         } catch (\Exception $e) {
             return false;
         }
