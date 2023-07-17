@@ -24,6 +24,15 @@
               <span>Reload</span>
             </v-tooltip>
 
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="attendancFilters = true">
+                  <v-icon dark white @click="toggleFilter">mdi-filter</v-icon>
+                </v-btn>
+              </template>
+              <span>Filter</span>
+            </v-tooltip>
+
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col class="toolbaritems-button-design">
@@ -52,26 +61,34 @@
               </v-btn>
             </template>
           </v-snackbar>
+
+
           <v-data-table dense :headers="headers" :items="data" :loading="loading" :options.sync="options" :footer-props="{
-            itemsPerPageOptions: [10, 50, 100, 500, 1000],
+            itemsPerPageOptions: [100, 500, 1000],
 
 
 
-          }" class="elevation-1">
+          }" class="elevation-1" :server-items-length="totalRowsCount">
+
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="header in headers" :key="header.text">
+                  <v-text-field clearable :hide-details="true" v-if="header.filterable" v-model="filters[header.key]"
+                    :id="header.key" @input="applyFilters(header.key, $event)" outlined dense autocomplete="off"
+                    :placeholder="header.placeHolder"></v-text-field>
+
+
+                </td>
+              </tr>
+
+
+            </template>
             <template v-slot:item.sno="{ item, index }">
 
               <b>{{ ++index }}</b>
             </template>
             <template v-slot:item.timezone.timezone_name="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
-                :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
-                {{ item.timezone.timezone_name }}
-                <template v-slot:input>
-                  <v-text-field @input="datatable_searchByTimezonename" v-model="datatable_search_textbox"
-                    label="Type Timezone Name"></v-text-field>
-                </template>
-              </v-edit-dialog>
-
+              {{ item.timezone.timezone_name }}
             </template>
             <template v-slot:item.devices="{ item }">
               <v-chip small class="primary ma-1" v-for="(subitem, index) in item.device_id.slice(0, 3)" :key="index">
@@ -144,6 +161,10 @@ export default {
   },
   data(vm) {
     return {
+      showFilters: false,
+      filters: {},
+      isFilter: false,
+      totalRowsCount: 10,
       filter_employeeid: '',
       snack: false,
       snackColor: '',
@@ -169,20 +190,26 @@ export default {
       },
       headers: [
 
-        { text: "#", align: "left", sortable: false, value: "sno", align: "start", key: 'sno', value: "sno" },
-        { text: "Timezone Name", align: "left", sortable: true, align: "start", key: 'timezoneName', value: "timezone.timezone_name" },
+        { text: "#", align: "left", sortable: false, value: "sno", align: "start", key: 'sno', value: "sno", },
+        { text: "Timezone Name", align: "left", sortable: true, align: "start", key: 'timezoneName', filterable: true, value: "timezone.timezone_name" },
 
         {
           text: "Devices",
           align: "left",
           sortable: false,
           value: "devices",
+          filterable: true,
+          key: 'device',
+          placeHolder: 'Type Device Name'
         },
         {
           text: "Employees",
           align: "left",
           sortable: false,
           value: "employees",
+          filterable: true,
+          key: 'employees',
+          placeHolder: 'Type First Name'
         },
 
 
@@ -190,6 +217,14 @@ export default {
       ],
 
     };
+  },
+  watch: {
+    options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true,
+    },
   },
   // computed: {
   //   data: {
@@ -218,7 +253,19 @@ export default {
     // });
   },
   methods: {
+    applyFilters() {
+      this.getDataFromApi();
+    },
+    toggleFilter() {
+      // this.filters = {};
+      this.isFilter = !this.isFilter;
+    },
+    clearFilters() {
+      this.filters = {};
 
+      this.isFilter = false;
+      this.getDataFromApi();
+    },
     datatable_save() {
     },
     datatable_cancel() {
@@ -302,12 +349,19 @@ export default {
     getDataFromApi(url = this.endpoint, additional_params) {
 
       this.data = [];
-      let page = this.pagination.current;
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
       let options = {
         params: {
-          per_page: 100,
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           cols: ["id", "employee_id", "display_name"],
+          ...this.filters,
         },
       };
       if (additional_params != '')
@@ -322,9 +376,9 @@ export default {
         //   return false;
         // }
         this.data = data.data;
-        this.total = this.data.length;
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
+        this.itemsPerPage = this.data.length;
+        // this.pagination.current = data.current_page;
+        // this.pagination.total = data.last_page;
         this.loading = false;
       });
     },

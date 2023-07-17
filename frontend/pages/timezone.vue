@@ -223,7 +223,7 @@
         <template v-slot:item.timezone_name="{ item }"> {{ item.timezone_name }}
         </template>
         <template v-slot:item.days="{ item }">
-          <v-btn v-for="({ day, isScheduled }, idx) in item.scheduled_days" :key="idx"
+          <v-btn style="cursor: text" v-for="({ day, isScheduled }, idx) in item.scheduled_days" :key="idx"
             :class="isScheduled ? `circle-btn-green` : `circle-btn-grey`" class="mx-1" fab small>
             <span :class="isScheduled ? `primary--text` : `grey--text`">{{
               day

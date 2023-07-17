@@ -215,6 +215,17 @@ class EmployeeTimezoneMappingController extends Controller
     public function gettimezonesinfo(EmployeeTimezoneMapping $model, Request $request)
     {
 
-        return $model->with(["timezone"])->where('company_id', $request->company_id)->paginate($request->per_page);
+        return $model->with(["timezone"])
+            ->where('company_id', $request->company_id)
+            ->when($request->filled('timezoneName'), function ($q) use ($request) {
+                $q->whereHas('timezone', fn(Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezoneName%"));
+            })
+            ->when($request->filled('device'), function ($q) use ($request) {
+                $q->whereJsonContains('device_id', [['name' => "$request->device"]]);
+            })
+            ->when($request->filled('employees'), function ($q) use ($request) {
+                $q->whereJsonContains('employee_id', [['first_name' => "$request->employees"]]);
+            })
+            ->paginate($request->per_page);
     }
 }

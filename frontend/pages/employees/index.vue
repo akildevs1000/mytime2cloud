@@ -275,7 +275,7 @@
             </v-toolbar>
             <v-data-table dense v-model="selectedItems" :headers="headers_table" :items="data" model-value="data.id"
               :loading="loadinglinear" :options.sync="options" :footer-props="{
-                itemsPerPageOptions: [10, 50, 100, 500, 1000],
+                itemsPerPageOptions: [100, 500, 1000],
               }" class="elevation-1" :server-items-length="totalRowsCount">
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
@@ -886,10 +886,6 @@ export default {
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
-      //console.log(page);
-      // if (this.filters) {
-      //   page = 1;
-      // }
       let options = {
         params: {
           page: page,
