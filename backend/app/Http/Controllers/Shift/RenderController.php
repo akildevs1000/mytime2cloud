@@ -46,8 +46,8 @@ class RenderController extends Controller
         $data = $this->getLogs($currentDate, $company_id, $UserID, $shift_type_id);
 
         if (!count($data)) {
-            return $this->renderAbsentScript($company_id, $currentDate);
-            return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
+            return $this->renderAbsent($company_id, $request);
+            // return $this->response("Employee with $UserID SYSTEM USER ID has no Log(s).", null, false);
         }
 
         $AttendancePayload = [
@@ -345,9 +345,9 @@ class RenderController extends Controller
         }
     }
 
-    public function renderAbsent(Request $request, $company_id = 0)
+    public function renderAbsent($company_id = 0, Request $request)
     {
-        $msg = $this->renderAbsentScript($company_id, $request->date);
+        $msg = $this->renderAbsentScript($company_id, $request->date, $request->UserID);
 
         return $msg;
     }
@@ -359,11 +359,15 @@ class RenderController extends Controller
         return $this->getMeta("Sync Absent", $msg . ".\n");
     }
 
-    public function renderAbsentScript($company_id, $date)
+    public function renderAbsentScript($company_id, $date, $user_id = 0)
     {
         $model = ScheduleEmployee::query();
 
         $model->where("company_id", $company_id);
+
+        $model->when($user_id, function ($q) use ($user_id) {
+            return $q->where("employee_id", $user_id);
+        });
 
         $model->whereNot("shift_id", -1);
 
