@@ -21,6 +21,7 @@ class ShiftController extends Controller
     {
         $model = Shift::query();
         $model->with("shift_type");
+        $model->where('company_id', $request->company_id);
         $model->when($request->filled('name'), function ($q) use ($request) {
             //$key = strtolower($request->name);
             $q->where('name', 'ILIKE', "$request->name%");
@@ -30,7 +31,6 @@ class ShiftController extends Controller
             $q->whereHas('shift_type', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
         });
 
-        $model->where('company_id', $request->company_id);
         return $model->paginate($request->per_page);
     }
 

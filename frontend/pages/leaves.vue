@@ -378,7 +378,7 @@
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text">
-                  <v-text-field :hide-details="true" v-if="header.filterable && header.text != 'Status'"
+                  <v-text-field clearable :hide-details="true" v-if="header.filterable && header.text != 'Status'"
                     v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
                     dense autocomplete="off"></v-text-field>
 

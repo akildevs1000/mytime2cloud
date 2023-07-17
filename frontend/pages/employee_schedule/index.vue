@@ -37,30 +37,7 @@
             <v-col md="3">
               <div class="mb-6">
                 <div>From</div>
-                <!-- <v-menu
-                  v-model="from_menu[i]"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="item.from_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      outlined
-                      dense
-                      :hide-details="true"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="item.from_date"
-                    @input="from_menu[i] = false"
-                  ></v-date-picker>
-                </v-menu> -->
+
                 <v-menu ref="from_menu" v-model="from_menu[i]" :close-on-content-click="false"
                   :return-value.sync="item.from_date" transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
@@ -274,13 +251,62 @@
         }" class="elevation-1" :server-items-length="totalRowsCount">
         <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
-            <td v-for="header in headers_table" :key="header.text" class="table-search-header">
-              <v-text-field style="margin-left: 10px; width: 90% !important" v-if="header.filterable" autocomplete="off"
-                v-model="filters[header.filterName]" id="header.value" @input="applyFilters(header.value, $event)"
-                outlined height="10px" clearable></v-text-field>
-              <template v-else>
-                <!-- {{ header.text }} -->
-              </template>
+            <td v-for="header in headers_table" :key="header.text">
+
+              <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
+                v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
+                dense autocomplete="off"></v-text-field>
+              <v-select v-if="header.filterSpecial && header.value == 'isOverTime'" :hide-details="true"
+                @change="applyFilter()" item-value="value" item-text="title" v-model="filters[header.value]" outlined
+                dense :items="[
+                  { value: '', title: 'All' },
+                  { value: '1', title: 'Yes' },
+                  { value: '0', title: 'No', },
+
+                ]"></v-select>
+
+              <v-select :id="header.key" :hide-details="true" v-if="header.filterSpecial && header.value == 'shift.name'"
+                outlined dense small v-model="filters[header.filterName]" item-text="name" item-value="id"
+                :items="shifts_for_filter" placeholder="Shift" solo flat @change="applyFilters()"></v-select>
+              <v-select :id="header.key" :hide-details="true"
+                v-if="header.filterSpecial && header.value == 'shift_type.name'" outlined dense small
+                v-model="filters[header.filterName]" item-text="name" item-value="id" :items="shiftsTypes_for_filter"
+                placeholder="Shift" solo flat @change="applyFilters()"></v-select>
+
+              <v-menu v-if="header.filterSpecial && header.value == 'from_date'" ref="from_menu_filter"
+                v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
+                min-width="auto">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field clearable :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]"
+                    readonly v-bind="attrs" v-on="on" placeholder="Schedule From Date"></v-text-field>
+                </template>
+                <v-date-picker style="height: 350px" v-model="filters[header.value]" no-title scrollable
+                  @input="applyFilter()">
+                  <v-spacer></v-spacer>
+
+                  <v-btn text color="primary"
+                    @click="filters[header.value] = ''; from_menu_filter = false; applyFilter()">
+                    Clear
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+              <v-menu v-if="header.filterSpecial && header.value == 'to_date'" ref="to_menu_filter"
+                v-model="to_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
+                min-width="auto">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field clearable :hide-details="!to_date_filter" outlined dense v-model="filters[header.value]"
+                    readonly v-bind="attrs" v-on="on" placeholder="Schedule To Date"></v-text-field>
+                </template>
+
+                <v-date-picker style="height: 350px" v-model="filters[header.value]" no-title scrollable
+                  @input="applyFilter()">
+                  <v-spacer></v-spacer>
+                  <v-btn text color="primary" @click="filters[header.value] = ''; to_menu_filter = false; applyFilter()">
+                    Clear
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+
             </td>
           </tr>
         </template>
@@ -336,20 +362,25 @@
         </template>
       </v-data-table>
     </v-card>
-    <!-- <v-row>
-      <v-col md="12" class="float-right">
-        <div class="float-right">
-          <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
-            :total-visible="12"></v-pagination>
-        </div>
-      </v-col>
-    </v-row> -->
+
   </div>
   <NoAccess v-else />
 </template>
 <script>
 export default {
   data: () => ({
+
+    shifts_for_filter: [],
+    shiftsTypes_for_filter: [],
+
+    from_date_filter: '',
+    to_menu_filter: false,
+    to_menu_filter: '',
+    to_date_filter: '',
+
+    from_menu_filter: false,
+    from_date: '',
+
     totalRowsCount: 0,
 
     showFilters: false,
@@ -394,65 +425,12 @@ export default {
     isEdit: false,
     total: 0,
     total_dialog: 0,
-    // headers: [
-    //   {
-    //     text: "#",
-    //   },
-    //   {
-    //     text: "E.ID",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "system_user_id",
-    //   },
-    //   {
-    //     text: "Name",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "display_name",
-    //   },
-    //   {
-    //     text: "Schedule Start",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "from_date",
-    //   },
-    //   {
-    //     text: "Schedule Start",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "to_date",
-    //   },
-    //   {
-    //     text: "Shift Type",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "shift_type",
-    //   },
-    //   {
-    //     text: "Schedule",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "schedule",
-    //   },
-    //   {
-    //     text: "OT",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "schedule.isOverTime",
-    //   },
 
-    //   {
-    //     text: "Actions",
-    //     align: "center",
-    //     value: "action",
-    //     sortable: false,
-    //   },
-    // ],
     headers_table: [
       {
         text: "Emp Id",
         align: "left",
-        sortable: false,
+        sortable: true,
         value: "employee_id",
         filterable: true,
         filterName: "employee_id",
@@ -460,7 +438,7 @@ export default {
       {
         text: "Name",
         align: "left",
-        sortable: false,
+        sortable: true,
         value: "employee.first_name",
         filterable: true,
         filterName: "employee_first_name",
@@ -468,7 +446,7 @@ export default {
       {
         text: "	Current Schedule Name",
         align: "left",
-        sortable: false,
+        sortable: true,
         value: "roster.name",
         filterable: true,
         filterName: "roster_name",
@@ -476,18 +454,20 @@ export default {
       {
         text: "Schedule Start",
         align: "left",
-        sortable: false,
-        value: "show_from_date",
+        sortable: true,
+        value: "from_date",
         filterable: true,
-        filterName: "show_from_date",
+        filterName: "from_date",
+        filterSpecial: true,
       },
       {
         text: "Schedule To Date",
         align: "left",
-        sortable: false,
-        value: "show.to_date",
+        sortable: true,
+        value: "to_date",
         filterable: true,
-        filterName: "show_to_date",
+        filterName: "to_date",
+        filterSpecial: true,
       },
       {
         text: "OT",
@@ -496,22 +476,25 @@ export default {
         value: "isOverTime",
         filterable: false,
         filterName: "isOverTime",
+        filterSpecial: true,
       },
       {
         text: "Shift Name",
         align: "left",
-        sortable: false,
+        sortable: true,
         value: "shift.name",
         filterable: true,
-        filterName: "shift_name",
+        filterName: "shift_id",
+        filterSpecial: true,
       },
       {
         text: "Shift Type",
         align: "left",
-        sortable: false,
+        sortable: true,
         value: "shift_type.name",
         filterable: true,
-        filterName: "shift_type_name",
+        filterName: "shift_type_id",
+        filterSpecial: true,
       },
 
       {
@@ -611,9 +594,16 @@ export default {
         company_id: this.$auth.user.company.id,
       },
     };
+
+    this.getShiftsForFilter();
   },
 
   methods: {
+    applyFilter() {
+      this.getDataFromApi();
+      this.from_menu_filter = false;
+      this.to_menu_filter = false;
+    },
     getCurrentShift(item) {
       // Define an array of day names
       const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -747,12 +737,34 @@ export default {
         .get("shift_by_type", options)
         .then(({ data }) => {
           this.shifts = data;
-          // this.shifts.unshift({ id: "", name: "Select Shift" });
-          // this.shifts_for_filter = data;
+
+
         })
         .catch((err) => console.log(err));
     },
+    getShiftsForFilter() {
+      let options = {
+        params: {
 
+          company_id: this.$auth.user.company.id,
+        },
+      };
+      this.$axios
+        .get("shift", options)
+        .then(({ data }) => {
+          this.shifts_for_filter = data.data;
+          this.shifts_for_filter.unshift({ id: "", name: "All" });
+        })
+        .catch((err) => console.log(err));
+
+      this.$axios
+        .get("shift_type", options)
+        .then(({ data }) => {
+          this.shiftsTypes_for_filter = data;
+          this.shiftsTypes_for_filter.unshift({ id: "", name: "All" });
+        })
+        .catch((err) => console.log(err));
+    },
     getShiftTypes(options) {
       this.$axios
         .get("shift_type", options)
@@ -886,10 +898,6 @@ export default {
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
-
-      // if (this.filters) {
-      //   page = 1;
-      // }
 
       let options = {
         params: {

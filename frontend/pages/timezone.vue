@@ -213,30 +213,14 @@
       </v-snackbar>
       <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
         :options.sync="options" :footer-props="{
-          itemsPerPageOptions: [10, 50, 100, 500, 1000],
+          itemsPerPageOptions: [100, 500, 1000],
         }" class="elevation-1">
 
         <template v-slot:item.timezone_id="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
-            :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
-            {{ item.timezone_id }}
-            <template v-slot:input>
-              <v-text-field @input="getDataFromApi_DatatablFilter('filter_template_id', $event)"
-                v-model="datatable_search_textbox" label="Search Template Id "></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ item.timezone_id }}
 
         </template>
-        <template v-slot:item.timezone_name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;"
-            :return-value.sync="item.employee_id" @save="getDataFromApi()" @open="datatable_open">
-            {{ item.timezone_name }}
-            <template v-slot:input>
-              <v-text-field @input="getDataFromApi_DatatablFilter('filter_template_name', $event)"
-                v-model="datatable_search_textbox" label="Search Template Name"></v-text-field>
-            </template>
-          </v-edit-dialog>
-
+        <template v-slot:item.timezone_name="{ item }"> {{ item.timezone_name }}
         </template>
         <template v-slot:item.days="{ item }">
           <v-btn v-for="({ day, isScheduled }, idx) in item.scheduled_days" :key="idx"
@@ -278,68 +262,6 @@
 
         </template>
       </v-data-table>
-
-
-
-
-
-
-
-      <!-- <table>
-        <thead>
-          <tr class="background white--text" dark>
-            <th class="text-center">Timezone ID</th>
-            <th class="text-center">Timezone Name</th>
-            <th class="text-center">Days</th>
-            <th class="text-center">Actions</th>
-          </tr>
-        </thead>
-        <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
-          color="primary"></v-progress-linear>
-        <tbody>
-          <tr v-for="(item, index) in data" :key="index" style="font-size: 13px">
-            <td class="text-center">{{ item.timezone_id }}</td>
-            <td class="text-center">{{ item.timezone_name }}</td>
-            <td class="text-center">
-              <v-btn v-for="({ day, isScheduled }, idx) in item.scheduled_days" :key="idx"
-                :class="isScheduled ? `circle-btn-green` : `circle-btn-grey`" class="mx-1" fab small>
-                <span :class="isScheduled ? `primary--text` : `grey--text`">{{
-                  day
-                }}</span>
-              </v-btn>
-            </td>
-            <td class="text-center">
-              <v-menu bottom left>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                    <v-icon>mdi-dots-vertical</v-icon>
-                  </v-btn>
-                </template>
-                <v-list width="120" dense>
-                  <v-list-item @click="viewItem(item)">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon color="secondary" small> mdi-eye </v-icon>
-                      View
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="editItem(item)">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon color="secondary" small> mdi-pencil </v-icon>
-                      Edit
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="deleteItem(item)">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon color="error" small> mdi-delete </v-icon>
-                      Delete
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </td>
-          </tr>
-        </tbody>
-      </table> -->
     </v-card>
 
   </div>
@@ -366,7 +288,7 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 10
+      per_page: 100
     },
     loading_devicesync: false,
     Module: "Timezone",
@@ -448,7 +370,7 @@ export default {
 
     this.options = {
       params: {
-        per_page: 1000,
+        per_page: 100,
         company_id: this.$auth.user.company.id
       }
     };
