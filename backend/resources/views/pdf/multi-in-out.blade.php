@@ -330,6 +330,8 @@
                         $statusColor = 'red';
                     } elseif ($employee->status == 'M') {
                         $statusColor = 'orange';
+                    } elseif ($employee->status == 'O') {
+                        $statusColor = 'gray';
                     } elseif ($employee->status == '---') {
                         $statusColor = '#f34100ed';
                     }
@@ -361,6 +363,7 @@
             <tr class="my-break">
                 <td colspan="17"></td>
             </tr>
+            @php $i = 0; @endphp
         @endforeach
     </table>
     @php
