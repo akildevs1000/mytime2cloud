@@ -67,12 +67,12 @@
         <div class="mb-1">System User ID</div>
         <v-text-field @input="searchIt" v-model="payload.UserID" outlined dense placeholder="Search..."></v-text-field>
       </v-col>
-      <v-col cols="12" sm="6" md="2">
+      <!-- <v-col cols="12" sm="6" md="2">
         <div class="mb-1">Device Name</div>
         <v-autocomplete outlined dense @change="searchIt" placeholder="Search..." v-model="payload.DeviceID"
           :items="devices" item-text="name" item-value="device_id">
         </v-autocomplete>
-      </v-col>
+      </v-col> -->
 
       <!-- <v-col cols="12" sm="6" md="2">
         <div class="mb-1"> &nbsp;</div>
@@ -91,6 +91,15 @@
                 </v-btn>
               </template>
               <span>Reload</span>
+            </v-tooltip>
+
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="toggleFilter">
+                  <v-icon dark white>mdi-filter</v-icon>
+                </v-btn>
+              </template>
+              <span>Filter</span>
             </v-tooltip>
 
             <v-spacer></v-spacer>
@@ -115,6 +124,50 @@
             :options.sync="options" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }" class="elevation-1" :server-items-length="totalRowsCount">
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="header in headers" :key="header.text">
+                  <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
+                    v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
+                    dense autocomplete="off"></v-text-field>
+
+                  <v-select :id="header.key" :hide-details="true"
+                    v-if="header.filterSpecial && header.value == 'department.name.id'" outlined dense small
+                    v-model="filters[header.key]" item-text="name" item-value="id"
+                    :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo flat
+                    @change="applyFilters(header.key, id)"></v-select>
+                  <v-menu v-if="header.filterSpecial && header.value == 'LogTime'" ref="from_menu_filter"
+                    v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
+                    min-width="auto">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]"
+                        readonly v-bind="attrs" v-on="on" placeholder="Schedule From Date"></v-text-field>
+                    </template>
+                    <v-date-picker style="height: 350px" v-model="filters[header.value]" no-title scrollable
+                      @input="applyFilters()">
+                      <v-spacer></v-spacer>
+
+                      <v-btn text color="primary"
+                        @click="filters[header.value] = ''; from_menu_filter = false; applyFilters()">
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                  <v-select :id="header.key" :hide-details="true"
+                    v-if="header.filterSpecial && header.value == 'device.name'" outlined dense small
+                    v-model="filters[header.key]" item-text="name" item-value="device_id"
+                    :items="[{ name: `All Devices`, device_id: `` }, ...devices]" placeholder="Device Name" solo flat
+                    @change="applyFilters(header.key, id)"></v-select>
+                  <v-select :id="header.key" :hide-details="true"
+                    v-if="header.filterSpecial && header.value == 'device.location'" outlined dense small
+                    v-model="filters[header.key]" item-text="location" item-value="location"
+                    :items="[{ location: `All Locations` }, ...devices]" placeholder="Location" solo flat
+                    @change="applyFilters(header.key, id)"></v-select>
+                </td>
+              </tr>
+
+
+            </template>
             <template v-slot:item.UserID="{ item }">
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getRecords()"
                 @save="getRecords()" @open="datatable_open">
@@ -131,7 +184,7 @@
                 </template>
               </v-edit-dialog>
             </template>
-            <template v-slot:item.employee="{ item, index }">
+            <template v-slot:item.employee.first_name="{ item, index }">
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getRecords()"
                 @open="datatable_open">
                 <v-row no-gutters>
@@ -173,7 +226,7 @@
                 </template>
               </v-edit-dialog>
             </template>
-            <template v-slot:item.employee.department="{ item }">
+            <template v-slot:item.department.name.id="{ item }">
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
                 @open="datatable_open">
                 <strong>{{
@@ -194,7 +247,7 @@
                 </template>
               </v-edit-dialog>
             </template>
-            <template v-slot:item.time="{ item }">
+            <template v-slot:item.LogTime="{ item }">
               <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getRecords()"
                 @save="getRecords()" @open="datatable_open">
                 {{ item.LogTime }}
@@ -253,6 +306,13 @@
 <script>
 export default {
   data: () => ({
+    id: '',
+    from_menu_filter: '',
+    from_date_filter: '',
+
+    showFilters: false,
+    filters: {},
+    isFilter: false,
     generateLogsDialog: false,
     totalRowsCount: 0,
     //server_datatable_totalItems: 10,
@@ -262,7 +322,7 @@ export default {
     snack: false,
     snackColor: "",
     snackText: "",
-
+    departments: [],
     Model: "Log",
     endpoint: "attendance_logs",
 
@@ -330,47 +390,60 @@ export default {
         key: "UserID",
         value: "UserID",
         width: "150px",
+        filterable: true,
+        filterSpecial: false
       },
       {
         text: "Employee",
         align: "left",
-        sortable: false,
+        sortable: true,
         key: "employee.first_name", //sorting
-        value: "employee", //edit purpose
+        value: "employee.first_name", //edit purpose
         width: "300px",
+        filterable: true,
+        filterSpecial: false
       },
       {
         text: "Department",
         align: "left",
         sortable: false,
         key: "department", //sorting
-        value: "employee.department", //edit purpose
+        value: "department.name.id", //edit purpose
+        filterable: true,
+        filterSpecial: true
       },
       {
         text: "Log Time",
         align: "left",
         sortable: true,
-        key: "time", //sorting
-        value: "time", //edit purpose
+        key: "LogTime", //sorting
+        value: "LogTime", //edit purpose
+        filterable: true,
+        filterSpecial: true
       },
       {
         text: "Device Name",
         align: "left",
-        sortable: false,
+        sortable: true,
         key: "device",
         value: "device.name",
+        filterable: true,
+        filterSpecial: true
       },
       {
         text: "Device Location",
         align: "left",
-        sortable: false,
-        key: "deviceid",
+        sortable: true,
+        key: "devicelocation",
         value: "device.location",
+        filterable: true,
+        filterSpecial: true
       },
     ],
   }),
   created() {
     this.firstLoad();
+    this.getDepartments();
   },
   watch: {
     options: {
@@ -381,6 +454,38 @@ export default {
     },
   },
   methods: {
+    getDepartments() {
+      let options = {
+        params: {
+          per_page: 10,
+          company_id: this.$auth.user.company.id,
+        },
+      };
+      this.$axios.get(`departments`, options).then(({ data }) => {
+        this.departments = data.data;
+        this.departments.unshift({ name: "All Departments", id: "" });
+      });
+    },
+    // applyFilter() {
+    //   this.getDataFromApi();
+    //   this.from_menu_filter = false;
+    //   this.to_menu_filter = false;
+    // },
+    applyFilters() {
+      this.getDataFromApi();
+      this.from_menu_filter = false;
+      this.to_menu_filter = false;
+    },
+    toggleFilter() {
+      // this.filters = {};
+      this.isFilter = !this.isFilter;
+    },
+    clearFilters() {
+      this.filters = {};
+
+      this.isFilter = false;
+      this.getDataFromApi();
+    },
     firstLoad() {
       this.loading = true;
 
@@ -457,6 +562,7 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.payload,
+          ...this.filters,
         },
       };
       if (filter_column != "")

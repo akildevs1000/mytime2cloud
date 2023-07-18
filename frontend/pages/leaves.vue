@@ -226,7 +226,7 @@
                 </v-row>
                 <v-row v-if="dialogViewObject.status == 0">
                   <v-col cols="4">
-                    <strong>{{ dialogViewObject.status == 1 ? "Approved" : "Rejected" }} Notes </strong>
+                    <strong>Approve/Reject Notes </strong>
                   </v-col>
                   <v-col cols="8">
                     <v-textarea rows="3" dense outlined v-model="editedItem.approve_reject_notes" placeholder="Notes"
@@ -236,7 +236,7 @@
                 </v-row>
                 <v-row v-else>
                   <v-col cols="4">
-                    <strong>Approve/Reject Notes </strong>
+                    <strong>{{ dialogViewObject.status == 1 ? "Approved" : "Rejected" }} Notes </strong>
                   </v-col>
                   <v-col cols="8">
 
