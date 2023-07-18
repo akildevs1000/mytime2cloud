@@ -194,11 +194,8 @@ class MonthlyController extends Controller
 
         $data = $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
-            $q->select('system_user_id', 'display_name');
-        })->get()->groupBy(['employee_id', 'date']);
-
-
-        $pdf = App::make('dompdf.wrapper');
+            $q->select('system_user_id', 'display_name', 'department_id');
+        })->get()->groupBy(['employee_id', 'date'])->take(30);
 
         $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
@@ -228,7 +225,7 @@ class MonthlyController extends Controller
             $data = count($data) > 0 ?  $data[$request->employee_id] : [];
             return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
         }
-        return Pdf::loadView('pdf.multi-in-out',  ['data' => $data->take(30), 'company' => $company, 'info' => $info]);
+        return Pdf::loadView('pdf.multi-in-out',  ['data' => $data, 'company' => $company, 'info' => $info]);
     }
 
     public function getHTML($data, $company)
