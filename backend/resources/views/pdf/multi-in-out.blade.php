@@ -45,93 +45,6 @@
         $statusColor = '';
         $i = 0;
     @endphp
-    {{-- <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
-        <tr>
-            <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
-                <div style=";">
-                    <br> <br> <br>
-                    @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" height="120px" width="180px">
-                    @else
-                        <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="120px" width="180px">
-                    @endif
-
-                    <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: right; border :none;font-size:10px">
-                                <b>
-                                    {{ $company->name }}
-                                </b>
-                                <br>
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: right; border :none;font-size:10px">
-                                <span style="margin-right: 3px">P.O.Box {{ $company->p_o_box_no }}</span>
-                                <br>
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: right; border :none;font-s ize:10px">
-                                <span style="margin-right: 3px">{{ $company->location }}</span>
-                                <br>
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: right; border :none;font-size:10px">
-                                <span style="margin-right: 3px">{{ $company->contact->number ?? '' }}</span>
-                                <br>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-            <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
-                <div>
-                    <table style="text-align: left; border :none;  ">
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span class="title-font">
-                                    {{ $info->report_type }} Employee Report
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span style="font-size: 11px">
-                                    {{ date('d-M-Y', strtotime($company->start)) }} -
-                                    {{ date('d-M-Y', strtotime($company->end)) }}
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-            <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
-                <table class="summary-table"
-                    style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
-                    <tr style="border: none">
-                    </tr>
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                        <th style="text-align: center; border :none; padding:5px">Present</th>
-                        <th style="text-align: center; border :none">Absent</th>
-                        <th style="text-align: center; border :none">Leave</th>
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:green">
-                            {{ $info->total_present }}
-                        </td>
-                        <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
-                        <td style="text-align: center; border :none;color:red">{{ $info->total_leave ?? 0 }}</td>
-                    </tr>
-                </table>
-                <br>
-            </td>
-            </td>
-        </tr>
-    </table> --}}
 
     <table class="main-table">
 
@@ -165,7 +78,8 @@
                                 </tr>
                                 <tr style="text-align: left; border :none;padding:10px 0px">
                                     <td style="text-align: left; border :none;font-size:10px;padding:5px 0px;">
-                                        <span style="margin-left: 3px">P.O.Box {{ $company->p_o_box_no }}</span>
+                                        <span style="margin-left: 3px">P.O.Box
+                                            {{ $company->p_o_box_no == 'null' ? '---' : $company->p_o_box_no }}</span>
                                         <br>
                                     </td>
                                 </tr>
