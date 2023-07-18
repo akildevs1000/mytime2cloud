@@ -221,11 +221,16 @@ class MonthlyController extends Controller
             ])->first(),
         ];
 
+
         // if ($request->employee_id && $request->filled('employee_id')) {
         //     $data = count($data) > 0 ?  $data[$request->employee_id] : [];
         //     return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
         // }
-        return Pdf::loadView('pdf.multi-in-out',  ['data' => $data, 'company' => $company, 'info' => $info]);
+
+        $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
+
+        $arr = ['data' => $data, 'company' => $company, 'info' => $info];
+        return Pdf::loadView('pdf.' . $fileName, $arr);
     }
 
     public function getHTML($data, $company)

@@ -55,15 +55,16 @@
                 $empName = $employee[key(reset($employee))][0]->employee->display_name ?? '';
             @endphp
             <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
-                <td style="border: nonse" colspan="5">
+                <td style="border: nonse" colspan="6">
                     <div class="row">
-                        <div class="col-5" style="background-coldor: rgb(253, 246, 246);border:1px solid black">
+                        <div class="col-5" style="">
                             @if (env('APP_ENV') !== 'local')
                                 <img src="{{ $company->logo }}" height="120px" width="130px"
                                     style="margin: 0px 0px 0px 0px">
                             @else
-                                <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" height="120px" width="180px"
-                                    style="margin: 0px 0px 0px -27px">
+                                <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0"
+                                    height="120px" width="180px" height="120px" width="130px"
+                                    style="margin: 0px 0px 0px 0px">
                             @endif
                         </div>
                         <div class="col-5" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
@@ -105,7 +106,7 @@
                         </div>
                     </div>
                 </td>
-                <td style="border: nonse" colspan="5">
+                <td style="border: nonse" colspan="3">
                     <div>
                         <table style="text-align: left; border :none;  ">
                             <tr style="text-align: left; border :none;">
@@ -195,44 +196,18 @@
                 </td>
             </tr>
 
-
-            {{-- <tr style="margin-top:20px;">
-                <td colspan="2"> <b>EID</b> : {{ $empID ?? '' }}</td>
-                <td colspan="3"> <b>Name</b> : {{ substr($empName, 0, 10) ?? '' }}</td>
-                <td colspan="3"><b>Department</b> : {{ $info->department->name ?? '' }}</td>
-                <td colspan="3"> <b>Working Hours</b> : {{ $empTotWrkHrs ?? '' }}</td>
-                <td colspan="2"> <b>OT Hours</b> : {{ $empTotOtHrs ?? '' }}</td>
-                <td colspan="2" style="color:green"> Present : {{ getStatus($employee->toArray())['P'] }}</td>
-                <td colspan="2" style="color:red"> Absent : {{ getStatus($employee->toArray())['A'] }}</td>
-            </tr> --}}
-
-            {{-- <tr>
-                <td colspan="17"></td>
-            </tr> --}}
-            <tr style="text-align: left;font-weight:bold;margin-top:20px">
-                <td style="text-align:  left;width:10px"> # </td>
-                <td style="text-align:  center;width:40px"> Date </td>
-                <td style="text-align:  center;width:40px"> Day </td>
-                <td style="text-align:  center;width:80px"> Roster </td>
-
-                <td style="text-align:  center;width:40px"> In1 </td>
-                <td style="text-align:  center;width:40px"> Out1 </td>
-
-                <td style="text-align:  center;width:40px"> In2 </td>
-                <td style="text-align:  center;width:40px"> Out2 </td>
-
-                <td style="text-align:  center;width:40px"> In3 </td>
-                <td style="text-align:  center;width:40px"> Out3 </td>
-
-                <td style="text-align:  center;width:40px"> In4 </td>
-                <td style="text-align:  center;width:40px"> Out4 </td>
-
-                <td style="text-align:  center;width:40px"> In5 </td>
-                <td style="text-align:  center;width:40px"> Out5 </td>
-
-                <td style="text-align:  center;width:40px"> Total Hours </td>
-                <td style="text-align:  center;width:40px"> OT </td>
-                <td style="text-align:  center;width:40px"> Status </td>
+            <tr style="text-align: left;font-weight:bold;margin-top:20px;background:; width:100%;">
+                <td colspan="1" style="text-align: left;"> # </td>
+                <td colspan="1" style="text-align: center;"> Date </td>
+                <td colspan="1" style="text-align: center;"> Day </td>
+                <td colspan="2" style="text-align: center;"> Roster </td>
+                <td colspan="1" style="text-align: center;"> In </td>
+                <td colspan="1" style="text-align: center;"> Out </td>
+                <td colspan="2" style="text-align: center;"> Total Hours </td>
+                <td colspan="1" style="text-align: center;"> OT </td>
+                <td colspan="2" style="text-align: center;"> Status </td>
+                <td colspan="2" style="text-align: center;"> Device In </td>
+                <td colspan="2" style="text-align: center;"> Device Out </td>
             </tr>
 
             @foreach ($employee as $date)
@@ -253,24 +228,19 @@
 
                 <tbody>
                     <tr style="text-align:  center">
-                        <td>{{ ++$i }}</td>
-                        <td style="text-align:  center;">{{ $employee->date ?? '---' }}</td>
-                        <td style="text-align:  center;">{{ date('D', strtotime($employee->date)) ?? '---' }}</td>
-                        <td style="text-align:  center;">{{ $employee->roster->name ?? '---' }}</td>
-                        <td style="text-align:  center;"> {{ $employee->logs[0]['in'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[0]['out'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[1]['in'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[1]['out'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[2]['in'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[2]['out'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[3]['in'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[3]['out'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[4]['in'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[4]['out'] ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
-                        <td style="text-align:  center; color:{{ $statusColor }}"> {{ $employee->status ?? '---' }}
+                        <td colspan="1">{{ ++$i }}</td>
+                        <td colspan="1" style="text-align:  center;">{{ $employee->date ?? '---' }}</td>
+                        <td colspan="1" style="text-align:  center;">{{ date('D', strtotime($employee->date)) ?? '---' }}</td>
+                        <td colspan="2" style="text-align:  center;">{{ $employee->roster->name ?? '---' }}</td>
+                        <td colspan="1" style="text-align:  center;"> {{ $employee->in ?? '---' }} </td>
+                        <td colspan="1" style="text-align:  center;"> {{ $employee->out ?? '---' }} </td>
+                        <td colspan="2" style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
+                        <td colspan="1" style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
+                        <td colspan="2" style="text-align:  center; color:{{ $statusColor }}">
+                            {{ $employee->status ?? '---' }}
                         </td>
+                        <td colspan="2" style="text-align:  center;"> {{ $employee->device_in->short_name ?? '---' }} </td>
+                        <td colspan="2" style="text-align:  center;"> {{ $employee->device_out->short_name ?? '---' }} </td>
                     </tr>
                 </tbody>
             @endforeach
