@@ -219,14 +219,19 @@
                     <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
                             <th style="text-align: center; border :none; padding:5px">EID</th>
-                            <th colspan="2" style="text-align: center; border :none">Name</th>
+                            <th style="text-align: center; border :none">Name</th>
+                            <th style="text-align: center; border :none">Department</th>
+
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;font-size:11px">
                                 {{ $empID ?? '---' }}
                             </td>
-                            <td colspan="2" style="text-align: center; border:none;font-size:11px">
+                            <td style="text-align: center; border:none;font-size:11px">
                                 {{ $empName ?? '---' }}
+                            </td>
+                            <td style="text-align: center; border:none;font-size:11px">
+                                {{ $info->department->name ?? 'All' }}
                             </td>
                         </tr>
 
@@ -243,7 +248,7 @@
                             <td style="text-align: center; border :none;color:red">
                                 {{ getStatus($employee->toArray())['A'] ?? 0 }}
                             </td>
-                           
+
                             <td style="text-align: center; border :none;color:gray">
                                 {{ getStatus($employee->toArray())['O'] ?? 0 }}
                             </td>
@@ -251,7 +256,7 @@
                         <tr class="summary-header" style="border: none;background-color:#eeeeee ">
                             <th style="text-align: center; border :none">Missing</th>
 
-                            <th colspan="2" style="text-align: center; border :none; padding:5px">Work Hours</th>
+                            <th style="text-align: center; border :none; padding:5px">Work Hours</th>
                             <th style="text-align: center; border :none">OT Hours</th>
                             {{-- <th style="text-align: center; border :none">Department</th> --}}
                         </tr>

@@ -101,7 +101,7 @@
                 </table>
                 <br>
             </td>
-            
+
             </td>
         </tr>
     </table>
@@ -155,7 +155,7 @@
         <tr>
             <td>Employee Id : {{ $info->employee->employee_id }}</td>
             <td>Employee Name : {{ $info->employee->display_name }}</td>
-            <td>Department : {{ $info->department->name }}</td>
+            <td>Department : {{ $info->employee->department->name ?? 'All' }}</td>
             <td>Total Working Hours : {{ $info->total_hours }}</td>
             <td>Total OT Hours : {{ $info->total_ot_hours }}</td>
         </tr>
