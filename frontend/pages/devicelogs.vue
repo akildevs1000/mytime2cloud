@@ -141,7 +141,7 @@
                     min-width="auto">
                     <template v-slot:activator="{ on, attrs }">
                       <v-text-field :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]"
-                        readonly v-bind="attrs" v-on="on" placeholder="Schedule From Date"></v-text-field>
+                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
                     </template>
                     <v-date-picker style="height: 350px" v-model="filters[header.value]" no-title scrollable
                       @input="applyFilters()">
@@ -169,32 +169,25 @@
 
             </template>
             <template v-slot:item.UserID="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getRecords()"
-                @save="getRecords()" @open="datatable_open">
-                <strong>{{
-                  item.employee && item.employee.employee_id
-                  ? item.employee.employee_id
-                  : "---"
-                }}</strong>
-                <br />
-                {{ item.UserID ? item.UserID : "---" }}
-                <template v-slot:input>
-                  <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_system_user_id', $event)"
-                    label="Search System User Id"></v-text-field>
-                </template>
-              </v-edit-dialog>
+
+              <strong>{{
+                item.employee && item.employee.employee_id
+                ? item.employee.employee_id
+                : "---"
+              }}</strong>
+              <br />
+              {{ item.UserID ? item.UserID : "---" }}
+
             </template>
             <template v-slot:item.employee.first_name="{ item, index }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getRecords()"
-                @open="datatable_open">
-                <v-row no-gutters>
-                  <v-col style="
+              <v-row no-gutters>
+                <v-col style="
                       padding: 5px;
                       padding-left: 0px;
                       width: 50px;
                       max-width: 50px;
                     ">
-                    <v-img style="
+                  <v-img style="
                         border-radius: 50%;
                         height: auto;
                         width: 50px;
@@ -203,90 +196,51 @@
                         ? item.employee.profile_picture
                         : '/no-profile-image.jpg'
                         ">
-                    </v-img>
-                  </v-col>
-                  <v-col style="padding: 10px">
-                    <strong>
-                      {{ item.employee ? item.employee.first_name : "---" }}
-                      {{
-                        item.employee ? item.employee.last_name : "---"
-                      }}</strong>
-                    <div>
-                      {{
-                        item.employee && item.employee.designation
-                        ? caps(item.employee.designation.name)
-                        : "---"
-                      }}
-                    </div>
-                  </v-col>
-                </v-row>
-                <template v-slot:input>
-                  <v-text-field @input="getRecords('search_employee_name', $event)" v-model="datatable_search_textbox"
-                    label="Type Employee Name"></v-text-field>
-                </template>
-              </v-edit-dialog>
+                  </v-img>
+                </v-col>
+                <v-col style="padding: 10px">
+                  <strong>
+                    {{ item.employee ? item.employee.first_name : "---" }}
+                    {{
+                      item.employee ? item.employee.last_name : "---"
+                    }}</strong>
+                  <div>
+                    {{
+                      item.employee && item.employee.designation
+                      ? caps(item.employee.designation.name)
+                      : "---"
+                    }}
+                  </div>
+                </v-col>
+              </v-row>
+
             </template>
             <template v-slot:item.department.name.id="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                @open="datatable_open">
-                <strong>{{
-                  item.employee && item.employee.department
-                  ? caps(item.employee.department.name)
+
+              <strong>{{
+                item.employee && item.employee.department
+                ? caps(item.employee.department.name)
+                : "---"
+              }}</strong>
+              <div>
+                {{
+                  item.employee && item.employee.sub_department
+                  ? caps(item.employee.sub_department.name)
                   : "---"
-                }}</strong>
-                <div>
-                  {{
-                    item.employee && item.employee.sub_department
-                    ? caps(item.employee.sub_department.name)
-                    : "---"
-                  }}
-                </div>
-                <template v-slot:input>
-                  <v-text-field @input="getRecords('search_department_name', $event)" v-model="datatable_search_textbox"
-                    label="Search Department name"></v-text-field>
-                </template>
-              </v-edit-dialog>
+                }}
+              </div>
+
             </template>
             <template v-slot:item.LogTime="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getRecords()"
-                @save="getRecords()" @open="datatable_open">
-                {{ item.LogTime }}
-                <template v-slot:input>
-                  <v-text-field v-model="datatable_search_textbox" label="Search Date and Time"
-                    @input="getRecords('search_time', $event)"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ item.LogTime }}
             </template>
             <template v-slot:item.device.name="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getRecords()"
-                @save="getRecords()" @open="datatable_open">
-                {{ item.device ? caps(item.device.name) : "---" }}
-                <template v-slot:input>
-                  <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_device_name', $event)"
-                    label="Search Device Name"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ item.device ? caps(item.device.name) : "---" }}
             </template>
             <template v-slot:item.device.location="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @cancel="getRecords()"
-                @save="getRecords()" @open="datatable_open">
-                {{ item.device ? caps(item.device.location) : "---" }}
-                <template v-slot:input>
-                  <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_device_location', $event)"
-                    label="Search Device location"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ item.device ? caps(item.device.location) : "---" }}
             </template>
-            <!-- <template v-slot:item.device.device_id="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @cancel="getRecords()"
-                @save="getRecords()" @open="datatable_open">
-                {{ item.device ? item.device.device_id : '---' }}
-                <template v-slot:input>
-                  <v-text-field v-model="datatable_search_textbox" @input="getRecords('search_device_id', $event)"
-                    label="Search Device ID"></v-text-field>
-                </template>
-              </v-edit-dialog>
-            </template> -->
+
           </v-data-table>
         </v-card>
       </v-col>

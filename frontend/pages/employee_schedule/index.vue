@@ -278,7 +278,7 @@
                 min-width="auto">
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]" readonly
-                    v-bind="attrs" v-on="on" placeholder="Schedule From Date"></v-text-field>
+                    v-bind="attrs" v-on="on" placeholder="Schedule Start Date"></v-text-field>
                 </template>
                 <v-date-picker style="height: 350px" v-model="filters[header.value]" no-title scrollable
                   @input="applyFilter()">
