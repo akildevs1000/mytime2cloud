@@ -275,7 +275,7 @@
                 </tbody>
             @endforeach
             <tr class="my-break">
-                <td colspan="17"></td>
+                <td colspan="17" style="border: none;"></td>
             </tr>
             @php $i = 0; @endphp
         @endforeach
