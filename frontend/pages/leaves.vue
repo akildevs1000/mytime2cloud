@@ -47,74 +47,7 @@
 
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialog" width="500px">
-      <v-card>
 
-        <v-toolbar flat small dense dark class="background">
-          <span class="headline"> Leave Application </span>
-        </v-toolbar>
-        <v-card-text>
-          <v-container>
-
-            <v-row>
-              <v-col cols="12">
-                <label for="" style="padding-bottom:5px">Leave Type</label>
-                <v-autocomplete :items="leaveTypes" item-text="name" item-value="id" placeholder="Select Leave Type"
-                  v-model="editedItem.leave_type_id" :hide-details="!errors.leave_type_id" :error="errors.leave_type_id"
-                  :error-messages="errors && errors.leave_type_id
-                    ? errors.leave_type_id[0]
-                    : ''
-                    " dense outlined></v-autocomplete>
-              </v-col>
-              <v-col cols="12">
-                <v-menu ref="from_menu" v-model="start_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.start_date" transition="scale-transition" offset-y min-width="auto">
-                  <template v-slot:activator="{ on, attrs }">
-                    <div class="mb-1">From Date</div>
-                    <v-text-field style="height:45px" outlined dense v-model="editedItem.start_date" readonly
-                      v-bind="attrs" v-on="on" :error-messages="errors && errors.start_date ? errors.start_date[0] : ''
-                        ">
-                    </v-text-field>
-                  </template>
-                  <v-date-picker v-model="editedItem.start_date" small no-title scrollable :min="todayDate"
-                    @change="update_EdititemStart">
-
-                  </v-date-picker>
-                </v-menu>
-              </v-col>
-
-              <v-col cols="12">
-                <v-menu ref="end_menu" v-model="end_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.end_date" transition="scale-transition" offset-y min-width="auto">
-                  <template v-slot:activator="{ on, attrs }">
-                    <div class="mb-1">End Date</div>
-                    <v-text-field style="height:45px" outlined dense v-model="editedItem.end_date" readonly v-bind="attrs"
-                      v-on="on" :error-messages="errors && errors.end_date ? errors.end_date[0] : ''
-                        "></v-text-field>
-                  </template>
-                  <v-date-picker small v-model="editedItem.end_date" @change="update_EdititemEnd"
-                    :min="editedItem.start_date" no-title scrollable>
-                  </v-date-picker>
-                </v-menu>
-              </v-col>
-              <v-col cols="12">
-                <label for="" style="padding-bottom:5px">Reason</label>
-                <v-text-field dense outlined v-model="editedItem.reason" placeholder="Reason/Notes" :error-messages="errors && errors.reason ? errors.reason[0] : ''
-                  "></v-text-field>
-              </v-col>
-
-
-            </v-row>
-          </v-container>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn class="error" small @click="close"> Cancel </v-btn>
-          <v-btn class="primary" small @click="save">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
     <v-dialog v-model="dialogView" width="1000px">
       <v-card>
         <v-card-title dense class=" primary  white--text background">
@@ -308,7 +241,8 @@
 
               </v-col>
             </v-row>
-            <v-card-actions class="mt-4">
+
+            <v-card-actions class="mt-4" v-if="dialogViewObject.shift_type_id">
               <!-- <v-btn class="error" small @click="close"> Close </v-btn> -->
               <v-spacer></v-spacer>
               <v-btn class="error text-right" v-if="dialogViewObject.status == 0" small
@@ -317,6 +251,12 @@
               <v-spacer></v-spacer>
               <v-btn class="primary" v-if="dialogViewObject.status == 0" small
                 @click="approveLeave(dialogViewObject.id)">Approve</v-btn>
+            </v-card-actions>
+            <v-card-actions v-else class="mt-4">
+              <v-spacer></v-spacer>
+              <v-chip color="red" variant="text">
+                Note: Employee Schedule is not available
+              </v-chip>
             </v-card-actions>
           </v-container>
         </v-card-text>
@@ -763,8 +703,12 @@ export default {
       this.isFilter = !this.isFilter;
     },
     view(item) {
+      console.log(item);
       this.dialogViewObject.id = item.id;
       this.dialogViewObject.employee_name = item.employee.first_name + " " + item.employee.last_name;
+      this.dialogViewObject.system_user_id = item.employee.system_user_id;
+      this.dialogViewObject.shift_type_id = item.employee.schedule.shift_type_id;
+
       this.dialogViewObject.leave_type = item.leave_type.name;
       this.dialogViewObject.from_date = item.start_date;
       this.dialogViewObject.to_date = item.end_date;
@@ -1085,9 +1029,11 @@ export default {
           params: {
             approve_reject_notes: this.editedItem.approve_reject_notes,
             company_id: this.$auth.user.company.id,
+            system_user_id: this.dialogViewObject.system_user_id,
+            shift_type_id: this.dialogViewObject.shift_type_id,
           },
         };
-        this.$axios.get(this.endpoint + "/approve/" + leaveid, options).then(({ data }) => {
+        this.$axios.post(this.endpoint + "/approve/" + leaveid, options.params).then(({ data }) => {
           if (!data.status) {
             this.errors = data.errors;
           } else {

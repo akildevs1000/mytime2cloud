@@ -25,6 +25,34 @@ class AnnouncementController extends Controller
             $key = $request->serach_description;
             $q->where('description', 'ILIKE', "$key%");
         });
+        $model->when($request->filled('title'), function ($q) use ($request) {
+            $key = $request->title;
+            $q->where('title', 'ILIKE', "$key%");
+        });
+        $model->when($request->filled('description'), function ($q) use ($request) {
+
+            $q->where('description', 'ILIKE', "$request->description%");
+        });
+        $model->when($request->filled('start_date'), function ($q) use ($request) {
+            $q->where('start_date', $request->start_date);
+        });
+        $model->when($request->filled('end_date'), function ($q) use ($request) {
+            $q->where('end_date', $request->end_date);
+        });
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            $sortDesc = $request->input('sortDesc');
+            if (strpos($request->sortBy, '.')) {
+                // if ($request->sortBy == 'department.name.id') {
+                //     $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                // }
+
+            } else {
+                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
+
+            }
+
+        });
 
         return $model;
     }

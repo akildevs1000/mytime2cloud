@@ -227,6 +227,14 @@
               </template>
               <span>Reload</span>
             </v-tooltip>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" @click="toggleFilter" class="mx-1 ml-2">mdi mdi-filter</v-icon>
+                </v-btn>
+              </template>
+              <span>Filter</span>
+            </v-tooltip>
             <v-spacer></v-spacer>
             <v-tooltip top color="primary" v-if="can(`announcement_create`)">
               <template v-slot:activator="{ on, attrs }">
@@ -248,18 +256,62 @@
             </template>
           </v-snackbar>
           <v-data-table v-if="can(`announcement_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
-            :loading="loading" :footer-props="{
+            :loading="loading" :options.sync="options" :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1">
+            }" class="elevation-1" :server-items-length="totalRowsCount">
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="header in headers" :key="header.text">
+                  <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
+                    v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
+                    dense autocomplete="off"></v-text-field>
+
+                  <v-select :id="header.key" :hide-details="true"
+                    v-if="header.filterSpecial && header.value == 'department.name.id'" outlined dense small
+                    v-model="filters[header.key]" item-text="name" item-value="id"
+                    :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo flat
+                    @change="applyFilters(header.key, id)"></v-select>
+                  <v-menu v-if="header.filterSpecial && header.value == 'start_date'" ref="from_menu_filter"
+                    v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
+                    min-width="auto">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]"
+                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                    </template>
+                    <v-date-picker clearable style="height: 350px" v-model="filters[header.value]" no-title scrollable
+                      @input="applyFilters()">
+                      <v-spacer></v-spacer>
+
+                      <v-btn text color="primary"
+                        @click="filters[header.value] = ''; from_menu_filter = false; applyFilters()">
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                  <v-menu v-if="header.filterSpecial && header.value == 'end_date'" ref="to_menu_filter"
+                    v-model="to_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
+                    min-width="auto">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field :hide-details="!to_date_filter" outlined dense v-model="filters[header.value]"
+                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                    </template>
+                    <v-date-picker clearable style="height: 350px" v-model="filters[header.value]" no-title scrollable
+                      @input="applyFilters()">
+                      <v-spacer></v-spacer>
+
+                      <v-btn text color="primary"
+                        @click="filters[header.value] = ''; to_menu_filter = false; applyFilters()">
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                </td>
+              </tr>
+
+
+            </template>
             <template v-slot:item.title="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ item.title }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'serach_title', $event)" v-model="datatable_search_textbox"
-                    label="Search Title"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ item.title }}
             </template>
             <template v-slot:item.action="{ item }">
               <v-menu bottom left>
@@ -297,21 +349,21 @@
                 </v-list>
               </v-menu>
             </template>
-            <template v-slot:item.departments="{ item }">
-              <span v-for="(dep, index) in item.departments" :key="index">
-                <span small class="pa-2 ma-1" color="primary">
-                  {{ dep.name }}
-                </span>
+            <template v-slot:item.department.name.id="{ item }">
+
+              <span v-for="(dep, index) in item.departments" :key="index" small class="  " color="primary">
+                {{ dep.name }} <br />
               </span>
+
 
             </template>
             <template v-slot:item.employees="{ item }">
-              <span v-for="(emp, index) in item.employees.slice(0, 4)" :key="index">
-                <span small class="p-2 ma-1" color="primary">
-                  <span>{{ emp.first_name }} {{ emp.last_name }} -
-                    {{ emp.employee_id }}
-                  </span>
-                </span>
+              <span v-for="(emp, index) in item.employees.slice(0, 4)" :key="index" small class="p-2 ma-1"
+                color="primary">
+
+                {{ emp.first_name }} {{ emp.last_name }} -
+                {{ emp.employee_id }}
+
                 <br>
               </span>
               <v-chip small class="primary ma-1" style="color: black;    margin-left: 10px!important;"
@@ -320,16 +372,8 @@
               </v-chip>
             </template>
             <template v-slot:item.description="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
-                @open="datatable_open">
-                <div style="width: 300px" class="pa-2">
-                  {{ item.description }}
-                </div>
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'serach_description', $event)"
-                    v-model="datatable_search_textbox" label="Search Description"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ item.description }}
+
             </template>
             <template v-slot:no-data>
               <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
@@ -368,6 +412,15 @@ export default {
     TiptapVuetify,
   },
   data: () => ({
+    totalRowsCount: 0,
+    from_menu_filter: '',
+    from_date_filter: '',
+    to_date_filter: '',
+    to_menu_filter: '',
+    showFilters: false,
+    filters: {},
+    isFilter: false,
+    options: {},
     dialogEmployees: false,
     idsEmployeeList: [],
     //editor
@@ -459,36 +512,51 @@ export default {
         sortable: true,
         key: "title",
         value: "title",
+        filterable: true,
+        filterSpecial: false,
       },
       {
         text: "Departments",
         align: "left",
-        sortable: true,
-        value: "departments",
+        sortable: false,
+        value: "department.name.id",
+        key: "department",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Employees",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "employees",
+        filterable: false,
+        filterSpecial: false,
       },
       {
         text: "Description",
         align: "left",
         sortable: true,
         value: "description",
+        filterable: true,
+        filterSpecial: false,
       },
       {
         text: "Start Date",
         align: "left",
         sortable: true,
         value: "start_date",
+        key: "start_date",
+        filterable: true,
+        filterSpecial: true,
       },
       {
         text: "End Date",
         align: "left",
         sortable: true,
         value: "end_date",
+        key: "end_date",
+        filterable: true,
+        filterSpecial: true,
       },
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
@@ -577,7 +645,7 @@ export default {
     },
     options: {
       handler() {
-        //this.getDataFromApi();
+        this.getDataFromApi();
       },
       deep: true,
     },
@@ -657,17 +725,37 @@ export default {
         this.loading_dialog = false;
       });
     },
+    applyFilters() {
+      this.from_menu_filter = false;
+      this.to_menu_filter = false;
+      this.getDataFromApi();
+    },
+    toggleFilter() {
+      // this.filters = {};
+      this.isFilter = !this.isFilter;
+    },
+    clearFilters() {
+      this.filters = {};
 
+      this.isFilter = false;
+      this.getDataFromApi();
+    },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       if (url == "") url = this.endpoint;
       this.loading = true;
 
-      const { page, itemsPerPage } = this.options;
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
       let options = {
         params: {
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
+          ...this.filters,
         },
       };
       if (filter_column != "") {
@@ -682,6 +770,8 @@ export default {
           this.loading = false;
           return false;
         }
+        this.totalRowsCount = data.total;
+
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
