@@ -2,17 +2,12 @@
 
 namespace App\Http\Controllers\Shift;
 
-use App\Models\Attendance;
-
-use Illuminate\Support\Arr;
-use Illuminate\Http\Request;
-use App\Models\AttendanceLog;
-use App\Models\ScheduleEmployee;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Models\Company;
+use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Reason;
-use App\Models\Schedule;
+use App\Models\ScheduleEmployee;
+use Illuminate\Http\Request;
 
 class RenderController extends Controller
 {
@@ -50,7 +45,7 @@ class RenderController extends Controller
         }
 
         $AttendancePayload = [
-            "status" => count($data)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+            "status" => count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT,
             "shift_type_id" => $shift_type_id,
             "date" => $currentDate,
             "company_id" => $company_id,
@@ -71,11 +66,11 @@ class RenderController extends Controller
 
         $this->updated_by = $request->updated_by ?? 0;
 
-        $date       = $request->date;
+        $date = $request->date;
 
         $company_id = $request->company_id;
 
-        $UserID     = $request->UserID;
+        $UserID = $request->UserID;
 
         $schedule = $this->getScheduleGeneral($date, $company_id, $UserID);
 
@@ -116,7 +111,6 @@ class RenderController extends Controller
         $arr["status"] = "M";
         $arr["is_manual_entry"] = true;
 
-
         if ($schedule["shift_type_id"] == 4 && $schedule["shift_type_id"] == 6) {
 
             $LateComing = $this->calculatedLateComing($arr["in"], $schedule["on_duty_time"], $schedule["late_time"]);
@@ -152,7 +146,9 @@ class RenderController extends Controller
 
     public function createReason($id)
     {
-        if (empty($this->reason)) return false;
+        if (empty($this->reason)) {
+            return false;
+        }
 
         try {
             Reason::create([
@@ -215,7 +211,6 @@ class RenderController extends Controller
         $ot = 0;
         $totalMinutes = 0;
 
-
         for ($i = 0; $i < count($data); $i++) {
 
             $currentLog = $data[$i];
@@ -223,7 +218,7 @@ class RenderController extends Controller
 
             $logs[] = [
                 "in" => $currentLog['time'],
-                "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
+                "out" => $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
             ];
 
             if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
@@ -261,7 +256,7 @@ class RenderController extends Controller
             $attendance = Attendance::firstOrNew([
                 'date' => $items['date'],
                 'employee_id' => $items['employee_id'],
-                'company_id' => $items['company_id']
+                'company_id' => $items['company_id'],
             ]);
 
             $attendance->fill($items)->save();
@@ -269,7 +264,6 @@ class RenderController extends Controller
             if ($this->reason) {
                 $result = $this->createReason($attendance->id);
             }
-
 
             if (!$attendance) {
                 return $this->response("The Logs cannnot render against " . $items['employee_id'] . " SYSTEM USER ID.", null, false);
@@ -289,10 +283,14 @@ class RenderController extends Controller
     {
         return $this->renderAbsentScript($company_id, $request->date, $request->UserID);
     }
+    public function renderLeaves($company_id = 0, Request $request)
+    {
+        return $this->renderLeavesScript($company_id, $request->date, $request->UserID);
+    }
 
     public function renderOffCron($company_id = 0)
     {
-        $result =  $this->renderOffScript($company_id,  date("Y-m-d"));
+        $result = $this->renderOffScript($company_id, date("Y-m-d"));
 
         $UserIds = json_encode($result);
 
@@ -353,7 +351,7 @@ class RenderController extends Controller
 
     public function renderAbsentCron($company_id = 0)
     {
-        $msg =  $this->renderAbsentScript($company_id, date('Y-m-d', strtotime('-1 day')));
+        $msg = $this->renderAbsentScript($company_id, date('Y-m-d', strtotime('-1 day')));
 
         return $this->getMeta("Sync Absent", $msg . ".\n");
     }
@@ -408,6 +406,59 @@ class RenderController extends Controller
             $NumberOfEmployee = count($records);
 
             return "$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds);
+        } catch (\Exception $e) {
+            return $e;
+        }
+    }
+    public function renderLeavesScript($company_id, $date, $user_id = 0)
+    {
+        try {
+            $model = ScheduleEmployee::query();
+
+            $model->where("company_id", $company_id);
+
+            $model->when($user_id, function ($q) use ($user_id) {
+                $q->where("employee_id", $user_id);
+            });
+
+            $model->when(!$user_id, function ($q) {
+                $q->where("shift_id", -3);
+            });
+
+            $employees = $model->latest()->first(["employee_id", "shift_type_id"]);
+
+            $records = [];
+
+            // foreach ($employees as $employee)
+            {
+
+                $records[] = [
+                    "company_id" => $company_id,
+                    "date" => $date,
+                    "status" => "L",
+                    "employee_id" => $employees->employee_id,
+                    "shift_id" => -3,
+                    "shift_type_id" => $employees->shift_type_id,
+                ];
+            }
+
+            $model = Attendance::query();
+            // $model->where("shift_id", -1);
+            $model->where("company_id", $company_id);
+            $model->where("date", $date);
+            $model->whereIn("status", ["P", "A", "M", "O", "L"]);
+
+            $model->when($user_id, function ($q) use ($user_id) {
+                return $q->where("employee_id", $user_id);
+            });
+
+            $model->delete();
+
+            $model->insert($records);
+
+            $UserIds = array_column($records, "employee_id");
+
+            return $UserIds;
         } catch (\Exception $e) {
             return $e;
         }

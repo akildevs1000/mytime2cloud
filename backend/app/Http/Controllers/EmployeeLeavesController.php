@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmployeeLeaves\StoreRequest;
 use App\Http\Requests\EmployeeLeaves\UpdateRequest;
 use App\Models\EmployeeLeaves;
+use App\Models\ScheduleEmployee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -135,11 +136,17 @@ class EmployeeLeavesController extends Controller
 
     public function approveLeave(Request $request, $leaveId)
     {
+
         $model = EmployeeLeaves::find($leaveId);
         if ($model) {
             $model->status = 1;
             $model->approve_reject_notes = $request->approve_reject_notes;
             $record = $model->save();
+
+            //-3,date range, employee id
+            //schedule_employees shift_id=2
+
+            $record = ScheduleEmployee::updateOrCreate(['employee_id' => $request->system_user_id, 'company_id' => $request->company_id, 'shift_id' => -3, 'shift_type_id' => $request->shift_type_id]);
 
             if ($record) {
 
