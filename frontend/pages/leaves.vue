@@ -255,7 +255,7 @@
             <v-card-actions v-else class="mt-4">
               <v-spacer></v-spacer>
               <v-chip color="red" variant="text">
-                Note: Employee Shift Type is not assigned
+                Note: Employee Schedule is not available
               </v-chip>
             </v-card-actions>
           </v-container>

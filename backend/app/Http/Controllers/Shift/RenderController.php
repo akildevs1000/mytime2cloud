@@ -287,7 +287,10 @@ class RenderController extends Controller
     {
         return $this->renderLeavesScript($company_id, $request->date, $request->UserID);
     }
-
+    public function renderHolidays($company_id = 0, Request $request)
+    {
+        return $this->renderHolidaysScript($company_id, $request->date, $request->UserID);
+    }
     public function renderOffCron($company_id = 0)
     {
         $result = $this->renderOffScript($company_id, date("Y-m-d"));
@@ -463,6 +466,59 @@ class RenderController extends Controller
             return $e;
         }
     }
+    // public function renderHolidaysScript($company_id, $date, $user_id = 0)
+    // {
+    //     try {
+    //         $model = ScheduleEmployee::query();
+
+    //         $model->where("company_id", $company_id);
+
+    //         $model->when($user_id, function ($q) use ($user_id) {
+    //             $q->where("employee_id", $user_id);
+    //         });
+
+    //         $model->when(!$user_id, function ($q) {
+    //             $q->where("shift_id", -4);
+    //         });
+
+    //         $employees = $model->latest()->first(["employee_id", "shift_type_id"]);
+
+    //         $records = [];
+
+    //         // foreach ($employees as $employee)
+    //         {
+
+    //             $records[] = [
+    //                 "company_id" => $company_id,
+    //                 "date" => $date,
+    //                 "status" => "L",
+    //                 "employee_id" => $employees->employee_id,
+    //                 "shift_id" => -4,
+    //                 "shift_type_id" => $employees->shift_type_id,
+    //             ];
+    //         }
+
+    //         $model = Attendance::query();
+    //         // $model->where("shift_id", -1);
+    //         $model->where("company_id", $company_id);
+    //         $model->where("date", $date);
+    //         $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
+
+    //         $model->when($user_id, function ($q) use ($user_id) {
+    //             return $q->where("employee_id", $user_id);
+    //         });
+
+    //         $model->delete();
+
+    //         $model->insert($records);
+
+    //         $UserIds = array_column($records, "employee_id");
+
+    //         return $UserIds;
+    //     } catch (\Exception $e) {
+    //         return $e;
+    //     }
+    // }
 
     public function deleteOldRecord($items)
     {
