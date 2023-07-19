@@ -227,7 +227,7 @@
         <v-container>
           <v-card elevation="0">
             <v-toolbar class="mb-2 white--text" color="background" dense flat>
-              <span>{{ Model }}s </span>
+              <v-toolbar-title><span>{{ Model }}s </span></v-toolbar-title>
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
@@ -280,23 +280,23 @@
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
                   <td v-for="header in headers" :key="header.text">
-                    <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                      v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)"
-                      outlined dense autocomplete="off"></v-text-field>
+                    <v-text-field clearable @click:clear="filters[header.value] = ''; applyFilters()" :hide-details="true"
+                      v-if="header.filterable && !header.filterSpecial" v-model="filters[header.value]" :id="header.value"
+                      @input="applyFilters(header.key, $event)" outlined dense autocomplete="off"></v-text-field>
 
-                    <v-select :id="header.key" :hide-details="true"
-                      v-if="header.filterSpecial && header.value == 'department.name.id'" outlined dense small
-                      v-model="filters[header.key]" item-text="name" item-value="id"
+                    <v-select clearable @click:clear="filters[header.value] = ''; applyFilters()" :id="header.key"
+                      :hide-details="true" v-if="header.filterSpecial && header.value == 'department.name.id'" outlined
+                      dense small v-model="filters[header.key]" item-text="name" item-value="id"
                       :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo flat
                       @change="applyFilters(header.key, id)"></v-select>
-                    <v-select :id="header.key" :hide-details="true"
-                      v-if="header.filterSpecial && header.value == 'schedule.shift_name'" outlined dense small
-                      v-model="filters[header.key]" item-text="name" item-value="id"
+                    <v-select clearable @click:clear="filters[header.value] = ''; applyFilters()" :id="header.key"
+                      :hide-details="true" v-if="header.filterSpecial && header.value == 'schedule.shift_name'" outlined
+                      dense small v-model="filters[header.key]" item-text="name" item-value="id"
                       :items="[{ name: `All Shifts`, id: `` }, ...shifts]" placeholder="Shift" solo flat
                       @change="applyFilters(header.key, id)"></v-select>
-                    <v-select :id="header.key" :hide-details="true"
-                      v-if="header.filterSpecial && header.value == 'timezone.name'" outlined dense small
-                      v-model="filters[header.key]" item-text="timezone_name" item-value="timezone_id"
+                    <v-select clearable @click:clear="filters[header.value] = ''; applyFilters()" :id="header.key"
+                      :hide-details="true" v-if="header.filterSpecial && header.value == 'timezone.name'" outlined dense
+                      small v-model="filters[header.key]" item-text="timezone_name" item-value="timezone_id"
                       :items="[{ name: `All Timezones`, timezone_name: `All Timezones`, timezone_id: '', id: `` }, ...timezones]"
                       placeholder="Timezone" solo flat @change="applyFilters(header.key, id)"></v-select>
                   </td>

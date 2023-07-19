@@ -269,7 +269,7 @@
 
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> Dashboard / Applications List</span></v-toolbar-title>
+            <v-toolbar-title><span> Applications List</span></v-toolbar-title>
 
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
@@ -322,22 +322,23 @@
                     v-if="!header.filterSpecial && header.filterable && header.text != 'Status'"
                     v-model="filters[header.key]" id="header.value" @input="applyFilters(header.key, $event)" outlined
                     dense autocomplete="off"></v-text-field>
-                  <v-select :id="header.key" :hide-details="true"
-                    v-if="header.filterSpecial && header.value == 'group.name'" outlined dense small
+                  <v-select clearable @click:clear="filters[header.value] = ''; applyFilters()" :id="header.key"
+                    :hide-details="true" v-if="header.filterSpecial && header.value == 'group.name'" outlined dense small
                     v-model="filters[header.key]" item-text="group_name" item-value="id"
-                    :items="[{ group_name: `All Groups`, id: `` }, ...leaveGroups]" placeholder="Department" solo flat
+                    :items="[{ group_name: `All Groups`, id: `` }, ...leaveGroups]" placeholder="Leave Groups" solo flat
                     @change="applyFilters(header.key, id)"></v-select>
-                  <v-select :id="header.key" :hide-details="true"
-                    v-if="header.filterSpecial && header.value == 'leave_type.name'" outlined dense small
-                    v-model="filters[header.key]" item-text="name" item-value="id"
-                    :items="[{ name: `All Leave Types`, id: `` }, ...leaveTypes]" placeholder="Department" solo flat
+                  <v-select clearable @click:clear="filters[header.value] = ''; applyFilters()" :id="header.key"
+                    :hide-details="true" v-if="header.filterSpecial && header.value == 'leave_type.name'" outlined dense
+                    small v-model="filters[header.key]" item-text="name" item-value="id"
+                    :items="[{ name: `All Leave Types`, id: `` }, ...leaveTypes]" placeholder="Leave Types" solo flat
                     @change="applyFilters(header.key, id)"></v-select>
                   <v-menu v-if="header.filterSpecial && header.value == 'start_date'" ref="from_menu_filter"
                     v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
                     min-width="auto">
                     <template v-slot:activator="{ on, attrs }">
-                      <v-text-field :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]"
-                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                      <v-text-field clearable @click:clear="filters[header.value] = ''; applyFilters()"
+                        :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]" readonly
+                        v-bind="attrs" v-on="on" placeholder="Start Date"></v-text-field>
                     </template>
                     <v-date-picker clearable @click:clear="filters[header.value] = ''; applyFilters()"
                       style="height: 350px" v-model="filters[header.value]" no-title scrollable @input="applyFilters()">
@@ -353,8 +354,9 @@
                     v-model="to_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
                     min-width="auto">
                     <template v-slot:activator="{ on, attrs }">
-                      <v-text-field :hide-details="!to_date_filter" outlined dense v-model="filters[header.value]"
-                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                      <v-text-field clearable @click:clear="filters[header.value] = ''; applyFilters()"
+                        :hide-details="!to_date_filter" outlined dense v-model="filters[header.value]" readonly
+                        v-bind="attrs" v-on="on" placeholder="End Date"></v-text-field>
                     </template>
                     <v-date-picker clearable @click:clear="filters[header.value] = ''; applyFilters()"
                       style="height: 350px" v-model="filters[header.value]" no-title scrollable @input="applyFilters()">
@@ -370,8 +372,9 @@
                     v-model="created_at_menu_filter" :close-on-content-click="false" transition="scale-transition"
                     offset-y min-width="auto">
                     <template v-slot:activator="{ on, attrs }">
-                      <v-text-field :hide-details="!created_at_filter" outlined dense v-model="filters[header.value]"
-                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                      <v-text-field clearable @click:clear="filters[header.value] = ''; applyFilters()"
+                        :hide-details="!created_at_filter" outlined dense v-model="filters[header.value]" readonly
+                        v-bind="attrs" v-on="on" placeholder="Application Date"></v-text-field>
                     </template>
                     <v-date-picker clearable @click:clear="filters[header.value] = ''; applyFilters()"
                       style="height: 350px" v-model="filters[header.value]" no-title scrollable @input="applyFilters()">
@@ -387,8 +390,9 @@
 
 
 
-                  <v-select :hide-details="true" @change="applyFilters('status', $event)" item-value="value"
-                    item-text="title" v-model="filters[header.value]" outlined dense
+                  <v-select clearable @click:clear="filters[header.value] = ''; applyFilters()" :hide-details="true"
+                    @change="applyFilters('status', $event)" item-value="value" item-text="title"
+                    v-model="filters[header.value]" outlined dense
                     v-else-if="header.filterable && header.text == 'Status'" :items="[
                       { value: '', title: 'All' },
                       { value: 'approved', title: 'Approved' },
@@ -397,7 +401,7 @@
                         title: 'Rejected',
                       },
                       { value: 'pending', title: 'Pending' },
-                    ]"></v-select>
+                    ]" placeholder="Status"></v-select>
                 </td>
               </tr>
             </template>
