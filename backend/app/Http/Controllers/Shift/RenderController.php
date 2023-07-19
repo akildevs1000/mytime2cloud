@@ -274,14 +274,26 @@ class RenderController extends Controller
         }
     }
 
-    public function renderOff($company_id = 0, Request $request)
+    public function renderOff(Request $request)
     {
-        return $this->renderOffScript($company_id, $request->date, $request->UserID);
+        $UserIds = $this->renderOffScript($request->company_id, $request->date, $request->UserID);
+
+        $result = json_encode($UserIds);
+
+        return $this->response("$result Employee has been marked as OFF", null, true);
     }
 
-    public function renderAbsent($company_id = 0, Request $request)
+    public function renderAbsent(Request $request)
     {
-        return $this->renderAbsentScript($company_id, $request->date, $request->UserID);
+        $UserIds = $this->renderAbsentScript($request->company_id, $request->date, $request->UserID);
+
+        $result = json_encode($UserIds);
+
+        if (!count($UserIds)) {
+            $result = "No";
+        }
+
+        return $this->response("$result Employee has been marked as Absent", null, true);
     }
     public function renderLeaves($company_id = 0, Request $request)
     {
@@ -293,11 +305,11 @@ class RenderController extends Controller
     }
     public function renderOffCron($company_id = 0)
     {
-        $result = $this->renderOffScript($company_id, date("Y-m-d"));
+        $UserIds = $this->renderOffScript($company_id, date("Y-m-d"));
 
-        $UserIds = json_encode($result);
+        $result = json_encode($UserIds);
 
-        return $this->getMeta("Sync Off", "$UserIds Employee has been marked as OFF" . ".\n");
+        return $this->getMeta("Sync Off", "$result Employee has been marked as OFF" . ".\n");
     }
 
     public function renderOffScript($company_id, $date, $user_id = 0)
@@ -354,9 +366,15 @@ class RenderController extends Controller
 
     public function renderAbsentCron($company_id = 0)
     {
-        $msg = $this->renderAbsentScript($company_id, date('Y-m-d', strtotime('-1 day')));
+        $UserIds = $this->renderAbsentScript($company_id, date('Y-m-d', strtotime('-1 day')));
 
-        return $this->getMeta("Sync Absent", $msg . ".\n");
+        $result = json_encode($UserIds);
+
+        if (!count($UserIds)) {
+            $result = "No";
+        }
+
+        return $this->getMeta("Sync Absent", "$result Employee has been marked as Absent" . ".\n");
     }
 
     public function renderAbsentScript($company_id, $date, $user_id = 0)
@@ -376,7 +394,12 @@ class RenderController extends Controller
             $q->where("company_id", $company_id);
         });
 
-        $missingEmployees = $model->get(["employee_id", "shift_type_id"]);
+        $model->where(function ($q) use ($date) {
+            $q->where('from_date', '<=', $date)
+                ->where('to_date', '>=', $date);
+        });
+
+        $missingEmployees = $model->distinct("employee_id")->get(["employee_id", "shift_type_id"]);
 
         $records = [];
 
@@ -391,24 +414,19 @@ class RenderController extends Controller
             ];
         }
 
-        if (!count($records)) {
-            return "No employee(s) found";
-        }
+        $UserIds = array_column($records, "employee_id");
 
         try {
+            if (count($records)) {
+                $model = Attendance::query();
+                $model->where("company_id", $company_id);
+                $model->where("date", $date);
+                $model->whereIn("employee_id", $UserIds);
+                $model->delete();
+                $model->insert($records);
+            }
 
-            $UserIds = array_column($records, "employee_id");
-
-            $model = Attendance::query();
-            $model->where("company_id", $company_id);
-            $model->where("date", $date);
-            $model->whereIn("employee_id", $UserIds);
-            $model->delete();
-            $model->insert($records);
-
-            $NumberOfEmployee = count($records);
-
-            return "$NumberOfEmployee employee(s) absent. Employee IDs: " . json_encode($UserIds);
+            return $UserIds;
         } catch (\Exception $e) {
             return $e;
         }

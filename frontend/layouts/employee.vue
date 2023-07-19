@@ -390,6 +390,12 @@ export default {
           menu: "attendance_report_access",
         },
         {
+          icon: "mdi-cash",
+          title: "Salary",
+          to: "/employees/payroll/salary",
+          menu: "payroll_access",
+        },
+        {
           icon: "mdi-clock-outline",
           title: "Schedule",
           to: "/employees/schedule",

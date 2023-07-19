@@ -18,7 +18,7 @@
           <v-card>
             <v-card-title class="background">
               <span class="headline white--text">
-                General Reports Filters
+                General Reports Filters {{ report_type }}
               </span>
               <v-spacer></v-spacer>
               <v-tooltip top color="primary">
@@ -76,7 +76,7 @@
                 <v-col md="4">
                   Report Type
                   <v-select
-                    @change="fetch_logs"
+                    @change="getDataFromApi"
                     class="mt-2"
                     outlined
                     dense
@@ -114,7 +114,7 @@
                 <v-col md="4">
                   Employee ID
                   <v-autocomplete
-                    @change="fetch_logs"
+                    @change="getDataFromApi"
                     class="mt-2"
                     outlined
                     dense
@@ -720,18 +720,9 @@
             </template>
 
             <template v-slot:item.status="{ item }">
-              <span v-if="item.status == 'A'" color="error">Absent</span>
-              <span v-else-if="item.status == 'P'" color="success darken-1"
-                >Present
-              </span>
-              <span v-else-if="item.status == 'M'" small color="orange darken-1"
-                >Missing</span
-              >
-              <span v-else-if="item.status == 'O'" small color="gray"
-                >Week Off
-              </span>
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
+                  {{ setStatusLabel(item.status) }}
                   <v-btn
                     v-if="item.is_manual_entry"
                     color="primary"
@@ -742,25 +733,9 @@
                     (ME)
                   </v-btn>
                 </template>
-                <!-- <div>Manual Entry</div> -->
-                <div v-if="item.last_reason">
-                  <div>
-                    Reason: {{ item.last_reason && item.last_reason.reason }}
-                  </div>
-                  <div>
-                    Added By:
-                    {{
-                      item.last_reason &&
-                      item.last_reason.user &&
-                      item.last_reason.user.email
-                    }}
-                  </div>
-                  <div>
-                    Created At:
-                    {{ item.last_reason && item.last_reason.created_at }}
-                  </div>
-                </div>
-                <div v-else>No Reason Added</div>
+                <div>Reason: {{ item.last_reason?.reason }}</div>
+                <div>Added By: {{ item.last_reason?.user?.email }}</div>
+                <div>Created At: {{ item.last_reason?.created_at }}</div>
               </v-tooltip>
             </template>
 
@@ -891,75 +866,21 @@
         </v-card>
       </v-dialog>
     </v-row>
+
     <v-row justify="center">
       <v-dialog v-model="reportSync" max-width="700px">
         <v-card>
-          <v-card-title class="primary darken-2">
+          <v-card-title class="background">
             <span class="headline white--text"> Render Report </span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-col md="12">
-                    <v-col md="12">
-                      <v-text-field
-                        v-model="editItems.UserID"
-                        label="User Id"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col md="12">
-                      <v-menu
-                        ref="menu"
-                        v-model="menu"
-                        :close-on-content-click="false"
-                        :return-value.sync="date"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="auto"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            v-model="editItems.date"
-                            label="Date"
-                            readonly
-                            v-bind="attrs"
-                            v-on="on"
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker
-                          v-model="editItems.date"
-                          no-title
-                          scrollable
-                        >
-                          <v-spacer></v-spacer>
-                          <v-btn text color="primary" @click="menu = false">
-                            Cancel
-                          </v-btn>
-                          <v-btn
-                            text
-                            color="primary"
-                            @click="$refs.menu.save(editItems.date)"
-                          >
-                            OK (Filter)
-                          </v-btn>
-                        </v-date-picker>
-                      </v-menu>
-                    </v-col>
-                  </v-col>
-                </v-form>
-              </v-row>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn class="error" small @click="reportSync = false">
-              Cancel
-            </v-btn>
-            <v-btn class="primary" small @click="update_process_by_manual"
-              >Save</v-btn
+            <v-icon class="gray" dark @click="reportSync = false"
+              >mdi-close-box</v-icon
             >
-          </v-card-actions>
+          </v-card-title>
+          <RenderAttendance
+            endpoint="render_general_report"
+            @update-data-table="getDataFromApi()"
+          />
         </v-card>
       </v-dialog>
     </v-row>
@@ -1211,7 +1132,6 @@ export default {
   },
 
   methods: {
-    datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -1220,16 +1140,6 @@ export default {
     },
     datatable_close() {
       this.loading = false;
-    },
-    getDataFromApi_DatatablFilter(filter_column, e) {
-      if (filter_column != "date")
-        this.getDataFromApi(`${this.endpoint}`, filter_column, e);
-      else
-        this.getDataFromApi(
-          `${this.endpoint}`,
-          "filter_date",
-          this.datatable_filter_date
-        );
     },
 
     setSevenDays(selected_date) {
@@ -1275,7 +1185,7 @@ export default {
         this.setThirtyDays(this.payload.from_date);
       }
 
-      this.fetch_logs();
+      this.getDataFromApi();
     },
     changeReportType(report_type) {
       let dt = new Date();
@@ -1301,11 +1211,9 @@ export default {
         this.max_date = null;
       }
 
-      this.fetch_logs();
+      this.getDataFromApi();
     },
-    ProcessAttendance() {
-      this.fetch_logs();
-    },
+   
     applyFilters(name, value) {
       if (value && value.length < 2) return false;
 
@@ -1317,7 +1225,7 @@ export default {
     clearFilters() {
       this.filters = {};
       this.isFilter = false;
-      this.ProcessAttendance();
+      this.getDataFromApi();
     },
     getDeviceList() {
       let payload = {
@@ -1349,7 +1257,7 @@ export default {
       this.$axios
         .post(`/generate_log`, log_payload)
         .then(({ data }) => {
-          this.fetch_logs();
+          this.getDataFromApi();
           this.add_manual_log = false;
           this.loading = false;
         })
@@ -1419,7 +1327,7 @@ export default {
     },
 
     async getEmployeesByDepartment() {
-      this.fetch_logs();
+      this.getDataFromApi();
       let u = this.$auth.user;
       let department_id = "";
       if (u.user_type == "employee") {
@@ -1450,10 +1358,6 @@ export default {
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
-    },
-
-    fetch_logs() {
-      this.getDataFromApi();
     },
 
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
@@ -1502,6 +1406,7 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.payload,
+          report_type: this.report_type,
           status: this.getStatus(this.payload.status),
           late_early,
           overtime: this.overtime ? 1 : 0,
@@ -1553,27 +1458,35 @@ export default {
               this.snackbar = true;
               this.response = data.message;
               // this.editItems = [];
-              this.update_process_by_manual();
+              this.renderByType("render_general_report");
               this.close();
             }
           })
           .catch((e) => console.log(e));
       }
     },
-    update_process_by_manual() {
+    renderByType(type) {
+      const UserID = this.editItems.UserID;
+      const date = this.editItems.date;
+
+      if (!UserID || !date) {
+        alert("System User Id and Date field is required");
+        return;
+      }
+
       let payload = {
         params: {
           date: this.editItems.date,
           UserID: this.editItems.UserID,
-          company_id: this.$auth.user.company.id,
           updated_by: this.$auth.user.id,
+          company_id: this.$auth.user.company.id,
           manual_entry: true,
           reason: this.editItems.reason,
         },
       };
 
       this.$axios
-        .get("/render_general_report", payload)
+        .get("/" + type, payload)
         .then(({ data }) => {
           this.loading = false;
           this.snackbar = true;
@@ -1654,8 +1567,19 @@ export default {
       report.setAttribute("target", "_blank");
       report.click();
 
-      this.fetch_logs();
+      this.getDataFromApi();
       return;
+    },
+
+    setStatusLabel(status) {
+      const statuses = {
+        A: "Absent",
+        P: "Present",
+        M: "Missing",
+        O: "Week Off",
+        L: "Leave",
+      };
+      return statuses[status];
     },
 
     getStatus(status) {
