@@ -445,10 +445,10 @@ export default {
   data: () => ({
     departments: [],
     shifts: [],
-    timezones: [],
-    totalRowsCount: 0,
+    timezones: [], 
     joiningDate: null,
     joiningDateMenuOpen: false,
+    totalRowsCount: 0,
     showFilters: false,
     filters: {},
     isFilter: false,

@@ -8,78 +8,40 @@
 
     <v-row class="pt-2 mt-5">
       <v-col cols="12" sm="8" md="2">
-        <v-menu
-          ref="from_menu"
-          v-model="from_menu"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          min-width="auto"
-        >
+        <v-menu ref="from_menu" v-model="from_menu" :close-on-content-click="false" transition="scale-transition" offset-y
+          min-width="auto">
           <template v-slot:activator="{ on, attrs }">
             <div class="mb-1">From Date</div>
-            <v-text-field
-              :hide-details="!payload.from_date"
-              outlined
-              dense
-              v-model="payload.from_date_txt"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-              placeholder="Date"
-            ></v-text-field>
+            <v-text-field :hide-details="!payload.from_date" outlined dense v-model="payload.from_date_txt" readonly
+              v-bind="attrs" v-on="on" placeholder="Date"></v-text-field>
           </template>
-          <v-date-picker
-            v-model="payload.from_date"
-            no-title
-            scrollable
-            @change="searchIt"
-          >
-            <v-spacer></v-spacer>
+          <v-date-picker v-model="payload.from_date" no-title scrollable @change="searchIt">
+            <!-- <v-spacer></v-spacer>
             <v-btn class="blue-grey" small dark @click="from_menu = false">
               Cancel
             </v-btn>
             <v-btn class="blue-grey darken-3" small dark @click="searchIt">
               OK
-            </v-btn>
+            </v-btn> -->
           </v-date-picker>
         </v-menu>
       </v-col>
       <v-col cols="12" sm="8" md="2">
         <div class="mb-1">To Date</div>
-        <v-menu
-          ref="to_menu"
-          v-model="to_menu"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          min-width="auto"
-        >
+        <v-menu ref="to_menu" v-model="to_menu" :close-on-content-click="false" transition="scale-transition" offset-y
+          min-width="auto">
           <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              :hide-details="!payload.to_date"
-              outlined
-              dense
-              v-model="payload.to_date_txt"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-              placeholder="Date"
-            ></v-text-field>
+            <v-text-field :hide-details="!payload.to_date" outlined dense v-model="payload.to_date_txt" readonly
+              v-bind="attrs" v-on="on" placeholder="Date"></v-text-field>
           </template>
-          <v-date-picker
-            v-model="payload.to_date"
-            no-title
-            scrollable
-            @change="searchIt"
-          >
-            <v-spacer></v-spacer>
+          <v-date-picker v-model="payload.to_date" no-title scrollable @change="searchIt">
+            <!-- <v-spacer></v-spacer>
             <v-btn class="blue-grey" small dark @click="to_menu = false">
               Cancel
             </v-btn>
             <v-btn class="blue-grey darken-3" small dark @click="searchIt">
               OK
-            </v-btn>
+            </v-btn> -->
           </v-date-picker>
         </v-menu>
       </v-col>
@@ -92,18 +54,8 @@
 
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" class="ml-2" @click="firstLoad()" dark
-                    >mdi mdi-reload</v-icon
-                  >
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" @click="firstLoad()" dark>mdi mdi-reload</v-icon>
                 </v-btn>
               </template>
               <span>Reload</span>
@@ -116,98 +68,22 @@
               <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table
-            dense
-            :headers="headers_table"
-            :items="data"
-            model-value="data.id"
-            :loading="loading"
-            :options.sync="options"
-            :footer-props="{
-              itemsPerPageOptions: [50, 100, 500, 1000],
-            }"
-            class="elevation-1"
-          >
+          <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
+            :options.sync="options" :footer-props="{
+              itemsPerPageOptions: [10, 50, 100, 500, 1000],
+            }" class="elevation-1" :server-items-length="totalRowsCount">
             <template v-slot:item.UserID="{ item }">
-              <v-edit-dialog
-                large
-                save-text="Reset"
-                cancel-text="Ok"
-                style="margin-left: 4%"
-                @cancel="getRecords()"
-                @save="getRecords()"
-                @open="datatable_open"
-              >
-                {{ item.UserID }}
-                <template v-slot:input>
-                  <v-text-field
-                    v-model="datatable_search_textbox"
-                    @input="getRecords('search_system_user_id', $event)"
-                    label="Search System User Id"
-                  ></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ item.UserID }}
             </template>
 
-            <template v-slot:item.time="{ item }">
-              <v-edit-dialog
-                large
-                save-text="Reset"
-                cancel-text="Ok"
-                style="margin-left: 4%"
-                @cancel="getRecords()"
-                @save="getRecords()"
-                @open="datatable_open"
-              >
-                {{ item.LogTime }}
-                <template v-slot:input>
-                  <v-text-field
-                    v-model="datatable_search_textbox"
-                    label="Search Date and Time"
-                    @input="getRecords('search_time', $event)"
-                  ></v-text-field>
-                </template>
-              </v-edit-dialog>
+            <template v-slot:item.LogTime="{ item }">
+              {{ item.LogTime }}
             </template>
             <template v-slot:item.device.device_name="{ item }">
-              <v-edit-dialog
-                large
-                save-text="Reset"
-                cancel-text="Ok"
-                style="margin-left: 4%"
-                @cancel="getRecords()"
-                @save="getRecords()"
-                @open="datatable_open"
-              >
-                {{ item.device ? item.device.name : "---" }}
-                <template v-slot:input>
-                  <v-text-field
-                    v-model="datatable_search_textbox"
-                    @input="getRecords('search_device_name', $event)"
-                    label="Search Device Name"
-                  ></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ item.device ? item.device.name : "---" }}
             </template>
-            <template v-slot:item.device.device_id="{ item }">
-              <v-edit-dialog
-                large
-                save-text="Reset"
-                cancel-text="Ok"
-                style="margin-left: 4%"
-                @cancel="getRecords()"
-                @save="getRecords()"
-                @open="datatable_open"
-              >
-                {{ item.device ? item.device.device_id : "---" }}
-                <template v-slot:input>
-                  <v-text-field
-                    v-model="datatable_search_textbox"
-                    @input="getRecords('search_device_id', $event)"
-                    label="Search Device ID"
-                  ></v-text-field>
-                </template>
-              </v-edit-dialog>
+            <template v-slot:item.device.location="{ item }">
+              {{ item.device ? item.device.location : "---" }}
             </template>
           </v-data-table>
         </v-card>
@@ -229,40 +105,35 @@
 export default {
   layout: "employee",
   data: () => ({
+
+    totalRowsCount: 0,
+    showFilters: false,
+    filters: {},
+    isFilter: false,
     datatable_search_textbox: "",
     datatable_searchById: "",
     filter_employeeid: "",
     snack: false,
     snackColor: "",
     snackText: "",
-
     Model: "Log",
     endpoint: "attendance_logs",
-
     from_date: null,
     from_menu: false,
     to_date: null,
     to_menu: false,
-
     payload: {},
-
     loading: true,
-
-    date: null,
-    menu: false,
-
+    date: null, menu: false,
     loading: false,
     time_menu: false,
-
     log_payload: {
       user_id: 41,
       device_id: "",
       date: null,
       time: null,
     },
-   
     ids: [],
-
     data: [],
     devices: [],
     total: 0,
@@ -272,13 +143,13 @@ export default {
     response: "",
     snackbar: false,
     headers_table: [
-     
+
       {
         text: "Log Time",
         align: "left",
         sortable: true,
-        key: "time", //sorting
-        value: "time", //edit purpose
+        key: "LogTime", //sorting
+        value: "LogTime", //edit purpose
       },
       {
         text: "Device Name",
@@ -347,12 +218,38 @@ export default {
       }
       this.getDataFromApi(this.endpoint, filter_column, filter_value);
     },
+    applyFilters() {
+      this.getDataFromApi();
+    },
+    toggleFilter() {
+      // this.filters = {};
+      this.isFilter = !this.isFilter;
+    },
+    clearFilters() {
+      this.filters = {};
+
+      this.isFilter = false;
+      this.getDataFromApi();
+    },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+
+
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
+
+
       this.payloadOptions = {
         params: {
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
           per_page: this.options.itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.payload,
+          ...this.filters,
         },
       };
       if (filter_column != "")
@@ -371,6 +268,7 @@ export default {
           this.data = data.data;
           this.total = data.total;
           this.loading = false;
+          this.totalRowsCount = data.total;
         });
     },
     searchIt() {
