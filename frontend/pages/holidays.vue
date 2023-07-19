@@ -113,7 +113,7 @@
               <template v-slot:activator="{ on, attrs }">
                 <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
                   <v-icon color="white" class="ml-2" @click="dialogFilter = true" dark>mdi
-                    mdi-calendar-blank-outline</v-icon>
+                    mdi-filter</v-icon>
                 </v-btn>
               </template>
               <span>Select Year</span>

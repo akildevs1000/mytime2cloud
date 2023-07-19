@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
 
-    <v-row class="">
+    <!-- <v-row class="">
       <v-col cols="6">
 
       </v-col>
@@ -19,7 +19,7 @@
 
         </div>
       </v-col>
-    </v-row>
+    </v-row> -->
     <v-dialog v-model="dialog" width="500px">
 
       <v-card>

@@ -14,19 +14,14 @@ class ReportNotificationController extends Controller
     {
 
         return $model->where('company_id', $request->company_id)
-            ->when($request->filled('serach_email_subject'), function ($q) use ($request) {
-                $key = strtolower($request->serach_email_subject);
-                $q->where('subject', 'ILIKE', "$key%");
-
+            ->when($request->filled('subject'), function ($q) use ($request) {
+                $q->where('subject', 'ILIKE', "$request->subject%");
             })
-            ->when($request->filled('serach_frequency'), function ($q) use ($request) {
-                $key = strtolower($request->serach_frequency);
-                $q->where('frequency', 'ILIKE', "$key%");
-
+            ->when($request->filled('frequency'), function ($q) use ($request) {
+                $q->where('frequency', 'ILIKE', "$request->frequency%");
             })
-            ->when($request->filled('serach_time'), function ($q) use ($request) {
-                $key = strtolower($request->serach_time);
-                $q->where('time', 'ILIKE', "$key%");
+            ->when($request->filled('time'), function ($q) use ($request) {
+                $q->where('time', 'ILIKE', "$request->time%");
             })
             ->when($request->filled('serach_medium'), function ($q) use ($request) {
                 $key = strtolower($request->serach_medium);
@@ -37,6 +32,21 @@ class ReportNotificationController extends Controller
             ->when($request->filled('serach_email_recipients'), function ($q) use ($request) {
                 $key = strtolower($request->serach_email_recipients);
                 $q->WhereJsonContains(DB::raw('lower("tos"::text)'), $key);
+            })
+
+            ->when($request->filled('sortBy'), function ($q) use ($request) {
+                $sortDesc = $request->input('sortDesc');
+                if (strpos($request->sortBy, '.')) {
+                    // if ($request->sortBy == 'department.name.id') {
+                    //     $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                    // }
+
+                } else {
+                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
+
+                }
+
             })
 
             ->paginate($request->per_page);

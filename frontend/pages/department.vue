@@ -7,21 +7,12 @@
     </div>
     <div v-if="can(`employee_view`)">
       <v-row>
-        <v-dialog
-          v-model="dialogFormDesignation"
-          :fullscreen="false"
-          width="500px"
-        >
+        <v-dialog v-model="dialogFormDesignation" :fullscreen="false" width="500px">
           <v-card>
             <v-card-title dense class="primary white--text background">
               <span>New Designation</span>
               <v-spacer></v-spacer>
-              <v-icon
-                @click="dialogFormDesignation = false"
-                outlined
-                dark
-                color="white"
-              >
+              <v-icon @click="dialogFormDesignation = false" outlined dark color="white">
                 mdi mdi-close-circle
               </v-icon>
             </v-card-title>
@@ -29,32 +20,16 @@
               <v-container>
                 <v-row class="mt-2">
                   <v-col cols="12">
-                    <v-text-field
-                      v-model="new_Designation_name"
-                      placeholder="Designation"
-                      outlined
-                      dense
-                    ></v-text-field>
+                    <v-text-field v-model="new_Designation_name" placeholder="Designation" outlined dense></v-text-field>
                     <span v-if="errors && errors.name" class="error--text">{{
                       errors.name[0]
                     }}</span>
                   </v-col>
                   <v-col cols="12">
-                    <v-autocomplete
-                      v-model="new_designation_department_id"
-                      :items="departments"
-                      item-text="name"
-                      item-value="id"
-                      placeholder="Select Departments"
-                      outlined
-                      dense
-                    >
+                    <v-autocomplete v-model="new_designation_department_id" :items="departments" item-text="name"
+                      item-value="id" placeholder="Select Departments" outlined dense>
                     </v-autocomplete>
-                    <span
-                      v-if="errors && errors.department_id"
-                      class="error--text"
-                      >{{ errors.department_id[0] }}</span
-                    >
+                    <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
                   </v-col>
                   <v-card-actions>
                     <v-col md="6" lg="6" style="padding: 0px">
@@ -62,15 +37,8 @@
                         Cancel
                       </v-btn> -->
                     </v-col>
-                    <v-col
-                      md="6"
-                      lg="6"
-                      class="text-right"
-                      style="padding: 0px"
-                    >
-                      <v-btn class="primary" @click="savenewDesignation"
-                        >Save</v-btn
-                      >
+                    <v-col md="6" lg="6" class="text-right" style="padding: 0px">
+                      <v-btn class="primary" @click="savenewDesignation">Save</v-btn>
                     </v-col>
                   </v-card-actions>
                 </v-row>
@@ -78,21 +46,12 @@
             </v-card-text>
           </v-card>
         </v-dialog>
-        <v-dialog
-          v-model="dialogFormSubdepartment"
-          :fullscreen="false"
-          width="500px"
-        >
+        <v-dialog v-model="dialogFormSubdepartment" :fullscreen="false" width="500px">
           <v-card>
             <v-card-title dense class="primary white--text background">
               <span>New Sub Department</span>
               <v-spacer></v-spacer>
-              <v-icon
-                @click="dialogFormSubdepartment = false"
-                outlined
-                dark
-                color="white"
-              >
+              <v-icon @click="dialogFormSubdepartment = false" outlined dark color="white">
                 mdi mdi-close-circle
               </v-icon>
             </v-card-title>
@@ -100,32 +59,17 @@
               <v-container>
                 <v-row class="mt-2">
                   <v-col cols="12">
-                    <v-text-field
-                      v-model="New_sub_DepartmentName"
-                      placeholder="Sub Department"
-                      outlined
-                      dense
-                    ></v-text-field>
+                    <v-text-field v-model="New_sub_DepartmentName" placeholder="Sub Department" outlined
+                      dense></v-text-field>
                     <span v-if="errors && errors.name" class="error--text">{{
                       errors.name[0]
                     }}</span>
                   </v-col>
                   <v-col cols="12">
-                    <v-autocomplete
-                      v-model="Newdepartment_id"
-                      :items="departments"
-                      item-text="name"
-                      item-value="id"
-                      placeholder="Select Departments"
-                      outlined
-                      dense
-                    >
+                    <v-autocomplete v-model="Newdepartment_id" :items="departments" item-text="name" item-value="id"
+                      placeholder="Select Departments" outlined dense>
                     </v-autocomplete>
-                    <span
-                      v-if="errors && errors.department_id"
-                      class="error--text"
-                      >{{ errors.department_id[0] }}</span
-                    >
+                    <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
                   </v-col>
 
                   <v-card-actions>
@@ -134,15 +78,8 @@
                         Cancel
                       </v-btn> -->
                     </v-col>
-                    <v-col
-                      md="6"
-                      lg="6"
-                      class="text-right"
-                      style="padding: 0px"
-                    >
-                      <v-btn class="primary" @click="saveSubDepartment"
-                        >Save</v-btn
-                      >
+                    <v-col md="6" lg="6" class="text-right" style="padding: 0px">
+                      <v-btn class="primary" @click="saveSubDepartment">Save</v-btn>
                     </v-col>
                   </v-card-actions>
                 </v-row>
@@ -163,57 +100,23 @@
               <v-container>
                 <v-row class="">
                   <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label"
-                      >Department Name<span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      :hide-details="!errors.name"
-                      type="text"
-                      v-model="editedItem.name"
-                      :error="errors.name"
-                      :error-messages="
-                        errors && errors.name ? errors.name[0] : ''
-                      "
-                      placeholder="Department Name"
-                    ></v-text-field>
+                    <label class="col-form-label">Department Name<span class="text-danger">*</span></label>
+                    <v-text-field dense outlined :hide-details="!errors.name" type="text" v-model="editedItem.name"
+                      :error="errors.name" :error-messages="errors && errors.name ? errors.name[0] : ''
+                        " placeholder="Department Name"></v-text-field>
                   </v-col>
                   <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label"
-                      >Email<span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      :hide-details="!errors.email"
-                      type="text"
-                      v-model="editedItem.email"
-                      :error="errors.email"
-                      :error-messages="
-                        errors && errors.email ? errors.email[0] : ''
-                      "
-                      placeholder="Email"
-                    ></v-text-field>
+                    <label class="col-form-label">Email<span class="text-danger">*</span></label>
+                    <v-text-field dense outlined :hide-details="!errors.email" type="text" v-model="editedItem.email"
+                      :error="errors.email" :error-messages="errors && errors.email ? errors.email[0] : ''
+                        " placeholder="Email"></v-text-field>
                   </v-col>
                   <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label"
-                      >Password<span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      :hide-details="!errors.password"
-                      :type="show1 ? 'text' : 'password'"
-                      v-model="editedItem.password"
-                      :error="errors.password"
-                      :error-messages="
-                        errors && errors.password ? errors.password[0] : ''
-                      "
-                      placeholder="Password"
-                      @click:append="show1 = !show1"
-                      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-                    ></v-text-field>
+                    <label class="col-form-label">Password<span class="text-danger">*</span></label>
+                    <v-text-field dense outlined :hide-details="!errors.password" :type="show1 ? 'text' : 'password'"
+                      v-model="editedItem.password" :error="errors.password" :error-messages="errors && errors.password ? errors.password[0] : ''
+                        " placeholder="Password" @click:append="show1 = !show1"
+                      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"></v-text-field>
                   </v-col>
                   <v-card-actions>
                     <v-spacer></v-spacer>
@@ -232,28 +135,12 @@
         <v-col md="12" lg="12">
           <v-card class="mb-5 rounded-md" elevation="0">
             <v-toolbar class="rounded-md" color="background" dense flat dark>
-              <v-toolbar-title
-                ><span> {{ Model }} List</span></v-toolbar-title
-              >
+              <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
 
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon
-                      color="white"
-                      class="ml-2"
-                      @click="getDataFromApi()"
-                      dark
-                      >mdi mdi-reload</v-icon
-                    >
+                  <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+                    <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
                   </v-btn>
                 </template>
                 <span>Reload</span>
@@ -283,76 +170,39 @@
                 </v-btn>
               </template>
             </v-snackbar>
-            <v-data-table
-              dense
-              :headers="headers_table"
-              :items="data"
-              model-value="data.id"
-              :loading="loading"
+            <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
               :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
-              }"
-              class="elevation-1"
-            >
+              }" class="elevation-1">
               <template v-slot:item.sno="{ item, index }">
                 {{ ++index }}
               </template>
               <template v-slot:item.id="{ item }">
-                <v-edit-dialog
-                  large
-                  save-text="Reset"
-                  cancel-text="Ok"
-                  style="margin-left: 4%"
-                  @save="getDataFromApi()"
-                  @open="datatable_open"
-                >
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
+                  @open="datatable_open">
                   {{ caps(item.id) }}
                   <template v-slot:input>
-                    <v-text-field
-                      @input="
-                        getDataFromApi('', 'serach_department_id', $event)
-                      "
-                      v-model="datatable_search_textbox"
-                      label="Search Department Code"
-                    ></v-text-field>
+                    <v-text-field @input="
+                      getDataFromApi('', 'serach_department_id', $event)
+                      " v-model="datatable_search_textbox" label="Search Department Code"></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
               <template v-slot:item.name="{ item }">
-                <v-edit-dialog
-                  large
-                  save-text="Reset"
-                  cancel-text="Ok"
-                  style="margin-left: 4%"
-                  @save="getDataFromApi()"
-                  @open="datatable_open"
-                >
+                <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%" @save="getDataFromApi()"
+                  @open="datatable_open">
                   {{ caps(item.name) }}
                   <template v-slot:input>
-                    <v-text-field
-                      @input="
-                        getDataFromApi('', 'serach_department_name', $event)
-                      "
-                      v-model="datatable_search_textbox"
-                      label="Search Department name"
-                    ></v-text-field>
+                    <v-text-field @input="
+                      getDataFromApi('', 'serach_department_name', $event)
+                      " v-model="datatable_search_textbox" label="Search Department name"></v-text-field>
                   </template>
                 </v-edit-dialog>
               </template>
               <template v-slot:item.sub_dep.name="{ item }">
-                <v-edit-dialog
-                  v-if="item.children.length > 0"
-                  large
-                  save-text="Reset"
-                  cancel-text="Ok"
-                  style="margin-left: 4%"
-                  @save="getDataFromApi()"
-                  @open="datatable_open"
-                >
-                  <span
-                    v-for="(sub_dep, index) in item.children.slice(0, 3)"
-                    :key="index"
-                  >
+                <v-edit-dialog v-if="item.children.length > 0" large save-text="Reset" cancel-text="Ok"
+                  style="margin-left: 4%" @save="getDataFromApi()" @open="datatable_open">
+                  <span v-for="(sub_dep, index) in item.children.slice(0, 3)" :key="index">
                     <v-chip small class="primary ma-1">
                       {{ caps(sub_dep.name) }}
                     </v-chip>
@@ -360,42 +210,23 @@
                   </span>
                   <!-- <p v-else>---</p> -->
                   <template v-slot:input>
-                    <v-text-field
-                      @input="
-                        getDataFromApi('', 'serach_sub_department_name', $event)
-                      "
-                      v-model="datatable_search_textbox"
-                      label="Search Sub Department name"
-                    ></v-text-field>
+                    <v-text-field @input="
+                      getDataFromApi('', 'serach_sub_department_name', $event)
+                      " v-model="datatable_search_textbox" label="Search Sub Department name"></v-text-field>
                   </template>
                 </v-edit-dialog>
-                <v-chip
-                  small
-                  class="primary ma-1"
-                  style="color: black"
-                  @click="gotoSubdepartments(item)"
-                  v-if="item.children.length > 3"
-                >
+                <v-chip small class="primary ma-1" style="color: black" @click="gotoSubdepartments(item)"
+                  v-if="item.children.length > 3">
                   View all..
                 </v-chip>
               </template>
               <template v-slot:item.designations="{ item }">
-                <v-edit-dialog
-                  v-if="item.children.length > 0"
-                  large
-                  save-text="Reset"
-                  cancel-text="Ok"
-                  style="margin-left: 4%"
-                  @save="getDataFromApi()"
-                  @open="datatable_open"
-                >
-                  <span
-                    v-for="(designation, index) in item.designations.slice(
-                      0,
-                      3
-                    )"
-                    :key="index"
-                  >
+                <v-edit-dialog v-if="item.children.length > 0" large save-text="Reset" cancel-text="Ok"
+                  style="margin-left: 4%" @save="getDataFromApi()" @open="datatable_open">
+                  <span v-for="(designation, index) in item.designations.slice(
+                    0,
+                    3
+                  )" :key="index">
                     <v-chip small class="primary ma-1">
                       {{ caps(designation.name) }}
                     </v-chip>
@@ -403,13 +234,9 @@
                   </span>
                   <!-- <p v-else>---</p> -->
                   <template v-slot:input>
-                    <v-text-field
-                      @input="
-                        getDataFromApi('', 'serach_designation_name', $event)
-                      "
-                      v-model="datatable_search_textbox"
-                      label="Search   Designation name"
-                    ></v-text-field>
+                    <v-text-field @input="
+                      getDataFromApi('', 'serach_designation_name', $event)
+                      " v-model="datatable_search_textbox" label="Search   Designation name"></v-text-field>
                   </template>
                 </v-edit-dialog>
                 <!-- <v-chip small class="primary ma-1" style="color: black" to="/designation"
@@ -511,7 +338,6 @@ export default {
     data: [],
     errors: [],
     headers_table: [
-      { text: "#", align: "left", sortable: true, value: "sno", width: "50px" },
       {
         text: "Department Code",
         align: "left",
@@ -557,7 +383,7 @@ export default {
   },
 
   methods: {
-    datatable_save() {},
+    datatable_save() { },
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },

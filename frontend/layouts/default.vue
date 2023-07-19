@@ -509,12 +509,12 @@ export default {
   },
 
   mounted() {
-    this.verifyLeaveNotifications();
+    this.verifyLeaveNotificationsApi();
 
     setInterval(() => {
 
       if (this.socketConnectionStatus != 1) { //socket connection is closed
-        this.verifyLeaveNotifications();
+        this.verifyLeaveNotificationsSocket();
       }
     }, 1000 * 60);
   },
@@ -553,7 +553,7 @@ export default {
     navigateToLeavePage() {
       this.$router.push("/leaves");
     },
-    verifyLeaveNotifications() {
+    verifyLeaveNotificationsSocket() {
 
 
 
@@ -604,7 +604,7 @@ export default {
 
 
     },
-    verifyLeaveNotifications_old() {
+    verifyLeaveNotificationsApi() {
 
       if (!this.$auth.user?.company?.id) return false;
       let options = {

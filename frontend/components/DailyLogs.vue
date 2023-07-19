@@ -64,7 +64,10 @@
                       (item.device && item.device.short_name) || "---"
                     }}</span><small>Device</small></a>
                   </h2>
+
                 </div>
+                <!-- <div class="title" style="font-size: 9px !important">{{ item.LogTime }}</div> -->
+
               </div>
             </v-card>
           </v-slide-item>
@@ -130,7 +133,7 @@ export default {
         });
     },
     goToemployeelog() {
-      this.$router.push("/reportsemployeelog");
+      this.$router.push("/devicelogs");
     },
     getShortName(item) {
       if (!item) {
