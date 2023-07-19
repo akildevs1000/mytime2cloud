@@ -35,6 +35,8 @@ class AttendanceLogController extends Controller
 
             ->when($request->DeviceID, function ($query) use ($request) {
                 return $query->where('DeviceID', $request->DeviceID);
+
+                //return $query->where('name', 'like', '%' . $key . '%')->orWhere('email', 'like', '%' . $key . '%');
             })
             ->when($request->filled('department'), function ($q) use ($request) {
 
@@ -54,44 +56,48 @@ class AttendanceLogController extends Controller
                     $q->whereHas('device', fn(Builder $query) => $query->where('location', 'ILIKE', "$request->devicelocation%"));
                 }
             })
-
-            ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
-                $q->where('UserID', 'LIKE', "$request->search_system_user_id%");
-            })
-            ->when($request->filled('search_time'), function ($q) use ($request) {
-                $q->where('LogTime', 'LIKE', "$request->search_time%");
-            })
-            ->when($request->filled('search_device_name'), function ($q) use ($request) {
-                $key = strtolower($request->search_device_name);
-                $q->whereHas('device', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
-            })
-            ->when($request->filled('search_device_location'), function ($q) use ($request) {
-                $key = strtolower($request->search_device_location);
-                $q->whereHas('device', fn(Builder $query) => $query->where('location', 'ILIKE', "$key%"));
-            })
-            ->when($request->filled('search_employee_name'), function ($q) use ($request) {
-                $key = strtolower($request->search_employee_name);
+            ->when($request->filled('employee_first_name'), function ($q) use ($request) {
+                $key = strtolower($request->employee_first_name);
                 $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
             })
-            ->when($request->filled('search_department_name'), function ($q) use ($request) {
-                $key = strtolower($request->search_department_name);
-                $q->whereHas('employee.department', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
-            })
 
-            ->when($request->filled('search_device_id'), function ($q) use ($request) {
-                $q->where('DeviceID', 'LIKE', "$request->search_device_id%");
-            })
+        // ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
+        //     $q->where('UserID', 'LIKE', "$request->search_system_user_id%");
+        // })
+        // ->when($request->filled('search_time'), function ($q) use ($request) {
+        //     $q->where('LogTime', 'LIKE', "$request->search_time%");
+        // })
+        // ->when($request->filled('search_device_name'), function ($q) use ($request) {
+        //     $key = strtolower($request->search_device_name);
+        //     $q->whereHas('device', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+        // })
+        // ->when($request->filled('search_device_location'), function ($q) use ($request) {
+        //     $key = strtolower($request->search_device_location);
+        //     $q->whereHas('device', fn(Builder $query) => $query->where('location', 'ILIKE', "$key%"));
+        // })
+        // ->when($request->filled('search_employee_name'), function ($q) use ($request) {
+        //     $key = strtolower($request->search_employee_name);
+        //     $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
+        // })
+        // ->when($request->filled('search_department_name'), function ($q) use ($request) {
+        //     $key = strtolower($request->search_department_name);
+        //     $q->whereHas('employee.department', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+        // })
+
+        // ->when($request->filled('search_device_id'), function ($q) use ($request) {
+        //     $q->where('DeviceID', 'LIKE', "$request->search_device_id%");
+        // })
 
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');
                 if (strpos($request->sortBy, '.')) {
-                    if ($request->sortBy == 'employee') {
-                        $q->orderBy(Employee::select("first_name")->whereColumn("employees.system_user_id", "attendance_logs.UserID"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    if ($request->sortBy == 'employee.first_name') {
+                        $q->orderBy(Employee::select("first_name")->where("company_id", $request->company_id)->whereColumn("employees.system_user_id", "attendance_logs.UserID"), $sortDesc == 'true' ? 'desc' : 'asc');
                     } else if ($request->sortBy == 'device.name') {
-                        $q->orderBy(Device::select("name")->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
+                        $q->orderBy(Device::select("name")->where("company_id", $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
 
                     } else if ($request->sortBy == 'device.location') {
-                        $q->orderBy(Device::select("location")->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
+                        $q->orderBy(Device::select("location")->where("company_id", $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
                     }
                     // } else if ($request->sortBy == 'employee.department') {
                     //     $q->orderBy(Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])

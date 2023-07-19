@@ -15,11 +15,11 @@ class DesignationController extends Controller
     {
 
         return $model->with('department')->where('company_id', $request->company_id)
-            ->when($request->filled('serach_designation_name'), function ($q) use ($request) {
-                $q->where('name', 'ILIKE', "$request->serach_designation_name%");
+            ->when($request->filled('designation_name'), function ($q) use ($request) {
+                $q->where('name', 'ILIKE', "$request->designation_name%");
             })
-            ->when($request->filled('serach_department_name'), function ($q) use ($request) {
-                $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_department_name%"));
+            ->when($request->filled('department_name'), function ($q) use ($request) {
+                $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->department_name%"));
             })
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');

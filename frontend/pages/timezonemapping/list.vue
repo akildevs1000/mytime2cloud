@@ -198,7 +198,7 @@ export default {
           align: "left",
           sortable: false,
           value: "devices",
-          filterable: true,
+          filterable: false,
           key: 'device',
           placeHolder: 'Type Device Name'
         },
@@ -207,7 +207,7 @@ export default {
           align: "left",
           sortable: false,
           value: "employees",
-          filterable: true,
+          filterable: false,
           key: 'employees',
           placeHolder: 'Type First Name'
         },

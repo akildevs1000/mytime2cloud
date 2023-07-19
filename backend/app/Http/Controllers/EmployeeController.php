@@ -17,6 +17,7 @@ use App\Models\CompanyContact;
 use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
+use App\Models\Payroll;
 use App\Models\ScheduleEmployee;
 use App\Models\Timezone;
 use App\Models\User;
@@ -197,6 +198,7 @@ class EmployeeController extends Controller
                 $q->whereHas('department', fn(Builder $query) => $query->where('id', $request->department_name_id));
 
             })
+
             ->when($request->filled('shceduleshift_id'), function ($q) use ($request) {
                 $q->whereHas('schedule', fn(Builder $query) => $query->where('shift_id', $request->shceduleshift_id));
 
@@ -214,10 +216,10 @@ class EmployeeController extends Controller
             })
 
             ->when($request->filled('payroll_basic_salary'), function ($q) use ($request) {
-                $q->whereHas('payroll', fn(Builder $query) => $query->where('basic_salary', '>=', $request->payroll_basic_salary));
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('basic_salary', '=', $request->payroll_basic_salary));
             })
             ->when($request->filled('payroll_net_salary'), function ($q) use ($request) {
-                $q->whereHas('payroll', fn(Builder $query) => $query->where('net_salary', '>=', $request->payroll_net_salary));
+                $q->whereHas('payroll', fn(Builder $query) => $query->where('net_salary', '=', $request->payroll_net_salary));
             })
 
             // ->when($request->filled('sortBy'), function ($q) use ($request) {
@@ -243,6 +245,14 @@ class EmployeeController extends Controller
                     if ($request->sortBy == 'timezone.name') {
                         $q->orderBy(Timezone::select("timezone_name")->whereColumn("timezones.id", "employees.timezone_id"), $sortDesc == 'true' ? 'desc' : 'asc');
 
+                    } else
+                    if ($request->sortBy == 'payroll.basic_salary') {
+                        $q->orderBy(Payroll::select("basic_salary")->whereColumn("payrolls.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                    } else
+                    if ($request->sortBy == 'payroll.net_salary') {
+                        $q->orderBy(Payroll::select("net_salary")->whereColumn("payrolls.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
                     }
 
                 } else {
@@ -250,7 +260,13 @@ class EmployeeController extends Controller
 
                 }
 
-            })->paginate($request->per_page ?? 100);
+            });
+
+        if (!$request->sortBy) {
+            $data->orderBy('first_name', 'asc');
+        }
+
+        $data = $data->paginate($request->per_page ?? 100);
 
         $data = $this->getPayslipstatus($data, $request);
 

@@ -32,6 +32,15 @@
           <span>Reload</span>
         </v-tooltip>
 
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="toggleFilter()">
+              <v-icon dark white>mdi-filter</v-icon>
+            </v-btn>
+          </template>
+          <span>Filter</span>
+        </v-tooltip>
+
         <v-spacer></v-spacer>
         <!-- <v-toolbar-items>
           <v-col class="toolbaritems-button-design1">
@@ -58,82 +67,58 @@
       </v-snackbar>
       <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading" :footer-props="{
         itemsPerPageOptions: [50, 100, 500, 1000],
-      }" class="elevation-1">
-        <template v-slot:item.sno="{ item, index }">
-          {{ ++index }}
+      }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
+        <template v-slot:header="{ props: { headers } }">
+          <tr v-if="isFilter">
+            <td style="width:50px" v-for="header in headers" :key="header.text">
+              <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
+                v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
+                dense autocomplete="off"></v-text-field>
+              <v-select :hide-details="true" @change="applyFilters('status', $event)" item-value="value" item-text="title"
+                v-model="filters[header.text]" outlined dense v-else-if="header.filterSpecial && header.text == 'Status'"
+                :items="[
+                  { value: '', title: 'All' },
+                  { value: '1', title: 'Online' },
+                  {
+                    value: '2', title: 'Offline',
+                  },
+                ]"></v-select>
+
+            </td>
+          </tr>
+
+
         </template>
         <template v-slot:item.name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-            @open="datatable_open">
-            {{ caps(item.name) }}
-            <template v-slot:input>
-              <v-text-field @input="getDataFromApi('', 'serach_device_name', $event)" v-model="datatable_search_textbox"
-                label="Search Device Name"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ caps(item.name) }}
         </template>
         <template v-slot:item.short_name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-            @open="datatable_open">
-            {{ caps(item.short_name) }}
-            <template v-slot:input>
-              <v-text-field @input="getDataFromApi('', 'serach_short_name', $event)" v-model="datatable_search_textbox"
-                label="Search Short Name"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ caps(item.short_name) }}
         </template>
         <template v-slot:item.location="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-            @open="datatable_open">
-            {{ caps(item.location) }}
-            <template v-slot:input>
-              <v-text-field @input="getDataFromApi('', 'serach_location', $event)" v-model="datatable_search_textbox"
-                label="Search location"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ caps(item.location) }}
         </template>
         <template v-slot:item.device_id="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-            @open="datatable_open">
-            {{ item.device_id }}
-            <template v-slot:input>
-              <v-text-field @input="getDataFromApi('', 'serach_device_id', $event)" v-model="datatable_search_textbox"
-                label="Search Device ID"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ item.device_id }}
         </template>
         <template v-slot:item.device_type="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-            @open="datatable_open">
-            {{ caps(item.device_type) }}
-            <template v-slot:input>
-              <v-text-field @input="getDataFromApi('', 'serach_device_type', $event)" v-model="datatable_search_textbox"
-                label="Search Device Type"></v-text-field>
-            </template>
-          </v-edit-dialog>
+          {{ caps(item.device_type) }}
         </template>
-        <template v-slot:item.status.name="{ item }">
-          <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-            @open="datatable_open">
-            <v-chip small class="p-2 mx-1" :color="item.status.name == 'active' ? 'primary' : 'error'">
-              {{ item.status.name == "active" ? "online" : "offline" }}
-            </v-chip>
-            <template v-slot:input>
-              <v-text-field @input="getDataFromApi('', 'serach_status_name', $event)" v-model="datatable_search_textbox"
-                label="Search Status"></v-text-field>
-            </template>
-          </v-edit-dialog>
-        </template>
-        <template v-slot:item.status="{ item }">
-          <v-chip small class="p-2 mx-1" color="primary" @click="open_door(item.device_id)">
-            Open
+        <template v-slot:item.status_id="{ item }">
+          <v-chip small class="p-2 mx-1" :color="item.status.name == 'active' ? 'primary' : 'error'">
+            {{ item.status.name == "active" ? "online" : "offline" }}
           </v-chip>
 
+        </template>
+        <template v-slot:item.status="{ item }">
+          <v-chip small class="p-2  " color="primary" @click="open_door(item.device_id)">
+            Open
+          </v-chip>
           <v-chip small class="p-2 mx-1" color="primary" @click="open_door_always(item.device_id)">
             Open Always
           </v-chip>
 
-          <v-chip small class="p-2 mx-1" color="error" @click="open_door_always(item.device_id)">
+          <v-chip small class="p-2  " color="error" @click="open_door_always(item.device_id)">
             Close
           </v-chip>
         </template>
@@ -149,73 +134,16 @@
       </v-data-table>
 
     </v-card>
-    <!-- <v-card class="mb-5 rounded-md mt-3" elevation="0">
-      <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <span> {{ Model }} List</span>
-      </v-toolbar>
-      <table>
-        <tr>
-          <th v-for="(item, index) in headers" :key="index">
-            <span v-html="item.text"></span>
-          </th>
-        </tr>
-        <v-progress-linear v-if="loading" :active="loading" :indeterminate="loading" absolute
-          color="primary"></v-progress-linear>
 
-        <tr v-for="(item, index) in data" :key="index">
-          <td class="ps-3">
-            <b>{{ ++index }}</b>
-          </td>
-          <td>{{ caps(item.name) }}</td>
-          <td>{{ caps(item.short_name) }}</td>
-          <td>{{ caps(item.location) }}</td>
-          <td>{{ caps(item.device_id) }}</td>
-          <td>{{ caps(item.device_type) }}</td>
-          <td>
-            <v-chip small class="p-2 mx-1" :color="item.status.name == 'active' ? 'primary' : 'error'">
-              {{ item.status.name == "active" ? "online" : "offline" }}
-            </v-chip>
-          </td>
-          <td>
-            <v-chip small class="p-2 mx-1" color="primary" @click="open_door(item.device_id)">
-              Open
-            </v-chip>
-
-            <v-chip small class="p-2 mx-1" color="primary" @click="open_door_always(item.device_id)">
-              Open Always
-            </v-chip>
-
-            <v-chip small class="p-2 mx-1" color="error" @click="open_door_always(item.device_id)">
-              Close
-            </v-chip>
-          </td>
-
-          <td>
-            <v-chip small class="p-2 mx-1" @click="sync_date_time(item)" :color="'primary'">
-              {{
-                item.sync_date_time == "---"
-                ? "click to sync"
-                : item.sync_date_time
-              }}
-            </v-chip>
-          </td>
-        </tr>
-      </table>
-    </v-card> -->
-    <v-row>
-      <v-col md="12" class="float-right">
-        <div class="float-right">
-          <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
-            :total-visible="12"></v-pagination>
-        </div>
-      </v-col>
-    </v-row>
   </div>
 </template>
 <script>
 export default {
   data: () => ({
-
+    showFilters: false,
+    filters: {},
+    isFilter: false,
+    totalRowsCount: 0,
     checkDeviceHealthCount: 0,
     datatable_search_textbox: '',
     filter_employeeid: '',
@@ -249,15 +177,15 @@ export default {
       { text: "Time Sync" }
     ],
     headers_table: [
-      { text: "#", align: "left", sortable: true, value: "sno" },
-      { text: "Name", align: "left", sortable: true, value: "name" },
-      { text: "Short Name", align: "left", sortable: true, value: "short_name" },
-      { text: "Location", align: "left", sortable: true, value: "location" },
-      { text: "Device Id", align: "left", sortable: true, value: "device_id" },
-      { text: "Type", align: "left", sortable: true, value: "device_type" },
-      { text: "Status", align: "center", sortable: true, value: "status.name" },
-      { text: "Door", align: "center", sortable: false, value: "status" },
-      { text: "Time Sync", align: "left", sortable: true, value: "sync_date_time" }
+
+      { text: "Name", align: "left", sortable: true, value: "name", filterable: true },
+      { text: "Short Name", align: "left", sortable: true, value: "short_name", filterable: true },
+      { text: "Location", align: "left", sortable: true, value: "location", filterable: true },
+      { text: "Device Id", align: "left", sortable: true, value: "device_id", filterable: true },
+      { text: "Type", align: "left", sortable: true, value: "device_type", filterable: true },
+      { text: "Status", align: "center", sortable: true, value: "status_id", filterable: true, filterSpecial: true },
+      { text: "Door", align: "center", sortable: false, value: "status", filterable: false },
+      { text: "Time Sync", align: "left", sortable: true, value: "sync_date_time", filterable: false }
     ],
     editedIndex: -1,
     response: "",
@@ -271,6 +199,12 @@ export default {
   },
 
   watch: {
+    options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true,
+    },
     dialog(val) {
       val || this.close();
       this.errors = [];
@@ -380,15 +314,35 @@ export default {
     onPageChange() {
       this.getDataFromApi();
     },
+    applyFilters() {
+      this.getDataFromApi();
+    },
+    toggleFilter() {
+      // this.filters = {};
+      this.isFilter = !this.isFilter;
+    },
+    clearFilters() {
+      this.filters = {};
+
+      this.isFilter = false;
+      this.getDataFromApi();
+    },
     async getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
 
       if (url == '') url = this.endpoint;
       this.loading = true;
-      let page = this.pagination.current;
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
       let options = {
         params: {
-          per_page: this.pagination.per_page,
-          company_id: this.$auth.user.company.id
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
+          company_id: this.$auth.user.company.id,
+          ...this.filters,
         }
       };
       if (filter_column != '') {
@@ -407,6 +361,7 @@ export default {
           this.loading = false;
           return false;
         }
+        this.totalRowsCount = data.total;
         this.data = data.data;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
