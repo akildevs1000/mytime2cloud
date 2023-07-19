@@ -199,11 +199,14 @@ class WeeklyController extends Controller
             ])->first(),
         ];
 
-        if ($request->employee_id && $request->filled('employee_id')) {
-            return Pdf::loadView('pdf.single-employee',  ['data' => $data[$request->employee_id], 'company' => $company, 'info' => $info]);
-        }
+        // if ($request->employee_id && $request->filled('employee_id')) {
+        //     return Pdf::loadView('pdf.single-employee',  ['data' => $data[$request->employee_id], 'company' => $company, 'info' => $info]);
+        // }
         // return $data;
-        return Pdf::loadView('pdf.mul-weekly',  ['data' => $data->take(20), 'company' => $company, 'info' => $info]);
+        $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
+
+        $arr = ['data' => $data->take(20), 'company' => $company, 'info' => $info];
+        return Pdf::loadView('pdf.' . $fileName, $arr);
     }
 
 
