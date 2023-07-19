@@ -250,7 +250,13 @@ class EmployeeController extends Controller
 
                 }
 
-            })->paginate($request->per_page ?? 100);
+            });
+
+        if (!$request->sortBy) {
+            $data->orderBy('first_name', 'asc');
+        }
+
+        $data = $data->paginate($request->per_page ?? 100);
 
         $data = $this->getPayslipstatus($data, $request);
 

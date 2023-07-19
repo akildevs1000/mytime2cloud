@@ -326,7 +326,7 @@ class ScheduleEmployeeController extends Controller
             $sortDesc = $request->input('sortDesc');
             if (strpos($request->sortBy, '.')) {
                 if ($request->sortBy == 'employee.first_name') {
-                    $q->orderBy(Employee::select("first_name")->where('company_id', $request->company_id)->whereColumn("employees.employee_id", "schedule_employees.employee_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    $q->orderBy(Employee::select("first_name")->where('company_id', $request->company_id)->whereColumn("employees.system_user_id", "schedule_employees.employee_id"), $sortDesc == 'true' ? 'desc' : 'asc');
 
                 } else if ($request->sortBy == 'roster.name') {
                     $q->orderBy(Roster::select("name")->where('company_id', $request->company_id)->whereColumn("rosters.id", "schedule_employees.roster_id"), $sortDesc == 'true' ? 'desc' : 'asc');
