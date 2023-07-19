@@ -323,11 +323,16 @@ class RenderController extends Controller
                 $q->where("employee_id", $user_id);
             });
 
+            $model->where(function ($q) use ($date) {
+                $q->where('from_date', '<=', $date)
+                    ->where('to_date', '>=', $date);
+            });
+
             $model->when(!$user_id, function ($q) {
                 $q->where("shift_id", -1);
             });
 
-            $employees = $model->get(["employee_id", "shift_type_id"]);
+            $employees = $model->distinct("employee_id")->get(["employee_id", "shift_type_id"]);
 
             $records = [];
 
