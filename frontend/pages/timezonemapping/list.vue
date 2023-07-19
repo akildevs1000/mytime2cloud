@@ -13,7 +13,8 @@
 
         <v-card class="mb-5 rounded-md " elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <span> {{ Model }} </span>
+
+            <v-toolbar-title><span> {{ Model }} </span></v-toolbar-title>
 
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">

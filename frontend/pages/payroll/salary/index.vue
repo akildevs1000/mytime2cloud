@@ -149,6 +149,7 @@
             <v-toolbar class="rounded-md mb-2 white--text" color="background" dense flat>
               <v-col cols="8">
                 <span> Payslips</span>
+
                 <!-- <v-icon @click="clearFilters()" class="mx-1 white--text">mdi-reload</v-icon>
                 <v-icon @click="dialogVisible = true" class="mx-1 white--text">mdi-filter-multiple</v-icon>
                 <v-icon @click="toggleFilter" class="mx-1 white--text">mdi-filter</v-icon>
