@@ -81,14 +81,6 @@
               </v-list-item-content>
             </v-list-item>
 
-            <v-list-item @click="goToSetting()">
-              <v-list-item-icon>
-                <v-icon>mdi-cog</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title class="black--text">Setting</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
 
             <v-list-item @click="logout">
               <v-list-item-icon>
