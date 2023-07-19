@@ -18,7 +18,7 @@
           <v-card>
             <v-card-title class="background">
               <span class="headline white--text">
-                General Reports Filters {{ report_type }}
+                General Reports Filters
               </span>
               <v-spacer></v-spacer>
               <v-tooltip top color="primary">
@@ -76,7 +76,7 @@
                 <v-col md="4">
                   Report Type
                   <v-select
-                    @change="getDataFromApi"
+                    @change="getDataFromApi(`report_multi_in_out`)"
                     class="mt-2"
                     outlined
                     dense
@@ -114,7 +114,7 @@
                 <v-col md="4">
                   Employee ID
                   <v-autocomplete
-                    @change="getDataFromApi"
+                    @change="getDataFromApi(`report_multi_in_out`)"
                     class="mt-2"
                     outlined
                     dense
@@ -1213,7 +1213,7 @@ export default {
 
       this.getDataFromApi();
     },
-   
+
     applyFilters(name, value) {
       if (value && value.length < 2) return false;
 

@@ -77,7 +77,7 @@
                 <v-col md="4">
                   Report Type
                   <v-select
-                    @change="getDataFromApi"
+                  @change="getDataFromApi(`report_multi_in_out`)"
                     class="mt-2"
                     outlined
                     dense
@@ -116,7 +116,7 @@
                 <v-col md="4">
                   Employee ID
                   <v-autocomplete
-                    @change="getDataFromApi"
+                  @change="getDataFromApi(`report_multi_in_out`)"
                     class="mt-2"
                     outlined
                     dense
