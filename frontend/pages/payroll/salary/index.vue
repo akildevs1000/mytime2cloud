@@ -329,7 +329,7 @@
                 </v-row>
               </template>
 
-              <template v-slot:item.department_name="{ item }">
+              <template v-slot:item.department.name.id="{ item }">
                 <strong>{{ caps(item.department.name) }}</strong>
                 <div>{{ caps(item.sub_department.name) }}</div>
               </template>
@@ -337,11 +337,11 @@
                 {{ item.payroll_month }} / {{ item.payroll_year }}
               </template>
 
-              <template v-slot:item.payroll_basic_salary="{ item }">
+              <template v-slot:item.payroll.basic_salary="{ item }">
                 {{ item.payroll && item.payroll.basic_salary }}
               </template>
 
-              <template v-slot:item.payroll_net_salary="{ item }">
+              <template v-slot:item.payroll.net_salary="{ item }">
                 {{ item.payroll && item.payroll.net_salary }}
               </template>
               <template v-slot:item.payslip="{ item }">
@@ -467,7 +467,7 @@ export default {
       {
         text: "Name",
         align: "left",
-        sortable: false,
+        sortable: true,
         filterable: true,
         key: "display_name",
         value: "first_name",
@@ -477,10 +477,10 @@ export default {
       {
         text: "Department",
         align: "left",
-        sortable: false,
+        sortable: true,
         filterable: true,
         key: "department_id",
-        value: "department_name", //template name should be match
+        value: "department.name.id", //template name should be match
         filterSpecial: true,
       },
 
@@ -496,19 +496,19 @@ export default {
       {
         text: "Basic Salary",
         align: "left",
-        sortable: false,
+        sortable: true,
         filterable: true,
         key: "payrollbasic",
-        value: "payroll_basic_salary",
+        value: "payroll.basic_salary",
         filterSpecial: false,
       },
       {
         text: "Net Salary",
         align: "left",
-        sortable: false,
+        sortable: true,
         filterable: true,
         key: "net_salary",
-        value: "payroll_net_salary",
+        value: "payroll.net_salary",
 
       },
       {

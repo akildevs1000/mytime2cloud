@@ -62,10 +62,20 @@
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                  <v-icon color="white" class="ml-2" @click="clearFilters()" dark>mdi mdi-reload</v-icon>
                 </v-btn>
               </template>
               <span>Reload</span>
+            </v-tooltip>
+
+
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="toggleFilter()">
+                  <v-icon dark white>mdi-filter</v-icon>
+                </v-btn>
+              </template>
+              <span>Filter</span>
             </v-tooltip>
             <v-spacer></v-spacer>
             <v-toolbar-items>
@@ -96,28 +106,26 @@
             :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="header in headers" :key="header.text">
+                  <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
+                    v-model="filters[header.key]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
+                    dense autocomplete="off"></v-text-field>
+
+                </td>
+              </tr>
+
+
+            </template>
             <template v-slot:item.sno="{ item, index }">
               {{ ++index }}
             </template>
             <template v-slot:item.name="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ caps(item.name) }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'serach_designation_name', $event)"
-                    v-model="datatable_search_textbox" label="Search Designation name"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ caps(item.name) }}
             </template>
             <template v-slot:item.department.name="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
-                {{ caps(item.department && item.department.name) }}
-                <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'serach_department_name', $event)"
-                    v-model="datatable_search_textbox" label="Search Department name"></v-text-field>
-                </template>
-              </v-edit-dialog>
+              {{ caps(item.department && item.department.name) }}
             </template>
             <template v-slot:item.action="{ item }">
               <v-menu bottom left>
@@ -197,18 +205,23 @@ export default {
         align: "left",
         sortable: true,
         value: "sno",
+
       },
       {
         text: "Designation",
         align: "left",
         sortable: true,
         value: "name",
+        filterable: true,
+        key: "designation_name"
       },
       {
         text: "Department Name ",
         align: "left",
         sortable: true,
         value: "department.name",
+        filterable: true,
+        key: "department_name"
       },
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
@@ -291,7 +304,21 @@ export default {
         u.is_master
       );
     },
+    applyFilters() {
+      this.getDataFromApi();
+      this.from_menu_filter = false;
+      this.to_menu_filter = false;
+    },
+    toggleFilter() {
+      // this.filters = {};
+      this.isFilter = !this.isFilter;
+    },
+    clearFilters() {
+      this.filters = {};
 
+      this.isFilter = false;
+      this.getDataFromApi();
+    },
     getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
 
       if (url == '') url = this.endpoint;
@@ -303,22 +330,25 @@ export default {
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
 
-      let options = {
+      this.payloadOptions = {
         params: {
           page: page,
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
+          ...this.filters,
           company_id: this.$auth.user.company.id,
         },
       };
       if (filter_column != '') {
 
-        options.params[filter_column] = filter_value;
+        this.payloadOptions.params[filter_column] = filter_value;
 
       }
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+      this.$axios.get(`${url}?page=${page}`, this.payloadOptions).then(({ data }) => {
 
         if (filter_column != '' && data.data.length == 0) {
           this.snack = true;
@@ -443,28 +473,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  text-align: left;
-  padding: 5px;
-}
-
-tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-
-.toolbar-button-design {
-  height: 38px !important;
-  /* vertical-align: bottom; */
-  margin: auto;
-  border-radius: 5px;
-}
-</style>

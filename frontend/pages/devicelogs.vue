@@ -86,8 +86,8 @@
             <v-toolbar-title><span> Attendances Logs</span></v-toolbar-title>
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="getRecords" dark>mdi mdi-reload</v-icon>
+                <v-btn dense class="ma-0 px-0" x-small :ripple="false" @click="getRecords" text v-bind="attrs" v-on="on">
+                  <v-icon color="white" class="ml-2" dark>mdi mdi-reload</v-icon>
                 </v-btn>
               </template>
               <span>Reload</span>
@@ -128,7 +128,7 @@
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text">
                   <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                    v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
+                    v-model="filters[header.key]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
                     dense autocomplete="off"></v-text-field>
 
                   <v-select :id="header.key" :hide-details="true"
@@ -170,13 +170,13 @@
             </template>
             <template v-slot:item.UserID="{ item }">
 
-              <strong>{{
+              <strong> {{ item.UserID ? item.UserID : "---" }}</strong>
+              <br />
+              {{
                 item.employee && item.employee.employee_id
                 ? item.employee.employee_id
                 : "---"
-              }}</strong>
-              <br />
-              {{ item.UserID ? item.UserID : "---" }}
+              }}
 
             </template>
             <template v-slot:item.employee.first_name="{ item, index }">
@@ -338,7 +338,7 @@ export default {
     snackbar: false,
     headers_table: [
       {
-        text: "Emp.Id / User Id",
+        text: "User Id /Emp.Id ",
         align: "left",
         sortable: true,
         key: "UserID",
@@ -351,7 +351,7 @@ export default {
         text: "Employee",
         align: "left",
         sortable: true,
-        key: "employee.first_name", //sorting
+        key: "employee_first_name", //sorting
         value: "employee.first_name", //edit purpose
         width: "300px",
         filterable: true,
@@ -493,6 +493,9 @@ export default {
       );
     },
     getRecords(filter_column = "", filter_value = "") {
+
+      this.filters = {};
+      this.isFilter = false;
       if (filter_value != "" && filter_value.length <= 2) {
         this.snack = true;
         this.snackColor = "error";
