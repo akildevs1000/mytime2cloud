@@ -258,7 +258,7 @@ export default {
               icon: "mdi-cash",
               title: "Salary",
               to: "/payroll/salary",
-              menu: "payroll_generate_access",
+              menu: "payroll_access",
             },
             {
               icon: "mdi mdi-calculator",
@@ -281,7 +281,6 @@ export default {
               to: "/attendance_report",
               menu: "attendance_report_access",
             },
-
             {
               icon: "mdi-clock-outline",
               title: "Shifts",

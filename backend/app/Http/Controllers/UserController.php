@@ -13,16 +13,17 @@ class UserController extends Controller
     public function create_user($request)
     {
         try {
-            $record = User::create([
-                "name" => "null",
-                "email" => $request->email,
-                "password" => Hash::make($request->password),
-                "company_id" => $request->company_id,
-                "user_type " => $request->user_type,
-
+            $validatedData = $request->validate([
+                'name' => 'required|string',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|min:6',
+                'company_id' => "required",
+                "user_type" => "required"
             ]);
 
-            return $record ? true : false;
+            $validatedData["name"] = "null";
+            $validatedData["password"] = Hash::make($validatedData["password"]);
+            return User::create($validatedData) ? true : false;
         } catch (\Throwable $th) {
             throw $th;
         }
