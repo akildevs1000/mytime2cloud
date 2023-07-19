@@ -275,8 +275,9 @@
                     v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
                     min-width="auto">
                     <template v-slot:activator="{ on, attrs }">
-                      <v-text-field :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]"
-                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                      <v-text-field clearable @click:clear="filters[header.value] = ''; applyFilters()"
+                        :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]" readonly
+                        v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
                     </template>
                     <v-date-picker clearable style="height: 350px" v-model="filters[header.value]" no-title scrollable
                       @input="applyFilters()">
@@ -292,8 +293,9 @@
                     v-model="to_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
                     min-width="auto">
                     <template v-slot:activator="{ on, attrs }">
-                      <v-text-field :hide-details="!to_date_filter" outlined dense v-model="filters[header.value]"
-                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                      <v-text-field @click:clear="filters[header.value] = ''; applyFilters()"
+                        :hide-details="!to_date_filter" outlined dense v-model="filters[header.value]" readonly
+                        v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
                     </template>
                     <v-date-picker clearable style="height: 350px" v-model="filters[header.value]" no-title scrollable
                       @input="applyFilters()">

@@ -318,9 +318,74 @@
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text">
-                  <v-text-field clearable :hide-details="true" v-if="header.filterable && header.text != 'Status'"
-                    v-model="filters[header.value]" id="header.value" @input="applyFilters(header.value, $event)" outlined
+                  <v-text-field clearable :hide-details="true"
+                    v-if="!header.filterSpecial && header.filterable && header.text != 'Status'"
+                    v-model="filters[header.key]" id="header.value" @input="applyFilters(header.key, $event)" outlined
                     dense autocomplete="off"></v-text-field>
+                  <v-select :id="header.key" :hide-details="true"
+                    v-if="header.filterSpecial && header.value == 'group.name'" outlined dense small
+                    v-model="filters[header.key]" item-text="group_name" item-value="id"
+                    :items="[{ group_name: `All Groups`, id: `` }, ...leaveGroups]" placeholder="Department" solo flat
+                    @change="applyFilters(header.key, id)"></v-select>
+                  <v-select :id="header.key" :hide-details="true"
+                    v-if="header.filterSpecial && header.value == 'leave_type.name'" outlined dense small
+                    v-model="filters[header.key]" item-text="name" item-value="id"
+                    :items="[{ name: `All Leave Types`, id: `` }, ...leaveTypes]" placeholder="Department" solo flat
+                    @change="applyFilters(header.key, id)"></v-select>
+                  <v-menu v-if="header.filterSpecial && header.value == 'start_date'" ref="from_menu_filter"
+                    v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
+                    min-width="auto">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]"
+                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                    </template>
+                    <v-date-picker clearable @click:clear="filters[header.value] = ''; applyFilters()"
+                      style="height: 350px" v-model="filters[header.value]" no-title scrollable @input="applyFilters()">
+                      <v-spacer></v-spacer>
+
+                      <v-btn text color="primary"
+                        @click="filters[header.value] = ''; from_menu_filter = false; applyFilters()">
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                  <v-menu v-if="header.filterSpecial && header.value == 'end_date'" ref="to_menu_filter"
+                    v-model="to_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
+                    min-width="auto">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field :hide-details="!to_date_filter" outlined dense v-model="filters[header.value]"
+                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                    </template>
+                    <v-date-picker clearable @click:clear="filters[header.value] = ''; applyFilters()"
+                      style="height: 350px" v-model="filters[header.value]" no-title scrollable @input="applyFilters()">
+                      <v-spacer></v-spacer>
+
+                      <v-btn text color="primary"
+                        @click="filters[header.value] = ''; to_menu_filter = false; applyFilters()">
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                  <v-menu v-if="header.filterSpecial && header.value == 'created_at'" ref="created_at_menu_filter"
+                    v-model="created_at_menu_filter" :close-on-content-click="false" transition="scale-transition"
+                    offset-y min-width="auto">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field :hide-details="!created_at_filter" outlined dense v-model="filters[header.value]"
+                        readonly v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
+                    </template>
+                    <v-date-picker clearable @click:clear="filters[header.value] = ''; applyFilters()"
+                      style="height: 350px" v-model="filters[header.value]" no-title scrollable @input="applyFilters()">
+                      <v-spacer></v-spacer>
+
+                      <v-btn text color="primary"
+                        @click="filters[header.value] = ''; to_menu_filter = false; applyFilters()">
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+
+
+
 
                   <v-select :hide-details="true" @change="applyFilters('status', $event)" item-value="value"
                     item-text="title" v-model="filters[header.value]" outlined dense
@@ -336,7 +401,7 @@
                 </td>
               </tr>
             </template>
-            <template v-slot:item.first_name="{ item }">
+            <template v-slot:item.employee.name="{ item }">
               <v-row no-gutters>
                 <v-col style="
                         padding: 5px;
@@ -367,15 +432,10 @@
                 </v-col>
               </v-row>
             </template>
-            <template v-slot:item.group_name="{ item }">
-              <v-chip @click="gotoGroupDetails(item.employee.leave_group_id, item.employee.id, item.employee.full_name)">
-                {{
-                  item.employee.leave_group &&
-                  item.employee.leave_group.group_name }} </v-chip>
+            <template v-slot:item.group.name="{ item }">
+              {{ item.employee.leave_group && item.employee.leave_group.group_name }}
             </template>
-
-
-            <template v-slot:item.leave_type_name="{ item }">
+            <template v-slot:item.leave_type.name="{ item }">
               {{ (item.leave_type.name) }}
             </template>
             <template v-slot:item.start_date="{ item }">
@@ -480,6 +540,13 @@ export default {
     TiptapVuetify,
   },
   data: () => ({
+    from_menu_filter: '',
+    from_date_filter: '',
+    to_date_filter: '',
+    created_at_filter: '',
+    to_menu_filter: '',
+    created_at_menu_filter: '',
+    leaveGroups: [],
     document_list: [],
     totalRowsCount: 0,
     options: {},
@@ -574,48 +641,60 @@ export default {
 
     ],
     headers: [
-      { text: "Employee Name", align: "left", sortable: false, filterable: true, key: "name", value: "first_name" },
+      { text: "Employee Name", align: "left", sortable: true, filterable: true, key: "employee_name", value: "employee.name" },
       {
         text: "Group Type",
         align: "left", filterable: true,
         sortable: false,
-        value: "group_name",
+        value: "group.name",
+        key: "group_name_id",
+        filterSpecial: true
       },
       {
         text: "Leave Type",
         align: "left", filterable: true,
-        sortable: false,
-        value: "leave_type_name",
+        sortable: true,
+        value: "leave_type.name",
+        key: "leave_type_id",
+        filterSpecial: true
       },
       {
         text: "Star Date",
         align: "left", filterable: true,
         sortable: true,
         value: "start_date",
+        key: "start_date",
+        filterSpecial: true
       },
       {
         text: "End Date",
         align: "left", filterable: true,
         sortable: true,
         value: "end_date",
+        key: "end_date",
+        filterSpecial: true
       },
       {
         text: "Leave Note",
         align: "left", filterable: true,
         sortable: true,
         value: "reason",
+        key: "leave_note",
       },
       {
         text: "Reporting Manager Name",
         align: "left",
         sortable: false, filterable: true,
         value: "reporting",
+        key: "reporting_manager",
       },
       {
         text: "Applied On ",
         align: "left",
         sortable: true, filterable: true,
         value: "created_at",
+        key: "created_at",
+        filterSpecial: true,
       },
       {
         text: "Status",
@@ -685,10 +764,7 @@ export default {
 
     this.todayDate = formattedDateTime;
 
-    setInterval(() => {
-      this.getDataFromApi();
-    }, 1000 * 60 * 60);
-
+    this.getLeaveGroups();
 
   },
 
@@ -696,7 +772,9 @@ export default {
 
 
     applyFilters(filter_column = '', filter_value = '') {
-
+      this.from_menu_filter = false;
+      this.to_menu_filter = false;
+      this.created_at_menu_filter = false;
       this.getDataFromApi('', filter_column, filter_value);
     },
     toggleFilter() {
@@ -833,6 +911,21 @@ export default {
       });
     },
 
+
+    getLeaveGroups() {
+
+
+      let options = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company.id,
+        },
+      };
+      this.$axios.get(`leave_groups`, options).then(({ data }) => {
+        this.leaveGroups = data.data;
+      });
+    },
+
     clearFilters() {
       this.filters = {};
       this.isFilter = false;
@@ -879,13 +972,13 @@ export default {
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
 
-        if (filter_column != '' && data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
-          this.loading = false;
-          //return false;
-        }
+        // if (filter_column != '' && data.data.length == 0) {
+        //   this.snack = true;
+        //   this.snackColor = 'error';
+        //   this.snackText = 'No Results Found';
+        //   this.loading = false;
+        //   //return false;
+        // }
         this.data = data.data;
         this.total = data.total;
         this.loading = false;

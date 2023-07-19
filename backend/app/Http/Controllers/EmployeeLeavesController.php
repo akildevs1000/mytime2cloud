@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EmployeeLeaves\StoreRequest;
 use App\Http\Requests\EmployeeLeaves\UpdateRequest;
+use App\Models\Employee;
 use App\Models\EmployeeLeaves;
+use App\Models\LeaveType;
 use App\Models\ScheduleEmployee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -21,14 +23,17 @@ class EmployeeLeavesController extends Controller
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
         });
-        $model->when($request->filled('first_name'), function ($q) use ($request) {
-            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->first_name%"));
+        $model->when($request->filled('employee_name'), function ($q) use ($request) {
+            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_name%"));
         });
-        $model->when($request->filled('group_name'), function ($q) use ($request) {
-            $q->whereHas('employee.leave_group', fn(Builder $query) => $query->where('group_name', 'ILIKE', "$request->group_name%"));
+        // $model->when($request->filled('group_name'), function ($q) use ($request) {
+        //     $q->whereHas('employee.leave_group', fn(Builder $query) => $query->where('group_name', 'ILIKE', "$request->group_name%"));
+        // });
+        $model->when($request->filled('group_name_id'), function ($q) use ($request) {
+            $q->whereHas('employee', fn(Builder $query) => $query->where('leave_group_id', $request->group_name_id));
         });
-        $model->when($request->filled('leave_type_name'), function ($q) use ($request) {
-            $q->whereHas('leave_type', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->leave_type_name%"));
+        $model->when($request->filled('leave_type_id'), function ($q) use ($request) {
+            $q->where('leave_type_id', $request->leave_type_id);
         });
         $model->when($request->filled('start_date'), function ($q) use ($request) {
             $q->where('start_date', 'ILIKE', "$request->start_date%");
@@ -36,8 +41,8 @@ class EmployeeLeavesController extends Controller
         $model->when($request->filled('end_date'), function ($q) use ($request) {
             $q->where('end_date', 'ILIKE', "$request->end_date%");
         });
-        $model->when($request->filled('reason'), function ($q) use ($request) {
-            $q->where('reason', 'ILIKE', "$request->reason%");
+        $model->when($request->filled('leave_note'), function ($q) use ($request) {
+            $q->where('reason', 'ILIKE', "$request->leave_note%");
         });
         $model->when($request->filled('reporting'), function ($q) use ($request) {
             $q->whereHas('reporting', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->reporting%"));
@@ -57,8 +62,28 @@ class EmployeeLeavesController extends Controller
         });
         $model->when($request->filled('sortBy'), function ($q) use ($request) {
             $sortDesc = $request->input('sortDesc');
-            $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');
+            if (strpos($request->sortBy, '.')) {
+                if ($request->sortBy == 'employee.name') {
+                    $q->orderBy(Employee::select("first_name")->whereColumn("employees.id", "employee_leaves.employee_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                } else if ($request->sortBy == 'group.name') {
+                    $q->orderBy(Employee::select("first_name")->whereColumn("employees.id", "employee_leaves.employee_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                } else if ($request->sortBy == 'leave_type.name') {
+                    $q->orderBy(LeaveType::select("name")->whereColumn("leave_types.id", "employee_leaves.leave_type_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                }
+
+            } else {
+                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
+
+            }
+
         });
+
+        if (!$request->sortBy) {
+            $model->orderBy('id', 'desc');
+        }
         return $model;
     }
 
