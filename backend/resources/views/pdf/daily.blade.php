@@ -68,7 +68,7 @@
                     </table>
                 </div>
             </td>
-            <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
+            <td style="text-align: right;; border :none; backgrounsd-color: red">
                 <table class="summary-table"
                     style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
                     <tr style="border: none">
@@ -80,27 +80,16 @@
                     <tr class="summary-header" style="border: none;background-color:#eeeeee">
                         <th style="text-align: center; border :none; padding:5px">Present</th>
                         <th style="text-align: center; border :none">Absent</th>
-                        <th style="text-align: center; border :none">Leave</th>
+                        <th style="text-align: center; border :none">Week Off</th>
                     </tr>
                     <tr style="border: none">
                         <td style="text-align: center; border :none; padding:5px;color:green">
                             {{ $info->total_present }}
                         </td>
                         <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
-                        <td style="text-align: center; border :none;color:red">{{ $info->total_leave ?? 0 }}</td>
+                        <td style="text-align: center; border :none;color:gray">{{ $info->total_off ?? 0 }}</td>
                     </tr>
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee ">
-                        <th style="text-align: center; border :none; padding:5px">Late</th>
-                        <th style="text-align: center; border :none">Early</th>
-                        <th style="text-align: center; border :none">Missing</th>
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:red">
-                            {{ $info->total_late ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:green">{{ $info->total_early ?? 0 }}</td>
-                        <td style="text-align: center; border :none;color:orange">{{ $info->total_missing ?? 0 }}</td>
-                    </tr>
+
                     <tr style="border: none">
                         <th style="text-align: center; border :none" colspan="3">
                             <hr style="width: 200px">
@@ -179,6 +168,10 @@
                     $statusColor = 'green';
                 } elseif ($data->status == 'A') {
                     $statusColor = 'red';
+                } elseif ($data->status == 'M') {
+                    $statusColor = 'orange';
+                } elseif ($data->status == 'O') {
+                    $statusColor = 'gray';
                 } elseif ($data->status == '---') {
                     $statusColor = '#f34100ed';
                 }

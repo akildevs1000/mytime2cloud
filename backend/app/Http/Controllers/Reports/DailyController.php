@@ -16,6 +16,95 @@ use Illuminate\Support\Facades\Storage;
 
 class DailyController extends Controller
 {
+    public function processPDF($request)
+    {
+        $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+        $model = new ReportController;
+        $model = $model->report($request);
+        $deptName = '';
+        $totEmployees = '';
+        if ($request->department_id && $request->department_id == -1) {
+            $deptName = 'All';
+            $totEmployees = Employee::whereCompanyId($request->company_id)->whereDate("created_at", "<", date("Y-m-d"))->count();
+        } else {
+            $deptName = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
+            $totEmployees = Employee::where("department_id", $request->department_id)->count();
+        }
+
+        $info = (object) [
+            'department_name' => $deptName,
+            'total_employee' => $totEmployees,
+            'total_absent' => $model->clone()->where('status', 'A')->count(),
+            'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
+            'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
+            'total_leave' => 0,
+            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
+            "daily_date" => $request->daily_date,
+            "report_type" => $this->getStatusText($request->status)
+        ];
+
+        // $model->take(1);
+        $data = $model->get();
+        return Pdf::loadView('pdf.daily', compact("company", "info", "data"));
+    }
+    public function daily(Request $request)
+    {
+        return $this->processPDF($request)->stream();
+    }
+    public function daily_download_pdf(Request $request)
+    {
+        return $this->processPDF($request)->download();
+    }
+    public function daily_download_csv(Request $request)
+    {
+        $model = new ReportController;
+
+        $data = $model->report($request)->get();
+
+        $fileName = 'report.csv';
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+
+            $i = 0;
+
+            fputcsv($file, ["#", "Date", "E.ID", "Name", "Dept", "Shift Type", "Shift", "Status", "In", "Out", "Total Hrs", "OT", "Late coming", "Early Going", "D.In", "D.Out"]);
+            foreach ($data as $col) {
+                fputcsv($file, [
+                    ++$i,
+                    $col['date'],
+                    $col['employee_id'] ?? "---",
+                    $col['employee']["display_name"] ?? "---",
+                    $col['employee']["department"]["name"] ?? "---",
+                    $col["shift_type"]["name"] ?? "---",
+                    $col["shift"]["name"] ?? "---",
+                    $col["status"] ?? "---",
+                    $col["in"] ?? "---",
+                    $col["out"] ?? "---",
+                    $col["total_hrs"] ?? "---",
+                    $col["ot"] ?? "---",
+                    $col["late_coming"] ?? "---",
+                    $col["early_going"] ?? "---",
+                    $col["device_in"]["short_name"] ?? "---",
+                    $col["device_out"]["short_name"] ?? "---"
+                ], ",");
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
     public function generateSummaryReport()
     {
         $company_ids = $this->getNotificationCompanyIds();
@@ -75,7 +164,7 @@ class DailyController extends Controller
     public function report($company_id, $report_type, $file_name, $status  = null)
     {
 
-        $date = date("Y-m-d", strtotime("-2 days"));
+        return $date = date("Y-m-d", strtotime("-2 days"));
 
 
         $info = (object)[
@@ -117,7 +206,7 @@ class DailyController extends Controller
 
     public function getModelByQuery($company_id, $date)
     {
-        $date = date("Y-m-04");
+        $date = date("Y-01-01");
 
         return DB::table("attendances as a")
             ->where('a.company_id', $company_id)
