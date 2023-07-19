@@ -342,7 +342,7 @@ class RenderController extends Controller
                     "date" => $date,
                     "status" => "O",
                     "employee_id" => $employee->employee_id,
-                    "shift_id" => $employee->employee_id,
+                    "shift_id" => -1,
                     "shift_type_id" => $employee->shift_type_id,
                 ];
             }
