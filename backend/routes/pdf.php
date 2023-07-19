@@ -18,9 +18,9 @@ Route::get('report', [ReportController::class, 'index']);
 
 
 //daily
-Route::get('/daily', [Controller::class, 'daily']);
-Route::get('/daily_download_pdf', [Controller::class, 'daily_download_pdf']);
-Route::get('/daily_download_csv', [Controller::class, 'daily_download_csv']);
+Route::get('/daily', [DailyController::class, 'daily']);
+Route::get('/daily_download_pdf', [DailyController::class, 'daily_download_pdf']);
+Route::get('/daily_download_csv', [DailyController::class, 'daily_download_csv']);
 
 //multi in out
 // -> csv
