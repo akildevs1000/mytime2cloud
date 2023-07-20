@@ -19,7 +19,7 @@
           <v-card>
             <v-card-title class="background">
               <span class="headline white--text">
-                Multi InOut Reports Filters
+                Multi In/Out Reports Filters
               </span>
               <v-spacer></v-spacer>
               <v-tooltip top color="primary">
@@ -909,7 +909,7 @@ export default {
 
       if (this.report_type == "Weekly") {
         this.setSevenDays(this.payload.from_date);
-      } else if (this.report_type == "Monthly") {
+      } else if (this.report_type == "Monthly" || this.report_type == "Custom") {
         this.setThirtyDays(this.payload.from_date);
       }
 
@@ -935,8 +935,11 @@ export default {
           this.setSevenDays(this.payload.from_date);
           break;
         case "Monthly":
+        case "Custom":
           this.setThirtyDays(this.payload.from_date);
           break;
+
+
         default:
           this.max_date = null;
           break;
