@@ -158,7 +158,7 @@
                             <th style="text-align: center; border :none; padding:5px">Present</th>
                             <th style="text-align: center; border :none">Absent</th>
                             <th style="text-align: center; border :none">Week Off</th>
-                            <th style="text-align: center; border :none">leaves</th>
+                            <th style="text-align: center; border :none">Leaves</th>
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;color:green">
