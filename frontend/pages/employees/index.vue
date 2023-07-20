@@ -445,7 +445,7 @@ export default {
   data: () => ({
     departments: [],
     shifts: [],
-    timezones: [], 
+    timezones: [],
     joiningDate: null,
     joiningDateMenuOpen: false,
     totalRowsCount: 0,
@@ -1040,7 +1040,7 @@ export default {
     },
     viewItem(item) {
       this.employeeId = item.id;
-      console.log(item);
+
       this.employeeObject = item;
       this.viewDialog = true;
     },

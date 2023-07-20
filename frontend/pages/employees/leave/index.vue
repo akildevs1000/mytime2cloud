@@ -997,7 +997,6 @@ export default {
     gotoGroupDetails(leaveGroupId = "") {
 
       if (leaveGroupId == "") {
-        console.log(this.$auth.user.employee.leave_group_id);
         leaveGroupId = this.$auth.user.employee.leave_group_id;
       }
 
@@ -1016,7 +1015,7 @@ export default {
 
     },
     gotoDialogPage(item) {
-      // console.log('item', item);
+
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
@@ -1082,7 +1081,6 @@ export default {
       this.$axios.get('leave_groups/' + leaveGroupId, options).then(({ data }) => {
 
         this.leaveTypes = data[0].leave_count;
-        console.log(this.leaveTypes);
 
       });
     },
@@ -1400,7 +1398,6 @@ export default {
 
         } else {
           this.errorsFileUpload[index] = {};
-          console.log(this.errorsFileUpload);
           return true;
         }
       }
