@@ -63,8 +63,8 @@
           </label>
 
           <v-btn icon color="yellow" v-bind="attrs" v-on="on">
-            <v-avatar>
-              <v-img style="width: 50px" :src="`https://ui-avatars.com/api/?name=${getUser}`"></v-img>
+            <v-avatar size="35">
+              <v-img :src="`https://ui-avatars.com/api/?name=${getUser}`"></v-img>
               <!-- <img :src="getLogo || '/no-image.PNG'" /> -->
             </v-avatar>
           </v-btn>
@@ -93,15 +93,7 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
-      <label class="px-2">
-        <!-- <v-icon v-if="pendingLeavesCount == 0">mdi mdi-bell</v-icon>
-        <span v-else>
-          <v-icon @click="snackNotificationText != '' && snackNotification == true" color="success">mdi
-            mdi-bell-ring </v-icon>
-          <v-chip title="Pending Count" bold color="white" style="color:black" to="/leaves"><strong>{{
-            pendingLeavesCount }}</strong></v-chip>
-        </span> -->
-
+      <label class=" ">
         <v-badge v-if="pendingLeavesCount > 0" @click="navigateToLeavePage()"
           :color="pendingLeavesCount > 0 ? 'red' : 'black'" :content="pendingLeavesCount">
           <v-icon @click="navigateToLeavePage()">mdi mdi-bell-ring</v-icon>

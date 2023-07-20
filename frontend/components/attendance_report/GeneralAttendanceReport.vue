@@ -1578,6 +1578,7 @@ export default {
         M: "Missing",
         O: "Week Off",
         L: "Leave",
+        H: "Holiday",
       };
       return statuses[status];
     },
