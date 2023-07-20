@@ -319,8 +319,7 @@ export default {
         align: "left",
         sortable: true,
         value: "end_date",
-      },
-      { text: "Actions", align: "center", value: "action", sortable: false },
+      }
     ],
     editedIndex: -1,
     editedItem: {
