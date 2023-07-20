@@ -332,7 +332,7 @@ class RenderController extends Controller
 
         $model = EmployeeLeaves::with(["employee"])
             ->where('company_id', $company_id)
-            ->where('status', 1)
+        //->where('status', 1)
             ->where('start_date', '<=', $todayDate)
             ->where('end_date', '>=', $todayDate);
         $employees = $model->get();
@@ -355,7 +355,9 @@ class RenderController extends Controller
             ->where('end_date', '>=', $todayDate)->get()->count();
 
         if ($holidayCount) {
-            $employees = Employee::where('company_id', $company_id)->where('status', 1)->get();
+            $employees = Employee::where('company_id', $company_id)
+            // ->where('status', 1)
+                ->get();
             $userIDs = [];
             foreach ($employees as $key => $value) {
 

@@ -1207,6 +1207,9 @@ export default {
     },
 
     process_file(type) {
+      if (type == "Custom") {
+        type = "monthly";
+      }
       const { department_id, employee_id, daily_date, from_date, to_date } =
         this.payload;
       const report_type = this.report_type;
