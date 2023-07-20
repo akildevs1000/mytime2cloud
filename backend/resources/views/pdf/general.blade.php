@@ -112,7 +112,7 @@
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                        {{ $info->report_type }} Employee Report
+                                        Employee {{ $company->report_type }} Report
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -136,7 +136,7 @@
                             <th style="text-align: center; border :none; padding:5px">EID</th>
                             <th style="text-align: center; border :none">Name</th>
                             <th style="text-align: center; border :none">Department</th>
-                            <th style="text-align: center; border :none">Shift Type</th>
+                            <th style="text-align: center; border :none">Report Type</th>
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;font-size:11px">

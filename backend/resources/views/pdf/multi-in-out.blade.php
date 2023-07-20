@@ -112,7 +112,7 @@
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                        {{ $info->report_type }} Employee Report
+                                        Employee {{ $company->report_type }} Report
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
