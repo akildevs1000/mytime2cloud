@@ -385,7 +385,7 @@
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="clearFilters()">
-                  <v-icon dark white @click="clearFilters()">mdi-reload</v-icon>
+                  <v-icon dark white>mdi-reload</v-icon>
                 </v-btn>
               </template>
               <span>Reload</span>

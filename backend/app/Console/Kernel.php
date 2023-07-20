@@ -160,6 +160,23 @@ class Kernel extends ConsoleKernel
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$date-absents-$companyId.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+            $schedule
+                ->command("task:sync_leaves $companyId")
+                // ->everyMinute()
+                ->dailyAt('00:45')
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/$date-leaves-$companyId.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+            $schedule
+                ->command("task:sync_holidays $companyId")
+                // ->everyMinute()
+                ->dailyAt('00:50')
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/$date-holidays-$companyId.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
         }
 
         $schedule

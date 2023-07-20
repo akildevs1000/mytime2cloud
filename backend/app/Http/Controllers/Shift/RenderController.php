@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Shift;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
+use App\Models\Employee;
+use App\Models\EmployeeLeaves;
+use App\Models\Holidays;
 use App\Models\Reason;
 use App\Models\ScheduleEmployee;
 use Illuminate\Http\Request;
@@ -324,6 +327,51 @@ class RenderController extends Controller
         return $this->getMeta("Sync Off", "$result Employee has been marked as OFF" . ".\n");
     }
 
+    public function renderLeavesCron($company_id = 0)
+    {$todayDate = date('Y-m-d', strtotime('-1 day'));
+
+        $model = EmployeeLeaves::with(["employee"])
+            ->where('company_id', $company_id)
+            ->where('status', 1)
+            ->where('start_date', '<=', $todayDate)
+            ->where('end_date', '>=', $todayDate);
+        $employees = $model->get();
+        $userIDs = [];
+        foreach ($employees as $key => $value) {
+            if ($value->employee->system_user_id) {
+                $userIDs[] = $this->renderLeavesScript($company_id, $todayDate, $value->employee->system_user_id);
+            }
+
+        }
+        $result = json_encode($userIDs);
+
+        return $this->getMeta("Sync Leaves", "$result Employee has been marked as Leave" . ".\n");
+    }
+    public function renderHolidaysCron($company_id = 0)
+    {$todayDate = date('Y-m-d', strtotime('-1 day'));
+
+        $holidayCount = Holidays::where('company_id', $company_id)
+            ->where('start_date', '<=', $todayDate)
+            ->where('end_date', '>=', $todayDate)->get()->count();
+
+        if ($holidayCount) {
+            $employees = Employee::where('company_id', $company_id)->where('status', 1)->get();
+            $userIDs = [];
+            foreach ($employees as $key => $value) {
+
+                if ($value->system_user_id) {
+                    $userIDs[] = $this->renderHolidaysScript($company_id, $todayDate, $value->system_user_id);
+                }
+
+            }
+            $result = json_encode($userIDs);
+
+            return $this->getMeta("Sync Holiday", "$todayDate :  $result Employee has been marked as Holiday" . ".\n");
+        }
+        return $this->getMeta("Sync Holiday", "$todayDate : No Holiday" . ".\n");
+
+    }
+
     public function renderOffScript($company_id, $date, $user_id = 0)
     {
         try {
@@ -484,7 +532,7 @@ class RenderController extends Controller
             // $model->where("shift_id", -1);
             $model->where("company_id", $company_id);
             $model->where("date", $date);
-            $model->whereIn("status", ["P", "A", "M", "O", "L"]);
+            $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
 
             $model->when($user_id, function ($q) use ($user_id) {
                 return $q->where("employee_id", $user_id);
