@@ -10,3 +10,5 @@ Route::get('render_off', [RenderController::class, 'renderOff']);
 Route::get('render_absent', [RenderController::class, 'renderAbsent']);
 Route::get('render_leaves/{company_id}', [RenderController::class, 'renderLeaves']);
 Route::get('render_holidays/{company_id}', [RenderController::class, 'renderHolidays']);
+Route::get('renderLeavesCron/{company_id}', [RenderController::class, 'renderLeavesCron']);
+Route::get('renderHolidaysCron/{company_id}', [RenderController::class, 'renderHolidaysCron']);
