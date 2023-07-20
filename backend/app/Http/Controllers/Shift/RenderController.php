@@ -297,6 +297,18 @@ class RenderController extends Controller
     }
     public function renderLeaves($company_id = 0, Request $request)
     {
+        $schedule = null;
+        //if not schedule return nothing
+        if ($request->ShiftTypeId == 2) {
+            $schedule = $this->getScheduleMultiInOut($request->date, $company_id, $request->UserID, $request->ShiftTypeId);
+        } else {
+            $schedule = $this->getScheduleGeneral($request->date, $company_id, $request->UserID);
+        }
+
+        if (!$schedule) {
+            return $this->response("Employee with $request->UserID SYSTEM USER ID is not scheduled yet.", null, false);
+        }
+
         return $this->renderLeavesScript($company_id, $request->date, $request->UserID);
     }
     public function renderHolidays($company_id = 0, Request $request)
@@ -489,59 +501,59 @@ class RenderController extends Controller
             return $e;
         }
     }
-    // public function renderHolidaysScript($company_id, $date, $user_id = 0)
-    // {
-    //     try {
-    //         $model = ScheduleEmployee::query();
+    public function renderHolidaysScript($company_id, $date, $user_id = 0)
+    {
+        try {
+            $model = ScheduleEmployee::query();
 
-    //         $model->where("company_id", $company_id);
+            $model->where("company_id", $company_id);
 
-    //         $model->when($user_id, function ($q) use ($user_id) {
-    //             $q->where("employee_id", $user_id);
-    //         });
+            $model->when($user_id, function ($q) use ($user_id) {
+                $q->where("employee_id", $user_id);
+            });
 
-    //         $model->when(!$user_id, function ($q) {
-    //             $q->where("shift_id", -4);
-    //         });
+            $model->when(!$user_id, function ($q) {
+                $q->where("shift_id", -4);
+            });
 
-    //         $employees = $model->latest()->first(["employee_id", "shift_type_id"]);
+            $employees = $model->latest()->first(["employee_id", "shift_type_id"]);
 
-    //         $records = [];
+            $records = [];
 
-    //         // foreach ($employees as $employee)
-    //         {
+            // foreach ($employees as $employee)
+            {
 
-    //             $records[] = [
-    //                 "company_id" => $company_id,
-    //                 "date" => $date,
-    //                 "status" => "L",
-    //                 "employee_id" => $employees->employee_id,
-    //                 "shift_id" => -4,
-    //                 "shift_type_id" => $employees->shift_type_id,
-    //             ];
-    //         }
+                $records[] = [
+                    "company_id" => $company_id,
+                    "date" => $date,
+                    "status" => "H",
+                    "employee_id" => $employees->employee_id,
+                    "shift_id" => -4,
+                    "shift_type_id" => $employees->shift_type_id,
+                ];
+            }
 
-    //         $model = Attendance::query();
-    //         // $model->where("shift_id", -1);
-    //         $model->where("company_id", $company_id);
-    //         $model->where("date", $date);
-    //         $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
+            $model = Attendance::query();
+            // $model->where("shift_id", -1);
+            $model->where("company_id", $company_id);
+            $model->where("date", $date);
+            $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
 
-    //         $model->when($user_id, function ($q) use ($user_id) {
-    //             return $q->where("employee_id", $user_id);
-    //         });
+            $model->when($user_id, function ($q) use ($user_id) {
+                return $q->where("employee_id", $user_id);
+            });
 
-    //         $model->delete();
+            $model->delete();
 
-    //         $model->insert($records);
+            $model->insert($records);
 
-    //         $UserIds = array_column($records, "employee_id");
+            $UserIds = array_column($records, "employee_id");
 
-    //         return $UserIds;
-    //     } catch (\Exception $e) {
-    //         return $e;
-    //     }
-    // }
+            return $UserIds;
+        } catch (\Exception $e) {
+            return $e;
+        }
+    }
 
     public function deleteOldRecord($items)
     {
