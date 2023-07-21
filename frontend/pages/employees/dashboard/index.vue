@@ -13,7 +13,8 @@
             <v-container style="max-width: 100%; padding: 0px">
               <v-row>
                 <v-col cols="12">
-                  <iframe v-if="iframeDisplay" :src="iframeUrl" frameborder="0"></iframe>
+                  <iframe v-if="iframeDisplay" :src="iframeUrl" frameborder="0"
+                    style="width: 100%; height: 600px"></iframe>
                 </v-col>
               </v-row>
             </v-container>
@@ -21,7 +22,7 @@
         </v-card>
       </v-dialog>
       <v-row>
-        <v-col cols="12" xs="12" sm="12" md="3" lg="3" xl="3" v-for="(i, index) in items" :key="index">
+        <v-col cols="12" xs="12" sm="12" md="2" lg="2" xl="2" v-for="(i, index) in items" :key="index">
           <div class="card p-2" :class="i.color" style="min-height: 150px">
             <div class="card-statistic-3">
               <div class="card-icon card-icon-large">
@@ -513,7 +514,6 @@ export default {
         department_id: employee.department_id,
         shift_type_id: employee.schedule.shift_type_id,
       };
-
       this.$axios
         .get(`employee-statistics`, { params: options })
         .then(({ data }) => {
@@ -521,32 +521,32 @@ export default {
           this.loading = false;
         });
 
-      this.payloadOptions = {
-        params: {
-          per_page: 10,
-          company_id: this.$auth.user.company.id,
-          UserID: this.$auth.user.employee.system_user_id,
-        },
-      };
-      this.$axios
-        .get(`attendance_logs?page=1`, this.payloadOptions)
-        .then(({ data }) => {
-          this.attendance_logs = data.data;
-          this.loading = false;
-        });
-    },
-    get_announcements() {
-      const id = this.$auth.user.employee.id;
-      const company_id = this.$auth.user.company.id;
-      const url = `employee-today-announcements`;
-
-      this.$axios
-        .get(`${url}/${id}?page=1&company_id=${company_id}&per_page=4`)
-        .then(({ data }) => {
-          this.announcements = data.data;
-        });
-    },
+    this.payloadOptions = {
+      params: {
+        per_page: 10,
+        company_id: this.$auth.user.company.id,
+        UserID: this.$auth.user.employee.system_user_id,
+      },
+    };
+    this.$axios
+      .get(`attendance_logs?page=1`, this.payloadOptions)
+      .then(({ data }) => {
+        this.attendance_logs = data.data;
+        this.loading = false;
+      });
   },
+  get_announcements() {
+    const id = this.$auth.user.employee.id;
+    const company_id = this.$auth.user.company.id;
+    const url = `employee-today-announcements`;
+
+    this.$axios
+      .get(`${url}/${id}?page=1&company_id=${company_id}&per_page=4`)
+      .then(({ data }) => {
+        this.announcements = data.data;
+      });
+  },
+},
 };
 </script>
 <style scoped src="@/assets/dashboard.css"></style>

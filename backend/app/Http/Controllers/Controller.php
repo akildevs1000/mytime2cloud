@@ -2,19 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
-use App\Models\Employee;
-use App\Models\Department;
-use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Controllers\Reports\ReportController;
 use App\Models\Activity;
 use App\Models\AttendanceLog;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Validation\Rule;
 
 class Controller extends BaseController
@@ -125,6 +120,12 @@ class Controller extends BaseController
                 return "Missing";
             case 'ME':
                 return "Manual Entry";
+            case 'O':
+                return "Off";
+            case 'H':
+                return "Holidays";
+            case 'L':
+                return "Leaves";
             default:
                 return "Summary";
         }
@@ -138,11 +139,11 @@ class Controller extends BaseController
         $fileName = 'report.csv';
 
         $headers = array(
-            "Content-type"        => "text/csv",
+            "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0",
         );
 
         $callback = function () use ($data) {
@@ -205,8 +206,6 @@ class Controller extends BaseController
         return response()->stream($callback, 200, $headers);
     }
 
-
-
     public function custom_with($model, $relation, $company_id)
     {
         return $model->with($relation, function ($q) use ($company_id) {
@@ -266,7 +265,6 @@ class Controller extends BaseController
         $date->add(new \DateInterval("PT{$interval_time_num}M"));
         $working_hours_with_interval = $date->format('H:i');
 
-
         $working_hours_num = strtotime($working_hours_with_interval);
 
         if ($working_hours_num > $total_hours_num) {
@@ -290,14 +288,14 @@ class Controller extends BaseController
 
         $diff = $parsed_out - $parsed_in;
 
-        $mints =  floor($diff / 60);
+        $mints = floor($diff / 60);
 
         $minutes = $mints > 0 ? $mints : 0;
 
         $newHours = intdiv($minutes, 60);
         $newMints = $minutes % 60;
-        $final_mints =  $newMints < 10 ? '0' . $newMints :  $newMints;
-        $final_hours =  $newHours < 10 ? '0' . $newHours :  $newHours;
+        $final_mints = $newMints < 10 ? '0' . $newMints : $newMints;
+        $final_hours = $newHours < 10 ? '0' . $newHours : $newHours;
         $hours = $final_hours . ':' . ($final_mints);
         return $hours;
     }
@@ -306,8 +304,8 @@ class Controller extends BaseController
     {
         $newHours = intdiv($minutes, 60);
         $newMints = $minutes % 60;
-        $final_mints =  $newMints < 10 ? '0' . $newMints :  $newMints;
-        $final_hours =  $newHours < 10 ? '0' . $newHours :  $newHours;
+        $final_mints = $newMints < 10 ? '0' . $newMints : $newMints;
+        $final_hours = $newHours < 10 ? '0' . $newHours : $newHours;
         $hours = $final_hours . ':' . ($final_mints);
         return $hours;
     }
@@ -394,7 +392,7 @@ class Controller extends BaseController
             return false;
         }
 
-        $nextDate =  date('Y-m-d', strtotime($currentDate . ' + 1 day'));
+        $nextDate = date('Y-m-d', strtotime($currentDate . ' + 1 day'));
 
         $start_range = $currentDate . " " . $schedule->shift->on_duty_time;
 

@@ -1031,7 +1031,7 @@ export default {
       this.$axios.get("timezone", { params: options }).then(({ data }) => {
         this.timezones = data.data;
         // this.timezones.unshift({ name: "All Timezones", id: "" });
-        this.timezones.unshift({ timezone_name: "24HOURS", id: "1", timezone_id: '1' });
+        //this.timezones.unshift({ timezone_name: "24HOURS", id: "1", timezone_id: '1' });
       });
     },
     editItem(item) {
