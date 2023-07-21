@@ -583,23 +583,28 @@ class RenderController extends Controller
                 ];
             }
 
-            $model = Attendance::query();
-            // $model->where("shift_id", -1);
-            $model->where("company_id", $company_id);
-            $model->where("date", $date);
-            $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
+            {
 
-            $model->when($user_id, function ($q) use ($user_id) {
-                return $q->where("employee_id", $user_id);
-            });
+                $model = Attendance::query();
+                // $model->where("shift_id", -1);
+                $model->where("company_id", $company_id);
+                $model->where("date", $date);
+                $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
 
-            $model->delete();
+                $model->when($user_id, function ($q) use ($user_id) {
+                    return $q->where("employee_id", $user_id);
+                });
 
-            $model->insert($records);
+                $model->delete();
 
-            $UserIds = array_column($records, "employee_id");
+                $model->insert($records);
 
-            return $UserIds;
+                $UserIds = $employees->employee_id; // array_column($records, "employee_id");
+                if ($UserIds) {
+                    return $UserIds;
+                }
+
+            }
         } catch (\Exception $e) {
             return $e;
         }
