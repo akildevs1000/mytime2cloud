@@ -368,9 +368,9 @@ class RenderController extends Controller
             }
             $result = json_encode($userIDs);
 
-            return $this->getMeta("Sync Holiday", "$todayDate :  $result Employee has been marked as Holiday" . ".\n");
+            return $this->getMeta("Sync Holidays", "$todayDate :  $result Employee has been marked as Holiday" . ".\n");
         }
-        return $this->getMeta("Sync Holiday", "$todayDate : No Holiday" . ".\n");
+        return $this->getMeta("Sync Holidays", "$todayDate : No Holiday" . ".\n");
 
     }
 

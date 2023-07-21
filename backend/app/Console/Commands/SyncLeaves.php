@@ -13,7 +13,7 @@ class SyncLeaves extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_holidays {id}';
+    protected $signature = 'task:sync_leaves {id}';
 
     /**
      * The console command description.

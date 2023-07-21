@@ -164,7 +164,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:sync_leaves $companyId")
                 // ->everyMinute()
-                ->dailyAt('00:45')
+                ->dailyAt('02:00')
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$date-leaves-$companyId.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -172,7 +172,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:sync_holidays $companyId")
                 // ->everyMinute()
-                ->dailyAt('00:50')
+                ->dailyAt('03:00')
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$date-holidays-$companyId.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
