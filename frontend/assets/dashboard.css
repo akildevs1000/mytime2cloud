@@ -71,12 +71,24 @@ a:hover {
   background: linear-gradient(135deg, #289cf5, #4f8bb7) !important;
   color: #fff;
 }
-
+.l-bg-blue-dark {
+  background: linear-gradient(to right, #373b44, #4286f4) !important;
+  color: #fff;
+}
 .l-bg-purple-dark {
   background: linear-gradient(135deg, #8e4cf1, #c554bc) !important;
   color: #fff;
 }
 
+.l-bg-cherry {
+  background: linear-gradient(to right, #493240, #f09) !important;
+  color: #fff;
+}
+
+.l-bg-cyan {
+  background: linear-gradient(135deg, #289cf5, #84c0ec) !important;
+  color: #fff;
+}
 .fas {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
