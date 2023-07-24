@@ -306,7 +306,7 @@
           <v-card-text>
             <ol class="pa-3">
               <li v-for="(shift, index) in shifts" :key="index">
-                {{ shift.name }}
+                {{ shift && shift.name || "---" }}
                 {{
                   shift.on_duty_time
                     ? `(${shift.on_duty_time} - ${shift.off_duty_time})`
@@ -712,11 +712,11 @@
               {{ item.employee.first_name }} {{ item.employee.last_name }}
             </template>
             <template v-slot:item.employee_department_name="{ item }">
-              {{ item.employee.department.name }}
+              {{ item?.employee?.department?.name }}
             </template>
 
             <template v-slot:item.shift_type_name="{ item }">
-              {{ item.shift_type.name }}
+              {{ item?.shift_type?.name || "---" }}
             </template>
 
             <template v-slot:item.status="{ item }">
