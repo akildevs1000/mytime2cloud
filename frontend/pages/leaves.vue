@@ -785,7 +785,7 @@ export default {
       this.isFilter = !this.isFilter;
     },
     view(item) {
-      console.log(item);
+
       this.dialogViewObject.id = item.id;
       this.dialogViewObject.employee_name = item.employee.first_name + " " + item.employee.last_name;
       this.dialogViewObject.system_user_id = item.employee.system_user_id;
@@ -871,7 +871,6 @@ export default {
 
     },
     gotoDialogPage(item) {
-      // console.log('item', item);
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
@@ -1147,7 +1146,6 @@ export default {
     save() {
 
 
-      console.log(this.$auth);
       this.editedItem.company_id = this.$auth.user.company.id;
       this.editedItem.employee_id = this.login_user_employee_id;
       this.editedItem.reporting_manager_id = this.$auth.user.reporting_manager_id;

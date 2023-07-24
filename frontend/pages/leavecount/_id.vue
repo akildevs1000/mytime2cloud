@@ -366,7 +366,7 @@ export default {
       this.editedItem.total_days = diffDays + 1;
     },
     gotoDialogPage(item) {
-      // console.log('item', item);
+
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },

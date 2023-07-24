@@ -64,7 +64,7 @@ class CheckDeviceHealth extends Command
             $response = curl_exec($curl);
 
             curl_close($curl);
-            if ($response) {
+            if (json_decode($response)) {
                 $status = json_decode($response)->status;
 
                 if ($status !== 200) {

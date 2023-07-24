@@ -57,13 +57,14 @@
             <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
                 <td style="border: nonse" colspan="5">
                     <div class="row">
-                        <div class="col-5" style="background-coldor: rgb(253, 246, 246);border:1px solid black">
+                        <div class="col-5" style="">
                             @if (env('APP_ENV') !== 'local')
                                 <img src="{{ $company->logo }}" height="120px" width="130px"
                                     style="margin: 0px 0px 0px 0px">
                             @else
-                                <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" height="120px" width="180px"
-                                    style="margin: 0px 0px 0px -27px">
+                                <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0"
+                                    height="120px" width="180px" height="120px" width="130px"
+                                    style="margin: 0px 0px 0px 0px">
                             @endif
                         </div>
                         <div class="col-5" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
@@ -111,7 +112,7 @@
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                        {{ $info->report_type }} Employee Report
+                                        {{ $info->report_type }} {{ $company->report_type }} Report
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -135,6 +136,7 @@
                             <th style="text-align: center; border :none; padding:5px">EID</th>
                             <th style="text-align: center; border :none">Name</th>
                             <th style="text-align: center; border :none">Department</th>
+                            <th style="text-align: center; border :none">Shift Type </th>
 
                         </tr>
                         <tr style="border: none">
@@ -147,13 +149,16 @@
                             <td style="text-align: center; border:none;font-size:11px">
                                 {{ $info->department->name ?? 'All' }}
                             </td>
+                            <td style="text-align: center; border:none;font-size:11px">
+                                Multi In/Out
+                            </td>
                         </tr>
 
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
                             <th style="text-align: center; border :none; padding:5px">Present</th>
                             <th style="text-align: center; border :none">Absent</th>
                             <th style="text-align: center; border :none">Week Off</th>
-
+                            <th style="text-align: center; border :none">Leaves</th>
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;color:green">
@@ -166,15 +171,23 @@
                             <td style="text-align: center; border :none;color:gray">
                                 {{ getStatus($employee->toArray())['O'] ?? 0 }}
                             </td>
+                            <td style="text-align: center; border :none;color:blue">
+                                {{ getStatus($employee->toArray())['L'] ?? 0 }}
+                            </td>
                         </tr>
                         <tr class="summary-header" style="border: none;background-color:#eeeeee ">
+                            <th style="text-align: center; border :none">Holidays</th>
                             <th style="text-align: center; border :none">Missing</th>
 
                             <th style="text-align: center; border :none; padding:5px">Work Hours</th>
                             <th style="text-align: center; border :none">OT Hours</th>
+                            <th style="text-align: center; border :none"> </th>
                             {{-- <th style="text-align: center; border :none">Department</th> --}}
                         </tr>
                         <tr style="border: none">
+                            <td style="text-align: center; border :none;color:pink">
+                                {{ getStatus($employee->toArray())['H'] ?? 0 }}
+                            </td>
                             <td style="text-align: center; border :none;color:orange">
                                 {{ getStatus($employee->toArray())['M'] ?? 0 }}
                             </td>
@@ -183,10 +196,11 @@
                             </td>
                             <td style="text-align: center; border :none;color:black">
                                 {{ $empTotOtHrs ?? 0 }}</td>
+                            <td style="text-align: center; border :none;color:black"> </td>
                             {{-- <td style="text-align: center; border :none;color:black">{{ $info->department->name ?? 0 }}</td> --}}
                         </tr>
                         <tr style="border: none">
-                            <th style="text-align: center; border :none" colspan="3">
+                            <th style="text-align: center; border :none" colspan="4">
                                 <hr>
                             </th>
                         </tr>
@@ -246,6 +260,10 @@
                         $statusColor = 'orange';
                     } elseif ($employee->status == 'O') {
                         $statusColor = 'gray';
+                    } elseif ($employee->status == 'L') {
+                        $statusColor = 'blue';
+                    } elseif ($employee->status == 'H') {
+                        $statusColor = 'pink';
                     } elseif ($employee->status == '---') {
                         $statusColor = '#f34100ed';
                     }
@@ -288,6 +306,8 @@
             $countP = 0;
             $countM = 0;
             $countO = 0;
+            $countL = 0;
+            $countH = 0;
         
             foreach ($employeeData as $employee) {
                 if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
@@ -302,6 +322,10 @@
                     $countM++;
                 } elseif ($status == 'O') {
                     $countO++;
+                } elseif ($status == 'L') {
+                    $countL++;
+                } elseif ($status == 'H') {
+                    $countH++;
                 }
             }
             return [
@@ -309,6 +333,8 @@
                 'P' => $countP,
                 'M' => $countM,
                 'O' => $countO,
+                'L' => $countL,
+                'H' => $countH,
             ];
         }
         

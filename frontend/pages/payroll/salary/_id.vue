@@ -1,19 +1,10 @@
 <template>
-  <v-card
-    v-if="company_payload && company_payload.name"
-    class="mx-auto"
-    justify="center"
-  >
+  <v-card v-if="company_payload && company_payload.name" class="mx-auto" justify="center">
     <v-card-text>
       <v-row>
         <v-col cols="4" class="reds">
           <div class="d-flex" style="border: 1px solid white">
-            <v-img
-              style="border-radius: 10%"
-              :src="this.company_payload.logo"
-              max-width="100"
-              max-height="100"
-            ></v-img>
+            <v-img style="border-radius: 10%" :src="this.company_payload.logo" max-width="100" max-height="100"></v-img>
             <div class="ml-3 mt-3">
               <div style="border-top: 1px solid white">
                 <strong>{{ this.company_payload.name }}</strong>
@@ -34,8 +25,7 @@
           <div class="text-right">
             <div class="ml-2">
               <div style="border-top: 1px solid white">
-                <strong
-                  >Payslip No: {{ data.payslip_number }}
+                <strong>Payslip No: {{ data.payslip_number }}
                   <!-- {{ empCode }}{{ month }}{{ year }} -->
                 </strong>
               </div>
@@ -53,13 +43,11 @@
           <v-card outlined>
             <v-card-title> Employee Details </v-card-title>
             <v-card-text>
-              <table
-                style="
+              <table style="
                   width: 100%;
                   border-collapse: collapse;
                   margin-bottom: 10px;
-                "
-              >
+                ">
                 <tr>
                   <th style="text-align: left; border-bottom: 1px solid #ccc">
                     Employee Name
@@ -106,13 +94,11 @@
           <v-card outlined>
             <v-card-title> Other Details </v-card-title>
             <v-card-text>
-              <table
-                style="
+              <table style="
                   width: 100%;
                   border-collapse: collapse;
                   margin-bottom: 10px;
-                "
-              >
+                ">
                 <tr>
                   <th style="text-align: left; border-bottom: 1px solid #ccc">
                     Salary Month:
@@ -170,73 +156,59 @@
           <v-card outlined>
             <v-card-title> Earning Details </v-card-title>
             <v-card-text>
-              <table
-                style="
+              <table style="
                   width: 100%;
                   border-collapse: collapse;
                   margin-bottom: 10px;
-                "
-              >
+                ">
                 <thead>
                   <tr>
-                    <th
-                      style="
+                    <th style="
                         text-align: left;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       Earnings
                     </th>
-                    <th
-                      style="
+                    <th style="
                         text-align: right;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       Amount
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(item, index) in data.earnings" :key="index">
-                    <td
-                      style="
+                    <td style="
                         text-align: left;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       {{ caps(item.label) }}
                     </td>
-                    <td
-                      style="
+                    <td style="
                         text-align: right;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       {{ item.value }}
                     </td>
                   </tr>
                   <tr>
-                    <th
-                      style="
+                    <th style="
                         text-align: left;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       <strong>Total Earnings</strong>
                     </th>
-                    <th
-                      style="
+                    <th style="
                         text-align: right;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       {{ data.salary_and_earnings }}
                     </th>
                   </tr>
@@ -249,95 +221,75 @@
           <v-card outlined>
             <v-card-title> Deduction Details </v-card-title>
             <v-card-text>
-              <table
-                style="
+              <table style="
                   width: 100%;
                   border-collapse: collapse;
                   margin-bottom: 10px;
-                "
-              >
+                ">
                 <thead>
                   <tr>
-                    <th
-                      style="
+                    <th style="
                         text-align: left;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       Deductions
                     </th>
-                    <th
-                      style="
+                    <th style="
                         text-align: right;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       Amount
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(item, index) in data.deductions" :key="index">
-                    <td
-                      style="
+                    <td style="
                         text-align: left;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       {{ caps(item.label) }}
                     </td>
-                    <td
-                      style="
+                    <td style="
                         text-align: right;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       {{ item.value }}
                     </td>
                   </tr>
                   <tr v-for="n in countdifference" :key="n">
-                    <th
-                      style="
+                    <th style="
                         text-align: left;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                      scope="row"
-                    >
+                      " scope="row">
                       &nbsp;
                     </th>
-                    <td
-                      style="
+                    <td style="
                         text-align: right;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       &nbsp;
                     </td>
                   </tr>
                   <tr>
-                    <th
-                      style="
+                    <th style="
                         text-align: left;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                      scope="row"
-                    >
+                      " scope="row">
                       Total Deductions
                     </th>
-                    <th
-                      style="
+                    <th style="
                         text-align: right;
                         padding: 5px;
                         border-bottom: 1px solid #ccc;
-                      "
-                    >
+                      ">
                       {{ data.deductedSalary }}
                     </th>
                   </tr>
@@ -449,7 +401,7 @@ export default {
           },
         })
         .then(({ data }) => {
-          console.log("Payslip", data);
+
           this.data = data;
           this.employee = data.employee;
           this.earnings = data.earnings;

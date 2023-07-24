@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Shift;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
+use App\Models\Employee;
+use App\Models\EmployeeLeaves;
+use App\Models\Holidays;
 use App\Models\Reason;
 use App\Models\ScheduleEmployee;
 use Illuminate\Http\Request;
@@ -297,6 +300,18 @@ class RenderController extends Controller
     }
     public function renderLeaves($company_id = 0, Request $request)
     {
+        $schedule = null;
+        //if not schedule return nothing
+        if ($request->ShiftTypeId == 2) {
+            $schedule = $this->getScheduleMultiInOut($request->date, $company_id, $request->UserID, $request->ShiftTypeId);
+        } else {
+            $schedule = $this->getScheduleGeneral($request->date, $company_id, $request->UserID);
+        }
+
+        if (!$schedule) {
+            return $this->response("Employee with $request->UserID SYSTEM USER ID is not scheduled yet.", null, false);
+        }
+
         return $this->renderLeavesScript($company_id, $request->date, $request->UserID);
     }
     public function renderHolidays($company_id = 0, Request $request)
@@ -310,6 +325,53 @@ class RenderController extends Controller
         $result = json_encode($UserIds);
 
         return $this->getMeta("Sync Off", "$result Employee has been marked as OFF" . ".\n");
+    }
+
+    public function renderLeavesCron($company_id = 0)
+    {$todayDate = date('Y-m-d', strtotime('-1 day'));
+
+        $model = EmployeeLeaves::with(["employee"])
+            ->where('company_id', $company_id)
+        //->where('status', 1)
+            ->where('start_date', '<=', $todayDate)
+            ->where('end_date', '>=', $todayDate);
+        $employees = $model->get();
+        $userIDs = [];
+        foreach ($employees as $key => $value) {
+            if ($value->employee->system_user_id) {
+                $userIDs[] = $this->renderLeavesScript($company_id, $todayDate, $value->employee->system_user_id);
+            }
+
+        }
+        $result = json_encode($userIDs);
+
+        return $this->getMeta("Sync Leaves", "$result Employee has been marked as Leave" . ".\n");
+    }
+    public function renderHolidaysCron($company_id = 0)
+    {$todayDate = date('Y-m-d', strtotime('-1 day'));
+
+        $holidayCount = Holidays::where('company_id', $company_id)
+            ->where('start_date', '<=', $todayDate)
+            ->where('end_date', '>=', $todayDate)->get()->count();
+
+        if ($holidayCount) {
+            $employees = Employee::where('company_id', $company_id)
+            // ->where('status', 1)
+                ->get();
+            $userIDs = [];
+            foreach ($employees as $key => $value) {
+
+                if ($value->system_user_id) {
+                    $userIDs[] = $this->renderHolidaysScript($company_id, $todayDate, $value->system_user_id);
+                }
+
+            }
+            $result = json_encode($userIDs);
+
+            return $this->getMeta("Sync Holidays", "$todayDate :  $result Employee has been marked as Holiday" . ".\n");
+        }
+        return $this->getMeta("Sync Holidays", "$todayDate : No Holiday" . ".\n");
+
     }
 
     public function renderOffScript($company_id, $date, $user_id = 0)
@@ -472,7 +534,7 @@ class RenderController extends Controller
             // $model->where("shift_id", -1);
             $model->where("company_id", $company_id);
             $model->where("date", $date);
-            $model->whereIn("status", ["P", "A", "M", "O", "L"]);
+            $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
 
             $model->when($user_id, function ($q) use ($user_id) {
                 return $q->where("employee_id", $user_id);
@@ -489,59 +551,64 @@ class RenderController extends Controller
             return $e;
         }
     }
-    // public function renderHolidaysScript($company_id, $date, $user_id = 0)
-    // {
-    //     try {
-    //         $model = ScheduleEmployee::query();
+    public function renderHolidaysScript($company_id, $date, $user_id = 0)
+    {
+        try {
+            $model = ScheduleEmployee::query();
 
-    //         $model->where("company_id", $company_id);
+            $model->where("company_id", $company_id);
 
-    //         $model->when($user_id, function ($q) use ($user_id) {
-    //             $q->where("employee_id", $user_id);
-    //         });
+            $model->when($user_id, function ($q) use ($user_id) {
+                $q->where("employee_id", $user_id);
+            });
 
-    //         $model->when(!$user_id, function ($q) {
-    //             $q->where("shift_id", -4);
-    //         });
+            $model->when(!$user_id, function ($q) {
+                $q->where("shift_id", -4);
+            });
 
-    //         $employees = $model->latest()->first(["employee_id", "shift_type_id"]);
+            $employees = $model->latest()->first(["employee_id", "shift_type_id"]);
 
-    //         $records = [];
+            $records = [];
 
-    //         // foreach ($employees as $employee)
-    //         {
+            // foreach ($employees as $employee)
+            {
 
-    //             $records[] = [
-    //                 "company_id" => $company_id,
-    //                 "date" => $date,
-    //                 "status" => "L",
-    //                 "employee_id" => $employees->employee_id,
-    //                 "shift_id" => -4,
-    //                 "shift_type_id" => $employees->shift_type_id,
-    //             ];
-    //         }
+                $records[] = [
+                    "company_id" => $company_id,
+                    "date" => $date,
+                    "status" => "H",
+                    "employee_id" => $employees->employee_id,
+                    "shift_id" => -4,
+                    "shift_type_id" => $employees->shift_type_id,
+                ];
+            }
 
-    //         $model = Attendance::query();
-    //         // $model->where("shift_id", -1);
-    //         $model->where("company_id", $company_id);
-    //         $model->where("date", $date);
-    //         $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
+            {
 
-    //         $model->when($user_id, function ($q) use ($user_id) {
-    //             return $q->where("employee_id", $user_id);
-    //         });
+                $model = Attendance::query();
+                // $model->where("shift_id", -1);
+                $model->where("company_id", $company_id);
+                $model->where("date", $date);
+                $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
 
-    //         $model->delete();
+                $model->when($user_id, function ($q) use ($user_id) {
+                    return $q->where("employee_id", $user_id);
+                });
 
-    //         $model->insert($records);
+                $model->delete();
 
-    //         $UserIds = array_column($records, "employee_id");
+                $model->insert($records);
 
-    //         return $UserIds;
-    //     } catch (\Exception $e) {
-    //         return $e;
-    //     }
-    // }
+                $UserIds = $employees->employee_id; // array_column($records, "employee_id");
+                if ($UserIds) {
+                    return $UserIds;
+                }
+
+            }
+        } catch (\Exception $e) {
+            return $e;
+        }
+    }
 
     public function deleteOldRecord($items)
     {

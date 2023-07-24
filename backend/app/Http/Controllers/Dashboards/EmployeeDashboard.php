@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Dashboards;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -13,6 +12,7 @@ class EmployeeDashboard extends Controller
 
     public function statistics(Request $request): array
     {
+
         $records = $this->getEmployeeAttendanceRecords($request);
 
         return [
@@ -33,14 +33,30 @@ class EmployeeDashboard extends Controller
             [
                 'title' => 'Total Missing',
                 'value' => $this->getStatusCount($records, 'M'),
-                'icon' => 'fas fa-clock',
+                'icon' => 'fas fa-calendar-times',
                 'color' => 'l-bg-cyan-dark',
                 'link' => $this->getLink($request, 'M'),
             ],
             [
+                'title' => 'Total Leaves',
+                'value' => $this->getStatusCount($records, 'L'),
+                'icon' => 'fas fa-calendar-week',
+                'color' => 'l-bg-orange-dark',
+                'link' => $this->getLink($request, 'L'),
+                'border_color' => '526C78',
+            ],
+            [
+                'title' => 'Total Holidays',
+                'value' => $this->getStatusCount($records, 'H'),
+                'icon' => 'fas fa-calendar-plus',
+                'color' => 'l-bg-blue-dark',
+                'link' => $this->getLink($request, 'H'),
+                'border_color' => '526C78',
+            ],
+            [
                 'title' => 'Total Off',
                 'value' => $this->getStatusCount($records, 'O'),
-                'icon' => 'fas fa-clock',
+                'icon' => 'fas fa-calendar',
                 'color' => 'l-bg-purple-dark',
                 'link' => $this->getLink($request, 'O'),
                 'border_color' => '526C78',
@@ -53,19 +69,20 @@ class EmployeeDashboard extends Controller
         $baseUrl = env("BASE_URL");
 
         $params = [
-            'main_shift_type' => $request->shift_type,
+            'main_shift_type' => $request->shift_type_id,
             'company_id' => $request->company_id,
             'status' => $status,
             'department_id' => $request->department_id,
             'employee_id' => $request->employee_id,
             'report_type' => 'Monthly',
-            'from_date' => date("Y-m-d"),
-            'to_date' => date("Y-m-t")
+            'from_date' => date("Y-m-01"),
+            'to_date' => date("Y-m-t"),
         ];
 
         $queryString = http_build_query($params);
 
-        $url = $baseUrl . "/api/multi_in_out_daily?" . $queryString;
+        //$url = $baseUrl . "/api/multi_in_out_daily?" . $queryString;
+        $url = $baseUrl . "/api/multi_in_out_monthly?" . $queryString;
 
         return $url;
     }
@@ -85,7 +102,7 @@ class EmployeeDashboard extends Controller
 
         $model->whereMonth('date', now()->month);
 
-        return $model->whereIn('status', ['P', 'A', 'M', 'O'])->get();
+        return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L'])->get();
 
         // working code with cache
         $cacheKey = 'employee_attendance_records:' . $request->company_id . "_" . $request->employee_id;
@@ -100,7 +117,7 @@ class EmployeeDashboard extends Controller
 
             $model->whereMonth('date', now()->month);
 
-            return $model->whereIn('status', ['P', 'A', 'M', 'O'])->get();
+            return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L'])->get();
         });
     }
 

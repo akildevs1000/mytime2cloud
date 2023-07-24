@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers\Reports;
 
-use DateTime;
-use Carbon\Carbon;
-use App\Models\Shift;
-use App\Models\Device;
-use App\Models\Roster;
-use App\Models\Company;
-use App\Models\Employee;
-use App\Models\ShiftType;
-use App\Models\Attendance;
-use App\Models\Department;
-use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\Device;
+use App\Models\Employee;
+use App\Models\Roster;
+use App\Models\Shift;
+use App\Models\ShiftType;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MonthlyController extends Controller
 {
@@ -28,7 +25,7 @@ class MonthlyController extends Controller
     public function monthly_download_pdf(Request $request)
     {
         $report = $this->processPDF($request);
-        return   $report->stream();
+        return $report->stream();
     }
 
     public function multi_in_out_monthly_download_pdf(Request $request)
@@ -52,11 +49,11 @@ class MonthlyController extends Controller
         $fileName = 'report.csv';
 
         $headers = array(
-            "Content-type"        => "text/csv",
+            "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0",
         );
 
         $callback = function () use ($data) {
@@ -82,7 +79,7 @@ class MonthlyController extends Controller
                     $col["late_coming"] ?? "---",
                     $col["early_going"] ?? "---",
                     $col["device_in"]["short_name"] ?? "---",
-                    $col["device_out"]["short_name"] ?? "---"
+                    $col["device_out"]["short_name"] ?? "---",
                 ], ",");
             }
 
@@ -100,11 +97,11 @@ class MonthlyController extends Controller
         $fileName = 'report.csv';
 
         $headers = array(
-            "Content-type"        => "text/csv",
+            "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0",
         );
 
         $callback = function () use ($data) {
@@ -221,7 +218,6 @@ class MonthlyController extends Controller
             ])->first(),
         ];
 
-
         // if ($request->employee_id && $request->filled('employee_id')) {
         //     $data = count($data) > 0 ?  $data[$request->employee_id] : [];
         //     return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
@@ -236,7 +232,7 @@ class MonthlyController extends Controller
     public function getHTML($data, $company)
     {
         $mob = $company->contact->number ?? '---';
-        $companyLogo =  "";
+        $companyLogo = "";
 
         if (env('APP_ENV') !== 'local') {
             $companyLogo = $company->logo;
@@ -247,7 +243,6 @@ class MonthlyController extends Controller
         if ($company->p_o_box_no == "null") {
             $company->p_o_box_no = "---";
         }
-
 
         //  <img src="' . getcwd() . '/upload/app-logo.jpeg" height="70px" width="200">
         // <img src="' . $companyLogo . '" height="100px" width="100">      <img src="' . $companyLogo . '" height="100px" width="100">
@@ -370,7 +365,7 @@ class MonthlyController extends Controller
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span style="font-size: 11px">
-                                    ' . date('d M Y', strtotime($company->start))  . ' - ' .  date('d M Y', strtotime($company->end))  . ' <br>
+                                    ' . date('d M Y', strtotime($company->start)) . ' - ' . date('d M Y', strtotime($company->end)) . ' <br>
                                        <small> Department : ' . ($company->department_name ?? '---') . '</small>
                                     </span>
                                     <hr style="width: 230px">
@@ -406,7 +401,7 @@ class MonthlyController extends Controller
                     </tr>
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: right; border :none;font-size:10px">
-                            <span style="margin-right: 3px"> Tel: ' .  $mob . ' </span>
+                            <span style="margin-right: 3px"> Tel: ' . $mob . ' </span>
                             <br>
                         </td>
                     </tr>
@@ -461,7 +456,6 @@ class MonthlyController extends Controller
 
         foreach ($data as $eid => $row) {
 
-
             $emp = Employee::where("employee_id", $eid)->whereCompanyId($company->id)->first();
 
             $str .= '<div class="page-breaks">';
@@ -493,34 +487,32 @@ class MonthlyController extends Controller
             // $dout = '<tr"><td><b>Device Out</b></td>';
             $status_tr = '<tr"><td><b>Status</b></td>';
 
-
             foreach ($row as $key => $record) {
 
                 // dd($record[0]['roster_id']);
                 if ($record[0]['roster_id'] != '---') {
-                    $roster_name =  $rosterModel->where("id", $record[0]['roster_id'])->first()->name ?? "";
+                    $roster_name = $rosterModel->where("id", $record[0]['roster_id'])->first()->name ?? "";
                 } else {
-                    $roster_name =    '---';
+                    $roster_name = '---';
                 }
 
                 if ($record[0]['shift_id'] != '---') {
-                    $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? "";
+                    $shift_name = $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? "";
                 } else {
-                    $shift_name =    '---';
+                    $shift_name = '---';
                 }
 
                 if ($record[0]['shift_type_id'] != '---') {
-                    $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
+                    $shift_type_name = $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
                 } else {
-                    $shift_type_name =    '---';
+                    $shift_type_name = '---';
                 }
-
 
                 // $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? '';
                 // $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
 
-                $device_short_name_in =  $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
-                $device_short_name_out =  $model->clone()->where("device_id", $record[0]['device_id_out'])->first()->short_name ?? '';
+                $device_short_name_in = $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
+                $device_short_name_out = $model->clone()->where("device_id", $record[0]['device_id_out'])->first()->short_name ?? '';
 
                 $dates .= '<td style="text-align: center;"> ' . substr($key, 0, 2) . ' </td>';
                 $days .= '<td style="text-align: center;"> ' . $record[0]['day'] . ' </td>';
@@ -528,7 +520,7 @@ class MonthlyController extends Controller
                 $in .= '<td style="text-align: center;"> ' . $record[0]['in'] . ' </td>';
                 $out .= '<td style="text-align: center;"> ' . $record[0]['out'] . ' </td>';
 
-                $work .= '<td style="text-align: center;"> ' . $record[0]['total_hrs']  . ' </td>';
+                $work .= '<td style="text-align: center;"> ' . $record[0]['total_hrs'] . ' </td>';
                 $ot .= '<td style="text-align: center;"> ' . $record[0]['ot'] . ' </td>';
 
                 $roster .= '<td style="text-align: center;"> ' . $roster_name . ' </td>';
@@ -540,7 +532,6 @@ class MonthlyController extends Controller
 
                 $status_tr .= '<td style="text-align: center; color:' . $status . '"> ' . $record[0]['status'] . ' </td>';
             }
-
 
             $dates .= '</tr>';
             $days .= '</tr>';
@@ -555,7 +546,7 @@ class MonthlyController extends Controller
             $status_tr .= '</tr>';
 
             // $str = $str . $dates . $days . $in . $out . $work . $ot . $shift . $shift_type . $din . $dout . $status_tr;
-            $str = $str . $dates . $days . $in . $out . $work . $ot . $roster  . $status_tr;
+            $str = $str . $dates . $days . $in . $out . $work . $ot . $roster . $status_tr;
 
             $str .= '</table>';
             $str .= '</div>';
@@ -575,8 +566,8 @@ class MonthlyController extends Controller
 
         foreach ($arr as $a) {
             $status = $a[0]->status;
-            $work   = $a[0]->total_hrs;
-            $ot     = $a[0]->ot;
+            $work = $a[0]->total_hrs;
+            $ot = $a[0]->ot;
 
             if ($status == 'P') {
                 $presents++;
@@ -611,9 +602,9 @@ class MonthlyController extends Controller
             'work' => $work_hours . ':' . $work_minutes,
             'ot' => $ot_hours . ':' . $ot_minutes,
             'presents' => $presents,
-            'absents'  => $absents,
+            'absents' => $absents,
             'missings' => $missings,
-            'manuals'  => $manuals
+            'manuals' => $manuals,
         ];
     }
 
@@ -660,9 +651,6 @@ class MonthlyController extends Controller
         $first = true;
         $file = fopen(public_path('transactions.csv'), 'r');
         $data = [];
-
-
-
 
         // 0 => "﻿Employee ID"
         // 1 => "First Name"

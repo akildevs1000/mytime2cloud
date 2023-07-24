@@ -61,33 +61,6 @@ class AttendanceLogController extends Controller
                 $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
             })
 
-        // ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
-        //     $q->where('UserID', 'LIKE', "$request->search_system_user_id%");
-        // })
-        // ->when($request->filled('search_time'), function ($q) use ($request) {
-        //     $q->where('LogTime', 'LIKE', "$request->search_time%");
-        // })
-        // ->when($request->filled('search_device_name'), function ($q) use ($request) {
-        //     $key = strtolower($request->search_device_name);
-        //     $q->whereHas('device', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
-        // })
-        // ->when($request->filled('search_device_location'), function ($q) use ($request) {
-        //     $key = strtolower($request->search_device_location);
-        //     $q->whereHas('device', fn(Builder $query) => $query->where('location', 'ILIKE', "$key%"));
-        // })
-        // ->when($request->filled('search_employee_name'), function ($q) use ($request) {
-        //     $key = strtolower($request->search_employee_name);
-        //     $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
-        // })
-        // ->when($request->filled('search_department_name'), function ($q) use ($request) {
-        //     $key = strtolower($request->search_department_name);
-        //     $q->whereHas('employee.department', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
-        // })
-
-        // ->when($request->filled('search_device_id'), function ($q) use ($request) {
-        //     $q->where('DeviceID', 'LIKE', "$request->search_device_id%");
-        // })
-
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');
                 if (strpos($request->sortBy, '.')) {

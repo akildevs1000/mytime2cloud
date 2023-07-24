@@ -112,7 +112,7 @@
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                        {{ $info->report_type }} Employee Report
+                                        {{ $info->report_type }} {{ $company->report_type }} Report
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -136,7 +136,7 @@
                             <th style="text-align: center; border :none; padding:5px">EID</th>
                             <th style="text-align: center; border :none">Name</th>
                             <th style="text-align: center; border :none">Department</th>
-
+                            <th style="text-align: center; border :none">Report Type</th>
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;font-size:11px">
@@ -148,13 +148,16 @@
                             <td style="text-align: center; border:none;font-size:11px">
                                 {{ $info->department->name ?? 'All' }}
                             </td>
+                            <td style="text-align: center; border:none;font-size:11px">
+                                General
+                            </td>
                         </tr>
 
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
                             <th style="text-align: center; border :none; padding:5px">Present</th>
                             <th style="text-align: center; border :none">Absent</th>
                             <th style="text-align: center; border :none">Week Off</th>
-
+                            <th style="text-align: center; border :none">Leaves </th>
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;color:green">
@@ -167,15 +170,23 @@
                             <td style="text-align: center; border :none;color:gray">
                                 {{ getStatus($employee->toArray())['O'] ?? 0 }}
                             </td>
+                            <td style="text-align: center; border :none;color:blue">
+                                {{ getStatus($employee->toArray())['L'] ?? 0 }}
+                            </td>
                         </tr>
                         <tr class="summary-header" style="border: none;background-color:#eeeeee ">
+                            <th style="text-align: center; border :none">Holidays</th>
                             <th style="text-align: center; border :none">Missing</th>
 
                             <th style="text-align: center; border :none; padding:5px">Work Hours</th>
                             <th style="text-align: center; border :none">OT Hours</th>
+
                             {{-- <th style="text-align: center; border :none">Department</th> --}}
                         </tr>
                         <tr style="border: none">
+                            <td style="text-align: center; border :none;color:pink">
+                                {{ getStatus($employee->toArray())['H'] ?? 0 }}
+                            </td>
                             <td style="text-align: center; border :none;color:orange">
                                 {{ getStatus($employee->toArray())['M'] ?? 0 }}
                             </td>
@@ -184,10 +195,11 @@
                             </td>
                             <td style="text-align: center; border :none;color:black">
                                 {{ $empTotOtHrs ?? 0 }}</td>
+
                             {{-- <td style="text-align: center; border :none;color:black">{{ $info->department->name ?? 0 }}</td> --}}
                         </tr>
                         <tr style="border: none">
-                            <th style="text-align: center; border :none" colspan="3">
+                            <th style="text-align: center; border :none" colspan="4">
                                 <hr>
                             </th>
                         </tr>
@@ -221,6 +233,10 @@
                         $statusColor = 'orange';
                     } elseif ($employee->status == 'O') {
                         $statusColor = 'gray';
+                    } elseif ($employee->status == 'L') {
+                        $statusColor = 'blue';
+                    } elseif ($employee->status == 'H') {
+                        $statusColor = 'pink';
                     } elseif ($employee->status == '---') {
                         $statusColor = '#f34100ed';
                     }
@@ -230,7 +246,8 @@
                     <tr style="text-align:  center">
                         <td colspan="1">{{ ++$i }}</td>
                         <td colspan="1" style="text-align:  center;">{{ $employee->date ?? '---' }}</td>
-                        <td colspan="1" style="text-align:  center;">{{ date('D', strtotime($employee->date)) ?? '---' }}</td>
+                        <td colspan="1" style="text-align:  center;">
+                            {{ date('D', strtotime($employee->date)) ?? '---' }}</td>
                         <td colspan="2" style="text-align:  center;">{{ $employee->roster->name ?? '---' }}</td>
                         <td colspan="1" style="text-align:  center;"> {{ $employee->in ?? '---' }} </td>
                         <td colspan="1" style="text-align:  center;"> {{ $employee->out ?? '---' }} </td>
@@ -239,8 +256,10 @@
                         <td colspan="2" style="text-align:  center; color:{{ $statusColor }}">
                             {{ $employee->status ?? '---' }}
                         </td>
-                        <td colspan="2" style="text-align:  center;"> {{ $employee->device_in->short_name ?? '---' }} </td>
-                        <td colspan="2" style="text-align:  center;"> {{ $employee->device_out->short_name ?? '---' }} </td>
+                        <td colspan="2" style="text-align:  center;">
+                            {{ $employee->device_in->short_name ?? '---' }} </td>
+                        <td colspan="2" style="text-align:  center;">
+                            {{ $employee->device_out->short_name ?? '---' }} </td>
                     </tr>
                 </tbody>
             @endforeach
@@ -258,7 +277,8 @@
             $countP = 0;
             $countM = 0;
             $countO = 0;
-        
+            $countL = 0;
+            $countH = 0;
             foreach ($employeeData as $employee) {
                 if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
                     throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
@@ -272,6 +292,10 @@
                     $countM++;
                 } elseif ($status == 'O') {
                     $countO++;
+                } elseif ($status == 'L') {
+                    $countL++;
+                } elseif ($status == 'H') {
+                    $countH++;
                 }
             }
             return [
@@ -279,6 +303,8 @@
                 'P' => $countP,
                 'M' => $countM,
                 'O' => $countO,
+                'L' => $countL,
+                'H' => $countH,
             ];
         }
         

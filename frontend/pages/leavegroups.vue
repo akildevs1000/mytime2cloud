@@ -551,7 +551,7 @@ export default {
     save() {
 
 
-      console.log("this.editedItem", this.editedItem);
+
       let options = {
         params: {
           // leave_type_id: this.editedItem.leave_type_id,
