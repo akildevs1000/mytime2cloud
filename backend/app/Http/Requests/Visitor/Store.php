@@ -30,6 +30,9 @@ class Store extends FormRequest
         }
 
         $validations['timezone_id'] = 'required';
+
+        $validations["zone_id"] = "required";
+
         $validations['system_user_id'] = 'required';
 
         $validations['visit_from'] = 'required|date';
@@ -64,6 +67,7 @@ class Store extends FormRequest
         $validations['company_name'] = 'required|string|max:255';
         $validations['reason'] = 'required|string|max:255';
         $validations["company_id"] = "required";
+
 
         return $validations;
     }

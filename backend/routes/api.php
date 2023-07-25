@@ -20,3 +20,4 @@ include 'purpose.php';
 include('status.php');
 include('host.php');
 include('visitor.php');
+include('zone.php');

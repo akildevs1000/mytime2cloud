@@ -30,6 +30,9 @@ class Update extends FormRequest
         }
 
         $validations['timezone_id'] = 'required';
+
+        $validations["zone_id"] = "required";
+
         $validations['system_user_id'] = 'required';
 
         $validations['visit_from'] = 'required|date';

@@ -11,11 +11,18 @@ class Device extends Model
     use HasFactory;
     protected $guarded = [];
 
-    public function status(){
+    public function zone()
+    {
+        return $this->belongsTo(Zone::class);
+    }
+
+    public function status()
+    {
         return $this->belongsTo(DeviceStatus::class);
     }
 
-    public function company(){
+    public function company()
+    {
         return $this->belongsTo(Company::class);
     }
 

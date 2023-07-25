@@ -110,47 +110,80 @@
                         >{{ errors.profile_picture[0] }}</span
                       >
                     </div>
-                    <div class="pt-5">
-                      <v-select
-                        :disabled="disabled"
-                        v-model="payload.timezone_id"
-                        placeholder="Timezone"
-                        :items="timezones"
-                        dense
-                        menu-props="min-width: auto; max-height: 200px;"
-                        class="text-center"
-                        outlined
-                        item-text="timezone_name"
-                        item-value="timezone_id"
-                        :hide-details="!errors.timezone_id"
-                        :error="errors.timezone_id"
-                        :error-messages="
-                          errors && errors.timezone_id
-                            ? errors.timezone_id[0]
-                            : ''
-                        "
-                      ></v-select>
-                    </div>
-                    <v-text-field
-                      :disabled="disabled"
-                      autofocus
-                      placeholder="Device Id"
-                      v-model="payload.system_user_id"
-                      dense
-                      menu-props="min-width: auto; max-height: 200px;"
-                      class="text-center pt-10"
-                      outlined
-                      :hide-details="!errors.system_user_id"
-                      :error="errors.system_user_id"
-                      :error-messages="
-                        errors && errors.system_user_id
-                          ? errors.system_user_id[0]
-                          : ''
-                      "
-                    ></v-text-field>
                   </v-col>
                   <v-col cols="9" class="pt-5">
                     <v-row>
+                      <v-col cols="4">
+                        <label class="col-form-label"
+                          >Timezone<span class="text-danger">*</span></label
+                        >
+                        <v-select
+                          :disabled="disabled"
+                          v-model="payload.timezone_id"
+                          placeholder="Timezone"
+                          :items="timezones"
+                          dense
+                          menu-props="min-width: auto; max-height: 200px;"
+                          class="text-center pt-3"
+                          outlined
+                          item-text="timezone_name"
+                          item-value="timezone_id"
+                          :hide-details="!errors.timezone_id"
+                          :error="errors.timezone_id"
+                          :error-messages="
+                            errors && errors.timezone_id
+                              ? errors.timezone_id[0]
+                              : ''
+                          "
+                        ></v-select>
+                      </v-col>
+                      <v-col cols="4">
+                        <label class="col-form-label"
+                          >Zone<span class="text-danger">*</span></label
+                        >
+                        <v-select
+                          :disabled="disabled"
+                          v-model="payload.zone_id"
+                          placeholder="Zone"
+                          :items="zones"
+                          dense
+                          menu-props="min-width: auto; max-height: 200px;"
+                          class="text-center pt-3"
+                          outlined
+                          item-text="name"
+                          item-value="id"
+                          :hide-details="!errors.zone_id"
+                          :error="errors.zone_id"
+                          :error-messages="
+                            errors && errors.zone_id ? errors.zone_id[0] : ''
+                          "
+                        ></v-select>
+                      </v-col>
+                      <v-col cols="4">
+                        <label class="col-form-label"
+                          >Employee Device Id<span class="text-danger"
+                            >*</span
+                          ></label
+                        >
+                        <v-text-field
+                          :disabled="disabled"
+                          autofocus
+                          placeholder="Device Id"
+                          v-model="payload.system_user_id"
+                          dense
+                          menu-props="min-width: auto; max-height: 200px;"
+                          class="text-center pt-3"
+                          outlined
+                          :hide-details="!errors.system_user_id"
+                          :error="errors.system_user_id"
+                          :error-messages="
+                            errors && errors.system_user_id
+                              ? errors.system_user_id[0]
+                              : ''
+                          "
+                        ></v-text-field>
+                      </v-col>
+
                       <v-col cols="4">
                         <label class="col-form-label"
                           >Visit From<span class="text-danger">*</span></label
@@ -1252,9 +1285,9 @@ export default {
 
     tab: null,
 
-    departments: [],
     statuses: [],
     timezones: [],
+    zones: [],
     joiningDate: null,
     VisitFromMenuOpen: false,
     totalRowsCount: 0,
@@ -1458,6 +1491,8 @@ export default {
 
     this.getStatuses();
     this.getTimezone();
+    this.getZones();
+
   },
   mounted() {},
   watch: {
@@ -1698,6 +1733,14 @@ export default {
         //   id: "1",
         //   timezone_id: "1",
         // });
+      });
+    },
+    getZones() {
+      let options = {
+        company_id: this.$auth.user.company.id,
+      };
+      this.$axios.get("zone_list", { params: options }).then(({ data }) => {
+        this.zones = data;
       });
     },
     addItem() {
