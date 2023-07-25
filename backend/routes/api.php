@@ -16,3 +16,7 @@ include('schedule_employee.php');
 include('test.php');
 include('cron.php');
 include('render_report.php');
+include 'purpose.php';
+include('status.php');
+include('host.php');
+include('visitor.php');

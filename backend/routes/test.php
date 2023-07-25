@@ -80,7 +80,7 @@ Route::get('/test', function (Request $request) {
     echo "<br>";
 
     $one = 1;
-    $arr1 = [ &$one, 2, 3];
+    $arr1 = [&$one, 2, 3];
     $arr2 = [0, ...$arr1];
     var_dump($arr2);
 
@@ -265,13 +265,10 @@ Route::get('/check_device_health', function (Request $request) {
 
     foreach ($devices as $device_id) {
         $curl = curl_init();
-        $sdk_url = '';
-        if (env("APP_ENV") != "production") {
-            $sdk_url = env("SDK_STAGING_COMM_URL");
-        }
+        $sdk_url = env("SDK_URL");
 
-        if ($sdk_url == '') {
-            $sdk_url = env("SDK_PRODUCTION_COMM_URL");
+        if (!$sdk_url) {
+            return "sdk url not defined.";
         }
 
         curl_setopt_array($curl, array(

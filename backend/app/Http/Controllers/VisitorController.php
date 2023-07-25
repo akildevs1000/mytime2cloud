@@ -1,0 +1,104 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\Visitor\Store;
+use App\Http\Requests\Visitor\Update;
+
+use App\Models\Visitor;
+use Illuminate\Http\Request;
+
+class VisitorController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $model = Visitor::query();
+
+        $fields = ['id', 'company_name', 'manager_name', 'phone', 'email', 'zone_id'];
+
+        $model = $this->process_ilike_filter($model, $request, $fields);
+
+        $model->where("company_id", $request->input("company_id"));
+
+        return $model->with("status")->paginate($request->input("per_page", 100));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Store $request)
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $request->logo->move(public_path('media/visitor/logo/'), $fileName);
+            $data['logo'] = $fileName;
+        }
+
+        try {
+
+            $visitor = Visitor::create($data);
+            if (!$visitor) {
+                return $this->response('Visitor cannot add.', null, false);
+            }
+
+            return $this->response('Visitor successfully created.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Visitor  $visitor
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Update $request, $id)
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $request->logo->move(public_path('media/visitor/logo/'), $fileName);
+            $data['logo'] = $fileName;
+        }
+
+        try {
+
+            $visitor = Visitor::whereId($id)->update($data);
+            if (!$visitor) {
+                return $this->response('Visitor cannot update.', null, false);
+            }
+
+            return $this->response('Visitor successfully updated.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Visitor  $visitor
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Visitor $visitor)
+    {
+        return $visitor->delete();
+    }
+}

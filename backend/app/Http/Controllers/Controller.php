@@ -131,6 +131,16 @@ class Controller extends BaseController
         }
     }
 
+    public function process_ilike_filter($model, $request, $fields)
+    {
+        foreach ($fields as $field) {
+            if ($request->filled($field)) {
+                $model->where($field, 'ILIKE', $request->input($field) . '%');
+            }
+        }
+        return $model;
+    }
+
     public function multi_in_out_daily_download_csv(Request $request)
     {
         $model = new ReportController;

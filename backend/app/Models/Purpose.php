@@ -5,13 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Status extends Model
+class Purpose extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
-    
-    protected $table = 'status';
 
-    protected $hidden = ["created_at","updated_at"];
+    protected $hidden = ["created_at", "updated_at"];
 }

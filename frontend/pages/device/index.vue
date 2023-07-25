@@ -366,7 +366,7 @@ export default {
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
-        if (this.checkDeviceHealthCount == 0)
+        // if (this.checkDeviceHealthCount == 0)
           this.updateDevicesHealth();
 
       });

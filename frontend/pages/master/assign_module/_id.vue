@@ -15,7 +15,7 @@
             </v-col>
             <v-col>
               <div class="display-1 pa-2 text-right">
-                <v-btn small class="primary" to="/master/assign_permission">
+                <v-btn small class="primary" to="/master/assign_module">
                   <v-icon small>mdi-arrow-left</v-icon>&nbsp;Back
                 </v-btn>
               </div>
@@ -56,14 +56,7 @@
                 <span class="error--text">{{ errors.module_ids[0] }}</span>
               </v-col>
               <v-col>
-                <v-btn
-                  v-if="can(`assign_permission_edit`)"
-                  dark
-                  small
-                  color="primary"
-                  class="mr-4"
-                  @click="save"
-                >
+                <v-btn dark small color="primary" class="mr-4" @click="save">
                   Submit
                 </v-btn>
               </v-col>
@@ -101,9 +94,9 @@ export default {
     msg: "",
     snackbar: false,
     just_ids: false,
-    Rules: [v => !!v || "This field is required"],
+    Rules: [(v) => !!v || "This field is required"],
     errors: [],
-    companies: []
+    companies: [],
   }),
   created() {
     this.$axios
@@ -112,25 +105,25 @@ export default {
         this.company_id = data.company_id;
         this.module_ids = data.module_ids;
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
 
     this.$axios
       .get("company")
       .then(({ data }) => {
         this.companies = data.data;
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
 
     this.$axios
       .get("module")
       .then(({ data }) => {
         this.modules = data.data;
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   },
   methods: {
     setAllIds() {
-      this.module_ids = this.just_ids ? this.modules.map(e => e.id) : [];
+      this.module_ids = this.just_ids ? this.modules.map((e) => e.id) : [];
     },
     can(per) {
       let u = this.$auth.user;
@@ -140,7 +133,7 @@ export default {
       this.errors = [];
       let payload = {
         company_id: this.company_id,
-        module_ids: this.module_ids
+        module_ids: this.module_ids,
       };
       this.$axios
         .put("assign-module/" + this.$route.params.id, payload)
@@ -154,7 +147,7 @@ export default {
           this.snackbar = true;
           setTimeout(() => this.$router.push("/master/assign_module"), 2000);
         });
-    }
-  }
+    },
+  },
 };
 </script>

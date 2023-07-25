@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 
 class TimezoneController extends Controller
 {
+
+    public function timezonesList(Request $request)
+    {
+        return Timezone::where('company_id', $request->company_id)->get(['id', 'timezone_name', 'timezone_id']);
+    }
     public function index(Request $request)
     {
         return Timezone::where('company_id', $request->company_id)->where("is_default", false)->paginate($request->per_page ?? 100);
@@ -97,16 +102,19 @@ class TimezoneController extends Controller
         }
         return $arr;
     }
-    public function storeTimezoneDefaultJson(Request $request)
+    public function storeTimezoneDefaultJson()
     {
+        TimezoneDefaultJson::truncate();
+
         foreach (range(1, 64) as $iteration) {
             TimezoneDefaultJson::create([
                 "index" => $iteration,
-                "dayTimeList" => $request->dayTimeList,
+                "dayTimeList" => $this->dayTimeListArr(),
             ]);
         }
         return TimezoneDefaultJson::count();
     }
+
     public function GetTimezoneDefaultJson()
     {
 
@@ -143,5 +151,270 @@ class TimezoneController extends Controller
                 $q->where('timezone_name', 'like', "$key%");
             })
             ->paginate($request->per_page ?? 100);
+    }
+
+    public function dayTimeListArr()
+    {
+        return [
+            [
+                "dayWeek" => 0,
+                "timeSegmentList" => [
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ]
+                ]
+            ],
+            [
+                "dayWeek" => 1,
+                "timeSegmentList" => [
+                    [
+                        "begin" => "14:22",
+                        "end" => "14:22"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ]
+                ]
+            ],
+            [
+                "dayWeek" => 2,
+                "timeSegmentList" => [
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ]
+                ]
+            ],
+            [
+                "dayWeek" => 3,
+                "timeSegmentList" => [
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ]
+                ]
+            ],
+            [
+                "dayWeek" => 4,
+                "timeSegmentList" => [
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ]
+                ]
+            ],
+            [
+                "dayWeek" => 5,
+                "timeSegmentList" => [
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ]
+                ]
+            ],
+            [
+                "dayWeek" => 6,
+                "timeSegmentList" => [
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ],
+                    [
+                        "begin" => "00:00",
+                        "end" => "00:00"
+                    ]
+                ]
+            ]
+        ];
     }
 }
