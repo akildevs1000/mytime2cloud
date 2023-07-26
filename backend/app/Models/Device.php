@@ -35,8 +35,8 @@ class Device extends Model
         parent::boot();
 
         // Order by name ASC
-        static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('id', 'desc');
-        });
+        // static::addGlobalScope('order', function (Builder $builder) {
+        //     $builder->orderBy('id', 'desc');
+        // });
     }
 }

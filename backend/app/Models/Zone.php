@@ -11,6 +11,10 @@ class Zone extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'created_at' => 'datetime:d-M-y h:i:sa',
+    ];
+
     /**
      * Get the user that owns the Zone
      *
@@ -21,9 +25,15 @@ class Zone extends Model
         return $this->belongsTo(Company::class);
     }
 
-
     public function devices()
     {
-        return $this->hasMany(Device::class);
+        return $this->hasManyThrough(
+            Device::class,
+            ZoneDevices::class,
+            'zone_id', // Foreign key on ZoneDevices table
+            'id', // Foreign key on Devices table
+            'id', // Local key on Zone table
+            'device_id' // Local key on ZoneDevices table
+        );
     }
 }

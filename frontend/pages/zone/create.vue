@@ -15,16 +15,17 @@
         top="top"
         :timeout="3000"
       >
-        {{ response }}
+        {{ snackbar.message }}
       </v-snackbar>
     </div>
     <v-row>
       <v-col cols="4">
         <v-text-field
-          v-model="zone_name"
+          v-model="name"
           dense
           outlined
-          hide-details
+          :hide-details="!errors.name"
+          :error-messages="errors && errors.name && errors.name[0]"
           placeholder="Zone Name"
           required
         ></v-text-field>
@@ -150,6 +151,12 @@
         <div>
           <v-card style="min-height: 500px">
             <v-card-text
+              class="error--text text-center"
+              v-if="errors && errors.device_ids"
+            >
+              {{ errors.device_ids && errors.device_ids[0] }}
+            </v-card-text>
+            <v-card-text
               class="timezone-displaylistview"
               v-for="(device, index) in rightDevices"
               :id="device.id"
@@ -216,12 +223,11 @@ export default {
       response: "",
       color: "primary",
       loading: true,
-      leftSelectedEmp: [],
       leftSelectedDevices: [],
       leftDevices: [],
       rightSelectedDevices: [],
       rightDevices: [],
-      zone_name: "",
+      name: "",
       options: {
         params: {
           company_id: this.$auth.user.company.id,
@@ -238,13 +244,11 @@ export default {
     this.$nextTick(function () {
       setTimeout(() => {
         this.loading = false;
-        //this.snackbar = false;
       }, 2000);
     });
 
     setTimeout(() => {
       this.loading = false;
-      //this.snackbar = false;
     }, 2000);
   },
   created() {
@@ -268,55 +272,55 @@ export default {
     },
     resetErrorMessages() {
       this.errors = [];
-      this.response = "";
+      Object.assign(this.snackbar, {});
     },
-    validateSubmit() {
+
+    onSubmit() {
       this.resetErrorMessages();
 
-      this.loading = true;
-
-      let canSubmit = true;
-
-      if (this.zone_name == "") {
-        this.response = "Zone name must be required";
-        canSubmit = false;
-      } else if (this.rightDevices.length == 0) {
-        this.response = "Atleast select one Device Details";
-        canSubmit = false;
-      }
-
-      this.snackbar = {
-        show: true,
-        message: this.response,
-        color: "red",
+      let payload = {
+        name: this.name,
+        device_ids: this.rightDevices.map((e) => e.id),
+        company_id: this.$auth.user.company.id,
       };
 
-      this.loading = false;
+      this.$axios
+        .post(`zone`, payload)
+        .then(({ data }) => {
+          this.errors = [];
 
-      return canSubmit;
-    },
-    onSubmit() {
-      if (!this.validateSubmit()) return false;
+          this.snackbar = {
+            message: data.message,
+            color: "background",
+            show: true,
+          };
 
-      let device_ids = this.rightDevices.map((e) => e.id);
+          // this.rightDevices.forEach((e, i) => {
+          //   let found = data.find((re) => re.sn == e.device_id);
 
-      this.$axios.post(`device_grouping`, { device_ids }).then(({ data }) => {
-        this.rightDevices.forEach((e, i) => {
-          let found = data.find((re) => re.sn == e.device_id);
-          console.log(found);
+          //   if (found.state == true) {
+          //     found["sdkDeviceResponse"] = "Success";
+          //     return;
+          //   } else {
+          //     found["sdkDeviceResponse"] = "The device was not found or offline";
+          //     SDKSuccessStatus = false;
+          //   }
+          // });
+        })
+        .catch(({ response }) => {
+          if (!response) {
+            return false;
+          }
+          let { status, data, statusText } = response;
 
-          if (found.state == true) {
-            found["sdkDeviceResponse"] = "Success";
+          if (status && status == 422) {
+            this.errors = data.errors;
             return;
-          } else {
-            found["sdkDeviceResponse"] = "The device was not found or offline";
-            SDKSuccessStatus = false;
           }
         });
-      });
     },
     goback() {
-      this.$router.push("/device_grouping/list");
+      this.$router.push("/zone");
     },
     getDevisesDataFromApi() {
       let options = {

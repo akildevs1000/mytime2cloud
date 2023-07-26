@@ -479,6 +479,12 @@ export default {
               to: "/purpose",
               menu: true,
             },
+            {
+              icon: "mdi-select-group ",
+              title: "Zones",
+              to: "/zone",
+              menu: true,
+            },
             // {
             //   icon: "mdi mdi-credit-card-clock-outline",
             //   title: "Timezone Mapping",

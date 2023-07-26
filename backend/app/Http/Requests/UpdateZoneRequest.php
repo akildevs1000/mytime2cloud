@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Controllers\Controller;
+use App\Rules\UniqueValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateZoneRequest extends FormRequest
@@ -24,7 +26,9 @@ class UpdateZoneRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => "required",
+            'name' => ['required'],
+            'device_ids' => 'required|array',
+            'device_ids.*' => 'required|numeric',
             "company_id" => "required",
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\UniqueValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreZoneRequest extends FormRequest
@@ -24,7 +25,9 @@ class StoreZoneRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => "required",
+            'name' => ['required', new UniqueValidation('zones', 'name')],
+            'device_ids' => 'required|array',
+            'device_ids.*' => 'required|numeric',
             "company_id" => "required",
         ];
     }
