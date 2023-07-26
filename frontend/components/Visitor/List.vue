@@ -306,6 +306,7 @@
                           >Purpose<span class="text-danger">*</span></label
                         >
                         <v-select
+                          :disabled="disabled"
                           v-model="payload.purpose_id"
                           :items="purposes"
                           dense
@@ -329,6 +330,7 @@
                           >First Name<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.first_name"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -349,6 +351,7 @@
                           >Last Name<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.last_name"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -369,6 +372,7 @@
                           >Gender<span class="text-danger">*</span></label
                         >
                         <v-select
+                          :disabled="disabled"
                           :items="[`Male`, `Female`]"
                           v-model="payload.gender"
                           dense
@@ -388,6 +392,7 @@
                           >Phone Number<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.phone_number"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -410,6 +415,7 @@
                           ></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.email"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -428,6 +434,7 @@
                           >Company Name<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.visitor_company_name"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -448,6 +455,7 @@
                           >ID Type<span class="text-danger">*</span></label
                         >
                         <v-select
+                          :disabled="disabled"
                           v-model="payload.id_type"
                           :items="[
                             { id: 1, name: `Emirates ID` },
@@ -472,6 +480,7 @@
                           >ID Number<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.id_number"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -492,6 +501,7 @@
                           >ID Copy<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.id_copy"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -529,6 +539,7 @@
                       ></v-img>
                       <br />
                       <v-btn
+                        :disabled="disabled"
                         small
                         class="form-control primary"
                         @click="onpick_attachment"
@@ -550,26 +561,6 @@
                         >{{ errors.profile_picture[0] }}</span
                       >
                     </div>
-                    <div class="pt-5">
-                      <v-select
-                        v-model="payload.timezone_id"
-                        placeholder="Timezone"
-                        :items="timezones"
-                        dense
-                        menu-props="min-width: auto; max-height: 200px;"
-                        class="text-center"
-                        outlined
-                        item-text="timezone_name"
-                        item-value="timezone_id"
-                        :hide-details="!errors.timezone_id"
-                        :error="errors.timezone_id"
-                        :error-messages="
-                          errors && errors.timezone_id
-                            ? errors.timezone_id[0]
-                            : ''
-                        "
-                      ></v-select>
-                    </div>
                   </v-col>
                   <v-col cols="9" class="pt-5">
                     <v-row>
@@ -578,6 +569,7 @@
                           >First Name<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.host_first_name"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -598,6 +590,7 @@
                           >Last Name<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.host_last_name"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -618,6 +611,7 @@
                           >Gender<span class="text-danger">*</span></label
                         >
                         <v-select
+                          :disabled="disabled"
                           :items="[`Male`, `Female`]"
                           v-model="payload.host_gender"
                           dense
@@ -641,6 +635,7 @@
                           >Phone Number<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.host_phone_number"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -663,6 +658,7 @@
                           ></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.host_email"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -683,6 +679,7 @@
                           >Company<span class="text-danger">*</span></label
                         >
                         <v-select
+                          :disabled="disabled"
                           v-model="payload.host_company_id"
                           :items="host_company_list"
                           dense
@@ -725,6 +722,7 @@
                       ></v-img>
                       <br />
                       <v-btn
+                        :disabled="disabled"
                         small
                         class="form-control primary"
                         @click="onpick_attachment"
@@ -746,26 +744,6 @@
                         >{{ errors.profile_picture[0] }}</span
                       >
                     </div>
-                    <div class="pt-5">
-                      <v-select
-                        v-model="payload.timezone_id"
-                        placeholder="Timezone"
-                        :items="timezones"
-                        dense
-                        menu-props="min-width: auto; max-height: 200px;"
-                        class="text-center"
-                        outlined
-                        item-text="timezone_name"
-                        item-value="timezone_id"
-                        :hide-details="!errors.timezone_id"
-                        :error="errors.timezone_id"
-                        :error-messages="
-                          errors && errors.timezone_id
-                            ? errors.timezone_id[0]
-                            : ''
-                        "
-                      ></v-select>
-                    </div>
                   </v-col>
                   <v-col cols="9" class="pt-5">
                     <v-row>
@@ -774,6 +752,7 @@
                           >Status<span class="text-danger">*</span></label
                         >
                         <v-select
+                          :disabled="disabled"
                           v-model="payload.status_id"
                           :items="statuses"
                           dense
@@ -808,6 +787,7 @@
                         >
                           <template v-slot:activator="{ on, attrs }">
                             <v-text-field
+                              :disabled="disabled"
                               :hide-details="!errors.date"
                               :error="errors.date"
                               :error-messages="
@@ -852,6 +832,7 @@
                           >Approved BY<span class="text-danger">*</span></label
                         >
                         <v-select
+                          :disabled="disabled"
                           v-model="payload.updated_by"
                           :items="users"
                           dense
@@ -875,6 +856,7 @@
                           >Phone Number<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.status_phone_number"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -895,6 +877,7 @@
                           >Company Name<span class="text-danger">*</span></label
                         >
                         <v-text-field
+                          :disabled="disabled"
                           v-model="payload.company_name"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
@@ -917,6 +900,7 @@
                           >Reason<span class="text-danger">*</span></label
                         >
                         <v-textarea
+                          :disabled="disabled"
                           v-model="payload.reason"
                           dense
                           menu-props="min-width: auto; max-height: 200px;"
