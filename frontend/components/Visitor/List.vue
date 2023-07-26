@@ -1181,9 +1181,7 @@
                   </v-col>
                 </v-row>
               </template>
-              <template v-slot:item.zone_id="{ item }">
-                {{ Math.floor(Math.random() * (10 - 1 + 1)) + 1 }}
-              </template>
+              <template v-slot:item.zone_name>{{ zone_name }}</template>
 
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
@@ -1446,9 +1444,9 @@ export default {
         sortable: true,
         filterSpecial: false,
         filterable: true,
-        key: "zone_id",
-        value: "zone_id",
-        text: "Access Zone",
+        key: "zone_name",
+        value: "zone.name",
+        text: "Zone Name",
       },
       {
         sortable: true,
@@ -1492,7 +1490,6 @@ export default {
     this.getStatuses();
     this.getTimezone();
     this.getZones();
-
   },
   mounted() {},
   watch: {

@@ -25,7 +25,7 @@ class VisitorController extends Controller
 
         $model->where("company_id", $request->input("company_id"));
 
-        return $model->with("status")->paginate($request->input("per_page", 100));
+        return $model->with(["status", "zone"])->paginate($request->input("per_page", 100));
     }
 
     /**

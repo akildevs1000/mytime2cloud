@@ -29,6 +29,11 @@ class Visitor extends Model
         return $this->belongsTo(Status::class);
     }
 
+    public function zone()
+    {
+        return $this->belongsTo(Zone::class);
+    }
+
     public function timezone()
     {
         return $this->belongsTo(Timezone::class, 'timezone_id', 'timezone_id')->withDefault([
