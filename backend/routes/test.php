@@ -265,8 +265,8 @@ Route::get('/check_device_health', function (Request $request) {
 
     $sdk_url = env("SDK_URL");
 
-    if (!checkSDKServerStatus($sdk_url)) {
-        return "SDK Server is down.";
+    if (checkSDKServerStatus($sdk_url) === 0) {
+        return "Failed to connect to the SDK Server.";
     }
 
     foreach ($devices as $device_id) {
@@ -316,6 +316,8 @@ function checkSDKServerStatus($url)
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_exec($ch);
+
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
     curl_close($ch);

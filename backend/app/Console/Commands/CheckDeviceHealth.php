@@ -47,10 +47,13 @@ class CheckDeviceHealth extends Command
             $sdk_url = env("SDK_STAGING_COMM_URL");
         }
 
-        if (!$this->checkSDKServerStatus($sdk_url)) {
+        if (checkSDKServerStatus($sdk_url) === 0) {
             $date = date("Y-m-d H:i:s");
-            echo "[$date] Cron: CheckDeviceHealth. Server is down.\n";
+            echo "[$date] Cron: CheckDeviceHealth. SDK Server is down.\n";
             return;
+        }
+
+        if (!$this->checkSDKServerStatus($sdk_url)) {
         }
 
         foreach ($devices as $device_id) {
@@ -103,6 +106,8 @@ class CheckDeviceHealth extends Command
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_exec($ch);
+
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
