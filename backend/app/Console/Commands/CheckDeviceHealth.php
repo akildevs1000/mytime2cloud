@@ -38,18 +38,23 @@ class CheckDeviceHealth extends Command
         $online_devices_count = 0;
         $offline_devices_count = 0;
 
+        $sdk_url = '';
+
+        if ($sdk_url == '') {
+            $sdk_url = "http://139.59.69.241:5000";
+        }
+        if (env("APP_ENV") != "production") {
+            $sdk_url = env("SDK_STAGING_COMM_URL");
+        }
+
+        if (!$this->checkSDKServerStatus($sdk_url)) {
+            $date = date("Y-m-d H:i:s");
+            echo "[$date] Cron: CheckDeviceHealth. Server is down.\n";
+            return;
+        }
+
         foreach ($devices as $device_id) {
             $curl = curl_init();
-            //"http://139.59.69.241:5000/CheckDeviceHealth/$device_id"
-            $sdk_url = '';
-            if (env("APP_ENV") != "production") {
-                $sdk_url = env("SDK_STAGING_COMM_URL");
-            }
-
-            if ($sdk_url == '') {
-                $sdk_url = "http://139.59.69.241:5000";
-            }
-            //echo $sdk_url;
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "$sdk_url/CheckDeviceHealth/$device_id",
                 CURLOPT_RETURNTRANSFER => true,
@@ -65,21 +70,19 @@ class CheckDeviceHealth extends Command
 
             curl_close($curl);
             if (json_decode($response)) {
-                $status = json_decode($response)->status;
+                $status = json_decode($response);
 
-                if ($status !== 200) {
-                    $offline_devices_count++;
-                } else {
+                if ($status && $status->status == 200) {
                     $online_devices_count++;
+                } else {
+                    $offline_devices_count++;
                 }
 
                 Device::where("device_id", $device_id)->update(["status_id" => $status == 200 ? 1 : 2]);
 
                 $total_iterations++;
-
             } else {
                 echo "Error\n";
-
             }
         }
 
@@ -92,5 +95,20 @@ class CheckDeviceHealth extends Command
 
         $message = $meta . " " . $result . ".\n";
         echo $message;
+    }
+
+    public function checkSDKServerStatus($url)
+    {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        return ($httpCode === 200 && $response) ? true : false;
     }
 }
