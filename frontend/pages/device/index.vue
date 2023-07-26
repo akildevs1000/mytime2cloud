@@ -485,11 +485,19 @@ export default {
       });
     },
     async updateDevicesHealth() {
-      await this.$axios.get("/check_device_health").then(({ data }) => {
-        this.snackbar = true;
-        this.response = data;
-        this.getDataFromApi();
-      });
+      let options = {
+        params: {
+          company_id: this.$auth.user.company.id,
+        },
+      };
+
+      await this.$axios
+        .get("/check_device_health", options)
+        .then(({ data }) => {
+          this.snackbar = true;
+          this.response = data;
+          this.getDataFromApi();
+        });
     },
 
     searchIt(e) {
