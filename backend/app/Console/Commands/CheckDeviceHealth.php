@@ -103,12 +103,10 @@ class CheckDeviceHealth extends Command
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-
-        $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
-        return ($httpCode === 200 && $response) ? true : false;
+        return $httpCode;
     }
 }

@@ -266,9 +266,8 @@ Route::get('/check_device_health', function (Request $request) {
     $sdk_url = env("SDK_URL");
 
     if (!checkSDKServerStatus($sdk_url)) {
-        return "Server is down.";
+        return "SDK Server is down.";
     }
-
 
     foreach ($devices as $device_id) {
         $curl = curl_init();
@@ -303,12 +302,12 @@ Route::get('/check_device_health', function (Request $request) {
             $offline_devices_count++;
         }
 
-        Device::where("device_id", $device_id)->update(["status_id" => $status == 200 ? 1 : 2]);
+        Device::where("device_id", $device_id)->update(["status_id" => $status->status == 200 ? 1 : 2]);
 
         $total_iterations++;
     }
 
-    echo "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+    return "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
 });
 
 function checkSDKServerStatus($url)
@@ -317,13 +316,11 @@ function checkSDKServerStatus($url)
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-
-    $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
     curl_close($ch);
 
-    return ($httpCode === 200 && $response) ? true : false;
+    return $httpCode;
 }
 
 Route::get('/checkSDKServerStatus/{url}', function ($url) {
