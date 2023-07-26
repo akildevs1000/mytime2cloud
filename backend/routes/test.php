@@ -257,7 +257,7 @@ Route::get('/check_device_health_old', function (Request $request) {
 });
 Route::get('/check_device_health', function (Request $request) {
 
-    $devices = Device::pluck("device_id");
+    $devices = Device::where("company_id", $request->company_id ?? 0)->pluck("device_id");
 
     $total_iterations = 0;
     $online_devices_count = 0;
