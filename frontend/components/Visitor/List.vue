@@ -1821,7 +1821,6 @@ export default {
           this.snackbar = true;
           this.response = "Visitor inserted successfully";
           this.getDataFromApi();
-          this.upload_user_to_device();
           this.DialogBox = false;
         })
         .catch(({ response }) => {
@@ -1869,53 +1868,6 @@ export default {
         });
 
       // }
-    },
-    upload_user_to_device() {
-      const { first_name, last_name, timezone_id, system_user_id } =
-        this.payload;
-
-      const personList = [
-        {
-          name: `${first_name} ${last_name}`,
-          userCode: parseInt(system_user_id),
-          expiry: this.getCurrentDate(),
-          timeGroup: timezone_id,
-          faceImage: this.upload.name,
-          // faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686330253.jpg`,
-        },
-      ];
-
-      let payload = {
-        personList: personList,
-        snList: this.device_ids,
-      };
-
-      this.$axios
-        .post("/visitor_timezone_mapping", payload)
-        .then(({ data }) => {
-          console.log(data);
-        });
-    },
-    getZoneDevices(zone_id) {
-      this.$axios
-        .get(`zone/${zone_id}`)
-        .then(({ data }) => {
-          this.device_ids = data.devices.map((e) => e.device_id);
-        })
-        .catch((err) => console.log(err));
-    },
-    getCurrentDate() {
-      const currentDate = new Date();
-
-      const year = currentDate.getFullYear();
-      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-      const day = String(currentDate.getDate()).padStart(2, "0");
-      const hours = String(currentDate.getHours()).padStart(2, "0");
-      const minutes = String(currentDate.getMinutes()).padStart(2, "0");
-      const seconds = String(currentDate.getSeconds()).padStart(2, "0");
-      const currentDateFormat = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-      return currentDateFormat;
     },
   },
 };
