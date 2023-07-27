@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ProcessSDKCommand implements ShouldQueue
 {
@@ -35,6 +35,20 @@ class ProcessSDKCommand implements ShouldQueue
      */
     public function handle()
     {
-        (new Controller)->SDKCommand($this->url, $this->preparedJson);
+        try {
+            return Http::timeout(60)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($this->url, $this->preparedJson);
+        } catch (\Exception $e) {
+            return [
+                "status" => 102,
+                "message" => $e->getMessage(),
+            ];
+        }
+
+        Log::channel('jobs')->info('TimezonePhotoUpload' . json_encode($this->preparedJson, true));
+        Log::channel('jobs')->info('TimezonePhotoUpload - Ended-----------------' . date('Y-m-d H:i:s'));
+
+        // (new Controller)->SDKCommand($this->url, $this->preparedJson);
     }
 }
