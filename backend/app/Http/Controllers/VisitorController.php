@@ -6,6 +6,7 @@ use App\Http\Requests\Visitor\Store;
 use App\Http\Requests\Visitor\Update;
 
 use App\Models\Visitor;
+use App\Models\Zone;
 use Illuminate\Http\Request;
 
 class VisitorController extends Controller
@@ -49,14 +50,42 @@ class VisitorController extends Controller
         try {
 
             $visitor = Visitor::create($data);
+
             if (!$visitor) {
                 return $this->response('Visitor cannot add.', null, false);
             }
+
+            $preparedJson = $this->prepareJsonForSDK($data);
+
+            $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
 
             return $this->response('Visitor successfully created.', null, true);
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function prepareJsonForSDK($data)
+    {
+        $personList = [];
+
+        $personList["name"] = $data["first_name"] . " " . $data["last_name"];
+        $personList["userCode"] = $data["system_user_id"];
+        $personList["timeGroup"] = $data["timezone_id"];
+
+
+        if (env("APP_ENV") == "local") {
+            $personList["faceImage"] =  "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686330253.jpg";
+        } else {
+            $personList["faceImage"] =  asset('media/visitor/logo/' . $data['logo']);
+        }
+
+        $zoneDevices = Zone::with(["devices"])->find($data['zone_id']);
+
+        return [
+            "snList" => collect($zoneDevices->devices)->pluck("device_id"),
+            "personList" => [$personList],
+        ];
     }
 
     /**
