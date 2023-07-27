@@ -6,10 +6,8 @@
       </v-snackbar>
     </div>
     <v-dialog v-model="dialog" max-width="1100">
-
-
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
+        <v-card-title dense class="primary white--text background">
           {{ Module }}
           <v-spacer></v-spacer>
           <v-icon @click="dialog = false" outlined dark color="white">
@@ -19,19 +17,34 @@
         <v-card-text class="mt-2">
           <v-row>
             <v-col>
-              <input style="padding-top: 8px;" class="form-control" v-model="editedItem.timezone_name" />
-              <span class="error--text" v-if="errors.timezone_name && errors.timezone_name[0]">
+              <input
+                style="padding-top: 8px"
+                class="form-control"
+                v-model="editedItem.timezone_name"
+              />
+              <span
+                class="error--text"
+                v-if="errors.timezone_name && errors.timezone_name[0]"
+              >
                 {{ errors.timezone_name[0] }}
               </span>
             </v-col>
             <v-col>
-              <select @change="setDefault(editedItem.timezone_id)" class="form-select" v-model="editedItem.timezone_id"
-                :error-messages="errors.timezone_id && errors.timezone_id[0]">
+              <select
+                @change="setDefault(editedItem.timezone_id)"
+                class="form-select"
+                v-model="editedItem.timezone_id"
+                :error-messages="errors.timezone_id && errors.timezone_id[0]"
+              >
                 <option disabled selected value="0">Timezone Id</option>
-                <option v-for="n in 64" :key="n" :value="n">Tz{{ n }} <span v-if="n == 1">(24 Hrs)</span>
+                <option v-for="n in 64" :key="n" :value="n">
+                  Tz{{ n }} <span v-if="n == 1">(24 Hrs)</span>
                 </option>
               </select>
-              <span class="error--text" v-if="errors.timezone_id && errors.timezone_id[0]">
+              <span
+                class="error--text"
+                v-if="errors.timezone_id && errors.timezone_id[0]"
+              >
                 {{ errors.timezone_id[0] }}
               </span>
             </v-col>
@@ -39,11 +52,17 @@
         </v-card-text>
 
         <v-card-text>
-          <table style="width:100%;">
+          <table style="width: 100%">
             <thead>
               <tr class="background white--text" dark>
                 <th class="text-center">Time</th>
-                <th class="text-center" colspan="2" v-for="n in 4" :key="n" :value="n">
+                <th
+                  class="text-center"
+                  colspan="2"
+                  v-for="n in 4"
+                  :key="n"
+                  :value="n"
+                >
                   Interval {{ n }}
                 </th>
               </tr>
@@ -63,29 +82,52 @@
               <tr v-for="(d, index) in days" :key="index">
                 <td>{{ d.name }}</td>
                 <td>
-
-                  <input v-model="editedItem.interval[d.index]['interval1']['begin']" type="time" />
+                  <input
+                    v-model="editedItem.interval[d.index]['interval1']['begin']"
+                    type="time"
+                  />
                 </td>
                 <td>
-                  <input v-model="editedItem.interval[d.index]['interval1']['end']" type="time" />
+                  <input
+                    v-model="editedItem.interval[d.index]['interval1']['end']"
+                    type="time"
+                  />
                 </td>
                 <td>
-                  <input v-model="editedItem.interval[d.index]['interval2']['begin']" type="time" />
+                  <input
+                    v-model="editedItem.interval[d.index]['interval2']['begin']"
+                    type="time"
+                  />
                 </td>
                 <td>
-                  <input v-model="editedItem.interval[d.index]['interval2']['end']" type="time" />
+                  <input
+                    v-model="editedItem.interval[d.index]['interval2']['end']"
+                    type="time"
+                  />
                 </td>
                 <td>
-                  <input v-model="editedItem.interval[d.index]['interval3']['begin']" type="time" />
+                  <input
+                    v-model="editedItem.interval[d.index]['interval3']['begin']"
+                    type="time"
+                  />
                 </td>
                 <td>
-                  <input v-model="editedItem.interval[d.index]['interval3']['end']" type="time" />
+                  <input
+                    v-model="editedItem.interval[d.index]['interval3']['end']"
+                    type="time"
+                  />
                 </td>
                 <td>
-                  <input v-model="editedItem.interval[d.index]['interval4']['begin']" type="time" />
+                  <input
+                    v-model="editedItem.interval[d.index]['interval4']['begin']"
+                    type="time"
+                  />
                 </td>
                 <td>
-                  <input v-model="editedItem.interval[d.index]['interval4']['end']" type="time" />
+                  <input
+                    v-model="editedItem.interval[d.index]['interval4']['end']"
+                    type="time"
+                  />
                 </td>
               </tr>
             </tbody>
@@ -93,20 +135,18 @@
         </v-card-text>
 
         <v-card-actions v-if="!readOnly">
-          <v-btn small color="background white--text" @click="reset">Reset</v-btn>
+          <v-btn small color="background white--text" @click="reset"
+            >Reset</v-btn
+          >
           <v-spacer></v-spacer>
           <v-btn small color="primary" @click="submit">Submit</v-btn>
-
-
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="syncDeviceDialog" max-width="1100">
-
-
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
+        <v-card-title dense class="primary white--text background">
           Sync Device
           <v-spacer></v-spacer>
           <v-icon @click="syncDeviceDialog = false" outlined dark color="white">
@@ -114,24 +154,23 @@
           </v-icon>
         </v-card-title>
         <v-card-text>
-
-
-
-
-          <v-progress-linear v-if="loading_devicesync" :active="loading_devicesync" :indeterminate="loading_devicesync"
-            absolute color="primary"></v-progress-linear>
-          <table style="width:100%;" class="mt-2">
+          <v-progress-linear
+            v-if="loading_devicesync"
+            :active="loading_devicesync"
+            :indeterminate="loading_devicesync"
+            absolute
+            color="primary"
+          ></v-progress-linear>
+          <table style="width: 100%" class="mt-2">
             <thead>
               <tr class="background white--text" dark>
-                <th style="width:20%;">Device ID</th>
-                <th style="width:70%;">Message</th>
+                <th style="width: 20%">Device ID</th>
+                <th style="width: 70%">Message</th>
                 <th class="text-center">Status</th>
               </tr>
             </thead>
 
-
             <tbody>
-
               <tr v-for="(d, index) in deviceResults" :key="index">
                 <td>{{ d.DeviceID }}</td>
                 <td v-html="d.message"></td>
@@ -164,28 +203,40 @@
       </v-col>
     </v-row> -->
 
-
     <v-card>
-
       <v-toolbar class="rounded-md" color="background" dense flat dark>
         <v-toolbar-title><span> Timezones List</span></v-toolbar-title>
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
             </v-btn>
           </template>
           <span>Reload</span>
         </v-tooltip>
 
-
-
         <v-spacer></v-spacer>
-
 
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="openDeviceDialog">
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="openDeviceDialog"
+            >
               <v-icon dark white>mdi-laptop</v-icon>
             </v-btn>
           </template>
@@ -193,43 +244,59 @@
         </v-tooltip>
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="addItem"
+            >
               <v-icon dark white>mdi-plus-circle</v-icon>
             </v-btn>
           </template>
           <span>Add New Timezone</span>
         </v-tooltip>
-
-
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
 
         <template v-slot:action="{ attrs }">
-          <v-btn v-bind="attrs" text @click="snack = false">
-            Close
-          </v-btn>
+          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
         </template>
       </v-snackbar>
-      <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
-        :options.sync="options" :footer-props="{
+      <v-data-table
+        dense
+        :headers="headers_table"
+        :items="data"
+        model-value="data.id"
+        :loading="loading"
+        :options.sync="options"
+        :footer-props="{
           itemsPerPageOptions: [100, 500, 1000],
-        }" class="elevation-1">
-
+        }"
+        class="elevation-1"
+      >
         <template v-slot:item.timezone_id="{ item }">
           {{ item.timezone_id }}
-
         </template>
-        <template v-slot:item.timezone_name="{ item }"> {{ item.timezone_name }}
+        <template v-slot:item.timezone_name="{ item }">
+          {{ item.timezone_name }}
         </template>
         <template v-slot:item.days="{ item }">
-          <v-btn style="cursor: text" v-for="({ day, isScheduled }, idx) in item.scheduled_days" :key="idx"
-            :class="isScheduled ? `circle-btn-green` : `circle-btn-grey`" class="mx-1" fab small>
+          <v-btn
+            style="cursor: text"
+            v-for="({ day, isScheduled }, idx) in item.scheduled_days"
+            :key="idx"
+            :class="isScheduled ? `circle-btn-green` : `circle-btn-grey`"
+            class="mx-1"
+            fab
+            small
+          >
             <span :class="isScheduled ? `primary--text` : `grey--text`">{{
               day
             }}</span>
           </v-btn>
-
         </template>
         <template v-slot:item.menu="{ item }">
           <v-menu bottom left>
@@ -259,11 +326,9 @@
               </v-list-item>
             </v-list>
           </v-menu>
-
         </template>
       </v-data-table>
     </v-card>
-
   </div>
   <NoAccess v-else />
 </template>
@@ -276,19 +341,18 @@ let days = [
   { index: "4", name: "Friday", short_name: "F" },
   { index: "5", name: "Saturday", short_name: "SA" },
   { index: "6", name: "Sunday", short_name: "SU" },
-
 ];
 export default {
   data: () => ({
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     datatable_search_textbox: "",
 
     pagination: {
       current: 1,
       total: 0,
-      per_page: 100
+      per_page: 100,
     },
     loading_devicesync: false,
     Module: "Timezone",
@@ -313,30 +377,48 @@ export default {
       timezone_id: "0",
       timezone_name: "Timzone Name",
       interval: {
-        "0": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "1": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "2": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "3": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "4": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "5": { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        "6": { interval1: {}, interval2: {}, interval3: {}, interval4: {} }
-      }
+        0: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        1: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        2: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        3: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        4: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        5: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        6: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+      },
     },
     headers_table: [
-
-      { text: "Timezone ID", align: "left", sortable: true, key: 'timezone_id', value: "timezone_id" },
-      { text: "Timezone Name", align: "left", sortable: true, key: 'timezone_name', value: "timezone_name" },
-      { text: "Days", align: "left", sortable: false, key: 'days', value: "days" },
+      {
+        text: "Timezone ID",
+        align: "left",
+        sortable: true,
+        key: "timezone_id",
+        value: "timezone_id",
+      },
+      {
+        text: "Timezone Name",
+        align: "left",
+        sortable: true,
+        key: "timezone_name",
+        value: "timezone_name",
+      },
+      {
+        text: "Days",
+        align: "left",
+        sortable: false,
+        key: "days",
+        value: "days",
+      },
       {
         text: "Actions",
         align: "left",
         sortable: false,
-        key: 'menu',
-        value: "menu"
-      }],
+        key: "menu",
+        value: "menu",
+      },
+    ],
     deviceResults: [],
     readOnly: false,
-    editedIndex: -1
+    editedIndex: -1,
   }),
 
   computed: {},
@@ -351,18 +433,18 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
+      deep: true,
     },
     options_dialog: {
       handler() {
         this.getDataFromApiForDialog();
       },
-      deep: true
+      deep: true,
     },
     search() {
       this.pagination.current = 1;
       this.searchIt();
-    }
+    },
   },
   created() {
     this.loading = true;
@@ -371,23 +453,21 @@ export default {
     this.options = {
       params: {
         per_page: 100,
-        company_id: this.$auth.user.company.id
-      }
+        company_id: this.$auth.user.company.id,
+      },
     };
     this.editedItem.company_id = this.$auth.user.company.id;
   },
 
   methods: {
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
-
       this.loading = false;
       //this.datatable_search_textbox = '';
     },
@@ -396,6 +476,10 @@ export default {
     // },
     onPageChange() {
       this.getDataFromApi();
+    },
+    addItem() {
+      this.dialog = true;
+      this.readOnly = false;
     },
     viewItem(item) {
       this.dialog = true;
@@ -434,14 +518,14 @@ export default {
             arr.push({
               day: this.days[day]["short_name"],
               dayWeek: this.days[day]["dayWeek"],
-              isScheduled: true
+              isScheduled: true,
             });
             break;
           } else {
             arr.push({
               day: this.days[day]["short_name"],
               dayWeek: this.days[day]["dayWeek"],
-              isScheduled: false
+              isScheduled: false,
             });
             break;
           }
@@ -454,7 +538,7 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
     async openDeviceDialog() {
@@ -469,50 +553,41 @@ export default {
         let endpoint = "getDevicesCountForTimezone";
         const { data } = await this.$axios.post(endpoint, this.editedItem);
         this.processTimeZone(data);
-      } catch (error) {
-
-      }
+      } catch (error) {}
     },
     processTimeZone(devices) {
       this.deviceResults = [];
       let payload = {
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company.id,
       };
       let counter = 0;
-      devices.forEach(async DeviceID => {
-
+      devices.forEach(async (DeviceID) => {
         try {
           this.loading_devicesync = true;
           let endpoint = `${DeviceID}/WriteTimeGroup`;
           const { data } = await this.$axios.post(endpoint, payload);
           let json = {
             DeviceID,
-            message: '<span style="color:red">Device communication error</span>',
-            status: false
+            message:
+              '<span style="color:red">Device communication error</span>',
+            status: false,
           };
 
           if (data.status == 200) {
-            json.message = '<span style="color:green">Timezone data has been upload',
-              json.status = true;
+            (json.message =
+              '<span style="color:green">Timezone data has been upload'),
+              (json.status = true);
             counter++;
-
-          }
-          else {
+          } else {
             counter++;
           }
-
-
 
           this.deviceResults.push(json);
           if (counter == devices.length) {
             this.loading_devicesync = false;
           }
-        } catch (error) {
-
-        }
+        } catch (error) {}
       });
-
-
     },
     close() {
       this.dialog = false;
@@ -520,17 +595,16 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
 
     getDataFromApi_DatatablFilter(filter_column, e) {
-
       this.getDataFromApi(`${this.endpoint}/search/${e}`, filter_column, e);
     },
     //main
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       this.loading = true;
 
       let page = this.pagination.current;
@@ -539,24 +613,19 @@ export default {
         params: {
           per_page: this.pagination.per_page,
           page: page,
-          company_id: this.$auth.user.company.id
-        }
+          company_id: this.$auth.user.company.id,
+        },
       };
-      if (filter_column != '') {
-        options.params['datatable_filter'] = true;
+      if (filter_column != "") {
+        options.params["datatable_filter"] = true;
         options.params[filter_column] = filter_value;
-
       }
 
-
       this.$axios.get(url, options).then(({ data }) => {
-
-
-        if (filter_column != '' && data.data.length == 0) {
-
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }
@@ -584,7 +653,7 @@ export default {
       }
     },
     reset() {
-      this.days.forEach(e => {
+      this.days.forEach((e) => {
         for (let j = 1; j <= 4; j++) {
           this.editedItem.interval[e.index][`interval${j}`] = {};
           this.editedItem.interval[e.index][`interval${j}`] = {};
@@ -608,9 +677,7 @@ export default {
           this.response = data.message;
           this.getDataFromApi();
         })
-        .catch(err => {
-
-        });
+        .catch((err) => {});
     },
 
     update() {
@@ -625,7 +692,7 @@ export default {
           this.response = data.message;
           this.getDataFromApi();
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err.message);
         });
     },
@@ -643,9 +710,9 @@ export default {
             this.response = data.message;
             this.getDataFromApi();
           })
-          .catch(err => console.log(err));
-    }
-  }
+          .catch((err) => console.log(err));
+    },
+  },
 };
 </script>
 <style scoped>
