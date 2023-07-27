@@ -24,6 +24,8 @@ class VisitorDashboard extends Controller
      */
     public function __invoke(Request $request)
     {
+        $date = date("Y-m-d");
+        
         $id = $request->company_id ?? 0;
 
         $Visitors = Visitor::query();
@@ -35,10 +37,9 @@ class VisitorDashboard extends Controller
             'status as total_pending' => fn ($q) => $q->where('code', 'P'),
             'status as total_canceled' => fn ($q) => $q->where('code', 'C'),
             'status as total_rejected' => fn ($q) => $q->where('code', 'R'),
-        ])->get("total_absents");
+        ])->get();
 
 
-        $date = date("Y-m-d");
 
         return [
             "visitorCounts" => [
@@ -142,7 +143,7 @@ class VisitorDashboard extends Controller
                 ],
                 [
                     "title" => "Rejected",
-                    "value" => $visitorCounts->sum('total_rejected  '),
+                    "value" => $visitorCounts->sum('total_rejected'),
                     "icon" => "	fas fa-clock",
                     "color" => "l-bg-purple-dark",
                 ],

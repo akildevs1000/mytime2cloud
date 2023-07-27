@@ -11,6 +11,10 @@ class Visitor extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        "created_at" => "datetime:d-M-Y"
+    ];
+
     public function getLogoAttribute($value)
     {
         if (!$value) {
