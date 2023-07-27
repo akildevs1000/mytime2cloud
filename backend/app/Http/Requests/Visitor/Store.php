@@ -33,7 +33,7 @@ class Store extends FormRequest
 
         $validations["zone_id"] = "required";
 
-        $validations['system_user_id'] = 'required';
+        $validations['system_user_id'] = 'required|unique:visitors,system_user_id';
 
         $validations['visit_from'] = 'required|date';
         $validations['visit_to'] = 'required|date';
