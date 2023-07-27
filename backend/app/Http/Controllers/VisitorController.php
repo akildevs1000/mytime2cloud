@@ -67,6 +67,32 @@ class VisitorController extends Controller
         }
     }
 
+    public function store_test(Store $request)
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $request->logo->move(public_path('media/visitor/logo/'), $fileName);
+            $data['logo'] = $fileName;
+        }
+
+        try {
+            
+            $preparedJson = $this->prepareJsonForSDK($data);
+
+            // $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            return ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+
+
+            return $this->response('Visitor successfully created.', null, true);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
     public function prepareJsonForSDK($data)
     {
         $personList = [];

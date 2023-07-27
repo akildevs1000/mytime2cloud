@@ -36,6 +36,6 @@ class ProcessSDKCommand implements ShouldQueue
      */
     public function handle()
     {
-        (new Controller)->SDKCommand($this->url, $this->preparedJson);
+        return (new Controller)->SDKCommand($this->url, $this->preparedJson);
     }
 }
