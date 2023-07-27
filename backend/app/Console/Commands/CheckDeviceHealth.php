@@ -53,9 +53,6 @@ class CheckDeviceHealth extends Command
             return;
         }
 
-        if (!$this->checkSDKServerStatus($sdk_url)) {
-        }
-
         foreach ($devices as $device_id) {
             $curl = curl_init();
             curl_setopt_array($curl, array(
@@ -81,7 +78,7 @@ class CheckDeviceHealth extends Command
                     $offline_devices_count++;
                 }
 
-                Device::where("device_id", $device_id)->update(["status_id" => $status == 200 ? 1 : 2]);
+                Device::where("device_id", $device_id)->update(["status_id" => $status->status == 200 ? 1 : 2]);
 
                 $total_iterations++;
             } else {
