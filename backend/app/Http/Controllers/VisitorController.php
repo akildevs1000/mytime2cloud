@@ -57,19 +57,18 @@ class VisitorController extends Controller
 
             $preparedJson = $this->prepareJsonForSDK($data);
 
-            $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
-            // ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
-
+            // $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
 
             return $this->response('Visitor successfully created.', null, true);
         } catch (\Throwable $th) {
-            throw $th;
+            return $this->response('Server Error.', null, true);
         }
     }
 
-    public function store_test(Store $request)
+    public function store_test(Request $request)
     {
-        $data = $request->validated();
+        $data = $request->all();
 
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
@@ -80,16 +79,13 @@ class VisitorController extends Controller
         }
 
         try {
-            
+
             $preparedJson = $this->prepareJsonForSDK($data);
-
-            // $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
-            return ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
-
-
-            return $this->response('Visitor successfully created.', null, true);
+            // return $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            return "francis";
         } catch (\Throwable $th) {
-            return $th;
+            return $this->response('Server Error.', null, true);
         }
     }
 
