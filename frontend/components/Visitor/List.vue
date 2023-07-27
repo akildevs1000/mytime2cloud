@@ -144,7 +144,6 @@
                         <v-select
                           :disabled="disabled"
                           v-model="payload.zone_id"
-                          @change="getZoneDevices(payload.zone_id)"
                           placeholder="Zone"
                           :items="zones"
                           dense
