@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Visitor\Store;
 use App\Http\Requests\Visitor\Update;
-
+use App\Jobs\ProcessSDKCommand;
 use App\Models\Visitor;
 use App\Models\Zone;
 use Illuminate\Http\Request;
@@ -57,7 +57,9 @@ class VisitorController extends Controller
 
             $preparedJson = $this->prepareJsonForSDK($data);
 
-            $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            // $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+
 
             return $this->response('Visitor successfully created.', null, true);
         } catch (\Throwable $th) {
