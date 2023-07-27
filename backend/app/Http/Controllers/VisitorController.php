@@ -57,8 +57,8 @@ class VisitorController extends Controller
 
             $preparedJson = $this->prepareJsonForSDK($data);
 
-            // $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
-            ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            // ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
 
 
             return $this->response('Visitor successfully created.', null, true);
