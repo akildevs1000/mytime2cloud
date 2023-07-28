@@ -36,7 +36,7 @@
                 v-model="editedItem.timezone_id"
                 :error-messages="errors.timezone_id && errors.timezone_id[0]"
               >
-                <option disabled selected value="0">Timezone Id</option>
+                <option disabled selected>Timezone Id</option>
                 <option v-for="n in 64" :key="n" :value="n">
                   Tz{{ n }} <span v-if="n == 1">(24 Hrs)</span>
                 </option>
@@ -374,17 +374,30 @@ export default {
 
     days,
     editedItem: {
-      timezone_id: "0",
+      timezone_id: "",
       timezone_name: "Timzone Name",
-      interval: {
-        0: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        1: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        2: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        3: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        4: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        5: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-        6: { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
-      },
+      interval: [
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+      ],
+    },
+    defaultItem: {
+      timezone_id: "",
+      timezone_name: "Timzone Name",
+      interval: [
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+        { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
+      ],
     },
     headers_table: [
       {
@@ -456,7 +469,6 @@ export default {
         company_id: this.$auth.user.company.id,
       },
     };
-    this.editedItem.company_id = this.$auth.user.company.id;
   },
 
   methods: {
@@ -480,6 +492,8 @@ export default {
     addItem() {
       this.dialog = true;
       this.readOnly = false;
+      this.editedIndex = -1;
+      this.editedItem = this.defaultItem;
     },
     viewItem(item) {
       this.dialog = true;
@@ -663,6 +677,8 @@ export default {
     submit() {
       let sortedDays = this.showShortDays(this.editedItem.interval);
       this.editedItem["scheduled_days"] = sortedDays;
+      this.editedItem.company_id = this.$auth.user.company.id;
+
       return this.editedIndex === -1 ? this.store() : this.update();
     },
     store() {
