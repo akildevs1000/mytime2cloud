@@ -20,4 +20,5 @@ include 'purpose.php';
 include('status.php');
 include('host.php');
 include('visitor.php');
+include('visitor_logs.php');
 include('zone.php');

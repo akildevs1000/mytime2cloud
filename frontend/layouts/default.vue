@@ -462,6 +462,12 @@ export default {
               menu: true,
             },
             {
+              icon: "mdi-chart-box-outline",
+              title: "Visitors Report",
+              to: "/visitors_report",
+              menu: true,
+            },
+            {
               icon: "mdi-account",
               title: "Visitors",
               to: "/visitor",
@@ -485,12 +491,12 @@ export default {
               to: "/zone",
               menu: true,
             },
-            // {
-            //   icon: "mdi mdi-credit-card-clock-outline",
-            //   title: "Timezone Mapping",
-            //   to: "/visitor_timezone_mapping/list",
-            //   menu: true,
-            // },
+            {
+              icon: "mdi-chart-box-outline",
+              title: "Visitors Logs",
+              to: "/logs/visitor_logs",
+              menu: true,
+            },
           ],
         },
         {
