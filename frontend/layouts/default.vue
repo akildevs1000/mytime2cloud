@@ -494,7 +494,7 @@ export default {
             {
               icon: "mdi-chart-box-outline",
               title: "Visitors Logs",
-              to: "/logs/visitor_logs",
+              to: "/visitor_logs",
               menu: true,
             },
           ],
