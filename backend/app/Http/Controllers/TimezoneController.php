@@ -47,9 +47,13 @@ class TimezoneController extends Controller
 
     public function update(UpdateRequest $request, Timezone $timezone)
     {
+        $data = $request->validated();
+        $data["scheduled_days"] = $this->processSchedule($data["scheduled_days"], false);
+        $data["json"] = $this->processJson($request->timezone_id, $data["interval"], false);
+
         try {
 
-            $record = $timezone->update($request->validated());
+            $record = $timezone->update($data);
 
             if ($record) {
                 return $this->response('Timezone Successfully updated.', $record, true);
