@@ -23,6 +23,8 @@ class VisitorLogController extends Controller
                 $q->where('company_id', $request->company_id);
             })
 
+            ->whereHas('visitor', fn (Builder $query) => $query->where('company_id', $request->company_id))
+
             ->with('device', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
