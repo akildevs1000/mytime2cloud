@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
-        if (env("APP_ENV") === "local") {
+        if (env("APP_ENV") !== "local") {
 
             $schedule
                 ->command('task:update_company_ids')
