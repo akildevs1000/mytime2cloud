@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100% !important">
     <div>
-      <v-row>
+      <!-- <v-row>
         <v-col cols="12">
           <v-row class="mt-5 mb-5">
             <v-col cols="4">
@@ -12,7 +12,7 @@
           <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
             color="primary"></v-progress-linear>
         </v-col>
-      </v-row>
+      </v-row> -->
       <v-row>
         <div class="text-center ma-2">
           <v-snackbar :color="snackbar.color" v-model="snackbar.show" small top="top" :timeout="3000">
