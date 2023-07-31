@@ -27,6 +27,7 @@ use App\Notifications\CompanyCreationNotification;
 use App\Http\Requests\Company\CompanyUpdateRequest;
 use App\Http\Requests\Company\GeographicUpdateRequest;
 use App\Mail\NotifyIfLogsDoesNotGenerate;
+use App\Models\VisitorLog;
 use Illuminate\Support\Facades\Mail;
 
 class CompanyController extends Controller
@@ -331,6 +332,47 @@ class CompanyController extends Controller
                 try {
                     $i++;
                     AttendanceLog::where("DeviceID", $arr["DeviceID"])->update(["company_id" => $arr["device"]["company_id"] ?? 0]);
+                } catch (\Throwable $th) {
+                    Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
+
+                    $data = [
+                        'title' => 'Quick action required',
+                        'body' => $th,
+                    ];
+
+                    Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+                    return "[" . $date . "] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
+                }
+            }
+        }
+
+        return "[" . $date . "] Cron: UpdateCompanyIds. $i Logs has been merged with Company IDS.\n"; //."Details: " . json_encode($result) . ".\n";
+
+    }
+
+    public function UpdateCompanyIdsForVisitor()
+    {
+        $date = date("Y-m-d H:i:s");
+
+        $model = VisitorLog::query();
+        $model->distinct('DeviceID');
+        $model->where("company_id", 0);
+        $model->take(1000);
+        $model->with("device:device_id,company_id");
+        $rows = $model->get(["DeviceID"]);
+
+        if (count($rows) == 0) {
+            return "[" . $date . "] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n";
+        }
+
+        $i = 0;
+
+        foreach ($rows as $arr) {
+
+            if ($arr["device"]) {
+                try {
+                    $i++;
+                    VisitorLog::where("DeviceID", $arr["DeviceID"])->update(["company_id" => $arr["device"]["company_id"] ?? 0]);
                 } catch (\Throwable $th) {
                     Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
 

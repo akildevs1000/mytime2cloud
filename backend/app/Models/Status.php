@@ -10,5 +10,8 @@ class Status extends Model
     use HasFactory;
 
     protected $guarded = [];
+    
     protected $table = 'status';
+
+    protected $hidden = ["created_at","updated_at"];
 }

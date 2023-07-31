@@ -11,16 +11,10 @@ use Illuminate\Support\Facades\Http;
 
 class SDKController extends Controller
 {
-    // $url = "https://sdk.ideahrms.com";
-//http://139.59.69.241:5000
-//http://192.168.002.210:5000  _device 9000
-//localhost:5000
-//https://stagingsdk.ideahrms.com
-
-    protected $endpoint = "https://stagingsdk.ideahrms.com";
-
     public function processTimeGroup(Request $request, $id)
     {
+        // (new TimezoneController)->storeTimezoneDefaultJson();
+
         $timezones = Timezone::where('company_id', $request->company_id)
             ->select('timezone_id', 'json')
             ->get();
@@ -37,7 +31,8 @@ class SDKController extends Controller
 
         asort($data);
 
-        $url = "{$this->endpoint}/{$id}/WriteTimeGroup";
+        $url = env('SDK_URL') . "/" . "{$id}/WriteTimeGroup";
+
         $sdkResponse = $this->processSDKRequestBulk($url, $data);
 
         return $sdkResponse;
@@ -90,20 +85,20 @@ class SDKController extends Controller
     }
     public function PersonAddRangePhotos(Request $request)
     {
-        $url = "{$this->endpoint}/Person/AddRange";
+        $url = env('SDK_URL') . "/Person/AddRange";
 
         return $this->processSDKRequestJob($url, $request->all());
     }
     public function PersonAddRange(Request $request)
     {
-        $url = "{$this->endpoint}/Person/AddRange";
+        $url = env('SDK_URL') . "/Person/AddRange";
 
         return $this->processSDKRequestBulk($url, $request->all());
     }
 
     public function PersonAddRangeWithData($data)
     {
-        $url = "{$this->endpoint}/Person/AddRange";
+        $url = env('SDK_URL') . "/Person/AddRange";
 
         return $this->processSDKRequestBulk($url, $data);
     }
@@ -115,7 +110,6 @@ class SDKController extends Controller
         $returnFinalMessage = [];
         $devicePersonsArray = [];
 
-         
         $sdk_url = '';
         if (env("APP_ENV") == "production") {
             $sdk_url = env("SDK_PRODUCTION_COMM_URL");
@@ -139,15 +133,15 @@ class SDKController extends Controller
                 ];
                 // $newArray[] = $newArray;
                 $return = TimezonePhotoUploadJob::dispatch($newArray, $sdk_url);
-
             }
         }
         $returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
-        $returnContent = ["data" => $returnFinalMessage, "status" => 200,
+        $returnContent = [
+            "data" => $returnFinalMessage, "status" => 200,
             "message" => "",
-            "transactionType" => 0];
+            "transactionType" => 0
+        ];
         return $returnContent;
-
     }
     public function mergeDevicePersonslist($data)
     {

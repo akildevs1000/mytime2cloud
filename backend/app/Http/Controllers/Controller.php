@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 
 class Controller extends BaseController
@@ -129,6 +130,16 @@ class Controller extends BaseController
             default:
                 return "Summary";
         }
+    }
+
+    public function process_ilike_filter($model, $request, $fields)
+    {
+        foreach ($fields as $field) {
+            if ($request->filled($field)) {
+                $model->where($field, 'ILIKE', $request->input($field) . '%');
+            }
+        }
+        return $model;
     }
 
     public function multi_in_out_daily_download_csv(Request $request)
@@ -411,5 +422,20 @@ class Controller extends BaseController
             "off_duty_time" => $schedule["shift"]["off_duty_time"],
             "early_time" => $schedule["shift"]["early_time"],
         ];
+    }
+
+    public function SDKCommand($url, $data)
+    {
+        try {
+            return Http::timeout(60)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($url, $data);
+        } catch (\Exception $e) {
+            return [
+                "status" => 102,
+                "message" => $e->getMessage(),
+            ];
+            // You can log the error or perform any other necessary actions here
+        }
     }
 }

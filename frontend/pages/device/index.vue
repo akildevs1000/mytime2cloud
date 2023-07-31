@@ -6,7 +6,6 @@
       </v-snackbar>
     </div>
 
-
     <v-row>
       <!-- <v-col xs="12" sm="12" md="3" cols="12">
         <v-select class="form-control" @change="getDataFromApi(`device`)" v-model="pagination.per_page"
@@ -22,11 +21,20 @@
       <v-toolbar class="rounded-md" color="background" dense flat dark>
         <v-toolbar-title><span> Devices List</span></v-toolbar-title>
 
-
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
             </v-btn>
           </template>
           <span>Reload</span>
@@ -34,7 +42,14 @@
 
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="toggleFilter()">
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="toggleFilter()"
+            >
               <v-icon dark white>mdi-filter</v-icon>
             </v-btn>
           </template>
@@ -42,52 +57,82 @@
         </v-tooltip>
 
         <v-spacer></v-spacer>
-        <!-- <v-toolbar-items>
-          <v-col class="toolbaritems-button-design1">
-            <v-btn @click="dialog = true" small color="primary" class="primary mr-2 mb-2 toolbar-button-design1">
-              <v-icon small>mdi mdi-whatsapp</v-icon> Whatsapp Test
-            </v-btn>
-            <v-btn color="primary" small class="primary mr-2 mb-2 toolbar-button-design1"
-              to="/report_notifications/create">
-              <v-icon small>mdi mdi-email</v-icon> Add Report Notification
-            </v-btn>
-          </v-col>
-        </v-toolbar-items> -->
-      </v-toolbar>
 
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="updateDevicesHealth"
+            >
+              <v-icon dark white>mdi-cached</v-icon>
+            </v-btn>
+          </template>
+          <span>Sync Devices</span>
+        </v-tooltip>
+      </v-toolbar>
 
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
 
         <template v-slot:action="{ attrs }">
-          <v-btn v-bind="attrs" text @click="snack = false">
-            Close
-          </v-btn>
+          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
         </template>
       </v-snackbar>
-      <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading" :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000],
-      }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
+      <v-data-table
+        dense
+        :headers="headers_table"
+        :items="data"
+        model-value="data.id"
+        :loading="loading"
+        :footer-props="{
+          itemsPerPageOptions: [50, 100, 500, 1000],
+        }"
+        class="elevation-1"
+        :options.sync="options"
+        :server-items-length="totalRowsCount"
+      >
         <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
-            <td style="width:50px" v-for="header in headers" :key="header.text">
-              <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
-                dense autocomplete="off"></v-text-field>
-              <v-select :hide-details="true" @change="applyFilters('status', $event)" item-value="value" item-text="title"
-                v-model="filters[header.text]" outlined dense v-else-if="header.filterSpecial && header.text == 'Status'"
+            <td
+              style="width: 50px"
+              v-for="header in headers"
+              :key="header.text"
+            >
+              <v-text-field
+                clearable
+                :hide-details="true"
+                v-if="header.filterable && !header.filterSpecial"
+                v-model="filters[header.value]"
+                :id="header.value"
+                @input="applyFilters(header.key, $event)"
+                outlined
+                dense
+                autocomplete="off"
+              ></v-text-field>
+              <v-select
+                :hide-details="true"
+                @change="applyFilters('status', $event)"
+                item-value="value"
+                item-text="title"
+                v-model="filters[header.text]"
+                outlined
+                dense
+                v-else-if="header.filterSpecial && header.text == 'Status'"
                 :items="[
                   { value: '', title: 'All' },
                   { value: '1', title: 'Online' },
                   {
-                    value: '2', title: 'Offline',
+                    value: '2',
+                    title: 'Offline',
                   },
-                ]"></v-select>
-
+                ]"
+              ></v-select>
             </td>
           </tr>
-
-
         </template>
         <template v-slot:item.name="{ item }">
           {{ caps(item.name) }}
@@ -105,36 +150,57 @@
           {{ caps(item.device_type) }}
         </template>
         <template v-slot:item.status_id="{ item }">
-          <v-chip small class="p-2 mx-1" :color="item.status.name == 'active' ? 'primary' : 'error'">
+          <v-chip
+            small
+            class="p-2 mx-1"
+            :color="item.status.name == 'active' ? 'primary' : 'error'"
+          >
             {{ item.status.name == "active" ? "online" : "offline" }}
           </v-chip>
-
         </template>
         <template v-slot:item.status="{ item }">
-          <v-chip small class="p-2  " color="primary" @click="open_door(item.device_id)">
+          <v-chip
+            small
+            class="p-2"
+            color="primary"
+            @click="open_door(item.device_id)"
+          >
             Open
           </v-chip>
-          <v-chip small class="p-2 mx-1" color="primary" @click="open_door_always(item.device_id)">
+          <v-chip
+            small
+            class="p-2 mx-1"
+            color="primary"
+            @click="open_door_always(item.device_id)"
+          >
             Open Always
           </v-chip>
 
-          <v-chip small class="p-2  " color="error" @click="open_door_always(item.device_id)">
+          <v-chip
+            small
+            class="p-2"
+            color="error"
+            @click="open_door_always(item.device_id)"
+          >
             Close
           </v-chip>
         </template>
         <template v-slot:item.sync_date_time="{ item }">
-          <v-chip small class="p-2 mx-1" @click="sync_date_time(item)" :color="'primary'">
+          <v-chip
+            small
+            class="p-2 mx-1"
+            @click="sync_date_time(item)"
+            :color="'primary'"
+          >
             {{
               item.sync_date_time == "---"
-              ? "click to sync"
-              : item.sync_date_time
+                ? "click to sync"
+                : item.sync_date_time
             }}
           </v-chip>
         </template>
       </v-data-table>
-
     </v-card>
-
   </div>
 </template>
 <script>
@@ -144,18 +210,17 @@ export default {
     filters: {},
     isFilter: false,
     totalRowsCount: 0,
-    checkDeviceHealthCount: 0,
-    datatable_search_textbox: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
 
     Model: "Device",
     pagination: {
       current: 1,
       total: 0,
-      per_page: 100
+      per_page: 100,
     },
     options: {},
     endpoint: "device",
@@ -174,28 +239,76 @@ export default {
       { text: "Type" },
       { text: "Status" },
       { text: "Door" },
-      { text: "Time Sync" }
+      { text: "Time Sync" },
     ],
     headers_table: [
-
-      { text: "Name", align: "left", sortable: true, value: "name", filterable: true },
-      { text: "Short Name", align: "left", sortable: true, value: "short_name", filterable: true },
-      { text: "Location", align: "left", sortable: true, value: "location", filterable: true },
-      { text: "Device Id", align: "left", sortable: true, value: "device_id", filterable: true },
-      { text: "Type", align: "left", sortable: true, value: "device_type", filterable: true },
-      { text: "Status", align: "center", sortable: true, value: "status_id", filterable: true, filterSpecial: true },
-      { text: "Door", align: "center", sortable: false, value: "status", filterable: false },
-      { text: "Time Sync", align: "left", sortable: true, value: "sync_date_time", filterable: false }
+      {
+        text: "Name",
+        align: "left",
+        sortable: true,
+        value: "name",
+        filterable: true,
+      },
+      {
+        text: "Short Name",
+        align: "left",
+        sortable: true,
+        value: "short_name",
+        filterable: true,
+      },
+      {
+        text: "Location",
+        align: "left",
+        sortable: true,
+        value: "location",
+        filterable: true,
+      },
+      {
+        text: "Device Id",
+        align: "left",
+        sortable: true,
+        value: "device_id",
+        filterable: true,
+      },
+      {
+        text: "Type",
+        align: "left",
+        sortable: true,
+        value: "device_type",
+        filterable: true,
+      },
+      {
+        text: "Status",
+        align: "center",
+        sortable: true,
+        value: "status_id",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
+        text: "Door",
+        align: "center",
+        sortable: false,
+        value: "status",
+        filterable: false,
+      },
+      {
+        text: "Time Sync",
+        align: "left",
+        sortable: true,
+        value: "sync_date_time",
+        filterable: false,
+      },
     ],
     editedIndex: -1,
     response: "",
-    errors: []
+    errors: [],
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New device" : "Edit device";
-    }
+    },
   },
 
   watch: {
@@ -209,7 +322,7 @@ export default {
       val || this.close();
       this.errors = [];
       this.search = "";
-    }
+    },
   },
   created() {
     this.loading = true;
@@ -217,13 +330,12 @@ export default {
   },
 
   methods: {
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -248,15 +360,15 @@ export default {
 
       let options = {
         params: {
-          sync_able_date_time: sync_able_date_time
-        }
+          sync_able_date_time: sync_able_date_time,
+        },
       };
 
       this.$axios
         .get(`sync_device_date_time/${item.device_id}`, options)
         .then(({ data }) => {
           if (data.status) {
-            const index = this.data.findIndex(row => row.id == item.id);
+            const index = this.data.findIndex((row) => row.id == item.id);
             this.data.splice(index, 1, data.record);
           }
 
@@ -266,10 +378,9 @@ export default {
     },
     open_door(device_id) {
       let options = {
-        params: { device_id }
+        params: { device_id },
       };
       this.$axios.get(`open_door`, options).then(({ data }) => {
-
         this.snackbar = true;
         this.response = data;
         // this.getDataFromApi();
@@ -277,7 +388,7 @@ export default {
     },
     open_door_always(device_id) {
       let options = {
-        params: { device_id }
+        params: { device_id },
       };
       this.$axios.get(`open_door_always`, options).then(({ data }) => {
         this.snackbar = true;
@@ -287,7 +398,7 @@ export default {
     },
     close_door(device_id) {
       let options = {
-        params: { device_id }
+        params: { device_id },
       };
       this.$axios.get(`close_door`, options).then(({ data }) => {
         this.snackbar = true;
@@ -299,7 +410,7 @@ export default {
       let user = this.$auth;
       return;
       return (
-        (user && user.permissions.some(e => e.permission == permission)) ||
+        (user && user.permissions.some((e) => e.permission == permission)) ||
         user.master
       );
     },
@@ -308,7 +419,7 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, c => c.toUpperCase());
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
     onPageChange() {
@@ -327,9 +438,12 @@ export default {
       this.isFilter = false;
       this.getDataFromApi();
     },
-    async getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
-
-      if (url == '') url = this.endpoint;
+    async getDataFromApi(
+      url = this.endpoint,
+      filter_column = "",
+      filter_value = ""
+    ) {
+      if (url == "") url = this.endpoint;
       this.loading = true;
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
@@ -343,21 +457,23 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.filters,
-        }
+        },
       };
-      if (filter_column != '') {
-        if (filter_column == 'serach_status_name') {
-          options.params[filter_column] = filter_value.toLowerCase() == 'online' ? 'active' : filter_value.toLowerCase() == 'offline' ? 'inactive' : '';
-        } else
-          options.params[filter_column] = filter_value;
-
+      if (filter_column != "") {
+        if (filter_column == "serach_status_name") {
+          options.params[filter_column] =
+            filter_value.toLowerCase() == "online"
+              ? "active"
+              : filter_value.toLowerCase() == "offline"
+              ? "inactive"
+              : "";
+        } else options.params[filter_column] = filter_value;
       }
       await this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-        if (filter_column != '' && data.data.length == 0) {
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }
@@ -366,19 +482,22 @@ export default {
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
-        if (this.checkDeviceHealthCount == 0)
-          this.updateDevicesHealth();
-
       });
     },
     async updateDevicesHealth() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company.id,
+        },
+      };
 
-      let url = process.env.BACKEND_URL + "/check_device_health";
-      this.checkDeviceHealthCount = 1;
-      await this.$axios.get(url).then(({ data }) => {
-
-
-      });
+      await this.$axios
+        .get("/check_device_health", options)
+        .then(({ data }) => {
+          this.snackbar = true;
+          this.response = data;
+          this.getDataFromApi();
+        });
     },
 
     searchIt(e) {
@@ -387,8 +506,7 @@ export default {
       } else if (e.length > 2) {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
-    }
-  }
+    },
+  },
 };
 </script>
-

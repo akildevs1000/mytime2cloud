@@ -1,35 +1,65 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" dark :mini-variant="miniVariant" :clipped="clipped" fixed app
-      :color="sideBarcolor" :style="miniVariant ? 'width: 60px' : ''" @transitionend="collapseSubItems">
+    <v-navigation-drawer
+      v-model="drawer"
+      dark
+      :mini-variant="miniVariant"
+      :clipped="clipped"
+      fixed
+      app
+      :color="sideBarcolor"
+      :style="miniVariant ? 'width: 60px' : ''"
+      @transitionend="collapseSubItems"
+    >
       <br />
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
-        <v-list-item :to="i.to" router v-if="!i.hasChildren" :class="!miniVariant || 'pl-2'">
+        <v-list-item
+          :to="i.to"
+          router
+          v-if="!i.hasChildren"
+          :class="!miniVariant || 'pl-2'"
+        >
           <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-title> {{ i.title }}&nbsp; </v-list-item-title>
         </v-list-item>
-        <v-list-item v-else :class="!miniVariant || 'pl-2'" @click="i.open_menu = !i.open_menu">
+        <v-list-item
+          v-else
+          :class="!miniVariant || 'pl-2'"
+          @click="i.open_menu = !i.open_menu"
+        >
           <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
-            <v-icon v-if="miniVariant" small>{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+            <v-icon v-if="miniVariant" small
+              >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
             </v-icon>
           </v-list-item-icon>
 
           <v-list-item-title>{{ i.title }} </v-list-item-title>
-          <v-icon small>{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+          <v-icon small
+            >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
           </v-icon>
         </v-list-item>
         <div v-if="i.open_menu">
-          <div style="margin-left: 54px" v-for="(j, jdx) in i.hasChildren" :key="jdx">
+          <div
+            style="margin-left: 54px"
+            v-for="(j, jdx) in i.hasChildren"
+            :key="jdx"
+          >
             <!-- v-show="!miniVariant" -->
             <v-list-item style="min-height: 0" :to="j.to" class="submenutitle">
-              <v-list-item-title v-if="!miniVariant">{{ j.title }}
+              <v-list-item-title v-if="!miniVariant"
+                >{{ j.title }}
               </v-list-item-title>
 
-              <v-list-item-icon :style="miniVariant ? 'margin-left: -54px;' : ''">
-                <v-icon :to="j.to" :style="miniVariant ? 'margin-left: 12px;' : ''">
+              <v-list-item-icon
+                :style="miniVariant ? 'margin-left: -54px;' : ''"
+              >
+                <v-icon
+                  :to="j.to"
+                  :style="miniVariant ? 'margin-left: 12px;' : ''"
+                >
                   {{ j.icon }}
                 </v-icon>
               </v-list-item-icon>
@@ -43,8 +73,14 @@
     margin-left: -49px;
 " -->
 
-    <v-app-bar :color="changeColor" dark :clipped-left="clipped" fixed app
-      :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''">
+    <v-app-bar
+      :color="changeColor"
+      dark
+      :clipped-left="clipped"
+      fixed
+      app
+      :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''"
+    >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
@@ -55,8 +91,15 @@
       <span class="text-overflow">{{ title }}</span>
       <v-spacer></v-spacer>
 
-      <v-menu nudge-bottom="50" transition="scale-transition" origin="center center" bottom left min-width="200"
-        nudge-left="20">
+      <v-menu
+        nudge-bottom="50"
+        transition="scale-transition"
+        origin="center center"
+        bottom
+        left
+        min-width="200"
+        nudge-left="20"
+      >
         <template v-slot:activator="{ on, attrs }">
           <label class="px-2 text-overflow" v-bind="attrs" v-on="on">
             <!-- {{ getUser }} -->
@@ -64,7 +107,9 @@
 
           <v-btn icon color="yellow" v-bind="attrs" v-on="on">
             <v-avatar size="35">
-              <v-img :src="`https://ui-avatars.com/api/?name=${getUser}`"></v-img>
+              <v-img
+                :src="`https://ui-avatars.com/api/?name=${getUser}`"
+              ></v-img>
               <!-- <img :src="getLogo || '/no-image.PNG'" /> -->
             </v-avatar>
           </v-btn>
@@ -77,32 +122,50 @@
                 <v-icon>mdi-account-multiple-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text">Profile</v-list-item-title>
+                <v-list-item-title class="black--text"
+                  >Profile</v-list-item-title
+                >
               </v-list-item-content>
             </v-list-item>
-
 
             <v-list-item @click="logout">
               <v-list-item-icon>
                 <v-icon>mdi-logout</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text">Logout</v-list-item-title>
+                <v-list-item-title class="black--text"
+                  >Logout</v-list-item-title
+                >
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
         </v-list>
       </v-menu>
       <label class=" ">
-        <v-badge v-if="pendingLeavesCount > 0" @click="navigateToLeavePage()"
-          :color="pendingLeavesCount > 0 ? 'red' : 'black'" :content="pendingLeavesCount">
+        <v-badge
+          v-if="pendingLeavesCount > 0"
+          @click="navigateToLeavePage()"
+          :color="pendingLeavesCount > 0 ? 'red' : 'black'"
+          :content="pendingLeavesCount"
+        >
           <v-icon @click="navigateToLeavePage()">mdi mdi-bell-ring</v-icon>
         </v-badge>
-        <v-badge v-else @click="navigateToLeavePage()" color="black" content="0">
+        <v-badge
+          v-else
+          @click="navigateToLeavePage()"
+          color="black"
+          content="0"
+        >
           <v-icon @click="navigateToLeavePage()">mdi mdi-bell-ring</v-icon>
         </v-badge>
       </label>
-      <v-snackbar top="top" v-model="snackNotification" location="right" :timeout="5000" :color="snackNotificationColor">
+      <v-snackbar
+        top="top"
+        v-model="snackNotification"
+        location="right"
+        :timeout="5000"
+        :color="snackNotificationColor"
+      >
         {{ snackNotificationText }}
 
         <template v-slot:action="{ attrs }">
@@ -118,12 +181,24 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-btn height="50" width="20" dark :color="changeColor" class="fixed-setting"
-      @click.stop="rightDrawer = !rightDrawer">
+    <v-btn
+      height="50"
+      width="20"
+      dark
+      :color="changeColor"
+      class="fixed-setting"
+      @click.stop="rightDrawer = !rightDrawer"
+    >
       <v-icon class="spin" dark size="25">mdi-cog</v-icon>
     </v-btn>
     <!-- setting -->
-    <v-navigation-drawer v-model="rightDrawer" :clipped="true" :right="right" fixed style="z-index: 1000">
+    <v-navigation-drawer
+      v-model="rightDrawer"
+      :clipped="true"
+      :right="right"
+      fixed
+      style="z-index: 1000"
+    >
       <v-row style="margin-top: 50px">
         <v-col>
           <v-card class="pa-2" elevation="0">
@@ -131,12 +206,30 @@
               <div class="mb-3">
                 <Strong>Theme</Strong>
               </div>
-              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                <input type="radio" class="btn-check" name="theme" id="light" autocomplete="off"
-                  @click="changeTheme('light')" />
-                <label class="btn" :class="'btn-outline-dark'" for="light">Light</label>
-                <input type="radio" class="btn-check" name="theme" id="dark" autocomplete="off"
-                  @click="changeTheme('dark')" />
+              <div
+                class="btn-group"
+                role="group"
+                aria-label="Basic radio toggle button group"
+              >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="theme"
+                  id="light"
+                  autocomplete="off"
+                  @click="changeTheme('light')"
+                />
+                <label class="btn" :class="'btn-outline-dark'" for="light"
+                  >Light</label
+                >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="theme"
+                  id="dark"
+                  autocomplete="off"
+                  @click="changeTheme('dark')"
+                />
                 <label class="btn btn-outline-dark" for="dark">Dark</label>
               </div>
             </v-col>
@@ -146,14 +239,38 @@
                 <Strong>Top Bar</Strong>
               </div>
               <div class="d-flex">
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="primary"
-                  @click="changeTopBarColor('primary')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="error"
-                  @click="changeTopBarColor('error')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="indigo"
-                  @click="changeTopBarColor('indigo')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="background"
-                  @click="changeTopBarColor('background')"></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="primary"
+                  @click="changeTopBarColor('primary')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="error"
+                  @click="changeTopBarColor('error')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="indigo"
+                  @click="changeTopBarColor('indigo')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="background"
+                  @click="changeTopBarColor('background')"
+                ></v-btn>
               </div>
             </v-col>
             <v-divider></v-divider>
@@ -162,14 +279,38 @@
                 <Strong>Side Bar</Strong>
               </div>
               <div class="d-flex">
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="primary"
-                  @click="changeSideBarColor('primary')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="error"
-                  @click="changeSideBarColor('error')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="indigo"
-                  @click="changeSideBarColor('indigo')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="background"
-                  @click="changeSideBarColor('background')">
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="primary"
+                  @click="changeSideBarColor('primary')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="error"
+                  @click="changeSideBarColor('error')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="indigo"
+                  @click="changeSideBarColor('indigo')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="background"
+                  @click="changeSideBarColor('background')"
+                >
                 </v-btn>
               </div>
             </v-col>
@@ -305,6 +446,56 @@ export default {
               title: "Employee Photo Upload",
               to: "/employee_photo_upload",
               menu: "employee_photo_upload",
+            },
+          ],
+        },
+        {
+          icon: "mdi-account-tie",
+          title: `Visitor App`,
+          open_menu: false,
+          menu: "access",
+          hasChildren: [
+            {
+              icon: "mdi-home",
+              title: "Dashboard",
+              to: "/visitor-dashboard",
+              menu: true,
+            },
+            {
+              icon: "mdi-chart-box-outline",
+              title: "Visitors Report",
+              to: "/visitors_report",
+              menu: true,
+            },
+            {
+              icon: "mdi-account",
+              title: "Visitors",
+              to: "/visitor",
+              menu: true,
+            },
+            {
+              icon: "mdi-account-tie",
+              title: "Host",
+              to: "/host",
+              menu: true,
+            },
+            {
+              icon: "mdi-bullhorn",
+              title: "Purpose",
+              to: "/purpose",
+              menu: true,
+            },
+            {
+              icon: "mdi-select-group ",
+              title: "Zones",
+              to: "/zone",
+              menu: true,
+            },
+            {
+              icon: "mdi-chart-box-outline",
+              title: "Visitors Logs",
+              to: "/visitor_logs",
+              menu: true,
             },
           ],
         },
@@ -627,6 +818,8 @@ export default {
       this.$axios.get(`company/${user?.company?.id}`).then(({ data }) => {
         let { modules } = data.record;
 
+        console.log(modules);
+
         if (modules !== null) {
           this.modules = {
             module_ids: modules.module_ids || [],
@@ -656,7 +849,7 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
 table {
   font-family: Roboto !important;
 }
@@ -850,7 +1043,6 @@ table.employee-table tr:nth-child(even) {
   opacity: 0;
 }
 
-
 .container {
   max-width: 100% !important;
 }
@@ -859,15 +1051,11 @@ table.employee-table tr:nth-child(even) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
 }
 
 .text-overflow-parent {
-
   max-width: 100px;
-
 }
-
 
 .text-overflow-child {
   overflow: hidden;
@@ -925,10 +1113,13 @@ tbody tr:nth-of-type(odd) {
 }
 
 .table-search-header .v-input__icon--clear {
-  margin-right: 0px !important
+  margin-right: 0px !important;
 }
 
-.table-search-header .v-text-field--outlined>.v-input__control>.v-input__slot {
+.table-search-header
+  .v-text-field--outlined
+  > .v-input__control
+  > .v-input__slot {
   min-height: 32px !important;
 }
 
@@ -939,7 +1130,6 @@ tbody tr:nth-of-type(odd) {
 .table-search-header td {
   border: 0px !important;
   padding-top: 10px;
-
 }
 
 .table-search-header .v-text-field__details {
@@ -992,7 +1182,7 @@ tbody tr:nth-of-type(odd) {
     margin-top: 5px !important;
   }
 
-  .v-data-table>.v-data-table__wrapper .v-data-table__mobile-table-row {
+  .v-data-table > .v-data-table__wrapper .v-data-table__mobile-table-row {
     margin: 10px;
     border: 1px solid #ededed;
     display: block;

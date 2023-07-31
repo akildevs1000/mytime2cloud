@@ -80,7 +80,7 @@ Route::get('/test', function (Request $request) {
     echo "<br>";
 
     $one = 1;
-    $arr1 = [ &$one, 2, 3];
+    $arr1 = [&$one, 2, 3];
     $arr2 = [0, ...$arr1];
     var_dump($arr2);
 
@@ -257,21 +257,23 @@ Route::get('/check_device_health_old', function (Request $request) {
 });
 Route::get('/check_device_health', function (Request $request) {
 
-    $devices = Device::pluck("device_id");
+    $devices = Device::where("company_id", $request->company_id ?? 0)->pluck("device_id");
 
     $total_iterations = 0;
     $online_devices_count = 0;
     $offline_devices_count = 0;
 
+    $sdk_url = env("SDK_URL");
+
+    if (checkSDKServerStatus($sdk_url) === 0) {
+        return "Failed to connect to the SDK Server.";
+    }
+
     foreach ($devices as $device_id) {
         $curl = curl_init();
-        $sdk_url = '';
-        if (env("APP_ENV") != "production") {
-            $sdk_url = env("SDK_STAGING_COMM_URL");
-        }
 
-        if ($sdk_url == '') {
-            $sdk_url = env("SDK_PRODUCTION_COMM_URL");
+        if (!$sdk_url) {
+            return "sdk url not defined.";
         }
 
         curl_setopt_array($curl, array(
@@ -292,20 +294,39 @@ Route::get('/check_device_health', function (Request $request) {
 
         curl_close($curl);
 
-        $status = json_decode($response)->status;
+        $status = json_decode($response);
 
-        if ($status !== 200) {
-            $offline_devices_count++;
-        } else {
+        if ($status && $status->status == 200) {
             $online_devices_count++;
+        } else {
+            $offline_devices_count++;
         }
 
-        Device::where("device_id", $device_id)->update(["status_id" => $status == 200 ? 1 : 2]);
+        Device::where("device_id", $device_id)->update(["status_id" => $status->status == 200 ? 1 : 2]);
 
         $total_iterations++;
     }
 
-    echo "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+    return "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+});
+
+function checkSDKServerStatus($url)
+{
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_exec($ch);
+
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    curl_close($ch);
+
+    return $httpCode;
+}
+
+Route::get('/checkSDKServerStatus/{url}', function ($url) {
+    return checkSDKServerStatus($url) ? "Server is running" : "Server is down";
 });
 
 Route::get('/close_door', function (Request $request) {
