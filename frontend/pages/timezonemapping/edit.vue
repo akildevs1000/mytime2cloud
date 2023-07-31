@@ -27,7 +27,7 @@
         </v-col>
         <v-col cols="4">
           <v-select v-model="timezonesselected" :items="timezones" dense outlined item-value="timezone_id"
-            item-text="timezone_name" hide-details label="Timezones" required disabled></v-select>
+            item-text="timezone_name" hide-details label="Timezones" required></v-select>
         </v-col>
         <v-col cols="4">
           <div style="width: 150px; float: right">
@@ -52,13 +52,17 @@
                 <div class="row">
 
                   <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox
+                    <!-- <v-checkbox
                       v-if="(!user.timezone) || (user.timezone.timezone_name == '---' || user.timezone.timezone_id == timezonesselected || user.timezone.timezone_id == 1)"
                       hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
                       :value="user.id" primary hide-details></v-checkbox>
 
                     <v-checkbox v-else indeterminate value disabled hide-details
-                      class="col-1   d-flex flex-column  justify-center "></v-checkbox>
+                      class="col-1   d-flex flex-column  justify-center "></v-checkbox> -->
+                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp"
+                      :value="user.id" primary hide-details></v-checkbox>
+
+
 
                   </v-col>
                   <div class="col-8" :style="{
@@ -265,7 +269,7 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button v-if="displaybutton" :loading="loading" @click="onSubmit" type="button" id="save"
+                <button :loading="loading" @click="onSubmit" type="button" id="save"
                   class="btn primary btn-block white--text v-size--default">
                   Submit
                 </button>
@@ -450,20 +454,29 @@ export default {
       this.$axios
         .get("timezone", options)
         .then(({ data }) => {
-          this.timezones = data.data;
+          this.timezones = data.data; //1/2/3
 
           this.timezonesselected = parseInt(this.$route.query.id);
-          // this.$axios
-          //   .get("employee_timezone_mapping", options)
-          //   .then(({ data }) => {
-          //     data.data.forEach((element) => {
-          //       let selectedindex = this.timezones.findIndex(
-          //         (e) => e.timezone_id == element.timezone_id
-          //       );
 
-          //       if (selectedindex >= 0) this.timezones.splice(selectedindex, 1);
-          //     });
-          //   });
+          console.log(this.timezones);
+          console.log(this.timezonesselected);
+          this.$axios
+            .get("employee_timezone_mapping", options)
+            .then(({ data }) => {
+              console.log(data);
+              data.data.forEach((element) => { //2/3
+
+                let selectedindex = this.timezones.findIndex(
+                  (e) => e.timezone_id == element.timezone_id
+                );
+
+
+                if (selectedindex >= 0 && element.id != this.timezonesselected) this.timezones.splice(selectedindex, 1);
+              });
+
+
+
+            });
         })
         .catch((err) => console.log(err));
 

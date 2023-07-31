@@ -256,8 +256,8 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button v-if="displaybutton" :disabled='!displaybutton' :loading="loading" @click="onSubmit" type="button"
-                  id="save" class="btn primary btn-block white--text v-size--default">
+                <button :disabled='!displaybutton' :loading="loading" @click="onSubmit" type="button" id="save"
+                  class="btn primary btn-block white--text v-size--default">
                   Submit
                 </button>
               </div>
