@@ -16,11 +16,20 @@ class VisitorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function visitors_with_type(Request $request)
+    {
+        $model = Visitor::query();
+
+        $model->where("company_id", $request->input("company_id"));
+
+        return $model->get();
+    }
+
     public function index(Request $request)
     {
         $model = Visitor::query();
 
-        $fields = ['id', 'company_name', 'manager_name', 'phone', 'email', 'zone_id'];
+        $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id'];
 
         $model = $this->process_ilike_filter($model, $request, $fields);
 

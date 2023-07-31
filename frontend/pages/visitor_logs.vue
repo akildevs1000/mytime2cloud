@@ -4,6 +4,13 @@
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
       </v-snackbar>
+      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+        {{ snackText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
+        </template>
+      </v-snackbar>
     </div>
     <v-row justify="center">
       <v-dialog v-model="generateLogsDialog" max-width="700px">
@@ -169,30 +176,8 @@
             </v-tooltip>
 
             <v-spacer></v-spacer>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="generateLogsDialog = true"
-                >
-                  <v-icon class="">mdi mdi-plus-circle</v-icon>
-                </v-btn>
-              </template>
-              <span> Visitor Log</span>
-            </v-tooltip>
           </v-toolbar>
 
-          <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-            {{ snackText }}
-
-            <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-            </template>
-          </v-snackbar>
           <v-data-table
             dense
             :headers="headers"
@@ -222,7 +207,7 @@
                     dense
                     autocomplete="off"
                   ></v-text-field>
-                  
+
                   <v-menu
                     v-if="header.filterSpecial && header.value == 'LogTime'"
                     ref="from_menu_filter"
@@ -289,7 +274,7 @@
                     @change="applyFilters(header.key, id)"
                   ></v-select>
                   <v-select
-                  class="ma-3"
+                    class="ma-3"
                     :id="header.key"
                     :hide-details="true"
                     v-if="
@@ -632,14 +617,6 @@ export default {
       this.$axios
         .get(`${url}?page=${this.options.page}`, this.payloadOptions)
         .then(({ data }) => {
-          // if (filter_column != "" && data.data.length == 0) {
-          //   this.snack = true;
-          //   this.snackColor = "error";
-          //   this.snackText = "No Results Found";
-          //   this.loading = false;
-          //   return false;
-          // }
-          //this.server_datatable_totalItems = data.total;
           this.data = data.data;
           this.total = data.total;
           this.loading = false;
@@ -653,17 +630,7 @@ export default {
       this.getDataFromApi();
       this.from_menu = false;
       this.to_menu = false;
-      return false;
-      let UserID = this.payload.UserID;
-      let DeviceID = this.payload.DeviceID;
-
-      if (UserID && UserID.length == 0 && DeviceID && DeviceID.length == 0) {
-        this.getDataFromApi();
-      } else {
-        this.getDataFromApi(
-          `${this.endpoint}/search/${this.$auth.user.company.id}`
-        );
-      }
+      return;
     },
   },
 };

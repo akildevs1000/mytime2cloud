@@ -11,7 +11,10 @@ use App\Models\Employee;
 use App\Models\Roster;
 use App\Models\Shift;
 use App\Models\ShiftType;
+use App\Models\Visitor;
+use App\Models\VisitorAttendance;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +22,8 @@ class VisitorMonthlyController extends Controller
 {
     public function monthly(Request $request)
     {
-        return $this->processPDF($request)->stream();
+        $response = $this->processPDF($request);
+        return $response->stream();
     }
 
     public function monthly_download_pdf(Request $request)
@@ -169,56 +173,93 @@ class VisitorMonthlyController extends Controller
         $start = $request->from_date ?? date('Y-10-01');
         $end = $request->to_date ?? date('Y-10-31');
 
-        $companyID = $request->company_id;
+        $company_id = $request->company_id;
 
-        $model = Attendance::query();
+        $model = VisitorAttendance::query();
+
         $model = $model->whereBetween('date', [$start, $end]);
-        $model->where('company_id', $companyID);
+
         $model->orderBy('date', 'asc');
 
-        $model->when($request->status && $request->status != "SA" && $request->status != "S", function ($q) use ($request) {
-            $q->where('status', $request->status);
-        });
+        $model->where('company_id', $company_id);
 
-        $model->when($request->employee_id && $request->employee_id != "", function ($q) use ($request) {
-            $q->where('employee_id', $request->employee_id);
-        });
-
-        $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $ids = Employee::where("department_id", $request->department_id)->pluck("system_user_id");
-            $q->whereIn('employee_id', $ids);
-        });
-
-        $data = $model->with('employee', function ($q) use ($request) {
+        $model->when($request->filled('visitor_id'), function ($q) use ($request) {
+            $q->where('visitor_id', $request->visitor_id);
             $q->where('company_id', $request->company_id);
-            $q->select('system_user_id', 'display_name', 'department_id');
-        })->get()->groupBy(['employee_id', 'date'])->take(30);
+        });
+
+        $model->when(!in_array($request->status, ["SA", "A"]), function ($q) use ($request) {
+            $q->where('status', $request->status);
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
+            $q->whereDate('date', $request->daily_date);
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
+            $q->whereBetween("date", [$request->from_date, $request->to_date]);
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->when($request->filled('date'), function ($q) use ($request) {
+            $q->whereDate('date', '=', $request->date);
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->when($request->filled('visitor_first_name') && $request->visitor_first_name != '', function ($q) use ($request) {
+            $q->whereHas('visitor', fn (Builder $q) => $q->where('first_name', 'ILIKE', "$request->visitor_first_name%"));
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->when($request->filled('in'), function ($q) use ($request) {
+            $q->where('in', 'LIKE', "$request->in%");
+            $q->where('company_id', $request->company_id);
+        });
+        $model->when($request->filled('out'), function ($q) use ($request) {
+            $q->where('out', 'LIKE', "$request->out%");
+            $q->where('company_id', $request->company_id);
+        });
+        $model->when($request->filled('total_hrs'), function ($q) use ($request) {
+            $q->where('total_hrs', 'LIKE', "$request->total_hrs%");
+            $q->where('company_id', $request->company_id);
+        });
+
+        // Eager loading relationships
+        $model->with(['visitor' => function ($q) use ($company_id) {
+            $q->where('company_id', $company_id);
+        }, 'device_in' => function ($q) use ($company_id) {
+            $q->where('company_id', $company_id);
+        }, 'device_out' => function ($q) use ($company_id) {
+            $q->where('company_id', $company_id);
+        }]);
+
+        // Sorting
+        $sortBy = $request->input('sortBy', 'date');
+
+        $sortDesc = $request->input('sortDesc') === 'true';
+
+        $model->orderBy($sortBy, $sortDesc ? 'desc' : 'asc');
+
+        $data = $model->get()->groupBy(['visitor_id', 'date'])->take(30);;
+
 
         $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-        $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
         $company['report_type'] = $this->getStatusText($request->status);
         $company['start'] = $start;
         $company['end'] = $end;
-        $collection = $model->clone()->get();
 
         $info = (object) [
-            'total_absent' => $model->clone()->where('status', 'A')->count(),
-            'total_present' => $model->clone()->where('status', 'P')->count(),
-            'total_off' => $model->clone()->where('status', 'O')->count(),
-            'total_missing' => $model->clone()->where('status', 'M')->count(),
-            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
-            'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
-            'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
             'report_type' => $request->report_type ?? "",
-            'total_leave' => 0,
-            'department' => Department::find($request->department_id),
-            'employee' => Employee::where([
-                "system_user_id" => $request->employee_id,
-                "company_id" => $companyID,
+            'visitor' => Visitor::where([
+                "system_user_id" => $request->visitor,
+                "company_id" => $company_id,
             ])->first(),
         ];
 
         $arr = ['data' => $data, 'company' => $company, 'info' => $info];
+
         return Pdf::loadView('pdf.visitor.general', $arr);
     }
 

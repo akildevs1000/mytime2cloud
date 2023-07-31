@@ -11,6 +11,8 @@ class Visitor extends Model
 
     protected $guarded = [];
 
+    protected $appends = ['name_with_user_id'];
+
     protected $casts = [
         "created_at" => "datetime:d-M-Y",
     ];
@@ -43,5 +45,11 @@ class Visitor extends Model
         return $this->belongsTo(Timezone::class, 'timezone_id', 'timezone_id')->withDefault([
             "timezone_name" => "---",
         ]);
+    }
+
+
+    public function getNameWithUserIDAttribute()
+    {
+        return $this->first_name . " - " . $this-> system_user_id;
     }
 }

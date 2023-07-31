@@ -9,6 +9,8 @@ class VisitorLog extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function device()
     {
         return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "---", "device_id" => "---"]);

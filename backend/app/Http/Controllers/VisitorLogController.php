@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\VisitorLog\Store;
 use App\Models\Device;
 use App\Models\Visitor;
 use App\Models\VisitorLog;
@@ -88,10 +89,19 @@ class VisitorLogController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Store $request)
     {
-        //
+        try {
+
+            VisitorLog::create($request->validated());
+
+            return $this->response("Log Successfully Added", null, true);
+        } catch (\Exception $e) {
+            return $this->response("Log cannot Add. Details:" . $e->getMessage(), null, false, 422);
+        }
     }
+
+
 
     /**
      * Display the specified resource.
