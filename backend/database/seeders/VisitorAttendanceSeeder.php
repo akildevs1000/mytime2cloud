@@ -7,6 +7,18 @@ use Illuminate\Database\Seeder;
 
 class VisitorAttendanceSeeder extends Seeder
 {
+    protected $visitor_id = 1;
+
+    /**
+     * Create a new seeder instance.
+     *
+     * @return void
+     */
+    public function __construct($visitor_id = 1)
+    {
+        $this->visitor_id = $visitor_id;
+    }
+
     /**
      * Run the database seeds.
      *
@@ -32,7 +44,7 @@ class VisitorAttendanceSeeder extends Seeder
 
             $arr[]  = [
                 'date' => $currentDate,
-                'visitor_id' => 6767,
+                'visitor_id' => 6666,
                 'status' => $statuses[array_rand($statuses)],
                 'in' => $in,
                 'out' => $out,
@@ -49,7 +61,10 @@ class VisitorAttendanceSeeder extends Seeder
             $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
         }
         // php artisan db:seed --class=VisitorAttendanceSeeder
-        VisitorAttendance::insert($arr);
+        $model = VisitorAttendance::query();
+        $model->where("visitor_id", $this->visitor_id);
+        $model->delete();
+        $model->insert($arr);
     }
 
     public function generateRandomTime($baseTime)
