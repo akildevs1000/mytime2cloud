@@ -51,12 +51,15 @@
             <tr style="border:none;">
                 <td style="width:22%;background:reds;text-align:center;border:none;">
                     <div style="margin-top:40px;">
-                        @if (env('APP_ENV') !== 'local')
+                        <img style="width:100%;"
+                            src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0">
+
+                        {{-- @if (env('APP_ENV') !== 'local')
                             <img src="{{ $company->logo }}">
                         @else
                             <img style="width:100%;"
                                 src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0">
-                        @endif
+                        @endif --}}
                     </div>
                 </td>
                 <td style="width:;border:none;">
