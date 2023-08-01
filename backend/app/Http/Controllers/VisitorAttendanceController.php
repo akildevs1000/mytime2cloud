@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
+use App\Models\Visitor;
 use App\Models\VisitorAttendance;
+use App\Models\VisitorLog;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -100,31 +103,86 @@ class VisitorAttendanceController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
     public function store(Request $request)
     {
-        //
+        
+        return $this->syncVisitorScript($request->company_id, $request->date, $request->UserID);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\VisitorAttendance  $visitorAttendance
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, VisitorAttendance $visitorAttendance)
+    public function syncVisitorsCron()
     {
-        //
+        $date = date("Y-m-d");
+
+        $model = VisitorLog::query();
+
+        $model->whereDate("LogTime", $date);
+
+        $data = $model->distinct("UserID")->get(["UserID", "company_id"]);
+
+        $reponse = [];
+
+        foreach ($data as $d) {
+            $reponse[] = $this->syncVisitorScript($d->company_id, $date, $d->UserID);
+        }
+
+        return $reponse;
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\VisitorAttendance  $visitorAttendance
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(VisitorAttendance $visitorAttendance)
+    public function syncVisitorScript($company_id, $date, $UserID)
     {
-        //
+        $model = VisitorLog::query();
+
+        $model->whereDate("LogTime", $date);
+        $model->where("company_id", $company_id);
+        $model->where("UserID", $UserID);
+
+        $model = $model->distinct("LogTime");
+
+        $count = $model->count();
+
+        $data = [$model->clone()->orderBy("LogTime")->first()];
+
+        if ($count > 1) {
+            $data[] = $model->orderBy("LogTime", "desc")->first();
+        }
+
+        if (!$count) {
+            return $this->response("Visitor with $UserID SYSTEM USER ID has no Log(s).", null, false);
+        }
+
+        $arr = [];
+        $arr["company_id"] = $company_id;
+        $arr["date"] = $date;
+        $arr["visitor_id"] = $UserID;
+        $arr["device_id_in"] = $data[0]["DeviceID"];
+        $arr["in"] = date("H:i", strtotime($data[0]["LogTime"]));
+        $arr["status"] = "Approved";
+
+
+        if ($count > 1) {
+            $arr["device_id_out"] = $data[1]["DeviceID"];
+            $arr["out"] = date("H:i", strtotime($data[1]["LogTime"]));
+            $arr["total_hrs"] = $this->getTotalHrsMins(date("H:i", strtotime($data[0]["LogTime"])), date("H:i", strtotime($data[1]["LogTime"])));
+        }
+
+        return $this->storeOrUpdate($arr);
+    }
+
+    public function storeOrUpdate($items)
+    {
+        try {
+
+            $attendance = VisitorAttendance::firstOrNew([
+                'date' => $items['date'],
+                'visitor_id' => $items['visitor_id'],
+                'company_id' => $items['company_id'],
+            ]);
+
+            $attendance->fill($items)->save();
+            return $this->response("The Logs has been render against " . $items['visitor_id'] . " SYSTEM USER ID.", null, true);
+        } catch (\Exception $e) {
+            return $this->response("The Logs cannnot render against " . $items['visitor_id'] . " SYSTEM USER ID.", null, false);
+        }
     }
 }

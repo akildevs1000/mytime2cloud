@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log as Logger;
+
 
 Route::get('/syncLogsScript', function (Request $request) {
 
@@ -25,6 +27,9 @@ Route::get('/syncLogsScript', function (Request $request) {
 });
 
 Route::get('/test', function (Request $request) {
+    Logger::channel('custom')->info('This is a custom log message.');
+
+    return ;
 
     $filePath = Storage::path("data.csv"); // replace with the path to your CSV file
 
