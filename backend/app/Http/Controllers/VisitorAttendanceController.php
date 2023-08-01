@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\VisitorAttendance;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class VisitorAttendanceController extends Controller
 {
@@ -15,76 +16,81 @@ class VisitorAttendanceController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->per_page ?? 100;
+        return (new VisitorAttendance)->processVisitorModel($request)->paginate($request->per_page ?? 100);
+    }
 
-        $company_id = $request->company_id;
+    public function monthly_pdf(Request $request)
+    {
 
-        $model = VisitorAttendance::query();
+        $model = (new VisitorAttendance)->processVisitorModel($request)->get();
 
-        // Filters
-        $model->where('company_id', $company_id);
+        $data = $model->groupBy(['visitor_id', 'date']);
 
-        $model->when($request->filled('visitor_id'), function ($q) use ($request) {
-            $q->where('visitor_id', $request->visitor_id);
-            $q->where('company_id', $request->company_id);
-        });
+        $final_data = ["data" => $data, "info" => $this->prepareInfoData($request)];
 
-        // $model->when(!in_array($request->status, ["SA", "A"]), function ($q) use ($request) {
-        //     $q->where('status', $request->status);
-        //     $q->where('company_id', $request->company_id);
-        // });
+        return Pdf::loadView('pdf.visitor.general', $final_data)->stream();
+    }
 
+    public function monthly_download_pdf(Request $request)
+    {
+        $model = (new VisitorAttendance)->processVisitorModel($request)->get();
 
-        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
-            $q->whereDate('date', $request->daily_date);
-            $q->where('company_id', $request->company_id);
-        });
+        $data = $model->groupBy(['visitor_id', 'date']);
 
-        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
-            $q->whereBetween("date", [$request->from_date, $request->to_date]);
-            $q->where('company_id', $request->company_id);
-        });
+        $final_data = ["data" => $data, "info" => $this->prepareInfoData($request)];
 
-        $model->when($request->filled('date'), function ($q) use ($request) {
-            $q->whereDate('date', '=', $request->date);
-            $q->where('company_id', $request->company_id);
-        });
+        return Pdf::loadView('pdf.visitor.general', $final_data)->download();
+    }
 
-        $model->when($request->filled('visitor_first_name') && $request->visitor_first_name != '', function ($q) use ($request) {
-            $q->whereHas('visitor', fn (Builder $q) => $q->where('first_name', 'ILIKE', "$request->visitor_first_name%"));
-            $q->where('company_id', $request->company_id);
-        });
+    public function monthly_download_csv(Request $request)
+    {
+        $data = (new VisitorAttendance)->processVisitorModel($request)->get();
 
-        $model->when($request->filled('in'), function ($q) use ($request) {
-            $q->where('in', 'LIKE', "$request->in%");
-            $q->where('company_id', $request->company_id);
-        });
-        $model->when($request->filled('out'), function ($q) use ($request) {
-            $q->where('out', 'LIKE', "$request->out%");
-            $q->where('company_id', $request->company_id);
-        });
-        $model->when($request->filled('total_hrs'), function ($q) use ($request) {
-            $q->where('total_hrs', 'LIKE', "$request->total_hrs%");
-            $q->where('company_id', $request->company_id);
-        });
+        $fileName = 'report.csv';
 
-        // Eager loading relationships
-        $model->with(['visitor' => function ($q) use ($company_id) {
-            $q->where('company_id', $company_id);
-        }, 'device_in' => function ($q) use ($company_id) {
-            $q->where('company_id', $company_id);
-        }, 'device_out' => function ($q) use ($company_id) {
-            $q->where('company_id', $company_id);
-        }]);
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0",
+        );
 
-        // Sorting
-        $sortBy = $request->input('sortBy', 'date');
-        
-        $sortDesc = $request->input('sortDesc') === 'true';
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
 
-        $model->orderBy($sortBy, $sortDesc ? 'desc' : 'asc');
+            $i = 0;
 
-        return $model->paginate($perPage);
+            fputcsv($file, ["#", "Date", "V.ID", "Full Name", "Status", "In", "Out", "Total Hrs", "D.In", "D.Out"]);
+            foreach ($data as $col) {
+                fputcsv($file, [
+                    ++$i,
+                    $col['date'],
+                    $col['visitor_id'] ?? "---",
+                    $col['visitor']["full_name"] ?? "---",
+                    $col["status"] ?? "---",
+                    $col["in"] ?? "---",
+                    $col["out"] ?? "---",
+                    $col["total_hrs"] ?? "---",
+                    $col["device_in"]["short_name"] ?? "---",
+                    $col["device_out"]["short_name"] ?? "---",
+                ], ",");
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function prepareInfoData($request)
+    {
+        $data = [];
+        $data['from_date'] = date('d-M-Y', strtotime($request->from_date));
+        $data['to_date'] = date('d-M-Y', strtotime($request->to_date));
+        $data['report_type'] = $request->report_type ?? "";
+        $data['status'] = $request->status ?? "";
+        return $data;
     }
 
 
@@ -95,17 +101,6 @@ class VisitorAttendanceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\VisitorAttendance  $visitorAttendance
-     * @return \Illuminate\Http\Response
-     */
-    public function show(VisitorAttendance $visitorAttendance)
     {
         //
     }

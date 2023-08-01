@@ -43,7 +43,10 @@
 
         @foreach ($data as $empID => $employee)
             @php
-                $empName = $employee[key(reset($employee))][0]->employee->display_name ?? '';
+                // ld(count($employee));
+                // die;
+                $emp = $employee[key(reset($employee))][0]->visitor;
+                $empName = $emp->full_name ?? '---';
             @endphp
             <tr style="border:none;">
                 <td style="width:22%;background:reds;text-align:center;border:none;">
@@ -62,7 +65,7 @@
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                        Visitor {{ $info->report_type }} Report
+                                        Visitor {{ $info['report_type'] }} Report
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -70,8 +73,7 @@
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span style="font-size: 11px">
-                                        {{ date('d-M-Y', strtotime($company->start)) }} -
-                                        {{ date('d-M-Y', strtotime($company->end)) }}
+                                        {{ $info['from_date'] }} - {{ $info['to_date'] }}
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -92,21 +94,21 @@
                                 {{ $empID ?? '---' }}
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
-                                {{ $empName ?? '---' }}
+                                {{ $empName }}
                             </td>
 
                         </tr>
                         <tr class="summary-header" style="background-color:#eeeeee">
                             <th style="text-align: center; border :none">Visited Day</th>
-                            <th style="text-align: center; border :none">Report Type</th>
+                            <th style="text-align: center; border :none">Status</th>
                         </tr>
                         <tr style="border: none">
 
                             <td style="text-align: center; border:none;font-size:11px">
-                                10
+                                {{ count($employee) }}
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
-                                Summary
+                                <b>{{ $info['status'] }}</b>
                             </td>
                         </tr>
                     </table>
@@ -230,7 +232,7 @@
 
     #pageNumbers div:before {
         counter-increment: currentPage;
-        content: "Page "counter(currentPage) " of "
+        content: "Page " counter(currentPage) " of "
     }
 
     #pageNumbers div:after {

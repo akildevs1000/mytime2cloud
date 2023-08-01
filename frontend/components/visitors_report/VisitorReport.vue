@@ -74,10 +74,30 @@
             <v-card-text class="py-3">
               <v-row>
                 <v-col md="6">
+                  Report Type
+
+                  <v-autocomplete
+                    @change="getDataFromApi(`visitor_attendance`)"
+                    outlined
+                    dense
+                    v-model="payload.status"
+                    x-small
+                    :items="[
+                      `All`,
+                      `Approved`,
+                      `Pending`,
+                      `Rejected`,
+                      `Cancelled`,
+                    ]"
+                    item-value="id"
+                    item-text="name"
+                    :hide-details="true"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col md="6">
                   Visitor ID
                   <v-autocomplete
                     @change="getDataFromApi(`visitor_attendance`)"
-                    class="mt-2"
                     outlined
                     dense
                     v-model="payload.visitor_id"
@@ -91,7 +111,6 @@
                 <v-col md="6">
                   <div>Frequency</div>
                   <v-autocomplete
-                    class="mt-2"
                     @change="changeReportType(report_type)"
                     outlined
                     dense
@@ -104,11 +123,10 @@
                 </v-col>
                 <v-col>
                   <v-row v-if="report_type == 'Daily'">
-                    <v-col md="6">
+                    <v-col cols="12">
                       <div>Date</div>
-                      <div class="text-left mt-2">
+                      <div class="text-left">
                         <v-menu
-                          class="mt-2"
                           ref="daily_menu"
                           v-model="daily_menu"
                           :close-on-content-click="false"
@@ -172,7 +190,6 @@
                           min-width="auto"
                         >
                           <template v-slot:activator="{ on, attrs }">
-                            <div class="mb-2">From Date</div>
                             <v-text-field
                               :hide-details="payload.from_date"
                               outlined
@@ -617,39 +634,6 @@
             model-value="data.id"
             :server-items-length="totalRowsCount"
           >
-            <template v-slot:header="{ props: { headers } }">
-              <tr v-if="isFilter">
-                <td
-                  style="width: 40px"
-                  v-for="header in headers"
-                  :key="header.text"
-                  class="table-search-header"
-                >
-                  <v-text-field
-                    style="padding-left: 10px"
-                    v-if="header.filterable"
-                    v-model="filters[header.value]"
-                    id="header.value"
-                    @input="applyFilters(header.value, $event)"
-                    outlined
-                    height="10px"
-                    clearable
-                    autocomplete="off"
-                  ></v-text-field>
-
-                  <template v-else>
-                    <v-text-field
-                      style="display: none"
-                      outlined
-                      height="10px"
-                      clearable
-                      autocomplete="off"
-                    ></v-text-field>
-                  </template>
-                </td>
-              </tr>
-            </template>
-
             <template v-slot:item.visitor_full_name="{ item }">
               {{ item?.visitor?.first_name }} {{ item?.visitor?.last_name }}
             </template>
@@ -801,10 +785,17 @@ export default {
         filterable: true,
         value: "total_hrs",
       },
+      {
+        text: "Status",
+        align: "left",
+        sortable: true,
+        filterable: true,
+        value: "status",
+      },
 
       { text: "Actions", value: "actions", sortable: false },
     ],
-    report_type: "Daily",
+    report_type: "Monthly",
 
     payload: {
       from_date: null,
@@ -1218,12 +1209,18 @@ export default {
     },
 
     process_file(type) {
+      if (!this.data.length) {
+        alert("No record found");
+        return;
+      }
       type = type.toLowerCase().replace("custom", "monthly");
-      const { visitor_id, daily_date, from_date, to_date } = this.payload;
+      const { visitor_id, daily_date, from_date, to_date, status } =
+        this.payload;
       const report_type = this.report_type;
       const company_id = this.$auth.user.company.id;
 
-      let status = this.getStatus(this.payload.status);
+      // alert("/visitor_" + type.toLowerCase());
+      // return;
 
       let path = process.env.BACKEND_URL + "/visitor_" + type.toLowerCase();
 
@@ -1252,31 +1249,12 @@ export default {
 
     setStatusLabel(status) {
       const statuses = {
-        A: "Absent",
-        P: "Present",
-        M: "Missing",
-        O: "Week Off",
-        L: "Leave",
-        H: "Holiday",
+        A: "Approved",
+        P: "Pending",
+        R: "Rejected",
+        C: "Cancelled",
       };
       return statuses[status];
-    },
-
-    getStatus(status) {
-      switch (status) {
-        case "Select All":
-          return "SA";
-        case "All":
-          return "SA";
-        case "Missing":
-          return "M";
-        case "Manual Entry":
-          return "ME";
-        case "Off":
-          return "O";
-        default:
-          return status.charAt(0);
-      }
     },
   },
 };

@@ -14,7 +14,68 @@ class VisitorAttendanceSeeder extends Seeder
      */
     public function run()
     {
+
+        $arr = [];
+
+        // Define the start and end dates for July
+        $startDate = '2023-07-01';
+        $endDate = '2023-07-31';
+
+        $statuses = ['Approved', 'Pending', 'Rejected', 'Cancelled'];
+
+        $currentDate = $startDate;
+
+
+        while ($currentDate <= $endDate) {
+            $in = $this->generateRandomTime('09:30');
+            $out = $this->generateRandomTime('16:30');
+
+            $arr[]  = [
+                'date' => $currentDate,
+                'visitor_id' => 6767,
+                'status' => $statuses[array_rand($statuses)],
+                'in' => $in,
+                'out' => $out,
+                'total_hrs' => $this->calculateTotalHours($in, $out),
+                'device_id_in' => "OX-8862021010010",
+                'device_id_out' => "OX-8862021010010",
+                'date_in' => $currentDate,
+                'date_out' => $currentDate,
+                'company_id' => 8, // As
+            ];
+
+
+            // Move to the next day
+            $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+        }
         // php artisan db:seed --class=VisitorAttendanceSeeder
-        VisitorAttendance::factory()->count(10)->create();
+        VisitorAttendance::insert($arr);
+    }
+
+    public function generateRandomTime($baseTime)
+    {
+        // Generate random minutes between 0 and 210 (3.5 hours in minutes)
+        $randomMinutes = mt_rand(0, 210);
+
+        // Add the random minutes to the base time (9:30)
+        $baseTime = strtotime($baseTime);
+        $randomTime = strtotime("+$randomMinutes minutes", $baseTime);
+
+        // Format the time to H:i format
+        return date('H:i', $randomTime);
+    }
+
+
+    public function calculateTotalHours($inTime, $outTime)
+    {
+        // Convert 'in' and 'out' times to timestamps
+        $inTimestamp = strtotime($inTime);
+        $outTimestamp = strtotime($outTime);
+
+        $diff = $outTimestamp - $inTimestamp;
+
+        $h = floor($diff / 3600);
+        $m = floor(($diff % 3600) / 60);
+        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 }
