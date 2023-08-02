@@ -99,12 +99,12 @@ class VisitorAttendance extends Model
             $q->where('company_id', $request->company_id);
         });
 
-        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
+        $model->when($request->daily_date && $request->frequency == 'Daily', function ($q) use ($request) {
             $q->whereDate('date', $request->daily_date);
             $q->where('company_id', $request->company_id);
         });
 
-        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
+        $model->when($request->frequency != 'Daily' && $request->from_date && $request->to_date, function ($q) use ($request) {
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
             $q->where('company_id', $request->company_id);
         });

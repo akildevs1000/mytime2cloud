@@ -127,7 +127,7 @@
                 <v-col md="6">
                   <div>Frequency</div>
                   <v-autocomplete
-                    @change="changeReportFrequency(frequency)"
+                    @change="changeReportFrequency"
                     outlined
                     dense
                     v-model="frequency"
@@ -895,73 +895,30 @@ export default {
       this.loading = false;
     },
 
-    setSevenDays(selected_date) {
-      const date = new Date(selected_date);
+    processFilterDates() {
+      const date = new Date(this.payload.from_date);
 
-      date.setDate(date.getDate() + 6);
+      date.setDate(date.getDate() + (this.frequency == "Weekly" ? 6 : 30));
 
-      let datetime = new Date(date);
+      const d = date.getDate().toString().padStart(2, "0");
+      const m = (date.getMonth() + 1).toString().padStart(2, "0");
+      const y = date.getFullYear();
 
-      let d = datetime.getDate();
-      d = d < "10" ? "0" + d : d;
-      let m = datetime.getMonth() + 1;
-      m = m < 10 ? "0" + m : m;
-      let y = datetime.getFullYear();
-
-      this.max_date = `${y}-${m}-${d}`;
-      this.payload.to_date = `${y}-${m}-${d}`;
-    },
-
-    setThirtyDays(selected_date) {
-      const date = new Date(selected_date);
-
-      date.setDate(date.getDate() + 30);
-
-      let datetime = new Date(date);
-
-      let d = datetime.getDate();
-      d = d < "10" ? "0" + d : d;
-      let m = datetime.getMonth() + 1;
-      m = m < 10 ? "0" + m : m;
-      let y = datetime.getFullYear();
+      if (this.frequency !== "Custom") {
+        this.payload.to_date = `${y}-${m}-${d}`;
+      }
 
       this.max_date = `${y}-${m}-${d}`;
-      this.payload.to_date = `${y}-${m}-${d}`;
+
+      this.getDataFromApi();
     },
 
     set_date_save(from_menu, field) {
       from_menu.save(field);
-
-      if (this.frequency == "Weekly") {
-        this.setSevenDays(this.payload.from_date);
-      } else if (this.frequency == "Monthly") {
-        this.setThirtyDays(this.payload.from_date);
-      }
-
-      this.getDataFromApi();
+      this.processFilterDates();
     },
-    changeReportFrequency(frequency) {
-      let dt = new Date();
-      let y = dt.getFullYear();
-      let m = dt.getMonth() + 1;
-
-      m = m < 10 ? "0" + m : m;
-
-      if (this.payload.from_date == null) {
-        this.payload.from_date = `${y}-${m}-01`;
-      }
-
-      if (frequency == "Daily") {
-        this.setDailyDate();
-      } else if (frequency == "Weekly") {
-        this.setSevenDays(this.payload.from_date);
-      } else {
-        this.setThirtyDays(this.payload.from_date);
-
-        this.max_date = null;
-      }
-
-      this.getDataFromApi();
+    changeReportFrequency() {
+      this.processFilterDates();
     },
 
     applyFilters(name, value) {
@@ -987,13 +944,6 @@ export default {
         this.devices = data;
       });
     },
-
-    setDailyDate() {
-      this.payload.daily_date = new Date().toJSON().slice(0, 10);
-      delete this.payload.from_date;
-      delete this.payload.to_date;
-    },
-
     store_schedule() {
       let { user_id, date, time, device_id } = this.log_payload;
       let log_payload = {
