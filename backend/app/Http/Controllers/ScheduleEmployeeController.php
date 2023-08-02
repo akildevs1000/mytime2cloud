@@ -175,10 +175,11 @@ class ScheduleEmployeeController extends Controller
                 $model->where("employee_id", $row["employee_id"]);
                 $model->where("roster_id", $roster["id"]);
 
+                $shiftTypeIdIndex = $roster["shift_type_ids"][$index] == 0 ? $index - 1 : $index;
+
                 $arr = [
                     "shift_id" => $roster["shift_ids"][$index],
-                    "shift_type_id" => $roster["shift_type_ids"][$index == 0 ? -1 : $index],
-                    "is_week" => 1,
+                    "shift_type_id" => $roster["shift_type_ids"][$shiftTypeIdIndex],
                 ];
 
                 $model->update($arr);
