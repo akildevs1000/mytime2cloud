@@ -20,27 +20,10 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
-        if (env("APP_DEBUG")) {
-            $schedule
-                ->command('test_cron')
-                ->everyMinute()
-                ->appendOutputTo(storage_path("logs/test_cron.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        }
-
         if (env("APP_ENV") !== "local") {
 
             $schedule
                 ->command('task:update_company_ids')
-                // ->everyThirtyMinutes()
-                ->everyMinute()
-                ->withoutOverlapping()
-                // ->between('7:00', '23:59')
-                ->appendOutputTo(storage_path("logs/$date-logs.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-            $schedule
-                ->command('task:update_visitor_company_ids')
                 // ->everyThirtyMinutes()
                 ->everyMinute()
                 ->withoutOverlapping()
@@ -76,6 +59,22 @@ class Kernel extends ConsoleKernel
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
+                ->command('task:update_visitor_company_ids')
+                // ->everyThirtyMinutes()
+                ->everyMinute()
+                ->withoutOverlapping()
+                // ->between('7:00', '23:59')
+                ->appendOutputTo(storage_path("logs/$date-logs.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+            $schedule
+                ->command('task:sync_visitors')
+                ->everyMinute()
+                ->withoutOverlapping()
+                ->appendOutputTo(storage_path("logs/$date-visitor-logs.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+            $schedule
                 ->command('task:check_device_health')
                 ->everyThirtyMinutes()
                 ->withoutOverlapping()
@@ -88,6 +87,7 @@ class Kernel extends ConsoleKernel
                 // ->everyMinute()
                 // ->everyThirtyMinutes()
                 ->dailyAt('2:00')
+                ->runInBackground()
                 //->hourly()
                 ->appendOutputTo(storage_path("logs/pdf.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -97,6 +97,7 @@ class Kernel extends ConsoleKernel
                 // ->everyMinute()
                 // ->everyThirtyMinutes()
                 ->dailyAt('2:00')
+                ->runInBackground()
                 //->hourly()
                 ->appendOutputTo(storage_path("logs/pdf.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -106,6 +107,7 @@ class Kernel extends ConsoleKernel
                 // ->everyMinute()
                 // ->everyThirtyMinutes()
                 ->dailyAt('2:00')
+                ->runInBackground()
                 //->hourly()
                 ->appendOutputTo(storage_path("logs/pdf.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -115,6 +117,7 @@ class Kernel extends ConsoleKernel
                 // ->everyMinute()
                 // ->everyThirtyMinutes()
                 ->dailyAt('2:00')
+                ->runInBackground()
                 //->hourly()
                 ->appendOutputTo(storage_path("logs/pdf.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -124,6 +127,7 @@ class Kernel extends ConsoleKernel
                 // ->everyMinute()
                 // ->everyThirtyMinutes()
                 ->dailyAt('2:00')
+                ->runInBackground()
                 //->hourly()
                 ->appendOutputTo(storage_path("logs/pdf.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -133,6 +137,7 @@ class Kernel extends ConsoleKernel
                 // ->everyThirtyMinutes()
                 // ->everyMinute()
                 ->dailyAt('1:30')
+                ->runInBackground()
                 ->withoutOverlapping()
                 // ->between('7:00', '23:59')
                 ->appendOutputTo(storage_path("logs/$date-assigned-schedule-emplyees.log"))

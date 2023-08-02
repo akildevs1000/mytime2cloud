@@ -25,7 +25,7 @@ const pool = new Pool({
 
 pool.on('error', async (err, client) => {
     console.error('Unexpected error on idle client', err);
-    await sendWhatsappMessage(err);
+    // await sendWhatsappMessage(err);
     process.exit(-1);
 });
 let { WHATSAPP_ENDPOINT, NUMBER, INSTANCE_ID, TOKEN, SOCKET_ENDPOINT } = process.env;
@@ -69,14 +69,12 @@ socket.onmessage = async ({ data }) => {
                 ++last_record_number
             ];
 
-            console.log(sanitizedValues);
-
             const query = format(
                 'INSERT INTO visitor_logs("UserID", "LogTime", "DeviceID", "SerialNumber", "last_record_number") VALUES (%L)',
                 sanitizedValues
             );
-            await pool.query(query);
 
+            await pool.query(query);
 
             let str = sanitizedValues.join(",");
 

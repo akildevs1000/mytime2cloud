@@ -114,6 +114,7 @@ class VisitorAttendanceController extends Controller
 
     public function store(Request $request)
     {
+        // return $this->syncVisitorsCron();
 
         return $this->syncVisitorScript($request->company_id, $request->date, $request->UserID);
     }
@@ -128,10 +129,11 @@ class VisitorAttendanceController extends Controller
 
         $data = $model->distinct("UserID")->get(["UserID", "company_id"]);
 
-        $reponse = [];
+        $reponse = "";
 
         foreach ($data as $d) {
-            $reponse[] = $this->syncVisitorScript($d->company_id, $date, $d->UserID);
+
+            $reponse .= $this->getMeta("Sync Visitor", $this->syncVisitorScript($d->company_id, $date, $d->UserID) . "\n");
         }
 
         return $reponse;
@@ -156,6 +158,8 @@ class VisitorAttendanceController extends Controller
         }
 
         if (!$count) {
+            return "Company Id: " . $company_id . " Visitor with $UserID SYSTEM USER ID has no Log(s)";
+
             return $this->response("Visitor with $UserID SYSTEM USER ID has no Log(s).", null, false);
         }
 
@@ -188,8 +192,10 @@ class VisitorAttendanceController extends Controller
             ]);
 
             $attendance->fill($items)->save();
+            return "Company Id: " . $items['company_id'] . " The Logs has been render against " . $items['visitor_id'] . " SYSTEM USER ID.";
             return $this->response("The Logs has been render against " . $items['visitor_id'] . " SYSTEM USER ID.", null, true);
         } catch (\Exception $e) {
+            return "Company Id: " . $items['company_id'] . " The Logs cannnot render against " . $items['visitor_id'] . " SYSTEM USER ID.";
             return $this->response("The Logs cannnot render against " . $items['visitor_id'] . " SYSTEM USER ID.", null, false);
         }
     }
