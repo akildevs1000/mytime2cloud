@@ -41,13 +41,7 @@
 
     <table class="main-table">
 
-        @foreach ($data as $empID => $employee)
-            @php
-                // ld(count($employee));
-                // die;
-                $emp = $employee[key(reset($employee))][0]->visitor;
-                $empName = $emp->full_name ?? '---';
-            @endphp
+        @foreach ($data as $visitorId => $dates)
             <tr style="border:none;">
                 <td style="width:22%;background:reds;text-align:center;border:none;">
                     <div style="margin-top:40px;">
@@ -68,7 +62,7 @@
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                        Visitor {{ $info['report_type'] }} Report
+                                        Visitor {{ $info['frequency'] }} Report
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -94,10 +88,10 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;font-size:11px">
-                                {{ $empID ?? '---' }}
+                                {{ $visitorId ?? '---' }}
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
-                                {{ $empName }}
+                                {{ $data[$visitorId][0]->visitor->full_name ?? '---' }}
                             </td>
 
                         </tr>
@@ -108,7 +102,7 @@
                         <tr style="border: none">
 
                             <td style="text-align: center; border:none;font-size:11px">
-                                {{ count($employee) }}
+                                {{ count($dates) }}
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
                                 <b>{{ $info['status'] }}</b>
@@ -133,96 +127,44 @@
                         <td style="text-align: center;"> Device Out </td>
                         <td style="text-align: center;"> Reason </td>
                     </tr>
-                    @foreach ($employee as $date)
+                    @foreach (range(0, 30) as $index)
                         @php
-                            $employee = $date[0];
-                            if ($employee->status == 'P') {
-                                $statusColor = 'green';
-                            } elseif ($employee->status == 'A') {
-                                $statusColor = 'red';
-                            } elseif ($employee->status == 'M') {
-                                $statusColor = 'orange';
-                            } elseif ($employee->status == 'O') {
-                                $statusColor = 'gray';
-                            } elseif ($employee->status == 'L') {
-                                $statusColor = 'blue';
-                            } elseif ($employee->status == 'H') {
-                                $statusColor = 'pink';
-                            } elseif ($employee->status == '---') {
-                                $statusColor = '#f34100ed';
-                            }
+                            $record = isset($dates[$index]) ? $dates[$index] : false;
                         @endphp
-
                         <tbody>
+
+
                             <tr style="text-align:  center">
-                                <td>{{ ++$i }}</td>
-                                <td style="text-align:  center;">{{ $employee->date ?? '---' }}</td>
-                                <td style="text-align:  center;">
-                                    {{ date('D', strtotime($employee->date)) ?? '---' }}</td>
+                                <td>{{ ++$index }}</td>
 
-                                <td style="text-align:  center;"> {{ $employee->in ?? '---' }} </td>
-                                <td style="text-align:  center;"> {{ $employee->out ?? '---' }} </td>
-                                <td style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
-                                <td style="text-align:  center; color:{{ $statusColor }}">
-                                    {{ $employee->status ?? '---' }}
-                                </td>
-                                <td style="text-align:  center;">
-                                    {{ $employee->device_in->short_name ?? '---' }} </td>
-                                <td style="text-align:  center;">
-                                    {{ $employee->device_out->short_name ?? '---' }} </td>
-                                <td style="text-align:  center;">Reason</td>
-
+                                @if ($record)
+                                    <td style="text-align: center;">{{ $record->date }}</td>
+                                    <td style="text-align:  center;">{{ date('D', strtotime($record->date)) }}</td>
+                                    <td style="text-align:center;"> {{ $record->in }} </td>
+                                    <td style="text-align:center;"> {{ $record->out }} </td>
+                                    <td style="text-align:center;"> {{ $record->total_hrs }} </td>
+                                    <td style="text-align:center;"> {{ $record->status }} </td>
+                                    <td style="text-align:center;"> {{ $record->device_in->short_name }} </td>
+                                    <td style="text-align:center;"> {{ $record->device_out->short_name }} </td>
+                                    <td style="text-align:center;">Reason</td>
+                                @else
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                @endif
                             </tr>
                         </tbody>
                     @endforeach
                 </table>
             </td>
-            @php $i = 0; @endphp
         @endforeach
     </table>
-    @php
-        
-        function getStatus($employeeData)
-        {
-            $countA = 0;
-            $countP = 0;
-            $countM = 0;
-            $countO = 0;
-            $countL = 0;
-            $countH = 0;
-            foreach ($employeeData as $employee) {
-                if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
-                    throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
-                }
-                $status = $employee[0]['status'];
-                if ($status == 'A') {
-                    $countA++;
-                } elseif ($status == 'P') {
-                    $countP++;
-                } elseif ($status == 'M') {
-                    $countM++;
-                } elseif ($status == 'O') {
-                    $countO++;
-                } elseif ($status == 'L') {
-                    $countL++;
-                } elseif ($status == 'H') {
-                    $countH++;
-                }
-            }
-            return [
-                'A' => $countA,
-                'P' => $countP,
-                'M' => $countM,
-                'O' => $countO,
-                'L' => $countL,
-                'H' => $countH,
-            ];
-        }
-        
-    @endphp
-
-
-
 </body>
 <style>
     .my-break {

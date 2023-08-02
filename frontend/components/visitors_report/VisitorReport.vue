@@ -30,7 +30,7 @@
                     text
                     v-bind="attrs"
                     v-on="on"
-                    @click="process_file(report_type)"
+                    @click="process_file('print')"
                   >
                     <v-icon class="white--text">mdi-printer-outline</v-icon>
                   </v-btn>
@@ -46,7 +46,7 @@
                     text
                     v-bind="attrs"
                     v-on="on"
-                    @click="process_file(report_type + '_download_pdf')"
+                    @click="process_file('download')"
                   >
                     <v-icon class="white--text">mdi-download-outline</v-icon>
                   </v-btn>
@@ -62,13 +62,29 @@
                     text
                     v-bind="attrs"
                     v-on="on"
-                    @click="process_file(report_type + '_download_csv')"
+                    @click="process_file('csv')"
                   >
                     <v-icon class="white--text">mdi-file-outline</v-icon>
                   </v-btn>
                 </template>
                 <span>CSV</span>
               </v-tooltip>
+
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    x-small
+                    :ripple="false"
+                    text
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="process_file('json')"
+                  >
+                    <v-icon class="white--text">mdi-code-json</v-icon>
+                  </v-btn>
+                </template>
+                <span>JSON</span>
+              </v-tooltip> -->
             </v-card-title>
 
             <v-card-text class="py-3">
@@ -111,10 +127,10 @@
                 <v-col md="6">
                   <div>Frequency</div>
                   <v-autocomplete
-                    @change="changeReportType(report_type)"
+                    @change="changeReportFrequency(frequency)"
                     outlined
                     dense
-                    v-model="report_type"
+                    v-model="frequency"
                     x-small
                     :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
                     item-text="['Daily']"
@@ -122,7 +138,7 @@
                   ></v-autocomplete>
                 </v-col>
                 <v-col>
-                  <v-row v-if="report_type == 'Daily'">
+                  <v-row v-if="frequency == 'Daily'">
                     <v-col cols="12">
                       <div>Date</div>
                       <div class="text-left">
@@ -795,7 +811,7 @@ export default {
 
       { text: "Actions", value: "actions", sortable: false },
     ],
-    report_type: "Monthly",
+    frequency: "Monthly",
 
     payload: {
       from_date: null,
@@ -916,22 +932,18 @@ export default {
     set_date_save(from_menu, field) {
       from_menu.save(field);
 
-      if (this.report_type == "Weekly") {
+      if (this.frequency == "Weekly") {
         this.setSevenDays(this.payload.from_date);
-      } else if (
-        this.report_type == "Monthly" ||
-        this.report_type == "Custom"
-      ) {
+      } else if (this.frequency == "Monthly") {
         this.setThirtyDays(this.payload.from_date);
       }
 
       this.getDataFromApi();
     },
-    changeReportType(report_type) {
+    changeReportFrequency(frequency) {
       let dt = new Date();
       let y = dt.getFullYear();
       let m = dt.getMonth() + 1;
-      let d = new Date(dt.getFullYear(), m, 0);
 
       m = m < 10 ? "0" + m : m;
 
@@ -939,12 +951,10 @@ export default {
         this.payload.from_date = `${y}-${m}-01`;
       }
 
-      if (report_type == "Daily") {
+      if (frequency == "Daily") {
         this.setDailyDate();
-      } else if (report_type == "Weekly") {
+      } else if (frequency == "Weekly") {
         this.setSevenDays(this.payload.from_date);
-      } else if (report_type == "Monthly" || report_type == "Custom") {
-        this.setThirtyDays(this.payload.from_date);
       } else {
         this.setThirtyDays(this.payload.from_date);
 
@@ -1068,7 +1078,7 @@ export default {
       //   page = 1;
       // }
 
-      if (this.report_type == "Custom") {
+      if (this.frequency == "Custom") {
         if (this.payload.from_date == null) {
           return false;
         }
@@ -1085,7 +1095,7 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.payload,
-          report_type: this.report_type,
+          frequency: this.frequency,
           // status: this.getStatus(this.payload.status),
           ...this.filters,
         },
@@ -1200,29 +1210,18 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-    pdfDownload() {
-      let path = process.env.BACKEND_URL + "/pdf";
-      let pdf = document.createElement("a");
-      pdf.setAttribute("href", path);
-      pdf.setAttribute("target", "_blank");
-      pdf.click();
-    },
 
-    process_file(type) {
+    process_file(action) {
       if (!this.data.length) {
         alert("No record found");
         return;
       }
-      type = type.toLowerCase().replace("custom", "monthly");
       const { visitor_id, daily_date, from_date, to_date, status } =
         this.payload;
-      const report_type = this.report_type;
+      const frequency = this.frequency;
       const company_id = this.$auth.user.company.id;
 
-      // alert("/visitor_" + type.toLowerCase());
-      // return;
-
-      let path = process.env.BACKEND_URL + "/visitor_" + type.toLowerCase();
+      let path = process.env.BACKEND_URL + "/visitor_attendance_report";
 
       let qs = ``;
 
@@ -1230,9 +1229,10 @@ export default {
       qs += `?company_id=${company_id}`;
       qs += `&status=${status}`;
       qs += `&visitor_id=${visitor_id}`;
-      qs += `&report_type=${report_type}`;
+      qs += `&frequency=${frequency}`;
+      qs += `&action=${action}`;
 
-      if (report_type == "Daily") {
+      if (frequency == "Daily") {
         qs += `&daily_date=${daily_date}`;
       } else {
         qs += `&from_date=${from_date}&to_date=${to_date}`;
@@ -1245,16 +1245,6 @@ export default {
 
       this.getDataFromApi();
       return;
-    },
-
-    setStatusLabel(status) {
-      const statuses = {
-        A: "Approved",
-        P: "Pending",
-        R: "Rejected",
-        C: "Cancelled",
-      };
-      return statuses[status];
     },
   },
 };

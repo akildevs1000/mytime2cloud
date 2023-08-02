@@ -22,30 +22,38 @@ class VisitorAttendanceController extends Controller
         return (new VisitorAttendance)->processVisitorModel($request)->paginate($request->per_page ?? 100);
     }
 
-    public function monthly_pdf(Request $request)
+    public function report(Request $request)
     {
+        $data = $this->processData($request);
 
+        return match ($request->action) {
+            "print" => $data["pdf"]->stream(),
+            "download" => $data["pdf"]->download(),
+            "csv" => $this->csv($request),
+            default => $data["json"],
+        };
+    }
+
+    public function processData($request)
+    {
         $model = (new VisitorAttendance)->processVisitorModel($request)->get();
 
-        $data = $model->groupBy(['visitor_id', 'date']);
+        $data = $model->groupBy(['visitor_id']);
 
         $final_data = ["data" => $data, "info" => $this->prepareInfoData($request)];
 
-        return Pdf::loadView('pdf.visitor.general', $final_data)->stream();
+        $reponse = [];
+
+        if ($request->action == "json") {
+            $reponse["json"] =  $final_data;
+        }
+
+        $reponse["pdf"] =  Pdf::loadView('pdf.visitor.general', $final_data);
+
+        return $reponse;
     }
 
-    public function monthly_download_pdf(Request $request)
-    {
-        $model = (new VisitorAttendance)->processVisitorModel($request)->get();
-
-        $data = $model->groupBy(['visitor_id', 'date']);
-
-        $final_data = ["data" => $data, "info" => $this->prepareInfoData($request)];
-
-        return Pdf::loadView('pdf.visitor.general', $final_data)->download();
-    }
-
-    public function monthly_download_csv(Request $request)
+    public function csv($request)
     {
         $data = (new VisitorAttendance)->processVisitorModel($request)->get();
 
@@ -91,7 +99,7 @@ class VisitorAttendanceController extends Controller
         $data = [];
         $data['from_date'] = date('d-M-Y', strtotime($request->from_date));
         $data['to_date'] = date('d-M-Y', strtotime($request->to_date));
-        $data['report_type'] = $request->report_type ?? "";
+        $data['frequency'] = $request->frequency ?? "";
         $data['status'] = $request->status ?? "";
         return $data;
     }
@@ -106,7 +114,7 @@ class VisitorAttendanceController extends Controller
 
     public function store(Request $request)
     {
-        
+
         return $this->syncVisitorScript($request->company_id, $request->date, $request->UserID);
     }
 

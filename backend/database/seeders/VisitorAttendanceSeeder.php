@@ -30,8 +30,8 @@ class VisitorAttendanceSeeder extends Seeder
         $arr = [];
 
         // Define the start and end dates for July
-        $startDate = '2023-07-01';
-        $endDate = '2023-07-31';
+        $startDate = '2023-08-01';
+        $endDate = '2023-08-31';
 
         $statuses = ['Approved', 'Pending', 'Rejected', 'Cancelled'];
 
