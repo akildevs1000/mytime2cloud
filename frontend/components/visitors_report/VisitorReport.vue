@@ -770,7 +770,7 @@ function getCurrentDate() {
 }
 export default {
   data: () => ({
-    renderVisitorDialog: true,
+    renderVisitorDialog: false,
     users: [],
     formData: {
       max: 10,
