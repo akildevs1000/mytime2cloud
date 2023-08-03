@@ -633,7 +633,23 @@
               </template>
               <span>Filter</span>
             </v-tooltip>
+
             <v-spacer></v-spacer>
+            <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="renderVisitorDialog = true"
+                >
+                  <v-icon dark white>mdi-cached</v-icon>
+                </v-btn>
+              </template>
+              <span>Render Fake Data</span>
+            </v-tooltip>
           </v-toolbar>
 
           <v-data-table
@@ -693,13 +709,74 @@
           </v-card-text>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="renderVisitorDialog" max-width="500px">
+        <v-card>
+          <v-card-title class="background">
+            <span class="headline white--text">Submit Data</span>
+            <v-spacer></v-spacer>
+            <v-btn class="primary" small @click="addUser">Add User</v-btn>
+          </v-card-title>
+          <v-card-text>
+            <v-form @submit.prevent="submitData">
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model="formData.date"
+                      label="Date"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-row v-for="(user, i) in users" :key="i">
+                      <v-col cols="10">
+                        <v-text-field
+                          v-model="user.visitor_id"
+                          label="User Id"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="2">
+                        <v-icon color="error" @click="removeUser(i)"
+                          >mdi-delete</v-icon
+                        >
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-form>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn small color="primary" @click="submitData">Submit</v-btn>
+            <v-btn small color="gray" @click="renderVisitorDialog = false"
+              >Cancel</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-row>
   </div>
   <NoAccess v-else />
 </template>
 <script>
+function getCurrentDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 export default {
   data: () => ({
+    renderVisitorDialog: true,
+    users: [],
+    formData: {
+      max: 10,
+      date: getCurrentDate(),
+      company_id: 0,
+    },
     attendancFilters: false,
     filters: {},
     isFilter: false,
@@ -885,6 +962,29 @@ export default {
   },
 
   methods: {
+    addUser() {
+      this.users.push({ visitor_id: "" });
+    },
+    removeUser(index) {
+      this.users.splice(index, 1);
+    },
+    submitData() {
+      this.formData.userIds = this.users.map((e) => e.visitor_id);
+      this.formData.company_id = this.$auth.user.company.id;
+
+      this.$axios
+        .post(`/render_daily_report`, this.formData)
+        .then(({ data }) => {
+          this.getDataFromApi();
+          this.snackbar = true;
+          this.response = data.message;
+          this.dialog = false;
+        })
+        .catch(({ message }) => {
+          this.snackbar = true;
+          this.response = message;
+        });
+    },
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -1038,7 +1138,7 @@ export default {
         },
       };
       if (filter_column != "") options.params[filter_column] = filter_value;
-      this.$axios.get(url, options).then(({ data }) => {
+      this.$axios.get(url, options).then(async ({ data }) => {
         if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";
@@ -1047,7 +1147,20 @@ export default {
           return false;
         }
         this.data = data.data;
-        this.total = data.total;
+
+        const uniqueVisitorIds = new Set();
+        this.users = await data.data.filter((item) => {
+          const visitorId = item["visitor_id"];
+          if (!uniqueVisitorIds.has(visitorId)) {
+            uniqueVisitorIds.add(visitorId);
+            return true;
+          }
+          return false;
+        });
+
+        isFilter: false,
+          //  users: [{ userId: 6666 }],
+          (this.total = data.total);
         this.loading = false;
 
         this.totalRowsCount = data.total;
@@ -1157,7 +1270,7 @@ export default {
         this.payload;
       const frequency = this.frequency;
       const company_id = this.$auth.user.company.id;
-
+      let { itemsPerPage } = this.options;
       let path = process.env.BACKEND_URL + "/visitor_attendance_report";
 
       let qs = ``;
@@ -1168,6 +1281,7 @@ export default {
       qs += `&visitor_id=${visitor_id}`;
       qs += `&frequency=${frequency}`;
       qs += `&action=${action}`;
+      qs += `&per_page=${20}`;
 
       if (frequency == "Daily") {
         qs += `&daily_date=${daily_date}`;

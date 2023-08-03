@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\VisitorAttendance;
 use App\Models\VisitorLog;
 use Illuminate\Http\Request;
@@ -45,9 +46,9 @@ class VisitorAttendanceController extends Controller
 
     public function processData($request)
     {
-        $model = (new VisitorAttendance)->processVisitorModel($request)->get();
+        $data = (new VisitorAttendance)->processVisitorModel($request)->get();
 
-        $data = $model->groupBy(['visitor_id']);
+        $fileName = ($request->frequency !== "Daily") ? "general" : "daily";
 
         $final_data = ["data" => $data, "info" => $this->prepareInfoData($request)];
 
@@ -57,7 +58,7 @@ class VisitorAttendanceController extends Controller
             $reponse["json"] =  $final_data;
         }
 
-        $reponse["pdf"] =  Pdf::loadView('pdf.visitor.general', $final_data);
+        $reponse["pdf"] =  Pdf::loadView("pdf.visitor.$fileName", $final_data);
 
         return $reponse;
     }
@@ -106,9 +107,12 @@ class VisitorAttendanceController extends Controller
     public function prepareInfoData($request)
     {
         $data = [];
+        $data['company'] = Company::find($request->company_id)->toArray() ?? "";
+        $data['daily_date'] = date('d-M-Y', strtotime($request->daily_date));
         $data['from_date'] = date('d-M-Y', strtotime($request->from_date));
         $data['to_date'] = date('d-M-Y', strtotime($request->to_date));
         $data['frequency'] = $request->frequency ?? "";
+        $data['per_page'] = $request->per_page ?? 25;
         $data['status'] = $request->status ?? "";
         return $data;
     }

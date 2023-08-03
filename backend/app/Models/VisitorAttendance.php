@@ -81,14 +81,9 @@ class VisitorAttendance extends Model
 
     public function processVisitorModel($request)
     {
-        $start = $request->from_date ?? date('Y-10-01');
-        $end = $request->to_date ?? date('Y-10-31');
-
         $company_id = $request->company_id;
 
         $model = self::query();
-
-        $model = $model->whereBetween('date', [$start, $end]);
 
         $model->orderBy('date', 'asc');
 
@@ -96,45 +91,36 @@ class VisitorAttendance extends Model
 
         $model->when($request->filled('visitor_id'), function ($q) use ($request) {
             $q->where('visitor_id', $request->visitor_id);
-            $q->where('company_id', $request->company_id);
         });
 
         $model->when($request->status !== "All", function ($q) use ($request) {
             $q->where('status', $request->status);
-            $q->where('company_id', $request->company_id);
         });
 
         $model->when($request->daily_date && $request->frequency == 'Daily', function ($q) use ($request) {
             $q->whereDate('date', $request->daily_date);
-            $q->where('company_id', $request->company_id);
         });
 
         $model->when($request->frequency != 'Daily' && $request->from_date && $request->to_date, function ($q) use ($request) {
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
-            $q->where('company_id', $request->company_id);
         });
 
         $model->when($request->filled('date'), function ($q) use ($request) {
             $q->whereDate('date', '=', $request->date);
-            $q->where('company_id', $request->company_id);
         });
 
         $model->when($request->filled('visitor_first_name') && $request->visitor_first_name != '', function ($q) use ($request) {
             $q->whereHas('visitor', fn (Builder $q) => $q->where('first_name', 'ILIKE', "$request->visitor_first_name%"));
-            $q->where('company_id', $request->company_id);
         });
 
         $model->when($request->filled('in'), function ($q) use ($request) {
             $q->where('in', 'LIKE', "$request->in%");
-            $q->where('company_id', $request->company_id);
         });
         $model->when($request->filled('out'), function ($q) use ($request) {
             $q->where('out', 'LIKE', "$request->out%");
-            $q->where('company_id', $request->company_id);
         });
         $model->when($request->filled('total_hrs'), function ($q) use ($request) {
             $q->where('total_hrs', 'LIKE', "$request->total_hrs%");
-            $q->where('company_id', $request->company_id);
         });
 
         // Eager loading relationships
