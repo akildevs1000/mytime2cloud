@@ -12,6 +12,11 @@ class VisitorAttendance extends Model
 
     protected $guarded = [];
 
+    protected $appends = [
+        "edit_date",
+        "day",
+    ];
+
     public function visitor()
     {
         return $this->belongsTo(Visitor::class, "visitor_id", "system_user_id")->withDefault([

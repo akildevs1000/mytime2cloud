@@ -969,19 +969,6 @@ export default {
     setVisitorId(id) {
       this.$store.commit("visitor_id", id);
     },
-    get_time_slots() {
-      this.getShift(this.custom_options);
-    },
-    async getShift(options) {
-      await this.$axios.get(`/shift`, options).then(({ data }) => {
-        this.shifts = data.data.map((e) => ({
-          name: e.name,
-          on_duty_time: (e.time_table && e.time_table.on_duty_time) || "",
-          off_duty_time: (e.time_table && e.time_table.off_duty_time) || "",
-        }));
-        this.time_table_dialog = true;
-      });
-    },
 
     async getVisitors() {
       // return;
@@ -1144,7 +1131,7 @@ export default {
       };
       this.log_details = true;
 
-      this.$axios.get("attendance_single_list", options).then(({ data }) => {
+      this.$axios.get("visitor_log_list", options).then(({ data }) => {
         this.log_list = data.data;
       });
 
