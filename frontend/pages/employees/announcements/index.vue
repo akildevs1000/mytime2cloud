@@ -630,13 +630,3 @@ export default {
   },
 };
 </script>
-
-<!-- <style>
-.tiptap-vuetify-editor__content {
-  min-height: 300px !important;
-}
-
-.ProseMirror .ProseMirror-focused {
-  height: 400px !important;
-}
-</style> -->

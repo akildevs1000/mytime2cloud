@@ -14,7 +14,7 @@
         <div class="text-center">
           <v-dialog v-model="dialog" width="500">
             <v-card>
-              <v-card-title dense class=" primary  white--text background">
+              <v-card-title dense class="primary white--text background">
                 Send Test message to Whatsapp
                 <v-spacer></v-spacer>
                 <v-icon @click="dialog = false" outlined dark color="white">
@@ -22,10 +22,19 @@
                 </v-icon>
               </v-card-title>
               <v-card-text class="mt-4">
-                <v-text-field dense outlined placeholder="number" v-model="number">
-
+                <v-text-field
+                  dense
+                  outlined
+                  placeholder="number"
+                  v-model="number"
+                >
                 </v-text-field>
-                <v-textarea dense outlined placeholder="message" v-model="message">
+                <v-textarea
+                  dense
+                  outlined
+                  placeholder="message"
+                  v-model="message"
+                >
                   Hello
                 </v-textarea>
               </v-card-text>
@@ -34,22 +43,36 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn class="primary" @click="send" small dense>
-                  Send
-                </v-btn>
+                <v-btn class="primary" @click="send" small dense> Send </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
         </div>
         <v-row>
-          <v-col>
+          <v-col cols="6">
             <v-card class="mb-5" elevation="0">
               <v-toolbar class="rounded-md" color="background" dense flat dark>
-                <v-toolbar-title><span> Notifications List</span></v-toolbar-title>
+                <v-toolbar-title
+                  ><span> Report Notifications List</span></v-toolbar-title
+                >
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                      <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                    <v-btn
+                      dense
+                      class="ma-0 px-0"
+                      x-small
+                      :ripple="false"
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon
+                        color="white"
+                        class="ml-2"
+                        @click="getDataFromApi()"
+                        dark
+                        >mdi mdi-reload</v-icon
+                      >
                     </v-btn>
                   </template>
                   <span>Reload</span>
@@ -57,7 +80,14 @@
 
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="toggleFilter()">
+                    <v-btn
+                      x-small
+                      :ripple="false"
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="toggleFilter()"
+                    >
                       <v-icon dark white>mdi-filter</v-icon>
                     </v-btn>
                   </template>
@@ -66,21 +96,25 @@
 
                 <v-spacer></v-spacer>
 
-
-
-
-                <v-tooltip top color="primary">
+                <!-- <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
                       <v-icon dark white>mdi mdi-whatsapp</v-icon>
                     </v-btn>
                   </template>
                   <span>Whatsapp Test</span>
-                </v-tooltip>
+                </v-tooltip> -->
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" to="/report_notifications/create">
-                      <v-icon dark white>mdi-email</v-icon>
+                    <v-btn
+                      x-small
+                      :ripple="false"
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                      to="/report_notifications/create"
+                    >
+                      <!-- <v-icon dark white>mdi-plus-circle-outline</v-icon> -->
                     </v-btn>
                   </template>
                   <span> Add Email Notification</span>
@@ -98,9 +132,6 @@
                 </v-toolbar-items> -->
               </v-toolbar>
 
-
-
-
               <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
                 {{ snackText }}
 
@@ -110,58 +141,89 @@
                   </v-btn>
                 </template>
               </v-snackbar>
-              <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
-                :options.sync="options" :footer-props="{
+              <v-data-table
+                style="min-height: 500px"
+                flat
+                dense
+                :headers="headers_table"
+                :items="data"
+                model-value="data.id"
+                :loading="loading"
+                :options.sync="options"
+                :footer-props="{
                   itemsPerPageOptions: [100, 500, 1000],
-                }" class="elevation-1" :server-items-length="totalRowsCount">
+                }"
+                hide-default-footer
+                class="elevation-1"
+                :server-items-length="totalRowsCount"
+              >
                 <template v-slot:header="{ props: { headers } }">
                   <tr v-if="isFilter">
                     <td v-for="header in headers" :key="header.text">
-                      <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                        v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)"
-                        outlined dense autocomplete="off"></v-text-field>
-
-
+                      <v-text-field
+                        clearable
+                        :hide-details="true"
+                        v-if="header.filterable && !header.filterSpecial"
+                        v-model="filters[header.value]"
+                        :id="header.value"
+                        @input="applyFilters(header.key, $event)"
+                        outlined
+                        dense
+                        autocomplete="off"
+                      ></v-text-field>
                     </td>
                   </tr>
+                </template>
 
-
-                </template>
-                <template v-slot:item.subject="{ item }">
-                  {{ item.subject }}
-                </template>
-                <template v-slot:item.frequency="{ item }">
-                  {{ item.frequency }}
-                </template>
-                <template v-slot:item.time="{ item }">
-                  {{ item.time }}
-                </template>
                 <template v-slot:item.medium="{ item }">
-
-                  <v-chip v-for="(medium, i) in item.mediums" :key="i" class="  ma-1" small color="primary">{{
-                    medium
-                  }}</v-chip>
-
+                  <v-chip
+                    v-for="(medium, i) in item.mediums"
+                    :key="i"
+                    class="ma-1"
+                    small
+                    color="primary"
+                    >{{ medium }}</v-chip
+                  >
                 </template>
                 <template v-slot:item.reports="{ item }">
-                  <v-chip v-for="(report, i) in item.reports" :key="i" small color="primary" class="ma-1">{{
-                    report
-                  }}</v-chip>
+                  <v-chip
+                    v-for="(report, i) in item.reports"
+                    :key="i"
+                    small
+                    color="primary"
+                    class="ma-1"
+                    >{{ report }}</v-chip
+                  >
                 </template>
                 <template v-slot:item.recipients="{ item }">
+                  <v-chip
+                    v-for="(to, i) in item.tos"
+                    :key="i"
+                    small
+                    color="primary"
+                    class="ma-1"
+                    :id="item.id"
+                    >{{ to }}</v-chip
+                  >
+                  <v-chip
+                    v-for="(cc, i) in item.ccs"
+                    :key="i"
+                    small
+                    color="primary"
+                    class="ma-1"
+                    :id="item.id"
+                    >{{ cc }} (Cc)</v-chip
+                  >
 
-                  <v-chip v-for="(to, i) in item.tos" :key="item.id" small color="primary" class="ma-1" :id="item.id">{{
-                    to
-                  }}</v-chip>
-                  <v-chip v-for="(cc, i) in item.ccs" :key="item.id" small color="primary" class="ma-1" :id="item.id">{{
-                    cc
-                  }}
-                    (Cc)</v-chip>
-
-                  <v-chip v-for="(bcc, i) in item.bccs" :key="item.id" small color="primary" class="ma-1" :id="item.id">{{
-                    bcc }}
-                    (Bcc)</v-chip>
-
+                  <v-chip
+                    v-for="(bcc, i) in item.bccs"
+                    :key="i"
+                    small
+                    color="primary"
+                    class="ma-1"
+                    :id="item.id"
+                    >{{ bcc }} (Bcc)</v-chip
+                  >
                 </template>
                 <!-- <template v-slot:item.actions="{ item }">
                   <v-menu bottom left>
@@ -190,14 +252,10 @@
                     </v-list>
                   </v-menu>
                 </template> -->
-
               </v-data-table>
-
             </v-card>
-
           </v-col>
         </v-row>
-
       </v-row>
     </div>
     <Preloader v-else />
@@ -212,11 +270,11 @@ export default {
     filters: {},
     isFilter: false,
     totalRowsCount: 0,
-    datatable_search_textbox: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
 
     dialog: false,
     color: "primary",
@@ -246,15 +304,34 @@ export default {
     options: {},
     errors: [],
     headers_table: [
-
-      { text: "Subject", align: "left", sortable: true, key: 'title', value: "subject", filterable: true, filterSpecial: false },
-      { text: "Frequency", align: "left", sortable: true, key: 'frequency', value: "frequency", filterable: true, filterSpecial: false },
-      { text: "Time", align: "left", sortable: true, key: 'time', value: "time", filterable: true, filterSpecial: false },
-      { text: "Medium", align: "left", sortable: false, key: 'medium', value: "medium", filterable: false, filterSpecial: false },
-      { text: "Reports", align: "left", sortable: false, key: 'reports', value: "reports", filterable: false, filterSpecial: false },
-      { text: "Recipients", align: "left", sortable: false, key: 'recipients', value: "recipients", filterable: false, filterSpecial: false },
-      { text: "Actions", align: "left", sortable: false, key: 'action', value: "actions", filterable: false, filterSpecial: false },
-    ]
+      {
+        text: "Subject",
+        align: "left",
+        sortable: true,
+        key: "title",
+        value: "subject",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Frequency",
+        align: "left",
+        sortable: true,
+        key: "frequency",
+        value: "frequency",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Time",
+        align: "left",
+        sortable: true,
+        key: "time",
+        value: "time",
+        filterable: true,
+        filterSpecial: false,
+      },
+    ],
   }),
   watch: {
     options: {
@@ -270,20 +347,22 @@ export default {
     this.getDataFromApi();
   },
   methods: {
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
     },
     send() {
       // https://ezwhat.com/api/send.php?number=923108559858&type=text&message=test%20message&instance_id=64466B01B7926&access_token=a27e1f9ca2347bb766f332b8863ebe9f
-      this.$axios.get(`https://ezwhat.com/api/send.php?number=${this.number}&type=text&message=${this.message}&instance_id=64466B01B7926&access_token=a27e1f9ca2347bb766f332b8863ebe9f`)
+      this.$axios
+        .get(
+          `https://ezwhat.com/api/send.php?number=${this.number}&type=text&message=${this.message}&instance_id=64466B01B7926&access_token=a27e1f9ca2347bb766f332b8863ebe9f`
+        )
         .then(({ data }) => console.log(data));
     },
     can(per) {
@@ -351,18 +430,21 @@ export default {
       this.isFilter = false;
       this.getDataFromApi();
     },
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
-
-      if ((filter_column == 'serach_medium' || filter_column == 'serach_email_recipients') && filter_value != '' && filter_value.length <= 5) {
-
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+      if (
+        (filter_column == "serach_medium" ||
+          filter_column == "serach_email_recipients") &&
+        filter_value != "" &&
+        filter_value.length <= 5
+      ) {
         this.snack = true;
-        this.snackColor = 'error';
-        this.snackText = 'Minimum 5 Characters to filter ';
+        this.snackColor = "error";
+        this.snackText = "Minimum 5 Characters to filter ";
         this.loading = false;
         return false;
       }
       this.loading = true;
-      if (url == '') {
+      if (url == "") {
         url = this.endpoint;
       }
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
@@ -381,15 +463,13 @@ export default {
         },
       };
 
-      if (filter_column != '')
-        options.params[filter_column] = filter_value;
+      if (filter_column != "") options.params[filter_column] = filter_value;
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-        if (filter_column != '' && data.data.length == 0) {
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }

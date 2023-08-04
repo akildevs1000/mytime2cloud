@@ -230,17 +230,6 @@ export default {
     data: [],
     loading: false,
     total: 0,
-    headers: [
-      { text: "&nbsp #" },
-      { text: "Name" },
-      { text: "Short Name" },
-      { text: "Location" },
-      { text: "Device Id" },
-      { text: "Type" },
-      { text: "Status" },
-      { text: "Door" },
-      { text: "Time Sync" },
-    ],
     headers_table: [
       {
         text: "Name",
