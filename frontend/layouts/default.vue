@@ -849,7 +849,7 @@ export default {
   },
 };
 </script>
-<style scoped>
+<style>
 table {
   font-family: Roboto !important;
 }
