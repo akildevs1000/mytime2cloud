@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-row v-if="!loading">
-      <v-col cols="12" xs="12" sm="12" md="4">
+    <v-row>
+      <v-col cols="12" xs="12" sm="4" md="4">
         <v-card
           dark
           dense
@@ -10,11 +10,11 @@
         >
           <div>
             <h2>Today Summary</h2>
-            <h3>05</h3>
+            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
           </div>
         </v-card>
       </v-col>
-      <v-col cols="12" xs="12" sm="12" md="4">
+      <v-col cols="12" xs="12" sm="4" md="4">
         <v-card
           dark
           dense
@@ -23,24 +23,24 @@
         >
           <div>
             <h2>Today Present</h2>
-            <h3>05</h3>
+            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
           </div>
         </v-card>
       </v-col>
-      <v-col cols="12" xs="12" sm="12" md="4">
+      <v-col cols="12" xs="12" sm="4" md="4">
         <v-card
           dark
           dense
           style="border-radius: 15px !important"
-          class="green-gradient-bg pa-5 text-center"
+          class="green-gradient-bg pa-8 text-center"
         >
           <div>
             <h2>Today Missing</h2>
-            <h3>05</h3>
+            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
           </div>
         </v-card>
       </v-col>
-      <v-col cols="12" xs="12" sm="12" md="4">
+      <v-col cols="12" xs="12" sm="4" md="4">
         <v-card
           dark
           dense
@@ -49,11 +49,11 @@
         >
           <div>
             <h2>Employee on Leave</h2>
-            <h3>05</h3>
+            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
           </div>
         </v-card>
       </v-col>
-      <v-col cols="12" xs="12" sm="12" md="4">
+      <v-col cols="12" xs="12" sm="4" md="4">
         <v-card
           dark
           dense
@@ -62,11 +62,11 @@
         >
           <div>
             <h2>Employee on Holiday</h2>
-            <h3>05</h3>
+            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
           </div>
         </v-card>
       </v-col>
-      <v-col cols="12" xs="12" sm="12" md="4">
+      <v-col cols="12" xs="12" sm="4" md="4">
         <v-card
           dark
           dense
@@ -75,20 +75,23 @@
         >
           <div>
             <h2>Today Employees</h2>
-            <h3>05</h3>
+            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
           </div>
         </v-card>
       </v-col>
-      <v-col cols="12" xs="12" sm="12" md="6">
+      <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
+        <AttendancePIE />
+      </v-col>
+      <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
+        <DailyLog />
+      </v-col>
+      <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
+        <DevicePIE />
+      </v-col>
+
+      <v-col cols="12">
         <AttendanceLog />
-      </v-col>
-      <v-col cols="12" xs="12" sm="12" md="6">
-        <Announcement />
-      </v-col>
-      <v-col cols="12" xs="12" sm="12" md="6">
         <Device />
-      </v-col>
-      <v-col cols="12" xs="12" sm="12" md="6">
         <ReportNotification />
       </v-col>
     </v-row>
@@ -100,9 +103,20 @@ import Announcement from "../components/widgets/Announcement.vue";
 import AttendanceLog from "../components/widgets/AttendanceLog.vue";
 import Device from "../components/widgets/Device.vue";
 import ReportNotification from "../components/widgets/ReportNotification.vue";
+import AttendancePIE from "../components/widgets/AttendancePIE.vue";
+import DevicePIE from "../components/widgets/DevicePIE.vue";
+import DailyLog from "../components/widgets/DailyLog.vue";
 
 export default {
-  components: { Announcement, AttendanceLog, Device, ReportNotification },
+  components: {
+    DailyLog,
+    Announcement,
+    AttendanceLog,
+    Device,
+    ReportNotification,
+    AttendancePIE,
+    DevicePIE,
+  },
   date: () => ({
     loading: true,
     items: [

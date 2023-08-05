@@ -345,7 +345,13 @@ export default {
       menus: [
         {
           icon: "mdi-home",
-          title: "Dashboard",
+          title: "Dashboard (NEW)",
+          to: "/dashboard1",
+          menu: "dashboard_access",
+        },
+        {
+          icon: "mdi-home",
+          title: "Dashboard (OLD)",
           to: "/",
           menu: "dashboard_access",
         },

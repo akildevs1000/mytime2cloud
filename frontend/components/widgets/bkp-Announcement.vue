@@ -26,7 +26,7 @@
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
-            to="/report_notifications"
+            to="/announcement"
             dense
             class="ma-0 px-0"
             x-small
@@ -42,6 +42,7 @@
       </v-tooltip>
     </v-toolbar>
     <v-data-table
+      style="min-height: 586px"
       item-key="id"
       :headers="headers"
       :items="data"
@@ -63,39 +64,39 @@
 export default {
   data: () => ({
     options: {},
-    Model: "Report Notification",
-    endpoint: "report_notification",
+    Model: "Announcement",
+    endpoint: "announcement",
     search: "",
     loading: false,
     total: 0,
 
     headers: [
-    {
-        text: "Subject",
+      {
+        text: "Title",
         align: "left",
         sortable: true,
         key: "title",
-        value: "subject",
+        value: "title",
         filterable: true,
         filterSpecial: false,
       },
       {
-        text: "Frequency",
+        text: "Start Date",
         align: "left",
         sortable: true,
-        key: "frequency",
-        value: "frequency",
+        value: "start_date",
+        key: "start_date",
         filterable: true,
-        filterSpecial: false,
+        filterSpecial: true,
       },
       {
-        text: "Time",
+        text: "End Date",
         align: "left",
         sortable: true,
-        key: "time",
-        value: "time",
+        value: "end_date",
+        key: "end_date",
         filterable: true,
-        filterSpecial: false,
+        filterSpecial: true,
       },
     ],
 
@@ -192,7 +193,7 @@ export default {
         options.params[filter_column] = filter_value;
       }
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+      this.$axios.get(`${url}`, options).then(({ data }) => {
         if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";
