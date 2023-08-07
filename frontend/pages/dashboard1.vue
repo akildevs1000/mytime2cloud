@@ -1,190 +1,258 @@
 <template>
-  <div>
+  <v-container fluid>
     <v-row>
-      <v-col cols="12" xs="12" sm="4" md="4">
+      <v-col
+        v-for="(card, index) in cardData"
+        :key="index"
+        :cols="card.cols"
+        :sm="card.sm"
+        :md="card.md"
+      >
         <v-card
+          :color="card.color"
           dark
           dense
           style="border-radius: 15px !important"
-          class="green-gradient-bg pa-8 text-center"
         >
-          <div>
-            <h2>Today Summary</h2>
-            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
+          <div class="text-right px-2">
+            <v-icon small @click="editCard(index)">mdi-pencil</v-icon>
+            <v-icon small @click="deleteCard(index)">mdi-delete</v-icon>
+          </div>
+          <div class="text-center pa-5">
+            <h1>{{ card.value }}</h1>
+            <p>{{ card.title }}</p>
           </div>
         </v-card>
       </v-col>
-      <v-col cols="12" xs="12" sm="4" md="4">
+      <v-col cols="12" sm="6" md="3">
         <v-card
+          @click="addCard"
+          :color="'background'"
           dark
           dense
           style="border-radius: 15px !important"
-          class="green-gradient-bg pa-8 text-center"
         >
-          <div>
-            <h2>Today Present</h2>
-            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
+          <div class="text-right px-2">
+            <v-icon disabled color="background" small @click="editCard(index)"
+              >mdi-pencil</v-icon
+            >
+          </div>
+          <div class="text-center pa-5">
+            <h1><v-icon>mdi-plus-circle-outline</v-icon></h1>
+            <p>Add New Card</p>
           </div>
         </v-card>
-      </v-col>
-      <v-col cols="12" xs="12" sm="4" md="4">
-        <v-card
-          dark
-          dense
-          style="border-radius: 15px !important"
-          class="green-gradient-bg pa-8 text-center"
-        >
-          <div>
-            <h2>Today Missing</h2>
-            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" xs="12" sm="4" md="4">
-        <v-card
-          dark
-          dense
-          style="border-radius: 15px !important"
-          class="orange-gradient-bg pa-5 text-center"
-        >
-          <div>
-            <h2>Employee on Leave</h2>
-            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" xs="12" sm="4" md="4">
-        <v-card
-          dark
-          dense
-          style="border-radius: 15px !important"
-          class="orange-gradient-bg pa-5 text-center"
-        >
-          <div>
-            <h2>Employee on Holiday</h2>
-            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" xs="12" sm="4" md="4">
-        <v-card
-          dark
-          dense
-          style="border-radius: 15px !important"
-          class="orange-gradient-bg pa-5 text-center"
-        >
-          <div>
-            <h2>Today Employees</h2>
-            <h3>{{ Math.floor(Math.random() * (20 - 1 + 1)) + 1 }}</h3>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
-        <AttendancePIE />
-      </v-col>
-      <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
-        <DailyLog />
-      </v-col>
-      <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
-        <DevicePIE />
-      </v-col>
-
-      <v-col cols="12">
-        <AttendanceLog />
-        <Device />
-        <ReportNotification />
       </v-col>
     </v-row>
-  </div>
+
+    <v-row>
+      <v-col>
+        <v-dialog v-model="editDialog" max-width="900">
+          <v-card>
+            <v-card-title
+              >Edit Card <v-spacer></v-spacer>
+              <v-icon color="black" @click="closeEdit">mdi-close</v-icon>
+              <v-icon color="black" @click="saveEdit">mdi-database</v-icon>
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col>
+                  <v-text-field
+                    @input="reflectChange"
+                    v-model="editedCard.cols"
+                    label="Default Col"
+                  ></v-text-field>
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    @input="reflectChange"
+                    v-model="editedCard.md"
+                    label="Medium Col"
+                  ></v-text-field>
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    @input="reflectChange"
+                    v-model="editedCard.sm"
+                    label="Small Col"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <v-text-field
+                    @input="reflectChange"
+                    v-model="editedCard.title"
+                    label="Title"
+                  ></v-text-field>
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    @input="reflectChange"
+                    v-model="editedCard.value"
+                    label="Value"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  Color Picker
+
+                  <v-color-picker
+                    @input="reflectChange"
+                    v-model="editedCard.color"
+                    dot-size="20"
+                    show-swatches
+                    mode="hexa"
+                    swatches-max-height="250"
+                  ></v-color-picker>
+                </v-col>
+                <v-col>
+                  Card Preview
+                  <v-card
+                    :color="editedCard.color"
+                    dark
+                    dense
+                    style="border-radius: 15px !important"
+                  >
+                    <div class="text-right px-2">
+                      <v-icon disabled small @click="editCard(index)"
+                        >mdi-pencil</v-icon
+                      >
+                      <v-icon disabled small @click="deleteCard(index)"
+                        >mdi-delete</v-icon
+                      >
+                    </div>
+                    <div class="text-center pa-5">
+                      <h1>{{ editedCard.value }}</h1>
+                      <p>{{ editedCard.title }}</p>
+                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
-import Announcement from "../components/widgets/Announcement.vue";
-import AttendanceLog from "../components/widgets/AttendanceLog.vue";
-import Device from "../components/widgets/Device.vue";
-import ReportNotification from "../components/widgets/ReportNotification.vue";
-import AttendancePIE from "../components/widgets/AttendancePIE.vue";
-import DevicePIE from "../components/widgets/DevicePIE.vue";
-import DailyLog from "../components/widgets/DailyLog.vue";
-
 export default {
-  components: {
-    DailyLog,
-    Announcement,
-    AttendanceLog,
-    Device,
-    ReportNotification,
-    AttendancePIE,
-    DevicePIE,
+  data() {
+    return {
+      editDialog: false,
+      editedCard: {
+        title: "New Card",
+        value: "0",
+        color: "#4A79DBED",
+        icon: "mdi mdi-account",
+        cols: "12",
+        sm: "6",
+        md: "3",
+      },
+      editIndex: null,
+
+      cardData: [
+        // {
+        //   title: "Total Employees",
+        //   value: 5,
+        //   color: "#FF0000FF",
+        //   icon: "mdi mdi-account",
+        //   cols: "12",
+        //   sm: "6",
+        //   md: "3",
+        // },
+        // {
+        //   title: "Present",
+        //   value: 5,
+        //   color: "#004BE4ED",
+        //   icon: "mdi mdi-book",
+        //   cols: "12",
+        //   sm: "6",
+        //   md: "3",
+        // },
+        // {
+        //   title: "Total Missing",
+        //   value: 5,
+        //   color: "green",
+        //   icon: "mdi mdi-book",
+        // },
+        // {
+        //   title: "Total Employees",
+        //   value: 5,
+        //   color: "yellow",
+        //   icon: "mdi mdi-account",
+        // },
+        // {
+        //   title: "Total Present",
+        //   value: 5,
+        //   color: "orange",
+        //   icon: "mdi mdi-book",
+        // },
+        // {
+        //   title: "Total Missing",
+        //   value: 5,
+        //   color: "purple",
+        //   icon: "mdi mdi-book",
+        // },
+        // {
+        //   title: "Total Missing",
+        //   value: 5,
+        //   color: "brown",
+        //   icon: "mdi mdi-book",
+        // },
+        // {
+        //   title: "Total Missing",
+        //   value: 5,
+        //   color: "teal",
+        //   icon: "mdi mdi-book",
+        // },
+        // {
+        //   title: "Total Missing",
+        //   value: 5,
+        //   color: "pink",
+        //   icon: "mdi mdi-book",
+        // },
+      ],
+    };
   },
-  date: () => ({
-    loading: true,
-    items: [
-      {
-        title: "Today Summary",
-        value: 0,
-        icon: "fas fa-clock",
-        color: "l-bg-purple-dark",
-        link: "http://localhost:8000/api/daily?company_id=8&status=SA&daily_date=2023-08-04&department_id=-1&report_type=Daily",
-        multi_in_out:
-          "http://localhost:8000/api/multi_in_out_daily?company_id=8&status=SA&daily_date=2023-08-04&department_id=-1&report_type=Daily",
-        total_employees_count: 7,
-      },
-      {
-        title: "Today Presents",
-        value: 0,
-        icon: "fas fa-calendar-check",
-        color: "l-bg-green-dark ",
-        link: "http://localhost:8000/api/daily?page=1&per_page=1000&company_id=8&status=P&daily_date=2023-08-04&department_id=-1&report_type=Daily",
-        multi_in_out:
-          "http://localhost:8000/api/multi_in_out_daily?page=1&per_page=1000&company_id=8&status=P&daily_date=2023-08-04&department_id=-1&report_type=Daily",
-        total_employees_count: 7,
-      },
-      {
-        title: "Today Absent",
-        value: 0,
-        icon: "fas fa-calendar-times",
-        color: "l-bg-orange-dark",
-        link: "http://localhost:8000/api/daily?page=1&per_page=1000&company_id=8&status=A&daily_date=2023-08-04&department_id=-1&report_type=Daily",
-        multi_in_out:
-          "http://localhost:8000/api/multi_in_out_daily?page=1&per_page=1000&company_id=8&status=A&daily_date=2023-08-04&department_id=-1&report_type=Daily",
-        total_employees_count: 7,
-      },
-      {
-        title: "Today Missing",
-        value: 0,
-        icon: "\tfas fa-clock",
-        color: "l-bg-cyan-dark",
-        link: "http://localhost:8000/api/daily?page=1&per_page=1000&company_id=8&status=M&daily_date=2023-08-04&department_id=-1&report_type=Daily",
-        multi_in_out:
-          "http://localhost:8000/api/multi_in_out_daily?page=1&per_page=1000&company_id=8&status=M&daily_date=2023-08-04&department_id=-1&report_type=Daily",
-        total_employees_count: 7,
-      },
-    ],
-  }),
-  created() {
-    // this.loading = true;
-    // let options = {
-    //   company_id: this.$auth.user.company.id,
-    // };
-    // this.$axios.get(`count`, { params: options }).then(({ data }) => {
-    //   this.items = data;
-    //   if (this.items.length > 0) {
-    //     this.loading = false;
-    //   }
-    // });
+  methods: {
+    addCard() {
+      this.cardData.push(this.editedCard);
+    },
+
+    editCard(index) {
+      this.editDialog = true;
+      this.editIndex = index;
+      this.editedCard = { ...this.cardData[index] };
+    },
+    deleteCard(index) {
+      this.cardData.splice(index, 1);
+    },
+    reflectChange() {
+      this.cardData[this.editIndex] = { ...this.editedCard };
+    },
+    saveEdit() {
+      this.reflectChange();
+      this.closeEdit();
+    },
+    closeEdit() {
+      this.editDialog = false;
+      this.editedCard = {
+        title: "New Card",
+        value: "0",
+        color: "#4A79DBED",
+        icon: "mdi mdi-account",
+        cols: "12",
+        sm: "6",
+        md: "3",
+      };
+      this.editIndex = null;
+    },
   },
 };
 </script>
-
-<style scoped>
-/* Gradient background styles */
-.green-gradient-bg {
-  background: linear-gradient(to right, rgb(140, 82, 255), rgb(0, 191, 99));
-
-  /* background: linear-gradient(90deg, rgb(140, 82, 255) 0%, rgb(255, 145, 77) 100%) 0px 0px / 112.389px 38.213px */
-}
-.orange-gradient-bg {
-  background: linear-gradient(to right, rgb(140, 82, 255), rgb(255, 145, 77));
-}
-</style>
