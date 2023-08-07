@@ -238,7 +238,7 @@ export default {
       this.$axios
         .get("theme", options)
         .then(({ data }) => {
-          this.cardData = data.style;
+          this.cardData = data;
         })
         .catch((e) => console.log(e));
     },

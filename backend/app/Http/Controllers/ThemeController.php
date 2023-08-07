@@ -14,7 +14,8 @@ class ThemeController extends Controller
      */
     public function index(Request $request)
     {
-        return Theme::where("company_id", $request->company_id)->where("page", $request->page)->where("type", $request->type)->first();
+        $found = Theme::where("company_id", $request->company_id)->where("page", $request->page)->where("type", $request->type)->first();
+        return $found->style ?? [];
     }
 
     /**
