@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
+use App\Models\Employee;
 use App\Models\Theme;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ThemeController extends Controller
 {
@@ -14,8 +17,35 @@ class ThemeController extends Controller
      */
     public function index(Request $request)
     {
-        $found = Theme::where("company_id", $request->company_id)->where("page", $request->page)->where("type", $request->type)->first();
-        return $found->style ?? [];
+        $id = $request->company_id;
+        $counts = $this->getCounts($request->company_id);
+
+        $jsonColumn = Theme::where("company_id", $id)
+            ->where("page", $request->page)
+            ->where("type", $request->type)
+            ->value("style") ?? [];
+
+        foreach ($jsonColumn as &$card) {
+            $card["value"] = str_pad($counts[$card["value"]] ?? "", 2, '0', STR_PAD_LEFT);
+        }
+        return $jsonColumn;
+    }
+
+    public function getCounts($id = 0): array
+    {
+        $model = Attendance::query();
+        $model->whereCompanyId($id);
+        $model->whereDate('date', date("Y-m-d"))->get();
+        $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])->get();
+
+        return [
+            "employeeCount" => Employee::where("company_id", $id)->count() ?? 0,
+            "presentCount" => $model->where('status', 'P')->count() ?? 0,
+            "absentCount" => $model->where('status', 'A')->count() ?? 0,
+            "missingCount" => $model->where('status', 'M')->count() ?? 0,
+            "holidayCount" => $model->where('status', 'H')->count() ?? 0,
+            "leaveCount" => $model->where('status', 'L')->count() ?? 0,
+        ];
     }
 
     /**
@@ -42,9 +72,10 @@ class ThemeController extends Controller
      * @param  \App\Models\Theme  $theme
      * @return \Illuminate\Http\Response
      */
-    public function show(Theme $theme)
+    public function theme_count(Request $request)
     {
-        //
+        $counts = $this->getCounts($request->company_id);
+        return str_pad($counts[$request->value] ?? "", 2, '0', STR_PAD_LEFT);
     }
 
     /**

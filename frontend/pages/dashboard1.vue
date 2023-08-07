@@ -15,126 +15,13 @@
           style="border-radius: 15px !important"
         >
           <div class="text-right px-2">
-            <v-icon small @click="editCard(index)">mdi-pencil</v-icon>
-            <v-icon small @click="deleteCard(index)">mdi-delete</v-icon>
+            <v-icon small @click="goToThemeEditor">mdi-pencil</v-icon>
           </div>
           <div class="text-center pa-5">
             <h1>{{ card.value }}</h1>
             <p>{{ card.title }}</p>
           </div>
         </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card
-          @click="addCard"
-          :color="'background'"
-          dark
-          dense
-          style="border-radius: 15px !important"
-        >
-          <div class="text-right px-2">
-            <v-icon disabled color="background" small @click="editCard(index)"
-              >mdi-pencil</v-icon
-            >
-          </div>
-          <div class="text-center pa-5">
-            <h1><v-icon>mdi-plus-circle-outline</v-icon></h1>
-            <p>Add New Card</p>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col>
-        <v-dialog v-model="editDialog" max-width="900">
-          <v-card>
-            <v-card-title
-              >Edit Card <v-spacer></v-spacer>
-              <v-icon color="black" @click="closeEdit">mdi-close</v-icon>
-              <v-icon color="black" @click="saveEdit">mdi-database</v-icon>
-            </v-card-title>
-            <v-card-text>
-              <v-row>
-                <v-col>
-                  <v-text-field
-                    @input="reflectChange"
-                    v-model="editedCard.cols"
-                    label="Default Col"
-                  ></v-text-field>
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    @input="reflectChange"
-                    v-model="editedCard.md"
-                    label="Medium Col"
-                  ></v-text-field>
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    @input="reflectChange"
-                    v-model="editedCard.sm"
-                    label="Small Col"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  <v-text-field
-                    @input="reflectChange"
-                    v-model="editedCard.title"
-                    label="Title"
-                  ></v-text-field>
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    @input="reflectChange"
-                    v-model="editedCard.value"
-                    label="Value"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  Color Picker
-
-                  <v-color-picker
-                    @input="reflectChange"
-                    v-model="editedCard.color"
-                    dot-size="20"
-                    show-swatches
-                    mode="hexa"
-                    swatches-max-height="250"
-                  ></v-color-picker>
-                </v-col>
-                <v-col>
-                  Card Preview
-                  <v-card
-                    :color="editedCard.color"
-                    dark
-                    dense
-                    style="border-radius: 15px !important"
-                  >
-                    <div class="text-right px-2">
-                      <v-icon disabled small @click="editCard(index)"
-                        >mdi-pencil</v-icon
-                      >
-                      <v-icon disabled small @click="deleteCard(index)"
-                        >mdi-delete</v-icon
-                      >
-                    </div>
-                    <div class="text-center pa-5">
-                      <h1>{{ editedCard.value }}</h1>
-                      <p>{{ editedCard.title }}</p>
-                    </div>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
       </v-col>
     </v-row>
   </v-container>
@@ -246,10 +133,9 @@ export default {
       this.cardData.push(this.editedCard);
     },
 
-    editCard(index) {
-      this.editDialog = true;
-      this.editIndex = index;
-      this.editedCard = { ...this.cardData[index] };
+    goToThemeEditor() {
+      // theme/8
+      this.$router.push(`theme/${this.$auth.user.company.id}`);
     },
     deleteCard(index) {
       this.cardData.splice(index, 1);

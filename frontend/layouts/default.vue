@@ -517,12 +517,19 @@ export default {
           to: "/report_notifications",
           menu: "notifications_access",
         },
+
         {
           icon: "mdi-cog",
           title: `Settings`,
           open_menu: false,
           menu: "company_access",
           hasChildren: [
+            {
+              icon: "mdi-theme",
+              title: "Theme",
+              to: `/theme/${this.$auth.user?.company?.id}`,
+              menu: "notifications_access",
+            },
             {
               icon: "mdi mdi-card-account-details",
               title: "Profile",

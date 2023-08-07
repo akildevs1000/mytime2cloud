@@ -102,7 +102,7 @@ class EmployeeDashboard extends Controller
 
         $model->whereMonth('date', now()->month);
 
-        return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L'])->get();
+        return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])->get();
 
         // working code with cache
         $cacheKey = 'employee_attendance_records:' . $request->company_id . "_" . $request->employee_id;
@@ -117,7 +117,7 @@ class EmployeeDashboard extends Controller
 
             $model->whereMonth('date', now()->month);
 
-            return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L'])->get();
+            return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])->get();
         });
     }
 
