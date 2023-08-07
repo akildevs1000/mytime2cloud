@@ -23,3 +23,4 @@ include('visitor.php');
 include('visitor_logs.php');
 include('visitor_attendance.php');
 include('zone.php');
+include('theme.php');

@@ -220,7 +220,28 @@ export default {
       ],
     };
   },
+  created() {
+    this.getRecord();
+  },
   methods: {
+    getRecord() {
+      let payload = {
+        page: "dashboard",
+        type: "card",
+        company_id: this.$auth.user.company.id,
+      };
+
+      let options = {
+        params: payload,
+      };
+
+      this.$axios
+        .get("theme", options)
+        .then(({ data }) => {
+          this.cardData = data.style;
+        })
+        .catch((e) => console.log(e));
+    },
     addCard() {
       this.cardData.push(this.editedCard);
     },
@@ -238,7 +259,21 @@ export default {
     },
     saveEdit() {
       this.reflectChange();
-      this.closeEdit();
+
+      let payload = {
+        page: "dashboard",
+        type: "card",
+        style: this.cardData,
+        company_id: this.$auth.user.company.id,
+      };
+
+      this.$axios
+        .post("theme", payload)
+        .then(({ data }) => {
+          alert("Data inserted");
+          this.closeEdit();
+        })
+        .catch((e) => console.log(e));
     },
     closeEdit() {
       this.editDialog = false;
