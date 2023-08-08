@@ -330,16 +330,23 @@ class RenderController extends Controller
     public function renderLeavesCron($company_id = 0)
     {$todayDate = date('Y-m-d', strtotime('-1 day'));
 
-        $model = EmployeeLeaves::with(["employee"])
+        $model = EmployeeLeaves::with(["employee", "leave_type"])
             ->where('company_id', $company_id)
-        //->where('status', 1)
+            ->where('status', 1)
             ->where('start_date', '<=', $todayDate)
             ->where('end_date', '>=', $todayDate);
+
         $employees = $model->get();
+
         $userIDs = [];
         foreach ($employees as $key => $value) {
+
             if ($value->employee->system_user_id) {
-                $userIDs[] = $this->renderLeavesScript($company_id, $todayDate, $value->employee->system_user_id);
+                {
+
+                    $userIDs[] = $this->renderLeavesScript($company_id, $todayDate, $value->employee->system_user_id, $value->leave_type->name);
+                }
+
             }
 
         }
@@ -351,8 +358,8 @@ class RenderController extends Controller
     {$todayDate = date('Y-m-d', strtotime('-1 day'));
 
         $holidayCount = Holidays::where('company_id', $company_id)
-            ->where('start_date', '<=', $todayDate)
-            ->where('end_date', '>=', $todayDate)->get()->count();
+            ->where('start_date', '>=', $todayDate)
+            ->where('end_date', '<=', $todayDate)->get()->count();
 
         if ($holidayCount) {
             $employees = Employee::where('company_id', $company_id)
@@ -498,7 +505,7 @@ class RenderController extends Controller
             return $e;
         }
     }
-    public function renderLeavesScript($company_id, $date, $user_id = 0)
+    public function renderLeavesScript($company_id, $date, $user_id = 0, $leave_type_name = '')
     {
         try {
             $model = ScheduleEmployee::query();
@@ -519,22 +526,34 @@ class RenderController extends Controller
 
             // foreach ($employees as $employee)
             {
+                if ($leave_type_name != '' && strpos(strtolower($leave_type_name), 'vacation') > -1) {
 
-                $records[] = [
-                    "company_id" => $company_id,
-                    "date" => $date,
-                    "status" => "L",
-                    "employee_id" => $employees->employee_id,
-                    "shift_id" => -3,
-                    "shift_type_id" => $employees->shift_type_id,
-                ];
+                    $records[] = [
+                        "company_id" => $company_id,
+                        "date" => $date,
+                        "status" => "V",
+                        "employee_id" => $employees->employee_id,
+                        "shift_id" => -3,
+                        "shift_type_id" => $employees->shift_type_id,
+                    ];
+                } else {
+
+                    $records[] = [
+                        "company_id" => $company_id,
+                        "date" => $date,
+                        "status" => "L",
+                        "employee_id" => $employees->employee_id,
+                        "shift_id" => -3,
+                        "shift_type_id" => $employees->shift_type_id,
+                    ];
+                }
             }
 
             $model = Attendance::query();
             // $model->where("shift_id", -1);
             $model->where("company_id", $company_id);
             $model->where("date", $date);
-            $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
+            $model->whereIn("status", ["P", "A", "M", "O", "L", "H", "V"]);
 
             $model->when($user_id, function ($q) use ($user_id) {
                 return $q->where("employee_id", $user_id);
@@ -589,7 +608,7 @@ class RenderController extends Controller
                 // $model->where("shift_id", -1);
                 $model->where("company_id", $company_id);
                 $model->where("date", $date);
-                $model->whereIn("status", ["P", "A", "M", "O", "L", "H"]);
+                $model->whereIn("status", ["P", "A", "M", "O", "L", "H", "V"]);
 
                 $model->when($user_id, function ($q) use ($user_id) {
                     return $q->where("employee_id", $user_id);
