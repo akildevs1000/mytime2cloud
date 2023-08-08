@@ -21,7 +21,7 @@
               <v-autocomplete
                 label="Select Page"
                 v-model="page"
-                :items="[`dashboard`]"
+                :items="[`dashboard1`,`dashboard2`]"
               >
               </v-autocomplete>
             </v-col>
@@ -42,7 +42,7 @@ import CardDesginer from "../../components/Theme/CardDesginer.vue";
 
 export default {
   data: () => ({
-    page: "dashboard",
+    page: null,
     show_password_confirm: false,
     current_password_show: false,
     show_password: false,

@@ -25,9 +25,9 @@ class ThemeController extends Controller
             ->where("type", $request->type)
             ->value("style") ?? [];
 
-        foreach ($jsonColumn as &$card) {
-            $card["value"] = str_pad($counts[$card["value"]] ?? "", 2, '0', STR_PAD_LEFT);
-        }
+        // foreach ($jsonColumn as &$card) {
+        //     $card["value"] = str_pad($counts[$card["value"]] ?? "", 2, '0', STR_PAD_LEFT);
+        // }
         return $jsonColumn;
     }
 

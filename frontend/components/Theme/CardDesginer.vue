@@ -88,7 +88,13 @@
                   ></v-text-field>
                 </v-col>
                 <v-col>
-                  <v-autocomplete
+                  <v-text-field
+                    @input="reflectChange"
+                    v-model="editedCard.value"
+                    label="Value"
+                  ></v-text-field>
+
+                  <!-- <v-autocomplete
                     @input="reflectCount"
                     v-model="editedCard.value"
                     item-text="title"
@@ -112,7 +118,7 @@
                       },
                     ]"
                   >
-                  </v-autocomplete>
+                  </v-autocomplete> -->
                 </v-col>
               </v-row>
 
@@ -297,7 +303,7 @@ export default {
       this.reflectChange();
 
       let payload = {
-        page: "dashboard",
+        page: this.page,
         type: "card",
         style: this.cardData,
         company_id: this.$auth.user.company.id,

@@ -1,9 +1,7 @@
 <template>
   <v-card class="mb-5 rounded-md" elevation="1">
     <v-toolbar class="rounded-md" color="background" dense flat dark>
-      <v-toolbar-title
-        ><span> {{ Model }} List </span></v-toolbar-title
-      >
+      <v-toolbar-title><span> RealTime Log List</span></v-toolbar-title>
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -43,133 +41,89 @@
     </v-toolbar>
     <div class="center-both" style="min-height: 300px">
       <FacePreloader v-if="loading" />
-      <div v-else-if="!data.length">No record found</div>
-      <div v-else style="height: 160px; width: 300px">
-        <v-carousel
-          hide-delimiter-background
-          hide-delimiters
-          :height="carouselHeight"
-        >
-          <v-carousel-item v-for="(item, index) in items" :key="index">
-            <div
-              style="
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
+      <div v-else-if="!logs.length">No record found</div>
+      <v-slide-group v-else center-active multiple show-arrows>
+        <v-slide-item class="ma-5" v-for="(item, i) in logs" :key="i">
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <v-img
+              :src="
+                (item.employee && item.employee.profile_picture) ||
+                '/no-profile-image.jpg'
               "
-            >
-              <v-img
-                :src="item.image"
-                :alt="item.alt"
-                style="width: 150px; object-fit: contain; border-radius: 50%"
-              />
-              <div style="margin-top: 10px; text-align: center">
-                <span>Francis Gill</span>
-              </div>
+              style="width: 150px; object-fit: contain; border-radius: 50%"
+            />
+            <div style="margin-top: 10px">
+              {{ item.employee && item.employee.first_name }}
             </div>
-          </v-carousel-item>
-        </v-carousel>
-      </div>
+            <div>
+              <span>{{ item && item.time }}</span>
+            </div>
+          </div>
+        </v-slide-item>
+      </v-slide-group>
     </div>
   </v-card>
 </template>
 <script>
 export default {
-  data: () => ({
-    carouselWidth: 250,
-    carouselHeight: 200, // You can adjust this height as needed
-    Model: "RealTime Log",
-    data: [],
-    items: [
-      {
-        image:
-          "https://th.bing.com/th/id/R.b37449e1b72e11ff5dd8107308207fd3?rik=vb9G3NWALO1Hdw&pid=ImgRaw&r=0",
-        alt: "Image 1",
-      },
-      {
-        image:
-          "https://th.bing.com/th/id/R.b37449e1b72e11ff5dd8107308207fd3?rik=vb9G3NWALO1Hdw&pid=ImgRaw&r=0",
-        alt: "Image 2",
-      },
-      {
-        image:
-          "https://th.bing.com/th/id/R.b37449e1b72e11ff5dd8107308207fd3?rik=vb9G3NWALO1Hdw&pid=ImgRaw&r=0",
-        alt: "Image 3",
-      },
-    ],
-    chartOptions: {
-      title: {
-        align: "center",
-        margin: 0,
-      },
-      colors: ["#23bdb8", "#f48665", "#289cf5", "#8e4cf1"],
-
-      series: [],
-      chart: {
-        width: 350, //200 //275
-        type: "pie",
-      },
-      labels: [],
-      // plotOptions: {
-      //   pie: {
-      //     startAngle: -90,
-      //     endAngle: 270,
-      //   },
-      // },
-      dataLabels: {
-        enabled: true,
-        style: {
-          fontSize: "10px",
-        },
-      },
-      legend: {
-        show: true,
-        fontSize: "10px",
-      },
-      responsive: [
-        {
-          breakpoint: 480,
-          options: {
-            chart: {
-              width: 250, //200 //275
-            },
-            legend: {
-              position: "bottom",
-            },
-          },
-        },
-      ],
-    },
-    loading: true,
-  }),
+  data() {
+    return {
+      loading: false,
+      items: [],
+      emptyLogmessage: "",
+      number_of_records: 10,
+      logs: [],
+      url: process.env.SOCKET_ENDPOINT,
+      socket: null,
+    };
+  },
   mounted() {
-    this.getDataFromApi();
+    this.socketConnection();
+  },
+
+  created() {
+    this.getRecords();
   },
   methods: {
-    getDataFromApi() {
+    getRecords() {
       this.loading = true;
-      let options = {
-        company_id: this.$auth.user.company.id,
-      };
-      this.$axios.get(`count`, { params: options }).then(async ({ data }) => {
-        this.loading = false;
-        this.data = data = [
-          {
-            title: "Today Summary",
-            value: Math.floor(Math.random() * (20 - 1 + 1)) + 1,
-          },
-          {
-            title: "Today Present",
-            value: Math.floor(Math.random() * (20 - 1 + 1)) + 1,
-          },
-          {
-            title: "Today Missing",
-            value: Math.floor(Math.random() * (20 - 1 + 1)) + 1,
-          },
-        ];
+      this.$axios
+        .get(
+          `device/getLastRecordsByCount/${this.$auth.user.company.id}/${this.number_of_records}`
+        )
+        .then((res) => {
+          this.loading = false;
+          this.logs = res.data;
+        });
+    },
+    socketConnection() {
+      this.socket = new WebSocket(this.url);
 
-        this.loading = false;
+      this.socket.onmessage = ({ data }) => {
+        let json = JSON.parse(data).Data;
+        if (json && json.UserCode > 0) {
+          this.getDetails(json);
+        }
+      };
+    },
+    getDetails(item) {
+      item.company_id = this.$auth.user.company.id;
+
+      this.$axios.post(`/device/details`, item).then(({ data }) => {
+        if (data.device) {
+          if (data.device.company_id == this.$auth.user.company.id) {
+            data.employee.profile_picture =
+              "data:image;base64," + item.RecordImage;
+            this.logs.unshift(data);
+          }
+        }
       });
     },
   },

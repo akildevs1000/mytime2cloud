@@ -148,7 +148,7 @@ export default {
   methods: {
     getRecord() {
       let payload = {
-        page: "dashboard1",
+        page: "dashboard2",
         type: "card",
         company_id: this.$auth.user.company.id,
       };

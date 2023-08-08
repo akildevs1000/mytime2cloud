@@ -344,23 +344,37 @@ export default {
       order_count: "",
       menus: [
         {
-          icon: "mdi-home",
-          title: "Dashboard (NEW)",
-          to: "/dashboard1",
-          menu: "dashboard_access",
-        },
-        {
-          icon: "mdi-home",
-          title: "Dashboard (OLD)",
-          to: "/",
-          menu: "dashboard_access",
-        },
-
-        {
           icon: "mdi-account-tie",
           title: "Employees",
           to: "/employees",
           menu: "employee_access",
+        },
+
+        {
+          icon: "mdi-apps",
+          title: `Dashboards`,
+          open_menu: false,
+          menu: "dashboard_access",
+          hasChildren: [
+            {
+              icon: "mdi-appss",
+              title: "Multi Inout",
+              to: "/dashboard1",
+              menu: "dashboard_access",
+            },
+            {
+              icon: "mdi-appss",
+              title: "General",
+              to: "/dashboard2",
+              menu: "dashboard_access",
+            },
+            {
+              icon: "mdi-appss",
+              title: "Dashboard (OLD)",
+              to: "/",
+              menu: "dashboard_access",
+            },
+          ],
         },
 
         {

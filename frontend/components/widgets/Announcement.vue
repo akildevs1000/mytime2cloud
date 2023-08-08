@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mb-5 rounded-md" elevation="0">
+  <v-card class="mb-5 rounded-md" elevation="1">
     <v-toolbar class="rounded-md" color="background" dense flat dark>
       <v-toolbar-title
         ><span> {{ Model }} List </span></v-toolbar-title
@@ -41,23 +41,23 @@
         <span>Announcement List</span>
       </v-tooltip>
     </v-toolbar>
-    <v-data-table
-      style="min-height: 586px"
-      item-key="id"
-      :headers="headers"
-      :items="data"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
-        itemsPerPageOptions: [10, 50, 100, 500, 1000],
-      }"
-      class="elevation-1"
-      :server-items-length="data.total"
-    >
-      <template v-slot:no-data>
-        <div class="no-data-container">No data available</div>
-      </template>
-    </v-data-table>
+    <div class="center-both" style="min-height: 300px">
+      <PiePreloader v-if="loading" />
+      <div v-else-if="!data.length">No record found</div>
+      <div v-else style="width: 100%">
+        <v-card-text class="pa-2" v-for="(announcement, i) in data" :key="i">
+          <b>{{ announcement.title }}</b>
+          <br />
+          When: {{ announcement.start_date }} -
+          {{ announcement.end_date }}
+
+          <div
+            v-if="i + 1 !== data.length"
+            style="border-bottom: 1px solid #b3b1b1"
+          ></div>
+        </v-card-text>
+      </div>
+    </div>
   </v-card>
 </template>
 <script>
@@ -205,10 +205,10 @@ export default {
         if (data.total == 0) {
           this.headers = [];
         }
+        this.loading = false;
 
         this.data = data.data;
         this.total = data.total;
-        this.loading = false;
       });
     },
     searchIt(e) {
@@ -222,11 +222,11 @@ export default {
 };
 </script>
 
-<style scop>
-.no-data-container {
+<style scoped>
+.center-both {
   height: 31vh; /* Adjust the height as needed */
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: left;
+  justify-content: left;
 }
 </style>
