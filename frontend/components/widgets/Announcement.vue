@@ -43,7 +43,7 @@
     </v-toolbar>
     <div class="center-both" style="min-height: 300px">
       <PiePreloader v-if="loading" />
-      <div v-else-if="!data.length">No record found</div>
+      <div v-else-if="!loading && !dataLength">No record found</div>
       <div v-else style="width: 100%">
         <v-card-text class="pa-2" v-for="(announcement, i) in data" :key="i">
           <b>{{ announcement.title }}</b>
@@ -66,9 +66,8 @@ export default {
     options: {},
     Model: "Announcement",
     endpoint: "announcement",
-    search: "",
     loading: false,
-    total: 0,
+    dataLength:0,
 
     headers: [
       {
@@ -77,8 +76,6 @@ export default {
         sortable: true,
         key: "title",
         value: "title",
-        filterable: true,
-        filterSpecial: false,
       },
       {
         text: "Start Date",
@@ -86,8 +83,6 @@ export default {
         sortable: true,
         value: "start_date",
         key: "start_date",
-        filterable: true,
-        filterSpecial: true,
       },
       {
         text: "End Date",
@@ -95,128 +90,40 @@ export default {
         sortable: true,
         value: "end_date",
         key: "end_date",
-        filterable: true,
-        filterSpecial: true,
       },
     ],
 
-    response: "",
     data: [],
-    options_dialog: {},
   }),
 
-  watch: {
-    selectAllDepartment(value) {
-      if (value) {
-        this.editedItem.departments = this.departments.map((e) => e.id);
-        this.employeesByDepartment();
-      } else {
-        this.editedItem.departments = [];
-
-        this.getEmployees();
-      }
-    },
-
-    selectAllEmployee(value) {
-      if (value) {
-        this.editedItem.employees = this.employees_dialog.map((e) => e.id);
-      } else {
-        this.editedItem.employees = [];
-      }
-    },
-
-    dialog(val) {
-      val || this.close();
-      this.errors = [];
-      this.search = "";
-    },
-    options: {
-      handler() {
-        this.getDataFromApi();
-      },
-      deep: true,
-    },
-  },
   created() {
-    this.loading = true;
-
     this.getDataFromApi();
   },
 
   methods: {
-    datatable_cancel() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_open() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_close() {
-      this.loading = false;
-    },
-    toggleEmployeeSelection() {
-      this.selectAllEmployee = !this.selectAllEmployee;
-    },
-    applyFilters() {
-      this.from_menu_filter = false;
-      this.to_menu_filter = false;
-      this.getDataFromApi();
-    },
-    toggleFilter() {
-      // this.filters = {};
-      this.isFilter = !this.isFilter;
-    },
-    clearFilters() {
-      this.filters = {};
-
-      this.isFilter = false;
-      this.getDataFromApi();
-    },
-    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
-      if (url == "") url = this.endpoint;
+    getDataFromApi() {
       this.loading = true;
-
-      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
+      let { sortBy, sortDesc, page } = this.options;
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
+
       let options = {
         params: {
-          page: page,
+          page,
           sortBy: sortedBy,
           sortDesc: sortedDesc,
-          per_page: itemsPerPage,
+          per_page: 5,
           company_id: this.$auth.user.company.id,
-          ...this.filters,
         },
       };
-      if (filter_column != "") {
-        options.params[filter_column] = filter_value;
-      }
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        if (filter_column != "" && data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = "error";
-          this.snackText = "No Results Found";
-          this.loading = false;
-          return false;
-        }
-
-        if (data.total == 0) {
-          this.headers = [];
-        }
+      this.$axios.get(this.endpoint, options).then(({ data }) => {
         this.loading = false;
-
+        this.dataLength = data.total;
         this.data = data.data;
-        this.total = data.total;
+        if (!data.total) this.headers = [];
       });
-    },
-    searchIt(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${e}`);
-      }
     },
   },
 };
