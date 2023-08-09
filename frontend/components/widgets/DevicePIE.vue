@@ -23,42 +23,6 @@
         <span>Reload</span>
       </v-tooltip>
       <v-spacer></v-spacer>
-
-      <!-- <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            dense
-            class="ma-0 px-0"
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="changeChartType(`pie`)"
-          >
-            <v-icon color="white" class="ml-2" dark>mdi-chart-pie </v-icon>
-          </v-btn>
-        </template>
-        <span>Pie</span>
-      </v-tooltip>
-
-      <v-tooltip top color="primary">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            dense
-            class="ma-0 px-0"
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-            @click="changeChartType(`donut`)"
-          >
-            <v-icon color="white" class="ml-2" dark>mdi-chart-donut </v-icon>
-          </v-btn>
-        </template>
-        <span>Donut</span>
-      </v-tooltip> -->
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -74,13 +38,13 @@
             <v-icon color="white" class="ml-2" dark>mdi mdi-eye-outline</v-icon>
           </v-btn>
         </template>
-        <span>Device List</span>
+        <span>Reports</span>
       </v-tooltip>
     </v-toolbar>
     <div class="center-both" style="min-height: 300px">
-      <PiePreloader v-if="loading" />
-      <div v-else-if="!data.length">No record found</div>
-      <div v-else id="DevicePieId"></div>
+      <ComonPreloader icon="pie-chart" v-if="loading" />
+      <div v-else-if="!loading && !dataLength">No record found</div>
+      <div v-else id="DeviceStatusPieId"></div>
     </div>
   </v-card>
 </template>
@@ -88,13 +52,14 @@
 export default {
   data: () => ({
     Model: "Device Status",
+    dataLength: 0,
     data: [],
     chartOptions: {
       title: {
         align: "center",
         margin: 0,
       },
-      colors: ["#23bdb8", "#f48665", "#289cf5", "#8e4cf1"],
+      colors: ["#23bdb8", "#f48665"],
 
       series: [],
       chart: {
@@ -138,34 +103,21 @@ export default {
     this.getDataFromApi();
   },
   methods: {
-    changeChartType(type) {
-      this.chartOptions.chart.type = type;
-      this.getDataFromApi();
-    },
     getDataFromApi() {
-      let options = {
-        company_id: this.$auth.user.company.id,
-      };
-      this.$axios.get(`count`, { params: options }).then(async ({ data }) => {
-        this.loading = false;
-        this.data = data = [
-          {
-            title: "Online",
-            value: Math.floor(Math.random() * (20 - 1 + 1)) + 1,
-          },
-          {
-            title: "Offline",
-            value: Math.floor(Math.random() * (20 - 1 + 1)) + 1,
-          },
-        ];
-        this.chartOptions.labels = await data.map((e) => e.title);
-        this.chartOptions.series = await data.map((e) => e.value);
-        this.loading = false;
-        new ApexCharts(
-          document.querySelector("#DevicePieId"),
-          this.chartOptions
-        ).render();
-      });
+      this.loading = true;
+      this.$axios
+        .get(`devcieCountByStatus/${this.$auth.user.company.id}`)
+        .then(async ({ data }) => {
+          this.loading = false;
+          this.dataLength = await data.total;
+          this.chartOptions.labels = await data.labels;
+          this.chartOptions.series = await data.series;
+
+          await new ApexCharts(
+            document.querySelector("#DeviceStatusPieId"),
+            this.chartOptions
+          ).render();
+        });
     },
   },
 };

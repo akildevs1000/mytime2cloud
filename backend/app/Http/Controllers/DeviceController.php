@@ -53,10 +53,9 @@ class DeviceController extends Controller
                 // }
 
             } else {
-                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
-
+                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                }
             }
-
         });
         return $model->paginate($request->per_page ?? 1000);
 
@@ -102,8 +101,8 @@ class DeviceController extends Controller
 
     public function getDeviceCompany(Request $request)
     {
-        $device = DB::table("devices")->where("company_id", $request->company_id)->where("device_id", $request->DeviceID)->first(['name as device_name', 'short_name', 'device_id', 'location', "company_id"]);
-        $model = DB::table("employees")->where("company_id", $request->company_id)->where("system_user_id", $request->UserCode)->first(['display_name', 'profile_picture']);
+        $device = DB::table("devices")->where("company_id", $request->company_id)->where("device_id", $request->SN)->first(['name as device_name', 'short_name', 'device_id', 'location', "company_id"]);
+        $model = DB::table("employees")->where("company_id", $request->company_id)->where("system_user_id", $request->UserCode)->first(['first_name', 'display_name', 'profile_picture']);
 
         if ($model && $model->profile_picture) {
             $model->profile_picture = asset('media/employee/profile_picture/' . $model->profile_picture);
@@ -133,7 +132,6 @@ class DeviceController extends Controller
             // $model1->select("system_user_id")->where('employees.company_id', $request->company_id);
 
             $query->select('system_user_id')->from('employees')->where('employees.company_id', $request->company_id);
-
         });
 
         $model->when($request->filled('search_time'), function ($q) use ($request) {
@@ -182,7 +180,6 @@ class DeviceController extends Controller
         $logs = $model->paginate($request->per_page);
 
         return $logs;
-
     }
     public function getLastRecordsByCount($id = 0, $count = 0, Request $request)
     {
@@ -220,26 +217,26 @@ class DeviceController extends Controller
             $employee = Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
                 ->where('company_id', $id)
                 ->where('system_user_id', $log->UserID)
-            // ->when($request->filled('search_employee_name'), function ($q) use ($request) {
+                // ->when($request->filled('search_employee_name'), function ($q) use ($request) {
 
-            //     $key = strtolower($request->search_employee_name);
-            //     $q->where(function ($q) use ($key) {
-            //         $q->Where(DB::raw('lower(first_name)'), 'LIKE', "$key%");
-            //         $q->orWhere(DB::raw('lower(last_name)'), 'LIKE', "$key%");
-            //     });
-            // })
-            // ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
-            //     $key = strtolower($request->search_system_user_id);
-            //     $q->Where(DB::raw('lower(system_user_id)'), 'LIKE', "$key%");
-            // })
-            // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
-            //     $key = strtolower($request->search_employee_id);
-            //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
-            // })
-            // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
-            //     $key = strtolower($request->search_employee_id);
-            //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
-            // })
+                //     $key = strtolower($request->search_employee_name);
+                //     $q->where(function ($q) use ($key) {
+                //         $q->Where(DB::raw('lower(first_name)'), 'LIKE', "$key%");
+                //         $q->orWhere(DB::raw('lower(last_name)'), 'LIKE', "$key%");
+                //     });
+                // })
+                // ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
+                //     $key = strtolower($request->search_system_user_id);
+                //     $q->Where(DB::raw('lower(system_user_id)'), 'LIKE', "$key%");
+                // })
+                // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
+                //     $key = strtolower($request->search_employee_id);
+                //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
+                // })
+                // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
+                //     $key = strtolower($request->search_employee_id);
+                //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
+                // })
 
                 ->first(['first_name', 'last_name', 'employee_id', 'display_name', 'profile_picture', 'company_id']);
 
@@ -407,14 +404,18 @@ class DeviceController extends Controller
         return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
     }
 
-    public function getDevicesStatuscount($company_id)
+    public function devcieCountByStatus($company_id)
     {
-        $model = Device::where('company_id', $company_id)
-            ->whereIn('status_id', [1, 2])->get()->groupBy("status_id")->toArray();
+        $deviceStatusCounts = Device::where('company_id', $company_id)
+            ->whereIn('status_id', [1, 2])
+            ->select('status_id')
+            ->get()
+            ->groupBy('status_id');
 
         return [
-            'offline' => count($model["2"]),
-            'online' => count($model["1"]),
+            "total" => $deviceStatusCounts->get(1)->count() + $deviceStatusCounts->get(2)->count(),
+            "labels" => ["Online", "Offline"],
+            "series" => [$deviceStatusCounts->get(1)->count(), $deviceStatusCounts->get(2)->count()],
         ];
     }
 }

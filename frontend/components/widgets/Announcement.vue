@@ -42,7 +42,7 @@
       </v-tooltip>
     </v-toolbar>
     <div class="center-both" style="min-height: 300px">
-      <PiePreloader v-if="loading" />
+      <ComonPreloader icon="notification" v-if="loading" />
       <div v-else-if="!loading && !dataLength">No record found</div>
       <div v-else style="width: 100%">
         <v-card-text class="pa-2" v-for="(announcement, i) in data" :key="i">
@@ -67,7 +67,7 @@ export default {
     Model: "Announcement",
     endpoint: "announcement",
     loading: false,
-    dataLength:0,
+    dataLength: 0,
 
     headers: [
       {

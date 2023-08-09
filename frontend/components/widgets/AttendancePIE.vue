@@ -41,8 +41,8 @@
         <span>Reports</span>
       </v-tooltip>
     </v-toolbar>
-    <div class="center-both" style="min-height:300px;">
-      <PiePreloader v-if="loading" />
+    <div class="center-both" style="min-height: 300px">
+      <ComonPreloader icon="pie-chart" v-if="loading" />
       <div v-else-if="!data.length">No record found</div>
       <div v-else id="AttendancePie"></div>
     </div>
@@ -109,20 +109,7 @@ export default {
       };
       this.$axios.get(`count`, { params: options }).then(async ({ data }) => {
         this.loading = false;
-        this.data = data = [
-          {
-            title: "Today Summary",
-            value: Math.floor(Math.random() * (20 - 1 + 1)) + 1,
-          },
-          {
-            title: "Today Present",
-            value: Math.floor(Math.random() * (20 - 1 + 1)) + 1,
-          },
-          {
-            title: "Today Missing",
-            value: Math.floor(Math.random() * (20 - 1 + 1)) + 1,
-          },
-        ];
+        this.data = data;
         this.chartOptions.labels = await data.map((e) => e.title);
         this.chartOptions.series = await data.map((e) => e.value);
         this.loading = false;

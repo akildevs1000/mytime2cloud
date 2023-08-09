@@ -1,7 +1,7 @@
 <template>
   <v-card class="mb-5 rounded-md" elevation="1">
     <v-toolbar class="rounded-md" color="background" dense flat dark>
-      <v-toolbar-title><span> RealTime Log List</span></v-toolbar-title>
+      <v-toolbar-title><span> RealTime Log List francis</span></v-toolbar-title>
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -40,7 +40,7 @@
       </v-tooltip>
     </v-toolbar>
     <div class="center-both" style="min-height: 300px">
-      <FacePreloader v-if="loading" />
+      <ComonPreloader icon="face-scan" v-if="loading" />
       <div v-else-if="!logs.length">No record found</div>
       <v-slide-group v-else center-active multiple show-arrows>
         <v-slide-item class="ma-5" v-for="(item, i) in logs" :key="i">
@@ -57,7 +57,13 @@
                 (item.employee && item.employee.profile_picture) ||
                 '/no-profile-image.jpg'
               "
-              style="width: 150px; object-fit: contain; border-radius: 50%"
+              lazy-src="no-profile-image.jpg"
+              style="
+                max-width: 150px;
+                max-height: 150px;
+                object-fit: contain;
+                border-radius: 50%;
+              "
             />
             <div style="margin-top: 10px">
               {{ item.employee && item.employee.first_name }}
@@ -89,18 +95,18 @@ export default {
   },
 
   created() {
-    this.getRecords();
+    this.getDataFromApi();
   },
   methods: {
-    getRecords() {
+    getDataFromApi() {
       this.loading = true;
       this.$axios
         .get(
           `device/getLastRecordsByCount/${this.$auth.user.company.id}/${this.number_of_records}`
         )
-        .then((res) => {
+        .then(({ data }) => {
           this.loading = false;
-          this.logs = res.data;
+          this.logs = data;
         });
     },
     socketConnection() {
@@ -122,6 +128,7 @@ export default {
             data.employee.profile_picture =
               "data:image;base64," + item.RecordImage;
             this.logs.unshift(data);
+            console.log(data);
           }
         }
       });
