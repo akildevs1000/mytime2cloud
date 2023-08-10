@@ -176,7 +176,6 @@
                       <p>{{ editedCard.title }}</p>
                     </div>
                   </v-card>
-                  {{ cardData }}
                 </v-col>
               </v-row>
             </v-card-text>
