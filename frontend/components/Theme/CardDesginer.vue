@@ -1,6 +1,15 @@
 <template>
   <v-container fluid>
     <v-row>
+      <v-col cols="12">
+        <v-autocomplete
+          @change="getRecord"
+          label="Select Page"
+          v-model="page"
+          :items="[`dashboard1`, `dashboard2`]"
+        >
+        </v-autocomplete>
+      </v-col>
       <v-col
         v-for="(card, index) in cardData"
         :key="index"
@@ -33,9 +42,7 @@
           style="border-radius: 15px !important"
         >
           <div class="text-right px-2">
-            <v-icon disabled color="background" small @click="editCard(index)"
-              >mdi-pencil</v-icon
-            >
+            <v-icon disabled color="background" small>mdi-pencil</v-icon>
           </div>
           <div class="text-center pa-5">
             <h1><v-icon>mdi-plus-circle-outline</v-icon></h1>
@@ -88,14 +95,14 @@
                   ></v-text-field>
                 </v-col>
                 <v-col>
-                  <v-text-field
+                  <!-- <v-text-field
                     @input="reflectChange"
                     v-model="editedCard.value"
                     label="Value"
-                  ></v-text-field>
+                  ></v-text-field> -->
 
-                  <!-- <v-autocomplete
-                    @input="reflectCount"
+                  <v-autocomplete
+                    @input="reflectChange"
                     v-model="editedCard.value"
                     item-text="title"
                     item-value="value"
@@ -116,9 +123,26 @@
                         title: `Missing`,
                         value: `missingCount`,
                       },
+
+                      {
+                        title: `Week Off`,
+                        value: `offCount`,
+                      },
+                      {
+                        title: `Holiday`,
+                        value: `holidayCount`,
+                      },
+                      {
+                        title: `Leave`,
+                        value: `leaveCount`,
+                      },
+                      {
+                        title: `Vaccation`,
+                        value: `vaccationCount`,
+                      },
                     ]"
                   >
-                  </v-autocomplete> -->
+                  </v-autocomplete>
                 </v-col>
               </v-row>
 
@@ -144,18 +168,15 @@
                     style="border-radius: 15px !important"
                   >
                     <div class="text-right px-2">
-                      <v-icon disabled small @click="editCard(index)"
-                        >mdi-pencil</v-icon
-                      >
-                      <v-icon disabled small @click="deleteCard(index)"
-                        >mdi-delete</v-icon
-                      >
+                      <v-icon disabled small>mdi-pencil</v-icon>
+                      <v-icon disabled small>mdi-delete</v-icon>
                     </div>
                     <div class="text-center pa-5">
-                      <h1>{{ displayValueCount }}</h1>
+                      <h1>[{{ editedCard.value }}]</h1>
                       <p>{{ editedCard.title }}</p>
                     </div>
                   </v-card>
+                  {{ cardData }}
                 </v-col>
               </v-row>
             </v-card-text>
@@ -168,13 +189,14 @@
 
 <script>
 export default {
-  props: ["page"],
+  props: ["propPage"],
   data() {
     return {
+      page: null,
       editDialog: false,
       editedCard: {
         title: "New Card",
-        value: "0",
+        value: "employeeCount",
         color: "#5fafa3",
         icon: "mdi mdi-account",
         cols: "12",
@@ -183,72 +205,12 @@ export default {
       },
       editIndex: null,
 
-      cardData: [
-        // {
-        //   title: "Total Employees",
-        //   value: 5,
-        //   color: "#FF0000FF",
-        //   icon: "mdi mdi-account",
-        //   cols: "12",
-        //   sm: "6",
-        //   md: "3",
-        // },
-        // {
-        //   title: "Present",
-        //   value: 5,
-        //   color: "#004BE4ED",
-        //   icon: "mdi mdi-book",
-        //   cols: "12",
-        //   sm: "6",
-        //   md: "3",
-        // },
-        // {
-        //   title: "Total Missing",
-        //   value: 5,
-        //   color: "green",
-        //   icon: "mdi mdi-book",
-        // },
-        // {
-        //   title: "Total Employees",
-        //   value: 5,
-        //   color: "yellow",
-        //   icon: "mdi mdi-account",
-        // },
-        // {
-        //   title: "Total Present",
-        //   value: 5,
-        //   color: "orange",
-        //   icon: "mdi mdi-book",
-        // },
-        // {
-        //   title: "Total Missing",
-        //   value: 5,
-        //   color: "purple",
-        //   icon: "mdi mdi-book",
-        // },
-        // {
-        //   title: "Total Missing",
-        //   value: 5,
-        //   color: "brown",
-        //   icon: "mdi mdi-book",
-        // },
-        // {
-        //   title: "Total Missing",
-        //   value: 5,
-        //   color: "teal",
-        //   icon: "mdi mdi-book",
-        // },
-        // {
-        //   title: "Total Missing",
-        //   value: 5,
-        //   color: "pink",
-        //   icon: "mdi mdi-book",
-        // },
-      ],
+      cardData: [],
       displayValueCount: 0,
     };
   },
   created() {
+    this.page = this.propPage;
     this.getRecord();
   },
 

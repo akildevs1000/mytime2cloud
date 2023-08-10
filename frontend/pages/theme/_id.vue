@@ -1,18 +1,10 @@
 <template>
   <v-card>
-    <v-toolbar class="background" dark> Page Builder </v-toolbar>
+    <v-toolbar class="background" dark> Card Builder </v-toolbar>
     <v-container fluid>
       <v-row>
         <v-col cols="12">
-          <v-autocomplete
-            label="Select Page"
-            v-model="page"
-            :items="[`dashboard1`, `dashboard2`]"
-          >
-          </v-autocomplete>
-        </v-col>
-        <v-col cols="12">
-          <CardDesginer :page="page" />
+          <CardDesginer :propPage="page" />
         </v-col>
       </v-row>
     </v-container>

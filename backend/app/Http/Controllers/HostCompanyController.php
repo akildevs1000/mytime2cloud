@@ -65,7 +65,7 @@ class HostCompanyController extends Controller
 
             $host->logo = asset('media/company/logo' . $host->logo);
 
-            return $this->response('Host successfully created.', null, true);
+            return $this->response('Host successfully created.', $host, true);
         } catch (\Throwable $th) {
             throw $th;
         }

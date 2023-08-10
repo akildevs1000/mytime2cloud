@@ -11,6 +11,7 @@ use App\Models\Holidays;
 use App\Models\Reason;
 use App\Models\ScheduleEmployee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class RenderController extends Controller
 {
@@ -328,7 +329,8 @@ class RenderController extends Controller
     }
 
     public function renderLeavesCron($company_id = 0)
-    {$todayDate = date('Y-m-d', strtotime('-1 day'));
+    {
+        $todayDate = date('Y-m-d', strtotime('-1 day'));
 
         $model = EmployeeLeaves::with(["employee", "leave_type"])
             ->where('company_id', $company_id)
@@ -341,21 +343,19 @@ class RenderController extends Controller
         $userIDs = [];
         foreach ($employees as $key => $value) {
 
-            if ($value->employee->system_user_id) {
-                {
+            if ($value->employee->system_user_id) { {
 
                     $userIDs[] = $this->renderLeavesScript($company_id, $todayDate, $value->employee->system_user_id, $value->leave_type->name);
                 }
-
             }
-
         }
         $result = json_encode($userIDs);
 
         return $this->getMeta("Sync Leaves", "$result Employee has been marked as Leave" . ".\n");
     }
     public function renderHolidaysCron($company_id = 0)
-    {$todayDate = date('Y-m-d', strtotime('-1 day'));
+    {
+        $todayDate = date('Y-m-d', strtotime('-1 day'));
 
         $holidayCount = Holidays::where('company_id', $company_id)
             ->where('start_date', '>=', $todayDate)
@@ -363,7 +363,7 @@ class RenderController extends Controller
 
         if ($holidayCount) {
             $employees = Employee::where('company_id', $company_id)
-            // ->where('status', 1)
+                // ->where('status', 1)
                 ->get();
             $userIDs = [];
             foreach ($employees as $key => $value) {
@@ -371,14 +371,12 @@ class RenderController extends Controller
                 if ($value->system_user_id) {
                     $userIDs[] = $this->renderHolidaysScript($company_id, $todayDate, $value->system_user_id);
                 }
-
             }
             $result = json_encode($userIDs);
 
             return $this->getMeta("Sync Holidays", "$todayDate :  $result Employee has been marked as Holiday" . ".\n");
         }
         return $this->getMeta("Sync Holidays", "$todayDate : No Holiday" . ".\n");
-
     }
 
     public function renderOffScript($company_id, $date, $user_id = 0)
@@ -600,9 +598,7 @@ class RenderController extends Controller
                     "shift_id" => -4,
                     "shift_type_id" => $employees->shift_type_id,
                 ];
-            }
-
-            {
+            } {
 
                 $model = Attendance::query();
                 // $model->where("shift_id", -1);
@@ -622,7 +618,6 @@ class RenderController extends Controller
                 if ($UserIds) {
                     return $UserIds;
                 }
-
             }
         } catch (\Exception $e) {
             return $e;
@@ -641,5 +636,73 @@ class RenderController extends Controller
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    public function renderEmployeeReport(Request $request)
+    {
+        // Define the validation rules
+        $rules = [
+            'userIds' => 'required|array|max:' . $request->max ?? 10, // Must be an array
+            'userIds.*' => 'numeric', // Each value in the array must be numeric
+            'date' => 'required|date', // Must be a valid date format
+            'company_id' => 'required|numeric', // Must be numeric
+        ];
+
+        // Define custom error messages for the 'date' rule
+        $customMessages = [
+            'date.date' => 'The :attribute field must be a valid date format. E.g. ' . date("Y-m-d"),
+        ];
+
+        // Run the validation
+        $validator = Validator::make($request->all(), $rules, $customMessages);
+
+        // Check if validation fails    
+        if ($validator->fails()) {
+            // If validation fails, return the error response
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $userIds = $request->userIds ?? [1001, 1006, 1005, 670, 1002, 1003, 1004, 1007];
+        $date = $request->date ?? date("Y-m-d");
+        $company_id = $request->company_id ?? 8;
+        $shift_type_id = $request->shift_type_id ?? 2;
+        $statuses = $request->statuses ?? ['A', 'P', 'M', 'O', 'L', 'V', 'H'];
+
+
+
+        $response = $this->runEmployeeFunc($userIds, $date, $shift_type_id, $statuses, $company_id);
+
+        return $this->response("Employee Data has been generated", $response, true);
+    }
+
+    public function runEmployeeFunc($userIds, $date, $shift_type_id, $statuses, $company_id)
+    {
+        $arr = [];
+
+        foreach ($userIds as $userId) {
+            $in = $this->generateRandomTime('09:30', '14:00');
+            $out = $this->generateRandomTime('16:30', '21:30');
+            $arr[]  = [
+                'date' => $date,
+                'employee_id' => $userId,
+                'shift_id' => 0,
+                'shift_type_id' => $shift_type_id,
+                'status' => $statuses[array_rand($statuses)],
+                'in' => $in,
+                'out' => $out,
+                'total_hrs' => $this->calculateTotalHours($in, $out),
+                'device_id_in' => "OX-8862021010010",
+                'device_id_out' => "OX-8862021010010",
+                'date_in' => $date,
+                'date_out' => $date,
+                'company_id' => $company_id
+            ];
+        }
+
+        $model = Attendance::query();
+        $model->whereIn("employee_id", $userIds)->whereDate("date", $date)->delete();
+        $model->insert($arr);
+
+        return $arr;
     }
 }

@@ -438,4 +438,26 @@ class Controller extends BaseController
             // You can log the error or perform any other necessary actions here
         }
     }
+
+    public function generateRandomTime($start, $end)
+    {
+        $start_timestamp = strtotime($start);
+        $end_timestamp = strtotime($end);
+        $random_timestamp = mt_rand($start_timestamp, $end_timestamp);
+
+        return date('H:i', $random_timestamp);
+    }
+
+    public function calculateTotalHours($inTime, $outTime)
+    {
+        // Convert 'in' and 'out' times to timestamps
+        $inTimestamp = strtotime($inTime);
+        $outTimestamp = strtotime($outTime);
+
+        $diff = $outTimestamp - $inTimestamp;
+
+        $h = floor($diff / 3600);
+        $m = floor(($diff % 3600) / 60);
+        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+    }
 }

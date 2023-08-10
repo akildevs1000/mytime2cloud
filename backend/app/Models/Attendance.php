@@ -135,6 +135,154 @@ class Attendance extends Model
 
     public function last_reason()
     {
-        return $this->hasOne(Reason::class, 'reasonable_id','id')->latest();
+        return $this->hasOne(Reason::class, 'reasonable_id', 'id')->latest();
+    }
+
+    public function processAttendanceModel($request)
+    {
+        $model = self::query();
+
+        $model->where('company_id', $request->company_id);
+        $model->with(['shift_type', 'last_reason']);
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+            $q->where('employee_id', $request->employee_id);
+        });
+
+        $model->when($request->main_shift_type && $request->main_shift_type == 2, function ($q) {
+            $q->where('shift_type_id', 2);
+        });
+
+        $model->when($request->main_shift_type && $request->main_shift_type != 2, function ($q) {
+            $q->whereNot('shift_type_id', 2);
+        });
+
+        $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
+            $q->whereIn('employee_id', Employee::where("department_id", $request->department_id)->where('company_id', $request->company_id)->pluck("system_user_id"));
+        });
+
+        $model->when($request->status == "A", function ($q) {
+            $q->where('status', "A");
+        });
+        $model->when($request->status == "P", function ($q) {
+            $q->where('status', "P");
+        });
+        $model->when($request->status == "M", function ($q) {
+            $q->where('status', "M");
+        });
+        $model->when($request->status == "O", function ($q) {
+            $q->where('status', "O");
+        });
+        $model->when($request->status == "L", function ($q) {
+            $q->where('status', "L");
+        });
+        $model->when($request->status == "V", function ($q) {
+            $q->where('status', "V");
+        });
+        $model->when($request->status == "H", function ($q) {
+            $q->where('status', "H");
+        });
+
+        $model->when($request->status == "ME", function ($q) {
+            $q->where('is_manual_entry', true);
+        });
+
+        $model->when($request->late_early == "LC", function ($q) {
+            $q->where('late_coming', "!=", "---");
+        });
+
+        $model->when($request->late_early == "EG", function ($q) {
+            $q->where('early_going', "!=", "---");
+        });
+
+        $model->when($request->overtime == 1, function ($q) {
+            $q->where('ot', "!=", "---");
+        });
+
+        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
+            $q->whereDate('date', $request->daily_date);
+            //$q->orderBy("id", "desc");
+        });
+
+        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
+            $q->whereBetween("date", [$request->from_date, $request->to_date]);
+            // $q->orderBy("date", "asc");
+        });
+
+        // dd($request->all());
+
+        // $model->with([
+        //     "employee:id,system_user_id,display_name,employee_id,department_id,profile_picture",
+        //     "device_in:id,name,short_name,device_id,location",
+        //     "device_out:id,name,short_name,device_id,location",
+        //     "shift",
+        //     "shift_type:id,name",
+        // ]);
+
+        $model->with('employee', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+            $q->with('department');
+        });
+
+        $model->with('device_in', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('device_out', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('shift', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('schedule');
+
+        $model->when($request->filled('date'), function ($q) use ($request) {
+            $q->whereDate('date', '=', $request->date);
+        });
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+            $q->where('employee_id', 'LIKE', "$request->employee_id%");
+        });
+
+        $model->when($request->filled('employee_first_name') && $request->employee_first_name != '', function ($q) use ($request) {
+            // $key = strtolower($request->employee_first_name);
+            $q->whereHas('employee', fn (Builder $q) => $q->where('first_name', 'ILIKE', "$request->employee_first_name%"));
+        });
+        $model->when($request->filled('employee_department_name'), function ($q) use ($request) {
+            // $key = strtolower($request->employee_department_name);
+            $q->whereHas('employee.department', fn (Builder $query) => $query->where('company_id', $request->company_id)->where('name', 'ILIKE', "$request->employee_department_name%"));
+        });
+        if ($request->shift) {
+            //$key = strtolower($request->shift_type_name);
+            $model->where(function ($q) use ($request) {
+                return $q->whereIn("shift_type_id", ShiftType::where('name', 'ILIKE', "$request->shift%")->pluck("id"));
+            });
+        }
+        $model->when($request->filled('in'), function ($q) use ($request) {
+            // $key = strtolower($request->in);
+            $q->where('in', 'LIKE', "$request->in%");
+        });
+        $model->when($request->filled('out'), function ($q) use ($request) {
+            // $key = strtolower($request->out);
+            $q->where('out', 'LIKE', "$request->out%");
+        });
+        $model->when($request->filled('total_hrs'), function ($q) use ($request) {
+            //$key = strtolower($request->total_hrs);
+            $q->where('total_hrs', 'LIKE', "$request->total_hrs%");
+        });
+        $model->when($request->filled('ot'), function ($q) use ($request) {
+            //$key = strtolower($request->ot);
+            $q->where('ot', 'LIKE', "$request->ot%");
+        });
+
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            $sortDesc = $request->input('sortDesc');
+
+            $q->orderBy($request->sortBy, $sortDesc == 'true' ? 'desc' : 'asc');
+        });
+        $model->when(!$request->filled('sortBy'), function ($q) use ($request) {
+            $q->orderBy('date', 'asc');
+        });
+        return $model;
     }
 }

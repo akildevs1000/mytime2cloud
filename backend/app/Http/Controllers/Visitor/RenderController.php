@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Visitor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
 use App\Models\VisitorAttendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -41,7 +42,7 @@ class RenderController extends Controller
         $response = $this->run($userIds, $date, $company_id);
 
         return $this->response("Data has been generated", $response, true);
-    }
+    }  
 
     public function run($userIds, $date, $company_id)
     {
@@ -73,27 +74,5 @@ class RenderController extends Controller
         $model->insert($arr);
 
         return $arr;
-    }
-
-    public function generateRandomTime($start, $end)
-    {
-        $start_timestamp = strtotime($start);
-        $end_timestamp = strtotime($end);
-        $random_timestamp = mt_rand($start_timestamp, $end_timestamp);
-
-        return date('H:i', $random_timestamp);
-    }
-
-    public function calculateTotalHours($inTime, $outTime)
-    {
-        // Convert 'in' and 'out' times to timestamps
-        $inTimestamp = strtotime($inTime);
-        $outTimestamp = strtotime($outTime);
-
-        $diff = $outTimestamp - $inTimestamp;
-
-        $h = floor($diff / 3600);
-        $m = floor(($diff % 3600) / 60);
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 }

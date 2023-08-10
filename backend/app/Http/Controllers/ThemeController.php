@@ -17,34 +17,40 @@ class ThemeController extends Controller
      */
     public function index(Request $request)
     {
+        // return Theme::truncate();
+        // return Theme::count();
+        
         $id = $request->company_id;
-        $counts = $this->getCounts($request->company_id);
+        $counts = $this->getCounts($request->company_id ?? 8);
 
         $jsonColumn = Theme::where("company_id", $id)
             ->where("page", $request->page)
             ->where("type", $request->type)
             ->value("style") ?? [];
 
-        // foreach ($jsonColumn as &$card) {
-        //     $card["value"] = str_pad($counts[$card["value"]] ?? "", 2, '0', STR_PAD_LEFT);
-        // }
+        foreach ($jsonColumn as &$card) {
+            $card["calculated_value"] = str_pad($counts[$card["value"]] ?? "", 2, '0', STR_PAD_LEFT);
+        }
         return $jsonColumn;
     }
 
     public function getCounts($id = 0): array
     {
-        $model = Attendance::query();
-        $model->whereCompanyId($id);
-        $model->whereDate('date', date("Y-m-d"))->get();
-        $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])->get();
+        $model = Attendance::where('company_id', $id)
+            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
+            ->whereDate('date', date("Y-m-d"))
+            ->select('status')
+            ->get();
 
         return [
             "employeeCount" => Employee::where("company_id", $id)->count() ?? 0,
-            "presentCount" => $model->where('status', 'P')->count() ?? 0,
-            "absentCount" => $model->where('status', 'A')->count() ?? 0,
-            "missingCount" => $model->where('status', 'M')->count() ?? 0,
-            "holidayCount" => $model->where('status', 'H')->count() ?? 0,
-            "leaveCount" => $model->where('status', 'L')->count() ?? 0,
+            "presentCount" => $model->where('status', 'P')->count(),
+            "absentCount" => $model->where('status', 'A')->count(),
+            "missingCount" => $model->where('status', 'M')->count(),
+            "offCount" => $model->where('status', 'O')->count(),
+            "holidayCount" => $model->where('status', 'H')->count(),
+            "leaveCount" => $model->where('status', 'L')->count(),
+            "vaccationCount" => $model->where('status', 'V')->count(),
         ];
     }
 
@@ -74,7 +80,7 @@ class ThemeController extends Controller
      */
     public function theme_count(Request $request)
     {
-        $counts = $this->getCounts($request->company_id);
+        return $counts = $this->getCounts($request->company_id);
         return str_pad($counts[$request->value] ?? "", 2, '0', STR_PAD_LEFT);
     }
 

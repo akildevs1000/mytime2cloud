@@ -4,9 +4,6 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
-use App\Models\Employee;
-use App\Models\ShiftType;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -16,42 +13,53 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        $model = (new Attendance)->processAttendanceModel($request);
 
-        return $this->report($request)
-        //   ->toSql();
-            ->paginate($request->per_page);
+        if ($request->main_shift_type == 1) {
+            return $this->general($model, $request->per_page);
+        }
+
+        return $this->multiInOut($model->get(), $request->per_page);
     }
 
-    public function multiInOut(Request $request)
+    public function general($model, $per_page = 100)
     {
-        $model = $this->processMultiInOut($request);
-        return $this->paginate($model, $request->per_page);
+        return $model->paginate($per_page);
     }
 
-    public function processMultiInOut($request)
+    public function multiInOut($model, $per_page = 100)
     {
-
-        $model = $this->report($request)
-            ->get();
         foreach ($model as $value) {
-            $count = count($value->logs ?? []);
-            if ($count > 0) {
-                if ($count < 8) {
-                    $diff = 7 - $count;
-                    $count = $count + $diff;
-                }
-                $i = 1;
-                for ($a = 0; $a < $count; $a++) {
+            $logs = $value->logs ?? [];
+            $count = count($logs);
+            $requiredLogs = max($count, 7); // Ensure at least 8 logs
 
-                    $holder = $a;
-                    $holder_key = ++$holder;
-
-                    $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
-                    $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
-                }
+            for ($a = 0; $a < $requiredLogs; $a++) {
+                $log = $logs[$a] ?? [];
+                $value["in" . ($a + 1)] = $log["in"] ?? "---";
+                $value["out" . ($a + 1)] = $log["out"] ?? "---";
             }
         }
-        return $model;
+
+        // foreach ($model as $value) {
+        //     $count = count($value->logs ?? []);
+        //     if ($count > 0) {
+        //         if ($count < 8) {
+        //             $diff = 7 - $count;
+        //             $count = $count + $diff;
+        //         }
+        //         for ($a = 0; $a < $count; $a++) {
+
+        //             $holder = $a;
+        //             $holder_key = ++$holder;
+
+        //             $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
+        //             $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
+        //         }
+        //     }
+        // }
+
+        return $this->paginate($model, $per_page);
     }
 
     public function paginate($items, $perPage = 15, $page = null, $options = [])
@@ -63,188 +71,4 @@ class ReportController extends Controller
 
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
-
-    public function report($request)
-    {
-        $model = Attendance::query();
-
-        $model->where('company_id', $request->company_id);
-        $model->with(['shift_type', 'last_reason']);
-        $model->when($request->filled('employee_id'), function ($q) use ($request) {
-            $q->where('employee_id', $request->employee_id);
-        });
-
-        $model->when($request->main_shift_type && $request->main_shift_type == 2, function ($q) {
-            $q->where('shift_type_id', 2);
-        });
-
-        $model->when($request->main_shift_type && $request->main_shift_type != 2, function ($q) {
-            $q->whereNot('shift_type_id', 2);
-        });
-
-        $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $q->whereIn('employee_id', Employee::where("department_id", $request->department_id)->where('company_id', $request->company_id)->pluck("system_user_id"));
-        });
-
-        $model->when($request->status == "P", function ($q) {
-            $q->where('status', "P");
-        });
-
-        $model->when($request->status == "A", function ($q) {
-            $q->where('status', "A");
-        });
-
-        $model->when($request->status == "O", function ($q) {
-            $q->where('status', "O");
-        });
-
-        $model->when($request->status == "M", function ($q) {
-            $q->where('status', "M");
-        });
-
-        $model->when($request->status == "ME", function ($q) {
-            $q->where('is_manual_entry', true);
-        });
-
-        $model->when($request->late_early == "L", function ($q) {
-            $q->where('late_coming', "!=", "---");
-        });
-
-        $model->when($request->late_early == "E", function ($q) {
-            $q->where('early_going', "!=", "---");
-        });
-
-        $model->when($request->overtime == 1, function ($q) {
-            $q->where('ot', "!=", "---");
-        });
-
-        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
-            $q->whereDate('date', $request->daily_date);
-            //$q->orderBy("id", "desc");
-        });
-
-        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
-            $q->whereBetween("date", [$request->from_date, $request->to_date]);
-            // $q->orderBy("date", "asc");
-        });
-
-        // dd($request->all());
-
-        // $model->with([
-        //     "employee:id,system_user_id,display_name,employee_id,department_id,profile_picture",
-        //     "device_in:id,name,short_name,device_id,location",
-        //     "device_out:id,name,short_name,device_id,location",
-        //     "shift",
-        //     "shift_type:id,name",
-        // ]);
-
-        $model->with('employee', function ($q) use ($request) {
-            $q->where('company_id', $request->company_id);
-            $q->with('department');
-        });
-
-        $model->with('device_in', function ($q) use ($request) {
-            $q->where('company_id', $request->company_id);
-        });
-
-        $model->with('device_out', function ($q) use ($request) {
-            $q->where('company_id', $request->company_id);
-        });
-
-        $model->with('shift', function ($q) use ($request) {
-            $q->where('company_id', $request->company_id);
-        });
-
-        $model->with('schedule');
-
-        $model->when($request->filled('date'), function ($q) use ($request) {
-            $q->whereDate('date', '=', $request->date);
-        });
-        $model->when($request->filled('employee_id'), function ($q) use ($request) {
-            $q->where('employee_id', 'LIKE', "$request->employee_id%");
-        });
-
-        $model->when($request->filled('employee_first_name') && $request->employee_first_name != '', function ($q) use ($request) {
-            // $key = strtolower($request->employee_first_name);
-            $q->whereHas('employee', fn(Builder $q) => $q->where('first_name', 'ILIKE', "$request->employee_first_name%"));
-        });
-        $model->when($request->filled('employee_department_name'), function ($q) use ($request) {
-            // $key = strtolower($request->employee_department_name);
-            $q->whereHas('employee.department', fn(Builder $query) => $query->where('company_id', $request->company_id)->where('name', 'ILIKE', "$request->employee_department_name%"));
-        });
-        if ($request->shift) {
-            //$key = strtolower($request->shift_type_name);
-            $model->where(function ($q) use ($request) {
-                return $q->whereIn("shift_type_id", ShiftType::where('name', 'ILIKE', "$request->shift%")->pluck("id"));
-            });
-        }
-        $model->when($request->filled('in'), function ($q) use ($request) {
-            // $key = strtolower($request->in);
-            $q->where('in', 'LIKE', "$request->in%");
-        });
-        $model->when($request->filled('out'), function ($q) use ($request) {
-            // $key = strtolower($request->out);
-            $q->where('out', 'LIKE', "$request->out%");
-        });
-        $model->when($request->filled('total_hrs'), function ($q) use ($request) {
-            //$key = strtolower($request->total_hrs);
-            $q->where('total_hrs', 'LIKE', "$request->total_hrs%");
-        });
-        $model->when($request->filled('ot'), function ($q) use ($request) {
-            //$key = strtolower($request->ot);
-            $q->where('ot', 'LIKE', "$request->ot%");
-        });
-
-        $model->when($request->filled('sortBy'), function ($q) use ($request) {
-            $sortDesc = $request->input('sortDesc');
-
-            $q->orderBy($request->sortBy, $sortDesc == 'true' ? 'desc' : 'asc');
-        });
-        $model->when(!$request->filled('sortBy'), function ($q) use ($request) {
-            $q->orderBy('date', 'asc');
-        });
-        return $model;
-    }
-
-    // Scopes
-
-    // $model = Attendance::query()
-    // ->dateRange($start, $end)
-    // ->company($companyID)
-    // ->status($request->status)
-    // ->lateOrEarly($request->late_early)
-    // ->orderBy('date', 'asc')
-    // ->get();
-
-    // public function scopeDateRange($query, $start, $end)
-    // {
-    //     return $query->whereBetween('date', [$start, $end]);
-    // }
-
-    // public function scopeCompany($query, $companyId)
-    // {
-    //     return $query->where('company_id', $companyId);
-    // }
-
-    // public function scopeStatus($query, $status)
-    // {
-    //     if ($status === 'P' || $status === 'A' || $status === 'O' || $status === 'M') {
-    //         return $query->where('status', $status);
-    //     } elseif ($status === 'ME') {
-    //         return $query->where('is_manual_entry', true);
-    //     } else {
-    //         return $query;
-    //     }
-    // }
-
-    // public function scopeLateOrEarly($query, $lateEarly)
-    // {
-    //     if ($lateEarly === 'L') {
-    //         return $query->where('late_coming', '!=', '---');
-    //     } elseif ($lateEarly === 'E') {
-    //         return $query->where('early_going', '!=', '---');
-    //     } else {
-    //         return $query;
-    //     }
-    // }
 }

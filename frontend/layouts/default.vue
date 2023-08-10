@@ -368,12 +368,12 @@ export default {
               to: "/dashboard2",
               menu: "dashboard_access",
             },
-            {
-              icon: "mdi-appss",
-              title: "Dashboard (OLD)",
-              to: "/",
-              menu: "dashboard_access",
-            },
+            // {
+            //   icon: "mdi-appss",
+            //   title: "Dashboard (OLD)",
+            //   to: "/",
+            //   menu: "dashboard_access",
+            // },
           ],
         },
 
@@ -845,7 +845,6 @@ export default {
       this.$axios.get(`company/${user?.company?.id}`).then(({ data }) => {
         let { modules } = data.record;
 
-        console.log(modules);
 
         if (modules !== null) {
           this.modules = {
