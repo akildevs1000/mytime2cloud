@@ -344,13 +344,6 @@ export default {
       order_count: "",
       menus: [
         {
-          icon: "mdi-account-tie",
-          title: "Employees",
-          to: "/employees",
-          menu: "employee_access",
-        },
-
-        {
           icon: "mdi-apps",
           title: `Dashboards`,
           open_menu: false,
@@ -374,6 +367,45 @@ export default {
             //   to: "/",
             //   menu: "dashboard_access",
             // },
+          ],
+        },
+
+        {
+          icon: "mdi-account-tie",
+          title: "Employees",
+          to: "/employees",
+          menu: "employee_access",
+        },
+        {
+          icon: "mdi-calendar-today",
+          title: `Attendance`,
+          open_menu: false,
+          menu: "attendance_report_access",
+          hasChildren: [
+            {
+              icon: "mdi-chart-box-outline",
+              title: "Reports",
+              to: "/attendance_report",
+              menu: "attendance_report_access",
+            },
+            {
+              icon: "mdi-clock-outline",
+              title: "Shifts",
+              to: "/shift",
+              menu: "shift_access",
+            },
+            {
+              icon: "mdi mdi-calendar-clock",
+              title: "Schedule List",
+              to: "/schedule",
+              menu: "schedule_access",
+            },
+            {
+              icon: "mdi-account-tie",
+              title: "Employee Schedule",
+              to: "/employee_schedule",
+              menu: "employee_schedule_access",
+            },
           ],
         },
 
@@ -407,65 +439,6 @@ export default {
               title: "Payroll Settings",
               to: "/payroll/create",
               menu: "payroll_generate_access",
-            },
-          ],
-        },
-
-        {
-          icon: "mdi-calendar-today",
-          title: `Reports`,
-          open_menu: false,
-          menu: "attendance_report_access",
-          hasChildren: [
-            {
-              icon: "mdi-chart-box-outline",
-              title: "Attendance Report",
-              to: "/attendance_report",
-              menu: "attendance_report_access",
-            },
-            {
-              icon: "mdi-clock-outline",
-              title: "Shifts",
-              to: "/shift",
-              menu: "shift_access",
-            },
-            {
-              icon: "mdi mdi-calendar-clock",
-              title: "Schedule List",
-              to: "/schedule",
-              menu: "schedule_access",
-            },
-            {
-              icon: "mdi-account-tie",
-              title: "Employee Schedule",
-              to: "/employee_schedule",
-              menu: "employee_schedule_access",
-            },
-          ],
-        },
-        {
-          icon: "mdi-calendar-today",
-          title: `Access Control`,
-          open_menu: false,
-          menu: "access",
-          hasChildren: [
-            {
-              icon: "mdi mdi-clock-time-four-outline",
-              title: "Timezones",
-              to: "/timezone",
-              menu: "timezone",
-            },
-            {
-              icon: "mdi mdi-credit-card-clock-outline",
-              title: "TImezone Mapped List",
-              to: "/timezonemapping/list",
-              menu: "timezone_mapping_list",
-            },
-            {
-              icon: "mdi mdi-camera-account",
-              title: "Employee Photo Upload",
-              to: "/employee_photo_upload",
-              menu: "employee_photo_upload",
             },
           ],
         },
@@ -519,6 +492,34 @@ export default {
             },
           ],
         },
+
+        {
+          icon: "mdi-calendar-today",
+          title: `Access Control`,
+          open_menu: false,
+          menu: "access",
+          hasChildren: [
+            {
+              icon: "mdi mdi-clock-time-four-outline",
+              title: "Timezones",
+              to: "/timezone",
+              menu: "timezone",
+            },
+            {
+              icon: "mdi mdi-credit-card-clock-outline",
+              title: "TImezone Mapped List",
+              to: "/timezonemapping/list",
+              menu: "timezone_mapping_list",
+            },
+            {
+              icon: "mdi mdi-camera-account",
+              title: "Employee Photo Upload",
+              to: "/employee_photo_upload",
+              menu: "employee_photo_upload",
+            },
+          ],
+        },
+
         {
           icon: "mdi-clipboard-text-clock",
           title: "Attendances Logs",
@@ -540,18 +541,23 @@ export default {
           hasChildren: [
             {
               icon: "mdi-theme",
-              title: "Theme",
+              title: "Card Builder",
               to: `/theme/${this.$auth.user?.company?.id}`,
               menu: "notifications_access",
             },
             {
               icon: "mdi mdi-card-account-details",
-              title: "Profile",
+              title: "Company",
               to: `/companies/${this.$auth.user?.company?.id}`,
               menu: "setting_access",
               class: "submenutitle",
             },
-
+            {
+              icon: "mdi-lan",
+              title: "Departments",
+              to: "/department",
+              menu: "department_access",
+            },
             {
               icon: "mdi mdi-account-check-outline",
               title: "Roles",
@@ -566,7 +572,7 @@ export default {
             },
             {
               icon: "mdi-cellphone-text",
-              title: "Devices List",
+              title: "Devices",
               to: "/device",
               menu: "device_access",
             },
@@ -586,27 +592,27 @@ export default {
           ],
         },
 
-        {
-          icon: "mdi-briefcase-outline",
-          title: `Organization`,
-          open_menu: false,
-          menu: "company_access",
-          hasChildren: [
-            {
-              icon: "mdi-lan",
-              title: "Departments",
-              to: "/department",
-              menu: "department_access",
-            },
+        // {
+        //   icon: "mdi-briefcase-outline",
+        //   title: `Organization`,
+        //   open_menu: false,
+        //   menu: "company_access",
+        //   hasChildren: [
+        //     {
+        //       icon: "mdi-lan",
+        //       title: "Departments",
+        //       to: "/department",
+        //       menu: "department_access",
+        //     },
 
-            // {
-            //   icon: "mdi-account-details ",
-            //   title: "Designations",
-            //   to: "/designation",
-            //   menu: "designation_access",
-            // },
-          ],
-        },
+        //     // {
+        //     //   icon: "mdi-account-details ",
+        //     //   title: "Designations",
+        //     //   to: "/designation",
+        //     //   menu: "designation_access",
+        //     // },
+        //   ],
+        // },
         {
           icon: "mdi mdi-calendar-star-four-points",
           title: "Holidays",
@@ -844,7 +850,6 @@ export default {
 
       this.$axios.get(`company/${user?.company?.id}`).then(({ data }) => {
         let { modules } = data.record;
-
 
         if (modules !== null) {
           this.modules = {

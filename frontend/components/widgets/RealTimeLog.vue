@@ -1,7 +1,7 @@
 <template>
   <v-card class="mb-5 rounded-md" elevation="1">
     <v-toolbar class="rounded-md" color="background" dense flat dark>
-      <v-toolbar-title><span> RealTime Log List francis</span></v-toolbar-title>
+      <v-toolbar-title><span> RealTime Log List</span></v-toolbar-title>
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn

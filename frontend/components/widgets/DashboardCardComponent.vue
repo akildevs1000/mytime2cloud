@@ -16,7 +16,7 @@
         <div class="text-right px-2">
           <v-icon small @click="goToThemeEditor">mdi-pencil</v-icon>
         </div>
-        <div class="text-center pa-5">
+        <div class="text-center pa-2">
           <h1>{{ card.calculated_value }}</h1>
           <p>{{ card.title }}</p>
         </div>
