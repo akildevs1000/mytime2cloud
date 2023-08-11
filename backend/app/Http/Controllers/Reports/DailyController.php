@@ -19,8 +19,7 @@ class DailyController extends Controller
     public function processPDF($request)
     {
         $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-        $model = new ReportController;
-        $model = $model->report($request);
+        $model = (new Attendance)->processAttendanceModel($request);
         $deptName = '';
         $totEmployees = '';
         if ($request->department_id && $request->department_id == -1) {
@@ -30,22 +29,29 @@ class DailyController extends Controller
             $deptName = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
             $totEmployees = Employee::where("department_id", $request->department_id)->count();
         }
-
         $info = (object) [
             'department_name' => $deptName,
             'total_employee' => $totEmployees,
             'total_absent' => $model->clone()->where('status', 'A')->count(),
             'total_present' => $model->clone()->where('status', 'P')->count(),
-            'total_missing' => $model->clone()->where('status', '---')->count(),
+            'total_off' => $model->clone()->where('status', 'O')->count(),
+            'total_missing' => $model->clone()->where('status', 'M')->count(),
+            'total_leave' => $model->clone()->where('status', 'L')->count(),
+            'total_holiday' => $model->clone()->where('status', 'H')->count(),
+            'total_vaccation' => $model->clone()->where('status', 'V')->count(),
+
+
+
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
-            'total_leave' => 0,
+            'report_type' => $request->report_type ?? "",
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
             "daily_date" => $request->daily_date,
-            "report_type" => $this->getStatusText($request->status)
+
+            'frequency' => "Daily",
         ];
 
-        // $model->take(1);
+
         $data = $model->get();
         return Pdf::loadView('pdf.daily', compact("company", "info", "data"));
     }
@@ -529,7 +535,7 @@ class DailyController extends Controller
     public function mimo_daily_process($request)
     {
         $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-        $model = new ReportController;
+        $model = (new Attendance)->processAttendanceModel($request);
         $deptName = '';
         $totEmployees = '';
         if ($request->department_id && $request->department_id == -1) {
@@ -540,17 +546,18 @@ class DailyController extends Controller
             $totEmployees = Employee::where("department_id", $request->department_id)->count();
         }
 
-        $model = $model->report($request);
-
         $info = (object) [
             'department_name' => $deptName,
             'total_employee' => $totEmployees,
             'total_absent' => $model->clone()->where('status', 'A')->count(),
             'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_off' => $model->clone()->where('status', 'O')->count(),
             'total_missing' => $model->clone()->where('status', 'M')->count(),
+            'total_leave' => $model->clone()->where('status', 'L')->count(),
+            'total_holiday' => $model->clone()->where('status', 'H')->count(),
+            'total_vaccation' => $model->clone()->where('status', 'V')->count(),
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
-            'total_leave' => 0,
             'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
             "daily_date" => $request->daily_date,
             "report_type" => $this->getStatusText($request->status)

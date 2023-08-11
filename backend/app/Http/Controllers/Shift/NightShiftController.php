@@ -174,46 +174,4 @@ class NightShiftController extends Controller
         $m = floor(($diff % 3600) / 60);
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
-
-    public function calculatedEarlyGoing($time, $off_duty_time, $grace)
-    {
-
-        $interval_time = date("i", strtotime($grace));
-
-        $late_condition = strtotime("$off_duty_time - $interval_time minute");
-
-        $out = strtotime($time);
-
-        if ($out > $late_condition) {
-            return "00:00";
-        }
-
-        $arr["status"] = "A";
-
-        $diff = abs((strtotime($off_duty_time) - $out));
-
-        $h = floor($diff / 3600);
-        $m = floor($diff % 3600) / 60;
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
-
-    public function calculatedLateComing($time, $on_duty_time, $grace)
-    {
-
-        $interval_time = date("i", strtotime($grace));
-
-        $late_condition = strtotime("$on_duty_time + $interval_time minute");
-
-        $in = strtotime($time);
-
-        if ($in < $late_condition) {
-            return "00:00";
-        }
-
-        $diff = abs((strtotime($on_duty_time) - $in));
-
-        $h = floor($diff / 3600);
-        $m = floor($diff % 3600) / 60;
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
 }

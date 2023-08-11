@@ -14,12 +14,12 @@
                         <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" height="120px" width="180px">
                     @endif
 
-                    {{-- <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
+                    <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
                         <tr style="text-align: left; border :none;">
                             <td style="text-align: right; border :none;font-size:10px">
                                 <b>
                                     {{ $company->name }}
-                                    <>{{ $company->name ?? 'Akkil Security & Alarm System LLC' }}
+                                    {{-- <>{{ $company->name ?? 'Akkil Security & Alarm System LLC' }} --}}
                                 </b>
                                 <br>
                             </td>
@@ -42,7 +42,7 @@
                                 <br>
                             </td>
                         </tr>
-                    </table> --}}
+                    </table>
                 </div>
             </td>
             <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
@@ -68,39 +68,28 @@
                     </table>
                 </div>
             </td>
-            <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
+            <td style="text-align: right;; border :none; backgrounsd-color: red">
                 <table class="summary-table"
                     style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
                     <tr style="border: none">
                         <th style="text-align: center; border :none;padding:10px;font-size: 12px " colspan="3">
                             <hr style="width: 200px">
-                            Total Number of Employees : {{ count($data) }}
+                            Total Number of Employees : {{ $info->total_employee }}
                         </th>
                     </tr>
                     <tr class="summary-header" style="border: none;background-color:#eeeeee">
                         <th style="text-align: center; border :none; padding:5px">Present</th>
                         <th style="text-align: center; border :none">Absent</th>
-                        <th style="text-align: center; border :none">Leave</th>
+                        <th style="text-align: center; border :none">Week Off</th>
                     </tr>
                     <tr style="border: none">
                         <td style="text-align: center; border :none; padding:5px;color:green">
                             {{ $info->total_present }}
                         </td>
                         <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
-                        <td style="text-align: center; border :none;color:red">{{ $info->total_leave ?? 0 }}</td>
+                        <td style="text-align: center; border :none;color:gray">{{ $info->total_off ?? 0 }}</td>
                     </tr>
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee ">
-                        <th style="text-align: center; border :none; padding:5px">Late</th>
-                        <th style="text-align: center; border :none">Early</th>
-                        <th style="text-align: center; border :none">Missing</th>
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:red">
-                            {{ $info->total_late ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:green">{{ $info->total_early ?? 0 }}</td>
-                        <td style="text-align: center; border :none;color:orange">{{ $info->total_missing ?? 0 }}</td>
-                    </tr>
+
                     <tr style="border: none">
                         <th style="text-align: center; border :none" colspan="3">
                             <hr style="width: 200px">

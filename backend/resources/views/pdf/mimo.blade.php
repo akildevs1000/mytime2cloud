@@ -7,51 +7,48 @@
         <tr>
             <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
                 <div class="row">
-                    <div class="col-5" style="background-coldor: rgb(253, 246, 246);border:1px solid black">
+                    <div class="col-5">
                         @if (env('APP_ENV') !== 'local')
                             <img src="{{ $company->logo }}" height="120px" width="180px"
                                 style="margin: 0px 0px 0px -27px">
                         @else
-                            <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="120px" width="180px"
-                                style="margin: 0px 0px 0px -27px">
+                            <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0"
+                                height="120px" width="180px">
+
+                            {{-- <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="120px" width="180px"
+                                style="margin: 0px 0px 0px -27px"> --}}
                         @endif
-                    </div>
-                    <div class="col-5" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
-                        <table style="padding:0px;margin:0px">
-                            <tr style="text-align: left; border :none; padding:100px 0px;">
-                                <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
-                                    <b style="padding:0px;margin:0px">
+                        {{-- <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
+                            <tr style="text-align: left; border :none;">
+                                <td style="text-align: right; border :none;font-size:10px">
+                                    <b>
                                         {{ $company->name }}
+                                        <>{{ $company->name ?? 'Akkil Security & Alarm System LLC' }}
                                     </b>
                                     <br>
                                 </td>
                             </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px;">
-                                    <span style="margin-left: 3px">P.O.Box {{ $company->p_o_box_no }}</span>
+                            <tr style="text-align: left; border :none;">
+                                <td style="text-align: right; border :none;font-size:10px">
+                                    <span style="margin-right: 3px">P.O.Box {{ $company->p_o_box_no }}</span>
                                     <br>
                                 </td>
                             </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
-                                    <span style="margin-left: 3px">{{ $company->location }}</span>
+                            <tr style="text-align: left; border :none;">
+                                <td style="text-align: right; border :none;font-s ize:10px">
+                                    <span style="margin-right: 3px">{{ $company->location }}</span>
                                     <br>
                                 </td>
                             </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
-                                    <span style="margin-left: 3px">{{ $company->contact->number ?? '' }}</span>
+                            <tr style="text-align: left; border :none;">
+                                <td style="text-align: right; border :none;font-size:10px">
+                                    <span style="margin-right: 3px">{{ $company->contact->number ?? '' }}</span>
                                     <br>
                                 </td>
                             </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:7px 0px">
-                                    <span style="margin-left: 3px">{{ '' }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                        </table>
+                        </table> --}}
                     </div>
+                   
                 </div>
             </td>
             <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
@@ -387,7 +384,7 @@
 
     #pageNumbers div:before {
         counter-increment: currentPage;
-        content: "Page "counter(currentPage) " of ";
+        content: "Page " counter(currentPage) " of ";
     }
 
     #pageNumbers div:after {
