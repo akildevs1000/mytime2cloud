@@ -17,12 +17,8 @@
         <v-col
           v-for="(i, index) in items.visitorCounts"
           :key="index"
-          xs="12"
-          sm="12"
           cols="12"
           md="4"
-          lg="4"
-          xl="3"
           style="max-width: 20%"
         >
           <div class="card p-2" :class="i.color" style="height: 150px">
@@ -60,12 +56,8 @@
         <v-col
           v-for="(i, index) in items.statusCounts"
           :key="index"
-          xs="12"
-          sm="12"
           cols="12"
-          md="4"
-          lg="4"
-          xl="3"
+          md="3"
         >
           <div class="card p-2" :class="i.color" style="height: 130px">
             <div class="card-statistic-3">

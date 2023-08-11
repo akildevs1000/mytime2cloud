@@ -29,7 +29,7 @@
           :class="!miniVariant || 'pl-2'"
           @click="i.open_menu = !i.open_menu"
         >
-          <v-list-item-icon class="ma-2">
+          <v-list-item-icon class="mx-2">
             <v-icon>{{ i.icon }}</v-icon>
             <v-icon v-if="miniVariant" small
               >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
@@ -42,18 +42,51 @@
           </v-icon>
         </v-list-item>
         <div v-if="i.open_menu">
-          <div
-            style="margin-left: 54px"
-            v-for="(j, jdx) in i.hasChildren"
-            :key="jdx"
-          >
-            <!-- v-show="!miniVariant" -->
-            <v-list-item style="min-height: 0" :to="j.to" class="submenutitle">
-              <v-list-item-title v-if="!miniVariant"
-                >{{ j.title }}
+          <div v-for="(j, jdx) in i.hasChildren" :key="jdx">
+            <v-tooltip
+              style="margin-left: 25px"
+              v-if="miniVariant"
+              right
+              color="primary"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-list-item
+                  v-bind="attrs"
+                  v-on="on"
+                  style="min-height: 0"
+                  :to="j.to"
+                  class="submenutitle"
+                >
+                  <v-list-item-title class="my-2">
+                    {{ j.title }}
+                  </v-list-item-title>
+
+                  <v-list-item-icon
+                    :style="miniVariant ? 'margin-left: -54px;' : ''"
+                  >
+                    <v-icon
+                      :to="j.to"
+                      :style="miniVariant ? 'margin-left: 12px;' : ''"
+                    >
+                      {{ j.icon }}
+                    </v-icon>
+                  </v-list-item-icon>
+                </v-list-item>
+              </template>
+              <span>{{ j.title }}</span>
+            </v-tooltip>
+
+            <v-list-item
+              v-else
+              style="min-height: 0; margin-left: 50px"
+              :to="j.to"
+              class="submenutitle"
+            >
+              <v-list-item-title class="my-2">
+                {{ j.title }}
               </v-list-item-title>
 
-              <v-list-item-icon
+              <!-- <v-list-item-icon
                 :style="miniVariant ? 'margin-left: -54px;' : ''"
               >
                 <v-icon
@@ -62,8 +95,10 @@
                 >
                   {{ j.icon }}
                 </v-icon>
-              </v-list-item-icon>
+              </v-list-item-icon> -->
             </v-list-item>
+
+            <!-- v-show="!miniVariant" -->
           </div>
         </div>
       </v-list>
@@ -383,25 +418,37 @@ export default {
           menu: "attendance_report_access",
           hasChildren: [
             {
-              icon: "mdi-chart-box-outline",
-              title: "Reports",
-              to: "/attendance_report",
+              icon: "mdi-chart-box-outliness",
+              title: "General Reports",
+              to: "/attendance_report/general",
               menu: "attendance_report_access",
             },
             {
-              icon: "mdi-clock-outline",
+              icon: "mdi-chart-box-outliness",
+              title: "Multi InOut Reports",
+              to: "/attendance_report/multi_inout",
+              menu: "attendance_report_access",
+            },
+            // {
+            //   icon: "mdi-chart-box-outline",
+            //   title: "Reports",
+            //   to: "/attendance_report",
+            //   menu: "attendance_report_access",
+            // },
+            {
+              icon: "mdi-clock-outliness",
               title: "Shifts",
               to: "/shift",
               menu: "shift_access",
             },
             {
-              icon: "mdi mdi-calendar-clock",
+              icon: "mdi mdi-calendar-clockss",
               title: "Schedule List",
               to: "/schedule",
               menu: "schedule_access",
             },
             {
-              icon: "mdi-account-tie",
+              icon: "mdi-account-tiess",
               title: "Employee Schedule",
               to: "/employee_schedule",
               menu: "employee_schedule_access",
@@ -429,13 +476,13 @@ export default {
             //   menu:("employee_schedule_access")
             // },
             {
-              icon: "mdi-cash",
+              icon: "mdi-cashss",
               title: "Salary",
               to: "/payroll/salary",
               menu: "payroll_access",
             },
             {
-              icon: "mdi mdi-calculator",
+              icon: "mdi mdi-calculatorss",
               title: "Payroll Settings",
               to: "/payroll/create",
               menu: "payroll_generate_access",
@@ -449,50 +496,49 @@ export default {
           menu: "access",
           hasChildren: [
             {
-              icon: "mdi-home",
+              icon: "mdi-homess",
               title: "Dashboard",
               to: "/visitor-dashboard",
               menu: true,
             },
             {
-              icon: "mdi-chart-box-outline",
+              icon: "mdi-chart-box-outliness",
               title: "Visitors Report",
               to: "/visitors_report",
               menu: true,
             },
             {
-              icon: "mdi-account",
+              icon: "mdi-accountss",
               title: "Visitors",
               to: "/visitor",
               menu: true,
             },
             {
-              icon: "mdi-account-tie",
+              icon: "mdi-account-tiess",
               title: "Host",
               to: "/host",
               menu: true,
             },
             {
-              icon: "mdi-bullhorn",
+              icon: "mdi-bullhornss",
               title: "Purpose",
               to: "/purpose",
               menu: true,
             },
             {
-              icon: "mdi-select-group ",
+              icon: "mdi-select-groupss",
               title: "Zones",
               to: "/zone",
               menu: true,
             },
             {
-              icon: "mdi-chart-box-outline",
+              icon: "mdi-chart-box-outliness",
               title: "Visitors Logs",
               to: "/visitor_logs",
               menu: true,
             },
           ],
         },
-
         {
           icon: "mdi-calendar-today",
           title: `Access Control`,
@@ -500,26 +546,25 @@ export default {
           menu: "access",
           hasChildren: [
             {
-              icon: "mdi mdi-clock-time-four-outline",
+              icon: "mdi mdi-clock-time-four-outliness",
               title: "Timezones",
               to: "/timezone",
               menu: "timezone",
             },
             {
-              icon: "mdi mdi-credit-card-clock-outline",
+              icon: "mdi mdi-credit-card-clock-outliness",
               title: "TImezone Mapped List",
               to: "/timezonemapping/list",
               menu: "timezone_mapping_list",
             },
             {
-              icon: "mdi mdi-camera-account",
+              icon: "mdi mdi-camera-accountss",
               title: "Employee Photo Upload",
               to: "/employee_photo_upload",
               menu: "employee_photo_upload",
             },
           ],
         },
-
         {
           icon: "mdi-clipboard-text-clock",
           title: "Attendances Logs",
@@ -540,38 +585,38 @@ export default {
           menu: "company_access",
           hasChildren: [
             {
-              icon: "mdi-theme",
+              icon: "mdi-themess",
               title: "Card Builder",
               to: `/theme/${this.$auth.user?.company?.id}`,
               menu: "notifications_access",
             },
             {
-              icon: "mdi mdi-card-account-details",
+              icon: "mdi mdi-card-account-detailsss",
               title: "Company",
               to: `/companies/${this.$auth.user?.company?.id}`,
               menu: "setting_access",
               class: "submenutitle",
             },
             {
-              icon: "mdi-lan",
+              icon: "mdi-lanss",
               title: "Departments",
               to: "/department",
               menu: "department_access",
             },
             {
-              icon: "mdi mdi-account-check-outline",
+              icon: "mdi mdi-account-check-outliness",
               title: "Roles",
               to: "/role",
               menu: "role_access",
             },
             {
-              icon: "mdi mdi-account-details",
+              icon: "mdi mdi-account-detailsss",
               title: "Assign Permissions",
               to: "/assign_permission",
               menu: "assign_permission_access",
             },
             {
-              icon: "mdi-cellphone-text",
+              icon: "mdi-cellphone-textss",
               title: "Devices",
               to: "/device",
               menu: "device_access",
@@ -626,19 +671,19 @@ export default {
           menu: "leave_access",
           hasChildren: [
             {
-              icon: "mdi mdi-calendar-account",
+              icon: "mdi mdi-calendar-accountss",
               title: "Leave Applications",
               to: "/leaves",
               menu: "leave_application_access",
             },
             {
-              icon: "mdi mdi-calendar",
+              icon: "mdi mdi-calendarss",
               title: "Leave Types",
               to: "/leavetype",
-              menu: "leave_type_access",
+              menu: "leave_type_accessss",
             },
             {
-              icon: "mdi mdi-calendar-text",
+              icon: "mdi mdi-calendar-textss",
               title: "Leave Groups",
               to: "/leavegroups",
               menu: "leave_group_access",
