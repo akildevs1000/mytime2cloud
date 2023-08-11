@@ -1,6 +1,12 @@
 <template>
   <v-card>
-    <v-toolbar class="background" dark> Card Builder </v-toolbar>
+    <v-toolbar class="background" dark>
+      Card Builder <v-spacer></v-spacer>
+
+      <v-btn fab x-small class="primary">
+        <v-icon @click="goBack">mdi-arrow-left</v-icon>
+      </v-btn>
+    </v-toolbar>
     <v-container fluid>
       <v-row>
         <v-col cols="12">
@@ -22,6 +28,10 @@ export default {
     this.page = this.$route.params.id;
   },
   methods: {
+    goBack() {
+      // You can use the built-in window.history to navigate back
+      window.history.back();
+    },
     can(per) {
       let u = this.$auth.user;
       return (

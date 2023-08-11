@@ -50,6 +50,7 @@
 </template>
 <script>
 export default {
+  props:["page"],
   data: () => ({
     Model: "Attendance",
     data: [],
@@ -58,7 +59,7 @@ export default {
         align: "center",
         margin: 0,
       },
-      colors: ["#23bdb8", "#f48665", "#289cf5", "#8e4cf1"],
+      colors: [],
 
       series: [],
       chart: {
@@ -98,26 +99,33 @@ export default {
     },
     loading: true,
   }),
-  mounted() {
+  created() {
     this.getDataFromApi();
   },
   methods: {
     getDataFromApi() {
-      this.loading = true;
       let options = {
-        company_id: this.$auth.user.company.id,
+        params: {
+          page: this.page || "dashboard2",
+          type: "card",
+          company_id: this.$auth.user.company.id,
+        },
       };
-      this.$axios.get(`count`, { params: options }).then(async ({ data }) => {
-        this.loading = false;
-        this.data = data;
-        this.chartOptions.labels = await data.map((e) => e.title);
-        this.chartOptions.series = await data.map((e) => e.value);
-        this.loading = false;
-        new ApexCharts(
-          document.querySelector("#AttendancePie"),
-          this.chartOptions
-        ).render();
-      });
+
+      this.$axios
+        .get("theme", options)
+        .then(async ({ data }) => {
+          this.loading = false;
+          this.data = data;
+          this.chartOptions.colors = await data.map((e) => e.color);
+          this.chartOptions.labels = await data.map((e) => e.title);
+          this.chartOptions.series = await data.map((e) => parseInt(e.calculated_value));
+          new ApexCharts(
+            document.querySelector("#AttendancePie"),
+            this.chartOptions
+          ).render();
+        })
+        .catch((e) => console.log(e));
     },
   },
 };
