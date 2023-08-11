@@ -59,8 +59,8 @@
               "
               lazy-src="no-profile-image.jpg"
               style="
-                max-width: 150px;
-                max-height: 150px;
+                max-width: 125px;
+                max-height: 125px;
                 object-fit: contain;
                 border-radius: 50%;
               "
@@ -128,7 +128,6 @@ export default {
             data.employee.profile_picture =
               "data:image;base64," + item.RecordImage;
             this.logs.unshift(data);
-            console.log(data);
           }
         }
       });
