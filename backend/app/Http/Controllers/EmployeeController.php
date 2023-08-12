@@ -358,9 +358,9 @@ class EmployeeController extends Controller
     public function employeesByDepartment(Request $request)
     {
         $model = Employee::query();
-        $model->orWhereHas('schedule', function ($q) use ($request) {
-            $q->where('company_id', $request->company_id);
-        });
+        // $model->orWhereHas('schedule', function ($q) use ($request) {
+        //     $q->where('company_id', $request->company_id);
+        // });
         $model->where('company_id', $request->company_id);
 
         if (!in_array("---", $request->department_ids)) {
