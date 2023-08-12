@@ -27,6 +27,8 @@ Route::get('/syncLogsScript', function (Request $request) {
 });
 
 Route::get('/test', function (Request $request) {
+    return defaultCards();
+
     Logger::channel('custom')->info('This is a custom log message.');
 
     return;
