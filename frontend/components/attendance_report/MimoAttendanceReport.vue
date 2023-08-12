@@ -900,7 +900,7 @@ export default {
     time_menu: false,
     manual_time_menu: false,
     Model: "Attendance Reports",
-    endpoint_index: "report",
+    endpoint: "report",
     search: "",
     snackbar: false,
     add_manual_log: false,
@@ -1186,10 +1186,10 @@ export default {
     },
     getDataFromApi_DatatablFilter(filter_column, e) {
       if (filter_column != "date")
-        this.getDataFromApi(`${this.endpoint_index}`, filter_column, e);
+        this.getDataFromApi(`${this.endpoint}`, filter_column, e);
       else
         this.getDataFromApi(
-          `${this.endpoint_index}`,
+          `${this.endpoint}`,
           "filter_date",
           this.datatable_filter_date
         );
@@ -1425,7 +1425,7 @@ export default {
       this.getDataFromApi();
     },
     getDataFromApi(
-      url = this.endpoint_index,
+      url = this.endpoint,
       filter_column = "",
       filter_value = ""
     ) {
