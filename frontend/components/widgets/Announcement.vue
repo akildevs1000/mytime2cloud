@@ -50,7 +50,9 @@
           <p>
             {{ announcement.description }}
             <br />
-            <small>Created At {{ announcement.dateTime }}</small>
+            <small style="font-size: 9px"
+              >Created At {{ announcement.dateTime }}</small
+            >
           </p>
 
           <div
