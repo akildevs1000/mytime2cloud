@@ -127,7 +127,7 @@ Route::post('policy/delete/selected', [policyController::class, 'deleteSelected'
 
 // announcement
 Route::apiResource('announcement', AnnouncementController::class);
-Route::get('announcement_list', [AnnouncementController::class, 'list']);
+Route::get('announcement_list', [AnnouncementController::class, 'annoucement_list']);
 Route::get('announcement/search/{key}', [AnnouncementController::class, 'search']);
 Route::post('announcement/delete/selected', [AnnouncementController::class, 'deleteSelected']);
 
@@ -151,6 +151,7 @@ Route::apiResource('employee', EmployeeController::class);
 
 Route::get('employeesList', [EmployeeController::class, 'employeesList']);
 Route::get('employeesByDepartment', [EmployeeController::class, 'employeesByDepartment']);
+Route::get('employeesByDepartmentForAnnoucements', [EmployeeController::class, "employeesByDepartmentForAnnoucements"]);
 Route::get('employeesBySubDepartment', [EmployeeController::class, 'employeesBySubDepartment']);
 Route::get('employeesByEmployeeId', [EmployeeController::class, 'employeesByEmployeeId']);
 Route::get('employeesByDesignation/{key}', [EmployeeController::class, 'employeesByDesignation']);

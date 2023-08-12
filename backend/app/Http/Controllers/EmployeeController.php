@@ -355,12 +355,29 @@ class EmployeeController extends Controller
         return Employee::where("company_id", $request->company_id)->find($id)->announcements()->paginate($request->per_page ?? 100);
     }
 
+    public function employeesByDepartmentForAnnoucements(Request $request)
+    {
+        $model = Employee::query();
+
+        $model->where('company_id', $request->company_id);
+
+        if (!in_array("---", $request->department_ids)) {
+            $model->whereIn("department_id", $request->department_ids);
+        }
+
+        $model->with("department", function ($q) use ($request) {
+            $q->whereCompanyId($request->company_id);
+        });
+
+        return $model->paginate($request->per_page);
+    }
+
     public function employeesByDepartment(Request $request)
     {
         $model = Employee::query();
-        // $model->orWhereHas('schedule', function ($q) use ($request) {
-        //     $q->where('company_id', $request->company_id);
-        // });
+        $model->whereHas('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
         $model->where('company_id', $request->company_id);
 
         if (!in_array("---", $request->department_ids)) {

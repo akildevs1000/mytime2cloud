@@ -44,12 +44,14 @@
     <div class="center-both" style="min-height: 300px">
       <ComonPreloader icon="notification" v-if="loading" />
       <div v-else-if="!loading && !dataLength">No record found</div>
-      <div v-else style="width: 100%">
+      <div v-else style="width: 100%; max-height: 300px; overflow-y: auto">
         <v-card-text class="pa-2" v-for="(announcement, i) in data" :key="i">
           <b>{{ announcement.title }}</b>
-          <br />
-          When: {{ announcement.start_date }} -
-          {{ announcement.end_date }}
+          <p>
+            {{ announcement.description }}
+            <br />
+            <small>Created At {{ announcement.dateTime }}</small>
+          </p>
 
           <div
             v-if="i + 1 !== data.length"
@@ -65,7 +67,7 @@ export default {
   data: () => ({
     options: {},
     Model: "Announcement",
-    endpoint: "announcement",
+    endpoint: "announcement_list",
     loading: false,
     dataLength: 0,
 

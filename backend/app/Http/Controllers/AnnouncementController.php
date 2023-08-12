@@ -48,10 +48,9 @@ class AnnouncementController extends Controller
                 // }
 
             } else {
-                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
-
+                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                }
             }
-
         });
 
         return $model;
@@ -62,8 +61,9 @@ class AnnouncementController extends Controller
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
-    function list(Request $request) {
-        return $this->getDefaultModelSettings($request)->where('start_date', '=', date("Y-m-d"))->paginate($request->per_page ?? 100);
+    public function annoucement_list(Request $request)
+    {
+        return $this->getDefaultModelSettings($request)->withOut("employees")->where('start_date', '=', date("Y-m-d"))->paginate($request->per_page ?? 100);
     }
 
     public function store(StoreRequest $request)
@@ -71,8 +71,14 @@ class AnnouncementController extends Controller
         DB::beginTransaction();
 
         try {
-            // Database operations
-            $record = Announcement::create($request->except('departments', 'employees'));
+            $record = Announcement::create([
+                'title' => $request->title,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'description' => $request->description,
+                'company_id' => $request->company_id,
+                'dateTime' => date("d-M-y h:i:sa"),
+            ]);
 
             if ($record) {
                 // Attach departments and employees

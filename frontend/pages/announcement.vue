@@ -722,7 +722,7 @@ export default {
         return;
       }
 
-      this.$axios.get("employeesByDepartment", options).then(({ data }) => {
+      this.$axios.get("employeesByDepartmentForAnnoucements", options).then(({ data }) => {
         this.employees_dialog = data.data;
         this.loading_dialog = false;
       });
