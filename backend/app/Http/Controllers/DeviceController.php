@@ -406,16 +406,28 @@ class DeviceController extends Controller
 
     public function devcieCountByStatus($company_id)
     {
-        $deviceStatusCounts = Device::where('company_id', $company_id)
+        // Use query builder to build the queries more fluently
+        $statusCounts = Device::where('company_id', $company_id)
             ->whereIn('status_id', [1, 2])
-            ->select('status_id')
-            ->get()
-            ->groupBy('status_id');
+            ->selectRaw('status_id, COUNT(*) as count')
+            ->groupBy('status_id')
+            ->get();
+
+        $onlineDevices = 0;
+        $offlineDevices = 0;
+
+        foreach ($statusCounts as $statusCount) {
+            if ($statusCount->status_id == 1) {
+                $onlineDevices = $statusCount->count;
+            } elseif ($statusCount->status_id == 2) {
+                $offlineDevices = $statusCount->count;
+            }
+        }
 
         return [
-            "total" => $deviceStatusCounts->get(1)->count() + $deviceStatusCounts->get(2)->count(),
+            "total" => $onlineDevices + $offlineDevices,
             "labels" => ["Online", "Offline"],
-            "series" => [$deviceStatusCounts->get(1)->count(), $deviceStatusCounts->get(2)->count()],
+            "series" => [$onlineDevices, $offlineDevices],
         ];
     }
 }
