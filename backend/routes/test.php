@@ -29,7 +29,7 @@ Route::get('/syncLogsScript', function (Request $request) {
 Route::get('/test', function (Request $request) {
     Logger::channel('custom')->info('This is a custom log message.');
 
-    return ;
+    return;
 
     $filePath = Storage::path("data.csv"); // replace with the path to your CSV file
 
