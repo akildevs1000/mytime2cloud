@@ -41,68 +41,114 @@ function ld($arr)
     echo json_encode($arr, JSON_PRETTY_PRINT);
 }
 
-function defaultCards()
+function defaultCards($id = 1)
+{
+    return [
+        "page" => "dashboard1",
+        "type" => "card",
+        "company_id" =>  $id,
+        "style" => [
+            [
+                "title" => "Total Employee",
+                "value" => "employeeCount",
+                "color" => "#9C27B0",
+                "icon" => "mdi mdi-account",
+                "cols" => "12",
+                "sm" => "6",
+                "md" => "2",
+                "calculated_value" => "09"
+            ],
+            [
+                "title" => "Present",
+                "value" => "presentCount",
+                "color" => "#512DA8FF",
+                "icon" => "mdi mdi-account",
+                "cols" => "12",
+                "sm" => "6",
+                "md" => "2",
+                "calculated_value" => "00"
+            ],
+            [
+                "title" => "Absent",
+                "value" => "absentCount",
+                "color" => "#BF360CFF",
+                "icon" => "mdi mdi-account",
+                "cols" => "12",
+                "sm" => "6",
+                "md" => "2",
+                "calculated_value" => "00"
+            ],
+            [
+                "title" => "Late",
+                "value" => "missingCount",
+                "color" => "#263238FF",
+                "icon" => "mdi mdi-account",
+                "cols" => "12",
+                "sm" => "6",
+                "md" => "2",
+                "calculated_value" => "00"
+            ],
+            [
+                "title" => "Leave",
+                "value" => "leaveCount",
+                "color" => "#78909CFF",
+                "icon" => "mdi mdi-account",
+                "cols" => "12",
+                "sm" => "6",
+                "md" => "2",
+                "calculated_value" => "00"
+            ],
+            [
+                "title" => "Vacation",
+                "value" => "vacationCount",
+                "color" => "#558B2FFF",
+                "icon" => "mdi mdi-account",
+                "cols" => "12",
+                "sm" => "6",
+                "md" => "2",
+                "calculated_value" => "00"
+            ]
+        ]
+    ];
+}
+
+
+function defaultRoles($id = 1)
 {
     return [
         [
-            "title" => "Total Employee",
-            "value" => "employeeCount",
-            "color" => "#9C27B0",
-            "icon" => "mdi mdi-account",
-            "cols" => "12",
-            "sm" => "6",
-            "md" => "2",
-            "calculated_value" => "09"
+            "name" => "Employee",
+            "role_type" => "employee",
+            "company_id" => $id,
         ],
         [
-            "title" => "Present",
-            "value" => "presentCount",
-            "color" => "#512DA8FF",
-            "icon" => "mdi mdi-account",
-            "cols" => "12",
-            "sm" => "6",
-            "md" => "2",
-            "calculated_value" => "00"
+            "name" => "Manager",
+            "role_type" => "employee",
+            "company_id" => $id,
+        ],
+    ];
+}
+
+
+function defaultDepartments($id = 1)
+{
+
+    return [
+        [
+            "name" => "Accounts",
+            "company_id" => $id,
         ],
         [
-            "title" => "Absent",
-            "value" => "absentCount",
-            "color" => "#BF360CFF",
-            "icon" => "mdi mdi-account",
-            "cols" => "12",
-            "sm" => "6",
-            "md" => "2",
-            "calculated_value" => "00"
+            "name" => "Admin",
+            "company_id" => $id,
         ],
         [
-            "title" => "Late",
-            "value" => "missingCount",
-            "color" => "#263238FF",
-            "icon" => "mdi mdi-account",
-            "cols" => "12",
-            "sm" => "6",
-            "md" => "2",
-            "calculated_value" => "00"
+            "name" => "It Dep",
+            "company_id" => $id,
         ],
         [
-            "title" => "Leave",
-            "value" => "leaveCount",
-            "color" => "#78909CFF",
-            "icon" => "mdi mdi-account",
-            "cols" => "12",
-            "sm" => "6",
-            "md" => "2",
-            "calculated_value" => "00"
-        ],
-        [
-            "title" => "Vacation",
-            "value" => "vacationCount",
-            "color" => "#558B2FFF",
-            "icon" => "mdi mdi-account",
-            "cols" => "12",
-            "sm" => "6",
-            "md" => "2",
-            "calculated_value" => "00"
+            "name" => "Sales",
+            "company_id" => $id,
         ]
     ];
 }

@@ -27,6 +27,8 @@ use App\Notifications\CompanyCreationNotification;
 use App\Http\Requests\Company\CompanyUpdateRequest;
 use App\Http\Requests\Company\GeographicUpdateRequest;
 use App\Mail\NotifyIfLogsDoesNotGenerate;
+use App\Models\Department;
+use App\Models\Theme;
 use App\Models\VisitorLog;
 use Illuminate\Support\Facades\Mail;
 
@@ -169,11 +171,36 @@ class CompanyController extends Controller
             $record = Company::with(['user', 'contact'])->find($company->id);
             $record->pass = $randPass;
 
+            if (!$this->addDefaults($company->id)) {
+                return $this->response('Default cannot add.', null, false);
+            }
+
             return $this->response('Company Successfully created.', $record, true);
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
+    }
+
+    public function addDefaults($id)
+    {
+        $cardData = defaultCards($id);
+        $style = $cardData['style'];
+        unset($cardData['style']);
+
+        Theme::where($cardData)->delete();
+
+        $cardData["style"] = $style;
+
+        $theme = Theme::create($cardData);
+        $role = Role::insert(defaultRoles($id));
+        $department = Department::insert(defaultDepartments($id));
+
+        if ($theme && $role && $department) {
+            return true;
+        }
+
+        return false;
     }
 
     public function destroy($id)
