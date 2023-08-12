@@ -183,7 +183,7 @@
                             set_date_save($refs.daily_menu, payload.daily_date)
                           "
                         >
-                          OK (Filter)
+                          OK
                         </v-btn>
                       </v-date-picker>
                     </v-menu>
@@ -233,7 +233,7 @@
                               set_date_save($refs.from_menu, payload.from_date)
                             "
                           >
-                            OK (Filter)
+                            OK
                           </v-btn>
                         </v-date-picker>
                       </v-menu>
@@ -280,7 +280,7 @@
                               set_date_save($refs.to_menu, payload.to_date)
                             "
                           >
-                            OK (Filter)
+                            OK
                           </v-btn>
                         </v-date-picker>
                       </v-menu>
@@ -309,7 +309,7 @@
           <v-card-text>
             <ol class="pa-3">
               <li v-for="(shift, index) in shifts" :key="index">
-                {{ shift && shift.name }}
+                {{ (shift && shift.name) || "---" }}
                 {{
                   shift.on_duty_time
                     ? `(${shift.on_duty_time} - ${shift.off_duty_time})`
@@ -341,6 +341,8 @@
                       :return-value.sync="payload.time"
                       transition="scale-transition"
                       offset-y
+                      max-width="290px"
+                      min-width="290px"
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
@@ -371,7 +373,7 @@
                           color="primary"
                           @click="$refs.time_menu_ref.save(editItems.time)"
                         >
-                          OK (Filter)
+                          OK
                         </v-btn>
                       </v-time-picker>
                     </v-menu>
@@ -554,7 +556,7 @@
                     color="primary"
                     @click="$refs.menu.save(log_payload.date)"
                   >
-                    OK (Filter)
+                    OK
                   </v-btn>
                 </v-date-picker>
               </v-menu>
@@ -568,6 +570,8 @@
                 :return-value.sync="log_payload.time"
                 transition="scale-transition"
                 offset-y
+                max-width="290px"
+                min-height="320px"
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
@@ -594,7 +598,7 @@
                     color="primary"
                     @click="$refs.manual_time_menu_ref.save(log_payload.time)"
                   >
-                    OK (Filter)
+                    OK
                   </v-btn>
                 </v-time-picker>
               </v-menu>
@@ -825,7 +829,6 @@
                 x-small
                 color="primary"
                 class="mr-2"
-                v-if="can('attendance_report_edit')"
               >
                 mdi-pencil
               </v-icon>
