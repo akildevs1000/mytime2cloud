@@ -27,6 +27,7 @@
     "nuxt": "^2.15.7",
     "pg": "^8.9.0",
     "pg-format": "^1.0.4",
+    "qrcode": "^1.5.3",
     "tiptap-vuetify": "^2.24.0",
     "vue-apexcharts": "^1.6.2",
     "vue-image-crop-upload": "^3.0.3",

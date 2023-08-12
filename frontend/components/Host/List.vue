@@ -395,57 +395,35 @@
         </v-card>
       </v-dialog>
 
-      <v-dialog v-model="dialog" max-width="500px">
+      <v-dialog v-model="dialog" max-width="700px">
         <v-card>
           <v-card-title dense class="primary white--text background">
-            Import Employee
+            Register Link
+            <v-icon class="mx-2" color="white">mdi-clipboard-outline</v-icon>
+
             <v-spacer></v-spacer>
             <v-icon @click="dialog = false" outlined dark color="white">
-              mdi mdi-close-circle
+              mdi-close-circle-outline
             </v-icon>
           </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>
+                <v-col cols="12" class="text-center">
+                  <v-avatar v-if="qrCodeDataURL" size="150" tile class="ma-5">
+                    <img :src="qrCodeDataURL" alt="Avatar" />
+                  </v-avatar>
+                </v-col>
                 <v-col cols="12">
-                  <v-file-input
-                    accept="text/csv"
-                    v-model="files"
-                    placeholder="Upload your file"
-                    label="File"
-                    prepend-icon="mdi-paperclip"
-                  >
-                    <template v-slot:selection="{ text }">
-                      <v-chip v-if="text" small label color="primary">
-                        {{ text }}
-                      </v-chip>
-                    </template>
-                  </v-file-input>
-                  <br />
-                  <a href="/employees.csv" download> Download Sample</a>
-                  <br />
-                  <span
-                    v-if="errors && errors.length > 0"
-                    class="error--text"
-                    >{{ errors[0] }}</span
-                  >
+                  <span>
+                    <a :href="`${fullLink}`" target="_blank">
+                      {{ fullLink }}
+                    </a>
+                  </span>
                 </v-col>
               </v-row>
             </v-container>
           </v-card-text>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn class="error" small @click="close"> Cancel </v-btn>
-
-            <v-btn
-              class="primary"
-              :loading="btnLoader"
-              small
-              @click="importEmployee"
-              >Save</v-btn
-            >
-          </v-card-actions>
         </v-card>
       </v-dialog>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -531,6 +509,30 @@
                   </v-btn>
                 </template>
                 <span>Add Company</span>
+              </v-tooltip>
+              <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    dense
+                    x-small
+                    class="ma-0 px-0"
+                    :ripple="false"
+                    text
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="dialog = true"
+                  >
+                    <v-icon
+                      color="white"
+                      right
+                      size="x-large"
+                      dark
+                      v-if="can('employee_create')"
+                      >mdi-apps</v-icon
+                    >
+                  </v-btn>
+                </template>
+                <span>Test</span>
               </v-tooltip>
             </v-toolbar>
             <v-data-table
@@ -652,6 +654,10 @@ export default {
   },
 
   data: () => ({
+    originalURL: "http://localhost:3000/register/visitor/",
+    encryptedID: "",
+    fullLink: "",
+    qrCodeDataURL: "",
     disabled: false,
     openTimePicker: false,
     closeTimePicker: false,
@@ -766,6 +772,15 @@ export default {
     // "webaccess": true,
     headers: [
       {
+        text: "ID",
+        align: "left",
+        sortable: true,
+        key: "id",
+        value: "id",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
         text: "Door No/Flat No",
         align: "left",
         sortable: true,
@@ -864,6 +879,8 @@ export default {
       },
     };
 
+    this.encrypt(1);
+    this.generateQRCode();
     this.getDataFromApi();
   },
   mounted() {},
@@ -876,13 +893,9 @@ export default {
     },
   },
   methods: {
-    getCurrentShift(item) {
-      // Define an array of day names
-      const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const dayName = daysOfWeek[new Date().getDay()];
-      const { shift_name } = item.roster.json.find((e) => e.day == dayName);
-
-      return shift_name;
+    encrypt(id) {
+      this.encryptedID = this.$crypto.encrypt(id);
+      this.fullLink = this.originalURL + this.encryptedID;
     },
     closeViewDialog() {
       this.viewDialog = false;
@@ -1132,15 +1145,25 @@ export default {
       return formData;
     },
 
+    async generateQRCode() {
+      try {
+        this.qrCodeDataURL = await this.$qrcode.generate(this.fullLink);
+      } catch (error) {
+        console.error("Error generating QR code:", error);
+      }
+    },
+
     store_data() {
       this.$axios
         .post(this.endpoint, this.mapper(Object.assign(this.payload)))
         .then(({ data }) => {
+          this.encrypt(data.record.id);
           this.errors = [];
           this.snackbar = true;
           this.response = "Host inserted successfully";
           this.getDataFromApi();
           this.DialogBox = false;
+          this.dialog = true;
         })
         .catch(({ response }) => {
           if (!response) {

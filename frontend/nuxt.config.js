@@ -207,6 +207,8 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    '~/plugins/qrcode.js',
+    { src: '~/plugins/crypto.js', mode: 'client' },
     { src: "~/plugins/axios.js" },
     { src: "~/plugins/TiptapVuetify", mode: "client" },
     { src: "~/plugins/vue-apexchart.js", ssr: false },
@@ -320,5 +322,9 @@ export default {
   server: {
     host: process.env.LOCAL_IP,
     port: process.env.LOCAL_PORT,
+  },
+
+  env: {
+    SECRET_PASS_PHRASE: process.env.SECRET_PASS_PHRASE
   },
 };
