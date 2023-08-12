@@ -42,7 +42,6 @@
       </v-tooltip>
     </v-toolbar>
     <v-data-table
-      style="min-height: 490px"
       item-key="id"
       :headers="headers"
       :items="data"
