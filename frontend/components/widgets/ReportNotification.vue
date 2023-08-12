@@ -220,12 +220,3 @@ export default {
   },
 };
 </script>
-
-<style scop>
-.no-data-container {
-  height: 31vh; /* Adjust the height as needed */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>
