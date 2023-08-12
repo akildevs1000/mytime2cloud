@@ -35,9 +35,11 @@ class StoreRequest extends FormRequest
             "system_user_id" => $this->system_user_id,
             "company_id" => $this->company_id
         ];
+
         $controller = new Controller;
 
         return [
+            'department_id' => ['required'],
             'company_id' => ['required'],
             'employee_id' => ['required', $controller->uniqueRecord("employees", $employee)],
             'system_user_id' => ['required', $controller->uniqueRecord("employees", $employeeDevice)],
