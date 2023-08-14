@@ -2,14 +2,14 @@ const WebSocket = require("ws");
 const fs = require("fs");
 require("dotenv").config();
 
-const { SOCKET_ENDPOINT } = `wss://sdk.ideahrms.com/WebSocket`; //process.env;
+// const { SOCKET_ENDPOINT } = `wss://sdk.ideahrms.com/WebSocket`; //process.env;
 
 // Create a WebSocket connection
-const socket = new WebSocket(SOCKET_ENDPOINT);
+const socket = new WebSocket(`wss://sdk.ideahrms.com/WebSocket`);
 
 // Handle WebSocket connection events
 socket.onopen = () => {
-    console.log(`Connected to ${SOCKET_ENDPOINT}`);
+    console.log(`Connected to ${`wss://sdk.ideahrms.com/WebSocket`}`);
 };
 
 socket.onerror = (error) => {
