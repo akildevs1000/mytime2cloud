@@ -411,50 +411,6 @@ export default {
           to: "/employees",
           menu: "employee_access",
         },
-        {
-          icon: "mdi-calendar-today",
-          title: `Attendance`,
-          open_menu: false,
-          menu: "attendance_report_access",
-          hasChildren: [
-            {
-              icon: "mdi-chart-box-outliness",
-              title: "General Reports",
-              to: "/attendance_report/general",
-              menu: "attendance_report_access",
-            },
-            {
-              icon: "mdi-chart-box-outliness",
-              title: "Multi InOut Reports",
-              to: "/attendance_report/multi_inout",
-              menu: "attendance_report_access",
-            },
-            // {
-            //   icon: "mdi-chart-box-outline",
-            //   title: "Reports",
-            //   to: "/attendance_report",
-            //   menu: "attendance_report_access",
-            // },
-            {
-              icon: "mdi-clock-outliness",
-              title: "Shifts",
-              to: "/shift",
-              menu: "shift_access",
-            },
-            {
-              icon: "mdi mdi-calendar-clockss",
-              title: "Schedule List",
-              to: "/schedule",
-              menu: "schedule_access",
-            },
-            {
-              icon: "mdi-account-tiess",
-              title: "Employee Schedule",
-              to: "/employee_schedule",
-              menu: "employee_schedule_access",
-            },
-          ],
-        },
 
         {
           icon: "mdi-cash-multiple",
@@ -570,6 +526,52 @@ export default {
           title: "Attendances Logs",
           to: "/devicelogs",
           menu: "logs_access",
+        },
+        {
+          icon: "mdi-calendar-today",
+          title: `Attendance Reports`,
+          open_menu: false,
+          menu: "attendance_report_access",
+          hasChildren: [
+            {
+              icon: "mdi-chart-box-outliness",
+              title: "General Reports",
+              to: "/attendance_report/general",
+              menu: "attendance_report_access",
+            },
+            {
+              icon: "mdi-chart-box-outliness",
+              title: "Multi InOut Reports",
+              to: "/attendance_report/multi_inout",
+              menu: "attendance_report_access",
+            },
+          ],
+        },
+        {
+          icon: "mdi-calendar-today",
+          title: `Attendance Setup`,
+          open_menu: false,
+          menu: "attendance_report_access",
+          hasChildren: [
+            {
+              icon: "mdi-clock-outliness",
+              title: "Shifts",
+              to: "/shift",
+              menu: "shift_access",
+            },
+            {
+              icon: "mdi mdi-calendar-clockss",
+              title: "Schedule List",
+              to: "/schedule",
+              menu: "schedule_access",
+            },
+            {
+              icon: "mdi-account-tiess",
+              title: "Employee Schedule",
+              to: "/employee_schedule",
+              menu: "employee_schedule_access",
+            },
+          ],
         },
         {
           icon: "mdi-email",

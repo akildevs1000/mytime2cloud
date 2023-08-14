@@ -24,61 +24,6 @@
         </v-card>
       </v-dialog>
     </v-row>
-    <v-row class="pt-2 mt-5">
-      <v-col cols="12" sm="8" md="2">
-        <v-menu ref="from_menu" v-model="from_menu" :close-on-content-click="false" transition="scale-transition" offset-y
-          min-width="auto">
-          <template v-slot:activator="{ on, attrs }">
-            <div class="mb-1">From Date</div>
-            <v-text-field :hide-details="!payload.from_date" outlined dense v-model="payload.from_date_txt" readonly
-              v-bind="attrs" v-on="on" placeholder="Date"></v-text-field>
-          </template>
-          <v-date-picker style="height: 350px" v-model="payload.from_date" no-title scrollable @change="searchIt">
-            <v-spacer></v-spacer>
-            <!-- <v-btn class="blue-grey" small dark @click="from_menu = false">
-              Cancel
-            </v-btn>
-            <v-btn class="blue-grey darken-3" small dark @click="searchIt">
-              OK
-            </v-btn> -->
-          </v-date-picker>
-        </v-menu>
-      </v-col>
-      <v-col cols="12" sm="8" md="2">
-        <div class="mb-1">To Date</div>
-        <v-menu ref="to_menu" v-model="to_menu" :close-on-content-click="false" transition="scale-transition" offset-y
-          min-width="auto">
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field :hide-details="!payload.to_date" outlined dense v-model="payload.to_date_txt" readonly
-              v-bind="attrs" v-on="on" placeholder="Date"></v-text-field>
-          </template>
-          <v-date-picker style="height: 350px" v-model="payload.to_date" no-title scrollable @change="searchIt">
-            <!-- <v-spacer></v-spacer>
-            <v-btn class="blue-grey" small dark @click="to_menu = false">
-              Cancel
-            </v-btn>
-            <v-btn class="blue-grey darken-3" small dark @click="searchIt">
-              OK
-            </v-btn> -->
-          </v-date-picker>
-        </v-menu>
-      </v-col>
-      <v-col cols="12" sm="6" md="2">
-        <div class="mb-1">System User ID</div>
-        <v-text-field @input="searchIt" v-model="payload.UserID" outlined dense placeholder="Search..."></v-text-field>
-      </v-col>
-      <!-- <v-col cols="12" sm="6" md="2">
-        <div class="mb-1">Device Name</div>
-        <v-autocomplete outlined dense @change="searchIt" placeholder="Search..." v-model="payload.DeviceID"
-          :items="devices" item-text="name" item-value="device_id">
-        </v-autocomplete>
-      </v-col> -->
-
-      <!-- <v-col cols="12" sm="6" md="2">
-        <div class="mb-1"> &nbsp;</div>
-        <v-btn class="primary" @click="searchIt">Submit</v-btn>
-      </v-col> -->
-    </v-row>
     <v-row>
       <v-col>
         <v-card class="mb-5" elevation="0">

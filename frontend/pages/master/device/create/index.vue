@@ -77,6 +77,7 @@
                 <label class="col-form-label">Company List</label>
                 <span class="text-danger">*</span>
                 <select
+                  disabled
                   v-model="payload.company_id"
                   class="form-select"
                   aria-label="Default select example"
@@ -152,7 +153,7 @@ export default {
   data: () => ({
     loading: false,
     upload: {
-      name: ""
+      name: "",
     },
 
     payload: {
@@ -160,7 +161,7 @@ export default {
       device_id: "",
       status_id: "",
       company_id: "",
-      location: ""
+      location: "",
     },
 
     errors: [],
@@ -168,7 +169,7 @@ export default {
     companies: [],
     data: {},
     response: "",
-    snackbar: false
+    snackbar: false,
   }),
   async created() {
     this.getCompanies();
@@ -207,8 +208,8 @@ export default {
             setTimeout(() => this.$router.push("/master/device"), 2000);
           }
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>

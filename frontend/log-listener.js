@@ -17,7 +17,7 @@ socket.onerror = (error) => {
 };
 
 // Create and append headers to the CSV log file
-const logFilePath = "../backend/storage/logs.csv";
+const logFilePath = "../backend/storage/app/logs.csv";
 // const header = "UserID,LogTime,DeviceID,SerialNumber\n";
 // fs.writeFileSync(logFilePath, header, { flag: "w" }); // Use "w" flag to overwrite/create the file
 

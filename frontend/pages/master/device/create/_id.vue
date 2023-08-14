@@ -122,7 +122,7 @@
               </div>
             </div> -->
 
-            <div class="col-sm-6">
+            <div class="col-sm-4">
               <div class="form-group">
                 <label class="col-form-label">Device Status </label>
                 <span class="text-danger">*</span>
@@ -147,11 +147,12 @@
                 >
               </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
               <div class="form-group">
                 <label class="col-form-label">Company List</label>
                 <span class="text-danger">*</span>
                 <select
+                  disabled
                   v-model="payload.company_id"
                   class="form-select"
                   aria-label="Default select example"
@@ -164,6 +165,26 @@
                   >
                     {{ company.name }}
                   </option>
+                </select>
+                <span
+                  v-if="errors && errors.company_id"
+                  class="text-danger mt-2"
+                  >{{ errors.company_id[0] }}</span
+                >
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="col-form-label">Report Type</label>
+                <span class="text-danger">*</span>
+                <select
+                  v-model="payload.report_type"
+                  class="form-select"
+                  aria-label="Default select example"
+                >
+                  <option value="Attendance">Attendance</option>
+                  <option value="Access Control">Access Control</option>
                 </select>
                 <span
                   v-if="errors && errors.company_id"
@@ -226,10 +247,11 @@ export default {
   data: () => ({
     loading: false,
     upload: {
-      name: ""
+      name: "",
     },
 
     payload: {
+      report_type: "Attendance",
       name: "",
       device_type: "",
       device_id: "",
@@ -239,7 +261,7 @@ export default {
       location: "",
       short_name: "",
       ip: "0.0.0.0",
-      port: "8101"
+      port: "8101",
     },
 
     errors: [],
@@ -247,7 +269,7 @@ export default {
     companies: [],
     data: {},
     response: "",
-    snackbar: false
+    snackbar: false,
   }),
   async created() {
     this.getCompanies();
@@ -296,8 +318,8 @@ export default {
             );
           }
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>
