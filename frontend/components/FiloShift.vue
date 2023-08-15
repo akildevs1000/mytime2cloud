@@ -33,7 +33,7 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.working_hours"
               readonly
               :hide-details="!errors.working_hours"
@@ -83,7 +83,7 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.overtime_interval"
               readonly
               :hide-details="!errors.working_hours"

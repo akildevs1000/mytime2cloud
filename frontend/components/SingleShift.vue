@@ -32,7 +32,7 @@
           <template v-slot:activator="{ on, attrs }">
             On Duty Time
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               :hide-details="!errors.on_duty_time"
               v-model="payload.on_duty_time"
               readonly
@@ -82,7 +82,7 @@
           <template v-slot:activator="{ on, attrs }">
             Beginning In
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.beginning_in"
               readonly
               :hide-details="!errors.beginning_in"
@@ -131,6 +131,7 @@
           <template v-slot:activator="{ on, attrs }">
             Ending In
             <v-text-field
+              append-icon="mdi-clock-outline"
               v-model="payload.ending_in"
               readonly
               :hide-details="!errors.ending_in"
@@ -180,7 +181,7 @@
           <template v-slot:activator="{ on, attrs }">
             Late Time
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.late_time"
               :hide-details="!errors.late_time"
               readonly
@@ -229,7 +230,7 @@
           <template v-slot:activator="{ on, attrs }">
             Off Duty Time
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.off_duty_time"
               readonly
               :hide-details="!errors.off_duty_time"
@@ -280,7 +281,7 @@
           <template v-slot:activator="{ on, attrs }">
             Beginning Out
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.beginning_out"
               readonly
               :hide-details="!errors.beginning_out"
@@ -329,7 +330,7 @@
           <template v-slot:activator="{ on, attrs }">
             Ending Out
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.ending_out"
               :hide-details="!errors.ending_out"
               readonly
@@ -378,7 +379,7 @@
           <template v-slot:activator="{ on, attrs }">
             Early Time
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.early_time"
               :hide-details="!errors.early_time"
               readonly
@@ -427,7 +428,7 @@
           <template v-slot:activator="{ on, attrs }">
             Absent In
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.absent_min_in"
               :hide-details="!errors.absent_min_in"
               readonly
@@ -476,7 +477,7 @@
           <template v-slot:activator="{ on, attrs }">
             Absent Out
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.absent_min_out"
               :hide-details="!errors.absent_min_out"
               readonly
@@ -528,7 +529,7 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.working_hours"
               readonly
               :hide-details="!errors.working_hours"
@@ -578,7 +579,7 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
-              append-icon="access_time"
+              append-icon="mdi-clock-outline"
               v-model="payload.overtime_interval"
               readonly
               :hide-details="!errors.working_hours"
