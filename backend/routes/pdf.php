@@ -20,11 +20,11 @@ Route::get('report', [ReportController::class, 'index']);
 //daily
 Route::get('/daily', [DailyController::class, 'daily']);
 Route::get('/daily_download_pdf', [DailyController::class, 'daily_download_pdf']);
-Route::get('/daily_download_csv', [DailyController::class, 'daily_download_csv']);
+Route::get('/daily_download_csv', [ReportController::class, 'general_download_csv']);
 
 //multi in out
 // -> csv
-Route::get('/multi_in_out_daily_download_csv', [Controller::class, 'multi_in_out_daily_download_csv']);
+Route::get('/multi_in_out_daily_download_csv', [ReportController::class, 'multi_in_out_daily_download_csv']);
 Route::get('/multi_in_out_monthly_download_csv', [MonthlyController::class, 'multi_in_out_monthly_download_csv']);
 Route::get('/multi_in_out_weekly_download_csv', [WeeklyController::class, 'multi_in_out_weekly_download_csv']);
 

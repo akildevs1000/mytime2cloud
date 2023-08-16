@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Reports\ReportController;
 use App\Models\Activity;
-use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -143,99 +142,6 @@ class Controller extends BaseController
             }
         }
         return $model;
-    }
-
-    public function multi_in_out_daily_download_csv(Request $request)
-    {
-        $data = (new Attendance)->processAttendanceModel($request)->get();
-
-        foreach ($data as $value) {
-            $count = count($value->logs ?? []);
-            if ($count > 0) {
-                if ($count < 8) {
-                    $diff = 7 - $count;
-                    $count = $count + $diff;
-                }
-                $i = 1;
-                for ($a = 0; $a < $count; $a++) {
-
-                    $holder = $a;
-                    $holder_key = ++$holder;
-
-                    $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
-                    $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
-                }
-            }
-        }
-
-        $fileName = 'report.csv';
-
-        $headers = array(
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0",
-        );
-
-        $callback = function () use ($data) {
-            $file = fopen('php://output', 'w');
-            $i = 0;
-            fputcsv($file, [
-                "#",
-                "Date",
-                "E.ID",
-                "Name",
-                "In1",
-                "Out1",
-                "In2",
-                "Out2",
-                "In3",
-                "Out3",
-                "In4",
-                "Out4",
-                "In5",
-                "Out5",
-                "In6",
-                "Out6",
-                "In7",
-                "Out7",
-                "Total Hrs",
-                "OT",
-                "Status",
-
-            ]);
-            foreach ($data as $col) {
-                fputcsv($file, [
-                    ++$i,
-                    $col['date'],
-                    $col['employee_id'] ?? "---",
-                    $col['employee']["display_name"] ?? "---",
-                    $col["in1"] ?? "---",
-                    $col["out1"] ?? "---",
-                    $col["in2"] ?? "---",
-                    $col["out2"] ?? "---",
-                    $col["in3"] ?? "---",
-                    $col["out3"] ?? "---",
-                    $col["in4"] ?? "---",
-                    $col["out4"] ?? "---",
-                    $col["in5"] ?? "---",
-                    $col["out5"] ?? "---",
-                    $col["in6"] ?? "---",
-                    $col["out6"] ?? "---",
-                    $col["in7"] ?? "---",
-                    $col["out7"] ?? "---",
-                    $col["total_hrs"] ?? "---",
-                    $col["ot"] ?? "---",
-                    $col["status"] ?? "---",
-
-                ], ",");
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
     }
 
     public function custom_with($model, $relation, $company_id)
