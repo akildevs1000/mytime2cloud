@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Reports\ReportController;
 use App\Models\Activity;
+use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -117,7 +118,7 @@ class Controller extends BaseController
                 return "Present";
             case 'A':
                 return "Absent";
-            case '---':
+            case 'M':
                 return "Missing";
             case 'ME':
                 return "Manual Entry";
@@ -127,6 +128,8 @@ class Controller extends BaseController
                 return "Holidays";
             case 'L':
                 return "Leaves";
+            case 'V':
+                return "Vaccation";
             default:
                 return "Summary";
         }
@@ -144,8 +147,26 @@ class Controller extends BaseController
 
     public function multi_in_out_daily_download_csv(Request $request)
     {
-        $model = new ReportController;
-        $data = $model->processMultiInOut($request);
+        $data = (new Attendance)->processAttendanceModel($request)->get();
+
+        foreach ($data as $value) {
+            $count = count($value->logs ?? []);
+            if ($count > 0) {
+                if ($count < 8) {
+                    $diff = 7 - $count;
+                    $count = $count + $diff;
+                }
+                $i = 1;
+                for ($a = 0; $a < $count; $a++) {
+
+                    $holder = $a;
+                    $holder_key = ++$holder;
+
+                    $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
+                    $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
+                }
+            }
+        }
 
         $fileName = 'report.csv';
 

@@ -182,6 +182,10 @@ class Attendance extends Model
             $q->where('status', "H");
         });
 
+        $model->when($request->status == "V", function ($q) {
+            $q->where('status', "V");
+        });
+
         $model->when($request->status == "ME", function ($q) {
             $q->where('is_manual_entry', true);
         });
