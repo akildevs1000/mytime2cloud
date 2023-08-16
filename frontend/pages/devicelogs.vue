@@ -11,14 +11,16 @@
           <v-card-title class="background">
             <span class="headline white--text" dense> Generate Log </span>
             <v-spacer></v-spacer>
-            <v-icon dark @click="generateLogsDialog = false" outlined color="white">
+            <v-icon
+              dark
+              @click="generateLogsDialog = false"
+              outlined
+              color="white"
+            >
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
           <v-card-text>
-
-
-
             <GenerateLog @update-data-table="getDataFromApi()" />
           </v-card-text>
         </v-card>
@@ -31,8 +33,19 @@
             <v-toolbar-title><span> Attendances Logs</span></v-toolbar-title>
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" @click="getRecords" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" dark>mdi mdi-reload</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  @click="getRecords"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon color="white" class="ml-2" dark
+                    >mdi mdi-reload</v-icon
+                  >
                 </v-btn>
               </template>
               <span>Reload</span>
@@ -40,7 +53,14 @@
 
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="toggleFilter">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="toggleFilter"
+                >
                   <v-icon dark white>mdi-filter</v-icon>
                 </v-btn>
               </template>
@@ -50,7 +70,14 @@
             <v-spacer></v-spacer>
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="generateLogsDialog = true">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="generateLogsDialog = true"
+                >
                   <v-icon class="">mdi mdi-plus-circle</v-icon>
                 </v-btn>
               </template>
@@ -65,23 +92,57 @@
               <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
-            :options.sync="options" :footer-props="{
+          <v-data-table
+            dense
+            :headers="headers_table"
+            :items="data"
+            model-value="data.id"
+            :loading="loading"
+            :options.sync="options"
+            :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1" :server-items-length="totalRowsCount">
+            }"
+            class="elevation-1"
+            :server-items-length="totalRowsCount"
+          >
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text">
-                  <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                    v-model="filters[header.key]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
-                    dense autocomplete="off"></v-text-field>
+                  <v-text-field
+                    clearable
+                    :hide-details="true"
+                    v-if="header.filterable && !header.filterSpecial"
+                    v-model="filters[header.key]"
+                    :id="header.value"
+                    @input="applyFilters(header.key, $event)"
+                    outlined
+                    dense
+                    autocomplete="off"
+                  ></v-text-field>
 
-                  <v-select :id="header.key" :hide-details="true"
-                    v-if="header.filterSpecial && header.value == 'department.name.id'" outlined dense small
-                    v-model="filters[header.key]" item-text="name" item-value="id"
-                    :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo flat
-                    @change="applyFilters(header.key, id)"></v-select>
-                  <v-menu v-if="header.filterSpecial && header.value == 'LogTime'" ref="from_menu_filter"
+                  <v-select
+                    :id="header.key"
+                    :hide-details="true"
+                    v-if="
+                      header.filterSpecial &&
+                      header.value == 'department.name.id'
+                    "
+                    outlined
+                    dense
+                    small
+                    v-model="filters[header.key]"
+                    item-text="name"
+                    item-value="id"
+                    :items="[
+                      { name: `All Departments`, id: `` },
+                      ...departments,
+                    ]"
+                    placeholder="Department"
+                    solo
+                    flat
+                    @change="applyFilters(header.key, id)"
+                  ></v-select>
+                  <!-- <v-menu v-if="header.filterSpecial && header.value == 'LogTime'" ref="from_menu_filter"
                     v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
                     min-width="auto">
                     <template v-slot:activator="{ on, attrs }">
@@ -97,50 +158,85 @@
                         Clear
                       </v-btn>
                     </v-date-picker>
-                  </v-menu>
-                  <v-select :id="header.key" :hide-details="true"
-                    v-if="header.filterSpecial && header.value == 'device.name'" outlined dense small
-                    v-model="filters[header.key]" item-text="name" item-value="device_id"
-                    :items="[{ name: `All Devices`, device_id: `` }, ...devices]" placeholder="Device Name" solo flat
-                    @change="applyFilters(header.key, id)"></v-select>
-                  <v-select :id="header.key" :hide-details="true"
-                    v-if="header.filterSpecial && header.value == 'device.location'" outlined dense small
-                    v-model="filters[header.key]" item-text="location" item-value="location"
-                    :items="[{ location: `All Locations` }, ...devices]" placeholder="Location" solo flat
-                    @change="applyFilters(header.key, id)"></v-select>
+                  </v-menu> -->
+                  <DateRangePicker
+                    :disabled="false"
+                    :header="header"
+                    column="date_range"
+                    @selected-dates="handleDatesFilter"
+                  />
+                  <v-select
+                    :id="header.key"
+                    :hide-details="true"
+                    v-if="header.filterSpecial && header.value == 'device.name'"
+                    outlined
+                    dense
+                    small
+                    v-model="filters[header.key]"
+                    item-text="name"
+                    item-value="device_id"
+                    :items="[
+                      { name: `All Devices`, device_id: `` },
+                      ...devices,
+                    ]"
+                    placeholder="Device Name"
+                    solo
+                    flat
+                    @change="applyFilters(header.key, id)"
+                  ></v-select>
+                  <v-select
+                    :id="header.key"
+                    :hide-details="true"
+                    v-if="
+                      header.filterSpecial && header.value == 'device.location'
+                    "
+                    outlined
+                    dense
+                    small
+                    v-model="filters[header.key]"
+                    item-text="location"
+                    item-value="location"
+                    :items="[{ location: `All Locations` }, ...devices]"
+                    placeholder="Location"
+                    solo
+                    flat
+                    @change="applyFilters(header.key, id)"
+                  ></v-select>
                 </td>
               </tr>
-
-
             </template>
             <template v-slot:item.UserID="{ item }">
-
               <strong> {{ item.UserID ? item.UserID : "---" }}</strong>
               <br />
               {{
                 item.employee && item.employee.employee_id
-                ? item.employee.employee_id
-                : "---"
+                  ? item.employee.employee_id
+                  : "---"
               }}
-
             </template>
             <template v-slot:item.employee.first_name="{ item, index }">
               <v-row no-gutters>
-                <v-col style="
-                      padding: 5px;
-                      padding-left: 0px;
+                <v-col
+                  style="
+                    padding: 5px;
+                    padding-left: 0px;
+                    width: 50px;
+                    max-width: 50px;
+                  "
+                >
+                  <v-img
+                    style="
+                      border-radius: 50%;
+                      height: auto;
                       width: 50px;
                       max-width: 50px;
-                    ">
-                  <v-img style="
-                        border-radius: 50%;
-                        height: auto;
-                        width: 50px;
-                        max-width: 50px;
-                      " :src="item.employee && item.employee.profile_picture
+                    "
+                    :src="
+                      item.employee && item.employee.profile_picture
                         ? item.employee.profile_picture
                         : '/no-profile-image.jpg'
-                        ">
+                    "
+                  >
                   </v-img>
                 </v-col>
                 <v-col style="padding: 10px">
@@ -148,33 +244,31 @@
                     {{ item.employee ? item.employee.first_name : "---" }}
                     {{
                       item.employee ? item.employee.last_name : "---"
-                    }}</strong>
+                    }}</strong
+                  >
                   <div>
                     {{
                       item.employee && item.employee.designation
-                      ? caps(item.employee.designation.name)
-                      : "---"
+                        ? caps(item.employee.designation.name)
+                        : "---"
                     }}
                   </div>
                 </v-col>
               </v-row>
-
             </template>
             <template v-slot:item.department.name.id="{ item }">
-
               <strong>{{
                 item.employee && item.employee.department
-                ? caps(item.employee.department.name)
-                : "---"
+                  ? caps(item.employee.department.name)
+                  : "---"
               }}</strong>
               <div>
                 {{
                   item.employee && item.employee.sub_department
-                  ? caps(item.employee.sub_department.name)
-                  : "---"
+                    ? caps(item.employee.sub_department.name)
+                    : "---"
                 }}
               </div>
-
             </template>
             <template v-slot:item.LogTime="{ item }">
               {{ item.LogTime }}
@@ -185,7 +279,6 @@
             <template v-slot:item.device.location="{ item }">
               {{ item.device ? caps(item.device.location) : "---" }}
             </template>
-
           </v-data-table>
         </v-card>
       </v-col>
@@ -203,11 +296,16 @@
 </template>
 
 <script>
+import DateRangePicker from "../components/Snippets/Filters/DateRangePicker.vue";
+
 export default {
+  components: {
+    DateRangePicker,
+  },
   data: () => ({
-    id: '',
-    from_menu_filter: '',
-    from_date_filter: '',
+    id: "",
+    from_menu_filter: "",
+    from_date_filter: "",
 
     showFilters: false,
     filters: {},
@@ -290,7 +388,7 @@ export default {
         value: "UserID",
         width: "150px",
         filterable: true,
-        filterSpecial: false
+        filterSpecial: false,
       },
       {
         text: "Employee",
@@ -300,7 +398,7 @@ export default {
         value: "employee.first_name", //edit purpose
         width: "300px",
         filterable: true,
-        filterSpecial: false
+        filterSpecial: false,
       },
       {
         text: "Department",
@@ -309,17 +407,25 @@ export default {
         key: "department", //sorting
         value: "department.name.id", //edit purpose
         filterable: true,
-        filterSpecial: true
+        filterSpecial: true,
       },
       {
-        text: "Log Time",
+        text: "Date Range",
         align: "left",
-        sortable: true,
-        key: "LogTime", //sorting
-        value: "LogTime", //edit purpose
-        filterable: true,
-        filterSpecial: true
+        sortable: false,
+        key: "date_range",
+        value: "LogTime",
+        fieldType: "date_range_picker",
       },
+      // {
+      //   text: "Log Time",
+      //   align: "left",
+      //   sortable: true,
+      //   key: "LogTime", //sorting
+      //   value: "LogTime", //edit purpose
+      //   filterable: true,
+      //   filterSpecial: true
+      // },
       {
         text: "Device Name",
         align: "left",
@@ -327,7 +433,7 @@ export default {
         key: "device",
         value: "device.name",
         filterable: true,
-        filterSpecial: true
+        filterSpecial: true,
       },
       {
         text: "Device Location",
@@ -336,7 +442,7 @@ export default {
         key: "devicelocation",
         value: "device.location",
         filterable: true,
-        filterSpecial: true
+        filterSpecial: true,
       },
     ],
   }),
@@ -353,6 +459,11 @@ export default {
     },
   },
   methods: {
+    handleDatesFilter(dates) {
+      if (dates.length > 1) {
+        this.getDataFromApi(this.endpoint, "dates", dates);
+      }
+    },
     getDepartments() {
       let options = {
         params: {
@@ -403,7 +514,7 @@ export default {
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
-    datatable_save() { },
+    datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -438,7 +549,6 @@ export default {
       );
     },
     getRecords(filter_column = "", filter_value = "") {
-
       this.filters = {};
       this.isFilter = false;
       if (filter_value != "" && filter_value.length <= 2) {
@@ -470,22 +580,20 @@ export default {
       if (filter_column != "")
         this.payloadOptions.params[filter_column] = filter_value;
       this.loading = true;
-      this.$axios
-        .get(`${url}?page=${this.options.page}`, this.payloadOptions)
-        .then(({ data }) => {
-          // if (filter_column != "" && data.data.length == 0) {
-          //   this.snack = true;
-          //   this.snackColor = "error";
-          //   this.snackText = "No Results Found";
-          //   this.loading = false;
-          //   return false;
-          // }
-          //this.server_datatable_totalItems = data.total;
-          this.data = data.data;
-          this.total = data.total;
-          this.loading = false;
-          this.totalRowsCount = data.total;
-        });
+      this.$axios.get(url, this.payloadOptions).then(({ data }) => {
+        // if (filter_column != "" && data.data.length == 0) {
+        //   this.snack = true;
+        //   this.snackColor = "error";
+        //   this.snackText = "No Results Found";
+        //   this.loading = false;
+        //   return false;
+        // }
+        //this.server_datatable_totalItems = data.total;
+        this.data = data.data;
+        this.total = data.total;
+        this.loading = false;
+        this.totalRowsCount = data.total;
+      });
     },
     searchIt() {
       this.payload.from_date_txt = this.payload.from_date;

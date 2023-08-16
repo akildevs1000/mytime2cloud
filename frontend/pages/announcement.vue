@@ -971,8 +971,6 @@ export default {
         options.params[filter_column] = filter_value;
       }
 
-      console.log(options.params);
-
       this.$axios.get(url, options).then(({ data }) => {
         if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
