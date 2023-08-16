@@ -6,9 +6,8 @@
       </v-snackbar>
     </div>
     <v-dialog v-model="dialog" max-width="60%">
-
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
+        <v-card-title dense class="primary white--text background">
           {{ formTitle }} {{ Model }}
           <v-spacer></v-spacer>
           <v-icon @click="dialog = false" outlined dark color="white">
@@ -20,22 +19,45 @@
             <v-row>
               <v-col cols="4">
                 <label for="">Title</label>
-                <v-text-field dense outlined v-model="editedItem.title" placeholder="Title" :error-messages="errors && errors.title ? errors.title[0] : ''
-                  "></v-text-field>
+                <v-text-field
+                  dense
+                  outlined
+                  v-model="editedItem.title"
+                  placeholder="Title"
+                  :error-messages="
+                    errors && errors.title ? errors.title[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
               <!-- {{ employees_dialog }} -->
 
               <v-col cols="4">
                 <label for="">Department</label>
-                <v-autocomplete class="announcement-dropdown1" outlined dense @change="employeesByDepartment"
-                  v-model="editedItem.departments" :items="departments" multiple item-text="name" item-value="id"
-                  placeholder="Departments" :error-messages="errors && errors.departments ? errors.departments[0] : ''
-                    ">
+                <v-autocomplete
+                  class="announcement-dropdown1"
+                  outlined
+                  dense
+                  @change="employeesByDepartment"
+                  v-model="editedItem.departments"
+                  :items="departments"
+                  multiple
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Departments"
+                  :error-messages="
+                    errors && errors.departments ? errors.departments[0] : ''
+                  "
+                >
                   <template v-if="departments.length" #prepend-item>
                     <v-list-item @click="toggleDepartmentSelection">
                       <v-list-item-action>
-                        <v-checkbox @click="toggleDepartmentSelection" v-model="selectAllDepartment"
-                          :indeterminate="isIndeterminateDepartment" :true-value="true" :false-value="false"></v-checkbox>
+                        <v-checkbox
+                          @click="toggleDepartmentSelection"
+                          v-model="selectAllDepartment"
+                          :indeterminate="isIndeterminateDepartment"
+                          :true-value="true"
+                          :false-value="false"
+                        ></v-checkbox>
                       </v-list-item-action>
                       <v-list-item-content>
                         <v-list-item-title>
@@ -47,9 +69,17 @@
                     </v-list-item>
                   </template>
                   <template v-slot:selection="{ item, index }">
-
-                    <span v-if="index === 0 && editedItem.departments.length == 1">{{ item.name }}</span>
-                    <span v-else-if="index === 1 && editedItem.departments.length == departments.length" class=" ">
+                    <span
+                      v-if="index === 0 && editedItem.departments.length == 1"
+                      >{{ item.name }}</span
+                    >
+                    <span
+                      v-else-if="
+                        index === 1 &&
+                        editedItem.departments.length == departments.length
+                      "
+                      class=" "
+                    >
                       All Selected
                     </span>
                     <span v-else-if="index === 1" class=" ">
@@ -60,15 +90,31 @@
               </v-col>
               <v-col cols="4">
                 <label for="">Employee</label>
-                <v-autocomplete class="announcement-dropdown1" outlined dense v-model="editedItem.employees"
-                  :items="employees_dialog" multiple item-text="name_with_user_id" item-value="id" placeholder="Employees"
-                  :error-messages="errors && errors.employees ? errors.employees[0] : ''
-                    " color="background">
+                <v-autocomplete
+                  class="announcement-dropdown1"
+                  outlined
+                  dense
+                  v-model="editedItem.employees"
+                  :items="employees_dialog"
+                  multiple
+                  item-text="name_with_user_id"
+                  item-value="id"
+                  placeholder="Employees"
+                  :error-messages="
+                    errors && errors.employees ? errors.employees[0] : ''
+                  "
+                  color="background"
+                >
                   <template v-if="employees_dialog.length" #prepend-item>
                     <v-list-item @click="toggleEmployeeSelection">
                       <v-list-item-action>
-                        <v-checkbox @click="toggleEmployeeSelection" v-model="selectAllEmployee"
-                          :indeterminate="isIndeterminateEmployee" :true-value="true" :false-value="false"></v-checkbox>
+                        <v-checkbox
+                          @click="toggleEmployeeSelection"
+                          v-model="selectAllEmployee"
+                          :indeterminate="isIndeterminateEmployee"
+                          :true-value="true"
+                          :false-value="false"
+                        ></v-checkbox>
                       </v-list-item-action>
                       <v-list-item-content>
                         <v-list-item-title>
@@ -80,10 +126,16 @@
                     </v-list-item>
                   </template>
                   <template v-slot:selection="{ item, index }">
-
-                    <span v-if="index === 0 && editedItem.employees.length == 1">{{ item.first_name }} {{ item.last_name
-                    }}</span>
-                    <span v-else-if="index === 1 && editedItem.employees.length == employees_dialog.length" class=" ">
+                    <span v-if="index === 0 && editedItem.employees.length == 1"
+                      >{{ item.first_name }} {{ item.last_name }}</span
+                    >
+                    <span
+                      v-else-if="
+                        index === 1 &&
+                        editedItem.employees.length == employees_dialog.length
+                      "
+                      class=" "
+                    >
                       All Selected
                     </span>
                     <span v-else-if="index === 1" class=" ">
@@ -102,41 +154,88 @@
               </v-col>
 
               <v-col cols="6">
-                <v-menu ref="from_menu" v-model="start_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.start_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="from_menu"
+                  v-model="start_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.start_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">Start Date</div>
-                    <v-text-field outlined dense v-model="editedItem.start_date" readonly v-bind="attrs" v-on="on"
-                      :error-messages="errors && errors.start_date ? errors.start_date[0] : ''
-                        ">
+                    <v-text-field
+                      outlined
+                      dense
+                      v-model="editedItem.start_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      :error-messages="
+                        errors && errors.start_date ? errors.start_date[0] : ''
+                      "
+                    >
                     </v-text-field>
                   </template>
-                  <v-date-picker v-model="editedItem.start_date" no-title scrollable>
+                  <v-date-picker
+                    v-model="editedItem.start_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="from_menu = false">
                       Cancel
                     </v-btn>
-                    <v-btn text color="primary" @click="$refs.from_menu.save(editedItem.start_date)">
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.from_menu.save(editedItem.start_date)"
+                    >
                       OK
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
               </v-col>
               <v-col cols="6">
-                <v-menu ref="end_menu" v-model="end_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.end_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="end_menu"
+                  v-model="end_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.end_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">End Date</div>
-                    <v-text-field outlined dense v-model="editedItem.end_date" readonly v-bind="attrs" v-on="on"
-                      :error-messages="errors && errors.end_date ? errors.end_date[0] : ''
-                        "></v-text-field>
+                    <v-text-field
+                      outlined
+                      dense
+                      v-model="editedItem.end_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      :error-messages="
+                        errors && errors.end_date ? errors.end_date[0] : ''
+                      "
+                    ></v-text-field>
                   </template>
-                  <v-date-picker :min="editedItem.start_date" v-model="editedItem.end_date" no-title scrollable>
+                  <v-date-picker
+                    :min="editedItem.start_date"
+                    v-model="editedItem.end_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="end_menu = false">
                       Cancel
                     </v-btn>
-                    <v-btn text color="primary" @click="$refs.end_menu.save(editedItem.end_date)">
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.end_menu.save(editedItem.end_date)"
+                    >
                       OK
                     </v-btn>
                   </v-date-picker>
@@ -144,8 +243,14 @@
               </v-col>
               <v-col cols="12">
                 <label for="">Description</label>
-                <v-textarea dense outlined v-model="editedItem.description" :error-messages="errors && errors.description ? errors.description[0] : ''
-                  ">
+                <v-textarea
+                  dense
+                  outlined
+                  v-model="editedItem.description"
+                  :error-messages="
+                    errors && errors.description ? errors.description[0] : ''
+                  "
+                >
                 </v-textarea>
                 <!-- <ClientOnly>
                   <tiptap-vuetify
@@ -172,9 +277,8 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialogEmployees" max-width="60%">
-
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
+        <v-card-title dense class="primary white--text background">
           Employees List
           <v-spacer></v-spacer>
           <v-icon @click="dialogEmployees = false" outlined dark color="white">
@@ -184,10 +288,17 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-data-table v-model="idsEmployeeList" item-key="id" :headers="headers_Dialog" :items="DialogEmployeesData"
-                :loading="loading" :footer-props="{
+              <v-data-table
+                v-model="idsEmployeeList"
+                item-key="id"
+                :headers="headers_Dialog"
+                :items="DialogEmployeesData"
+                :loading="loading"
+                :footer-props="{
                   itemsPerPageOptions: [10, 50, 100, 500, 1000],
-                }" class="elevation-1">
+                }"
+                class="elevation-1"
+              >
                 <template v-slot:item.first_name="{ item }">
                   {{ item.first_name ? item.first_name : "---" }}
                   {{ item.last_name }}
@@ -218,19 +329,45 @@
       <v-col md="12">
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> {{ Model }} List </span></v-toolbar-title>
+            <v-toolbar-title
+              ><span> {{ Model }} List </span></v-toolbar-title
+            >
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon
+                    color="white"
+                    class="ml-2"
+                    @click="getDataFromApi()"
+                    dark
+                    >mdi mdi-reload</v-icon
+                  >
                 </v-btn>
               </template>
               <span>Reload</span>
             </v-tooltip>
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" @click="toggleFilter" class="mx-1 ml-2">mdi mdi-filter</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon color="white" @click="toggleFilter" class="mx-1 ml-2"
+                    >mdi mdi-filter</v-icon
+                  >
                 </v-btn>
               </template>
               <span>Filter</span>
@@ -238,8 +375,18 @@
             <v-spacer></v-spacer>
             <v-tooltip top color="primary" v-if="can(`announcement_create`)">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="dialog = true" dark>mdi mdi-plus-circle</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon color="white" class="ml-2" @click="dialog = true" dark
+                    >mdi mdi-plus-circle</v-icon
+                  >
                 </v-btn>
               </template>
               <span>New Announcement</span>
@@ -255,65 +402,164 @@
               <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table v-if="can(`announcement_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
-            :loading="loading" :options.sync="options" :footer-props="{
+          <v-data-table
+            v-if="can(`announcement_view`)"
+            v-model="ids"
+            item-key="id"
+            :headers="headers"
+            :items="data"
+            :loading="loading"
+            :options.sync="options"
+            :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1" :server-items-length="totalRowsCount">
+            }"
+            class="elevation-1"
+            :server-items-length="totalRowsCount"
+          >
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
-                <td v-for="header in headers" :key="header.text">
-                  <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                    v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
-                    dense autocomplete="off"></v-text-field>
-
-                  <v-select :id="header.key" :hide-details="true"
-                    v-if="header.filterSpecial && header.value == 'department.name.id'" outlined dense small
-                    v-model="filters[header.key]" item-text="name" item-value="id"
-                    :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo flat
-                    @change="applyFilters(header.key, id)"></v-select>
-                  <v-menu v-if="header.filterSpecial && header.value == 'start_date'" ref="from_menu_filter"
-                    v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
-                    min-width="auto">
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field clearable @click:clear="filters[header.value] = ''; applyFilters()"
-                        :hide-details="!from_date_filter" outlined dense v-model="filters[header.value]" readonly
-                        v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
-                    </template>
-                    <v-date-picker style="height: 350px" v-model="filters[header.value]" no-title scrollable
-                      @input="applyFilters()">
-                      <v-spacer></v-spacer>
-
-                      <v-btn text color="primary"
-                        @click="filters[header.value] = ''; from_menu_filter = false; applyFilters()">
-                        Clear
-                      </v-btn>
-                    </v-date-picker>
-                  </v-menu>
-                  <v-menu v-if="header.filterSpecial && header.value == 'end_date'" ref="to_menu_filter"
-                    v-model="to_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
-                    min-width="auto">
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field clearable @click:clear="filters[header.value] = ''; applyFilters()"
-                        :hide-details="!to_date_filter" outlined dense v-model="filters[header.value]" readonly
-                        v-bind="attrs" v-on="on" placeholder="Select Date"></v-text-field>
-                    </template>
-                    <v-date-picker clearable style="height: 350px" v-model="filters[header.value]" no-title scrollable
-                      @input="applyFilters()">
-                      <v-spacer></v-spacer>
-
-                      <v-btn text color="primary"
-                        @click="filters[header.value] = ''; to_menu_filter = false; applyFilters()">
-                        Clear
-                      </v-btn>
-                    </v-date-picker>
-                  </v-menu>
+                <td v-for="(header, index) in headers" :key="index">
+                  <TextField
+                    :header="header"
+                    column="title"
+                    @entered-value="handleFilter"
+                  />
+                  <DropDown
+                    :disabled="true"
+                    :header="header"
+                    column="department"
+                    @entered-value="handleFilter"
+                    :items="departments"
+                  />
+                  <DropDown
+                    :disabled="true"
+                    :header="header"
+                    column="employees"
+                    @entered-value="handleFilter"
+                    :items="employees"
+                  />
+                  <TextField
+                    :header="header"
+                    column="description"
+                    @entered-value="handleFilter"
+                  />
+                  <DateRangePicker
+                    :disabled="false"
+                    :header="header"
+                    column="date_range"
+                    @selected-dates="handleDatesFilter"
+                  />
                 </td>
+
+                <!-- fieldType -->
+                <!-- <DateRangePicker
+                    v-if="
+                      header.column == 'date_range' &&
+                      header.fieldType == 'date_range_picker'
+                    "
+                  /> -->
+                <!-- <v-menu
+                    v-if="header.filterSpecial && header.value == 'start_date'"
+                    ref="from_menu_filter"
+                    v-model="from_menu_filter"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :hide-details="!from_date_filter"
+                        outlined
+                        dense
+                        v-model="filters[header.value]"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        placeholder="Select Date"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      style="height: 350px"
+                      v-model="filters[header.value]"
+                      no-title
+                      scrollable
+                      @input="applyFilters()"
+                    >
+                      <v-spacer></v-spacer>
+
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="
+                          filters[header.value] = '';
+                          from_menu_filter = false;
+                          applyFilters();
+                        "
+                      >
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                  <v-menu
+                    v-if="header.filterSpecial && header.value == 'end_date'"
+                    ref="to_menu_filter"
+                    v-model="to_menu_filter"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :hide-details="!to_date_filter"
+                        outlined
+                        dense
+                        v-model="filters[header.value]"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        placeholder="Select Date"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      clearable
+                      style="height: 350px"
+                      v-model="filters[header.value]"
+                      no-title
+                      scrollable
+                      @input="applyFilters()"
+                    >
+                      <v-spacer></v-spacer>
+
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="
+                          filters[header.value] = '';
+                          to_menu_filter = false;
+                          applyFilters();
+                        "
+                      >
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu> -->
               </tr>
-
-
             </template>
-            <template v-slot:item.title="{ item }">
-              {{ item.title }}
+
+            <template v-slot:item.start_date="{ item }">
+              {{ item && item.start_date }} - {{ item && item.end_date }}
             </template>
             <template v-slot:item.action="{ item }">
               <v-menu bottom left>
@@ -332,7 +578,12 @@
 
                   <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`announcement_edit`)" color="secondary" small @click="editItem(item)">
+                      <v-icon
+                        v-if="can(`announcement_edit`)"
+                        color="secondary"
+                        small
+                        @click="editItem(item)"
+                      >
                         mdi-pencil
                       </v-icon>
                       Edit
@@ -340,10 +591,12 @@
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`announcement_delete`)" color="error" small @click="deleteItem(item)">
-                        {{
-                          item.announcement === "customer" ? "" : "mdi-delete"
-                        }}
+                      <v-icon
+                        v-if="can(`announcement_delete`)"
+                        color="error"
+                        small
+                        @click="deleteItem(item)"
+                        >mdi-delete
                       </v-icon>
                       Delete
                     </v-list-item-title>
@@ -351,34 +604,40 @@
                 </v-list>
               </v-menu>
             </template>
-            <template v-slot:item.department.name.id="{ item }">
 
-              <span v-for="(dep, index) in item.departments" :key="index" small class="  " color="primary">
+            <template v-slot:item.department.name.id="{ item }">
+              <span
+                v-for="(dep, index) in item.departments"
+                :key="index"
+                small
+                class="  "
+                color="primary"
+              >
                 {{ dep.name }} <br />
               </span>
-
-
             </template>
             <template v-slot:item.employees="{ item }">
-              <span v-for="(emp, index) in item.employees.slice(0, 4)" :key="index" small class="p-2 ma-1"
-                color="primary">
-
+              <span
+                v-for="(emp, index) in item.employees.slice(0, 4)"
+                :key="index"
+                small
+                class="p-2 ma-1"
+                color="primary"
+              >
                 {{ emp.first_name }} {{ emp.last_name }} -
                 {{ emp.employee_id }}
 
-                <br>
+                <br />
               </span>
-              <v-chip small class="primary ma-1" style="color: black;    margin-left: 10px!important;"
-                @click="gotoDialogPage(item)" v-if="item.employees.length > 4">
-                More..
+              <v-chip
+                small
+                class="primary ma-1"
+                style="color: black; margin-left: 10px !important"
+                @click="gotoDialogPage(item)"
+                v-if="item.employees.length > 4"
+              >
+                More...
               </v-chip>
-            </template>
-            <template v-slot:item.description="{ item }">
-              {{ item.description }}
-
-            </template>
-            <template v-slot:no-data>
-              <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
             </template>
           </v-data-table>
         </v-card>
@@ -389,36 +648,22 @@
   <NoAccess v-else />
 </template>
 <script>
-import {
-  TiptapVuetify,
-  Image,
-  Heading,
-  Bold,
-  Italic,
-  Strike,
-  Underline,
-  Code,
-  Paragraph,
-  BulletList,
-  OrderedList,
-  ListItem,
-  Link,
-  Blockquote,
-  HardBreak,
-  HorizontalRule,
-  History,
-} from "tiptap-vuetify";
+import DateRangePicker from "../components/Snippets/Filters/DateRangePicker.vue";
+import TextField from "../components/Snippets/Filters/TextField.vue";
+import DropDown from "../components/Snippets/Filters/DropDown.vue";
 
 export default {
   components: {
-    TiptapVuetify,
+    DateRangePicker,
+    TextField,
+    DropDown,
   },
   data: () => ({
     totalRowsCount: 0,
-    from_menu_filter: '',
-    from_date_filter: '',
-    to_date_filter: '',
-    to_menu_filter: '',
+    from_menu_filter: "",
+    from_date_filter: "",
+    to_date_filter: "",
+    to_menu_filter: "",
     showFilters: false,
     filters: {},
     isFilter: false,
@@ -431,37 +676,6 @@ export default {
     snack: false,
     snackColor: "",
     snackText: "",
-    extensions: [
-      History,
-      Blockquote,
-      Link,
-      Image,
-      Underline,
-      Strike,
-      Italic,
-      ListItem,
-      BulletList,
-      OrderedList,
-      [
-        Heading,
-        {
-          options: {
-            levels: [1, 2, 3],
-          },
-        },
-      ],
-      Bold,
-      Link,
-      Code,
-      HorizontalRule,
-      Paragraph,
-      HardBreak,
-    ],
-    // starting editor's content
-    content: `
-      <h1>Yay Headlines!</h1>
-      <p>All these <strong>cool tags</strong> are working now.</p>
-        `,
 
     //end editor
     scrollInvoked: 0,
@@ -494,73 +708,59 @@ export default {
         sortable: true,
         value: "employee_id",
       },
-      // {
-      //   text: "Department ",
-      //   align: "left",
-      //   sortable: true,
-      //   value: "department.name",
-      // },
-      // {
-      //   text: "Designation",
-      //   align: "left",
-      //   sortable: true,
-      //   value: "designation.name",
-      // },
     ],
     headers: [
       {
+        width: "150px",
         text: "Title",
         align: "left",
         sortable: true,
         key: "title",
         value: "title",
-        filterable: true,
-        filterSpecial: false,
+        fieldType: "text",
       },
       {
+        width: "200px",
         text: "Departments",
         align: "left",
         sortable: false,
-        value: "department.name.id",
         key: "department",
-        filterable: false,
-        filterSpecial: false,
+        value: "department.name.id",
+        fieldType: "dropdown",
       },
       {
+        width: "250px",
         text: "Employees",
         align: "left",
         sortable: false,
+        key: "employees",
         value: "employees",
-        filterable: false,
-        filterSpecial: false,
+        fieldType: "dropdown",
       },
       {
+        width: "350px",
         text: "Description",
         align: "left",
         sortable: true,
+        key: "description",
         value: "description",
-        filterable: true,
-        filterSpecial: false,
+        fieldType: "text",
       },
       {
-        text: "Start Date",
+        text: "Date Range",
         align: "left",
-        sortable: true,
+        sortable: false,
+        key: "date_range",
         value: "start_date",
-        key: "start_date",
-        filterable: true,
-        filterSpecial: true,
+        fieldType: "date_range_picker",
       },
       {
-        text: "End Date",
-        align: "left",
-        sortable: true,
-        value: "end_date",
-        key: "end_date",
-        filterable: true,
-        filterSpecial: true,
+        width: "50px",
+        text: "Actions",
+        align: "center",
+        value: "action",
+        sortable: false,
       },
-      { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     editedIndex: -1,
     editedItem: {
@@ -580,6 +780,7 @@ export default {
       end_date: null,
     },
     response: "",
+    headerText: "",
     data: [],
     errors: [],
     options_dialog: {},
@@ -587,6 +788,8 @@ export default {
     selectAllDepartment: false,
     selectAllEmployee: false,
     DialogEmployeesData: {},
+
+    employees: [],
   }),
 
   computed: {
@@ -628,8 +831,6 @@ export default {
 
         this.getEmployees();
       }
-
-
     },
 
     selectAllEmployee(value) {
@@ -661,12 +862,20 @@ export default {
   },
 
   methods: {
+    handleFilter({ key, search_value }) {
+      this.getDataFromApi(this.endpoint, key, search_value);
+    },
+    handleDatesFilter(dates) {
+      if (dates.length > 1) {
+        this.getDataFromApi(this.endpoint, "dates", dates);
+      }
+    },
     gotoDialogPage(item) {
       // console.log('item', item);
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
-    datatable_save() { },
+    datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -722,16 +931,14 @@ export default {
         return;
       }
 
-      this.$axios.get("employeesByDepartmentForAnnoucements", options).then(({ data }) => {
-        this.employees_dialog = data.data;
-        this.loading_dialog = false;
-      });
+      this.$axios
+        .get("employeesByDepartmentForAnnoucements", options)
+        .then(({ data }) => {
+          this.employees_dialog = data.data;
+          this.loading_dialog = false;
+        });
     },
-    applyFilters() {
-      this.from_menu_filter = false;
-      this.to_menu_filter = false;
-      this.getDataFromApi();
-    },
+
     toggleFilter() {
       // this.filters = {};
       this.isFilter = !this.isFilter;
@@ -764,7 +971,9 @@ export default {
         options.params[filter_column] = filter_value;
       }
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+      console.log(options.params);
+
+      this.$axios.get(url, options).then(({ data }) => {
         if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";
@@ -772,10 +981,9 @@ export default {
           this.loading = false;
           return false;
         }
-        this.totalRowsCount = data.total;
+        this.totalRowsCount = this.total = data.total;
 
         this.data = data.data;
-        this.total = data.total;
         this.loading = false;
       });
     },
@@ -849,12 +1057,13 @@ export default {
 
       let options = {
         params: {
+          page,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
         },
       };
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+      this.$axios.get(url, options).then(({ data }) => {
         this.employees_dialog = data.data;
         this.loading = false;
       });

@@ -11,59 +11,15 @@ use Illuminate\Support\Facades\DB;
 
 class AnnouncementController extends Controller
 {
-    public function getDefaultModelSettings($request)
-    {
-        $model = Announcement::query();
-        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'departments:id,name']);
-        $model->where('company_id', $request->company_id);
-
-        $model->when($request->filled('serach_title'), function ($q) use ($request) {
-            $key = $request->serach_title;
-            $q->where('title', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('serach_description'), function ($q) use ($request) {
-            $key = $request->serach_description;
-            $q->where('description', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('title'), function ($q) use ($request) {
-            $key = $request->title;
-            $q->where('title', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('description'), function ($q) use ($request) {
-
-            $q->where('description', 'ILIKE', "$request->description%");
-        });
-        $model->when($request->filled('start_date'), function ($q) use ($request) {
-            $q->where('start_date', $request->start_date);
-        });
-        $model->when($request->filled('end_date'), function ($q) use ($request) {
-            $q->where('end_date', $request->end_date);
-        });
-        $model->when($request->filled('sortBy'), function ($q) use ($request) {
-            $sortDesc = $request->input('sortDesc');
-            if (strpos($request->sortBy, '.')) {
-                // if ($request->sortBy == 'department.name.id') {
-                //     $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-
-                // }
-
-            } else {
-                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
-                }
-            }
-        });
-
-        return $model;
-    }
 
     public function index(Request $request)
     {
-        return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
+        return (new Announcement)->filters($request)->paginate($request->per_page ?? 100);
     }
 
     public function annoucement_list(Request $request)
     {
-        return $this->getDefaultModelSettings($request)->withOut("employees")->where('start_date', '=', date("Y-m-d"))->paginate($request->per_page ?? 100);
+        return (new Announcement)->filters($request)->withOut("employees")->where('start_date', '=', date("Y-m-d"))->paginate($request->per_page ?? 100);
     }
 
     public function store(StoreRequest $request)
@@ -130,10 +86,7 @@ class AnnouncementController extends Controller
             return $this->response('Announcement cannot delete.', null, false);
         }
     }
-    public function search(Request $request, $key)
-    {
-        return $this->getDefaultModelSettings($request)->where('title', 'LIKE', "%$key%")->paginate($request->per_page ?? 100);
-    }
+    
     public function deleteSelected(Request $request)
     {
         $record = Announcement::whereIn('id', $request->ids)->delete();

@@ -45,12 +45,11 @@
       <ComonPreloader icon="notification" v-if="loading" />
       <div v-else-if="!loading && !dataLength">No record found</div>
       <div v-else style="width: 100%; max-height: 300px; overflow-y: auto">
-        <v-card-text class="pa-2" v-for="(announcement, i) in data" :key="i">
+        <v-card-text class="px-2" v-for="(announcement, i) in data" :key="i">
           <b>{{ announcement.title }}</b>
           <p>
             {{ announcement.description }}
-            <br />
-            <small style="font-size: 9px"
+            <small style="float: right; font-size: 9px"
               >Created At {{ announcement.dateTime }}</small
             >
           </p>
