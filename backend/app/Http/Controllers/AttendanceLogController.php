@@ -8,7 +8,9 @@ use App\Models\Employee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log as Logger;
+use Illuminate\Support\Facades\Storage;
 
 class AttendanceLogController extends Controller
 {
@@ -22,12 +24,12 @@ class AttendanceLogController extends Controller
             ->with('device', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
-            ->when($request->from_date, function ($query) use ($request) {
-                return $query->whereDate('LogTime', '>=', $request->from_date);
-            })
-            ->when($request->to_date, function ($query) use ($request) {
-                return $query->whereDate('LogTime', '<=', $request->to_date);
-            })
+            // ->when($request->from_date, function ($query) use ($request) {
+            //     return $query->whereDate('LogTime', '>=', $request->from_date);
+            // })
+            // ->when($request->to_date, function ($query) use ($request) {
+            //     return $query->whereDate('LogTime', '<=', $request->to_date);
+            // })
 
             ->when($request->UserID, function ($query) use ($request) {
                 return $query->where('UserID', $request->UserID);
@@ -40,7 +42,7 @@ class AttendanceLogController extends Controller
             })
             ->when($request->filled('department'), function ($q) use ($request) {
 
-                $q->whereHas('employee', fn(Builder $query) => $query->where('department_id', $request->department));
+                $q->whereHas('employee', fn (Builder $query) => $query->where('department_id', $request->department));
             })
             ->when($request->filled('LogTime'), function ($q) use ($request) {
 
@@ -53,12 +55,12 @@ class AttendanceLogController extends Controller
             ->when($request->filled('devicelocation'), function ($q) use ($request) {
                 if ($request->devicelocation != 'All Locations') {
 
-                    $q->whereHas('device', fn(Builder $query) => $query->where('location', 'ILIKE', "$request->devicelocation%"));
+                    $q->whereHas('device', fn (Builder $query) => $query->where('location', 'ILIKE', "$request->devicelocation%"));
                 }
             })
             ->when($request->filled('employee_first_name'), function ($q) use ($request) {
                 $key = strtolower($request->employee_first_name);
-                $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
+                $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
             })
 
             ->when($request->filled('sortBy'), function ($q) use ($request) {
@@ -68,7 +70,6 @@ class AttendanceLogController extends Controller
                         $q->orderBy(Employee::select("first_name")->where("company_id", $request->company_id)->whereColumn("employees.system_user_id", "attendance_logs.UserID"), $sortDesc == 'true' ? 'desc' : 'asc');
                     } else if ($request->sortBy == 'device.name') {
                         $q->orderBy(Device::select("name")->where("company_id", $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
-
                     } else if ($request->sortBy == 'device.location') {
                         $q->orderBy(Device::select("location")->where("company_id", $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
                     }
@@ -91,10 +92,9 @@ class AttendanceLogController extends Controller
                     //}
 
                 } else {
-                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
-
+                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                    }
                 }
-
             });
         if (!$request->sortBy) {
             $data->orderBy('LogTime', 'DESC');
@@ -108,9 +108,11 @@ class AttendanceLogController extends Controller
 
     public function store()
     {
-        $file = base_path() . "/logs/logs.csv";
+        $csvPath = 'app/logs.csv'; // The path to the file relative to the "Storage" folder
 
-        if (!file_exists($file)) {
+        $fullPath = storage_path($csvPath);
+
+        if (!file_exists($fullPath)) {
 
             Logger::channel("custom")->info('No new data found');
 
@@ -120,86 +122,34 @@ class AttendanceLogController extends Controller
             ];
         }
 
-        $data = [];
+        $file = fopen($fullPath, 'r');
+        $header = fgetcsv($file); // Read and skip the header row
 
-        if (($handle = fopen($file, 'r')) !== false) {
-            while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-
-                $data[] = array_combine(["UserID", "DeviceID", "LogTime", "SerialNumber"], $row);
-            }
-            fclose($handle);
+        $records = [];
+        while (($row = fgetcsv($file)) !== false) {
+            $records[] = array_combine($header, $row);
         }
+
+        fclose($file);
+
+
+        // $lastProcessedIndex = Storage::get('last_processed_index.txt') ?? 0;
+
         try {
-            $created = AttendanceLog::insert($data);
-            $created ? unlink($file) : 0;
-            $count = count($data);
-            Logger::channel("custom")->info($count . ' new logs has been inserted. Old file has been deleted.');
-            return $created ?? 0;
+            AttendanceLog::insert($records);
+            Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
+            Storage::put('last_processed_index.txt', count($records) - 1);
+            return count($records) . ' new logs has been inserted.';
         } catch (\Throwable $th) {
 
             Logger::channel("custom")->error('Error occured while inserting logs.');
             Logger::channel("custom")->error('Error Details: ' . $th);
-
-            $data = [
-                'title' => 'Quick action required',
-                'body' => $th,
-            ];
-
+            // return $data = [
+            //     'title' => 'Quick action required',
+            //     'body' => $th,
+            // ];
             // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
-            return;
         }
-    }
-
-    public function getLateComing($row, $time_table, $date)
-    {
-        $first_log = $row->first_log()->whereDate("LogTime", $date)->first();
-
-        if (($first_log->show_log_time) <= strtotime($time_table->beginning_out)) {
-            $late_time = $time_table->late_time;
-            $duty_time = $time_table->on_duty_time;
-
-            $late_condition = strtotime("$duty_time + $late_time minute");
-
-            $in = ($first_log->show_log_time);
-
-            if ($in <= $late_condition) {
-                return "---";
-            }
-
-            $diff = abs((strtotime($duty_time) - $in));
-
-            $h = floor($diff / 3600);
-            $m = floor($diff % 3600) / 60;
-            return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-        }
-
-        return "---";
-    }
-
-    public function getEarlyGoing($row, $time_table, $date)
-    {
-        $off_duty_time = $time_table->off_duty_time;
-        $early_time = $time_table->early_time;
-
-        $last_log = $row->last_log()->whereDate("LogTime", $date)->first();
-
-        $out = ($last_log->show_log_time);
-
-        $early_condition = strtotime("$off_duty_time - $early_time minute");
-        $beginning_out = strtotime($time_table->beginning_out);
-
-        if ($out <= $beginning_out || $out > $early_condition) {
-            return "---";
-        }
-
-        $diff = abs((strtotime($off_duty_time) - $out));
-
-        $h = floor($diff / 3600);
-        $h = $h < 0 ? "0" : $h;
-        $m = floor($diff % 3600) / 60;
-        $m = $m < 0 ? "0" : $m;
-
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 
     public function singleView(AttendanceLog $model, Request $request)
@@ -290,10 +240,7 @@ class AttendanceLogController extends Controller
 
         return $model->paginate($request->per_page);
     }
-    public function test($row)
-    {
-        # code...
-    }
+
     public function AttendanceLogsMonthly(Request $request, $id)
     {
         $model = AttendanceLog::query();
@@ -366,17 +313,6 @@ class AttendanceLogController extends Controller
         return $array;
     }
 
-    public function AttendanceLogsDetails(Request $request)
-    {
-        //         EID: "00033" // company_id: "1" // date: "16-Aug-22"
-        return $request->all();
-
-        $model = AttendanceLog::query();
-        $model->whereDate("LogTime", date("m"));
-        $model->whereDate("UserID", date("m"));
-        return $model->get()->orderBy("LogTime");
-    }
-
     public function findClosest($arr, $n, $target)
     {
         // Corner cases
@@ -432,13 +368,6 @@ class AttendanceLogController extends Controller
         return ($target - $val1->time_in_numbers > $val2->time_in_numbers - $target) ? $val2 : $val1;
     }
 
-    public function getCalulatedHours($diff)
-    {
-        $h = floor($diff / 3600);
-        $m = floor($diff % 3600) / 60;
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
-
     public function Search(Request $request, $company_id)
     {
 
@@ -473,7 +402,7 @@ class AttendanceLogController extends Controller
         });
         $model->when($request->filled('search_device_name'), function ($q) use ($request) {
             $key = strtolower($request->search_device_name);
-            $q->whereHas('device', fn(Builder $query) => $query->where('name', 'ILIKE', "$key%"));
+            $q->whereHas('device', fn (Builder $query) => $query->where('name', 'ILIKE', "$key%"));
         });
         $model->when($request->filled('search_device_id'), function ($q) use ($request) {
             $q->where('DeviceID', 'LIKE', "$request->search_device_id%");
