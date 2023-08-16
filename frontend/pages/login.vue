@@ -12,11 +12,25 @@
                       <img width="35%" :src="logo" alt="logo" />
                     </div>
 
-                    <v-form ref="form" method="post" v-model="valid" lazy-validation>
+                    <v-form
+                      ref="form"
+                      method="post"
+                      v-model="valid"
+                      lazy-validation
+                    >
                       <label for="">Email</label>
                       <div class="form-outline mb-4">
-                        <v-text-field v-model="email" :rules="emailRules" :hide-details="false" id="form2Example11"
-                          placeholder="master@erp.com" required dense outlined type="email"></v-text-field>
+                        <v-text-field
+                          v-model="email"
+                          :rules="emailRules"
+                          :hide-details="false"
+                          id="form2Example11"
+                          placeholder="master@erp.com"
+                          required
+                          dense
+                          outlined
+                          type="email"
+                        ></v-text-field>
                       </div>
 
                       <label for="">Password</label>
@@ -31,9 +45,18 @@
                           placeholder="secret"
                         /> -->
 
-                        <v-text-field dense outlined :rules="passwordRules" :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'
-                          " :type="show_password ? 'text' : 'password'" v-model="password" class="input-group--focused"
-                          @click:append="show_password = !show_password"></v-text-field>
+                        <v-text-field
+                          dense
+                          outlined
+                          :rules="passwordRules"
+                          :append-icon="
+                            show_password ? 'mdi-eye' : 'mdi-eye-off'
+                          "
+                          :type="show_password ? 'text' : 'password'"
+                          v-model="password"
+                          class="input-group--focused"
+                          @click:append="show_password = !show_password"
+                        ></v-text-field>
                       </div>
                       <!-- <vue-recaptcha
                         class="g-recaptcha"
@@ -51,19 +74,28 @@
                         <span v-if="msg" class="error--text">
                           {{ msg }}
                         </span>
-                        <v-btn :loading="loading" @click="login"
-                          class="btn btn-primary btn-block text-white fa-lg primary mt-1 mb-3">
+                        <v-btn
+                          :loading="loading"
+                          @click="login"
+                          class="btn btn-primary btn-block text-white fa-lg primary mt-1 mb-3"
+                        >
                           Log in
                         </v-btn>
                       </div>
 
-                      <div class="d-flex align-items-center justify-content-center pb-4">
+                      <div
+                        class="d-flex align-items-center justify-content-center pb-4"
+                      >
                         <!-- <p class="mb-0 me-2">Don't have an account?</p> -->
                         <!-- <button type="button" class="btn btn-outline-danger">Create new</button> -->
                       </div>
                     </v-form>
                     <div class="text-right">
-                      <nuxt-link class="text-muted text-right" to="/reset-password">Forgot password?</nuxt-link>
+                      <nuxt-link
+                        class="text-muted text-right"
+                        to="/reset-password"
+                        >Forgot password?</nuxt-link
+                      >
                     </div>
                   </div>
                 </div>
@@ -111,7 +143,7 @@ export default {
 
     passwordRules: [(v) => !!v || "Password is required"],
   }),
-  created() { },
+  created() {},
   methods: {
     // mxVerify(res) {
     //   this.reCaptcha = res;
@@ -132,14 +164,20 @@ export default {
         };
         this.$auth
           .loginWith("local", { data: credentials })
-          .then(({ data }) => { })
+          .then(({ data }) => {})
           .catch(({ response }) => {
+            setTimeout(() => (this.loading = false), 2000);
+
             if (!response) {
-              return false;
+              this.msg = "No response found";
+              return;
             }
             let { status, data, statusText } = response;
+            if (!status) {
+              this.msg = "Server Down";
+              return;
+            }
             this.msg = status == 422 ? data.message : statusText;
-            setTimeout(() => (this.loading = false), 2000);
           });
       }
     },

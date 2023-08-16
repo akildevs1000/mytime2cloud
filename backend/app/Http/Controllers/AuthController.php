@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -12,6 +13,15 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+
+        try {
+            DB::connection()->getPdo();
+        } catch (\Exception $e) {
+            throw ValidationException::withMessages([
+                'email' => ['Database is down'],
+            ]);
+        }
+
         $user = User::where('email', $request->email)->first();
         if (!$user->web_login_access && !$user->is_master) {
             throw ValidationException::withMessages([
