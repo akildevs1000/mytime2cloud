@@ -5,24 +5,22 @@ require("dotenv").config();
 // const { SOCKET_ENDPOINT } = `wss://sdk.ideahrms.com/WebSocket`; //process.env;
 
 // Create a WebSocket connection
-const socket = new WebSocket(`wss://sdk.ideahrms.com/WebSocket`);
+const socket = new WebSocket(`ws://localhost:5000/WebSocket`);
 
 // Handle WebSocket connection events
 socket.onopen = () => {
-    console.log(`Connected to ${`wss://sdk.ideahrms.com/WebSocket`}`);
+    console.log(`Connected to ${`ws://localhost:5000/WebSocket`}`);
 };
 
 socket.onerror = (error) => {
     console.error("WebSocket error:", error.message);
 };
 
-// Create and append headers to the CSV log file
-const logFilePath = "../backend/storage/app/logs.csv";
-// const header = "UserID,LogTime,DeviceID,SerialNumber\n";
-// fs.writeFileSync(logFilePath, header, { flag: "w" }); // Use "w" flag to overwrite/create the file
-
-// Handle incoming WebSocket messages
 socket.onmessage = ({ data }) => {
+    const date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10).split('-');
+    const formattedDate = `${date[2]}-${date[1]}-${date[0]}`;
+    const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
+
     try {
         const jsonData = JSON.parse(data).Data;
         const { UserCode, SN, RecordDate, RecordNumber } = jsonData;
