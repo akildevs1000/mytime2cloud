@@ -38,7 +38,9 @@
               >
                 <option disabled selected>Timezone Id</option>
                 <option v-for="n in 64" :key="n" :value="n">
-                  Tz{{ n }} <span v-if="n == 1">(24 Hrs)</span>
+                  Tz{{ n }}
+                  <span v-if="n == 1">(24 Hrs)</span>
+                  <span v-if="n == 64">Lock Timezone</span>
                 </option>
               </select>
               <span
@@ -663,6 +665,13 @@ export default {
         this.days.forEach((e, i) => {
           this.editedItem.interval[e.index][`interval1`]["begin"] = "00:00";
           this.editedItem.interval[e.index][`interval1`]["end"] = "23:59";
+        });
+      }
+
+      if (v == 64) {
+        this.days.forEach((e, i) => {
+          this.editedItem.interval[e.index][`interval1`]["begin"] = "00:00";
+          this.editedItem.interval[e.index][`interval1`]["end"] = "00:00";
         });
       }
     },
