@@ -890,7 +890,7 @@ class EmployeeController extends Controller
             ],
         ];
 
-        return $this->SDKCommand("localhost:5000/Person/AddRange", $data);
+        return $this->SDKCommand(env("SDK_URL") . "/Person/AddRange", $data);
     }
 
     public function employeeToReporter(Request $request, $id)
