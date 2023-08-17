@@ -264,6 +264,7 @@
                     style="display: none"
                     accept="image/*"
                     ref="attachment_input"
+                    capture="environment"
                   />
 
                   <span
