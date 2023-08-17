@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\CompanyContact;
 use App\Models\Department;
 use App\Models\Designation;
+use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Payroll;
 use App\Models\ScheduleEmployee;
@@ -856,16 +857,42 @@ class EmployeeController extends Controller
     }
     public function employeeUpdateSetting(Request $request)
     {
-        $model = Employee::query();
-        $model
-            ->where('employee_id', $request->employee_id)
+        $data = $request->only(['overtime', 'status', 'leave_group_id', 'reporting_manager_id']);
+
+        $model = Employee::where('employee_id', $request->employee_id)
             ->where('company_id', $request->company_id)
-            ->update($request->only(['overtime', 'status', 'leave_group_id', 'reporting_manager_id']));
+            ->first();
+
+        $data["timezone_id"] = $request->status == 1 ? 1 : 64;
+
+        $this->updateEmployeeTimezone($request->status, $model, $request->company_id);
+
+        $model->update($data);
 
         $users = User::where('id', $request->user_id);
+
         $users->update(['web_login_access' => $request->web_login_access, 'mobile_app_login_access' => $request->mobile_app_login_access]);
+
         return response()->json(['status' => true, 'message' => 'Setting successfully updated']);
     }
+
+    public function updateEmployeeTimezone($status, $model, $company_id)
+    {
+
+        $data = [
+            "snList" => Device::where("company_id", $company_id)->where("status_id", 1)->pluck("device_id"),
+            "personList" => [
+                [
+                    "name" => $model->first_name,
+                    "userCode" =>  $model->system_user_id,
+                    "timeGroup" => $status == 1 ? 1 : 64
+                ]
+            ],
+        ];
+
+        return $this->SDKCommand("localhost:5000/Person/AddRange", $data);
+    }
+
     public function employeeToReporter(Request $request, $id)
     {
         $model = Employee::Find($id);

@@ -115,7 +115,8 @@ class AttendanceLogController extends Controller
 
     public function store()
     {
-        $csvPath = 'app/logs.csv'; // The path to the file relative to the "Storage" folder
+        $date = date("d-m-Y");
+        $csvPath = "app/logs-$date.csv"; // The path to the file relative to the "Storage" folder
 
         $fullPath = storage_path($csvPath);
 
@@ -125,27 +126,49 @@ class AttendanceLogController extends Controller
 
             return [
                 'status' => false,
-                'message' => 'No new data found',
+                'message' => 'File doest not exist',
             ];
         }
 
         $file = fopen($fullPath, 'r');
-        $header = fgetcsv($file); // Read and skip the header row
+
+        $data = file($fullPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        $lastOldIndex = Storage::get('last_processed_index.txt') ?? 0;
+
+        $lastNewIndex = count($data) - 1;
+
+
+        if ($lastOldIndex == $lastNewIndex) {
+            return "No data found";
+        } else if ($lastOldIndex == 0 && $lastNewIndex > 0) {
+            $lastNewIndex = 0;
+        }
+
+        $selectedRecords = array_slice($data, $lastNewIndex);
+
 
         $records = [];
-        while (($row = fgetcsv($file)) !== false) {
-            $records[] = array_combine($header, $row);
+
+        foreach ($selectedRecords as $row) {
+            $columns = explode(',', $row);
+
+            $records[] = [
+                "UserID" => $columns[0],
+                "DeviceID" => $columns[1],
+                "LogTime" => $columns[2],
+                "SerialNumber" => $columns[3]
+            ];
         }
 
         fclose($file);
 
 
-        // $lastProcessedIndex = Storage::get('last_processed_index.txt') ?? 0;
-
         try {
             AttendanceLog::insert($records);
             Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
-            Storage::put('last_processed_index.txt', count($records) - 1);
+            Storage::put('last_processed_index.txt', count($data) - 1) ?? 0;
+
             return count($records) . ' new logs has been inserted.';
         } catch (\Throwable $th) {
 

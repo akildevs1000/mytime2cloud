@@ -176,7 +176,7 @@ class SDKController extends Controller
     {
 
         try {
-            return Http::timeout(60)->withoutVerifying()->withHeaders([
+            return Http::timeout(30)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, $data);
         } catch (\Exception $e) {
