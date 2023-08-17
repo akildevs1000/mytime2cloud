@@ -865,7 +865,18 @@ class EmployeeController extends Controller
 
         $data["timezone_id"] = $request->status == 1 ? 1 : 64;
 
-        $this->updateEmployeeTimezone($request->status, $model, $request->company_id);
+        $timezoneData = [
+            "snList" => Device::where("company_id", $request->company_id)->where("status_id", 1)->pluck("device_id"),
+            "personList" => [
+                [
+                    "name" => $model->first_name,
+                    "userCode" =>  $model->system_user_id,
+                    "timeGroup" => $request->status == 1 ? 1 : 64
+                ]
+            ],
+        ];
+
+        $this->SDKCommand(env("SDK_URL") . "/Person/AddRange", $timezoneData);
 
         $model->update($data);
 
