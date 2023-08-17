@@ -42,7 +42,7 @@ class StoreRequest extends FormRequest
             'department_id' => ['required'],
             'company_id' => ['required'],
             'employee_id' => ['required', $controller->uniqueRecord("employees", $employee)],
-            'system_user_id' => ['required', $controller->uniqueRecord("employees", $employeeDevice)],
+            'system_user_id' => ['required', $controller->uniqueRecord("employees", $employeeDevice), 'regex:/^[1-9][0-9]*$/'],
             'display_name' => ['required', 'min:3', 'max:10'],
             'first_name' => ['required', 'min:3', 'max:10'],
             'last_name' => ['required', 'min:3', 'max:10'],
@@ -51,6 +51,13 @@ class StoreRequest extends FormRequest
             'status' => ['nullable'],
             'email' => 'nullable|min:3|max:191|unique:users',
             'profile_picture' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'system_user_id.regex' => 'The employee device ID should not start with zero.',
         ];
     }
 }

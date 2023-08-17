@@ -28,7 +28,7 @@ class UpdateRequest extends FormRequest
         return [
             'company_id' => ['required'],
             'employee_id' => ['required'],
-            'system_user_id' => ['required'],
+            'system_user_id' => ['required', 'regex:/^[1-9][0-9]*$/'],
             'display_name' => ['required', 'min:3', 'max:10'],
             'first_name' => ['required', 'min:3', 'max:10'],
             'last_name' => ['required', 'min:3', 'max:10'],
@@ -42,6 +42,13 @@ class UpdateRequest extends FormRequest
             'reporting_manager_id' => ['nullable'],
 
             'profile_picture' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'system_user_id.regex' => 'The employee device ID should not start with zero.',
         ];
     }
 }
