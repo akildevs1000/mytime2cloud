@@ -112,6 +112,24 @@ class AttendanceLogController extends Controller
         return $model->where("company_id", $request->company_id)->paginate($request->per_page);
     }
 
+    public function checkMissingLogsCount()
+    {
+        $fullPath = storage_path("app/logs-" . date("d-m-Y") . ".csv");
+
+        $file = fopen($fullPath, 'r');
+        $data = file($fullPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        fclose($file);
+
+        $actualCount = (int) Storage::get("logs-count-" . date("d-m-Y") . ".txt");
+        $expectedCount = count($data);
+
+        if ($expectedCount === $actualCount) {
+            throw new \Exception("Log count mismatch. Expected: $expectedCount, Actual: $actualCount");
+        }
+
+        return $this->getMeta("Check Missing Count", true);
+    }
+
     public function handleFile()
     {
         $date = date("d-m-Y");
@@ -121,10 +139,7 @@ class AttendanceLogController extends Controller
         $fullPath = storage_path($csvPath);
 
         if (!file_exists($fullPath)) {
-
-            Logger::channel("custom")->info('No new data found');
-
-            return $this->getMeta("Sync Attenance Logs", 'File doest not exist.' . "\n");
+            return ["error" => true, "message" => 'File doest not exist.'];
         }
 
         $file = fopen($fullPath, 'r');
@@ -135,7 +150,7 @@ class AttendanceLogController extends Controller
             return ["error" => true, "message" => 'File is empty.'];
         }
 
-        $previoulyAddedLineNumbers = Storage::get("logs-count-$date.txt") ?? Storage::get('last_processed_index.txt');
+        $previoulyAddedLineNumbers = Storage::get("logs-count-$date.txt") ?? 0;
 
         // return $this->getMeta("Sync Attenance Logs", $previoulyAddedLineNumbers . "\n");
 
