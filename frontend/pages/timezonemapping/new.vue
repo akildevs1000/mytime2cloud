@@ -15,19 +15,44 @@
       </v-row> -->
       <v-row>
         <div class="text-center ma-2">
-          <v-snackbar :color="snackbar.color" v-model="snackbar.show" small top="top" :timeout="3000">
+          <v-snackbar
+            :color="snackbar.color"
+            v-model="snackbar.show"
+            small
+            top="top"
+            :timeout="3000"
+          >
             {{ response }}
           </v-snackbar>
         </div>
       </v-row>
       <v-row>
         <v-col cols="4">
-          <v-select @change="loadDepartmentemployees" v-model="departmentselected" :items="departments" dense outlined
-            item-value="id" item-text="name" hide-details label="Department" :search-input.sync="searchInput"></v-select>
+          <v-select
+            @change="loadDepartmentemployees"
+            v-model="departmentselected"
+            :items="departments"
+            dense
+            outlined
+            item-value="id"
+            item-text="name"
+            hide-details
+            label="Department"
+            :search-input.sync="searchInput"
+          ></v-select>
         </v-col>
         <v-col cols="4">
-          <v-select v-model="timezonesselected" :items="timezones" dense outlined item-value="timezone_id"
-            item-text="timezone_name" hide-details label="Timezones" required></v-select>
+          <v-select
+            v-model="timezonesselected"
+            :items="timezones"
+            dense
+            outlined
+            item-value="timezone_id"
+            item-text="timezone_name"
+            hide-details
+            label="Timezones"
+            required
+          ></v-select>
         </v-col>
 
         <!-- <v-col cols="2" class="toolbaritems-button-design text-right">
@@ -40,9 +65,17 @@
 
         <v-col cols="4">
           <div class="text-right">
-            <v-btn small color="primary" style="width:130px" @click="goback()" class="mb-2"><v-icon color="white">mdi
-                mdi-format-list-bulleted-square</v-icon>
-              View List</v-btn>
+            <v-btn
+              small
+              color="primary"
+              style="width: 130px"
+              @click="goback()"
+              class="mb-2"
+              ><v-icon color="white"
+                >mdi mdi-format-list-bulleted-square</v-icon
+              >
+              View List</v-btn
+            >
           </div>
         </v-col>
         <!-- <div>
@@ -51,7 +84,6 @@
             View List
           </button>
         </div> -->
-
       </v-row>
       <v-row>
         <v-col cols="5">
@@ -60,26 +92,55 @@
           </v-toolbar>
           <div>
             <v-card class="timezone-displaylist">
-              <v-card-text class="timezone-displaylistview" v-for="(user, index) in leftEmployees" :id="user.id"
-                v-model="leftSelectedEmp" :key="user.id">
+              <v-card-text
+                class="timezone-displaylistview"
+                v-for="(user, index) in leftEmployees"
+                :id="user.id"
+                v-model="leftSelectedEmp"
+                :key="user.id"
+              >
                 <div class="row">
-                  <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox v-if="user.timezone.timezone_name == '---' || user.timezone.timezone_id == 1" hideDetails
-                      class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedEmp" :value="user.id"
-                      primary hide-details></v-checkbox>
-                    <v-checkbox v-else indeterminate value disabled hide-details
-                      class="col-1   d-flex flex-column  justify-center "></v-checkbox>
+                  <v-col class="col-1" style="padding: 0px">
+                    <v-checkbox
+                      v-if="
+                        user.timezone.timezone_name == '---' ||
+                        user.timezone.timezone_id == 1
+                      "
+                      hideDetails
+                      class="col-1 d-flex flex-column justify-center"
+                      v-model="leftSelectedEmp"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
+                    <v-checkbox
+                      v-else
+                      indeterminate
+                      value
+                      disabled
+                      hide-details
+                      class="col-1 d-flex flex-column justify-center"
+                    ></v-checkbox>
                   </v-col>
-                  <div class="col-8" :style="{
-                    color:
-                      user.timezone && user.timezone.timezone_name
-                        ? '#000000'
-                        : '#b4b0b0',
-                  }" style="padding-top:21px">
-                    {{ user.employee_id }}: {{ user.first_name }} {{ user.last_name }}:
-                    <span v-if="user.timezone && user.timezone.timezone_id != 1">
-                      {{ user.timezone.timezone_name == '---' ? '---' : user.timezone.timezone_name +
-                        ' Assigned'
+                  <div
+                    class="col-8"
+                    :style="{
+                      color:
+                        user.timezone && user.timezone.timezone_name
+                          ? '#000000'
+                          : '#b4b0b0',
+                    }"
+                    style="padding-top: 21px"
+                  >
+                    {{ user.employee_id }}: {{ user.first_name }}
+                    {{ user.last_name }}:
+                    <span
+                      v-if="user.timezone && user.timezone.timezone_id != 1"
+                    >
+                      {{
+                        user.timezone.timezone_name == "---"
+                          ? "---"
+                          : user.timezone.timezone_name + " Assigned"
                       }}
                     </span>
                   </div>
@@ -92,24 +153,58 @@
 
         <v-col cols="2">
           <div style="text-align: -webkit-center">
-            <button type="button" id="undo_redo_undo" class="btn primary btn-block white--text">
+            <button
+              type="button"
+              id="undo_redo_undo"
+              class="btn primary btn-block white--text"
+            >
               Options
             </button>
 
-            <button @click="moveToRightEmpOption2" type="button" id="undo_redo_rightSelected"
-              class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
+            <button
+              @click="moveToRightEmpOption2"
+              type="button"
+              id="undo_redo_rightSelected"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-right theme--red"
+              ></i>
             </button>
 
-            <button @click="allmoveToRightEmp" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
+            <button
+              @click="allmoveToRightEmp"
+              type="button"
+              id="undo_redo_rightAll"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
+              ></i>
             </button>
-            <button @click="moveToLeftempOption2" type="button" id="undo_redo_leftSelected"
-              class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
+            <button
+              @click="moveToLeftempOption2"
+              type="button"
+              id="undo_redo_leftSelected"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-left theme--red"
+              ></i>
             </button>
-            <button @click="allmoveToLeftemp" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
+            <button
+              @click="allmoveToLeftemp"
+              type="button"
+              id="undo_redo_leftAll"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
+              ></i>
             </button>
           </div>
         </v-col>
@@ -120,18 +215,29 @@
           </v-toolbar>
           <div>
             <v-card class="timezone-displaylist">
-              <v-card-text class="timezone-displaylistview" v-for="(user, index) in rightEmployees" :id="user.id"
-                v-model="rightSelectedEmp" :key="user.id">
+              <v-card-text
+                class="timezone-displaylistview"
+                v-for="(user, index) in rightEmployees"
+                :id="user.id"
+                v-model="rightSelectedEmp"
+                :key="user.id"
+              >
                 <div class="row">
-                  <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
-                      :value="user.id" primary hide-details></v-checkbox>
-
+                  <v-col class="col-1" style="padding: 0px">
+                    <v-checkbox
+                      hideDetails
+                      class="col-1 d-flex flex-column justify-center"
+                      v-model="rightSelectedEmp"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
                   </v-col>
-                  <div class="col-sm" style="padding-top:21px;color:#000000">
-                    {{ user.employee_id }} : {{ user.first_name }} {{ user.last_name }}
+                  <div class="col-sm" style="padding-top: 21px; color: #000000">
+                    {{ user.employee_id }} : {{ user.first_name }}
+                    {{ user.last_name }}
                   </div>
-                  <div class="col-sm" style="padding-top:21px">
+                  <div class="col-sm" style="padding-top: 21px">
                     <span style="color: red">{{ user.sdkEmpResponse }}</span>
                   </div>
                 </div>
@@ -162,23 +268,43 @@
           </v-toolbar>
           <div>
             <v-card class="timezone-displaylist">
-              <v-card-text class="timezone-displaylistview" v-for="(user, index) in leftDevices" :id="user.id"
-                v-model="leftSelectedDevices" :key="user.id">
+              <v-card-text
+                class="timezone-displaylistview"
+                v-for="(user, index) in leftDevices"
+                :id="user.id"
+                v-model="leftSelectedDevices"
+                :key="user.id"
+              >
                 <div class="row">
-                  <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox v-if="user.status.name == 'active'" hideDetails
-                      class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
-                      primary hide-details></v-checkbox>
-                    <v-checkbox v-else indeterminate value disabled hide-details
-                      class="col-1   d-flex flex-column  justify-center "></v-checkbox>
+                  <v-col class="col-1" style="padding: 0px">
+                    <v-checkbox
+                      v-if="user.status.name == 'active'"
+                      hideDetails
+                      class="col-1 d-flex flex-column justify-center"
+                      v-model="leftSelectedDevices"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
+                    <v-checkbox
+                      v-else
+                      indeterminate
+                      value
+                      disabled
+                      hide-details
+                      class="col-1 d-flex flex-column justify-center"
+                    ></v-checkbox>
                   </v-col>
-                  <div class="col-sm" style="padding-top:21px;color:#000000">
+                  <div class="col-sm" style="padding-top: 21px; color: #000000">
                     {{ user.name }} : {{ user.device_id }}
 
-                    <span style="color:green" v-if="user.status.name == 'active'">
-                      Online</span>
-                    <span style="color:red" v-else>Offline
-                    </span>
+                    <span
+                      style="color: green"
+                      v-if="user.status.name == 'active'"
+                    >
+                      Online</span
+                    >
+                    <span style="color: red" v-else>Offline </span>
                   </div>
                 </div>
               </v-card-text>
@@ -188,24 +314,58 @@
 
         <v-col cols="2">
           <div style="text-align: -webkit-center">
-            <button type="button" id="undo_redo_undo" class="btn primary btn-block white--text">
+            <button
+              type="button"
+              id="undo_redo_undo"
+              class="btn primary btn-block white--text"
+            >
               Options
             </button>
 
-            <button @click="moveToRightDevicesOption2" type="button" id="undo_redo_rightSelected"
-              class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
+            <button
+              @click="moveToRightDevicesOption2"
+              type="button"
+              id="undo_redo_rightSelected"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-right theme--red"
+              ></i>
             </button>
 
-            <button @click="allmoveRightDevices" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
+            <button
+              @click="allmoveRightDevices"
+              type="button"
+              id="undo_redo_rightAll"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
+              ></i>
             </button>
-            <button @click="moveToLeftDevicesOption2" type="button" id="undo_redo_leftSelected"
-              class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
+            <button
+              @click="moveToLeftDevicesOption2"
+              type="button"
+              id="undo_redo_leftSelected"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-left theme--red"
+              ></i>
             </button>
-            <button @click="allmoveLeftDevices" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
+            <button
+              @click="allmoveLeftDevices"
+              type="button"
+              id="undo_redo_leftAll"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
+              ></i>
             </button>
           </div>
         </v-col>
@@ -216,22 +376,37 @@
           </v-toolbar>
           <div>
             <v-card class="timezone-displaylist">
-              <v-card-text class="timezone-displaylistview" v-for="(user, index) in rightDevices" :id="user.id"
-                v-model="rightSelectedDevices" :key="user.id">
+              <v-card-text
+                class="timezone-displaylistview"
+                v-for="(user, index) in rightDevices"
+                :id="user.id"
+                v-model="rightSelectedDevices"
+                :key="user.id"
+              >
                 <div class="row">
-                  <v-col class=" col-1   " style="padding:0px"><v-checkbox hideDetails
-                      class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedDevices" :value="user.id"
-                      primary hide-details></v-checkbox>
+                  <v-col class="col-1" style="padding: 0px"
+                    ><v-checkbox
+                      hideDetails
+                      class="col-1 d-flex flex-column justify-center"
+                      v-model="rightSelectedDevices"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
                   </v-col>
-                  <div class="col-sm" style="padding-top:21px;color:#000000">
+                  <div class="col-sm" style="padding-top: 21px; color: #000000">
                     {{ user.name }} : {{ user.device_id }}
                   </div>
-                  <div class="col-sm" style="padding-top:21px">
-                    <span v-if="user.sdkDeviceResponse == 'Success'" style="color: green">{{ user.sdkDeviceResponse
+                  <div class="col-sm" style="padding-top: 21px">
+                    <span
+                      v-if="user.sdkDeviceResponse == 'Success'"
+                      style="color: green"
+                      >{{ user.sdkDeviceResponse }}</span
+                    >
+                    <span v-else style="color: red">{{
+                      user.sdkDeviceResponse
                     }}</span>
-                    <span v-else style="color: red">{{ user.sdkDeviceResponse }}</span>
                   </div>
-
                 </div>
               </v-card-text>
             </v-card>
@@ -248,16 +423,27 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button :loading="loading" @click="goback()" type="button" id="save"
-                  class="btn primary btn-block white--text v-size--default">
+                <button
+                  :loading="loading"
+                  @click="goback()"
+                  type="button"
+                  id="save"
+                  class="btn primary btn-block white--text v-size--default"
+                >
                   Back
                 </button>
               </div>
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button :disabled='!displaybutton' :loading="loading" @click="onSubmit" type="button" id="save"
-                  class="btn primary btn-block white--text v-size--default">
+                <button
+                  :disabled="!displaybutton"
+                  :loading="loading"
+                  @click="onSubmit"
+                  type="button"
+                  id="save"
+                  class="btn primary btn-block white--text v-size--default"
+                >
                   Submit
                 </button>
               </div>
@@ -338,12 +524,11 @@ export default {
     verifySubmitButton() {
       if (this.rightEmployees.length > 0 && this.rightDevices.length > 0) {
         this.displaybutton = true;
-      }
-      else {
+      } else {
         this.displaybutton = false;
       }
     },
-    fetch_logs() { },
+    fetch_logs() {},
     loadDepartmentemployees() {
       //this.loading = true;
       // let page = this.pagination.current;
@@ -354,7 +539,13 @@ export default {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company.id,
           department_id: this.departmentselected,
-          cols: ["id", "employee_id", "display_name", "first_name", "last_name"],
+          cols: [
+            "id",
+            "employee_id",
+            "display_name",
+            "first_name",
+            "last_name",
+          ],
         },
       };
       let page = 1;
@@ -481,100 +672,98 @@ export default {
         device_ids: filteredDataDevices,
       };
 
-      let url = this.endpointUpdatetimezoneStore;
-
       this.progressloading = true;
       let jsrightEmployees = this.rightEmployees;
 
       let SDKSuccessStatus = true;
-      this.$axios.post(`${url}`, options).then(({ data }) => {
+      this.$axios
+        .post(`${this.endpointUpdatetimezoneStore}`, options)
+        .then(({ data }) => {
+          if (data.record.SDKResponse) {
+            this.loading = false;
 
-        if (data.record.SDKResponse) {
-          this.loading = false;
+            $.each(this.rightDevices, function (index, rightDevicesobj) {
+              let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
+                (e) => e.sn == rightDevicesobj.device_id
+              );
 
-          $.each(this.rightDevices, function (index, rightDevicesobj) {
-            let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
-              (e) => e.sn == rightDevicesobj.device_id
-            );
+              let deviceStatusResponse = "";
+              let EmpStatusResponse = "";
 
-            let deviceStatusResponse = "";
-            let EmpStatusResponse = "";
-
-            if (SdkResponseDeviceobject.message == "") {
-              deviceStatusResponse = "Success";
-            } else if (
-              SdkResponseDeviceobject.message == "The device was not found"
-            ) {
-              deviceStatusResponse = "The device was not found or offline";
-              SDKSuccessStatus = false;
-            } else if (SdkResponseDeviceobject.message == "person info error") {
-              let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-              jsrightEmployees.forEach((element) => {
-                element["sdkEmpResponse"] = "Success";
-                let systemUserid = element.system_user_id;
+              if (SdkResponseDeviceobject.message == "") {
+                deviceStatusResponse = "Success";
+              } else if (
+                SdkResponseDeviceobject.message == "The device was not found"
+              ) {
+                deviceStatusResponse = "The device was not found or offline";
                 SDKSuccessStatus = false;
-                let selectedEmpobject = SDKUseridArray.find(
-                  (e) => e.userCode == systemUserid
-                );
-                EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-                deviceStatusResponse = "";
+              } else if (
+                SdkResponseDeviceobject.message == "person info error"
+              ) {
+                let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
+                jsrightEmployees.forEach((element) => {
+                  element["sdkEmpResponse"] = "Success";
+                  let systemUserid = element.system_user_id;
+                  SDKSuccessStatus = false;
+                  let selectedEmpobject = SDKUseridArray.find(
+                    (e) => e.userCode == systemUserid
+                  );
+                  EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
+                  deviceStatusResponse = "";
 
-
-                if (EmpStatusResponse != "") {
-                  //Adding extra parameters for Employee object
-                  if (selectedEmpobject) {
-                    element["sdkEmpResponse"] = "person photo error ";
-                    // $.extend(element, {
-                    //   sdkEmpResponse: "person info error ",
-                    // });
-                  } else {
-                    // $.extend(element, {
-                    //   sdkEmpResponse: " Success",
-                    // });
-                    element["sdkEmpResponse"] = "Success";
+                  if (EmpStatusResponse != "") {
+                    //Adding extra parameters for Employee object
+                    if (selectedEmpobject) {
+                      element["sdkEmpResponse"] = "person photo error ";
+                      // $.extend(element, {
+                      //   sdkEmpResponse: "person info error ",
+                      // });
+                    } else {
+                      // $.extend(element, {
+                      //   sdkEmpResponse: " Success",
+                      // });
+                      element["sdkEmpResponse"] = "Success";
+                    }
                   }
-                }
+                });
+              } else {
+              }
 
-              });
+              //Adding extra parameters for Devices object
+              rightDevicesobj["sdkDeviceResponse"] =
+                deviceStatusResponse != "" ? deviceStatusResponse : " Success";
+              this.errors = [];
+            });
+            this.rightEmployees = jsrightEmployees;
+            this.progressloading = false;
+
+            this.loading = false;
+            if (!SDKSuccessStatus) {
+              {
+                this.errors = data.errors;
+              }
+              this.errors = [];
+              this.errors["message"] =
+                "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
+
+              //this.displaybutton = false;
             } else {
+              this.$router.push("/timezonemapping/list");
             }
-
-            //Adding extra parameters for Devices object
-            rightDevicesobj["sdkDeviceResponse"] =
-              deviceStatusResponse != "" ? deviceStatusResponse : " Success";
-            this.errors = [];
-          });
-          this.rightEmployees = jsrightEmployees;
-          this.progressloading = false;
-
-          this.loading = false;
-          if (!SDKSuccessStatus) {
-            {
-              this.errors = data.errors;
-            }
-            this.errors = [];
-            this.errors["message"] =
-              "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
-
-            //this.displaybutton = false;
           } else {
-            this.$router.push("/timezonemapping/list");
+            this.errors = [];
+            this.progressloading = false;
+
+            this.errors["message"] = "Device Communication is not available";
+
+            this.snackbar.show = true;
+            this.snackbar.message = "Device Communication is not available ";
+            this.response = "Device Communication is not available ";
+            return false;
           }
-        } else {
-          this.errors = [];
-          this.progressloading = false;
 
-          this.errors["message"] = "Device Communication is not available";
-
-
-          this.snackbar.show = true;
-          this.snackbar.message = "Device Communication is not available ";
-          this.response = "Device Communication is not available ";
-          return false;
-        }
-
-        this.displaybutton = true;
-      });
+          this.displaybutton = true;
+        });
     },
     goback() {
       this.$router.push("/timezonemapping/list");
@@ -601,7 +790,13 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company.id,
-          cols: ["id", "employee_id", "display_name", "first_name", "last_name"],
+          cols: [
+            "id",
+            "employee_id",
+            "display_name",
+            "first_name",
+            "last_name",
+          ],
         },
       };
       let page = 1;
@@ -643,7 +838,6 @@ export default {
       }),
     sortObjectC: (o) =>
       o.sort(function compareByName(a, b) {
-
         if (a.name && b.name) {
           let nameA = a.name.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
           let nameB = b.name.toUpperCase();
@@ -658,7 +852,6 @@ export default {
         }
       }),
     allmoveToLeftemp() {
-
       this.resetErrorMessages();
       this.leftEmployees = this.leftEmployees.concat(this.rightEmployees);
       this.rightEmployees = [];
@@ -669,16 +862,23 @@ export default {
       this.resetErrorMessages();
       // this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
       // this.leftEmployees = [];
-      this.rightEmployees = this.rightEmployees.concat(this.leftEmployees.filter((el) => el.timezone.timezone_name == '---' || el.timezone.timezone_id == 1));
+      this.rightEmployees = this.rightEmployees.concat(
+        this.leftEmployees.filter(
+          (el) =>
+            el.timezone.timezone_name == "---" || el.timezone.timezone_id == 1
+        )
+      );
 
-      this.leftEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name != '---' && el.timezone.timezone_id != 1);
+      this.leftEmployees = this.leftEmployees.filter(
+        (el) =>
+          el.timezone.timezone_name != "---" && el.timezone.timezone_id != 1
+      );
       this.rightEmployees = this.sortObject(this.rightEmployees);
       this.verifySubmitButton();
     },
     moveToLeftempOption2() {
       this.resetErrorMessages();
       if (!this.rightSelectedEmp.length) return;
-
 
       //for (let i = this.leftSelectedEmp.length; i > 0; i--) {
       let _rightSelectedEmp_length = this.rightSelectedEmp.length;
@@ -701,7 +901,6 @@ export default {
       this.leftEmployees = this.sortObject(this.leftEmployees);
 
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
-
         this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
       }
       this.verifySubmitButton();
@@ -746,8 +945,12 @@ export default {
       this.resetErrorMessages();
       //this.rightDevices = this.rightDevices.concat(this.leftDevices);
       //this.leftDevices = [];
-      this.rightDevices = this.rightDevices.concat(this.leftDevices.filter((el) => el.status.name == "active"));
-      this.leftDevices = this.leftDevices.filter((el) => el.status.name == "inactive");
+      this.rightDevices = this.rightDevices.concat(
+        this.leftDevices.filter((el) => el.status.name == "active")
+      );
+      this.leftDevices = this.leftDevices.filter(
+        (el) => el.status.name == "inactive"
+      );
       this.rightDevices = this.sortObjectD(this.rightDevices);
       this.verifySubmitButton();
     },
@@ -755,7 +958,6 @@ export default {
       this.resetErrorMessages();
 
       if (!this.rightSelectedDevices.length) return;
-
 
       //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
       let _rightSelectedDevices_length = this.rightSelectedDevices.length;
@@ -777,9 +979,7 @@ export default {
 
       this.leftDevices = this.sortObjectD(this.leftDevices);
 
-
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
-
         this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
       }
       this.verifySubmitButton();
@@ -808,7 +1008,6 @@ export default {
 
       this.rightDevices = this.sortObjectD(this.rightDevices);
 
-
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
         this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
       }
@@ -817,3 +1016,343 @@ export default {
   },
 };
 </script>
+<style scoped>
+table {
+  font-family: Roboto !important;
+}
+
+.fixed-setting {
+  position: fixed !important;
+  top: 500px;
+  z-index: 100000;
+  transition: right 1000ms !important;
+  right: -15px !important;
+}
+
+/* .v-btn__content {
+  margin: 0 12px 0 0px !important;
+  padding: 0 !important;
+} */
+
+.setting-drawer-open {
+  right: 250px !important;
+}
+
+.setting-drawer-close {
+  right: -15px !important;
+}
+
+.spin {
+  -webkit-animation: spin 4s linear infinite;
+  -moz-animation: spin 4s linear infinite;
+  animation: spin 4s linear infinite;
+
+  margin: 0 12px 0 0px !important;
+  padding: 0 !important;
+}
+
+@-moz-keyframes spin {
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.stg-color-icon {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+@media (min-width: 1264px) {
+  .container {
+    max-width: 100%;
+  }
+}
+
+.submenutitle {
+  padding-left: 5px;
+  margin-left: -15px;
+}
+
+table.employee-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  /* border: 1px solid #dddddd; */
+  text-align: left;
+  padding: 8px;
+}
+
+table.employee-table tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+
+table.employee-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  /* border: 1px solid #dddddd; */
+  text-align: left;
+  padding: 8px;
+}
+
+table.employee-table tr:nth-child(even) {
+  background-color: #e9e9e9;
+}
+
+.toolbaritems-button-design {
+  padding-top: 8px !important;
+  padding-right: 0px !important;
+  /* margin: auto;
+  border-radius: 5px; */
+}
+
+.toolbaritems-button-design .v-btn {
+  height: 32px !important;
+}
+
+.timezone-displaylist {
+  height: 225px !important;
+  background: #fff;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  overflow: auto;
+}
+
+.timezone-displaylistview {
+  padding-left: 10px !important;
+  padding-bottom: 5px !important;
+  padding-top: 0px !important;
+  cursor: pointer !important;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.photo-displaylist {
+  height: 225px !important;
+  background: #fff !important;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  overflow: auto;
+}
+
+.photo-displaylistview {
+  padding-left: 10px !important;
+  padding-bottom: 5px !important;
+  padding-top: 0px !important;
+  cursor: pointer;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.timezoneedit-displaylist {
+  height: 225px !important;
+  background: #fff;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+  overflow: auto;
+}
+
+.timezoneedit-displaylistview {
+  padding-left: 10px !important;
+  padding-bottom: 5px !important;
+  padding-top: 0px !important;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.v-small-dialog__menu-content {
+  margin-left: 3%;
+  margin-top: 3%;
+}
+
+.employeepage-seach-textfield:focus {
+  border: 0px !important;
+  box-shadow: none !important;
+}
+
+.sortable {
+  font-weight: bold;
+  color: black !important;
+}
+
+.v-data-table-header .desc i {
+  color: red !important;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+.container {
+  max-width: 100% !important;
+}
+
+.text-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-overflow-parent {
+  max-width: 100px;
+}
+
+.text-overflow-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+.vertical-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  width: 100%;
+}
+
+/* .center-parent {
+  background: gray;
+  height: 300px;
+  width: 300px;
+  position: relative;
+} */
+
+.center-child {
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  margin: -50px 0 0 -50px;
+}
+
+tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.v-picker--date {
+  height: 420px !important;
+}
+
+.table-search-header {
+  padding: 0px;
+  font-size: 10px;
+  padding-top: 10px;
+}
+
+.table-search-header .theme--light.v-input input {
+  display: inline;
+  padding-top: 0px;
+}
+
+.table-search-header .v-text-field--outlined fieldset,
+.table-search-header .v-text-field--outlined .v-text-field__slot {
+  height: 32px !important;
+  width: 100% !important;
+}
+
+.table-search-header .v-input__icon--clear {
+  margin-right: 0px !important;
+}
+
+.table-search-header
+  .v-text-field--outlined
+  > .v-input__control
+  > .v-input__slot {
+  min-height: 32px !important;
+}
+
+.filter-select-hidden-text .v-input__append-inner {
+  width: 100%important;
+}
+
+.table-search-header td {
+  border: 0px !important;
+  padding-top: 10px;
+}
+
+.table-search-header .v-text-field__details {
+  display: none !important;
+}
+
+.table-search-header .v-input__icon--clear {
+  margin-top: -17px;
+  margin-right: 31px;
+}
+
+.filter-select-hidden-text input {
+  display: none !important;
+}
+
+.filter-select-hidden-text .v-input__append-inner {
+  margin: 0px !important;
+  margin-left: -54px !important;
+}
+
+.filter-select-hidden-text .mdi-close {
+  font-size: 8px !important;
+}
+
+.filter-select-hidden-text .v-select__selection {
+  font-size: 13px !important;
+}
+
+.announcement-dropdown .v-select__selections {
+  height: 33px;
+  overflow: hidden;
+}
+
+.dialog-close-button {
+  margin-top: -35px px;
+
+  margin-right: -26px;
+}
+
+@media (max-width: 500px) {
+  .employeepage-seach-textfield {
+    max-width: 68px;
+  }
+
+  .xs-padding-0 {
+    padding-right: 0px !important;
+  }
+
+  .xs-margin-5 {
+    margin-top: 5px !important;
+  }
+
+  .v-data-table > .v-data-table__wrapper .v-data-table__mobile-table-row {
+    margin: 10px;
+    border: 1px solid #ededed;
+    display: block;
+  }
+}
+</style>

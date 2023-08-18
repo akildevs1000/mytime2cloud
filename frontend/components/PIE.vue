@@ -72,7 +72,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 /* .apexcharts-legend-series {
   margin: 0px 100px 2px 0px !important;
 } */
