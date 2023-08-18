@@ -112,7 +112,7 @@ class AttendanceLogController extends Controller
         return $model->where("company_id", $request->company_id)->paginate($request->per_page);
     }
 
-    public function store()
+    public function handleFile()
     {
         $date = date("d-m-Y");
 
@@ -132,7 +132,7 @@ class AttendanceLogController extends Controller
         $data = file($fullPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
         if (!count($data)) {
-            return $this->getMeta("Sync Attenance Logs", 'File is empty.' . "\n");
+            return ["error" => true, "message" => 'File is empty.'];
         }
 
         $previoulyAddedLineNumbers = Storage::get("logs-count-$date.txt") ?? Storage::get('last_processed_index.txt');
@@ -144,17 +144,32 @@ class AttendanceLogController extends Controller
         $currentLength = 0;
 
         if ($previoulyAddedLineNumbers == $totalLines) {
-            return $this->getMeta("Sync Attenance Logs", 'No new data found.' . "\n");
+            return ["error" => true, "message" => 'No new data found.'];
         } else if ($previoulyAddedLineNumbers > 0 && $totalLines > 0) {
             $currentLength = $previoulyAddedLineNumbers;
         }
 
-        $selectedRecords = array_slice($data, $currentLength);
+        fclose($file);
 
+        return [
+            "date" => $date,
+            "totalLines" => $totalLines,
+            "data" => array_slice($data, $currentLength)
+
+        ];
+    }
+
+    public function store()
+    {
+        $result = $this->handleFile();
+
+        if (array_key_exists("error", $result)) {
+            return $this->getMeta("Sync Attenance Logs", $result["message"] . "\n");
+        }
 
         $records = [];
 
-        foreach ($selectedRecords as $row) {
+        foreach ($result["data"] as $row) {
             $columns = explode(',', $row);
 
             $records[] = [
@@ -165,13 +180,10 @@ class AttendanceLogController extends Controller
             ];
         }
 
-        fclose($file);
-
-
         try {
             AttendanceLog::insert($records);
             Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
-            Storage::put("logs-count-$date.txt", $totalLines);
+            Storage::put("logs-count-" . $result['date'] . ".txt", $result['totalLines']);
             return $this->getMeta("Sync Attenance Logs", count($records) . " new logs has been inserted." . "\n");
         } catch (\Throwable $th) {
 
