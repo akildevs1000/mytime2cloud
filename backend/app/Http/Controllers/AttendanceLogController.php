@@ -123,10 +123,7 @@ class AttendanceLogController extends Controller
 
             Logger::channel("custom")->info('No new data found');
 
-            return [
-                'status' => false,
-                'message' => 'File doest not exist',
-            ];
+            return $this->getMeta("Sync Attenance Logs", 'File doest not exist.' . "\n");
         }
 
         $file = fopen($fullPath, 'r');
@@ -134,7 +131,7 @@ class AttendanceLogController extends Controller
         $data = file($fullPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
         if (!count($data)) {
-            return "File is empty";
+            return $this->getMeta("Sync Attenance Logs", 'File is empty.' . "\n");
         }
 
         $previoulyAddedLineNumbers = Storage::get('last_processed_index.txt') ?? 0;
@@ -144,7 +141,7 @@ class AttendanceLogController extends Controller
         $currentLength = 0;
 
         if ($previoulyAddedLineNumbers == $totalLines) {
-            return "No new data found";
+            return $this->getMeta("Sync Attenance Logs", 'No new data found.' . "\n");
         } else if ($previoulyAddedLineNumbers > 0 && $totalLines > 0) {
             $currentLength = $previoulyAddedLineNumbers;
         }
