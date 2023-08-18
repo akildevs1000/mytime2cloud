@@ -136,7 +136,8 @@ class AttendanceLogController extends Controller
         }
 
         $previoulyAddedLineNumbers = Storage::get("logs-count-$date.txt") ?? Storage::get('last_processed_index.txt');
-        return $this->getMeta("Sync Attenance Logs", $previoulyAddedLineNumbers . "\n");
+
+        // return $this->getMeta("Sync Attenance Logs", $previoulyAddedLineNumbers . "\n");
 
         $totalLines = count($data);
 
