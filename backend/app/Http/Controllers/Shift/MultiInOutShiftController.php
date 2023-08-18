@@ -222,10 +222,13 @@ class MultiInOutShiftController extends Controller
 
         $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
 
+        $arr = [];
+
         foreach ($companies as $company_id => $data) {
-            $result += $this->processData($company_id, $data, $currentDate, $shift_type_id);
+            $arr[] = $this->processData($company_id, $data, $currentDate, $shift_type_id);
+            // $result += $this->processData($company_id, $data, $currentDate, $shift_type_id);
         }
 
-        return "Logs Count " . $result;
+        return "Log(s) Count " . array_sum($arr);
     }
 }
