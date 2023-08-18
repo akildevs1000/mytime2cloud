@@ -115,6 +115,7 @@ class AttendanceLogController extends Controller
     public function store()
     {
         $date = date("d-m-Y");
+
         $csvPath = "app/logs-$date.csv"; // The path to the file relative to the "Storage" folder
 
         $fullPath = storage_path($csvPath);
@@ -134,7 +135,8 @@ class AttendanceLogController extends Controller
             return $this->getMeta("Sync Attenance Logs", 'File is empty.' . "\n");
         }
 
-        $previoulyAddedLineNumbers = Storage::get('last_processed_index.txt') ?? 0;
+        $previoulyAddedLineNumbers = Storage::get("logs-count-$date.txt") ?? Storage::get('last_processed_index.txt');
+        return $this->getMeta("Sync Attenance Logs", $previoulyAddedLineNumbers . "\n");
 
         $totalLines = count($data);
 
@@ -168,7 +170,7 @@ class AttendanceLogController extends Controller
         try {
             AttendanceLog::insert($records);
             Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
-            Storage::put('last_processed_index.txt', $totalLines);
+            Storage::put("logs-count-$date.txt", $totalLines);
             return $this->getMeta("Sync Attenance Logs", count($records) . " new logs has been inserted." . "\n");
         } catch (\Throwable $th) {
 
