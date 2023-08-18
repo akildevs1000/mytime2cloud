@@ -8,7 +8,6 @@ use App\Models\Employee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Storage;
 
@@ -134,18 +133,23 @@ class AttendanceLogController extends Controller
 
         $data = file($fullPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-        $lastOldIndex = Storage::get('last_processed_index.txt') ?? 0;
-
-        $lastNewIndex = count($data) - 1;
-
-
-        if ($lastOldIndex == $lastNewIndex) {
-            return "No data found";
-        } else if ($lastOldIndex == 0 && $lastNewIndex > 0) {
-            $lastNewIndex = 0;
+        if (!count($data)) {
+            return "File is empty";
         }
 
-        $selectedRecords = array_slice($data, $lastNewIndex);
+        $previoulyAddedLineNumbers = Storage::get('last_processed_index.txt') ?? 0;
+
+        $totalLines = count($data);
+
+        $currentLength = 0;
+
+        if ($previoulyAddedLineNumbers == $totalLines) {
+            return "No new data found";
+        } else if ($previoulyAddedLineNumbers > 0 && $totalLines > 0) {
+            $currentLength = $previoulyAddedLineNumbers;
+        }
+
+        $selectedRecords = array_slice($data, $currentLength);
 
 
         $records = [];
@@ -156,7 +160,7 @@ class AttendanceLogController extends Controller
             $records[] = [
                 "UserID" => $columns[0],
                 "DeviceID" => $columns[1],
-                "LogTime" => $columns[2],
+                "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, -3),
                 "SerialNumber" => $columns[3]
             ];
         }
@@ -167,13 +171,14 @@ class AttendanceLogController extends Controller
         try {
             AttendanceLog::insert($records);
             Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
-            Storage::put('last_processed_index.txt', count($data) - 1) ?? 0;
-
-            return count($records) . ' new logs has been inserted.';
+            Storage::put('last_processed_index.txt', $totalLines);
+            return $this->getMeta("Sync Attenance Logs", count($records) . " new logs has been inserted." . "\n");
         } catch (\Throwable $th) {
 
             Logger::channel("custom")->error('Error occured while inserting logs.');
             Logger::channel("custom")->error('Error Details: ' . $th);
+            return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
+
             // return $data = [
             //     'title' => 'Quick action required',
             //     'body' => $th,

@@ -23,6 +23,13 @@ class Kernel extends ConsoleKernel
         if (env("APP_ENV") !== "local") {
 
             $schedule
+                ->command('task:sync_attendance_logs')
+                ->everyMinute()
+                ->withoutOverlapping()
+                ->appendOutputTo(storage_path("logs/$date-attendance-logs.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+            $schedule
                 ->command('task:update_company_ids')
                 // ->everyThirtyMinutes()
                 ->everyMinute()
