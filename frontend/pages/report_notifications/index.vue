@@ -6,97 +6,90 @@
       </v-snackbar>
     </div>
     <div v-if="!preloader">
-      <v-row class="">
-        <!-- <v-col cols="3">
-          <h4>Report Notification</h4>
-           <div>Dashboard / Report Notification</div>
-        </v-col> -->
-        <div class="text-center">
-          <v-dialog v-model="dialog" width="500">
-            <v-card>
-              <v-card-title dense class="primary white--text background">
-                Send Test message to Whatsapp
-                <v-spacer></v-spacer>
-                <v-icon @click="dialog = false" outlined dark color="white">
-                  mdi mdi-close-circle
-                </v-icon>
-              </v-card-title>
-              <v-card-text class="mt-4">
-                <v-text-field
-                  dense
-                  outlined
-                  placeholder="number"
-                  v-model="number"
+      <div class="text-center">
+        <v-dialog v-model="dialog" width="500">
+          <v-card>
+            <v-card-title dense class="primary white--text background">
+              Send Test message to Whatsapp
+              <v-spacer></v-spacer>
+              <v-icon @click="dialog = false" outlined dark color="white">
+                mdi mdi-close-circle
+              </v-icon>
+            </v-card-title>
+            <v-card-text class="mt-4">
+              <v-text-field
+                dense
+                outlined
+                placeholder="number"
+                v-model="number"
+              >
+              </v-text-field>
+              <v-textarea
+                dense
+                outlined
+                placeholder="message"
+                v-model="message"
+              >
+                Hello
+              </v-textarea>
+            </v-card-text>
+
+            <!-- <v-divider></v-divider> -->
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn class="primary" @click="send" small dense> Send </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+      <v-card class="mb-5" elevation="0">
+        <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <v-toolbar-title
+            ><span> Report Notifications List</span></v-toolbar-title
+          >
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon
+                  color="white"
+                  class="ml-2"
+                  @click="getDataFromApi()"
+                  dark
+                  >mdi mdi-reload</v-icon
                 >
-                </v-text-field>
-                <v-textarea
-                  dense
-                  outlined
-                  placeholder="message"
-                  v-model="message"
-                >
-                  Hello
-                </v-textarea>
-              </v-card-text>
+              </v-btn>
+            </template>
+            <span>Reload</span>
+          </v-tooltip>
 
-              <!-- <v-divider></v-divider> -->
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                v-bind="attrs"
+                v-on="on"
+                @click="toggleFilter()"
+              >
+                <v-icon dark white>mdi-filter</v-icon>
+              </v-btn>
+            </template>
+            <span>Filter</span>
+          </v-tooltip>
 
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn class="primary" @click="send" small dense> Send </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </div>
-        <v-row>
-          <v-col cols="6">
-            <v-card class="mb-5" elevation="0">
-              <v-toolbar class="rounded-md" color="background" dense flat dark>
-                <v-toolbar-title
-                  ><span> Report Notifications List</span></v-toolbar-title
-                >
-                <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      dense
-                      class="ma-0 px-0"
-                      x-small
-                      :ripple="false"
-                      text
-                      v-bind="attrs"
-                      v-on="on"
-                    >
-                      <v-icon
-                        color="white"
-                        class="ml-2"
-                        @click="getDataFromApi()"
-                        dark
-                        >mdi mdi-reload</v-icon
-                      >
-                    </v-btn>
-                  </template>
-                  <span>Reload</span>
-                </v-tooltip>
+          <v-spacer></v-spacer>
 
-                <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      x-small
-                      :ripple="false"
-                      text
-                      v-bind="attrs"
-                      v-on="on"
-                      @click="toggleFilter()"
-                    >
-                      <v-icon dark white>mdi-filter</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Filter</span>
-                </v-tooltip>
-
-                <v-spacer></v-spacer>
-
-                <!-- <v-tooltip top color="primary">
+          <!-- <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
                       <v-icon dark white>mdi mdi-whatsapp</v-icon>
@@ -104,22 +97,22 @@
                   </template>
                   <span>Whatsapp Test</span>
                 </v-tooltip> -->
-                <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      x-small
-                      :ripple="false"
-                      text
-                      v-bind="attrs"
-                      v-on="on"
-                      to="/report_notifications/create"
-                    >
-                      <!-- <v-icon dark white>mdi-plus-circle-outline</v-icon> -->
-                    </v-btn>
-                  </template>
-                  <span> Add Email Notification</span>
-                </v-tooltip>
-                <!-- <v-toolbar-items>
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                v-bind="attrs"
+                v-on="on"
+                to="/report_notifications/create"
+              >
+                <v-icon dark white>mdi-plus-circle-outline</v-icon>
+              </v-btn>
+            </template>
+            <span> Add Email Notification</span>
+          </v-tooltip>
+          <!-- <v-toolbar-items>
                   <v-col class="toolbaritems-button-design1">
                     <v-btn @click="dialog = true" small color="primary" class="primary mr-2 mb-2 toolbar-button-design1">
                       <v-icon small>mdi mdi-whatsapp</v-icon>
@@ -130,102 +123,99 @@
                     </v-btn>
                   </v-col>
                 </v-toolbar-items> -->
-              </v-toolbar>
+        </v-toolbar>
 
-              <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-                {{ snackText }}
+        <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+          {{ snackText }}
 
-                <template v-slot:action="{ attrs }">
-                  <v-btn v-bind="attrs" text @click="snack = false">
-                    Close
-                  </v-btn>
-                </template>
-              </v-snackbar>
-              <v-data-table
-                style="min-height: 500px"
-                flat
-                dense
-                :headers="headers_table"
-                :items="data"
-                model-value="data.id"
-                :loading="loading"
-                :options.sync="options"
-                :footer-props="{
-                  itemsPerPageOptions: [100, 500, 1000],
-                }"
-                hide-default-footer
-                class="elevation-1"
-                :server-items-length="totalRowsCount"
-              >
-                <template v-slot:header="{ props: { headers } }">
-                  <tr v-if="isFilter">
-                    <td v-for="header in headers" :key="header.text">
-                      <v-text-field
-                        clearable
-                        :hide-details="true"
-                        v-if="header.filterable && !header.filterSpecial"
-                        v-model="filters[header.value]"
-                        :id="header.value"
-                        @input="applyFilters(header.key, $event)"
-                        outlined
-                        dense
-                        autocomplete="off"
-                      ></v-text-field>
-                    </td>
-                  </tr>
-                </template>
+          <template v-slot:action="{ attrs }">
+            <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
+          </template>
+        </v-snackbar>
+        <v-data-table
+          flat
+          dense
+          :headers="headers_table"
+          :items="data"
+          model-value="data.id"
+          :loading="loading"
+          :options.sync="options"
+          :footer-props="{
+            itemsPerPageOptions: [100, 500, 1000],
+          }"
+          hide-default-footer
+          class="elevation-1"
+          :server-items-length="totalRowsCount"
+        >
+          <template v-slot:header="{ props: { headers } }">
+            <tr v-if="isFilter">
+              <td v-for="header in headers" :key="header.text">
+                <v-text-field
+                  clearable
+                  :hide-details="true"
+                  v-if="header.filterable && !header.filterSpecial"
+                  v-model="filters[header.value]"
+                  :id="header.value"
+                  @input="applyFilters(header.key, $event)"
+                  outlined
+                  dense
+                  autocomplete="off"
+                ></v-text-field>
+              </td>
+            </tr>
+          </template>
 
-                <template v-slot:item.medium="{ item }">
-                  <v-chip
-                    v-for="(medium, i) in item.mediums"
-                    :key="i"
-                    class="ma-1"
-                    small
-                    color="primary"
-                    >{{ medium }}</v-chip
-                  >
-                </template>
-                <template v-slot:item.reports="{ item }">
-                  <v-chip
-                    v-for="(report, i) in item.reports"
-                    :key="i"
-                    small
-                    color="primary"
-                    class="ma-1"
-                    >{{ report }}</v-chip
-                  >
-                </template>
-                <template v-slot:item.recipients="{ item }">
-                  <v-chip
-                    v-for="(to, i) in item.tos"
-                    :key="i"
-                    small
-                    color="primary"
-                    class="ma-1"
-                    :id="item.id"
-                    >{{ to }}</v-chip
-                  >
-                  <v-chip
-                    v-for="(cc, i) in item.ccs"
-                    :key="i"
-                    small
-                    color="primary"
-                    class="ma-1"
-                    :id="item.id"
-                    >{{ cc }} (Cc)</v-chip
-                  >
+          <template v-slot:item.medium="{ item }">
+            <v-chip
+              v-for="(medium, i) in item.mediums"
+              :key="i"
+              class="ma-1"
+              small
+              color="primary"
+              >{{ medium }}</v-chip
+            >
+          </template>
+          <template v-slot:item.reports="{ item }">
+            <v-chip
+              v-for="(report, i) in item.reports"
+              :key="i"
+              small
+              color="primary"
+              class="ma-1"
+              >{{ report }}</v-chip
+            >
+          </template>
+          <template v-slot:item.recipients="{ item }">
+            <v-chip
+              v-for="(to, i) in item.tos"
+              :key="i"
+              small
+              color="primary"
+              class="ma-1"
+              :id="item.id"
+              >{{ to }}</v-chip
+            >
+            <v-chip
+              v-for="(cc, i) in item.ccs"
+              :key="i"
+              small
+              color="primary"
+              class="ma-1"
+              :id="item.id"
+              >{{ cc }} (Cc)</v-chip
+            >
 
-                  <v-chip
-                    v-for="(bcc, i) in item.bccs"
-                    :key="i"
-                    small
-                    color="primary"
-                    class="ma-1"
-                    :id="item.id"
-                    >{{ bcc }} (Bcc)</v-chip
-                  >
-                </template>
-                <!-- <template v-slot:item.actions="{ item }">
+            <v-chip
+              v-for="(bcc, i) in item.bccs"
+              :key="i"
+              small
+              color="primary"
+              class="ma-1"
+              :id="item.id"
+              >{{ bcc }} (Bcc)</v-chip
+            >
+          </template>
+          <!-- <template v-slot:item.actions="{ item }">
                   <v-menu bottom left>
                     <template v-slot:activator="{ on, attrs }">
                       <div class="text-center">
@@ -252,11 +242,8 @@
                     </v-list>
                   </v-menu>
                 </template> -->
-              </v-data-table>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-row>
+        </v-data-table>
+      </v-card>
     </div>
     <Preloader v-else />
   </div>
