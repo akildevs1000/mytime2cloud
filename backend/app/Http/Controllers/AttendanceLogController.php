@@ -127,7 +127,7 @@ class AttendanceLogController extends Controller
         //     throw new \Exception("Log count mismatch. Expected: $expectedCount, Actual: $actualCount");
         // }
 
-        return $this->getMeta("Check Missing Count", "Final log count $expectedCount. Last inserted log count: $actualCount");
+        return $this->getMeta("Check Missing Count", "Final log count $expectedCount. Last inserted log count: $actualCount.\n");
     }
 
     public function handleFile()
