@@ -29,12 +29,12 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("logs/$date-attendance-logs.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-            $schedule
-                ->command('task:check_mismatch_count')
-                ->everyMinute()
-                ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/$date-mismatch-logs.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command('task:check_mismatch_count')
+            //     ->everyMinute()
+            //     ->withoutOverlapping()
+            //     ->appendOutputTo(storage_path("logs/$date-mismatch-logs.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command('task:update_company_ids')
