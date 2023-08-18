@@ -208,8 +208,6 @@ class MultiInOutShiftController extends Controller
     {
         $shift_type_id = 2;
 
-        $result = 0;
-
         $companyIds = Company::pluck("id") ?? [];
 
         $UserIDs = [];

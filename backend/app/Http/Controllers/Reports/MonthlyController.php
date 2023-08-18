@@ -42,9 +42,8 @@ class MonthlyController extends Controller
 
     public function monthly_download_csv(Request $request)
     {
-        $model = new ReportController;
-
-        $data = $model->report($request)->get();
+        
+        $data = (new Attendance)->processAttendanceModel($request)->get();
 
         $fileName = 'report.csv';
 
@@ -91,8 +90,7 @@ class MonthlyController extends Controller
 
     public function multi_in_out_monthly_download_csv(Request $request)
     {
-        $model = new ReportController;
-        $data = $model->processMultiInOut($request);
+        $data = (new Attendance)->processAttendanceModel($request)->get();
 
         $fileName = 'report.csv';
 

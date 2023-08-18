@@ -171,11 +171,11 @@ class RenderController extends Controller
     {
         $model = AttendanceLog::query();
 
-        $model->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate) {
-            $q->where('shift_type_id', $shift_type_id);
-            $q->whereDate('from_date', "<=", $currentDate);
-            $q->whereDate('to_date', ">=", $currentDate);
-        });
+        // $model->whereHas("schedule", function ($q) use ($shift_type_id, $currentDate) {
+        //     $q->where('shift_type_id', $shift_type_id);
+        //     $q->whereDate('from_date', "<=", $currentDate);
+        //     $q->whereDate('to_date', ">=", $currentDate);
+        // });
 
         $model->where("company_id", $company_id);
         $model->where("UserID", $UserID);
