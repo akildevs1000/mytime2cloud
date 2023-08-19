@@ -20,8 +20,8 @@ class AnnouncementController extends Controller
     public function annoucement_list(Request $request)
     {
         return (new Announcement)->filters($request)->withOut("employees")
-            ->where('start_date', '>=', date("Y-m-d"))
-            ->where('end_date', '<=', date("Y-m-d"))
+            ->where('start_date', '<=', date("Y-m-d"))
+            ->where('end_date', '>=', date("Y-m-d"))
             ->paginate($request->per_page ?? 100);
     }
 
