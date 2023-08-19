@@ -6,10 +6,11 @@
 
       <v-row>
         <v-col cols="6">
-          <video style="width: 300px; height: 300px;" id="camera" autoplay playsinline ref="camera"></video>
+
+          <video style="width: 300px;height: 300px;" id="camera" autoplay playsinline ref="camera"></video>
         </v-col>
         <v-col cols="6">
-          <img style="width: 300px; height: 300px;" v-if="capturedImage" :src="capturedImage" />
+          <img style="width: 300px;height: 300px;" v-if="capturedImage" :src="capturedImage" />
         </v-col>
       </v-row>
     </v-container>
@@ -28,7 +29,7 @@ export default {
     async startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user' }, // Requesting front camera
+          video: { facingMode: 'user' }, // Example: using rear camera
         });
         this.$refs.camera.srcObject = stream;
         this.errorMessage = null;
