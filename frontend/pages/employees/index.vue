@@ -257,6 +257,8 @@
                     >{{ !upload.name ? "Upload" : "Change" }} Profile Image
                     <v-icon right dark>mdi-cloud-upload</v-icon>
                   </v-btn>
+                  <br />
+
                   <input
                     required
                     type="file"
@@ -265,6 +267,41 @@
                     accept="image/*"
                     ref="attachment_input"
                   />
+
+                  <v-btn
+                    style="width: 100%"
+                    small
+                    dark
+                    class="background my-2"
+                    @click="open_camera = !open_camera"
+                    >Take Photo
+                    <v-icon right dark>mdi-camera-outline</v-icon>
+                  </v-btn>
+
+                  <video
+                    v-if="open_camera"
+                    style="
+                      width: 100%;
+                      height: 200px;
+                      border: 1px solid #5fafa3;
+                      border-radius: 50%;
+                      margin: 0 auto;
+                    "
+                    id="camera"
+                    autoplay
+                    playsinline
+                    ref="camera"
+                  ></video>
+
+                  <v-btn
+                    style="width: 100%"
+                    small
+                    dark
+                    class="background my-2"
+                    v-if="open_camera"
+                    @click="capturePhoto"
+                    >Capture
+                  </v-btn>
 
                   <span
                     v-if="errors && errors.profile_picture"
@@ -982,6 +1019,10 @@ export default {
         value: "options",
       },
     ],
+    open_camera: false,
+    errorMessage: null,
+    facingMode: "environment",
+    cameraStream: null, // Store the camera stream
   }),
 
   async created() {
@@ -1001,6 +1042,8 @@ export default {
     this.getTimezone();
   },
   mounted() {
+    this.startCamera();
+
     //this.getDataFromApi();
     this.tabMenu = [
       {
@@ -1084,6 +1127,39 @@ export default {
     },
   },
   methods: {
+    async startCamera() {
+      try {
+        this.cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+        });
+        this.$refs.camera.srcObject = this.cameraStream;
+        this.errorMessage = null;
+      } catch (error) {
+        console.error("Error accessing camera:", error);
+        this.errorMessage = "Camera not found or access denied.";
+      }
+    },
+    capturePhoto() {
+      const cameraElement = this.$refs.camera;
+      const canvasElement = document.createElement("canvas");
+      const canvasContext = canvasElement.getContext("2d");
+
+      canvasElement.width = cameraElement.videoWidth;
+      canvasElement.height = cameraElement.videoHeight;
+      canvasContext.drawImage(
+        cameraElement,
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
+      );
+
+      console.log(this.previewImage);
+
+      if (this.previewImage) {
+        this.previewImage = canvasElement.toDataURL("image/png");
+      }
+    },
     getCurrentShift(item) {
       // Define an array of day names
       const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
