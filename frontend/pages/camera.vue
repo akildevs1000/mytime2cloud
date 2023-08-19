@@ -3,7 +3,7 @@
     <h1>Camera Example</h1>
     <v-container>
       <v-btn @click="capturePhoto">Capture</v-btn>
-      <v-btn @click="toggleCamera">Switch Camera</v-btn> <!-- Button to switch between cameras -->
+      <v-btn @click="toggleCamera">Switch Camera</v-btn>
 
       <v-row>
         <v-col cols="6">
@@ -23,25 +23,29 @@ export default {
     return {
       errorMessage: null,
       capturedImage: null,
-      facingMode: 'environment', // Default to back camera
+      facingMode: 'environment',
+      cameraStream: null, // Store the camera stream
     };
   },
   methods: {
     async startCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        this.cameraStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: this.facingMode },
         });
-        this.$refs.camera.srcObject = stream;
+        this.$refs.camera.srcObject = this.cameraStream;
         this.errorMessage = null;
       } catch (error) {
         console.error('Error accessing camera:', error);
         this.errorMessage = 'Camera not found or access denied.';
       }
     },
-    toggleCamera() {
-      this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment'; // Toggle between front and back cameras
-      this.startCamera(); // Restart the camera with the new facing mode
+    async toggleCamera() {
+      if (this.cameraStream) {
+        this.cameraStream.getTracks().forEach(track => track.stop()); // Stop the current camera stream
+      }
+      this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
+      await this.startCamera(); // Start the camera with the new facing mode
     },
     capturePhoto() {
       const cameraElement = this.$refs.camera;
@@ -63,6 +67,11 @@ export default {
   },
   mounted() {
     this.startCamera();
+  },
+  beforeDestroy() {
+    if (this.cameraStream) {
+      this.cameraStream.getTracks().forEach(track => track.stop()); // Make sure to stop the camera stream when the component is destroyed
+    }
   },
 };
 </script>
