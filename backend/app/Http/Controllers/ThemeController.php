@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Employee;
 use App\Models\Theme;
 use Illuminate\Http\Request;
@@ -19,8 +20,9 @@ class ThemeController extends Controller
     {
         // return Theme::truncate();
         // return Theme::count();
-        
+
         $id = $request->company_id;
+
         $counts = $this->getCounts($request->company_id ?? 8);
 
         $jsonColumn = Theme::where("company_id", $id)
@@ -42,7 +44,17 @@ class ThemeController extends Controller
             ->select('status')
             ->get();
 
+        $attendanceCounts = AttendanceLog::where("company_id", $id)
+            ->whereDate("LogTime", date("Y-m-d"))
+            ->groupBy("UserID")
+            ->selectRaw('"UserID", COUNT(*) as count')
+            ->get();
+
+        $countsByParity = $attendanceCounts->groupBy(fn ($item) => $item->count % 2 === 0 ? 'even' : 'odd')->map->count();
+
         return [
+            'totalIn' => $countsByParity->get('odd', 0),
+            'totalOut' => $countsByParity->get('even', 0),
             "employeeCount" => Employee::where("company_id", $id)->count() ?? 0,
             "presentCount" => $model->where('status', 'P')->count(),
             "absentCount" => $model->where('status', 'A')->count(),

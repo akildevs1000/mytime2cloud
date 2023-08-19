@@ -108,6 +108,14 @@
                     item-value="value"
                     :items="[
                       {
+                        title: `Total In`,
+                        value: `totalIn`,
+                      },
+                      {
+                        title: `Total Out`,
+                        value: `totalOut`,
+                      },
+                      {
                         title: `Emplopyee Count`,
                         value: `employeeCount`,
                       },
