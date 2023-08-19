@@ -304,7 +304,7 @@
                   </v-btn> -->
                   <v-btn @click="capturePhoto">Capture</v-btn>
                   <video
-                    style="width: 300px; height: 300px"
+                    style="border: 1px solid; width: 300px; height: 300px"
                     id="camera"
                     autoplay
                     playsinline
@@ -1144,7 +1144,7 @@ export default {
     async startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" }, // Example: using rear camera
+          video: { facingMode: "environment" }, // Example: using rear camera
         });
         this.$refs.camera.srcObject = stream;
         this.errorMessage = null;
