@@ -1,11 +1,18 @@
 <template>
   <div>
     <h1>Camera Example</h1>
-    <v-alert v-if="errorMessage" class="red" dark>{{ errorMessage }}</v-alert>
-    <v-container v-if="!errorMessage && !loading">
-      <video id="camera" autoplay playsinline ref="camera"></video>
-      <v-button @click="capturePhoto">Capture</v-button>
-      <canvas id="canvas" style="display: none"></canvas>
+    <v-container>
+      <v-btn @click="capturePhoto">Capture</v-btn>
+
+      <v-row>
+        <v-col cols="6">
+
+          <video style="width: 300px;height: 300px;" id="camera" autoplay playsinline ref="camera"></video>
+        </v-col>
+        <v-col cols="6">
+          <img style="width: 300px;height: 300px;" v-if="capturedImage" :src="capturedImage" />
+        </v-col>
+      </v-row>
     </v-container>
   </div>
 </template>
@@ -14,27 +21,27 @@
 export default {
   data() {
     return {
-      loading: true,
       errorMessage: null,
+      capturedImage: null,
     };
   },
   methods: {
     async startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" }, // Example: using rear camera
+          video: { facingMode: 'environment' }, // Example: using rear camera
         });
         this.$refs.camera.srcObject = stream;
         this.errorMessage = null;
       } catch (error) {
-        console.error("Error accessing camera:", error);
-        this.errorMessage = "Camera not found or access denied.";
+        console.error('Error accessing camera:', error);
+        this.errorMessage = 'Camera not found or access denied.';
       }
     },
     capturePhoto() {
       const cameraElement = this.$refs.camera;
-      const canvasElement = document.getElementById("canvas");
-      const canvasContext = canvasElement.getContext("2d");
+      const canvasElement = document.createElement('canvas');
+      const canvasContext = canvasElement.getContext('2d');
 
       canvasElement.width = cameraElement.videoWidth;
       canvasElement.height = cameraElement.videoHeight;
@@ -46,10 +53,7 @@ export default {
         canvasElement.height
       );
 
-      const imageURL = canvasElement.toDataURL("image/png");
-      const preview = document.createElement("img");
-      preview.src = imageURL;
-      document.body.appendChild(preview);
+      this.capturedImage = canvasElement.toDataURL('image/png');
     },
   },
   mounted() {
@@ -57,7 +61,3 @@ export default {
   },
 };
 </script>
-
-<style>
-/* Add your custom styles here */
-</style>
