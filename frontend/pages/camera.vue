@@ -29,7 +29,7 @@ export default {
     async startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }, // Example: using rear camera
+          video: { facingMode: 'user' }, // Example: using rear camera
         });
         this.$refs.camera.srcObject = stream;
         this.errorMessage = null;
