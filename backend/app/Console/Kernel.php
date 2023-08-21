@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command('task:check_mismatch_count')
-                ->everyMinute()
+                 ->dailyAt('5:00')
                 ->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$date-mismatch-logs.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -211,7 +211,7 @@ class Kernel extends ConsoleKernel
         if (env("APP_ENV") == "production") {
             $schedule
                 ->command('task:db_backup')
-                ->dailyAt('3:00')
+                ->dailyAt('6:00')
                 ->appendOutputTo(storage_path("logs/db_backup.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
