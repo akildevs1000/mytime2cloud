@@ -4,7 +4,7 @@
       <v-toolbar-title
         ><span> {{ Model }} </span></v-toolbar-title
       >
-      <v-tooltip top color="primary">
+      <!-- <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             dense
@@ -21,7 +21,7 @@
           </v-btn>
         </template>
         <span>Reload</span>
-      </v-tooltip>
+      </v-tooltip> -->
       <v-spacer></v-spacer>
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">

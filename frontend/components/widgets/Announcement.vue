@@ -4,7 +4,7 @@
       <v-toolbar-title
         ><span> {{ Model }} List </span></v-toolbar-title
       >
-      <v-tooltip top color="primary">
+      <!-- <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             dense
@@ -21,7 +21,7 @@
           </v-btn>
         </template>
         <span>Reload</span>
-      </v-tooltip>
+      </v-tooltip> -->
       <v-spacer></v-spacer>
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
@@ -41,7 +41,7 @@
         <span>Announcement List</span>
       </v-tooltip>
     </v-toolbar>
-    <div class="center-both" style="min-height: 300px">
+    <div :class="!dataLength ? `center-both` : ``" style="min-height: 300px">
       <ComonPreloader icon="notification" v-if="loading" />
       <div v-else-if="!loading && !dataLength">No record found</div>
       <div v-else style="width: 100%; max-height: 300px; overflow-y: auto">
@@ -136,7 +136,7 @@ export default {
 .center-both {
   height: 31vh; /* Adjust the height as needed */
   display: flex;
-  align-items: left;
-  justify-content: left;
+  align-items: center;
+  justify-content: center;
 }
 </style>
