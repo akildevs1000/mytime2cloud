@@ -256,7 +256,7 @@ tr:nth-child(even) {
   background-color: #dddddd;
 }
 </style>
-<style>
+<style scoped>
 .tiptap-vuetify-editor__content {
   min-height: 400px !important;
 }

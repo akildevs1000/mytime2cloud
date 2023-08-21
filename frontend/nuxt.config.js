@@ -269,6 +269,10 @@ export default {
       lang: "en",
       display: "standalone",
     },
+    icon: {
+      fileName: '/favicon.ico',
+    },
+
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
