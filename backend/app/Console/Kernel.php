@@ -231,34 +231,17 @@ class Kernel extends ConsoleKernel
         $models = ReportNotification::get();
 
         foreach ($models as $model) {
+            $scheduleCommand = $schedule->command('task:report_notification_crons')
+                ->runInBackground()
+                ->appendOutputTo("custom_cron.log")
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             if ($model->frequency == "Daily") {
-
-                $schedule
-                    ->command('task:report_notification_crons')
-                    // ->everyMinute()
-                    ->dailyAt($model->time)
-                    ->runInBackground()
-                    ->appendOutputTo("custom_cron.log")
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            } else if ($model->frequency == "Weekly") {
-
-                $schedule
-                    ->command('task:report_notification_crons')
-                    // ->everyMinute()
-                    ->weeklyOn($model->day, $model->time)
-                    ->runInBackground()
-                    ->appendOutputTo("custom_cron.log")
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            } else if ($model->frequency == "Monthly") {
-
-                $schedule
-                    ->command('task:report_notification_crons')
-                    // ->everyMinute()
-                    ->monthlyOn($model->day, $model->time)
-                    ->runInBackground()
-                    ->appendOutputTo("custom_cron.log")
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                $scheduleCommand->dailyAt($model->time);
+            } elseif ($model->frequency == "Weekly") {
+                $scheduleCommand->weeklyOn($model->day, $model->time);
+            } elseif ($model->frequency == "Monthly") {
+                $scheduleCommand->monthlyOn($model->day, $model->time);
             }
         }
     }
