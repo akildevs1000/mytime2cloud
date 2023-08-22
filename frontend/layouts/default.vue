@@ -619,6 +619,12 @@ export default {
             },
             {
               icon: "mdi-cellphone-textss",
+              title: "Department Mapping",
+              to: "/department-mapping/",
+              menu: "assign_permission_access",
+            },
+            {
+              icon: "mdi-cellphone-textss",
               title: "Devices",
               to: "/device",
               menu: "device_access",

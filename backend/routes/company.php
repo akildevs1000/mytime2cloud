@@ -125,13 +125,6 @@ Route::apiResource('policy', policyController::class);
 Route::get('policy/search/{key}', [policyController::class, 'search']);
 Route::post('policy/delete/selected', [policyController::class, 'deleteSelected']);
 
-// announcement
-Route::apiResource('announcement', AnnouncementController::class);
-Route::get('announcement_list', [AnnouncementController::class, 'annoucement_list']);
-Route::get('announcement/search/{key}', [AnnouncementController::class, 'search']);
-Route::post('announcement/delete/selected', [AnnouncementController::class, 'deleteSelected']);
-
-Route::get('announcement/employee/{id}', [AnnouncementController::class, 'getAnnouncement']);
 
 // activities
 Route::apiResource('activity', ActivityController::class);

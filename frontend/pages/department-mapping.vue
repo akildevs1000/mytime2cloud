@@ -8,7 +8,8 @@
     <v-dialog v-model="dialog" max-width="60%">
       <v-card>
         <v-card-title dense class="primary white--text background">
-          {{ formTitle }} {{ Model }}
+          {{ formTitle }} {{ Model }} 
+          <!-- {{ editedItem.employees }} -->
           <v-spacer></v-spacer>
           <v-icon @click="dialog = false" outlined dark color="white">
             mdi mdi-close-circle
@@ -37,7 +38,6 @@
                   class="announcement-dropdown1"
                   outlined
                   dense
-                  @change="employeesByDepartment"
                   v-model="editedItem.departments"
                   :items="departments"
                   multiple
@@ -325,19 +325,10 @@
                     @entered-value="handleFilter"
                     :items="employees"
                   />
-                  <TextField
-                    :header="header"
-                    column="description"
-                    @entered-value="handleFilter"
-                  />
-                  
                 </td>
               </tr>
             </template>
 
-            <template v-slot:item.start_date="{ item }">
-              {{ item && item.start_date }} - {{ item && item.end_date }}
-            </template>
             <template v-slot:item.action="{ item }">
               <v-menu bottom left>
                 <template v-slot:activator="{ on, attrs }">
@@ -395,7 +386,7 @@
             </template>
             <template v-slot:item.employees="{ item }">
               <span
-                v-for="(emp, index) in item.employees.slice(0, 4)"
+                v-for="(emp, index) in item.employees"
                 :key="index"
                 small
                 class="p-2 ma-1"
@@ -462,7 +453,7 @@ export default {
     dept: "",
     options: {},
     Model: "Department Mapping",
-    endpoint: "announcement",
+    endpoint: "assigned-department-employee",
     search: "",
     snackbar: false,
     dialog: false,
@@ -548,7 +539,7 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
     },
-   
+
     isIndeterminateDepartment() {
       return (
         this.editedItem.departments.length > 0 &&
@@ -742,27 +733,6 @@ export default {
       this.editedItem.employees = item.employees.map((e) => e.id);
     },
 
-    delteteSelectedRecords() {
-      confirm(
-        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .post(`${this.endpoint}/delete/selected`, {
-            ids: this.ids.map((e) => e.id),
-          })
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.snackbar = data.status;
-              this.ids = [];
-              this.response = "Selected records has been deleted";
-            }
-            this.getDataFromApi();
-          })
-          .catch((err) => console.log(err));
-    },
-
     deleteItem(item) {
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
@@ -804,6 +774,13 @@ export default {
 
       this.$axios.get(url, options).then(({ data }) => {
         this.employees_dialog = data.data;
+        // console.log(
+        //   this.employees_dialog = data.data.map((e) => ({
+        //     id: e.id,
+        //     employee_id: e.employee_id,
+        //     name_with_user_id: e.name_with_user_id,
+        //   }))
+        // );
         this.loading = false;
       });
     },
@@ -818,13 +795,6 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
             } else {
-              const index = this.data.findIndex(
-                (item) => item.id == this.editedItem.id
-              );
-              this.data.splice(index, 1, {
-                id: this.editedItem.id,
-                name: this.editedItem.name,
-              });
               this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;

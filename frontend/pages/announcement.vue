@@ -1068,6 +1068,7 @@ export default {
     },
 
     save() {
+      
       this.editedItem.company_id = this.$auth.user.company.id;
 
       if (this.editedIndex > -1) {
@@ -1077,13 +1078,6 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
             } else {
-              const index = this.data.findIndex(
-                (item) => item.id == this.editedItem.id
-              );
-              this.data.splice(index, 1, {
-                id: this.editedItem.id,
-                name: this.editedItem.name,
-              });
               this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
