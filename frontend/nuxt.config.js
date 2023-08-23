@@ -264,13 +264,12 @@ export default {
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {
     manifest: {
-      name: "Idea HRMS",
-      short_name: "Idea HRMS",
-      lang: "en",
-      display: "standalone",
+      name: 'Your App Name',
+      short_name: 'App Name',
+      lang: 'en',
     },
     icon: {
-      fileName: '/favicon.ico',
+      source: 'static/icon.png', // Path to your app icon
     },
 
   },
