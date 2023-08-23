@@ -264,8 +264,8 @@ export default {
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {
     manifest: {
-      name: 'Your App Name',
-      short_name: 'App Name',
+      name: 'IdeaHrms',
+      short_name: 'IdeaHrms',
       lang: 'en',
     },
     icon: {
