@@ -36,7 +36,7 @@ class AssignedDepartmentEmployee extends Model
             'id', // Foreign key on Department table
             'id', // Local key on AssignedDepartmentEmployee table
             'employee_id' // Local key on DepartmentEmployee table
-        );
+        )->withOut(["schedule","department","designation","sub_department"]);
     }
 
 

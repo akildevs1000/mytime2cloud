@@ -269,9 +269,9 @@ export default {
       lang: "en",
       display: "standalone",
     },
-    icon: {
-      fileName: '/favicon.ico',
-    },
+    // icon: {
+    //   fileName: 'favicon.png',
+    // },
 
   },
 

@@ -21,15 +21,10 @@ class AssignedDepartmentEmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        $company_id = $request->company_id;
-
-        return (new AssignedDepartmentEmployee)->with([
-            "employees" => function ($query) use ($company_id) {
-                $query->withOut(["schedule", "department", "sub_department", "designation"]);
-                $query->where("company_id", $company_id);
-            },
-            "departments"
-        ])->where("company_id", $request->company_id)->paginate($request->per_page ?? 100);
+        $model = AssignedDepartmentEmployee::query();
+        $model->with(["employees", "departments"]);
+        $model->where("company_id", $request->company_id);
+        return $model->paginate($request->per_page ?? 100);
     }
 
     public function assigned_department_employee_list(Request $request)
