@@ -33,7 +33,7 @@ class AssignedDepartmentEmployee extends Model
             Employee::class,
             AssignEmployee::class,
             'assigned_department_employee_id', // Foreign key on DepartmentEmployee table
-            'employee_id', // Foreign key on Department table
+            'id', // Foreign key on Department table
             'id', // Local key on AssignedDepartmentEmployee table
             'employee_id' // Local key on DepartmentEmployee table
         );
