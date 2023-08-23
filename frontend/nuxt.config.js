@@ -16,7 +16,11 @@ export default {
     ],
 
     link: [
-      { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon/favicon.ico' },
+      { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon/apple-touch-icon.png' },
+      { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon/favicon-32x32.png' },
+      { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon/favicon-16x16.png' },
+      { rel: 'manifest', href: '/favicon/site.webmanifest' },
 
       {
         rel: "stylesheet",
@@ -262,18 +266,18 @@ export default {
   // serverMiddleware: ['~middleware/verify.js'],
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
-  pwa: {
-    manifest: {
-      name: "Idea HRMS",
-      short_name: "Idea HRMS",
-      lang: "en",
-      display: "standalone",
-    },
-    // icon: {
-    //   fileName: 'favicon.png',
-    // },
+  // pwa: {
+  //   manifest: {
+  //     name: "Idea HRMS",
+  //     short_name: "Idea HRMS",
+  //     lang: "en",
+  //     display: "standalone",
+  //   },
+  //   // icon: {
+  //   //   fileName: 'favicon.png',
+  //   // },
 
-  },
+  // },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
