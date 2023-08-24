@@ -30,10 +30,12 @@ class Department extends Model
     {
         return $this->hasMany(Designation::class);
     }
+
     public function employees()
     {
-        return $this->hasMany(Employee::class);
+        return $this->hasMany(Employee::class)->withOut(["schedule", "designation", "sub_department", "department"]);
     }
+
 
     protected $casts = [
         'created_at' => 'datetime:d-M-y',

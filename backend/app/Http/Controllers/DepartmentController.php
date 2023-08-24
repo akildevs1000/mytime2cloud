@@ -26,10 +26,10 @@ class DepartmentController extends Controller
             $q->where('name', 'ILIKE', "$request->name%");
         });
         $model->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
-            $q->whereHas('children', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_sub_department_name%"));
+            $q->whereHas('children', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->serach_sub_department_name%"));
         });
         $model->when($request->filled('serach_designation_name'), function ($q) use ($request) {
-            $q->whereHas('designations', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->serach_designation_name%"));
+            $q->whereHas('designations', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->serach_designation_name%"));
         });
         $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
             $q->select($cols);
@@ -39,18 +39,24 @@ class DepartmentController extends Controller
             if (strpos($request->sortBy, '.')) {
                 if ($request->sortBy == 'department.name.id') {
                     $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-
                 }
-
             } else {
-                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
-
+                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                }
             }
-
         });
         if (!$request->sortBy) {
             $model->orderBy('name', 'asc');
         }
+        return $model->paginate($request->per_page);
+    }
+
+    public function departmentEmployee(Request $request)
+    {
+        $model = Department::query();
+        $model->where('company_id', $request->company_id);
+        $model->with('employees:id,employee_id,system_user_id,first_name,last_name,display_name,department_id');
+        $model->select("id", "name");
         return $model->paginate($request->per_page);
     }
 

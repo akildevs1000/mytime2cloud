@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Dashboards\EmployeeDashboard;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,3 +16,5 @@ Route::post('employee-login-update/{id}', [EmployeeController::class, 'employeeL
 
 Route::get('employee-announcements/{id}', [EmployeeController::class, 'employeeAnnouncements']);
 Route::get('employee-today-announcements/{id}', [EmployeeController::class, 'employeeTodayAnnouncements']);
+
+Route::get('department-employee', [DepartmentController::class, 'departmentEmployee']);

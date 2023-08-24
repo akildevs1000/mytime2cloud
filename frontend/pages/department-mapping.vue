@@ -5,164 +5,11 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="dialog" max-width="60%">
-      <v-card>
-        <v-card-title dense class="primary white--text background">
-          {{ formTitle }} {{ Model }} 
-          <!-- {{ editedItem.employees }} -->
-          <v-spacer></v-spacer>
-          <v-icon @click="dialog = false" outlined dark color="white">
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="4">
-                <label for="">Title</label>
-                <v-text-field
-                  dense
-                  outlined
-                  v-model="editedItem.title"
-                  placeholder="Title"
-                  :error-messages="
-                    errors && errors.title ? errors.title[0] : ''
-                  "
-                ></v-text-field>
-              </v-col>
-              <!-- {{ employees_dialog }} -->
-
-              <v-col cols="4">
-                <label for="">Department</label>
-                <v-autocomplete
-                  class="announcement-dropdown1"
-                  outlined
-                  dense
-                  v-model="editedItem.departments"
-                  :items="departments"
-                  multiple
-                  item-text="name"
-                  item-value="id"
-                  placeholder="Departments"
-                  :error-messages="
-                    errors && errors.departments ? errors.departments[0] : ''
-                  "
-                >
-                  <template v-if="departments.length" #prepend-item>
-                    <v-list-item @click="toggleDepartmentSelection">
-                      <v-list-item-action>
-                        <v-checkbox
-                          @click="toggleDepartmentSelection"
-                          v-model="selectAllDepartment"
-                          :indeterminate="isIndeterminateDepartment"
-                          :true-value="true"
-                          :false-value="false"
-                        ></v-checkbox>
-                      </v-list-item-action>
-                      <v-list-item-content>
-                        <v-list-item-title>
-                          {{
-                            selectAllDepartment ? "Unselect All" : "Select All"
-                          }}
-                        </v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </template>
-                  <template v-slot:selection="{ item, index }">
-                    <span
-                      v-if="index === 0 && editedItem.departments.length == 1"
-                      >{{ item.name }}</span
-                    >
-                    <span
-                      v-else-if="
-                        index === 1 &&
-                        editedItem.departments.length == departments.length
-                      "
-                      class=" "
-                    >
-                      All Selected
-                    </span>
-                    <span v-else-if="index === 1" class=" ">
-                      Selected {{ editedItem.departments.length }} Department(s)
-                    </span>
-                  </template>
-                </v-autocomplete>
-              </v-col>
-              <v-col cols="4">
-                <label for="">Employee</label>
-                <v-autocomplete
-                  class="announcement-dropdown1"
-                  outlined
-                  dense
-                  v-model="editedItem.employees"
-                  :items="employees_dialog"
-                  multiple
-                  item-text="name_with_user_id"
-                  item-value="id"
-                  placeholder="Employees"
-                  :error-messages="
-                    errors && errors.employees ? errors.employees[0] : ''
-                  "
-                  color="background"
-                >
-                  <template v-if="employees_dialog.length" #prepend-item>
-                    <v-list-item @click="toggleEmployeeSelection">
-                      <v-list-item-action>
-                        <v-checkbox
-                          @click="toggleEmployeeSelection"
-                          v-model="selectAllEmployee"
-                          :indeterminate="isIndeterminateEmployee"
-                          :true-value="true"
-                          :false-value="false"
-                        ></v-checkbox>
-                      </v-list-item-action>
-                      <v-list-item-content>
-                        <v-list-item-title>
-                          {{
-                            selectAllEmployee ? "Unselect All" : "Select All"
-                          }}
-                        </v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </template>
-                  <template v-slot:selection="{ item, index }">
-                    <span v-if="index === 0 && editedItem.employees.length == 1"
-                      >{{ item.first_name }} {{ item.last_name }}</span
-                    >
-                    <span
-                      v-else-if="
-                        index === 1 &&
-                        editedItem.employees.length == employees_dialog.length
-                      "
-                      class=" "
-                    >
-                      All Selected
-                    </span>
-                    <span v-else-if="index === 1" class=" ">
-                      Selected {{ editedItem.employees.length }} Employee(s)
-                    </span>
-                  </template>
-                  <!-- <template v-slot:selection="{ item, index }">
-
-                    <span v-if="index === 0">{{ item.first_name }} {{ item.last_name }}</span>
-
-                    <span v-else-if="index === 1" class="grey--text text-caption">
-                      (+{{ editedItem.employees.length - 1 }} others)
-                    </span>
-                  </template> -->
-                </v-autocomplete>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
-          <v-btn class="primary" small @click="save">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <DepartmentMappingCreate
+      @submitted="getDataFromApi"
+      :dialog="childDialogVisible"
+      @close="closeChildDialog"
+    />
     <v-dialog v-model="dialogEmployees" max-width="60%">
       <v-card>
         <v-card-title dense class="primary white--text background">
@@ -260,6 +107,7 @@
               <span>Filter</span>
             </v-tooltip>
             <v-spacer></v-spacer>
+
             <v-tooltip top color="primary" v-if="can(`announcement_create`)">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
@@ -270,8 +118,9 @@
                   text
                   v-bind="attrs"
                   v-on="on"
+                  @click="openChildDialog"
                 >
-                  <v-icon color="white" class="ml-2" @click="dialog = true" dark
+                  <v-icon color="white" class="ml-2" dark
                     >mdi mdi-plus-circle</v-icon
                   >
                 </v-btn>
@@ -344,7 +193,7 @@
                     </v-list-item-title>
                   </v-list-item> -->
 
-                  <v-list-item @click="editItem(item)">
+                  <!-- <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon
                         v-if="can(`announcement_edit`)"
@@ -356,7 +205,7 @@
                       </v-icon>
                       Edit
                     </v-list-item-title>
-                  </v-list-item>
+                  </v-list-item> -->
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon
@@ -418,13 +267,16 @@
 <script>
 import TextField from "../components/Snippets/Filters/TextField.vue";
 import DropDown from "../components/Snippets/Filters/DropDown.vue";
+import DepartmentMappingCreate from "../components/widgets/DepartmentMappingCreate.vue";
 
 export default {
   components: {
     TextField,
     DropDown,
+    DepartmentMappingCreate,
   },
   data: () => ({
+    childDialogVisible: false,
     totalRowsCount: 0,
     from_menu_filter: "",
     from_date_filter: "",
@@ -528,8 +380,6 @@ export default {
     errors: [],
     options_dialog: {},
     employees_dialog: [],
-    selectAllDepartment: false,
-    selectAllEmployee: false,
     DialogEmployeesData: {},
 
     employees: [],
@@ -555,25 +405,6 @@ export default {
   },
 
   watch: {
-    selectAllDepartment(value) {
-      if (value) {
-        this.editedItem.departments = this.departments.map((e) => e.id);
-        this.employeesByDepartment();
-      } else {
-        this.editedItem.departments = [];
-
-        this.getEmployees();
-      }
-    },
-
-    selectAllEmployee(value) {
-      if (value) {
-        this.editedItem.employees = this.employees_dialog.map((e) => e.id);
-      } else {
-        this.editedItem.employees = [];
-      }
-    },
-
     dialog(val) {
       val || this.close();
       this.errors = [];
@@ -589,12 +420,23 @@ export default {
   created() {
     this.loading = true;
 
+    let options = {
+      params: {
+        per_page: 1000,
+        company_id: this.$auth.user.company.id,
+      },
+    };
+
     this.getDataFromApi();
-    this.getDepartments();
-    this.getEmployees();
   },
 
   methods: {
+    openChildDialog() {
+      this.childDialogVisible = true;
+    },
+    closeChildDialog() {
+      this.childDialogVisible = false;
+    },
     handleFilter({ key, search_value }) {
       this.getDataFromApi(this.endpoint, key, search_value);
     },
@@ -633,44 +475,6 @@ export default {
       this.scrollInvoked++;
     },
 
-    getDepartments() {
-      let options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company.id,
-        },
-      };
-      this.$axios.get(`departments`, options).then(({ data }) => {
-        this.departments = data.data;
-      });
-    },
-
-    employeesByDepartment() {
-      this.loading_dialog = true;
-      const { page, itemsPerPage } = this.options_dialog;
-
-      let options = {
-        params: {
-          department_ids: this.editedItem.departments,
-          per_page: itemsPerPage,
-          page: page,
-          company_id: this.$auth.user.company.id,
-        },
-      };
-      this.employees_dialog = [];
-      if (!this.editedItem.departments.length) {
-        this.getEmployees();
-        return;
-      }
-
-      this.$axios
-        .get("employeesByDepartmentForAnnoucements", options)
-        .then(({ data }) => {
-          this.employees_dialog = data.data;
-          this.loading_dialog = false;
-        });
-    },
-
     toggleFilter() {
       // this.filters = {};
       this.isFilter = !this.isFilter;
@@ -687,13 +491,11 @@ export default {
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
-      let sortedBy = sortBy ? sortBy[0] : "";
-      let sortedDesc = sortDesc ? sortDesc[0] : "";
       let options = {
         params: {
-          page: page,
-          sortBy: sortedBy,
-          sortDesc: sortedDesc,
+          page,
+          sortBy: sortBy ? sortBy[0] : "",
+          sortDesc: sortDesc ? sortDesc[0] : "",
           per_page: itemsPerPage,
           company_id: this.$auth.user.company.id,
           ...this.filters,
@@ -724,7 +526,6 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
-
     editItem(item) {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
@@ -732,7 +533,6 @@ export default {
       this.editedItem.departments = item.departments.map((e) => e.id);
       this.editedItem.employees = item.employees.map((e) => e.id);
     },
-
     deleteItem(item) {
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
@@ -750,39 +550,12 @@ export default {
           })
           .catch((err) => console.log(err));
     },
-
     close() {
       this.dialog = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
-    },
-
-    getEmployees(url = "employee") {
-      this.loading = true;
-
-      const { page, itemsPerPage } = this.options;
-
-      let options = {
-        params: {
-          page,
-          per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-        },
-      };
-
-      this.$axios.get(url, options).then(({ data }) => {
-        this.employees_dialog = data.data;
-        // console.log(
-        //   this.employees_dialog = data.data.map((e) => ({
-        //     id: e.id,
-        //     employee_id: e.employee_id,
-        //     name_with_user_id: e.name_with_user_id,
-        //   }))
-        // );
-        this.loading = false;
-      });
     },
 
     save() {
@@ -802,22 +575,6 @@ export default {
             }
           })
           .catch((err) => console.log(err));
-      } else {
-        this.$axios
-          .post(this.endpoint, this.editedItem)
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.getDataFromApi();
-              this.snackbar = data.status;
-              this.response = data.message;
-              this.close();
-              this.errors = [];
-              this.search = "";
-            }
-          })
-          .catch((res) => console.log(res));
       }
     },
   },
