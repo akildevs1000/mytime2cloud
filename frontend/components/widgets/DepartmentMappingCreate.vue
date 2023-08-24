@@ -50,7 +50,12 @@
                   style="min-height: 300px; max-height: 300px; overflow-y: auto"
                 >
                   <v-card-text>
+                    <ComonPreloader icon="face-scan" v-if="loading" />
+                    <div v-else-if="!loading && !departmentEmployees.length">
+                      No record found
+                    </div>
                     <v-treeview
+                      v-else
                       dense
                       hoverable
                       :selection-type="treeType"
@@ -69,7 +74,9 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn small color="background" dark @click="submit"> Save </v-btn>
+          <v-btn small color="background" dark @click="submit">
+            {{ isExisted == true ? "Update" : "Save" }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -79,12 +86,18 @@
 <script>
 export default {
   props: {
+    editedItem: Object,
+    isExisted: Boolean,
     dialog: Boolean,
+
     title: String,
     message: String,
   },
   data() {
     return {
+      response: "",
+      snackbar: false,
+      loading: true,
       dialogVisible: false,
       selectedDepartments: [],
       departments: [],
@@ -92,21 +105,7 @@ export default {
       treeviewOpen: [],
       search: "",
       treeType: "leaf",
-      editedItem: {
-        title: "",
-        departments: [],
-        employees: [],
-      },
-      defaultItem: {
-        title: "",
-        departments: [],
-        employees: [],
-      },
     };
-  },
-  watch() {
-    // search(value) {
-    // }
   },
   computed: {
     filteredTree() {
@@ -150,33 +149,41 @@ export default {
       });
     },
     getDepartmentEmployees(options) {
-      this.$axios.get("department-employee", options).then(({ data }) => {
-        this.departmentEmployees = data.data.map((e) => ({
+      this.$axios.get("department-employee", options).then(async ({ data }) => {
+        this.departmentEmployees = await data.data.map((e) => ({
           id: e.id,
           name: e.name,
           children: e.employees,
         }));
-        // this.departmentEmployees = data.data;
+        this.loading = false;
       });
     },
 
     submit() {
-      this.$axios
-        .post("assigned-department-employee", this.editedItem)
-        .then(({ data }) => {
-          if (!data.status) {
-            this.errors = data.errors;
-          } else {
-            console.log(data);
-            this.snackbar = true;
-            this.response = data.message;
-            this.$emit("submitted");
-            this.close();
-            this.errors = [];
-            this.search = "";
-          }
-        })
-        .catch((res) => console.log(res));
+      let endpoint = "assigned-department-employee";
+      if (this.isExisted) {
+        this.$axios
+          .put(endpoint + "/" + this.editedItem.id, this.editedItem)
+          .then(({ data }) => this.handleData(data))
+          .catch((err) => console.log(err));
+      } else {
+        this.$axios
+          .post(endpoint, this.editedItem)
+          .then(({ data }) => this.handleData(data))
+          .catch((res) => console.log(res));
+      }
+    },
+    handleData(data) {
+      if (!data.status) {
+        this.errors = data.errors;
+        return;
+      }
+      this.$emit("submitted");
+      this.snackbar = true;
+      this.response = data.message;
+      this.errors = [];
+      this.search = "";
+      this.close();
     },
     close() {
       this.dialog = false;

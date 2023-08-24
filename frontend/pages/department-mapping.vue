@@ -6,6 +6,8 @@
       </v-snackbar>
     </div>
     <DepartmentMappingCreate
+      :isExisted="isExisted"
+      :editedItem="editedItem"
       @submitted="getDataFromApi"
       :dialog="childDialogVisible"
       @close="closeChildDialog"
@@ -193,19 +195,18 @@
                     </v-list-item-title>
                   </v-list-item> -->
 
-                  <!-- <v-list-item @click="editItem(item)">
+                  <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon
                         v-if="can(`announcement_edit`)"
                         color="secondary"
                         small
-                        @click="editItem(item)"
                       >
                         mdi-pencil
                       </v-icon>
                       Edit
                     </v-list-item-title>
-                  </v-list-item> -->
+                  </v-list-item>
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon
@@ -363,7 +364,7 @@ export default {
         sortable: false,
       },
     ],
-    editedIndex: -1,
+    isExisted: false,
     editedItem: {
       title: "",
       departments: [],
@@ -527,11 +528,12 @@ export default {
       }
     },
     editItem(item) {
-      this.editedIndex = this.data.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
+      this.openChildDialog();
       this.editedItem.departments = item.departments.map((e) => e.id);
       this.editedItem.employees = item.employees.map((e) => e.id);
+      this.editedItem.title = item.title;
+      this.editedItem.id = item.id;
+      this.isExisted = true;
     },
     deleteItem(item) {
       confirm(
@@ -556,26 +558,6 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
-    },
-
-    save() {
-      this.editedItem.company_id = this.$auth.user.company.id;
-
-      if (this.editedIndex > -1) {
-        this.$axios
-          .put(this.endpoint + "/" + this.editedItem.id, this.editedItem)
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.getDataFromApi();
-              this.snackbar = data.status;
-              this.response = data.message;
-              this.close();
-            }
-          })
-          .catch((err) => console.log(err));
-      }
     },
   },
 };
