@@ -68,7 +68,7 @@ export default {
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       let page = 1;
@@ -82,7 +82,7 @@ export default {
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       let page = 1;

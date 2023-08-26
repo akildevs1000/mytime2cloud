@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::apiResource('schedule_employees', ScheduleEmployeeController::class);
 Route::get('schedule_employees_logs', [ScheduleEmployeeController::class, 'logs']);
-Route::get('employees_by_departments/{id}', [ScheduleEmployeeController::class, 'employees_by_departments']);
+Route::get('employees_by_departments', [ScheduleEmployeeController::class, 'employees_by_departments']);
 Route::put('scheduled_employee/{id}', [ScheduleEmployeeController::class, 'update']);
 
 Route::get('scheduled_employees', [ScheduleEmployeeController::class, 'scheduled_employees']);

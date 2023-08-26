@@ -271,7 +271,7 @@ export default {
     getDeviceList() {
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`/device_list`, payload).then(({ data }) => {
@@ -307,7 +307,7 @@ export default {
       this.payloadOptions = {
         params: {
           per_page: this.options.itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           ...this.payload,
         },
       };
@@ -346,7 +346,7 @@ export default {
         this.getDataFromApi();
       } else {
         this.getDataFromApi(
-          `${this.endpoint}/search/${this.$auth.user.company.id}`
+          `${this.endpoint}/search/${this.$auth.user.company_id}`
         );
       }
     },

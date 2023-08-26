@@ -435,7 +435,7 @@ export default {
         options.params[filter_column] = filter_value;
       this.$axios
         .get(
-          `device/getLastRecordsHistory/${this.$auth.user.company.id}/${itemsPerPage1}`
+          `device/getLastRecordsHistory/${this.$auth.user.company_id}/${itemsPerPage1}`
           , options)
         .then(({ data }) => {
           this.totalRowsCount = data.total;
@@ -479,13 +479,13 @@ export default {
       };
     },
     getDetails(item) {
-      item.company_id = this.$auth.user.company.id;
+      item.company_id = this.$auth.user.company_id;
 
       this.$axios.post(`/device/details`, item).then(({ data }) => {
         if (
           data.device &&
           this.$auth.user &&
-          data.device.company_id == this.$auth.user.company.id
+          data.device.company_id == this.$auth.user.company_id
         ) {
           this.logs.unshift(data);
         }

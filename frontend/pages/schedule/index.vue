@@ -589,7 +589,7 @@ export default {
     get_shifts() {
       let options = {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("shift", { params: options }).then(({ data }) => {
         let arr = [
@@ -624,7 +624,7 @@ export default {
       this.loading = true;
       let options = {
         per_page: 20,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       if (filter_value != "") options[filter_column] = filter_value;

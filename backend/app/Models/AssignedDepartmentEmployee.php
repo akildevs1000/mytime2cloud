@@ -36,7 +36,16 @@ class AssignedDepartmentEmployee extends Model
             'id', // Foreign key on Department table
             'id', // Local key on AssignedDepartmentEmployee table
             'employee_id' // Local key on DepartmentEmployee table
-        )->withOut(["schedule","department","designation","sub_department"]);
+        )->withOut(["schedule", "department", "designation", "sub_department"]);
+    }
+
+    public function assginedDepartment($id)
+    {
+        return Department::join('assign_departments', 'departments.id', '=', 'assign_departments.department_id')
+            ->join('assign_employees', 'assign_departments.assigned_department_employee_id', '=', 'assign_employees.assigned_department_employee_id')
+            ->where('assign_employees.employee_id', $id)
+            ->where('assign_employees.model', 'AssignedDepartmentEmployee')
+            ->select('departments.*');
     }
 
 

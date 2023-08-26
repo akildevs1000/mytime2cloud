@@ -292,7 +292,7 @@ export default {
     getInfo() {
       this.$axios
         .get(
-          `employee/${this.employeeId}?company_id=${this.$auth.user.company.id}`
+          `employee/${this.employeeId}?company_id=${this.$auth.user.company_id}`
         )
         .then(({ data }) => {
           this.contactItem = data;

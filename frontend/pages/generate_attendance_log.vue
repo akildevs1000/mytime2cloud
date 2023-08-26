@@ -182,7 +182,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time,
         DeviceID: device_id,
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company_id
       };
       this.loading = true;
 

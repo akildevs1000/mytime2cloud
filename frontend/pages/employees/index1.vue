@@ -1046,7 +1046,7 @@ export default {
     this.payloadOptions = {
       params: {
         per_page: 10,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 
@@ -1333,7 +1333,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           department_id: this.department_filter_id,
           ...this.filters,
         },
@@ -1412,7 +1412,7 @@ export default {
       let options = {
         params: {
           per_page: this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           department_id: this.department_filter_id,
           datatable_column_filter: true,
         },
@@ -1444,7 +1444,7 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
@@ -1455,7 +1455,7 @@ export default {
     getShifts() {
       let options = {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("shift", { params: options }).then(({ data }) => {
         this.shifts = data.data;
@@ -1465,7 +1465,7 @@ export default {
     getTimezone() {
       let options = {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("timezone", { params: options }).then(({ data }) => {
         this.timezones = data.data;
@@ -1510,7 +1510,7 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -1590,7 +1590,7 @@ export default {
         employee.append(x, obj[x]);
       }
       employee.append("profile_picture", this.upload.name);
-      employee.append("company_id", this.$auth.user.company.id);
+      employee.append("company_id", this.$auth.user.company_id);
 
       return employee;
     },

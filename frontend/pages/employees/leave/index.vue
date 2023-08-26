@@ -1003,7 +1003,7 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           employee_id: this.$auth.user.employee.id,
         },
       };
@@ -1075,7 +1075,7 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get('leave_groups/' + leaveGroupId, options).then(({ data }) => {
@@ -1106,7 +1106,7 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           year: endDate.getFullYear(),
           employee_id: this.$auth.user.employee.id,
         },
@@ -1214,7 +1214,7 @@ export default {
     //   let options = {
     //     params: {
     //       per_page: itemsPerPage,
-    //       company_id: this.$auth.user.company.id,
+    //       company_id: this.$auth.user.company_id,
     //     },
     //   };
 
@@ -1226,7 +1226,7 @@ export default {
       let options = {
         params: {
 
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(this.endpoint + "/reject/" + leaveid, options).then(({ data }) => {
@@ -1248,7 +1248,7 @@ export default {
       let options = {
         params: {
 
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(this.endpoint + "/approve/" + leaveid, options).then(({ data }) => {
@@ -1269,7 +1269,7 @@ export default {
 
       let options = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           employee_id: this.login_user_employee_id,
           reporting_manager_id: this.$auth.user.employee.reporting_manager_id,
           leave_type_id: this.editedItem.leave_type_id,

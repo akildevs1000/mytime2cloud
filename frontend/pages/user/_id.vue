@@ -170,7 +170,7 @@ export default {
     getRoles() {
       let options = {
         params: {
-          company_id: this.$auth.user.company.id
+          company_id: this.$auth.user.company_id
         }
       };
       this.$axios.get(`role`, options).then(({ data }) => {

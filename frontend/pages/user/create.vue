@@ -156,7 +156,7 @@ export default {
     getRoles() {
       let options = {
         params: {
-          company_id: this.$auth.user.company.id
+          company_id: this.$auth.user.company_id
         }
       };
       this.$axios.get(`role`, options).then(({ data }) => {
@@ -165,7 +165,7 @@ export default {
     },
     store_device() {
       let payload = this.payload;
-      payload.company_id = this.$auth.user.company.id;
+      payload.company_id = this.$auth.user.company_id;
 
       this.loading = true;
 

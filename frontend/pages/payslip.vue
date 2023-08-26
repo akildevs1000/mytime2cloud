@@ -181,7 +181,7 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id
+          company_id: this.$auth.user.company_id
         }
       };
 
@@ -274,7 +274,7 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company_id
       };
       if (this.editedIndex > -1) {
         this.$axios

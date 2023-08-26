@@ -244,7 +244,7 @@ export default {
         endpoints: {
           login: { url: "login", method: "post", propertyName: "token" },
           logout: false,
-          user: { url: "me", method: "get", propertyName: "user" },
+          user: { url: "me", method: "get", propertyName: false },
         },
         maxAge: 86400, // 24 hours
       },

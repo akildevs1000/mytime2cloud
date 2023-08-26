@@ -321,7 +321,7 @@ export default {
       let options = {
         timezone_id: timezone_id,
         id: rowId,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       confirm("Are you sure you want to delete this item?") &&
@@ -360,7 +360,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           cols: ["id", "employee_id", "display_name"],
           ...this.filters,
         },

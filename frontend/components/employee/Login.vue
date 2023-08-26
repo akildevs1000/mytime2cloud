@@ -158,7 +158,7 @@ export default {
     this.payloadOptions = {
       params: {
         per_page: 10,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
     this.getInfo(this.employeeId);
@@ -186,7 +186,7 @@ export default {
         .then(({ data }) => {
           this.employee = data.user;
           this.employee.employee_id = id;
-          this.employee.company_id = this.$auth.user.company.id;
+          this.employee.company_id = this.$auth.user.company_id;
           this.loading = false;
         })
         .catch((err) => console.log(err));

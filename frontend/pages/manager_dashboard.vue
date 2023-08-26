@@ -838,7 +838,7 @@ export default {
     this.custom_options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company_id
       }
     };
     this.getDepartments(this.custom_options);
@@ -882,7 +882,7 @@ export default {
     getDeviceList() {
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id
+          company_id: this.$auth.user.company_id
         }
       };
       this.$axios.get(`/device_list`, payload).then(({ data }) => {
@@ -932,7 +932,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time,
         DeviceID: device_id,
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company_id
       };
       this.loading = true;
 
@@ -1029,7 +1029,7 @@ export default {
         params: {
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           ...this.payload,
           status,
           late_early,
@@ -1075,7 +1075,7 @@ export default {
           LogTime: this.editItems.date + " " + this.editItems.time,
           DeviceID: this.editItems.device_id,
           user_id: this.editItems.UserID,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           reason: this.editItems.reason
         };
 
@@ -1105,7 +1105,7 @@ export default {
           per_page: 500,
           UserID: item.employee_id,
           LogTime: item.edit_date,
-          company_id: this.$auth.user.company.id
+          company_id: this.$auth.user.company_id
         }
       };
       this.log_details = true;
@@ -1156,7 +1156,7 @@ export default {
       }
 
       let data = this.payload;
-      let company_id = this.$auth.user.company.id;
+      let company_id = this.$auth.user.company_id;
       let { page, itemsPerPage } = this.options;
       let path = process.env.BACKEND_URL + "/" + type;
       let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`;

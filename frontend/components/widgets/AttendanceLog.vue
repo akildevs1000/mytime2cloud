@@ -51,7 +51,7 @@
         itemsPerPageOptions: [10, 50, 100, 500, 1000],
       }"
       class="elevation-1"
-      :server-items-length="data.total"
+      :server-items-length="total"
     >
       <template v-slot:item.UserID="{ item, index }">
         <v-row no-gutters>
@@ -211,7 +211,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           ...this.filters,
         },
       };

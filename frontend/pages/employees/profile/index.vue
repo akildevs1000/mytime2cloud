@@ -446,7 +446,7 @@ export default {
     this.payloadOptions = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 
@@ -651,7 +651,7 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
@@ -670,7 +670,7 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -749,7 +749,7 @@ export default {
         employee.append(x, obj[x]);
       }
       employee.append("profile_picture", this.upload.name);
-      employee.append("company_id", this.$auth.user.company.id);
+      employee.append("company_id", this.$auth.user.company_id);
 
       return employee;
     },

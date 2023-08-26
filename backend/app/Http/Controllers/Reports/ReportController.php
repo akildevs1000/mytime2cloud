@@ -13,6 +13,7 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+    //    return $request->all();
         $model = (new Attendance)->processAttendanceModel($request);
 
         if ($request->main_shift_type == 1) {

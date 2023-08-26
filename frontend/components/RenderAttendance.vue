@@ -87,7 +87,7 @@ export default {
   methods: {
     renderByType(type) {
       const { UserID, date, reason } = this.editItems;
-      const company_id = this.$auth.user.company.id;
+      const company_id = this.$auth.user.company_id;
 
       if (!UserID || !date) {
         alert("System User Id and Date field is required");

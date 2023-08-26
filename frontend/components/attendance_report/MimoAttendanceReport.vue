@@ -99,14 +99,15 @@
                     :hide-details="true"
                   ></v-select>
                 </v-col>
-                <v-col md="4" v-if="isCompany">
+                <v-col md="4">
                   Departments
                   <v-autocomplete
                     @change="getEmployeesByDepartment"
                     class="mt-2"
                     outlined
                     dense
-                    v-model="payload.department_id"
+                    multiple
+                    v-model="payload.department_ids"
                     x-small
                     :items="departments"
                     item-value="id"
@@ -889,7 +890,6 @@ export default {
     date: null,
     menu: false,
     selectedItems: [],
-    isCompany: true,
     time_table_dialog: false,
     log_details: false,
     overtime: false,
@@ -1099,7 +1099,7 @@ export default {
       to_date: null,
       daily_date: null,
       employee_id: "",
-      department_id: -1,
+      department_ids: [],
       status: "Select All",
       late_early: "Select All",
       main_shift_type: 2,
@@ -1148,18 +1148,19 @@ export default {
   async created() {
     this.main_report_type = this.main_report_type_props;
     this.loading = true;
-    this.getScheduledEmployees();
     // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.custom_options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
+        department_ids: this.payload.department_ids,
       },
     };
     await this.getDepartments(this.custom_options);
-    //this.getEmployeesByDepartment();
-    await this.getDeviceList();
+    await this.getScheduledEmployees(this.custom_options);
+
+    this.getDeviceList();
 
     let dt = new Date();
     let y = dt.getFullYear();
@@ -1183,19 +1184,6 @@ export default {
     },
     datatable_close() {
       this.loading = false;
-    },
-    getDataFromApi_DatatablFilter(filter_column, e) {
-      if (filter_column != "date")
-        this.getDataFromApi(`${this.endpoint}`, filter_column, e);
-      else
-        this.getDataFromApi(
-          `${this.endpoint}`,
-          "filter_date",
-          this.datatable_filter_date
-        );
-    },
-    change_mani_report_type(val) {
-      this.$store.commit("main_report_type", val);
     },
 
     setSevenDays(selected_date) {
@@ -1281,7 +1269,7 @@ export default {
     getDeviceList() {
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`/device_list`, payload).then(({ data }) => {
@@ -1301,7 +1289,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time,
         DeviceID: device_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.loading = true;
 
@@ -1334,26 +1322,15 @@ export default {
       });
     },
 
-    getScheduledEmployees() {
-      // return;
-      let u = this.$auth.user;
-      let payload = {
-        params: {
-          company_id: this.$auth.user.company.id,
-        },
-      };
-      if (u.user_type == "employee") {
-        payload.params.department_id = u.employee.department_id;
-      }
-
+    getScheduledEmployees(options) {
       this.$axios
-        .get(`/scheduled_employees_with_type`, payload)
+        .get(`/scheduled_employees_with_type`, options)
         .then(({ data }) => {
           this.scheduled_employees = data;
-          this.scheduled_employees.unshift({
-            system_user_id: "",
-            name_with_user_id: "Select All",
-          });
+          // this.scheduled_employees.unshift({
+          //   system_user_id: "",
+          //   name_with_user_id: "Select All",
+          // });
         });
     },
     // getDevices(options) {
@@ -1361,33 +1338,31 @@ export default {
     //     this.devices = data.data;
     //   });
     // },
-    getDepartments(options) {
-      let u = this.$auth.user;
-      if (u.user_type == "employee") {
-        this.departments = [u.employee.department];
-        this.isCompany = false;
-        return;
+    async getDepartments(options) {
+      const { employee, user_type } = this.$auth.user;
+
+      let url = "departments";
+
+      try {
+        if (user_type === "employee") {
+          const id = employee.id;
+          url = "assigned-department-employee";
+          const { data } = await this.$axios.get(`${url}/${id}`, options);
+          this.departments = data;
+        } else {
+          const { data } = await this.$axios.get(url, options);
+          this.departments = data.data;
+        }
+      } catch (error) {
+        console.error("Error fetching departments:", error);
       }
-      this.$axios
-        .get("departments", options)
-        .then(({ data }) => {
-          this.departments = [{ id: -1, name: "Select All" }].concat(data.data);
-        })
-        .catch((err) => console.log(err));
     },
 
     getEmployeesByDepartment() {
       this.getDataFromApi();
-      let u = this.$auth.user;
-      let department_id = "";
-      if (u.user_type == "employee") {
-        department_id = u.employee.department_id;
-      } else {
-        department_id = this.payload.department_id;
-      }
 
       this.$axios
-        .get(`/employees_by_departments/${department_id}`, this.custom_options)
+        .get(`/employees_by_departments`, this.custom_options)
         .then(({ data }) => {
           this.scheduled_employees = data;
           if (this.scheduled_employees.length > 0) {
@@ -1424,11 +1399,7 @@ export default {
       this.isFilter = false;
       this.getDataFromApi();
     },
-    getDataFromApi(
-      url = this.endpoint,
-      filter_column = "",
-      filter_value = ""
-    ) {
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       this.loading = true;
 
       let late_early = this.payload.late_early;
@@ -1448,29 +1419,22 @@ export default {
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
 
-      // if (this.filters) {
-      //   page = 1;
-      // }
-
-      let u = this.$auth.user;
-      if (u.user_type == "employee") {
-        this.payload.department_id = u.employee.department_id;
-      }
       let options = {
         params: {
           page: page,
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
-          ...this.payload,
+          company_id: this.$auth.user.company_id,
           report_type: this.report_type,
           status: this.getStatus(this.payload.status),
           late_early,
           overtime: this.overtime ? 1 : 0,
           ...this.filters,
+          ...this.payload,
         },
       };
+      console.log(options);
       if (filter_column != "") options.params[filter_column] = filter_value;
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -1503,7 +1467,7 @@ export default {
           LogTime: this.editItems.date + " " + this.editItems.time,
           DeviceID: this.editItems.device_id,
           user_id: this.editItems.UserID,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         };
         this.$axios
           .post("/generate_manual_log", payload)
@@ -1538,7 +1502,7 @@ export default {
           date: this.editItems.date,
           UserID: this.editItems.UserID,
           updated_by: this.$auth.user.id,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           manual_entry: true,
           reason: this.editItems.reason,
         },
@@ -1562,7 +1526,7 @@ export default {
           per_page: 500,
           UserID: item.employee_id,
           LogTime: item.edit_date,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.log_details = true;
@@ -1593,15 +1557,10 @@ export default {
 
     process_file(type) {
       type = type.toLowerCase().replace("custom", "monthly");
-      const { department_id, employee_id, daily_date, from_date, to_date } =
-        this.payload;
+      const { employee_id, daily_date, from_date, to_date } = this.payload;
       const report_type = this.report_type;
-      const company_id = this.$auth.user.company.id;
+      const company_id = this.$auth.user.company_id;
 
-      if (department_id == -1 && !employee_id) {
-        alert("Department must be selected.");
-        return false;
-      }
       let status = this.getStatus(this.payload.status);
 
       let path =
@@ -1613,7 +1572,7 @@ export default {
       qs += `?main_shift_type=2`;
       qs += `&company_id=${company_id}`;
       qs += `&status=${status}`;
-      qs += `&department_id=${department_id}`;
+      qs += `&department_ids=${this.payload.department_ids.join(",")}`;
       qs += `&employee_id=${employee_id}`;
       qs += `&report_type=${report_type}`;
 

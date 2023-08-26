@@ -27,6 +27,11 @@ class AssignedDepartmentEmployeeController extends Controller
         return $model->paginate($request->per_page ?? 100);
     }
 
+    public function show($id)
+    {
+        return (new AssignedDepartmentEmployee)->assginedDepartment($id)->get();
+    }
+
     public function assigned_department_employee_list(Request $request)
     {
         return (new AssignedDepartmentEmployee)->filters($request)->withOut("department_employee")

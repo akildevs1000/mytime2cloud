@@ -151,7 +151,7 @@ export default {
     },
     initialize() {
       let options = {
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get(`count`, { params: options }).then(({ data }) => {
         this.items = data;

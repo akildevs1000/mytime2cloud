@@ -1,0 +1,58 @@
+[
+  {
+    "icon": "mdi-home",
+    "title": "Dashboard",
+    "to": "/",
+    "menu": "dashboard_access"
+  },
+  {
+    "icon": "mdi-clipboard-text-clock",
+    "title": "Attendances Logs",
+    "to": "/employees/logs",
+    "menu": "attendance_report_access"
+  },
+  {
+    "icon": "mdi-calendar-today",
+    "title": "Attendance Reports",
+    "open_menu": false,
+    "menu": "attendance_report_access",
+    "hasChildren": [
+      {
+        "icon": "mdi-chart-box-outliness",
+        "title": "General Reports",
+        "to": "/employees/attendance_report/general",
+        "menu": "attendance_report_access"
+      },
+      {
+        "icon": "mdi-chart-box-outliness",
+        "title": "Multi InOut Reports",
+        "to": "/employees/attendance_report/multi_inout",
+        "menu": "attendance_report_access"
+      }
+    ]
+  },
+  {
+    "icon": "mdi-clock-outline",
+    "title": "Schedule",
+    "to": "/employees/schedule",
+    "menu": "employee_schedule_access"
+  },
+  {
+    "icon": "mdi mdi-calendar-account",
+    "title": "Leave Applications",
+    "to": "/employees/leave",
+    "menu": "leave_application_access"
+  },
+  {
+    "icon": "mdi mdi-calendar-star-four-points",
+    "title": "Holidays",
+    "to": "/employees/holidays",
+    "menu": "holiday_access"
+  },
+  {
+    "icon": "mdi-bell",
+    "title": "Announcements",
+    "to": "/employees/announcements",
+    "menu": "announcement_access"
+  }
+]

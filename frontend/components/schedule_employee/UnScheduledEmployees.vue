@@ -322,7 +322,7 @@ export default {
     this.options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 
@@ -395,7 +395,7 @@ export default {
 
     get_rosters() {
       let options = {
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("roster_list", { params: options }).then(({ data }) => {
         this.rosters = data;
@@ -428,7 +428,7 @@ export default {
           department_ids: this.department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -463,7 +463,7 @@ export default {
             per_page: itemsPerPage,
             page: page,
             employee_search: this.employee_search,
-            company_id: this.$auth.user.company.id,
+            company_id: this.$auth.user.company_id,
           },
         };
         this.$axios.get("employeesByEmployeeId", options).then(({ data }) => {
@@ -485,7 +485,7 @@ export default {
           sub_department_ids: this.sub_department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -538,7 +538,7 @@ export default {
         params: {
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -605,7 +605,7 @@ export default {
       let payload = {
         employee_ids: this.employee_ids.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       // return;

@@ -42,7 +42,7 @@ export default {
       let payload = {
         page: this.page,
         type: "card",
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       let options = {

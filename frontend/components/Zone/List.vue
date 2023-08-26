@@ -320,7 +320,7 @@ export default {
     this.payloadOptions = {
       params: {
         per_page: 10,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 
@@ -483,7 +483,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           ...this.filters,
         },
       };

@@ -468,7 +468,7 @@ export default {
     this.options = {
       params: {
         per_page: 100,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
   },
@@ -574,7 +574,7 @@ export default {
     processTimeZone(devices) {
       this.deviceResults = [];
       let payload = {
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       let counter = 0;
       devices.forEach(async (DeviceID) => {
@@ -629,7 +629,7 @@ export default {
         params: {
           per_page: this.pagination.per_page,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       if (filter_column != "") {
@@ -686,7 +686,7 @@ export default {
     submit() {
       let sortedDays = this.showShortDays(this.editedItem.interval);
       this.editedItem["scheduled_days"] = sortedDays;
-      this.editedItem.company_id = this.$auth.user.company.id;
+      this.editedItem.company_id = this.$auth.user.company_id;
 
       return this.editedIndex === -1 ? this.store() : this.update();
     },

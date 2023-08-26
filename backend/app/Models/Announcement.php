@@ -45,7 +45,10 @@ class Announcement extends Model
     public function filters($request)
     {
         $model = self::query();
-        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'departments:id,name']);
+
+        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'departments']);
+
+      
         $model->where('company_id', $request->company_id);
 
         $model->when($request->filled('title'), function ($q) use ($request) {

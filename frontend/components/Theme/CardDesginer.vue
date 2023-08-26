@@ -226,7 +226,7 @@ export default {
       let payload = {
         page: this.page,
         type: "card",
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       let options = {
@@ -258,7 +258,7 @@ export default {
     reflectCount() {
       let payload = {
         value: this.editedCard.value,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       this.$axios
@@ -275,7 +275,7 @@ export default {
         page: this.page,
         type: "card",
         style: this.cardData,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       this.$axios

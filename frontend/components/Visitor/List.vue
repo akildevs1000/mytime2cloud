@@ -1455,14 +1455,14 @@ export default {
   }),
 
   async created() {
-    this.company_id = this.$auth.user.company.id;
+    this.company_id = this.$auth.user.company_id;
     this.loading = false;
     this.boilerplate = true;
 
     this.payloadOptions = {
       params: {
         per_page: 10,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 
@@ -1645,7 +1645,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           department_id: this.department_filter_id,
           ...this.filters,
         },
@@ -1670,7 +1670,7 @@ export default {
     getHostCompanies() {
       let options = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`host_company_list`, options).then(({ data }) => {
@@ -1681,7 +1681,7 @@ export default {
     getPurposes() {
       let options = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`purpose_list`, options).then(({ data }) => {
@@ -1705,7 +1705,7 @@ export default {
     },
     getTimezone() {
       let options = {
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("timezone_list", { params: options }).then(({ data }) => {
         this.timezones = data;
@@ -1718,7 +1718,7 @@ export default {
     },
     getZones() {
       let options = {
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("zone_list", { params: options }).then(({ data }) => {
         this.zones = data;
@@ -1808,7 +1808,7 @@ export default {
         formData.append("logo", this.upload.name);
       }
 
-      formData.append("company_id", this.$auth.user.company.id);
+      formData.append("company_id", this.$auth.user.company_id);
 
       return formData;
     },

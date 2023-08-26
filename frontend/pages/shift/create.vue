@@ -133,7 +133,7 @@ export default {
   created() {
     let options = {
       per_page: 1000,
-      company_id: this.$auth.user.company.id,
+      company_id: this.$auth.user.company_id,
     };
 
     this.$axios.get("shift_type", { params: options }).then(({ data }) => {
@@ -176,7 +176,7 @@ export default {
       let payload = {
         params: {
           shift_type_id: 6,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 

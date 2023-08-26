@@ -19,6 +19,7 @@ class WeeklyController extends Controller
 {
     public function weekly(Request $request)
     {
+
         return $this->processPDF($request)->stream();
     }
     public function weekly_download_pdf(Request $request)
@@ -118,54 +119,7 @@ class WeeklyController extends Controller
 
     public function processPDF($request)
     {
-        $start = $request->from_date ?? date('Y-10-01');
-        $end = $request->to_date ?? date('Y-10-31');
-
-        $model = Attendance::query();
-        $model = $model->whereBetween('date', [$start, $end]);
-        $model->where('company_id', $request->company_id);
-        $model->orderBy('date', 'asc');
-
-        $model->when($request->status == "P", function ($q) {
-            $q->where('status', "P");
-        });
-
-        $model->when($request->status == "A", function ($q) {
-            $q->where('status', "A");
-        });
-
-        $model->when($request->status == "O", function ($q) {
-            $q->where('status', "O");
-        });
-
-        $model->when($request->status == "M", function ($q) {
-            $q->where('status', "M");
-        });
-
-        $model->when($request->status == "ME", function ($q) {
-            $q->where('is_manual_entry', true);
-        });
-
-        $model->when($request->late_early == "L", function ($q) {
-            $q->where('late_coming', "!=", "---");
-        });
-
-        $model->when($request->late_early == "E", function ($q) {
-            $q->where('early_going', "!=", "---");
-        });
-
-        $model->when($request->overtime == 1, function ($q) {
-            $q->where('ot', "!=", "---");
-        });
-
-        $model->when($request->employee_id && $request->employee_id != "", function ($q) use ($request) {
-            $q->where('employee_id', $request->employee_id);
-        });
-
-        $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $ids = Employee::where("department_id", $request->department_id)->pluck("system_user_id");
-            $q->whereIn('employee_id', $ids);
-        });
+        $model = (new Attendance)->processAttendanceModel($request);
 
         $data = $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
@@ -175,8 +129,8 @@ class WeeklyController extends Controller
         $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
         $company['report_type'] = $this->getStatusText($request->status);
-        $company['start'] = $start;
-        $company['end'] = $end;
+        $company['start'] = $request->start;
+        $company['end'] = $request->end;
         $collection = $model->clone()->get();
 
         $info = (object) [

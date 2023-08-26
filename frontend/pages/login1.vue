@@ -1,83 +1,153 @@
 <template>
-  <v-app class="login-app">
-    <v-container class="fill-height" fluid>
-      <v-row align="center" justify="center">
-        <v-col cols="12" sm="8" md="4">
-          <v-card dark class="elevation-12 login-app">
-            <v-card-title class="headline primary--text">Login</v-card-title>
-            <v-card-text>
-              <v-form @submit.prevent="login">
-                <v-text-field
-                  :hide-details="false"
-                  v-model="email"
-                  type="email"
-                  color="white"
-                  outlined
-                  required
-                ></v-text-field>
-                <v-text-field
-                  v-model="password"
-                  type="password"
-                  color="white"
-                  outlined
-                  required
-                ></v-text-field>
-                <v-btn type="submit" color="primary" block>Login</v-btn>
-              </v-form>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <nuxt-link class="text-muted text-right" to="/reset-password"
-                >Forgot password?</nuxt-link
+  <v-container fluid>
+    <v-row justify="center" align="center" style="margin-top: 10%">
+      <v-col cols="12" sm="8" md="8" lg="6">
+        <v-card class="login-card" elevation="12">
+          <v-row>
+            <v-col cols="4">
+              <v-form
+                class="pa-2"
+                ref="form"
+                method="post"
+                v-model="valid"
+                lazy-validation
               >
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-app>
+                <div class="text-center">
+                  <img width="100%" :lazy-src="logo" :src="logo" alt="logo" />
+                </div>
+                <v-text-field
+                  v-model="email"
+                  :rules="emailRules"
+                  :hide-details="true"
+                  placeholder="Email"
+                  required
+                  dense
+                  outlined
+                  type="email"
+                ></v-text-field>
+                <br />
+                <v-text-field
+                  :hide-details="true"
+                  placeholder="Password"
+                  dense
+                  outlined
+                  :rules="passwordRules"
+                  :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
+                  :type="show_password ? 'text' : 'password'"
+                  v-model="password"
+                  @click:append="show_password = !show_password"
+                ></v-text-field>
+                <br />
+                <v-select
+                  v-model="loginUserType"
+                  :items="[`Manager`, `Employee`]"
+                  dense
+                  outlined
+                  :hide-details="true"
+                  placeholder="Type"
+                ></v-select>
+                <div v-if="msg" class="text-center pt-1 mb-5 pb-1">
+                  <span class="error--text">
+                    {{ msg }}
+                  </span>
+                </div>
+                <br />
+
+                <v-btn
+                  :loading="loading"
+                  color="background"
+                  small
+                  dark
+                  @click="login"
+                  >Login</v-btn
+                >
+              </v-form>
+            </v-col>
+            <v-col cols="8">
+              <v-img
+                lazy-src="/bg.png"
+                src="/bg.png"
+                class="login-image"
+              ></v-img>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
 export default {
-  auth: false,
+  // components: { VueRecaptcha },
+
   layout: "login",
-  data() {
-    return {
-      email: "",
-      password: "",
-    };
-  },
+  data: () => ({
+    // sitekey: "6Lf1wYwhAAAAAOMJYvI73SgjCSrS_OSS2kDJbVvs", // i am not robot
+    // reCaptcha: null,
+    // showGRC: false,
+    logo: "/ideaHRMS-final-blue.svg",
+    loginUserType: "Manager",
+    valid: true,
+    loading: false,
+    snackbar: false,
+    email: "",
+    password: "",
+    show_password: false,
+    msg: "",
+    emailRules: [
+      (v) => !!v || "E-mail is required",
+      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
+    ],
+
+    passwordRules: [(v) => !!v || "Password is required"],
+  }),
+  created() {},
   methods: {
+    // mxVerify(res) {
+    //   this.reCaptcha = res;
+    //   this.showGRC = this.reCaptcha ? false : true;
+    // },
+
     login() {
-      // Implement your login logic here
-      // For example, you can use Vuex to handle the authentication process
-      // For simplicity, let's just display the input data in the console
-      console.log("Email:", this.email);
-      console.log("Password:", this.password);
+      // this.showGRC = this.reCaptcha ? false : true;
+
+      // if (this.$refs.form.validate() && this.reCaptcha) {
+      if (this.$refs.form.validate()) {
+        this.msg = "";
+        this.loading = true;
+        // const token = await this.$recaptcha.getResponse();
+        let credentials = {
+          email: this.email,
+          password: this.password,
+        };
+        this.$auth
+          .loginWith("local", { data: credentials })
+          .then(({ data }) => {})
+          .catch(({ response }) => {
+            setTimeout(() => (this.loading = false), 2000);
+
+            if (!response) {
+              this.msg = "No response found";
+              return;
+            }
+            let { status, data, statusText } = response;
+            if (!status) {
+              this.msg = "Server Down";
+              return;
+            }
+            this.msg = status == 422 ? data.message : statusText;
+          });
+      }
     },
   },
 };
 </script>
-
-<style>
-/* Customize the background and font styles */
-.login-app {
-  margin: 0;
-  padding: 0;
-  /* You can also customize other background properties, e.g., background-size, background-repeat, etc. */
-  background-size: cover; /* Adjust to your needs */
-  background-position: center center; /* Adjust to your needs */
-  background-image: url("https://th.bing.com/th/id/R.735714d9b29db50bab07b844f7f2dd2d?rik=tZeTGKp71Kvoig&pid=ImgRaw&r=0") !important;
-  /* background-image: linear-gradient(
-    to right top,
-    #34444c,
-    #556269,
-    #5a717d,
-    #a2becc,
-    #ffffff
-  ) !important; */
-  /* font-family: "Roboto", sans-serif;
-  font-size: 16px; */
+<style scoped>
+.login-card {
+  display: flex;
+}
+.login-image {
+  height: 100%;
 }
 </style>

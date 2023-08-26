@@ -434,7 +434,7 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
@@ -451,7 +451,7 @@ export default {
           department_ids: this.editedItem.departments,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -486,7 +486,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           year: this.filterYear,
         },
       };
@@ -584,7 +584,7 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -596,7 +596,7 @@ export default {
     save() {
 
 
-      this.editedItem.company_id = this.$auth.user.company.id;
+      this.editedItem.company_id = this.$auth.user.company_id;
 
       if (this.editedIndex > -1) {
         this.$axios

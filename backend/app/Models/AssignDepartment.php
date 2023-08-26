@@ -10,4 +10,15 @@ class AssignDepartment extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+
+    /**
+     * Get the department that owns the AssignDepartment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 }

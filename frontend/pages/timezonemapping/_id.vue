@@ -142,7 +142,7 @@ export default {
       var options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           id: this.$route.params.id,
           cols: ["id", "employee_id", "display_name"],
         },
@@ -175,7 +175,7 @@ export default {
       var options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           id: this.$route.params.id,
           cols: ["id", "employee_id", "display_name"],
         },
@@ -260,7 +260,7 @@ export default {
       var options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           id: this.$route.params.id,
           cols: ["id", "employee_id", "display_name"],
         },

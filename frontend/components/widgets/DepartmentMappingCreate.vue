@@ -131,7 +131,7 @@ export default {
     },
   },
   created() {
-    this.editedItem.company_id = this.$auth.user.company.id;
+    this.editedItem.company_id = this.$auth.user.company_id;
 
     let options = {
       params: {

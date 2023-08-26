@@ -6,6 +6,7 @@ use App\Http\Requests\Announcement\StoreRequest;
 use App\Http\Requests\Announcement\UpdateRequest;
 use App\Models\Announcement;
 use App\Models\Employee;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,12 @@ class AnnouncementController extends Controller
 
     public function index(Request $request)
     {
-        return (new Announcement)->filters($request)->paginate($request->per_page ?? 100);
+        return (new Announcement)->filters($request)->count();
+        $data = (new Announcement)->filters($request)->paginate($request->per_page ?? 100);
+
+        foreach ($data as $key => $value) {
+            return $value->department;
+        }
     }
 
     public function annoucement_list(Request $request)

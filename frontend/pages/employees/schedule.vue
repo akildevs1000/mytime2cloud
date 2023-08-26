@@ -593,7 +593,7 @@ export default {
     this.options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
   },
@@ -638,7 +638,7 @@ export default {
       this.empId = item.employee_id;
       let id = item.employee_id;
       let options = {
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios
         .get(`get_roster_by_employee/${id}`, { params: options })
@@ -671,7 +671,7 @@ export default {
       let payload = {
         schedules: this.schedules_temp_list,
         deleteIds: this.deleteIds,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.process(this.$axios.put(`schedule_update/${this.empId}`, payload));
     },
@@ -685,7 +685,7 @@ export default {
 
     get_rosters() {
       let options = {
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("roster_list", { params: options }).then(({ data }) => {
         this.rosters = data;
@@ -725,7 +725,7 @@ export default {
       let options = {
         params: {
           shift_type_id: shift_type_id,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios
@@ -772,7 +772,7 @@ export default {
           department_ids: this.department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -801,7 +801,7 @@ export default {
           sub_department_ids: this.sub_department_ids,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -880,7 +880,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           employee_id: this.$auth.user.employee.employee_id,
         },
       };
@@ -921,7 +921,7 @@ export default {
         params: {
           per_page: itemsPerPage,
           page: page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -1004,7 +1004,7 @@ export default {
       let payload = {
         shift_type_id: this.shift_type_id,
         shift_id: this.shift_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
         isOverTime: this.isOverTime ? 1 : 0,
         employee_ids: this.employee_ids.map((e) => e.system_user_id),
 

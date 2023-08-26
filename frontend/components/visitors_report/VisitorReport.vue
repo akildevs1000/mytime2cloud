@@ -943,7 +943,7 @@ export default {
     this.custom_options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
     this.getDeviceList();
@@ -970,7 +970,7 @@ export default {
     },
     submitData() {
       this.formData.userIds = this.users.map((e) => e.visitor_id);
-      this.formData.company_id = this.$auth.user.company.id;
+      this.formData.company_id = this.$auth.user.company_id;
 
       this.$axios
         .post(`/render_daily_report`, this.formData)
@@ -1037,7 +1037,7 @@ export default {
     getDeviceList() {
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`/device_list`, payload).then(({ data }) => {
@@ -1050,7 +1050,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time,
         DeviceID: device_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.loading = true;
 
@@ -1074,7 +1074,7 @@ export default {
       // return;
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -1130,7 +1130,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           ...this.payload,
           frequency: this.frequency,
           // status: this.getStatus(this.payload.status),
@@ -1180,7 +1180,7 @@ export default {
           LogTime: this.editItems.date + " " + this.editItems.time,
           DeviceID: this.editItems.device_id,
           user_id: this.editItems.UserID,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           reason: this.editItems.reason,
         };
 
@@ -1216,7 +1216,7 @@ export default {
           date: this.editItems.date,
           UserID: this.editItems.UserID,
           updated_by: this.$auth.user.id,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           manual_entry: true,
           reason: this.editItems.reason,
         },
@@ -1239,7 +1239,7 @@ export default {
           per_page: 500,
           UserID: item.visitor_id,
           LogTime: item.edit_date,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.log_details = true;
@@ -1269,7 +1269,7 @@ export default {
       const { visitor_id, daily_date, from_date, to_date, status } =
         this.payload;
       const frequency = this.frequency;
-      const company_id = this.$auth.user.company.id;
+      const company_id = this.$auth.user.company_id;
       let { itemsPerPage } = this.options;
       let path = process.env.BACKEND_URL + "/visitor_attendance_report";
 

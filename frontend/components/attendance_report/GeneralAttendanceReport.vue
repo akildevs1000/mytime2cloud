@@ -1112,7 +1112,7 @@ export default {
     this.custom_options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
     this.getDepartments(this.custom_options);
@@ -1234,7 +1234,7 @@ export default {
     getDeviceList() {
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`/device_list`, payload).then(({ data }) => {
@@ -1254,7 +1254,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time,
         DeviceID: device_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.loading = true;
 
@@ -1292,7 +1292,7 @@ export default {
       let u = this.$auth.user;
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -1408,7 +1408,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           ...this.payload,
           report_type: this.report_type,
           status: this.getStatus(this.payload.status),
@@ -1447,7 +1447,7 @@ export default {
           LogTime: this.editItems.date + " " + this.editItems.time,
           DeviceID: this.editItems.device_id,
           user_id: this.editItems.UserID,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           reason: this.editItems.reason,
         };
 
@@ -1483,7 +1483,7 @@ export default {
           date: this.editItems.date,
           UserID: this.editItems.UserID,
           updated_by: this.$auth.user.id,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           manual_entry: true,
           reason: this.editItems.reason,
         },
@@ -1506,7 +1506,7 @@ export default {
           per_page: 500,
           UserID: item.employee_id,
           LogTime: item.edit_date,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.log_details = true;
@@ -1540,7 +1540,7 @@ export default {
       const { department_id, employee_id, daily_date, from_date, to_date } =
         this.payload;
       const report_type = this.report_type;
-      const company_id = this.$auth.user.company.id;
+      const company_id = this.$auth.user.company_id;
 
       if (department_id == -1 && !employee_id) {
         alert("Department must be selected.");

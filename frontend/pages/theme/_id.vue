@@ -1,11 +1,9 @@
 <template>
   <v-card>
-    <v-toolbar class="background" dark>
-      Card Builder <v-spacer></v-spacer>
-
-      <v-btn fab x-small class="primary">
-        <v-icon @click="goBack">mdi-arrow-left</v-icon>
-      </v-btn>
+    <v-toolbar dense class="background" dark>
+      Card Builder
+      <v-spacer />
+      <Back color="primary"/>
     </v-toolbar>
     <v-container fluid>
       <v-row>
@@ -19,6 +17,7 @@
 
 <script>
 import CardDesginer from "../../components/Theme/CardDesginer.vue";
+import Back from "../../components/Snippets/Back.vue";
 
 export default {
   data: () => ({
@@ -40,6 +39,6 @@ export default {
       );
     },
   },
-  components: { CardDesginer },
+  components: { CardDesginer, Back },
 };
 </script>

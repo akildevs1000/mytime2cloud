@@ -117,7 +117,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: 5,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 

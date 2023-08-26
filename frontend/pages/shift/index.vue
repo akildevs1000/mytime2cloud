@@ -350,7 +350,7 @@ export default {
 
       let options = {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("shift", { params: options }).then(({ data }) => {
         this.shifts = data.data;
@@ -424,7 +424,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           ...this.filters,
         },
       };

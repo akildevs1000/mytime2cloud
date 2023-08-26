@@ -197,7 +197,7 @@ export default {
       );
     },
     store_shift() {
-      this.payload.company_id = this.$auth.user.company.id;
+      this.payload.company_id = this.$auth.user.company_id;
       this.payload.shift_type_id = this.shift_type_id;
 
       this.loading = true;

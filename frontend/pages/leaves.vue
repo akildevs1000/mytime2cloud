@@ -859,7 +859,7 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           employee_id: employee_id
         },
       };
@@ -906,7 +906,7 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`leave_type`, options).then(({ data }) => {
@@ -921,7 +921,7 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`leave_groups`, options).then(({ data }) => {
@@ -962,7 +962,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           year: endDate.getFullYear(),
           ...this.filters,
         },
@@ -1063,7 +1063,7 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
 
@@ -1088,7 +1088,7 @@ export default {
         let options = {
           params: {
             approve_reject_notes: this.editedItem.approve_reject_notes,
-            company_id: this.$auth.user.company.id,
+            company_id: this.$auth.user.company_id,
           },
         };
         this.$axios.get(this.endpoint + "/reject/" + leaveid, options).then(({ data }) => {
@@ -1124,7 +1124,7 @@ export default {
         let options = {
           params: {
             approve_reject_notes: this.editedItem.approve_reject_notes,
-            company_id: this.$auth.user.company.id,
+            company_id: this.$auth.user.company_id,
             system_user_id: this.dialogViewObject.system_user_id,
             shift_type_id: this.dialogViewObject.shift_type_id,
           },
@@ -1146,14 +1146,14 @@ export default {
     save() {
 
 
-      this.editedItem.company_id = this.$auth.user.company.id;
+      this.editedItem.company_id = this.$auth.user.company_id;
       this.editedItem.employee_id = this.login_user_employee_id;
       this.editedItem.reporting_manager_id = this.$auth.user.reporting_manager_id;
       ;
 
       let options = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           //employee_id: this.login_user_employee_id,
           reporting_manager_id: this.$auth.user.reporting_manager_id,
           leave_type_id: this.editedItem.leave_type_id,

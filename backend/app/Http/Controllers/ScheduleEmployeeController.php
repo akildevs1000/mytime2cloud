@@ -23,13 +23,11 @@ class ScheduleEmployeeController extends Controller
             ->paginate($request->per_page);
     }
 
-    public function employees_by_departments(Request $request, $id)
+    public function employees_by_departments(Request $request)
     {
         return Employee::select("first_name", "system_user_id", "employee_id", "department_id", "display_name")
             ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
-            ->when($id != -1, function ($q) use ($id) {
-                $q->where("department_id", $id);
-            })
+            ->whereIn('department_id', $request->department_ids)
             ->where('company_id', $request->company_id)
             ->get();
     }
@@ -345,8 +343,8 @@ class ScheduleEmployeeController extends Controller
         return $employee->where("company_id", $request->company_id)
             ->whereHas('schedule')
             ->withOut(["user", "department", "sub_department", "designation", "role", "schedule"])
-            ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->where('department_id', $request->department_id);
+            ->when(count($request->department_ids) > 0, function ($q) use ($request) {
+                $q->whereIn('department_id', $request->department_ids);
             })
             ->get(["first_name", "system_user_id", "employee_id", "display_name"]);
 

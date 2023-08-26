@@ -155,7 +155,7 @@ class Employee extends Model
     }
     public function getNameAttribute(): string
     {
-        return $this->first_name;
+        return $this->first_name ?? "";
     }
 
     public function getFullNameAttribute(): string
@@ -237,5 +237,121 @@ class Employee extends Model
             //     $query->Where('name', 'Like', '%' . $search . '%')
             // )
         ));
+    }
+
+    public function filter($request)
+    {
+        $model = self::query();
+
+        $model->with([
+            "user" => function ($q) {
+                return $q->with("role");
+            },
+        ])
+            ->with([
+                "reportTo", "department", "sub_department", "designation", "payroll", "timezone", "passport",
+                "emirate", "qualification", "bank", "leave_group",
+            ])
+            ->with(["schedule" => function ($q) {
+                $q->with("roster");
+            }])
+            ->where('company_id', $request->company_id)
+
+
+            ->when($request->filled('department_ids') && count($request->department_ids) > 0, function ($q) use ($request) {
+                $q->whereHas('department', fn (Builder $query) => $query->whereIn('department_id', $request->department_ids));
+            })
+
+            ->when($request->filled('department_id'), function ($q) use ($request) {
+                $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
+            })
+            //filters
+            ->when($request->filled('employee_id'), function ($q) use ($request) {
+                //$q->where('employee_id', 'LIKE', "$key%");
+                $q->where(function ($q) use ($request) {
+                    $q->Where('employee_id', 'ILIKE', "$request->employee_id%");
+                    $q->orWhere('system_user_id', 'ILIKE', "$request->employee_id%");
+                });
+            })
+            ->when($request->filled('phone_number'), function ($q) use ($request) {
+
+                $q->where('phone_number', 'ILIKE', "$request->phone_number%");
+            })
+            ->when($request->filled('first_name'), function ($q) use ($request) {
+                $q->where(function ($q) use ($request) {
+                    $q->Where('first_name', 'ILIKE', "$request->first_name%");
+                    //$q->orWhere('last_name', 'ILIKE', "$request->first_name%");
+                });
+            })
+
+            ->when($request->filled('user_email'), function ($q) use ($request) {
+                // $q->where('local_email', 'LIKE', "$request->user_email%");
+                $q->whereHas('user', fn (Builder $query) => $query->where('email', 'ILIKE', "$request->user_email%"));
+            })
+            ->when($request->filled('department_name_id'), function ($q) use ($request) {
+                // $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->department_name%"));
+                $q->whereHas('department', fn (Builder $query) => $query->where('id', $request->department_name_id));
+            })
+
+            ->when($request->filled('shceduleshift_id'), function ($q) use ($request) {
+                $q->whereHas('schedule', fn (Builder $query) => $query->where('shift_id', $request->shceduleshift_id));
+            })
+            ->when($request->filled('schedule_shift_name'), function ($q) use ($request) {
+                $q->whereHas('schedule.shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->schedule_shift_name%"));
+                $q->whereHas('schedule.shift', fn (Builder $query) => $query->whereNotNull('name'));
+                $q->whereHas('schedule.shift', fn (Builder $query) => $query->where('name', '<>', '---'));
+            })
+            ->when($request->filled('timezone_name'), function ($q) use ($request) {
+                $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezone_name%"));
+            })
+            ->when($request->filled('timezone'), function ($q) use ($request) {
+                $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_id', $request->timezone));
+            })
+
+            ->when($request->filled('payroll_basic_salary'), function ($q) use ($request) {
+                $q->whereHas('payroll', fn (Builder $query) => $query->where('basic_salary', '=', $request->payroll_basic_salary));
+            })
+            ->when($request->filled('payroll_net_salary'), function ($q) use ($request) {
+                $q->whereHas('payroll', fn (Builder $query) => $query->where('net_salary', '=', $request->payroll_net_salary));
+            })
+
+            // ->when($request->filled('sortBy'), function ($q) use ($request) {
+            //     $sortDesc = $request->input('sortDesc');
+            //     $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');
+            // })
+
+            ->when($request->filled('sortBy'), function ($q) use ($request) {
+                $sortDesc = $request->input('sortDesc');
+                if (strpos($request->sortBy, '.')) {
+                    if ($request->sortBy == 'department.name.id') {
+                        $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    } else
+                    if ($request->sortBy == 'user.email') {
+                        $q->orderBy(User::select("email")->whereColumn("users.id", "employees.user_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    } else
+                    if ($request->sortBy == 'schedule.shift_name') {
+                        // $q->orderBy(Schedule::select("shift")->whereColumn("schedule_employees.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                    } else
+                    if ($request->sortBy == 'timezone.name') {
+                        $q->orderBy(Timezone::select("timezone_name")->whereColumn("timezones.id", "employees.timezone_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    } else
+                    if ($request->sortBy == 'payroll.basic_salary') {
+                        $q->orderBy(Payroll::select("basic_salary")->whereColumn("payrolls.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    } else
+                    if ($request->sortBy == 'payroll.net_salary') {
+                        $q->orderBy(Payroll::select("net_salary")->whereColumn("payrolls.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    }
+                } else {
+                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                    }
+                }
+            });
+
+        if (!$request->sortBy) {
+            $model->orderBy('first_name', 'asc');
+        }
+
+        return $model;
     }
 }

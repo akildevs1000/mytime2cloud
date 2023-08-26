@@ -58,7 +58,7 @@ export default {
     },
     getDetails(item) {
       this.$axios.get(`/device/${item.DeviceID}/details`).then(({ data }) => {
-        if (data.company_id == this.$auth.user.company.id) {
+        if (data.company_id == this.$auth.user.company_id) {
           this.logs.unshift(item);
         }
       });

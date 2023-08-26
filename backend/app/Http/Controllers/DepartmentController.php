@@ -10,45 +10,9 @@ use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-    public function index(Request $request)
+    public function index(Department $department, Request $request)
     {
-        $cols = $request->cols;
-
-        $model = Department::query();
-        $model->where('company_id', $request->company_id);
-        $model->with('children');
-        $model->with('designations');
-        $model->where('company_id', $request->company_id);
-        $model->when($request->filled('id'), function ($q) use ($request) {
-            $q->where('id', 'LIKE', "$request->id%");
-        });
-        $model->when($request->filled('name'), function ($q) use ($request) {
-            $q->where('name', 'ILIKE', "$request->name%");
-        });
-        $model->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
-            $q->whereHas('children', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->serach_sub_department_name%"));
-        });
-        $model->when($request->filled('serach_designation_name'), function ($q) use ($request) {
-            $q->whereHas('designations', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->serach_designation_name%"));
-        });
-        $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
-            $q->select($cols);
-        });
-        $model->when($request->filled('sortBy'), function ($q) use ($request) {
-            $sortDesc = $request->input('sortDesc');
-            if (strpos($request->sortBy, '.')) {
-                if ($request->sortBy == 'department.name.id') {
-                    $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-                }
-            } else {
-                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
-                }
-            }
-        });
-        if (!$request->sortBy) {
-            $model->orderBy('name', 'asc');
-        }
-        return $model->paginate($request->per_page);
+        return $department->filter($request)->paginate($request->per_page);
     }
 
     public function departmentEmployee(Request $request)

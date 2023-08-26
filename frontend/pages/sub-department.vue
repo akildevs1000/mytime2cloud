@@ -305,7 +305,7 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           department_id: this.$route.query.id,
         },
       };
@@ -332,7 +332,7 @@ export default {
       let options = {
         params: {
           per_page: this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           department_id: this.$route.query.id,
         },
       };
@@ -422,7 +422,7 @@ export default {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
         department_id: this.editedItem.department_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       if (this.editedIndex > -1) {
         this.$axios

@@ -290,7 +290,7 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
@@ -340,7 +340,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           ...this.filters,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       if (filter_column != '') {
@@ -431,7 +431,7 @@ export default {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
         department_id: this.editedItem.department_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       if (this.editedIndex > -1) {
         this.$axios

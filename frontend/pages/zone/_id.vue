@@ -230,7 +230,7 @@ export default {
       name: "",
       options: {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           cols: ["id", "name"],
         },
       },
@@ -270,7 +270,7 @@ export default {
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios
@@ -291,7 +291,7 @@ export default {
       let payload = {
         name: this.name,
         device_ids: this.rightDevices.map((e) => e.id),
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       this.$axios
@@ -336,7 +336,7 @@ export default {
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           // cols: ["id", "location", "name", "device_id"],
         },
       };

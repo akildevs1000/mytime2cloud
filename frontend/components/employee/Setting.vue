@@ -99,7 +99,7 @@ export default {
     this.payloadOptions = {
       params: {
         per_page: 10,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 
@@ -110,7 +110,7 @@ export default {
   },
   methods: {
     getLeaveGroups() {
-      this.payloadOptions.params.company_id = this.$auth.user.company.id;
+      this.payloadOptions.params.company_id = this.$auth.user.company_id;
       this.loading = true;
       this.$axios.get(`leave_groups`, this.payloadOptions).then(({ data }) => {
         this.leave_groups = data.data;
@@ -119,7 +119,7 @@ export default {
     },
     getLeaveManagers() {
       this.loading = true;
-      this.payloadOptions.params.company_id = this.$auth.user.company.id;
+      this.payloadOptions.params.company_id = this.$auth.user.company_id;
 
       this.$axios.get(`employeesList`, this.payloadOptions).then(({ data }) => {
         this.leave_managers = data.data;

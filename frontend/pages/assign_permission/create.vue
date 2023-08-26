@@ -143,7 +143,7 @@ export default {
   created() {
     let options = {
       params: {
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company_id
       }
     };
 
@@ -194,7 +194,7 @@ export default {
       let payload = {
         role_id: this.role_id,
         permission_ids: this.permission_ids,
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company_id
       };
 
       this.$axios.post("assign-permission", payload).then(({ data }) => {

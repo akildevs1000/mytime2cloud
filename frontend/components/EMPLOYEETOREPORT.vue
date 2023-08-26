@@ -159,7 +159,7 @@ export default {
     let options = {
       params: {
         per_page: this.options.itemsPerPage,
-        company_id: this.$auth.user.company.id
+        company_id: this.$auth.user.company_id
       }
     };
 
@@ -194,7 +194,7 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id
+          company_id: this.$auth.user.company_id
         }
       };
       this.$axios.get(`employee`, options).then(({ data }) => {
@@ -232,7 +232,7 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id
+          company_id: this.$auth.user.company_id
         }
       };
 

@@ -331,7 +331,7 @@ export default {
       timezonesselected: [],
       options: {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           cols: ["id", "name"],
         },
       },
@@ -369,7 +369,7 @@ export default {
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           department_id: this.departmentselected,
           cols: ["id", "employee_id", "display_name"],
         },
@@ -398,7 +398,7 @@ export default {
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios
@@ -509,7 +509,7 @@ export default {
         timezone_id: this.timezonesselected,
         employee_id: this.rightEmployees,
         device_id: this.rightDevices,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
         employee_ids: filteredDataEmp,
         device_ids: filteredDataDevices,
       };
@@ -618,7 +618,7 @@ export default {
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           //cols: ["id", "location", "name", "device_id", "status:id"],
         },
       };
@@ -633,7 +633,7 @@ export default {
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           cols: ["id", "employee_id", "display_name", "first_name"],
         },
       };

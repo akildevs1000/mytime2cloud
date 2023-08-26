@@ -102,7 +102,7 @@ export default {
       this.loading = true;
       this.$axios
         .get(
-          `device/getLastRecordsByCount/${this.$auth.user.company.id}/${this.number_of_records}`
+          `device/getLastRecordsByCount/${this.$auth.user.company_id}/${this.number_of_records}`
         )
         .then(({ data }) => {
           this.loading = false;
@@ -120,11 +120,11 @@ export default {
       };
     },
     getDetails(item) {
-      item.company_id = this.$auth.user.company.id;
+      item.company_id = this.$auth.user.company_id;
 
       this.$axios.post(`/device/details`, item).then(({ data }) => {
         if (data.device) {
-          if (data.device.company_id == this.$auth.user.company.id) {
+          if (data.device.company_id == this.$auth.user.company_id) {
             data.employee.profile_picture =
               "data:image;base64," + item.RecordImage;
             this.logs.unshift(data);

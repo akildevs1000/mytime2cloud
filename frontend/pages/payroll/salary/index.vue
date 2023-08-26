@@ -680,7 +680,7 @@ export default {
     },
     getdownloadLink(employee_id) {
       const baseURL = this.$axios.defaults.baseURL;
-      const id = this.$auth.user.company.id;
+      const id = this.$auth.user.company_id;
       const month = this.payslip_month;
       const year = this.payslip_year;
 
@@ -739,7 +739,7 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
@@ -751,7 +751,7 @@ export default {
       let url = this.endpoint;
       let options = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           department_id: this.department_idPopup,
 
           month: this.payslip_month_Popup,
@@ -785,7 +785,7 @@ export default {
       let url = this.endpoint;
       let options = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           employee_ids: checkedIdArray,
 
           year: this.payslip_year,
@@ -826,7 +826,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           department_id: department_id,
           year: this.payslip_year,
           month: this.payslip_month,
@@ -877,7 +877,7 @@ export default {
           this.payslipsDownloadAllURL =
             this.$axios.defaults.baseURL +
             "/generate-payslips-zip?company_id=" +
-            this.$auth.user.company.id +
+            this.$auth.user.company_id +
             "&employee_ids=" +
             this.payslipsDownloadAllEmployeeidsArray +
             "&month=" +
@@ -896,7 +896,7 @@ export default {
       // options = {
       //   params: {
       //     per_page: this.pagination.per_page,
-      //     company_id: this.$auth.user.company.id,
+      //     company_id: this.$auth.user.company_id,
       //     department_id: department_id,
       //     year: this.payslip_year,
       //     month: this.payslip_month,
@@ -1035,7 +1035,7 @@ export default {
     save() {
       let salary = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       if (this.editedIndex > -1) {
         this.$axios

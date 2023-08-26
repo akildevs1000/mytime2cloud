@@ -328,7 +328,7 @@ export default {
     this.payloadOptions = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 

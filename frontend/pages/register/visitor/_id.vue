@@ -1019,7 +1019,7 @@ export default {
     getPurposes() {
       let options = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
         },
       };
       this.$axios.get(`purpose_list`, options).then(({ data }) => {
@@ -1070,7 +1070,7 @@ export default {
         formData.append("logo", this.upload.name);
       }
 
-      formData.append("company_id", this.$auth.user.company.id);
+      formData.append("company_id", this.$auth.user.company_id);
 
       return formData;
     },

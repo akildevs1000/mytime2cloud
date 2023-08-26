@@ -412,7 +412,7 @@ export default {
           // this.getdownloadLink =
           //   this.$axios.defaults.baseURL +
           //   "/donwload-payslip-pdf?company_id=" +
-          //   this.$auth.user.company.id +
+          //   this.$auth.user.company_id +
           //   "&employee_id=" +
           //   this.data.employee_id +
           //   "&month=" +

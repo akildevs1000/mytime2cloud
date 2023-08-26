@@ -524,7 +524,7 @@ export default {
     this.payloadOptions = {
       params: {
         per_page: 10,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
         UserID: this.$auth.user.employee.system_user_id,
       },
     };
@@ -537,7 +537,7 @@ export default {
   },
   get_announcements() {
     const id = this.$auth.user.employee.id;
-    const company_id = this.$auth.user.company.id;
+    const company_id = this.$auth.user.company_id;
     const url = `employee-today-announcements`;
 
     this.$axios

@@ -4,6 +4,13 @@
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
       </v-snackbar>
+      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+        {{ snackText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
+        </template>
+      </v-snackbar>
     </div>
     <div v-if="!loading">
       <v-dialog v-model="dialogCropping" width="500">
@@ -405,13 +412,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-        {{ snackText }}
-
-        <template v-slot:action="{ attrs }">
-          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-        </template>
-      </v-snackbar>
 
       <div v-if="can(`employee_view`)">
         <v-container>
@@ -991,7 +991,7 @@ export default {
     this.payloadOptions = {
       params: {
         per_page: 10,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 
@@ -1212,10 +1212,7 @@ export default {
         });
     },
     can(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
-      );
+      return true;
     },
     onPageChange() {
       this.getDataFromApi();
@@ -1247,8 +1244,9 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage, //this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           department_id: this.department_filter_id,
+          department_ids: this.$auth.user.assignedDepartments,
           ...this.filters,
         },
       };
@@ -1268,97 +1266,13 @@ export default {
         this.loadinglinear = false;
       });
     },
-    getDataFromApi_FilterEmployeeid(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length >= 1) {
-        this.getDataFromApi_FilterDatatable(e, "search_employee_id");
-      }
-    },
 
-    getDataFromApi_FilterEmployeeName(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length >= 1) {
-        this.getDataFromApi_FilterDatatable(e, "search_employee_name");
-      }
-    },
-    getDataFromApi_FilterDepartmentName(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length >= 1) {
-        this.getDataFromApi_FilterDatatable(e, "search_department_name");
-      }
-    },
-    getDataFromApi_FilterPhoneNumber(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length >= 1) {
-        this.getDataFromApi_FilterDatatable(e, "search_phone_number");
-      }
-    },
-    getDataFromApi_FilterEmailid(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length >= 1) {
-        this.getDataFromApi_FilterDatatable(e, "search_emailid");
-      }
-    },
-    getDataFromApi_FilterShiftname(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length >= 1) {
-        this.getDataFromApi_FilterDatatable(e, "search_shiftname");
-      }
-    },
-    getDataFromApi_FilterTimezonename(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length >= 1) {
-        this.getDataFromApi_FilterDatatable(e, "search_timezonename");
-      }
-    },
-    getDataFromApi_FilterDatatable(key, extraColumnName) {
-      let url = `${this.endpoint}/search/${key}`;
-      //this.loading = true;
-      this.loadinglinear = true;
-      let page = this.pagination.current;
-      let options = {
-        params: {
-          per_page: this.pagination.per_page,
-          company_id: this.$auth.user.company.id,
-          department_id: this.department_filter_id,
-          datatable_column_filter: true,
-        },
-      };
-
-      options.params[extraColumnName] = extraColumnName;
-
-      this.$axios.get(`${url}?page = ${page}`, options).then(({ data }) => {
-        if (data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = "error";
-          this.snackText = "No Results Found";
-          this.loading = false;
-          return false;
-        }
-
-        this.data = data.data;
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
-
-        this.data.length == 0
-          ? (this.displayErrormsg = true)
-          : (this.displayErrormsg = false);
-
-        this.loadinglinear = false;
-      });
-    },
     getDepartments() {
       let options = {
         params: {
           per_page: 1000,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
+          department_ids: this.$auth.user.assignedDepartments,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
@@ -1369,7 +1283,7 @@ export default {
     getShifts() {
       let options = {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("shift", { params: options }).then(({ data }) => {
         this.shifts = data.data;
@@ -1379,7 +1293,7 @@ export default {
     getTimezone() {
       let options = {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.$axios.get("timezone", { params: options }).then(({ data }) => {
         this.timezones = data.data;
@@ -1424,7 +1338,7 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -1504,7 +1418,7 @@ export default {
         employee.append(x, obj[x]);
       }
       employee.append("profile_picture", this.upload.name);
-      employee.append("company_id", this.$auth.user.company.id);
+      employee.append("company_id", this.$auth.user.company_id);
 
       return employee;
     },

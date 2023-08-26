@@ -424,7 +424,7 @@ export default {
     let options = {
       params: {
         per_page: 1000,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 
@@ -498,7 +498,7 @@ export default {
           sortBy: sortBy ? sortBy[0] : "",
           sortDesc: sortDesc ? sortDesc[0] : "",
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           ...this.filters,
         },
       };

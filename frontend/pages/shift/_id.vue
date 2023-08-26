@@ -405,7 +405,7 @@ export default {
     getSingleShift() {
       let payload = {
         params: {
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           id: this.shift_type_id,
         },
       };
@@ -424,7 +424,7 @@ export default {
       );
     },
     update_shift() {
-      this.payload.company_id = this.$auth.user.company.id;
+      this.payload.company_id = this.$auth.user.company_id;
       this.payload.shift_type_id = 6;
       this.loading = true;
 

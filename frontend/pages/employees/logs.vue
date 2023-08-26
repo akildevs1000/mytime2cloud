@@ -247,7 +247,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           per_page: this.options.itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           ...this.payload,
           ...this.filters,
         },
@@ -286,7 +286,7 @@ export default {
         this.getDataFromApi();
       } else {
         this.getDataFromApi(
-          `${this.endpoint}/search/${this.$auth.user.company.id}`
+          `${this.endpoint}/search/${this.$auth.user.company_id}`
         );
       }
     },

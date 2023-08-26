@@ -108,7 +108,7 @@ export default {
         params: {
           page: this.page || "dashboard2",
           type: "card",
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.company_id,
         },
       };
 

@@ -54,11 +54,11 @@ export default {
   mounted() {
     this.loading = false;
     // let options = {
-    //   company_id: this.$auth.user.company.id,
+    //   company_id: this.$auth.user.company_id,
     //   employee_id: this.$auth.user.employee.system_user_id,
     // };
     let options = {
-      company_id: this.$auth.user.company.id,
+      company_id: this.$auth.user.company_id,
       employee_id: this.$auth.user.employee.system_user_id,
       department_id: this.$auth.user.employee.department_id,
       shift_type_id: this.$auth.user.employee.schedule.shift_type_id,

@@ -1,35 +1,65 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" dark :mini-variant="miniVariant" :clipped="clipped" fixed app
-      :color="sideBarcolor" :style="miniVariant ? 'width: 60px' : ''" @transitionend="collapseSubItems">
+    <v-navigation-drawer
+      v-model="drawer"
+      dark
+      :mini-variant="miniVariant"
+      :clipped="clipped"
+      fixed
+      app
+      :color="sideBarcolor"
+      :style="miniVariant ? 'width: 60px' : ''"
+      @transitionend="collapseSubItems"
+    >
       <br />
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
-        <v-list-item :to="i.to" router v-if="!i.hasChildren" :class="!miniVariant || 'pl-2'">
+        <v-list-item
+          :to="i.to"
+          router
+          v-if="!i.hasChildren"
+          :class="!miniVariant || 'pl-2'"
+        >
           <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-title> {{ i.title }}&nbsp; </v-list-item-title>
         </v-list-item>
-        <v-list-item v-else :class="!miniVariant || 'pl-2'" @click="i.open_menu = !i.open_menu">
+        <v-list-item
+          v-else
+          :class="!miniVariant || 'pl-2'"
+          @click="i.open_menu = !i.open_menu"
+        >
           <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
-            <v-icon v-if="miniVariant" small>{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+            <v-icon v-if="miniVariant" small
+              >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
             </v-icon>
           </v-list-item-icon>
 
           <v-list-item-title>{{ i.title }} </v-list-item-title>
-          <v-icon small>{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
+          <v-icon small
+            >{{ !i.open_menu ? "mdi-chevron-down" : "mdi-chevron-up" }}
           </v-icon>
         </v-list-item>
         <div v-if="i.open_menu">
-          <div style="margin-left: 54px" v-for="(j, jdx) in i.hasChildren" :key="jdx">
+          <div
+            style="margin-left: 54px"
+            v-for="(j, jdx) in i.hasChildren"
+            :key="jdx"
+          >
             <!-- v-show="!miniVariant" -->
             <v-list-item style="min-height: 0" :to="j.to" class="submenutitle">
-              <v-list-item-title v-if="!miniVariant">{{ j.title }}
+              <v-list-item-title v-if="!miniVariant"
+                >{{ j.title }}
               </v-list-item-title>
 
-              <v-list-item-icon :style="miniVariant ? 'margin-left: -54px;' : ''">
-                <v-icon :to="j.to" :style="miniVariant ? 'margin-left: 12px;' : ''">
+              <v-list-item-icon
+                :style="miniVariant ? 'margin-left: -54px;' : ''"
+              >
+                <v-icon
+                  :to="j.to"
+                  :style="miniVariant ? 'margin-left: 12px;' : ''"
+                >
                   {{ j.icon }}
                 </v-icon>
               </v-list-item-icon>
@@ -43,8 +73,14 @@
     margin-left: -49px;
 " -->
 
-    <v-app-bar :color="changeColor" dark :clipped-left="clipped" fixed app
-      :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''">
+    <v-app-bar
+      :color="changeColor"
+      dark
+      :clipped-left="clipped"
+      fixed
+      app
+      :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''"
+    >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
@@ -55,8 +91,15 @@
       {{ title }}
       <v-spacer></v-spacer>
 
-      <v-menu nudge-bottom="50" transition="scale-transition" origin="center center" bottom left min-width="200"
-        nudge-left="20">
+      <v-menu
+        nudge-bottom="50"
+        transition="scale-transition"
+        origin="center center"
+        bottom
+        left
+        min-width="200"
+        nudge-left="20"
+      >
         <template v-slot:activator="{ on, attrs }">
           <label class="px-2" v-bind="attrs" v-on="on">
             {{ getUser }}
@@ -76,7 +119,20 @@
                 <v-icon>mdi-account-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text">Profile</v-list-item-title>
+                <v-list-item-title class="black--text"
+                  >Profile</v-list-item-title
+                >
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item @click="goToProfile()">
+              <v-list-item-icon>
+                <v-icon>mdi-account-outline</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="black--text"
+                  >Login As {{ loginType }}
+                </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -85,7 +141,9 @@
                 <v-icon>mdi-logout</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text">Logout</v-list-item-title>
+                <v-list-item-title class="black--text"
+                  >Logout</v-list-item-title
+                >
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -104,15 +162,30 @@
           <v-icon title="0 Pending leaves" color="success">mdi mdi-bell-ring
           </v-icon>
         </v-badge> -->
-        <v-badge v-if="pendingLeavesCount > 0" @click="navigateToLeavePage()"
-          :color="pendingLeavesCount > 0 ? 'red' : 'black'" :content="pendingLeavesCount">
+        <v-badge
+          v-if="pendingLeavesCount > 0"
+          @click="navigateToLeavePage()"
+          :color="pendingLeavesCount > 0 ? 'red' : 'black'"
+          :content="pendingLeavesCount"
+        >
           <v-icon @click="navigateToLeavePage()">mdi mdi-bell-ring</v-icon>
         </v-badge>
-        <v-badge v-else @click="navigateToLeavePage()" color="black" content="0">
+        <v-badge
+          v-else
+          @click="navigateToLeavePage()"
+          color="black"
+          content="0"
+        >
           <v-icon @click="navigateToLeavePage()">mdi mdi-bell-ring</v-icon>
         </v-badge>
       </label>
-      <v-snackbar top="top" v-model="snackNotification" location="right" :timeout="5000" :color="snackNotificationColor">
+      <v-snackbar
+        top="top"
+        v-model="snackNotification"
+        location="right"
+        :timeout="5000"
+        :color="snackNotificationColor"
+      >
         {{ snackNotificationText }}
 
         <template v-slot:action="{ attrs }">
@@ -128,12 +201,24 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-btn height="50" width="20" dark :color="changeColor" class="fixed-setting"
-      @click.stop="rightDrawer = !rightDrawer">
+    <v-btn
+      height="50"
+      width="20"
+      dark
+      :color="changeColor"
+      class="fixed-setting"
+      @click.stop="rightDrawer = !rightDrawer"
+    >
       <v-icon class="spin" dark size="25">mdi-cog</v-icon>
     </v-btn>
     <!-- setting -->
-    <v-navigation-drawer v-model="rightDrawer" :clipped="true" :right="right" fixed style="z-index: 1000">
+    <v-navigation-drawer
+      v-model="rightDrawer"
+      :clipped="true"
+      :right="right"
+      fixed
+      style="z-index: 1000"
+    >
       <v-row style="margin-top: 50px">
         <v-col>
           <v-card class="pa-2" elevation="0">
@@ -141,12 +226,30 @@
               <div class="mb-3">
                 <Strong>Theme</Strong>
               </div>
-              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                <input type="radio" class="btn-check" name="theme" id="light" autocomplete="off"
-                  @click="changeTheme('light')" />
-                <label class="btn" :class="'btn-outline-dark'" for="light">Light</label>
-                <input type="radio" class="btn-check" name="theme" id="dark" autocomplete="off"
-                  @click="changeTheme('dark')" />
+              <div
+                class="btn-group"
+                role="group"
+                aria-label="Basic radio toggle button group"
+              >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="theme"
+                  id="light"
+                  autocomplete="off"
+                  @click="changeTheme('light')"
+                />
+                <label class="btn" :class="'btn-outline-dark'" for="light"
+                  >Light</label
+                >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="theme"
+                  id="dark"
+                  autocomplete="off"
+                  @click="changeTheme('dark')"
+                />
                 <label class="btn btn-outline-dark" for="dark">Dark</label>
               </div>
             </v-col>
@@ -156,14 +259,38 @@
                 <Strong>Top Bar</Strong>
               </div>
               <div class="d-flex">
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="primary"
-                  @click="changeTopBarColor('primary')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="error"
-                  @click="changeTopBarColor('error')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="indigo"
-                  @click="changeTopBarColor('indigo')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="background"
-                  @click="changeTopBarColor('background')"></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="primary"
+                  @click="changeTopBarColor('primary')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="error"
+                  @click="changeTopBarColor('error')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="indigo"
+                  @click="changeTopBarColor('indigo')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="background"
+                  @click="changeTopBarColor('background')"
+                ></v-btn>
               </div>
             </v-col>
             <v-divider></v-divider>
@@ -172,14 +299,38 @@
                 <Strong>Side Bar</Strong>
               </div>
               <div class="d-flex">
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="primary"
-                  @click="changeSideBarColor('primary')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="error"
-                  @click="changeSideBarColor('error')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="indigo"
-                  @click="changeSideBarColor('indigo')"></v-btn>
-                <v-btn class="mx-2 stg-color-icon" fab dark x-small color="background"
-                  @click="changeSideBarColor('background')">
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="primary"
+                  @click="changeSideBarColor('primary')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="error"
+                  @click="changeSideBarColor('error')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="indigo"
+                  @click="changeSideBarColor('indigo')"
+                ></v-btn>
+                <v-btn
+                  class="mx-2 stg-color-icon"
+                  fab
+                  dark
+                  x-small
+                  color="background"
+                  @click="changeSideBarColor('background')"
+                >
                 </v-btn>
               </div>
             </v-col>
@@ -212,74 +363,7 @@ export default {
       drawer: true,
       fixed: false,
       order_count: "",
-      menus: [
-        {
-          icon: "mdi-home",
-          title: "Dashboard",
-          to: "/",
-          menu: "dashboard_access",
-        },
-        // {
-        //   icon: "mdi-account-outline",
-        //   title: "Profile",
-        //   to: "/employees/profile",
-        //   menu: "employee_profile_access",
-        // },
-        // {
-        //   icon: "mdi-calendar-clock",
-        //   title: "Schedule",
-        //   to: "/employees/schedule",
-        //   menu: "employee_schedule_access",
-        // },
-        // {
-        //   icon: "mdi-cash",
-        //   title: "Salary details",
-        //   to: "/employees/salary",
-        //   menu: "employee_payroll_access",
-        // },
-        // {
-        //   icon: "mdi-calendar-today",
-        //   title: "attendance reports",
-        //   to: "/employees/attendance_reports",
-        //   menu: "attendance_report_access",
-        // },
-        {
-          icon: "mdi-clipboard-text-clock",
-          title: "Attendances Logs",
-          to: "/employees/logs",
-          menu: "attendance_report_access",
-        },
-        {
-          icon: "mdi-cash",
-          title: "Salary",
-          to: "/employees/payroll/salary",
-          menu: "payroll_access",
-        },
-        {
-          icon: "mdi-clock-outline",
-          title: "Schedule",
-          to: "/employees/schedule",
-          menu: "employee_schedule_access",
-        },
-        {
-          icon: "mdi mdi-calendar-account",
-          title: "Leave Applications",
-          to: "/employees/leave",
-          menu: "leave_application_access",
-        },
-        {
-          icon: "mdi mdi-calendar-star-four-points",
-          title: "Holidays",
-          to: "/employees/holidays",
-          menu: "holiday_access",
-        },
-        {
-          icon: "mdi-bell",
-          title: "Announcements",
-          to: "/employees/announcements",
-          menu: "announcement_access",
-        },
-      ],
+      menus: [],
       // -------
       // leave request
       // holiday
@@ -335,9 +419,16 @@ export default {
         this.$auth.user.employee &&
         this.$auth.user.company
         ? this.$auth.user.employee.first_name +
-        " " +
-        this.$auth.user.employee.last_name
+            " " +
+            this.$auth.user.employee.last_name
         : this.$auth.user.company.name;
+
+      // $user->assigned_department
+    },
+
+    loginType() {
+      return this.$auth.user && this.$auth.user.login_type;
+      // $user->assigned_department
     },
 
     getLogo() {
@@ -350,7 +441,7 @@ export default {
     },
 
     verifyLeaveNotificationsSocket() {
-      let company_id = this.$auth.user.company.id;
+      let company_id = this.$auth.user.company_id;
       let employee_id = this.$auth.user.employee.id;
 
       if (!process.env.EMP_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
@@ -394,14 +485,13 @@ export default {
         params: {
           company_id: this.$auth.user?.company?.id || 0,
           employee_id: this.$auth.user.employee.id,
-        }
+        },
       };
 
       this.$axios
         .get(`employee_leaves_new_by_employee`, options)
         .then(({ data }) => {
           if (data.status && data.new_leaves_data.data[0]) {
-
             let element = data.new_leaves_data.data[0];
             //data.new_leaves_data.data.forEach(element => {
 
@@ -410,17 +500,14 @@ export default {
             if (element.status == 1) {
               this.snackNotificationColor = "primary";
               this.snackNotificationText = "Your Leave Application is Approved";
-            }
-            else if (element.status == 2) {
+            } else if (element.status == 2) {
               this.snackNotificationColor = "error";
               this.snackNotificationText = "Your Leave Application is Rejected";
             }
 
             //});
-
           }
           this.pendingLeavesCount = data.total_pending_count;
-
         });
     },
     collapseSubItems() {

@@ -144,9 +144,7 @@ class Attendance extends Model
 
         $model->where('company_id', $request->company_id);
         $model->with(['shift_type', 'last_reason']);
-        $model->when($request->filled('employee_id'), function ($q) use ($request) {
-            $q->where('employee_id', $request->employee_id);
-        });
+
 
         $model->when($request->main_shift_type && $request->main_shift_type == 2, function ($q) {
             $q->where('shift_type_id', 2);
@@ -156,8 +154,14 @@ class Attendance extends Model
             $q->whereNot('shift_type_id', 2);
         });
 
-        $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $q->whereIn('employee_id', Employee::where("department_id", $request->department_id)->where('company_id', $request->company_id)->pluck("system_user_id"));
+        $department_ids = $request->department_ids;
+
+        if (gettype($department_ids) !== "array") {
+            $department_ids = explode(",", $department_ids);
+        }
+
+        $model->when($request->filled('department_id') && count($department_ids) > 0, function ($q) use ($request, $department_ids) {
+            $q->whereIn('employee_id', Employee::whereIn("department_id", $department_ids)->where('company_id', $request->company_id)->pluck("system_user_id"));
         });
 
         $model->when($request->status == "A", function ($q) {
@@ -212,15 +216,12 @@ class Attendance extends Model
             // $q->orderBy("date", "asc");
         });
 
-        // dd($request->all());
+        $model->when($request->start_date && $request->end_date && $request->report_type != 'Daily', function ($q) use ($request) {
+            $q->whereBetween("date", [$request->start_date, $request->end_date]);
+            // $q->orderBy("date", "asc");
+        });
 
-        // $model->with([
-        //     "employee:id,system_user_id,display_name,employee_id,department_id,profile_picture",
-        //     "device_in:id,name,short_name,device_id,location",
-        //     "device_out:id,name,short_name,device_id,location",
-        //     "shift",
-        //     "shift_type:id,name",
-        // ]);
+
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);

@@ -7,12 +7,21 @@
     </div>
     <div v-if="can(`employee_view`)">
       <v-row>
-        <v-dialog v-model="dialogFormDesignation" :fullscreen="false" width="500px">
+        <v-dialog
+          v-model="dialogFormDesignation"
+          :fullscreen="false"
+          width="500px"
+        >
           <v-card>
             <v-card-title dense class="primary white--text background">
               <span>New Designation</span>
               <v-spacer></v-spacer>
-              <v-icon @click="dialogFormDesignation = false" outlined dark color="white">
+              <v-icon
+                @click="dialogFormDesignation = false"
+                outlined
+                dark
+                color="white"
+              >
                 mdi mdi-close-circle
               </v-icon>
             </v-card-title>
@@ -20,16 +29,32 @@
               <v-container>
                 <v-row class="mt-2">
                   <v-col cols="12">
-                    <v-text-field v-model="new_Designation_name" placeholder="Designation" outlined dense></v-text-field>
+                    <v-text-field
+                      v-model="new_Designation_name"
+                      placeholder="Designation"
+                      outlined
+                      dense
+                    ></v-text-field>
                     <span v-if="errors && errors.name" class="error--text">{{
                       errors.name[0]
                     }}</span>
                   </v-col>
                   <v-col cols="12">
-                    <v-autocomplete v-model="new_designation_department_id" :items="departments" item-text="name"
-                      item-value="id" placeholder="Select Departments" outlined dense>
+                    <v-autocomplete
+                      v-model="new_designation_department_id"
+                      :items="departments"
+                      item-text="name"
+                      item-value="id"
+                      placeholder="Select Departments"
+                      outlined
+                      dense
+                    >
                     </v-autocomplete>
-                    <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
+                    <span
+                      v-if="errors && errors.department_id"
+                      class="error--text"
+                      >{{ errors.department_id[0] }}</span
+                    >
                   </v-col>
                   <v-card-actions>
                     <v-col md="6" lg="6" style="padding: 0px">
@@ -37,8 +62,15 @@
                         Cancel
                       </v-btn> -->
                     </v-col>
-                    <v-col md="6" lg="6" class="text-right" style="padding: 0px">
-                      <v-btn class="primary" @click="savenewDesignation">Save</v-btn>
+                    <v-col
+                      md="6"
+                      lg="6"
+                      class="text-right"
+                      style="padding: 0px"
+                    >
+                      <v-btn class="primary" @click="savenewDesignation"
+                        >Save</v-btn
+                      >
                     </v-col>
                   </v-card-actions>
                 </v-row>
@@ -46,12 +78,21 @@
             </v-card-text>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="dialogFormSubdepartment" :fullscreen="false" width="500px">
+        <v-dialog
+          v-model="dialogFormSubdepartment"
+          :fullscreen="false"
+          width="500px"
+        >
           <v-card>
             <v-card-title dense class="primary white--text background">
               <span>New Sub Department</span>
               <v-spacer></v-spacer>
-              <v-icon @click="dialogFormSubdepartment = false" outlined dark color="white">
+              <v-icon
+                @click="dialogFormSubdepartment = false"
+                outlined
+                dark
+                color="white"
+              >
                 mdi mdi-close-circle
               </v-icon>
             </v-card-title>
@@ -59,17 +100,32 @@
               <v-container>
                 <v-row class="mt-2">
                   <v-col cols="12">
-                    <v-text-field v-model="New_sub_DepartmentName" placeholder="Sub Department" outlined
-                      dense></v-text-field>
+                    <v-text-field
+                      v-model="New_sub_DepartmentName"
+                      placeholder="Sub Department"
+                      outlined
+                      dense
+                    ></v-text-field>
                     <span v-if="errors && errors.name" class="error--text">{{
                       errors.name[0]
                     }}</span>
                   </v-col>
                   <v-col cols="12">
-                    <v-autocomplete v-model="Newdepartment_id" :items="departments" item-text="name" item-value="id"
-                      placeholder="Select Departments" outlined dense>
+                    <v-autocomplete
+                      v-model="Newdepartment_id"
+                      :items="departments"
+                      item-text="name"
+                      item-value="id"
+                      placeholder="Select Departments"
+                      outlined
+                      dense
+                    >
                     </v-autocomplete>
-                    <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
+                    <span
+                      v-if="errors && errors.department_id"
+                      class="error--text"
+                      >{{ errors.department_id[0] }}</span
+                    >
                   </v-col>
 
                   <v-card-actions>
@@ -78,8 +134,15 @@
                         Cancel
                       </v-btn> -->
                     </v-col>
-                    <v-col md="6" lg="6" class="text-right" style="padding: 0px">
-                      <v-btn class="primary" @click="saveSubDepartment">Save</v-btn>
+                    <v-col
+                      md="6"
+                      lg="6"
+                      class="text-right"
+                      style="padding: 0px"
+                    >
+                      <v-btn class="primary" @click="saveSubDepartment"
+                        >Save</v-btn
+                      >
                     </v-col>
                   </v-card-actions>
                 </v-row>
@@ -100,23 +163,57 @@
               <v-container>
                 <v-row class="">
                   <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label">Department Name<span class="text-danger">*</span></label>
-                    <v-text-field dense outlined :hide-details="!errors.name" type="text" v-model="editedItem.name"
-                      :error="errors.name" :error-messages="errors && errors.name ? errors.name[0] : ''
-                        " placeholder="Department Name"></v-text-field>
+                    <label class="col-form-label"
+                      >Department Name<span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.name"
+                      type="text"
+                      v-model="editedItem.name"
+                      :error="errors.name"
+                      :error-messages="
+                        errors && errors.name ? errors.name[0] : ''
+                      "
+                      placeholder="Department Name"
+                    ></v-text-field>
                   </v-col>
                   <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label">Email<span class="text-danger">*</span></label>
-                    <v-text-field dense outlined :hide-details="!errors.email" type="text" v-model="editedItem.email"
-                      :error="errors.email" :error-messages="errors && errors.email ? errors.email[0] : ''
-                        " placeholder="Email"></v-text-field>
+                    <label class="col-form-label"
+                      >Email<span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.email"
+                      type="text"
+                      v-model="editedItem.email"
+                      :error="errors.email"
+                      :error-messages="
+                        errors && errors.email ? errors.email[0] : ''
+                      "
+                      placeholder="Email"
+                    ></v-text-field>
                   </v-col>
                   <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label">Password<span class="text-danger">*</span></label>
-                    <v-text-field dense outlined :hide-details="!errors.password" :type="show1 ? 'text' : 'password'"
-                      v-model="editedItem.password" :error="errors.password" :error-messages="errors && errors.password ? errors.password[0] : ''
-                        " placeholder="Password" @click:append="show1 = !show1"
-                      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"></v-text-field>
+                    <label class="col-form-label"
+                      >Password<span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      :hide-details="!errors.password"
+                      :type="show1 ? 'text' : 'password'"
+                      v-model="editedItem.password"
+                      :error="errors.password"
+                      :error-messages="
+                        errors && errors.password ? errors.password[0] : ''
+                      "
+                      placeholder="Password"
+                      @click:append="show1 = !show1"
+                      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                    ></v-text-field>
                   </v-col>
                   <v-card-actions>
                     <v-spacer></v-spacer>
@@ -135,13 +232,25 @@
         <v-col md="12" lg="12">
           <v-card class="mb-5 rounded-md" elevation="0">
             <v-toolbar class="rounded-md" color="background" dense flat dark>
-              <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
+              <v-toolbar-title
+                ><span> {{ Model }} List</span></v-toolbar-title
+              >
 
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on"
-                    @click="clearFilters();">
-                    <v-icon color="white" class="ml-2" dark>mdi mdi-reload</v-icon>
+                  <v-btn
+                    dense
+                    class="ma-0 px-0"
+                    x-small
+                    :ripple="false"
+                    text
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="clearFilters()"
+                  >
+                    <v-icon color="white" class="ml-2" dark
+                      >mdi mdi-reload</v-icon
+                    >
                   </v-btn>
                 </template>
                 <span>Reload</span>
@@ -149,7 +258,14 @@
 
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="toggleFilter">
+                  <v-btn
+                    x-small
+                    :ripple="false"
+                    text
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="toggleFilter"
+                  >
                     <v-icon dark white>mdi-filter</v-icon>
                   </v-btn>
                 </template>
@@ -181,53 +297,73 @@
                 </v-btn>
               </template>
             </v-snackbar>
-            <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
-              :options.sync="options" :footer-props="{
+            <v-data-table
+              dense
+              :headers="headers_table"
+              :items="data"
+              model-value="data.id"
+              :loading="loading"
+              :options.sync="options"
+              :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
-              }" class="elevation-1" :server-items-length="totalRowsCount">
+              }"
+              class="elevation-1"
+              :server-items-length="totalRowsCount"
+            >
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
                   <td v-for="header in headers" :key="header.text">
-                    <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                      v-model="filters[header.key]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
-                      dense autocomplete="off"></v-text-field>
-
-
+                    <v-text-field
+                      clearable
+                      :hide-details="true"
+                      v-if="header.filterable && !header.filterSpecial"
+                      v-model="filters[header.key]"
+                      :id="header.value"
+                      @input="applyFilters(header.key, $event)"
+                      outlined
+                      dense
+                      autocomplete="off"
+                    ></v-text-field>
                   </td>
                 </tr>
-
-
               </template>
               <template v-slot:item.id="{ item }">
                 {{ caps(item.id) }}
               </template>
-              <template v-slot:item.name="{ item }"> {{ caps(item.name) }}
+              <template v-slot:item.name="{ item }">
+                {{ caps(item.name) }}
               </template>
               <template v-slot:item.sub_dep.name="{ item }">
-                <span v-for="(sub_dep, index) in item.children.slice(0, 3)" :key="index">
+                <span
+                  v-for="(sub_dep, index) in item.children.slice(0, 3)"
+                  :key="index"
+                >
                   <v-chip small class="primary ma-1">
                     {{ caps(sub_dep.name) }}
                   </v-chip>
                   <br />
                 </span>
 
-                <v-chip small class="primary ma-1" style="color: black" @click="gotoSubdepartments(item)"
-                  v-if="item.children.length > 3">
+                <v-chip
+                  small
+                  class="primary ma-1"
+                  style="color: black"
+                  @click="gotoSubdepartments(item)"
+                  v-if="item.children.length > 3"
+                >
                   View all..
                 </v-chip>
               </template>
               <template v-slot:item.designations="{ item }">
-
-                <span v-for="(designation, index) in item.designations.slice(
-                  0,
-                  3
-                )" :key="index">
+                <span
+                  v-for="(designation, index) in item.designations.slice(0, 3)"
+                  :key="index"
+                >
                   <v-chip small class="primary ma-1">
                     {{ caps(designation.name) }}
                   </v-chip>
                   <br />
                 </span>
-
               </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
@@ -334,7 +470,14 @@ export default {
         key: "id",
         filterable: true,
       },
-      { key: "name", text: "Department", align: "left", sortable: true, value: "name", filterable: true, },
+      {
+        key: "name",
+        text: "Department",
+        align: "left",
+        sortable: true,
+        value: "name",
+        filterable: true,
+      },
       {
         text: "Sub Department",
         align: "left",
@@ -359,7 +502,6 @@ export default {
   },
 
   watch: {
-
     options: {
       handler() {
         this.getDataFromApi();
@@ -380,8 +522,7 @@ export default {
   },
 
   methods: {
-
-    datatable_save() { },
+    datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -392,6 +533,7 @@ export default {
       this.loading = false;
     },
     can(per) {
+      return true;
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
@@ -448,28 +590,31 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
+          department_ids: this.$auth.user.assignedDepartments,
           ...this.filters,
         },
       };
       if (filter_column != "") {
         this.payloadOptions.params[filter_column] = filter_value;
       }
-      this.$axios.get(`${url}?page=${page}`, this.payloadOptions).then(({ data }) => {
-        if (filter_column != "" && data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = "error";
-          this.snackText = "No Results Found";
+      this.$axios
+        .get(`${url}?page=${page}`, this.payloadOptions)
+        .then(({ data }) => {
+          if (filter_column != "" && data.data.length == 0) {
+            this.snack = true;
+            this.snackColor = "error";
+            this.snackText = "No Results Found";
+            this.loading = false;
+            return false;
+          }
+          this.data = data.data;
+          this.departments = data.data;
+          this.pagination.current = data.current_page;
+          this.pagination.total = data.last_page;
           this.loading = false;
-          return false;
-        }
-        this.data = data.data;
-        this.departments = data.data;
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
-        this.loading = false;
-        this.totalRowsCount = data.total;
-      });
+          this.totalRowsCount = data.total;
+        });
     },
     searchIt(e) {
       if (e.length == 0) {
@@ -538,7 +683,7 @@ export default {
       let payload = {
         name: this.new_Designation_name.toLowerCase(),
         department_id: this.new_designation_department_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       this.$axios
@@ -565,7 +710,7 @@ export default {
       let payload = {
         name: this.New_sub_DepartmentName.toLowerCase(),
         department_id: this.Newdepartment_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
 
       this.$axios
@@ -590,7 +735,7 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
         email: this.editedItem.email,
         password: this.editedItem.password,
         user_type: "manager",

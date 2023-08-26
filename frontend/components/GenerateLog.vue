@@ -174,7 +174,7 @@ export default {
     let options = {
       params: {
         per_page: this.options.itemsPerPage,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       },
     };
 
@@ -183,7 +183,7 @@ export default {
   methods: {
     getDeviceList() {
       this.$axios
-        .get(`/device_list?company_id=${this.$auth.user.company.id}`)
+        .get(`/device_list?company_id=${this.$auth.user.company_id}`)
         .then(({ data }) => {
           this.devices = data;
         });
@@ -194,7 +194,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time,
         DeviceID: device_id,
-        company_id: this.$auth.user.company.id,
+        company_id: this.$auth.user.company_id,
       };
       this.loading = true;
 
@@ -227,7 +227,7 @@ export default {
         params: {
           date: this.log_payload.date,
           UserID: this.log_payload.user_id,
-          company_id: this.$auth.user.company.id,
+          company_id: this.$auth.user.company_id,
           user_id: this.$auth.user.id,
           updated_by : this.$auth.user.id,
           reason: this.reason,

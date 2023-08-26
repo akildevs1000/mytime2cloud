@@ -106,7 +106,7 @@ export default {
     getDataFromApi() {
       this.loading = true;
       this.$axios
-        .get(`devcieCountByStatus/${this.$auth.user.company.id}`)
+        .get(`devcieCountByStatus/${this.$auth.user.company_id}`)
         .then(async ({ data }) => {
           this.loading = false;
           this.dataLength = await data.total;
