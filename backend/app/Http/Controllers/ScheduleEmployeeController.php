@@ -266,6 +266,12 @@ class ScheduleEmployeeController extends Controller
 
             $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
         });
+
+
+        $model->when($request->filled('department_ids') && count($request->department_ids) > 0, function ($q) use ($request) {
+
+            $q->whereHas('employee', fn (Builder $query) => $query->whereIn('department_id', $request->department_ids));
+        });
         $model->when($request->filled('roster_name'), function ($q) use ($request) {
 
             $q->whereHas('roster', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->roster_name%"));

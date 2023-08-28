@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`employee_schedule_access`)">
+  <div v-if="can(`employee_schedule_create`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -452,6 +452,7 @@ export default {
     this.options = {
       params: {
         per_page: 1000,
+        department_ids: this.department_ids,
         company_id: this.$auth.user.company_id,
       },
     };
@@ -660,11 +661,8 @@ export default {
       this.subDepartmentsByDepartment();
     },
     can(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
-      );
+      let { permissions, is_master } = this.$auth.user;
+      return permissions.includes(per) || is_master;
     },
     //main
     getDataFromApi(url = this.endpoint) {
