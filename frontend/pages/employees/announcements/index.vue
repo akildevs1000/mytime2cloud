@@ -370,7 +370,7 @@ export default {
   components: {
     TiptapVuetify,
   },
-  layout: "employee",
+  ,
   data: () => ({
     //editor
     datatable_search_textbox: "",

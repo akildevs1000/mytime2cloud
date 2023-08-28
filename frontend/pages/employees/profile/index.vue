@@ -266,7 +266,7 @@ const compList = [
 ];
 
 export default {
-  layout: "employee",
+  ,
   components: {
     VueCropper,
   },

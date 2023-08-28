@@ -103,7 +103,7 @@
 
 <script>
 export default {
-  layout: "employee",
+  ,
   data: () => ({
 
     totalRowsCount: 0,

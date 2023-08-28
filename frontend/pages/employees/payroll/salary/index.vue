@@ -374,7 +374,7 @@
 </template>
 <script>
 export default {
-  layout: "employee",
+  ,
   data: () => ({
     filterLoader: false,
     filters: {},

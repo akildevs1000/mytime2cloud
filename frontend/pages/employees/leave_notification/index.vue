@@ -251,7 +251,7 @@ import {
 } from "tiptap-vuetify";
 
 export default {
-  layout: "employee",
+  ,
   components: {
     TiptapVuetify
   },
