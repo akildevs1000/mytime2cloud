@@ -153,7 +153,10 @@
 
         <v-list light nav dense>
           <v-list-item-group color="primary">
-            <v-list-item @click="goToCompany()">
+            <v-list-item
+              v-if="this.$auth && this.$auth.user.user_type == 'company'"
+              @click="goToCompany()"
+            >
               <v-list-item-icon>
                 <v-icon>mdi-account-multiple-outline</v-icon>
               </v-list-item-icon>
@@ -161,6 +164,21 @@
                 <v-list-item-title class="black--text"
                   >Profile</v-list-item-title
                 >
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item v-if="loginType" @click="goToCompanyssss()">
+              <v-list-item-icon>
+                <v-icon>mdi-account-multiple-outline</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="black--text"
+                  >Login As
+                  {{ loginType ? "Manager" : "Employee" }}</v-list-item-title
+                >
+                <!-- <v-list-item-title v-else-if="this.$auth && this.$auth.user.user_type == 'employee'" class="black--text"
+                  >Login As Manger</v-list-item-title
+                > -->
               </v-list-item-content>
             </v-list-item>
 
@@ -432,6 +450,9 @@ export default {
     // },
   },
   computed: {
+    loginType() {
+      return this.$auth.user && this.$auth.user.assignedDepartments.length > 0;
+    },
     changeColor() {
       return this.$store.state.color;
     },
