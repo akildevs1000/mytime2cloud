@@ -89,7 +89,7 @@ class CompanyController extends Controller
             "email" => $data['email'],
             "is_master" => 1,
             "first_login" => 1,
-
+            "user_type" => "company",
         ];
 
         $company = [
