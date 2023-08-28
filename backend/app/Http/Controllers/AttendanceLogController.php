@@ -15,8 +15,6 @@ class AttendanceLogController extends Controller
 {
     public function index(AttendanceLog $model, Request $request)
     {
-        return $model->filter($request)->count();
-
         return $model->filter($request)->paginate($request->per_page);
     }
     public function getAttendanceLogs(AttendanceLog $model, Request $request)
