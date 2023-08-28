@@ -25,6 +25,7 @@ class ScheduleEmployeeController extends Controller
 
     public function employees_by_departments(Request $request)
     {
+        return $request->all();
         return Employee::select("first_name", "system_user_id", "employee_id", "department_id", "display_name")
             ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
             ->whereIn('department_id', $request->department_ids)
@@ -343,7 +344,7 @@ class ScheduleEmployeeController extends Controller
         return $employee->where("company_id", $request->company_id)
             ->whereHas('schedule')
             ->withOut(["user", "department", "sub_department", "designation", "role", "schedule"])
-            ->when(count($request->department_ids) > 0, function ($q) use ($request) {
+            ->when(count($request->department_ids ?? []) > 0, function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids);
             })
             ->get(["first_name", "system_user_id", "employee_id", "display_name"]);

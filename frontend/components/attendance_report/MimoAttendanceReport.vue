@@ -102,7 +102,7 @@
                 <v-col md="4">
                   Departments
                   <v-autocomplete
-                    @change="getEmployeesByDepartment"
+                    @change="getScheduledEmployees"
                     class="mt-2"
                     outlined
                     dense
@@ -1153,17 +1153,15 @@ export default {
 
     this.payload.department_ids = this.$auth.user.assignedDepartments;
 
-    this.custom_options = {
+    let options = {
       params: {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
-        department_ids: this.payload.department_ids,
+        department_ids: this.$auth.user.assignedDepartments,
       },
     };
-    await this.getDepartments(this.custom_options);
-    await this.getScheduledEmployees(this.custom_options);
-
-    this.getDeviceList();
+    this.getDepartments(options);
+    this.getDeviceList(options);
 
     let dt = new Date();
     let y = dt.getFullYear();
@@ -1269,13 +1267,8 @@ export default {
       this.getDataFromApi();
     },
 
-    getDeviceList() {
-      let payload = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-      this.$axios.get(`/device_list`, payload).then(({ data }) => {
+    getDeviceList(options) {
+      this.$axios.get(`/device_list`, options).then(({ data }) => {
         this.devices = data;
       });
     },
@@ -1325,10 +1318,23 @@ export default {
       });
     },
 
-    getScheduledEmployees(options) {
+    getScheduledEmployees() {
+      let options = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+          department_ids: this.payload.department_ids,
+        },
+      };
+
       this.$axios
         .get(`/scheduled_employees_with_type`, options)
         .then(({ data }) => {
+          console.log("scheduled_employees_with_type");
+          console.log(options);
+          console.log(data);
+          console.log("scheduled_employees_with_type");
+
           this.scheduled_employees = data;
           // this.scheduled_employees.unshift({
           //   system_user_id: "",
@@ -1359,23 +1365,6 @@ export default {
       } catch (error) {
         console.error("Error fetching departments:", error);
       }
-    },
-
-    getEmployeesByDepartment() {
-      this.getDataFromApi();
-
-      this.$axios
-        .get(`/employees_by_departments`, this.custom_options)
-        .then(({ data }) => {
-          this.scheduled_employees = data;
-          if (this.scheduled_employees.length > 0) {
-            this.scheduled_employees.unshift({
-              system_user_id: "",
-              name_with_user_id: "Select All",
-            });
-          }
-          this.loading = false;
-        });
     },
 
     caps(str) {

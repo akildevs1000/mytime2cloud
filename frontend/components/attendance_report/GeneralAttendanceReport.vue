@@ -105,7 +105,8 @@
                     class="mt-2"
                     outlined
                     dense
-                    v-model="payload.department_id"
+                    multiple
+                    v-model="payload.department_ids"
                     x-small
                     :items="departments"
                     item-value="id"
@@ -1061,7 +1062,7 @@ export default {
       to_date: null,
       daily_date: null,
       employee_id: "",
-      department_id: -1,
+      department_ids: [],
       status: "Select All",
       late_early: "Select All",
       main_shift_type: 1,
@@ -1109,14 +1110,16 @@ export default {
     this.getScheduledEmployees();
     // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
+    this.payload.department_ids = this.$auth.user.assignedDepartments;
     this.custom_options = {
       params: {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
+        department_ids: this.payload.department_ids,
       },
     };
     this.getDepartments(this.custom_options);
-    this.getEmployeesByDepartment();
+    this.getEmployeesByDepartment(this.custom_options);
     this.getDeviceList();
 
     let dt = new Date();
@@ -1330,28 +1333,19 @@ export default {
         .catch((err) => console.log(err));
     },
 
-    async getEmployeesByDepartment() {
+    getEmployeesByDepartment(options) {
       this.getDataFromApi();
-      let u = this.$auth.user;
-      let department_id = "";
-      if (u.user_type == "employee") {
-        department_id = u.employee.department_id;
-      } else {
-        department_id = this.payload.department_id;
-      }
 
-      await this.$axios
-        .get(`/employees_by_departments/${department_id}`, this.custom_options)
-        .then(({ data }) => {
-          this.scheduled_employees = data;
-          if (this.scheduled_employees.length > 0) {
-            this.scheduled_employees.unshift({
-              system_user_id: "",
-              name_with_user_id: "Select All",
-            });
-          }
-          this.loading = false;
-        });
+      this.$axios.get(`/employees_by_departments`, options).then(({ data }) => {
+        this.scheduled_employees = data;
+        if (this.scheduled_employees.length > 0) {
+          this.scheduled_employees.unshift({
+            system_user_id: "",
+            name_with_user_id: "Select All",
+          });
+        }
+        this.loading = false;
+      });
     },
 
     caps(str) {
@@ -1409,7 +1403,6 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
-          department_ids: this.$auth.user.assignedDepartments,
           ...this.payload,
           report_type: this.report_type,
           status: this.getStatus(this.payload.status),
