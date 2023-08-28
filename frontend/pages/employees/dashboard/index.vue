@@ -340,7 +340,6 @@ import Logs from "../../../components/employee/Logs.vue";
 import GeneralAttendanceReport from "../../../components/attendance_report/GeneralAttendanceReport.vue";
 import MimoAttendanceReport from "../../../components/attendance_report/MimoAttendanceReport.vue";
 export default {
-  layout: "employee",
   components: { PIE, GeneralAttendanceReport, MimoAttendanceReport, Logs },
 
   data() {

@@ -49,7 +49,7 @@ class EmployeeDashboard extends Controller
                 'title' => 'Total Holidays',
                 'value' => $this->getStatusCount($records, 'H'),
                 'icon' => 'fas fa-calendar-plus',
-                'color' => 'l-bg-blue-dark',
+                'color' => 'l-bg-green-dark',
                 'link' => $this->getLink($request, 'H'),
                 'border_color' => '526C78',
             ],

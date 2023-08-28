@@ -402,18 +402,17 @@ export default {
     };
   },
   created() {
-    let { is_master, permissions } = this.$auth.user;
+    let { is_master, permissions, user_type } = this.$auth.user;
 
     if (is_master) {
       this.items = this.company_menus;
       return;
     }
 
-    let menus = this.company_menus;
+    let menus =
+      user_type == "employee" ? this.employee_menus : this.company_menus;
 
     this.items = menus.filter(({ menu }) => permissions.includes(menu));
-
-    this.items = menus;
 
     this.getCompanyDetails();
   },
