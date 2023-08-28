@@ -81,8 +81,8 @@ class AuthController extends Controller
 
         if ($user->company_id > 0) {
 
-            if ($user->role_id == 0) {
-                return "company";
+            if ($user->user_type === "company") {
+                return $user->user_type;
             }
 
             $assginedDepartments = $this->getAssignedDepartments($user);
