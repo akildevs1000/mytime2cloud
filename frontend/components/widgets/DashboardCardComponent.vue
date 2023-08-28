@@ -42,15 +42,12 @@ export default {
       let payload = {
         page: this.page,
         type: "card",
+        department_ids: this.$auth.user.assignedDepartments,
         company_id: this.$auth.user.company_id,
       };
 
-      let options = {
-        params: payload,
-      };
-
       this.$axios
-        .get("theme", options)
+        .get("theme", { params: payload })
         .then(({ data }) => {
           this.cardData = data;
         })

@@ -23,7 +23,7 @@ class ThemeController extends Controller
 
         $id = $request->company_id;
 
-        $counts = $this->getCounts($request->company_id ?? 8);
+        $counts = $this->getCounts($request->company_id ?? 8, $request);
 
         $jsonColumn = Theme::where("company_id", $id)
             ->where("page", $request->page)
@@ -36,7 +36,7 @@ class ThemeController extends Controller
         return $jsonColumn;
     }
 
-    public function getCounts($id = 0): array
+    public function getCounts($id = 0, $request): array
     {
         $model = Attendance::where('company_id', $id)
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
@@ -53,9 +53,12 @@ class ThemeController extends Controller
         $countsByParity = $attendanceCounts->groupBy(fn ($item) => $item->count % 2 === 0 ? 'even' : 'odd')->map->count();
 
         return [
+            "employeeCount" => Employee::where("company_id", $id)
+            ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
+                $q->whereIn("department_id", $request->department_ids);
+            })->count() ?? 0,
             'totalIn' => $countsByParity->get('odd', 0),
             'totalOut' => $countsByParity->get('even', 0),
-            "employeeCount" => Employee::where("company_id", $id)->count() ?? 0,
             "presentCount" => $model->where('status', 'P')->count(),
             "absentCount" => $model->where('status', 'A')->count(),
             "missingCount" => $model->where('status', 'M')->count(),
