@@ -65,7 +65,6 @@
             <tr v-for=" (items, idx) in permissions" :key="idx">
               <th class="ps-3">{{ capsTitle(idx) }}</th>
               <th v-for="(pa, idx) in items" :key="idx" style="text-align:center !important;" class="">
-                {{ pa.name }} - {{ pa.id }}
                 <v-checkbox :value="pa.id" v-model="item.permission_ids" :hide-details="true"
                   class="pt-0  py-1 chk-align">
                 </v-checkbox>
