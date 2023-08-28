@@ -508,7 +508,7 @@ export default {
       const { employee } = this.$auth.user;
 
       let options = {
-        company_id: employee.company_id,
+        company_id: this.$auth.user.company_id,
         employee_id: employee.system_user_id,
         department_id: employee.department_id,
         shift_type_id: employee.schedule.shift_type_id,
