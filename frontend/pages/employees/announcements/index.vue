@@ -370,7 +370,6 @@ export default {
   components: {
     TiptapVuetify,
   },
-  ,
   data: () => ({
     //editor
     datatable_search_textbox: "",

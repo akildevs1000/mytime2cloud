@@ -660,7 +660,6 @@ import {
 } from "tiptap-vuetify";
 
 export default {
-  ,
   components: {
     TiptapVuetify,
   },

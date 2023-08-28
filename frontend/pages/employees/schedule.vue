@@ -333,7 +333,6 @@
 </template>
 <script>
 export default {
-  ,
   data: () => ({
     totalRowsCount: 0,
 

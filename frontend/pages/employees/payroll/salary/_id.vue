@@ -317,7 +317,6 @@
 
 <script>
 export default {
-  ,
   data: () => ({
     tab: null,
     Model: "Payslip",

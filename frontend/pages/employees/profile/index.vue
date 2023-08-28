@@ -266,7 +266,6 @@ const compList = [
 ];
 
 export default {
-  ,
   components: {
     VueCropper,
   },

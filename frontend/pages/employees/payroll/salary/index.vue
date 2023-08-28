@@ -374,7 +374,6 @@
 </template>
 <script>
 export default {
-  ,
   data: () => ({
     filterLoader: false,
     filters: {},

@@ -316,7 +316,6 @@
     </v-row>
   </div>
   <NoAccess v-else />
-  <NoAccess v-else />
 </template>
 <script>
 export default {
