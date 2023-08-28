@@ -82,7 +82,7 @@
               :to="j.to"
               class="submenutitle"
             >
-              <v-list-item-title class="my-2">
+              <v-list-item-title v-if="can(j.menu)" class="my-2">
                 {{ j.title }}
               </v-list-item-title>
 
@@ -418,14 +418,13 @@ export default {
   },
 
   mounted() {
-    this.verifyLeaveNotificationsApi();
-
-    setInterval(() => {
-      if (this.socketConnectionStatus != 1) {
-        //socket connection is closed
-        this.verifyLeaveNotificationsSocket();
-      }
-    }, 1000 * 60);
+    // this.verifyLeaveNotificationsApi();
+    // setInterval(() => {
+    //   if (this.socketConnectionStatus != 1) {
+    //     //socket connection is closed
+    //     this.verifyLeaveNotificationsSocket();
+    //   }
+    // }, 1000 * 60);
   },
   watch: {
     // socketConnectionStatus(val) {
@@ -579,10 +578,8 @@ export default {
     },
     can(per) {
       let { permissions, is_master } = this.$auth.user;
-      return (
-        (permissions && permissions.some((e) => e == per || per == "/")) ||
-        is_master
-      );
+
+      return permissions.includes(per) || is_master;
     },
 
     logout() {

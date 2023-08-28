@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`employee_access`)">
+  <div v-if="can(`payroll_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -7,10 +7,15 @@
     </div>
     <v-dialog v-model="dialogPayslipsResults" :fullscreen="false" width="700px">
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
+        <v-card-title dense class="primary white--text background">
           Payslip Results
           <v-spacer></v-spacer>
-          <v-icon @click="dialogPayslipsResults = false" outlined dark color="white">
+          <v-icon
+            @click="dialogPayslipsResults = false"
+            outlined
+            dark
+            color="white"
+          >
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -27,25 +32,39 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr :style="{
-                    color: item.status ? '' : 'red',
-                  }" v-for="(item, index) in payslipsResultsmessages" :key="item.id">
+                  <tr
+                    :style="{
+                      color: item.status ? '' : 'red',
+                    }"
+                    v-for="(item, index) in payslipsResultsmessages"
+                    :key="item.id"
+                  >
                     <td>{{ index + 1 }}</td>
 
                     <td>{{ item.status_message }}</td>
                     <td class="text-right">
-                      <a v-if="item.status" :href="getdownloadLink(item.employee_id)" style="
+                      <a
+                        v-if="item.status"
+                        :href="getdownloadLink(item.employee_id)"
+                        style="
                           font-size: 25px;
                           vertical-align: inherit;
                           cursor: pointer;
-                        ">
-                        <v-icon small class="primary--text">mdi-download</v-icon>
+                        "
+                      >
+                        <v-icon small class="primary--text"
+                          >mdi-download</v-icon
+                        >
                       </a>
-                      <a v-if="!item.status" @click="navigatetoEmployeepage()" style="
+                      <a
+                        v-if="!item.status"
+                        @click="navigatetoEmployeepage()"
+                        style="
                           font-size: 14px;
                           vertical-align: inherit;
                           cursor: pointer;
-                        ">
+                        "
+                      >
                         Go to Employee Page
                       </a>
                     </td>
@@ -78,31 +97,69 @@
         <v-card-title class="background">
           <span class="headline">Filter</span>
         </v-card-title>
-        <v-progress-linear v-if="filterLoader" indeterminate color="primary"></v-progress-linear>
+        <v-progress-linear
+          v-if="filterLoader"
+          indeterminate
+          color="primary"
+        ></v-progress-linear>
 
         <br />
 
         <v-card-text>
-          <v-autocomplete placeholder="Department" outlined dense @change="getDataFromApi(`employee`)"
-            v-model="department_id" x-small :items="departments" item-value="id" item-text="name"></v-autocomplete>
-          <v-autocomplete outlined dense @change="handleFilters" x-small item-value="id" item-text="name"
-            v-model="payslip_year" :items="dataYears" placeholder="Year"></v-autocomplete>
-          <v-autocomplete outlined dense @change="handleFilters" x-small v-model="payslip_month"
-            :items="fitleredMonthNames()" item-text="label" item-value="value" placeholder="Month"></v-autocomplete>
+          <v-autocomplete
+            placeholder="Department"
+            outlined
+            dense
+            @change="getDataFromApi(`employee`)"
+            v-model="department_id"
+            x-small
+            :items="departments"
+            item-value="id"
+            item-text="name"
+          ></v-autocomplete>
+          <v-autocomplete
+            outlined
+            dense
+            @change="handleFilters"
+            x-small
+            item-value="id"
+            item-text="name"
+            v-model="payslip_year"
+            :items="dataYears"
+            placeholder="Year"
+          ></v-autocomplete>
+          <v-autocomplete
+            outlined
+            dense
+            @change="handleFilters"
+            x-small
+            v-model="payslip_month"
+            :items="fitleredMonthNames()"
+            item-text="label"
+            item-value="value"
+            placeholder="Month"
+          ></v-autocomplete>
         </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn dark color="background" @click="dialogVisible = false">Close</v-btn>
+          <v-btn dark color="background" @click="dialogVisible = false"
+            >Close</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog v-model="generatePayslipDialog" :fullscreen="false" width="600px">
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
+        <v-card-title dense class="primary white--text background">
           Generate Payslips
           <v-spacer></v-spacer>
-          <v-icon @click="generatePayslipDialog = false" outlined dark color="white">
+          <v-icon
+            @click="generatePayslipDialog = false"
+            outlined
+            dark
+            color="white"
+          >
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -111,19 +168,47 @@
             <v-row class="mt-4">
               <v-col cols="5">
                 <div class="">Departments</div>
-                <v-select outlined dense x-small v-model="department_idPopup" item-text="name" item-value="id"
-                  :items="departments" placeholder="Department" solo flat></v-select>
+                <v-select
+                  outlined
+                  dense
+                  x-small
+                  v-model="department_idPopup"
+                  item-text="name"
+                  item-value="id"
+                  :items="departments"
+                  placeholder="Department"
+                  solo
+                  flat
+                ></v-select>
               </v-col>
 
               <v-col cols="3">
                 <div class="">Year</div>
-                <v-select outlined dense x-small v-model="payslip_year_Popup" :items="dataYears" placeholder="Year" solo
-                  flat></v-select>
+                <v-select
+                  outlined
+                  dense
+                  x-small
+                  v-model="payslip_year_Popup"
+                  :items="dataYears"
+                  placeholder="Year"
+                  solo
+                  flat
+                ></v-select>
               </v-col>
               <v-col cols="3">
                 <div class="">Month</div>
-                <v-select outlined dense x-small v-model="payslip_month_Popup" :items="monthNames" item-text="label"
-                  item-value="value" placeholder="Month" solo flat></v-select>
+                <v-select
+                  outlined
+                  dense
+                  x-small
+                  v-model="payslip_month_Popup"
+                  :items="monthNames"
+                  item-text="label"
+                  item-value="value"
+                  placeholder="Month"
+                  solo
+                  flat
+                ></v-select>
               </v-col>
 
               <v-card-actions>
@@ -133,7 +218,12 @@
                   </v-btn>-->
                 </v-col>
                 <v-col md="6" lg="6" class="text-right" style="padding: 0px">
-                  <v-btn class="primary" @click="generateNewpayslipsByDepartment" style>Generate Payslips</v-btn>
+                  <v-btn
+                    class="primary"
+                    @click="generateNewpayslipsByDepartment"
+                    style
+                    >Generate Payslips</v-btn
+                  >
                 </v-col>
               </v-card-actions>
             </v-row>
@@ -146,7 +236,12 @@
       <v-row>
         <v-col>
           <v-card class="mb-5" elevation="0">
-            <v-toolbar class="rounded-md mb-2 white--text" color="background" dense flat>
+            <v-toolbar
+              class="rounded-md mb-2 white--text"
+              color="background"
+              dense
+              flat
+            >
               <v-col cols="8">
                 <span> Payslips</span>
 
@@ -155,48 +250,105 @@
                 <v-icon @click="toggleFilter" class="mx-1 white--text">mdi-filter</v-icon>
  -->
 
-
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                      <v-icon color="white" class="ml-2" @click="clearFilters" dark>mdi mdi-reload</v-icon>
+                    <v-btn
+                      dense
+                      class="ma-0 px-0"
+                      x-small
+                      :ripple="false"
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon
+                        color="white"
+                        class="ml-2"
+                        @click="clearFilters"
+                        dark
+                        >mdi mdi-reload</v-icon
+                      >
                     </v-btn>
                   </template>
                   <span>Reload</span>
                 </v-tooltip>
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                      <v-icon color="white" class="ml-2" @click="dialogVisible = true" dark>mdi-filter-multiple </v-icon>
+                    <v-btn
+                      dense
+                      class="ma-0 px-0"
+                      x-small
+                      :ripple="false"
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon
+                        color="white"
+                        class="ml-2"
+                        @click="dialogVisible = true"
+                        dark
+                        >mdi-filter-multiple
+                      </v-icon>
                     </v-btn>
                   </template>
                   <span> Filter By Department </span>
                 </v-tooltip>
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                      <v-icon color="white" class="ml-2" @click="toggleFilter" dark>mdi-filter </v-icon>
+                    <v-btn
+                      dense
+                      class="ma-0 px-0"
+                      x-small
+                      :ripple="false"
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon
+                        color="white"
+                        class="ml-2"
+                        @click="toggleFilter"
+                        dark
+                        >mdi-filter
+                      </v-icon>
                     </v-btn>
                   </template>
                   <span> Filter </span>
                 </v-tooltip>
 
-
-                <v-btn v-btn v-if="selectedItems.length" @click="generateNewpayslipsSelected" small
-                  class="primary toolbar-button-design1" color="primary">
+                <v-btn
+                  v-btn
+                  v-if="selectedItems.length"
+                  @click="generateNewpayslipsSelected"
+                  small
+                  class="primary toolbar-button-design1"
+                  color="primary"
+                >
                   Payslips For selected
                 </v-btn>
               </v-col>
               <v-col cols="4" class="text-right">
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                      <v-icon @click="openPayslipDialog" class="mx-1 white--text">mdi-briefcase-outline</v-icon>
+                    <v-btn
+                      dense
+                      class="ma-0 px-0"
+                      x-small
+                      :ripple="false"
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon
+                        @click="openPayslipDialog"
+                        class="mx-1 white--text"
+                        >mdi-briefcase-outline</v-icon
+                      >
                     </v-btn>
                   </template>
                   <span>Generate Payslips by Department</span>
                 </v-tooltip>
-
 
                 <!-- <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
@@ -210,17 +362,28 @@
                 </v-tooltip> -->
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on"
-                      v-if="downloadAllDisplayStatus" download :href="payslipsDownloadAllURL" small>
-                      <v-icon @click="showFilters = !showFilters" class="mx-1 white--text">mdi
-                        mdi-download</v-icon>
-
+                    <v-btn
+                      dense
+                      class="ma-0 px-0"
+                      x-small
+                      :ripple="false"
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                      v-if="downloadAllDisplayStatus"
+                      download
+                      :href="payslipsDownloadAllURL"
+                      small
+                    >
+                      <v-icon
+                        @click="showFilters = !showFilters"
+                        class="mx-1 white--text"
+                        >mdi mdi-download</v-icon
+                      >
                     </v-btn>
                   </template>
                   <span>Download All Payslips</span>
                 </v-tooltip>
-
-
               </v-col>
             </v-toolbar>
 
@@ -265,32 +428,103 @@
                 </v-btn>
               </template>
             </v-snackbar>
-            <v-data-table dense show-select v-model="selectedItems" :headers="headers_table" :items="data"
-              model-value="data.id" :loading="loading" :options.sync="options" :footer-props="{
+            <v-data-table
+              dense
+              show-select
+              v-model="selectedItems"
+              :headers="headers_table"
+              :items="data"
+              model-value="data.id"
+              :loading="loading"
+              :options.sync="options"
+              :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
-              }" class="elevation-1" :server-items-length="totalRowsCount">
+              }"
+              class="elevation-1"
+              :server-items-length="totalRowsCount"
+            >
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
                   <td v-for="header in headers" :key="header.text">
-                    <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                      v-model="filters[header.value]" :id="header.value" @input="applyFilters(header.key, $event)"
-                      outlined dense autocomplete="off"></v-text-field>
+                    <v-text-field
+                      clearable
+                      :hide-details="true"
+                      v-if="header.filterable && !header.filterSpecial"
+                      v-model="filters[header.value]"
+                      :id="header.value"
+                      @input="applyFilters(header.key, $event)"
+                      outlined
+                      dense
+                      autocomplete="off"
+                    ></v-text-field>
 
-                    <v-select :id="header.key" :hide-details="true"
-                      v-if="header.filterSpecial && header.value == 'department_name'" outlined dense small
-                      v-model="filters[header.key]" item-text="name" item-value="id"
-                      :items="[{ name: `All Departments`, id: `` }, ...departments]" placeholder="Department" solo flat
-                      @change="applyFilters(header.key, id)"></v-select>
-                    <v-select :id="header.key" :hide-details="true"
-                      v-if="header.filterSpecial && header.value == 'schedule.shift_name'" outlined dense small
-                      v-model="filters[header.key]" item-text="name" item-value="id"
-                      :items="[{ name: `All Shifts`, id: `` }, ...shifts]" placeholder="Shift" solo flat
-                      @change="applyFilters(header.key, id)"></v-select>
-                    <v-select :id="header.key" :hide-details="true"
-                      v-if="header.filterSpecial && header.value == 'timezone.name'" outlined dense small
-                      v-model="filters[header.key]" item-text="timezone_name" item-value="timezone_id"
-                      :items="[{ name: `All Timezones`, timezone_name: `All Timezones`, timezone_id: '', id: `` }, ...timezones]"
-                      placeholder="Timezone" solo flat @change="applyFilters(header.key, id)"></v-select>
+                    <v-select
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial &&
+                        header.value == 'department_name'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="name"
+                      item-value="id"
+                      :items="[
+                        { name: `All Departments`, id: `` },
+                        ...departments,
+                      ]"
+                      placeholder="Department"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+                    <v-select
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial &&
+                        header.value == 'schedule.shift_name'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="name"
+                      item-value="id"
+                      :items="[{ name: `All Shifts`, id: `` }, ...shifts]"
+                      placeholder="Shift"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+                    <v-select
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial && header.value == 'timezone.name'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="timezone_name"
+                      item-value="timezone_id"
+                      :items="[
+                        {
+                          name: `All Timezones`,
+                          timezone_name: `All Timezones`,
+                          timezone_id: '',
+                          id: ``,
+                        },
+                        ...timezones,
+                      ]"
+                      placeholder="Timezone"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
                   </td>
                 </tr>
               </template>
@@ -298,29 +532,39 @@
                 {{ item.employee_id }}
               </template>
 
-              <template v-slot:item.first_name="{ item, index }" style="width: 300px">
+              <template
+                v-slot:item.first_name="{ item, index }"
+                style="width: 300px"
+              >
                 <v-row no-gutters>
-                  <v-col style="
+                  <v-col
+                    style="
                       padding: 5px;
                       padding-left: 0px;
                       width: 50px;
                       max-width: 50px;
-                    ">
-                    <v-img style="
+                    "
+                  >
+                    <v-img
+                      style="
                         border-radius: 50%;
                         height: auto;
                         width: 50px;
                         max-width: 50px;
-                      " :src="item.profile_picture
-                        ? item.profile_picture
-                        : '/no-profile-image.jpg'
-                        ">
+                      "
+                      :src="
+                        item.profile_picture
+                          ? item.profile_picture
+                          : '/no-profile-image.jpg'
+                      "
+                    >
                     </v-img>
                   </v-col>
                   <v-col style="padding: 10px">
                     <strong>
                       {{ item.first_name ? item.first_name : "---" }}
-                      {{ item.last_name ? item.last_name : "---" }}</strong>
+                      {{ item.last_name ? item.last_name : "---" }}</strong
+                    >
                     <div>
                       {{
                         item.designation ? caps(item.designation.name) : "---"
@@ -346,18 +590,26 @@
                 {{ item.payroll && item.payroll.net_salary }}
               </template>
               <template v-slot:item.payslip="{ item }">
-                <span v-if="item?.payroll?.basic_salary" @click="navigateToViewPDF(item.employee_id)" style="
+                <span
+                  v-if="item?.payroll?.basic_salary"
+                  @click="navigateToViewPDF(item.employee_id)"
+                  style="
                     font-size: 25px;
                     vertical-align: inherit;
                     cursor: pointer;
-                  ">
+                  "
+                >
                   <v-icon small class="primary--text">mdi-eye</v-icon>
                 </span>
-                <a v-if="item?.payroll?.basic_salary" :href="getdownloadLink(item.employee_id)" style="
+                <a
+                  v-if="item?.payroll?.basic_salary"
+                  :href="getdownloadLink(item.employee_id)"
+                  style="
                     font-size: 25px;
                     vertical-align: inherit;
                     cursor: pointer;
-                  ">
+                  "
+                >
                   <v-icon small class="primary--text">mdi-download</v-icon>
                 </a>
               </template>
@@ -372,7 +624,9 @@
                   <v-list width="120" dense>
                     <v-list-item @click="editItem(item)">
                       <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-information </v-icon>
+                        <v-icon color="secondary" small>
+                          mdi-information
+                        </v-icon>
                         View
                       </v-list-item-title>
                     </v-list-item>
@@ -389,7 +643,6 @@
               </template>
             </v-data-table>
           </v-card>
-
         </v-col>
       </v-row>
       <div></div>
@@ -510,7 +763,6 @@ export default {
         filterable: true,
         key: "net_salary",
         value: "payroll.net_salary",
-
       },
       {
         text: "Payslip",
@@ -719,7 +971,7 @@ export default {
     can(per) {
       let { permissions, is_master } = this.$auth.user;
 
-      return permissions.some((e) => e.name == per || per == "/") || is_master;
+      return permissions.includes(per) || is_master;
     },
     res(id) {
       this.$axios.get(`employee/${id}`).then(({ data }) => {
@@ -739,6 +991,7 @@ export default {
       let options = {
         params: {
           per_page: 100,
+          department_ids: this.$auth.user.assignedDepartments,
           company_id: this.$auth.user.company_id,
         },
       };
@@ -830,6 +1083,7 @@ export default {
           department_id: department_id,
           year: this.payslip_year,
           month: this.payslip_month,
+          department_ids: this.$auth.user.assignedDepartments,
           ...this.filters,
         },
       };
@@ -848,7 +1102,7 @@ export default {
       //   options.params.searchBynet_salary = "searchBynet_salary";
       // } else options.params.search_column_name = search_column_name;
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+      this.$axios.get(url, options).then(({ data }) => {
         // if (search_column_name != "" && data.data.length == 0) {
         //   this.snack = true;
         //   this.snackColor = "error";
@@ -1079,7 +1333,7 @@ export default {
     openPayslipDialog() {
       this.generatePayslipDialog = true;
     },
-    closePopup() { },
+    closePopup() {},
   },
 };
 </script>
