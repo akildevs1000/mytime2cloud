@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use App\Models\Employee;
 use App\Models\Theme;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -39,6 +40,12 @@ class ThemeController extends Controller
     public function getCounts($id = 0, $request): array
     {
         $model = Attendance::where('company_id', $id)
+
+            ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
+                $q->with(["employee" =>  function ($q) use ($request) {
+                    $q->whereHas('department', fn (Builder $query) => $query->whereIn('department_id', $request->department_ids));
+                }]);
+            })
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
@@ -54,9 +61,9 @@ class ThemeController extends Controller
 
         return [
             "employeeCount" => Employee::where("company_id", $id)
-            ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
-                $q->whereIn("department_id", $request->department_ids);
-            })->count() ?? 0,
+                ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
+                    $q->whereIn("department_id", $request->department_ids);
+                })->count() ?? 0,
             'totalIn' => $countsByParity->get('odd', 0),
             'totalOut' => $countsByParity->get('even', 0),
             "presentCount" => $model->where('status', 'P')->count(),

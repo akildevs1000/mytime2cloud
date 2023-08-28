@@ -160,7 +160,7 @@ class Attendance extends Model
             $department_ids = explode(",", $department_ids);
         }
 
-        $model->when($request->filled('department_id') && count($department_ids) > 0, function ($q) use ($request, $department_ids) {
+        $model->when($request->filled('department_ids') && count($department_ids) > 0, function ($q) use ($request, $department_ids) {
             $q->whereIn('employee_id', Employee::whereIn("department_id", $department_ids)->where('company_id', $request->company_id)->pluck("system_user_id"));
         });
 

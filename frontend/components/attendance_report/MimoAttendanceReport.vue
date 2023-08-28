@@ -1426,6 +1426,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
+          department_ids: this.$auth.user.assignedDepartments,
           report_type: this.report_type,
           status: this.getStatus(this.payload.status),
           late_early,
