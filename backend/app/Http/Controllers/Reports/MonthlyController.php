@@ -35,14 +35,14 @@ class MonthlyController extends Controller
 
     public function multi_in_out_monthly_pdf(Request $request)
     {
-        // return $report = $this->processPDF($request);
+        // $report = $this->processPDF($request);
         $report = $this->processPDF($request);
         return $report->stream();
     }
 
     public function monthly_download_csv(Request $request)
     {
-        
+
         $data = (new Attendance)->processAttendanceModel($request)->get();
 
         $fileName = 'report.csv';
@@ -164,33 +164,38 @@ class MonthlyController extends Controller
 
     public function processPDF($request)
     {
+        $model = (new Attendance)->processAttendanceModel($request);
+
         $start = $request->from_date ?? date('Y-10-01');
         $end = $request->to_date ?? date('Y-10-31');
 
         $companyID = $request->company_id;
 
-        $model = Attendance::query();
-        $model = $model->whereBetween('date', [$start, $end]);
-        $model->where('company_id', $companyID);
-        $model->orderBy('date', 'asc');
+        // $model = Attendance::query();
+        // $model = $model->whereBetween('date', [$start, $end]);
+        // $model->where('company_id', $companyID);
+        // $model->orderBy('date', 'asc');
 
-        $model->when($request->status && $request->status != "SA" && $request->status != "S", function ($q) use ($request) {
-            $q->where('status', $request->status);
-        });
+        // $model->when($request->status && $request->status != "SA" && $request->status != "S", function ($q) use ($request) {
+        //     $q->where('status', $request->status);
+        // });
 
-        $model->when($request->employee_id && $request->employee_id != "", function ($q) use ($request) {
-            $q->where('employee_id', $request->employee_id);
-        });
+        // $model->when($request->employee_id && $request->employee_id != "", function ($q) use ($request) {
+        //     $q->where('employee_id', $request->employee_id);
+        // });
 
-        $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-            $ids = Employee::where("department_id", $request->department_id)->pluck("system_user_id");
-            $q->whereIn('employee_id', $ids);
-        });
+        // $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
+        //     $ids = Employee::where("department_id", $request->department_id)->pluck("system_user_id");
+        //     $q->whereIn('employee_id', $ids);
+        // });
+
+        $model = (new Attendance)->processAttendanceModel($request);
 
         $data = $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
-            $q->select('system_user_id', 'display_name', 'department_id');
-        })->get()->groupBy(['employee_id', 'date'])->take(30);
+            $q->select('system_user_id', 'display_name', "department_id");
+            $q->with("department");
+        })->get()->groupBy(['employee_id', 'date'])->take(31);
 
         $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
