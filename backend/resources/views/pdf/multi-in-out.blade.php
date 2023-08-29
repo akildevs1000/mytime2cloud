@@ -52,7 +52,9 @@
             @php
                 $empTotWrkHrs = getTotalHours($employee->toArray(), 'total_hrs');
                 $empTotOtHrs = getTotalHours($employee->toArray(), 'ot');
-                $empName = $employee[key(reset($employee))][0]->employee->display_name ?? '';
+                $singleEmployee = $employee[key(reset($employee))][0]->employee;
+                $empName = $singleEmployee->display_name ?? '';
+                
             @endphp
             <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
                 <td style="border: nonse" colspan="5">
@@ -147,7 +149,7 @@
                                 {{ $empName ?? '---' }}
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
-                                {{ $employee->department->name ?? '---' }}
+                                {{ $singleEmployee->department->name ?? '---' }}
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
                                 Multi In/Out
@@ -378,7 +380,7 @@
 
     #pageNumbers div:before {
         counter-increment: currentPage;
-        content: "Page "counter(currentPage) " of ";
+        content: "Page " counter(currentPage) " of ";
     }
 
     #pageNumbers div:after {

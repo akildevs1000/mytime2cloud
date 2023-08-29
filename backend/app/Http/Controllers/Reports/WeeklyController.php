@@ -155,6 +155,7 @@ class WeeklyController extends Controller
         // }
         // return $data;
         $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
+        $fileName = "multi-in-out";
 
         $arr = ['data' => $data->take(20), 'company' => $company, 'info' => $info];
         return Pdf::loadView('pdf.' . $fileName, $arr);
