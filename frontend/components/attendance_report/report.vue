@@ -1202,7 +1202,7 @@ export default {
         } else {
           const { data } = await this.$axios.get(url, options);
           this.departments = data.data;
-          this.payload.department_ids = [data.data[0].id];
+          // this.payload.department_ids = [data.data[0].id];
         }
       } catch (error) {
         console.error("Error fetching departments:", error);
