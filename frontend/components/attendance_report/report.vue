@@ -1408,7 +1408,9 @@ export default {
       qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
       qs += `&status=${this.payload.status}`;
-      qs += `&department_ids=${this.payload.department_ids.join(",")}`;
+      if (this.payload.department_ids.length > 0) {
+        qs += `&department_ids=${this.payload.department_ids.join(",")}`;
+      }
       qs += `&employee_id=${this.payload.employee_id}`;
       qs += `&report_type=${this.report_type}`;
 
