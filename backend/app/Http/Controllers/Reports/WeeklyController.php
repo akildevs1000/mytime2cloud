@@ -123,14 +123,15 @@ class WeeklyController extends Controller
 
         $data = $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
-            $q->select('system_user_id', 'display_name');
+            $q->select('system_user_id', 'display_name', "department_id");
+            $q->with("department");
         })->get()->groupBy(['employee_id', 'date']);
 
         $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
         $company['report_type'] = $this->getStatusText($request->status);
-        $company['start'] = $request->start;
-        $company['end'] = $request->end;
+        $company['start'] = $request->from_date;
+        $company['end'] = $request->to_date;
         $collection = $model->clone()->get();
 
         $info = (object) [
@@ -143,7 +144,6 @@ class WeeklyController extends Controller
             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
             'report_type' => $request->report_type ?? "",
             'total_leave' => 0,
-            'department' => Department::find($request->department_id),
             'employee' => Employee::where([
                 "system_user_id" => $request->employee_id,
                 "company_id" => $request->company_id,

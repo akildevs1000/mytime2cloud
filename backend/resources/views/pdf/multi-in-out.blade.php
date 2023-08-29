@@ -147,7 +147,7 @@
                                 {{ $empName ?? '---' }}
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
-                                {{ $info->department->name ?? 'All' }}
+                                {{ $employee->department->name ?? '---' }}
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
                                 Multi In/Out
