@@ -348,15 +348,14 @@ class ScheduleEmployeeController extends Controller
     public function scheduled_employees_with_type(Employee $employee, Request $request)
     {
         return $employee->where("company_id", $request->company_id)
-            ->whereHas('schedule')
+            // ->whereHas('schedule')
+            // ->whereHas('schedule.shift_type', function ($q) use ($request) {
+            //     $q->where('id', '=', $request->shift_type_id);
+            // })
             ->withOut(["user", "department", "sub_department", "designation", "role", "schedule"])
             ->when(count($request->department_ids ?? []) > 0, function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids);
             })
             ->get(["first_name", "system_user_id", "employee_id", "display_name"]);
-
-        return $employee->whereHas('schedule.shift_type', function ($q) use ($request) {
-            $q->where('slug', '=', $request->shift_type);
-        })->get(["first_name", "system_user_id", "employee_id"]);
     }
 }

@@ -45,7 +45,6 @@ class DailyController extends Controller
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
             'report_type' => $request->report_type ?? "",
-            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
             "daily_date" => $request->daily_date,
 
             'frequency' => "Daily",
@@ -511,7 +510,6 @@ class DailyController extends Controller
             'total_vaccation' => $model->clone()->where('status', 'V')->count(),
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
-            'department' => $request->department_id == -1 ? 'All' :  Department::find($request->department_id)->name,
             "daily_date" => $request->daily_date,
             "report_type" => $this->getStatusText($request->status)
         ];

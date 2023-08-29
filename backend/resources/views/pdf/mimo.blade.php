@@ -66,7 +66,7 @@
                             <td style="text-align: center; border :none">
                                 <span style="font-size: 11px">
                                     {{ date('d M Y', strtotime($info->daily_date)) }}<br>
-                                    <small>Department : {{ $info->department_name }}</small>
+                                    {{-- <small>Department : {{ $info->department_name }}</small> --}}
                                 </span>
                                 <hr style="width: 230px">
                             </td>

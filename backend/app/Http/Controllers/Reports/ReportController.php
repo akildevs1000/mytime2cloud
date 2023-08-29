@@ -17,10 +17,10 @@ class ReportController extends Controller
         $model = (new Attendance)->processAttendanceModel($request);
 
         if ($request->main_shift_type == 1) {
-            return $this->general($model, $request->per_page);
+            return $this->general($model, $request->per_page ?? 1000);
         }
 
-        return $this->multiInOut($model->get(), $request->per_page);
+        return $this->multiInOut($model->get(), $request->per_page ?? 1000);
     }
 
     public function general($model, $per_page = 100)
@@ -41,24 +41,6 @@ class ReportController extends Controller
                 $value["out" . ($a + 1)] = $log["out"] ?? "---";
             }
         }
-
-        // foreach ($model as $value) {
-        //     $count = count($value->logs ?? []);
-        //     if ($count > 0) {
-        //         if ($count < 8) {
-        //             $diff = 7 - $count;
-        //             $count = $count + $diff;
-        //         }
-        //         for ($a = 0; $a < $count; $a++) {
-
-        //             $holder = $a;
-        //             $holder_key = ++$holder;
-
-        //             $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
-        //             $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
-        //         }
-        //     }
-        // }
 
         return $this->paginate($model, $per_page);
     }
