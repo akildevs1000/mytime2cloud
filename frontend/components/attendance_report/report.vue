@@ -1405,7 +1405,7 @@ export default {
 
       qs += `${path}`;
       qs += `?main_shift_type=${this.shift_type_id}`;
-      qs += `?shift_type_id=${this.shift_type_id}`;
+      qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
       qs += `&status=${this.payload.status}`;
       qs += `&department_ids=${this.payload.department_ids.join(",")}`;
