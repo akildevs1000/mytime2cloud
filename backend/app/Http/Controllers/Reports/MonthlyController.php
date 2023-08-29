@@ -164,44 +164,19 @@ class MonthlyController extends Controller
 
     public function processPDF($request)
     {
-        $model = (new Attendance)->processAttendanceModel($request);
-
-        $start = $request->from_date ?? date('Y-10-01');
-        $end = $request->to_date ?? date('Y-10-31');
+        // return [$request->from_date, $request->to_date];
 
         $companyID = $request->company_id;
 
-        // $model = Attendance::query();
-        // $model = $model->whereBetween('date', [$start, $end]);
-        // $model->where('company_id', $companyID);
-        // $model->orderBy('date', 'asc');
-
-        // $model->when($request->status && $request->status != "SA" && $request->status != "S", function ($q) use ($request) {
-        //     $q->where('status', $request->status);
-        // });
-
-        // $model->when($request->employee_id && $request->employee_id != "", function ($q) use ($request) {
-        //     $q->where('employee_id', $request->employee_id);
-        // });
-
-        // $model->when($request->department_id && $request->department_id != -1, function ($q) use ($request) {
-        //     $ids = Employee::where("department_id", $request->department_id)->pluck("system_user_id");
-        //     $q->whereIn('employee_id', $ids);
-        // });
-
         $model = (new Attendance)->processAttendanceModel($request);
 
-        $data = $model->with('employee', function ($q) use ($request) {
-            $q->where('company_id', $request->company_id);
-            $q->select('system_user_id', 'display_name', "department_id");
-            $q->with("department");
-        })->get()->groupBy(['employee_id', 'date'])->take(31);
+        $data = $model->get()->groupBy(['employee_id', 'date'])->take(31);
 
-        $company = Company::whereId($request->company_id)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+        $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
         $company['report_type'] = $this->getStatusText($request->status);
-        $company['start'] = $start;
-        $company['end'] = $end;
+        $company['start'] = $request->from_date ?? date('Y-10-01');
+        $company['end'] = $request->to_date ?? date('Y-10-31');
         $collection = $model->clone()->get();
 
         $info = (object) [
@@ -214,7 +189,6 @@ class MonthlyController extends Controller
             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
             'report_type' => $request->report_type ?? "",
             'total_leave' => 0,
-            'department' => Department::find($request->department_id),
             'employee' => Employee::where([
                 "system_user_id" => $request->employee_id,
                 "company_id" => $companyID,

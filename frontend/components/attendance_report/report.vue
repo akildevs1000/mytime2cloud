@@ -1394,6 +1394,11 @@ export default {
         alert("No data found");
         return;
       }
+
+      if (!this.payload.department_ids.length) {
+        alert("Department Must be selected");
+        return;
+      }
       type = type.toLowerCase().replace("custom", "monthly");
       let path =
         process.env.BACKEND_URL +
@@ -1408,7 +1413,10 @@ export default {
       qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
       qs += `&status=${this.payload.status}`;
-      if (this.payload.department_ids.length > 0) {
+      if (
+        this.payload.department_ids &&
+        this.payload.department_ids.length > 0
+      ) {
         qs += `&department_ids=${this.payload.department_ids.join(",")}`;
       }
       qs += `&employee_id=${this.payload.employee_id}`;
