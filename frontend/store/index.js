@@ -3,13 +3,17 @@ export const state = () => ({
     first_login: 1,
     color: "primary",
     employee_id: "",
-    main_report_type: ""
+    main_report_type: "",
+    loginType:"manager"
 });
 
 // contains your mutations
 export const mutations = {
     first_login(state, value) {
         state.first_login = value;
+    },
+    loginType(state, value) {
+        state.loginType = value;
     },
     change_color(state, value) {
         state.color = value;

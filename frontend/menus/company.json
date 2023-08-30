@@ -8,13 +8,13 @@
       {
         "icon": "mdi-appss",
         "title": "Multi Inout",
-        "to": "/dashboard1",
+        "to": "/dashboard/1",
         "menu": "dashboard_access"
       },
       {
         "icon": "mdi-appss",
         "title": "General",
-        "to": "/dashboard2",
+        "to": "/dashboard/2",
         "menu": "dashboard_access"
       }
     ]

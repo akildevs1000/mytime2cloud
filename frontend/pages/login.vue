@@ -165,7 +165,6 @@ export default {
         this.$auth
           .loginWith("local", { data: credentials })
           .then(({ data }) => {
-            let id, name;
             // if (data.user && data.user.user_type == "employee") {
             //   this.$router.push(`/employee_dashboard`);
             //   id = data.user?.employee?.id;

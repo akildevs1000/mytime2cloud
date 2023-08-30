@@ -88,6 +88,7 @@ class AuthController extends Controller
             $assginedDepartments = $this->getAssignedDepartments($user);
 
             if (count($assginedDepartments) == 0) {
+                $user->assignedDepartments = [];
                 return "employee";
             }
 

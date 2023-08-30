@@ -3,7 +3,7 @@ pm2 start "node log-listener.js" --name "staging worker"
 
 // run this command to seed the data => php artisan db:seed --class=StatusSeeder
 
-php artisan serve --host 192.168.2.174
+php artisan serve --host 192.168.2.192
 
 sqlite3 extension for ubunut
 

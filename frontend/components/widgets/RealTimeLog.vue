@@ -115,6 +115,7 @@ export default {
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data).Data;
         if (json && json.UserCode > 0) {
+          console.log("realtime");
           this.getDetails(json);
         }
       };

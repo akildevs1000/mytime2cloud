@@ -123,7 +123,6 @@
       <v-btn icon @click.stop="clipped = !clipped">
         <v-icon>mdi-application</v-icon>
       </v-btn>
-      <!-- {{ loginTypeState }} &nbsp; -->
       <span class="text-overflow">{{ title }}</span>
       <v-spacer></v-spacer>
 
@@ -169,36 +168,19 @@
             </v-list-item>
 
             <v-list-item
-              v-if="loginType == 'Manager'"
-              @click="changeLoginType('Manager')"
+              v-else-if="getLoginType == 'manager' || hasDepartments"
+              @click="setLoginType"
             >
               <v-list-item-icon>
                 <v-icon>mdi-account-multiple-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title class="black--text"
-                  >Login As Manager</v-list-item-title
+                  >Login As
+                  {{
+                    caps(getLoginType == "manager" ? "employee" : "manager")
+                  }}</v-list-item-title
                 >
-                <!-- <v-list-item-title v-else-if="this.$auth && this.$auth.user.user_type == 'employee'" class="black--text"
-                  >Login As Manger</v-list-item-title
-                > -->
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item
-              v-else-if="loginType == 'Employee'"
-              @click="changeLoginType('Employee')"
-            >
-              <v-list-item-icon>
-                <v-icon>mdi-account-multiple-outline</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title class="black--text"
-                  >Login As Manager</v-list-item-title
-                >
-                <!-- <v-list-item-title v-else-if="this.$auth && this.$auth.user.user_type == 'employee'" class="black--text"
-                  >Login As Manger</v-list-item-title
-                > -->
               </v-list-item-content>
             </v-list-item>
 
@@ -440,19 +422,9 @@ export default {
     };
   },
   created() {
-    let { is_master, permissions, user_type } = this.$auth.user;
-
-    if (is_master) {
-      this.items = this.company_menus;
-      return;
-    }
-
-    let menus =
-      user_type == "employee" ? this.employee_menus : this.company_menus;
-
-    this.items = menus.filter(({ menu }) => permissions.includes(menu));
-
+    this.$store.commit("loginType", this.$auth.user.user_type);
     this.getCompanyDetails();
+    this.setMenus();
   },
 
   mounted() {
@@ -470,16 +442,8 @@ export default {
     // },
   },
   computed: {
-    loginType() {
-      if(this.$auth.user && this.$auth.user.user_type == 'company') return;
-      return this.$auth.user && this.$auth.user.assignedDepartments.length > 0;
-    },
     changeColor() {
       return this.$store.state.color;
-    },
-
-    loginTypeState() {
-      return this.$store.state.loginType;
     },
 
     getUser() {
@@ -506,10 +470,36 @@ export default {
       }
       return this.$auth.user && this.$auth.user.company.logo;
     },
+    getLoginType() {
+      return this.$store.state.loginType;
+    },
+    hasDepartments() {
+      return this.$auth.user && this.$auth.user.assignedDepartments.length > 0;
+    },
   },
   methods: {
-    changeLoginType(value) {
-      this.$store.commit("loginType", value);
+    setMenus() {
+      if (this.getLoginType === "company") {
+        this.items = this.company_menus;
+        return;
+      }
+
+      let { permissions: perms } = this.$auth.user;
+
+      let menus = {
+        manager: this.company_menus,
+        employee: this.employee_menus,
+      };
+      this.items = menus[this.getLoginType].filter(({ menu }) =>
+        perms.includes(menu)
+      );
+    },
+    setLoginType() {
+      this.$store.commit(
+        "loginType",
+        this.getLoginType == "manager" ? "employee" : "manager"
+      );
+      this.setMenus();
     },
     navigateToLeavePage() {
       this.$router.push("/leaves");
