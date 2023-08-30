@@ -10,6 +10,7 @@ use App\Models\EmployeeLeaves;
 use App\Models\Holidays;
 use App\Models\Reason;
 use App\Models\ScheduleEmployee;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -642,6 +643,8 @@ class RenderController extends Controller
     {
         // Define the validation rules
         $rules = [
+            'dates' => 'required|array',
+            'dates.*' => 'string',
             'userIds' => 'required|array|max:' . $request->max ?? 10, // Must be an array
             'userIds.*' => 'numeric', // Each value in the array must be numeric
             'date' => 'required|date', // Must be a valid date format
@@ -662,6 +665,19 @@ class RenderController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $start_date = $request->dates[0];
+        $end_date = $request->dates[1];
+
+        $start = Carbon::parse($start_date);
+        $end = Carbon::parse($end_date);
+
+        $dates = [];
+
+        while ($start->lte($end)) {
+            $dates[] = $start->toDateString();
+            $start->addDay();
+        }
+
         $userIds = $request->userIds ?? [1001, 1006, 1005, 670, 1002, 1003, 1004, 1007];
         $date = $request->date ?? date("Y-m-d");
         $company_id = $request->company_id ?? 8;
@@ -670,34 +686,38 @@ class RenderController extends Controller
 
 
 
-        $response = $this->runEmployeeFunc($userIds, $date, $shift_type_id, $statuses, $company_id);
+        $response = $this->runEmployeeFunc($userIds, $date, $shift_type_id, $statuses, $company_id, $dates);
 
         return $this->response("Employee Data has been generated", $response, true);
     }
 
-    public function runEmployeeFunc($userIds, $date, $shift_type_id, $statuses, $company_id)
+    public function runEmployeeFunc($userIds, $date, $shift_type_id, $statuses, $company_id, $dates)
     {
         $arr = [];
 
-        foreach ($userIds as $userId) {
-            $in = $this->generateRandomTime('09:30', '14:00');
-            $out = $this->generateRandomTime('16:30', '21:30');
-            $arr[]  = [
-                'date' => $date,
-                'employee_id' => $userId,
-                'shift_id' => 0,
-                'shift_type_id' => $shift_type_id,
-                'status' => $statuses[array_rand($statuses)],
-                'in' => $in,
-                'out' => $out,
-                'total_hrs' => $this->calculateTotalHours($in, $out),
-                'device_id_in' => "OX-8862021010010",
-                'device_id_out' => "OX-8862021010010",
-                'date_in' => $date,
-                'date_out' => $date,
-                'company_id' => $company_id
-            ];
+        foreach ($dates as $monthDate) {
+            foreach ($userIds as $userId) {
+                $in = $this->generateRandomTime('09:30', '14:00');
+                $out = $this->generateRandomTime('16:30', '21:30');
+                $arr[]  = [
+                    'date' => $monthDate,
+                    'employee_id' => $userId,
+                    'shift_id' => 0,
+                    'shift_type_id' => $shift_type_id,
+                    'status' => $statuses[array_rand($statuses)],
+                    'in' => $in,
+                    'out' => $out,
+                    'total_hrs' => $this->calculateTotalHours($in, $out),
+                    'device_id_in' => "OX-8862021010010",
+                    'device_id_out' => "OX-8862021010010",
+                    'date_in' => $monthDate,
+                    'date_out' => $monthDate,
+                    'company_id' => $company_id
+                ];
+            }
         }
+
+
 
         $model = Attendance::query();
         $model->whereIn("employee_id", $userIds)->whereDate("date", $date)->delete();

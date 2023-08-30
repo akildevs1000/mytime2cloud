@@ -37,8 +37,8 @@ export default {
         align: "left",
         sortable: false,
         filterable: true,
-        value: "employee_first_name",
-        key: "item.employee",
+        value: "employee_name",
+        key: "employee_name",
       },
       {
         text: "Department",

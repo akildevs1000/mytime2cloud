@@ -226,7 +226,7 @@ class Attendance extends Model
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
-            $q->select('system_user_id', 'display_name', "department_id");
+            $q->select('system_user_id', 'display_name', "department_id","first_name","last_name");
             $q->with('department');
         });
 

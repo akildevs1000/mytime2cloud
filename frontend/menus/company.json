@@ -219,7 +219,7 @@
       },
       {
         "icon": "mdi-cellphone-textss",
-        "title": "Department Mapping",
+        "title": "Assign Departments",
         "to": "/department-mapping/",
         "menu": "assign_permission_access"
       },

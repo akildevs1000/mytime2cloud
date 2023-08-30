@@ -708,7 +708,7 @@
             <template v-slot:item.employee_id="{ item }">
               {{ item.employee_id }}
             </template>
-            <template v-slot:item.employee_first_name="{ item }">
+            <template v-slot:item.employee_name="{ item }">
               {{ item.employee.first_name }} {{ item.employee.last_name }}
             </template>
             <template v-slot:item.status="{ item }">
@@ -900,7 +900,7 @@ export default {
     loading: false,
     total: 0,
 
-    report_type: "Daily",
+    report_type: "Monthly",
     payload: {
       from_date: null,
       to_date: null,
