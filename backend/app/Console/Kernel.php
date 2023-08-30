@@ -26,15 +26,15 @@ class Kernel extends ConsoleKernel
                 ->command('task:sync_attendance_logs')
                 ->everyMinute()
                 ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/$date-attendance-logs.log"))
+                ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-            $schedule
-                ->command('task:check_mismatch_count')
-                 ->dailyAt('5:00')
-                ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/$date-mismatch-logs.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command('task:check_mismatch_count')
+            //     ->dailyAt('5:00')
+            //     ->withoutOverlapping()
+            //     ->appendOutputTo(storage_path("logs/$date-mismatch-logs.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command('task:update_company_ids')
