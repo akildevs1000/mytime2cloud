@@ -3,7 +3,7 @@ const fs = require("fs");
 require("dotenv").config();
 
 const options = {
-    year: '2-digit',
+    year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
@@ -14,6 +14,10 @@ const options = {
 };
 
 const [d, t] = new Intl.DateTimeFormat("en-US", options).format(new Date()).split(",");
+
+
+
+
 const formattedDate = d.replace(/\//g, '-');
 const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
 
