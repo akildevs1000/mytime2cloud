@@ -413,7 +413,7 @@ export default {
       clipped: true,
 
       miniVariant: false,
-      title: "ideaHRMS",
+      title: "EZTIME",
       socket: null,
       logout_btn: {
         icon: "mdi-logout",
@@ -425,6 +425,8 @@ export default {
     this.$store.commit("loginType", this.$auth.user.user_type);
     this.getCompanyDetails();
     this.setMenus();
+    this.deviceList();
+    this.getEmployeeList();
   },
 
   mounted() {
@@ -478,6 +480,24 @@ export default {
     },
   },
   methods: {
+    deviceList() {
+      this.$axios
+        .get(`device_list`, {
+          params: { company_id: this.$auth.user.company_id },
+        })
+        .then(({ data }) => {
+          this.$store.commit("devices", data);
+        });
+    },
+    getEmployeeList() {
+      this.$axios
+        .get(`employee`, {
+          params: { per_page: 1000, company_id: this.$auth.user.company_id },
+        })
+        .then(async ({ data }) => {
+          this.$store.commit("employees", data.data);
+        });
+    },
     setMenus() {
       if (this.getLoginType === "company") {
         this.items = this.company_menus;

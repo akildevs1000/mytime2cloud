@@ -4,13 +4,21 @@ export const state = () => ({
     color: "primary",
     employee_id: "",
     main_report_type: "",
-    loginType:"manager"
+    loginType: "manager",
+    devices: [],
+    employees: [],
 });
 
 // contains your mutations
 export const mutations = {
     first_login(state, value) {
         state.first_login = value;
+    },
+    devices(state, value) {
+        state.devices = value;
+    },
+    employees(state, value) {
+        state.employees = value;
     },
     loginType(state, value) {
         state.loginType = value;

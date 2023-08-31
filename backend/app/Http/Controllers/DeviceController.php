@@ -183,83 +183,16 @@ class DeviceController extends Controller
     }
     public function getLastRecordsByCount($id = 0, $count = 0, Request $request)
     {
-
-        // $id = 0;
-        // $count = 0;
-        // if ($request->id && $request->count) {
-        //     $id = $request->id;
-        //     $count = $request->count;
-        // } else {
-
-        //     return;
-        // }
-
         $model = AttendanceLog::query();
         $model->where('company_id', $id);
-        $model->when($request->filled('search_time'), function ($q) use ($request) {
-            $key = date('Y-m-d') . ' ' . $request->search_time;
-            $q->Where('LogTime', 'LIKE', "$key%");
-        });
-        $model->when($request->filled('search_device_id'), function ($q) use ($request) {
-            $key = strtoupper($request->search_device_id);
-            //$q->Where(DB::raw('lower(DeviceID)'), 'LIKE', "$key%");
-            $q->Where('DeviceID', 'LIKE', "$key%");
-        });
+        $model->with(["employee" => function ($q) use ($id) {
+            $q->where('company_id', $id);
+            $q->withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role']);
+            $q->select('first_name', 'last_name', 'employee_id', 'system_user_id', 'display_name', 'profile_picture', 'company_id');
+        }]);
         $model->take($count);
         $model->orderByDesc("id");
-
-        $logs = $model->get(["UserID", "LogTime", "DeviceID"]);
-
-        $arr = [];
-
-        foreach ($logs as $log) {
-
-            $employee = Employee::withOut(['schedule', 'department', 'sub_department', 'designation', 'user', 'role'])
-                ->where('company_id', $id)
-                ->where('system_user_id', $log->UserID)
-                // ->when($request->filled('search_employee_name'), function ($q) use ($request) {
-
-                //     $key = strtolower($request->search_employee_name);
-                //     $q->where(function ($q) use ($key) {
-                //         $q->Where(DB::raw('lower(first_name)'), 'LIKE', "$key%");
-                //         $q->orWhere(DB::raw('lower(last_name)'), 'LIKE', "$key%");
-                //     });
-                // })
-                // ->when($request->filled('search_system_user_id'), function ($q) use ($request) {
-                //     $key = strtolower($request->search_system_user_id);
-                //     $q->Where(DB::raw('lower(system_user_id)'), 'LIKE', "$key%");
-                // })
-                // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
-                //     $key = strtolower($request->search_employee_id);
-                //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
-                // })
-                // ->when($request->filled('search_employee_id'), function ($q) use ($request) {
-                //     $key = strtolower($request->search_employee_id);
-                //     $q->Where(DB::raw('lower(employee_id)'), 'LIKE', "$key%");
-                // })
-
-                ->first(['first_name', 'last_name', 'employee_id', 'display_name', 'profile_picture', 'company_id']);
-
-            $dev = Device::where('device_id', $log->DeviceID)
-                ->when($request->filled('search_device_name'), function ($q) use ($request) {
-                    $key = strtolower($request->search_device_name);
-                    $q->Where('name', 'LIKE', "$key%");
-                })
-                ->first(['name as device_name', 'short_name', 'device_id', 'location']);
-
-            if ($employee) {
-                $arr[] = [
-                    "company_id" => $employee->company_id,
-                    "UserID" => $log->UserID,
-                    "time" => date("H:i", strtotime($log->LogTime)),
-                    "device" => $dev,
-                    "LogTime" => $log->LogTime,
-                    "employee" => $employee,
-                ];
-            }
-        }
-
-        return $arr;
+        return $model->get()->toArray();
 
         // Cache::forget("last-five-logs");
         return Cache::remember('last-five-logs', 300, function () use ($id, $count) {
