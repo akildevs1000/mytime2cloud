@@ -132,7 +132,7 @@ class Employee extends Model
     public function getProfilePictureAttribute($value)
     {
         if (!$value) {
-            return "no-profile-image.jpg";
+            return null;
         }
         return asset('media/employee/profile_picture/' . $value);
         // return asset(env('BUCKET_URL') . '/' . $value);
