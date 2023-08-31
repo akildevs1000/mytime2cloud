@@ -2,6 +2,16 @@ const WebSocket = require("ws");
 const fs = require("fs");
 require("dotenv").config();
 
+const options = {
+    year: '2-digit',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: "Asia/Dubai"
+};
+
+const [d, m, y] = new Intl.DateTimeFormat("en-US", options).format(new Date()).split("/");
+const formattedDate = `${d}-${m}-${y}`;
+const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
 const { SOCKET_ENDPOINT } = process.env;
 
 // Create a WebSocket connection
@@ -17,9 +27,6 @@ socket.onerror = (error) => {
 };
 
 socket.onmessage = ({ data }) => {
-    const date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10).split('-');
-    const formattedDate = `${date[2]}-${date[1]}-${date[0]}`;
-    const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
 
     try {
         const jsonData = JSON.parse(data).Data;
@@ -29,6 +36,7 @@ socket.onmessage = ({ data }) => {
             const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber}`;
             fs.appendFileSync(logFilePath, logEntry + "\n");
             console.log(logEntry);
+            console.log(logFilePath);
         }
     } catch (error) {
         console.error("Error processing message:", error.message);
