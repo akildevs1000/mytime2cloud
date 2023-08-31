@@ -53,7 +53,7 @@
             "
           >
             <v-img
-              :src="item.image"
+              :src="item.image || 'no-profile-image.jpg'"
               lazy-src="no-profile-image.jpg"
               style="
                 max-width: 125px;
@@ -150,7 +150,7 @@ export default {
 
         let item = {
           UserCode,
-          image: "data:image;base64," + RecordImage,
+          image: "data:image;base64," + RecordImage || null,
           time: this.setTime(RecordDate),
           name:
             employee &&
