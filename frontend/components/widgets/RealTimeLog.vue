@@ -53,11 +53,7 @@
             "
           >
             <v-img
-              :src="
-                (item.employee && item.employee.profile_picture) ||
-                '/no-profile-image.jpg'
-              "
-              lazy-src="no-profile-image.jpg"
+              :src="item.image"
               style="
                 max-width: 125px;
                 max-height: 125px;
@@ -66,10 +62,13 @@
               "
             />
             <div style="margin-top: 10px">
-              {{ item.employee && item.employee.first_name }}
+              {{ item.name }} -
+              {{ item.UserCode }}
             </div>
             <div>
-              <span>{{ item && item.time }}</span>
+              <v-btn x-small class="ma-2" outlined color="background">
+                <span>{{ item.time }}</span>
+              </v-btn>
             </div>
           </div>
         </v-slide-item>
@@ -97,6 +96,19 @@ export default {
   created() {
     this.getDataFromApi();
   },
+  computed: {
+    employees() {
+      return this.$store.state.employees.map((e) => ({
+        system_user_id: e.system_user_id,
+        first_name: e.first_name,
+        last_name: e.last_name,
+        display_name: e.display_name,
+      }));
+    },
+    devices() {
+      return this.$store.state.devices.map((e) => e.device_id);
+    },
+  },
   methods: {
     getDataFromApi() {
       this.loading = true;
@@ -104,9 +116,19 @@ export default {
         .get(
           `device/getLastRecordsByCount/${this.$auth.user.company_id}/${this.number_of_records}`
         )
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           this.loading = false;
-          this.logs = data;
+
+          this.logs = await data.map((e) => ({
+            UserCode: e.UserID,
+            time: e.time,
+            name:
+              e.employee &&
+              (e.employee.display_name ||
+                e.employee.first_name ||
+                e.employee.last_name),
+            image: e.employee && e.employee.profile_picture || '/no-profile-image.jpg',
+          }));
         });
     },
     socketConnection() {
@@ -115,23 +137,34 @@ export default {
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data).Data;
         if (json && json.UserCode > 0) {
-          console.log("realtime");
           this.getDetails(json);
         }
       };
     },
-    getDetails(item) {
-      item.company_id = this.$auth.user.company_id;
+    getDetails({ SN, RecordImage, UserCode, RecordDate }) {
+      if (this.devices.includes(SN)) {
+        let employee = this.employees.find(
+          (e) => e.system_user_id == UserCode && e.first_name !== null
+        );
 
-      this.$axios.post(`/device/details`, item).then(({ data }) => {
-        if (data.device) {
-          if (data.device.company_id == this.$auth.user.company_id) {
-            data.employee.profile_picture =
-              "data:image;base64," + item.RecordImage;
-            this.logs.unshift(data);
-          }
-        }
-      });
+        let item = {
+          UserCode,
+          image: "data:image;base64," + RecordImage || '/no-profile-image.jpg',
+          time: this.setTime(RecordDate),
+          name:
+            employee &&
+            (employee.display_name ||
+              employee.first_name ||
+              employee.last_name),
+        };
+        this.logs.unshift(item);
+      }
+    },
+    setTime(dateTimeString) {
+      const dateTime = new Date(dateTimeString);
+      const hours = dateTime.getHours().toString().padStart(2, "0");
+      const minutes = dateTime.getMinutes().toString().padStart(2, "0");
+      return `${hours}:${minutes}`;
     },
   },
 };

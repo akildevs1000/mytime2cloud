@@ -201,16 +201,9 @@ export default {
       if (url == "") url = this.endpoint;
       this.loading = true;
 
-      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
-
-      let sortedBy = sortBy ? sortBy[0] : "";
-      let sortedDesc = sortDesc ? sortDesc[0] : "";
       let options = {
         params: {
-          page: page,
-          sortBy: sortedBy,
-          sortDesc: sortedDesc,
-          per_page: itemsPerPage,
+          per_page: 10,
           company_id: this.$auth.user.company_id,
           ...this.filters,
         },
@@ -219,7 +212,7 @@ export default {
         options.params[filter_column] = filter_value;
       }
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+      this.$axios.get(url, options).then(({ data }) => {
         if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";
@@ -236,13 +229,6 @@ export default {
         this.total = data.total;
         this.loading = false;
       });
-    },
-    searchIt(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${e}`);
-      }
     },
   },
 };
