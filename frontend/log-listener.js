@@ -6,12 +6,22 @@ const options = {
     year: '2-digit',
     month: '2-digit',
     day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false, // Use 24-hour format
     timeZone: "Asia/Dubai"
 };
 
-const [d, m, y] = new Intl.DateTimeFormat("en-US", options).format(new Date()).split("/");
-const formattedDate = `${d}-${m}-${y}`;
+const [d, t] = new Intl.DateTimeFormat("en-US", options).format(new Date()).split(",");
+const formattedDate = d.replace(/\//g, '-');
 const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
+
+console.log(`Current Date: ${formattedDate}`);
+console.log(`Current Time: ${t}`);
+console.log(`logFilePath: ${logFilePath}`);
+
+
 const { SOCKET_ENDPOINT } = process.env;
 
 // Create a WebSocket connection
@@ -36,7 +46,6 @@ socket.onmessage = ({ data }) => {
             const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber}`;
             fs.appendFileSync(logFilePath, logEntry + "\n");
             console.log(logEntry);
-            console.log(logFilePath);
         }
     } catch (error) {
         console.error("Error processing message:", error.message);
