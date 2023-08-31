@@ -13,16 +13,13 @@ const options = {
     timeZone: "Asia/Dubai"
 };
 
-const [d, t] = new Intl.DateTimeFormat("en-US", options).format(new Date()).split(",");
-
-
-
-
-const formattedDate = d.replace(/\//g, '-');
+const [newDate, newTime] = new Intl.DateTimeFormat("en-US", options).format(new Date()).split(",");
+const [m, d, y] = newDate.split("/");
+const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
 const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
 
 console.log(`Current Date: ${formattedDate}`);
-console.log(`Current Time: ${t}`);
+console.log(`Current Time: ${newTime}`);
 console.log(`logFilePath: ${logFilePath}`);
 
 
