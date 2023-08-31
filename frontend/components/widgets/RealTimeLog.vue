@@ -53,8 +53,7 @@
             "
           >
             <v-img
-              :src="item.image || 'no-profile-image.jpg'"
-              lazy-src="no-profile-image.jpg"
+              :src="item.image"
               style="
                 max-width: 125px;
                 max-height: 125px;
@@ -128,7 +127,7 @@ export default {
               (e.employee.display_name ||
                 e.employee.first_name ||
                 e.employee.last_name),
-            image: e.employee && e.employee.profile_picture,
+            image: e.employee && e.employee.profile_picture || '/no-profile-image.jpg',
           }));
         });
     },
@@ -150,7 +149,7 @@ export default {
 
         let item = {
           UserCode,
-          image: "data:image;base64," + RecordImage || null,
+          image: "data:image;base64," + RecordImage || '/no-profile-image.jpg',
           time: this.setTime(RecordDate),
           name:
             employee &&
