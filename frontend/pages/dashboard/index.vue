@@ -21,7 +21,7 @@ export default {
   },
   computed: {
     id() {
-      return "dashboard" + 2;
+      return "dashboard" + 1;
     },
     isEmployee() {
       return this.$store.state.loginType === "employee";
