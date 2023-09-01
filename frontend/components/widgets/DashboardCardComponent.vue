@@ -13,9 +13,9 @@
         dense
         style="border-radius: 15px !important"
       >
-        <div class="text-right px-2">
+        <!-- <div class="text-right px-2">
           <v-icon small @click="goToThemeEditor">mdi-pencil</v-icon>
-        </div>
+        </div> -->
         <div class="text-center pa-2">
           <h5>{{ card.calculated_value }}</h5>
           <p>{{ card.title }}</p>
