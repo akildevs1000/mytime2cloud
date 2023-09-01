@@ -25,7 +25,6 @@ class Shift extends Model
         'updated_at',
         // 'company_id',
         'branch_id',
-        'shift_type_id',
     ];
 
     public function shift_type()

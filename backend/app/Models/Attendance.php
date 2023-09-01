@@ -145,8 +145,12 @@ class Attendance extends Model
         $model->where('company_id', $request->company_id);
         $model->with(['shift_type', 'last_reason']);
 
-        $model->when($request->filled('shift_type_id'), function ($q) use ($request) {
-            $q->where('shift_type_id', $request->shift_type_id);
+        $model->when($request->filled('shift_type_id') && $request->shift_type_id == 2, function ($q) {
+            $q->where('shift_type_id', 2);
+        });
+
+        $model->when($request->filled('shift_type_id') && $request->shift_type_id !== 2, function ($q) {
+            $q->whereNot('shift_type_id', 2);
         });
 
         // $model->when($request->main_shift_type && $request->main_shift_type == 2, function ($q) {
@@ -226,7 +230,7 @@ class Attendance extends Model
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
-            $q->select('system_user_id', 'display_name', "department_id","first_name","last_name");
+            $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name");
             $q->with('department');
         });
 

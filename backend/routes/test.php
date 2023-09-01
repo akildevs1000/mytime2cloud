@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
+use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Mail\ReportNotificationMail;
 use App\Models\Attendance;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Models\ReportNotification;
+use App\Models\Shift;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -18,6 +20,9 @@ use Illuminate\Support\Facades\Log as Logger;
 
 
 Route::get('/syncLogsScript', function (Request $request) {
+
+    return (new AutoShiftController)->processByManual($request);
+
 
     return [
         "MultiInOut" => (new MultiInOutShiftController)->processByManual($request),

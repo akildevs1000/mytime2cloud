@@ -767,15 +767,15 @@ export default {
         filterName: "shift_id",
         filterSpecial: true,
       },
-      {
-        text: "Shift Type",
-        align: "left",
-        sortable: true,
-        value: "shift_type.name",
-        filterable: true,
-        filterName: "shift_type_id",
-        filterSpecial: true,
-      },
+      // {
+      //   text: "Shift Type",
+      //   align: "left",
+      //   sortable: true,
+      //   value: "shift_type.name",
+      //   filterable: true,
+      //   filterName: "shift_type_id",
+      //   filterSpecial: true,
+      // },
 
       {
         text: "Actions",

@@ -21,33 +21,31 @@ class AutoShiftController extends Controller
 
     public function processByManual(Request $request)
     {
-        $shift_type_id = 3;
         $arr = [];
         $currentDate = $request->input('date', date('Y-m-d'));
         $checked = $request->input('checked');
         $companyIds = $request->input('company_ids', []);
-        $UserIDs = $request->input('UserIDs', []);
+        $UserIDs = $request->input('userIds', []);
 
-        $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
+        $companies = $this->getModelDataByCompanyIdAuto($currentDate, $companyIds, $UserIDs, $checked);
 
         foreach ($companies as $company_id => $data) {
             // return ScheduleEmployee::whereCompanyId($company_id)->count();
-            $arr[] = $this->processData($company_id, $data, $currentDate, $shift_type_id, $checked);
+            $arr[] = $this->processData($company_id, $data, $currentDate, $checked);
         }
         return $arr;
         return "Logs Count " . array_sum($arr);
     }
 
-    public function getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id)
+    public function getModelDataByCompanyIdAuto($currentDate, $companyIds, $UserIDs, $checked)
     {
         $model = AttendanceLog::query();
 
-        $model->where(function ($q) use ($currentDate, $companyIds, $UserIDs, $shift_type_id) {
-            $q->where("checked", false);
-            $q->where("company_id", '>', 0);
+        $model->where(function ($q) use ($currentDate, $companyIds, $UserIDs, $checked) {
+            $q->where("checked", $checked);
 
-            $q->whereHas("schedule", function ($q) use ($shift_type_id) {
-                $q->where('shift_type_id', $shift_type_id);
+            $q->whereHas("schedule", function ($q) {
+                $q->where('shift_id', -2);
             });
 
             $q->when(count($companyIds) > 0, function ($q) use ($companyIds) {
@@ -83,7 +81,7 @@ class AutoShiftController extends Controller
         })->get()->toArray();
     }
 
-    public function processData($companyId, $data, $date, $shift_type_id, $checked = true)
+    public function processData($companyId, $data, $date, $checked = true)
     {
         $counter = 0;
         $items = [];
@@ -104,7 +102,7 @@ class AutoShiftController extends Controller
             if (!$model) {
                 $nearestShift = $this->findClosest($shifts, count($shifts), $logs[0]["show_log_time"], $date);
 
-                $arr["shift_type_id"] = $shift_type_id;
+                $arr["shift_type_id"] = $nearestShift["shift_type_id"];
                 $arr["status"] = "P";
                 $arr["device_id_in"] = $logs[0]["DeviceID"];
                 $arr["shift_id"] = $nearestShift["id"];
@@ -202,7 +200,7 @@ class AutoShiftController extends Controller
 
         $currentDate = $currentTimestamp < $condtionTimestamp ? date('Y-m-d', strtotime('yesterday')) : date('Y-m-d');
 
-        $companies = $this->getModelDataByCompanyId($currentDate, $companyIds, $UserIDs, $shift_type_id);
+        $companies = $this->getModelDataByCompanyIdAuto($currentDate, $companyIds, $UserIDs, false);
 
         foreach ($companies as $company_id => $data) {
             $result += $this->processData($company_id, $data, $currentDate, $shift_type_id);
