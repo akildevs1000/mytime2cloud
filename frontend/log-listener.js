@@ -2,6 +2,27 @@ const WebSocket = require("ws");
 const fs = require("fs");
 require("dotenv").config();
 
+const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false, // Use 24-hour format
+    timeZone: "Asia/Dubai"
+};
+
+const [newDate, newTime] = new Intl.DateTimeFormat("en-US", options).format(new Date()).split(",");
+const [m, d, y] = newDate.split("/");
+const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
+const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
+
+console.log(`Current Date: ${formattedDate}`);
+console.log(`Current Time: ${newTime}`);
+console.log(`logFilePath: ${logFilePath}`);
+
+
 const { SOCKET_ENDPOINT } = process.env;
 
 // Create a WebSocket connection
@@ -17,9 +38,6 @@ socket.onerror = (error) => {
 };
 
 socket.onmessage = ({ data }) => {
-    const date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10).split('-');
-    const formattedDate = `${date[2]}-${date[1]}-${date[0]}`;
-    const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
 
     try {
         const jsonData = JSON.parse(data).Data;
