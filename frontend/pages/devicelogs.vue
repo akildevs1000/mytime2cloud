@@ -177,6 +177,8 @@
                     item-value="device_id"
                     :items="[
                       { name: `All Devices`, device_id: `` },
+                      { name: `Manual`, device_id: `Manual` },
+
                       ...devices,
                     ]"
                     placeholder="Device Name"

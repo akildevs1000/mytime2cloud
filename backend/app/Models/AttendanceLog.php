@@ -45,7 +45,7 @@ class AttendanceLog extends Model
 
     public function device()
     {
-        return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "---", "device_id" => "---"]);
+        return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Manual", "device_id" => "Manual"]);
     }
 
     public function employee()
@@ -114,7 +114,6 @@ class AttendanceLog extends Model
                 $q->where('LogTime', 'LIKE', "$request->LogTime%");
             })
             ->when($request->filled('device'), function ($q) use ($request) {
-
                 $q->where('DeviceID', $request->device);
             })
             ->when($request->filled('devicelocation'), function ($q) use ($request) {

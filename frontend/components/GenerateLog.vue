@@ -6,36 +6,19 @@
       </v-snackbar>
     </div>
     <v-row>
-      <v-col md="6">
+      <v-col md="4">
         <v-text-field
+          class="mt-5"
+          dense
+          outlined
+          placeholder="Employee Device Id"
           v-model="log_payload.user_id"
-          label="Employee Device Id"
         ></v-text-field>
         <span v-if="errors && errors.user_id" class="text-danger mt-2">{{
           errors.user_id[0]
         }}</span>
       </v-col>
-      <v-col md="6">
-        <!-- <v-text-field
-          v-model="log_payload.device_id"
-          label="Device Id"
-        ></v-text-field> -->
-        <v-autocomplete
-          label="Select Device"
-          v-model="log_payload.device_id"
-          :items="devices"
-          item-text="name"
-          item-value="device_id"
-        >
-        </v-autocomplete>
-        <span v-if="errors && errors.device_id" class="text-danger mt-2">{{
-          errors.device_id[0]
-        }}</span>
-        <span v-if="errors && errors.device_id" class="text-danger mt-2">{{
-          errors.device_id[0]
-        }}</span>
-      </v-col>
-      <v-col md="6">
+      <v-col md="4">
         <v-menu
           ref="menu"
           v-model="menu"
@@ -47,8 +30,11 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
+              class="mt-5"
+              dense
+              outlined
+              placeholder="Date"
               v-model="log_payload.date"
-              label="Date"
               readonly
               v-bind="attrs"
               v-on="on"
@@ -67,7 +53,7 @@
           </v-date-picker>
         </v-menu>
       </v-col>
-      <v-col md="6">
+      <v-col md="4">
         <v-menu
           ref="time_menu_ref"
           v-model="time_menu"
@@ -82,7 +68,10 @@
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
               v-model="log_payload.time"
-              label="Time In"
+              class="mt-5"
+              dense
+              outlined
+              placeholder="Time"
               readonly
               v-bind="attrs"
               v-on="on"
@@ -113,8 +102,10 @@
       </v-col>
       <v-col cols="12">
         <v-textarea
-          filled
-          label="Reason"
+          class=""
+          dense
+          outlined
+          placeholder="Reason"
           v-model="reason"
           auto-grow
           required
@@ -177,28 +168,19 @@ export default {
         company_id: this.$auth.user.company_id,
       },
     };
-
-    this.getDeviceList();
   },
   methods: {
-    getDeviceList() {
-      this.$axios
-        .get(`/device_list?company_id=${this.$auth.user.company_id}`)
-        .then(({ data }) => {
-          this.devices = data;
-        });
-    },
     store_schedule() {
-      let { user_id, date, time, device_id } = this.log_payload;
+      let { user_id, date, time } = this.log_payload;
       let log_payload = {
         UserID: user_id,
         LogTime: date + " " + time,
-        DeviceID: device_id,
+        DeviceID: "Manual",
         company_id: this.$auth.user.company_id,
       };
       this.loading = true;
 
-      if (!user_id || !date || !device_id || !time) {
+      if (!user_id || !date || !time) {
         alert("Please enter required fields");
         return;
       }
@@ -211,7 +193,8 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.render_report();
+            this.$emit("update-data-table");
+            // this.render_report();
 
             this.snackbar = true;
             this.response = data.message;
@@ -229,7 +212,7 @@ export default {
           UserID: this.log_payload.user_id,
           company_id: this.$auth.user.company_id,
           user_id: this.$auth.user.id,
-          updated_by : this.$auth.user.id,
+          updated_by: this.$auth.user.id,
           reason: this.reason,
         },
       };

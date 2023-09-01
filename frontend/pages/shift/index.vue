@@ -7,11 +7,15 @@
     </div>
     <v-card elevation="0" v-if="can(`shift_view`)">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
+        <v-toolbar-title
+          ><span> {{ Model }} List</span></v-toolbar-title
+        >
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
             <v-btn dense x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-icon color="white" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+              <v-icon color="white" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
             </v-btn>
           </template>
           <span>Reload</span>
@@ -30,14 +34,22 @@
 
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-
-            <v-btn dense x-small :ripple="false" text v-bind="attrs" v-on="on" @click="goToCreate">
-              <v-icon color="white" @click="getDataFromApi()" dark>mdi mdi-plus-circle</v-icon>
+            <v-btn
+              dense
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="goToCreate"
+            >
+              <v-icon color="white" @click="getDataFromApi()" dark
+                >mdi mdi-plus-circle</v-icon
+              >
             </v-btn>
           </template>
           <span>Add New Shift Details</span>
         </v-tooltip>
-
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -46,71 +58,44 @@
           <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
         </template>
       </v-snackbar>
-      <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
-        :options.sync="options" :footer-props="{
+      <v-data-table
+        dense
+        :headers="headers_table"
+        :items="data"
+        model-value="data.id"
+        :loading="loading"
+        :options.sync="options"
+        :footer-props="{
           itemsPerPageOptions: [10, 50, 100, 500, 1000],
-        }" class="elevation-1">
+        }"
+        class="elevation-1"
+      >
         <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
             <td v-for="header in headers" :key="header.text">
-              <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                v-model="filters[header.key]" :id="header.value" @input="applyFilters(header.key, $event)" outlined dense
-                autocomplete="off"></v-text-field>
-
-
-
+              <v-text-field
+                clearable
+                :hide-details="true"
+                v-if="header.filterable && !header.filterSpecial"
+                v-model="filters[header.key]"
+                :id="header.value"
+                @input="applyFilters(header.key, $event)"
+                outlined
+                dense
+                autocomplete="off"
+              ></v-text-field>
             </td>
           </tr>
-
-
         </template>
         <template v-slot:item.sno="{ item, index }">
           <b>{{ ++index }}</b>
         </template>
-        <template v-slot:item.name="{ item }">
-          {{ item.name }}
-        </template>
-        <template v-slot:item.shift_type.name="{ item }"> {{ item.shift_type.name }}
-        </template>
 
-        <template v-slot:item.on_duty_time="{ item }">
-          {{ item.on_duty_time }}
-        </template>
-        <template v-slot:item.ending_in="{ item }">
-          {{ item.ending_in }}
-        </template>
-        <template v-slot:item.late_time="{ item }">
-          {{ item.late_time }}
-        </template>
-        <template v-slot:item.gap_in="{ item }">
-          {{ item.gap_in }}
-        </template>
-        <template v-slot:item.off_duty_time="{ item }">
-          {{ item.off_duty_time }}
-        </template>
-        <template v-slot:item.beginning_out="{ item }">
-          {{ item.beginning_out }}
-        </template>
-        <template v-slot:item.ending_out="{ item }">
-          {{ item.ending_out }}
-        </template>
-        <template v-slot:item.early_time="{ item }">
-          {{ item.early_time }}
-        </template>
-        <template v-slot:item.gap_out="{ item }">
-          {{ item.gap_out }}
-        </template>
-        <template v-slot:item.absent_min_in="{ item }">
-          {{ item.absent_min_in }}
-        </template>
-        <template v-slot:item.absent_min_out="{ item }">
-          {{ item.absent_min_out }}
-        </template>
-        <template v-slot:item.working_hours="{ item }">
-          {{ item.working_hours }}
-        </template>
-        <template v-slot:item.overtime_interval="{ item }">
-          {{ item.overtime_interval }}
+        <template v-slot:item.autoshift_count="{ item }">
+          <v-icon v-if="item && item.autoshift_count" color="success darken-1"
+            >mdi-check</v-icon
+          >
+          <v-icon v-else color="error">mdi-close</v-icon>
         </template>
 
         <template v-slot:item.actions="{ item }">
@@ -171,7 +156,6 @@ export default {
       { text: "Actions" },
     ],
     headers_table: [
-
       {
         text: "Name",
         align: "left",
@@ -190,7 +174,15 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-
+      {
+        text: "Auto Shift",
+        align: "left",
+        sortable: true,
+        key: "autoshift_count",
+        value: "autoshift_count",
+        filterable: true,
+        filterSpecial: false,
+      },
       {
         text: "In",
         align: "left",
@@ -347,7 +339,6 @@ export default {
 
   methods: {
     getShifts() {
-
       let options = {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
