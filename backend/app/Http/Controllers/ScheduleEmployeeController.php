@@ -25,7 +25,7 @@ class ScheduleEmployeeController extends Controller
 
     public function employees_by_departments(Request $request)
     {
-        return $request->all();
+        // return $request->all();
         return Employee::select("first_name", "system_user_id", "employee_id", "department_id", "display_name")
             ->withOut(["user", "sub_department", "sub_department", "designation", "role", "schedule"])
             ->whereIn('department_id', $request->department_ids)
@@ -140,7 +140,6 @@ class ScheduleEmployeeController extends Controller
 
             $model = ScheduleEmployee::query();
 
-            $model->where("company_id", '>', 0);
             $model->where("company_id", $company_id);
 
             $model->where(function ($q) use ($currentDate) {

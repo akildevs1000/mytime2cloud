@@ -13,7 +13,7 @@ class AutoShiftController extends Controller
     public function index(Request $request)
     {
         $company_id = $request->company_id;
-        
+
         return Shift::where("company_id", $company_id)->whereHas("autoshift", function ($q) use ($company_id) {
             $q->where('company_id', $company_id);
         })->get();
@@ -36,17 +36,14 @@ class AutoShiftController extends Controller
         $arr = [];
 
         foreach ($data["shift_ids"] as $shift_id) {
-
-            $exists = AutoShift::where("shift_id", $shift_id)->where("company_id", $company_id)->exists();
-
-            if (!$exists) {
-                $arr[] = ['shift_id' => $shift_id, 'company_id' => $company_id];
-            }
+            $arr[] = ['shift_id' => $shift_id, 'company_id' => $company_id];
         }
 
         try {
-            $record = AutoShift::insert($arr);
-
+            $model = AutoShift::query();
+            $model->where("company_id", $request->company_id);
+            $model->delete();
+            $record = $model->insert($arr);
             if ($record) {
                 return $this->response('Shifts has been assign to assigned to Auto Shift', null, true);
             } else {
