@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <!-- <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
+    <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
       <AttendancePIE :page="page" />
     </v-col>
     <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
@@ -8,12 +8,12 @@
     </v-col>
     <v-col cols="12" xs="12" sm="12" md="4" lg="4" xl="4">
       <DevicePIE />
-    </v-col> -->
+    </v-col>
     <v-col cols="12">
       <RealTimeLog />
-      <!-- <AttendanceLog /> -->
-      <!-- <Device />
-      <ReportNotification /> -->
+      <AttendanceLog />
+      <Device />
+      <ReportNotification />
     </v-col>
   </v-row>
 </template>
