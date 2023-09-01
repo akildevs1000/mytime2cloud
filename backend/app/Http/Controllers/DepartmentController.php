@@ -35,17 +35,10 @@ class DepartmentController extends Controller
 
     public function store(Department $model, DepartmentRequest $request)
     {
-        $data = $request->validated();
-
-        if ($request->company_id) {
-            $data["company_id"] = $request->company_id;
-        }
         try {
+            $record = $model->create($request->validated());
 
-            $record = $model->create($data);
-            $userCreated = (new UserController)->create_user($request);
-
-            if ($record && $userCreated) {
+            if ($record) {
                 return $this->response('Department successfully added.', $record->with('children'), true);
             } else {
                 return $this->response('Department cannot add.', null, false);

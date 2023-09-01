@@ -26,7 +26,8 @@ class DepartmentRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:4|max:50'
+            'name' => 'required|min:4|max:50',
+            'company_id' => 'required'
         ];
     }
 }

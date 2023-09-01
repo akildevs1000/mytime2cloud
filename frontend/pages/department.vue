@@ -179,42 +179,6 @@
                       placeholder="Department Name"
                     ></v-text-field>
                   </v-col>
-                  <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label"
-                      >Email<span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      :hide-details="!errors.email"
-                      type="text"
-                      v-model="editedItem.email"
-                      :error="errors.email"
-                      :error-messages="
-                        errors && errors.email ? errors.email[0] : ''
-                      "
-                      placeholder="Email"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label"
-                      >Password<span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      dense
-                      outlined
-                      :hide-details="!errors.password"
-                      :type="show1 ? 'text' : 'password'"
-                      v-model="editedItem.password"
-                      :error="errors.password"
-                      :error-messages="
-                        errors && errors.password ? errors.password[0] : ''
-                      "
-                      placeholder="Password"
-                      @click:append="show1 = !show1"
-                      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-                    ></v-text-field>
-                  </v-col>
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-col md="12" sm="12" cols="12" class="pa-0 text-right">
@@ -522,7 +486,6 @@ export default {
   },
 
   methods: {
-    datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -736,9 +699,6 @@ export default {
       let payload = {
         name: this.editedItem.name.toLowerCase(),
         company_id: this.$auth.user.company_id,
-        email: this.editedItem.email,
-        password: this.editedItem.password,
-        user_type: "manager",
       };
       if (this.editedIndex > -1) {
         this.$axios
