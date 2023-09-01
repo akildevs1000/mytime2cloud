@@ -12,11 +12,11 @@
         </template>
       </v-snackbar>
     </div>
-    <v-card elevation="0">
+    <v-card elevation="0" v-if="can(`attendance_report_view`)">
       <v-toolbar class="background" dense flat>
         <span class="headline white--text"> {{ title }} Filters </span>
         <v-spacer></v-spacer>
-        <v-tooltip top color="primary">
+        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               class="ma-0"
@@ -33,7 +33,7 @@
           <span>PRINT</span>
         </v-tooltip>
 
-        <v-tooltip top color="primary">
+        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               x-small
@@ -49,7 +49,7 @@
           <span>DOWNLOAD</span>
         </v-tooltip>
 
-        <v-tooltip top color="primary">
+        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               x-small
@@ -258,6 +258,217 @@
 
       <v-divider></v-divider>
     </v-card>
+    <v-card class="mb-5 mt-5" elevation="0" v-if="can(`attendance_report_view`)">
+      <v-toolbar class="background" dense dark flat>
+        <v-toolbar-title>
+          <span> {{ title }} </span>
+        </v-toolbar-title>
+
+        <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="clearFilters()"
+            >
+              <v-icon dark white>mdi-reload</v-icon>
+            </v-btn>
+          </template>
+          <span>Reload</span>
+        </v-tooltip>
+        <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="attendancFilters = true"
+                >
+                  <v-icon dark white @click="attendancFilters = true"
+                    >mdi-filter</v-icon
+                  >
+                </v-btn>
+              </template>
+              <span>Filter</span>
+            </v-tooltip> -->
+        <v-spacer></v-spacer>
+
+        <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="generateLogsDialog = true"
+            >
+              <v-icon class="" dark white>mdi-plus-circle</v-icon>
+            </v-btn>
+          </template>
+          <span>Generate Log</span>
+        </v-tooltip>
+
+        <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="reportSync = true"
+            >
+              <v-icon class="" dark color="white">mdi-cached</v-icon>
+            </v-btn>
+          </template>
+          <span>Render Report</span>
+        </v-tooltip>
+      </v-toolbar>
+      <v-data-table
+        dense
+        :headers="headers"
+        :items="data"
+        :loading="loading"
+        :options.sync="options"
+        :footer-props="{
+          itemsPerPageOptions: [10, 50, 100, 500, 1000],
+        }"
+        class="elevation-1"
+        model-value="data.id"
+        :server-items-length="totalRowsCount"
+      >
+        <template v-slot:header="{ props: { headers } }">
+          <tr v-if="isFilter">
+            <td
+              style="width: 40px"
+              v-for="header in headers"
+              :key="header.text"
+              class="table-search-header"
+            >
+              <v-text-field
+                style="padding-left: 10px"
+                v-if="header.filterable"
+                v-model="filters[header.value]"
+                id="header.value"
+                @input="applyFilters(header.value, $event)"
+                outlined
+                height="10px"
+                clearable
+                autocomplete="off"
+              ></v-text-field>
+
+              <template v-else>
+                <v-text-field
+                  style="display: none"
+                  outlined
+                  height="10px"
+                  clearable
+                  autocomplete="off"
+                ></v-text-field>
+              </template>
+            </td>
+          </tr>
+        </template>
+        <template v-slot:item.date="{ item }">
+          {{ item.date }}
+        </template>
+        <template v-slot:item.employee_id="{ item }">
+          {{ item.employee_id }}
+        </template>
+        <template v-slot:item.employee_name="{ item }">
+          {{ item.employee.first_name }} {{ item.employee.last_name }}
+        </template>
+        <template v-slot:item.status="{ item }">
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              {{ setStatusLabel(item.status) }}
+              <v-btn
+                v-if="item.is_manual_entry"
+                color="primary"
+                text
+                v-bind="attrs"
+                v-on="on"
+              >
+                (ME)
+              </v-btn>
+            </template>
+            <div>Reason: {{ item.last_reason?.reason }}</div>
+            <div>Added By: {{ item.last_reason?.user?.email }}</div>
+            <div>Created At: {{ item.last_reason?.created_at }}</div>
+          </v-tooltip>
+        </template>
+
+        <template v-slot:item.shift="{ item }">
+          <v-tooltip v-if="item && item.shift" top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <div class="primary--text" v-bind="attrs" v-on="on">
+                {{ (item.shift && item.shift.name) || "---" }}
+              </div>
+            </template>
+            <div v-for="(iterable, index) in item.shift" :key="index">
+              <span v-if="index !== 'id'">
+                {{ caps(index) }}: {{ iterable || "---" }}</span
+              >
+            </div>
+          </v-tooltip>
+          <span v-else>---</span>
+        </template>
+
+        <template v-slot:item.device_in="{ item }">
+          <v-tooltip v-if="item && item.device_in" top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <div class="primary--text" v-bind="attrs" v-on="on">
+                {{ (item.device_in && item.device_in.short_name) || "---" }}
+              </div>
+            </template>
+            <div v-for="(iterable, index) in item.device_in" :key="index">
+              <span v-if="index !== 'id'">
+                {{ caps(index) }}: {{ iterable || "---" }}</span
+              >
+            </div>
+          </v-tooltip>
+          <span v-else>---</span>
+        </template>
+
+        <template v-slot:item.device_out="{ item }">
+          <v-tooltip v-if="item && item.device_out" top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <div class="primary--text" v-bind="attrs" v-on="on">
+                {{ (item.device_out && item.device_out.short_name) || "---" }}
+              </div>
+            </template>
+            <div v-for="(iterable, index) in item.device_out" :key="index">
+              <span v-if="index !== 'id'">
+                {{ caps(index) }}: {{ iterable || "---" }}</span
+              >
+            </div>
+          </v-tooltip>
+          <span v-else>---</span>
+        </template>
+
+        <template v-slot:item.actions="{ item }">
+          <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
+            mdi-pencil
+          </v-icon>
+          <v-icon
+            @click="viewItem(item)"
+            x-small
+            color="primary"
+            class="mr-2"
+            v-if="can('attendance_report_view')"
+          >
+            mdi-eye
+          </v-icon>
+        </template>
+      </v-data-table>
+    </v-card>
+
     <v-row justify="center">
       <v-dialog v-model="time_table_dialog" max-width="600px">
         <v-card class="darken-1">
@@ -582,229 +793,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-row>
-      <v-col>
-        <v-card class="mb-5" elevation="0">
-          <v-toolbar class="background" dense dark flat>
-            <v-toolbar-title>
-              <span> {{ title }} </span>
-            </v-toolbar-title>
-
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="clearFilters()"
-                >
-                  <v-icon dark white>mdi-reload</v-icon>
-                </v-btn>
-              </template>
-              <span>Reload</span>
-            </v-tooltip>
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="attendancFilters = true"
-                >
-                  <v-icon dark white @click="attendancFilters = true"
-                    >mdi-filter</v-icon
-                  >
-                </v-btn>
-              </template>
-              <span>Filter</span>
-            </v-tooltip> -->
-            <v-spacer></v-spacer>
-
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="generateLogsDialog = true"
-                >
-                  <v-icon class="" dark white>mdi-plus-circle</v-icon>
-                </v-btn>
-              </template>
-              <span>Generate Log</span>
-            </v-tooltip>
-
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="reportSync = true"
-                >
-                  <v-icon class="" dark color="white">mdi-cached</v-icon>
-                </v-btn>
-              </template>
-              <span>Render Report</span>
-            </v-tooltip>
-          </v-toolbar>
-          <v-data-table
-            dense
-            v-if="can(`attendance_report_view`)"
-            :headers="headers"
-            :items="data"
-            :loading="loading"
-            :options.sync="options"
-            :footer-props="{
-              itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }"
-            class="elevation-1"
-            model-value="data.id"
-            :server-items-length="totalRowsCount"
-          >
-            <template v-slot:header="{ props: { headers } }">
-              <tr v-if="isFilter">
-                <td
-                  style="width: 40px"
-                  v-for="header in headers"
-                  :key="header.text"
-                  class="table-search-header"
-                >
-                  <v-text-field
-                    style="padding-left: 10px"
-                    v-if="header.filterable"
-                    v-model="filters[header.value]"
-                    id="header.value"
-                    @input="applyFilters(header.value, $event)"
-                    outlined
-                    height="10px"
-                    clearable
-                    autocomplete="off"
-                  ></v-text-field>
-
-                  <template v-else>
-                    <v-text-field
-                      style="display: none"
-                      outlined
-                      height="10px"
-                      clearable
-                      autocomplete="off"
-                    ></v-text-field>
-                  </template>
-                </td>
-              </tr>
-            </template>
-            <template v-slot:item.date="{ item }">
-              {{ item.date }}
-            </template>
-            <template v-slot:item.employee_id="{ item }">
-              {{ item.employee_id }}
-            </template>
-            <template v-slot:item.employee_name="{ item }">
-              {{ item.employee.first_name }} {{ item.employee.last_name }}
-            </template>
-            <template v-slot:item.status="{ item }">
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  {{ setStatusLabel(item.status) }}
-                  <v-btn
-                    v-if="item.is_manual_entry"
-                    color="primary"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    (ME)
-                  </v-btn>
-                </template>
-                <div>Reason: {{ item.last_reason?.reason }}</div>
-                <div>Added By: {{ item.last_reason?.user?.email }}</div>
-                <div>Created At: {{ item.last_reason?.created_at }}</div>
-              </v-tooltip>
-            </template>
-
-            <template v-slot:item.shift="{ item }">
-              <v-tooltip v-if="item && item.shift" top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <div class="primary--text" v-bind="attrs" v-on="on">
-                    {{ (item.shift && item.shift.name) || "---" }}
-                  </div>
-                </template>
-                <div v-for="(iterable, index) in item.shift" :key="index">
-                  <span v-if="index !== 'id'">
-                    {{ caps(index) }}: {{ iterable || "---" }}</span
-                  >
-                </div>
-              </v-tooltip>
-              <span v-else>---</span>
-            </template>
-
-            <template v-slot:item.device_in="{ item }">
-              <v-tooltip v-if="item && item.device_in" top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <div class="primary--text" v-bind="attrs" v-on="on">
-                    {{ (item.device_in && item.device_in.short_name) || "---" }}
-                  </div>
-                </template>
-                <div v-for="(iterable, index) in item.device_in" :key="index">
-                  <span v-if="index !== 'id'">
-                    {{ caps(index) }}: {{ iterable || "---" }}</span
-                  >
-                </div>
-              </v-tooltip>
-              <span v-else>---</span>
-            </template>
-
-            <template v-slot:item.device_out="{ item }">
-              <v-tooltip v-if="item && item.device_out" top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <div class="primary--text" v-bind="attrs" v-on="on">
-                    {{
-                      (item.device_out && item.device_out.short_name) || "---"
-                    }}
-                  </div>
-                </template>
-                <div v-for="(iterable, index) in item.device_out" :key="index">
-                  <span v-if="index !== 'id'">
-                    {{ caps(index) }}: {{ iterable || "---" }}</span
-                  >
-                </div>
-              </v-tooltip>
-              <span v-else>---</span>
-            </template>
-
-            <template v-slot:item.actions="{ item }">
-              <v-icon
-                @click="editItem(item)"
-                x-small
-                color="primary"
-                class="mr-2"
-              >
-                mdi-pencil
-              </v-icon>
-              <v-icon
-                @click="viewItem(item)"
-                x-small
-                color="primary"
-                class="mr-2"
-                v-if="can('attendance_report_view')"
-              >
-                mdi-eye
-              </v-icon>
-            </template>
-          </v-data-table>
-          <NoAccess v-else />
-        </v-card>
-      </v-col>
-    </v-row>
 
     <v-row justify="center">
       <v-dialog v-model="log_details" max-width="600px">
