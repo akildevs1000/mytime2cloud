@@ -210,6 +210,9 @@ export default {
           } else {
             this.snackbar = true;
             this.response = "Shift added successfully";
+            setTimeout(() => {
+              this.$router.push("/shift");
+            },1000);
           }
         })
         .catch(({ message }) => {

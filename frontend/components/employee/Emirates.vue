@@ -144,7 +144,7 @@
             </v-menu>
           </div>
         </v-col>
-        
+
         <v-col cols="12">
           <span v-if="errors && errors.length" class="error--text">{{
             errors
@@ -203,7 +203,9 @@ export default {
     close_emirate_info() {
       this.emirate_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => {
+        this.$emit("close-popup");
+      }, 1000);
     },
 
     save_emirate_info() {

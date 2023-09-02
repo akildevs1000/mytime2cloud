@@ -3,7 +3,7 @@
     <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
       {{ response }}
     </v-snackbar>
-    <v-dialog v-model="dialog" persistent max-width="700px">
+    <v-dialog persistent v-model="dialog" max-width="700px">
       <v-card>
         <v-card-title class="background white--text" dark dense>
           <span class="text-h5">Department Mapping</span>

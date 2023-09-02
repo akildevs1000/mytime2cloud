@@ -178,6 +178,7 @@ export default {
             this.errors = data.errors;
           } else {
             this.$emit("eventFromchild");
+            this.$emit("close-popup");
             this.errors = [];
             this.snackbar = true;
             this.response = data.message;

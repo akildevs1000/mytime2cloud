@@ -26,7 +26,7 @@
       </v-col>
     </v-row>
 
-    <v-dialog v-model="dialog" max-width="60%">
+    <v-dialog persistent v-model="dialog" max-width="60%">
       <v-card>
         <v-card-title>
           <span class="headline">{{ formTitle }} {{ Model }}</span>
@@ -120,7 +120,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="view_notification" max-width="60%">
+    <v-dialog persistent v-model="view_notification" max-width="60%">
       <v-card>
         <v-toolbar class="pb-0 primary" dark flat>
           <div class="w-50">

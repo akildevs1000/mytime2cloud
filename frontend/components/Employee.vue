@@ -9,7 +9,7 @@
     :loading="loading"
     :options.sync="options"
     :footer-props="{
-      itemsPerPageOptions: [50, 100, 500,1000]
+      itemsPerPageOptions: [50, 100, 500, 1000],
     }"
     class="elevation-1"
   >
@@ -32,12 +32,12 @@ export default {
         text: "First Name",
         align: "left",
         sortable: false,
-        value: "first_name"
-      }
+        value: "first_name",
+      },
     ],
     response: "",
     data: [],
-    errors: []
+    errors: [],
   }),
 
   computed: {},
@@ -52,8 +52,8 @@ export default {
       handler() {
         this.getEmployeesDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     getEmployeesDataFromApi(url = this.endpoint) {
@@ -64,8 +64,8 @@ export default {
       let options = {
         params: {
           page: page,
-          per_page: itemsPerPage
-        }
+          per_page: itemsPerPage,
+        },
       };
 
       this.$axios.get(url, options).then(({ data }) => {
@@ -92,15 +92,15 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.id);
+      let just_ids = this.ids.map((e) => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids
+            ids: just_ids,
           })
-          .then(res => {
+          .then((res) => {
             if (!res.data.status) {
               this.errors = res.data.errors;
             } else {
@@ -110,7 +110,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -125,7 +125,7 @@ export default {
             this.snackbar = data.status;
             this.response = data.message;
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     close() {
@@ -138,32 +138,32 @@ export default {
 
     save() {
       let payload = {
-        name: this.editedItem.name.toLowerCase()
+        name: this.editedItem.name,
       };
       if (this.editedIndex > -1) {
         this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, payload)
-          .then(res => {
+          .then((res) => {
             if (!res.data.status) {
               this.errors = res.data.errors;
             } else {
               const index = this.data.findIndex(
-                item => item.id == this.editedItem.id
+                (item) => item.id == this.editedItem.id
               );
               this.data.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name
+                name: this.editedItem.name,
               });
               this.snackbar = res.data.status;
               this.response = res.data.message;
               this.close();
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, payload)
-          .then(res => {
+          .then((res) => {
             if (!res.data.status) {
               this.errors = res.data.errors;
             } else {
@@ -175,9 +175,9 @@ export default {
               this.dialog_search = "";
             }
           })
-          .catch(res => console.log(res));
+          .catch((res) => console.log(res));
       }
-    }
-  }
+    },
+  },
 };
 </script>

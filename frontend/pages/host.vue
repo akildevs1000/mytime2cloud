@@ -2,6 +2,7 @@
   <div v-if="can(`dashboard_access`)">
     <div v-if="!loading">
       <v-dialog
+        persistent
         v-model="dialogGeneralreport"
         :fullscreen="false"
         max-width="1200px"

@@ -191,7 +191,7 @@
           </v-row>
         </v-col>
       </v-row>
-      <v-dialog v-model="dialogCropping" width="500">
+      <v-dialog persistent v-model="dialogCropping" width="500">
         <v-card style="padding-top: 20px">
           <v-card-text>
             <!-- <img :src="imageUrl" alt="Preview Image" /> -->

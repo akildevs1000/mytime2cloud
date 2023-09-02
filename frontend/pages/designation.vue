@@ -18,7 +18,7 @@
     </v-row> -->
 
     <v-row>
-      <v-dialog v-model="dialogForm" :fullscreen="false" width="500px">
+      <v-dialog persistent v-model="dialogForm" :fullscreen="false" width="500px">
         <v-card>
           <v-card-title dense class=" primary  white--text background">
             <span>{{ formTitle }} {{ Model }}</span>
@@ -429,7 +429,7 @@ export default {
 
     save() {
       let payload = {
-        name: this.editedItem.name.toLowerCase(),
+        name: this.editedItem.name,
         department_id: this.editedItem.department_id,
         company_id: this.$auth.user.company_id,
       };

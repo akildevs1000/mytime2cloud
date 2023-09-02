@@ -5,7 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="dialogPayslipsResults" :fullscreen="false" width="700px">
+    <v-dialog persistent v-model="dialogPayslipsResults" :fullscreen="false" width="700px">
       <v-card>
         <v-card-title dense class="primary white--text background">
           Payslip Results
@@ -92,7 +92,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogVisible" max-width="500px">
+    <v-dialog persistent v-model="dialogVisible" max-width="500px">
       <v-card flat dense class="white--text">
         <v-card-title class="background">
           <span class="headline">Filter</span>
@@ -149,7 +149,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="generatePayslipDialog" :fullscreen="false" width="600px">
+    <v-dialog persistent v-model="generatePayslipDialog" :fullscreen="false" width="600px">
       <v-card>
         <v-card-title dense class="primary white--text background">
           Generate Payslips

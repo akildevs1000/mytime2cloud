@@ -14,7 +14,7 @@
         </v-col>
         <v-col cols="6">
           <div class="text-right">
-            <v-dialog v-model="dialog" max-width="500px">
+            <v-dialog persistent v-model="dialog" max-width="500px">
               <v-card>
                 <v-card-text>
                   <v-container>

@@ -54,7 +54,7 @@
 
     <v-row>
       <v-col>
-        <v-dialog v-model="editDialog" max-width="900">
+        <v-dialog persistent v-model="editDialog" max-width="900">
           <v-card>
             <v-card-title
               >Edit Card <v-spacer></v-spacer>

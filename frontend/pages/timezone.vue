@@ -5,7 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="dialog" max-width="1100">
+    <v-dialog persistent v-model="dialog" max-width="1100">
       <v-card>
         <v-card-title dense class="primary white--text background">
           {{ Module }}
@@ -146,7 +146,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="syncDeviceDialog" max-width="1100">
+    <v-dialog persistent v-model="syncDeviceDialog" max-width="1100">
       <v-card>
         <v-card-title dense class="primary white--text background">
           Sync Device
@@ -700,6 +700,7 @@ export default {
           }
           this.snackbar = data.status;
           this.response = data.message;
+          this.dialog = false;
           this.getDataFromApi();
         })
         .catch((err) => {});
@@ -715,6 +716,7 @@ export default {
           }
           this.snackbar = data.status;
           this.response = data.message;
+          this.dialog = false;
           this.getDataFromApi();
         })
         .catch((err) => {

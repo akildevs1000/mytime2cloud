@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
     <div v-if="!loading">
-      <v-dialog v-model="dialogCropping" width="500">
+      <v-dialog persistent v-model="dialogCropping" width="500">
         <v-card style="padding-top: 20px">
           <v-card-text>
             <VueCropper
@@ -40,7 +40,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="DialogBox" width="1100">
+      <v-dialog persistent v-model="DialogBox" width="1100">
         <v-card>
           <v-tabs
             v-model="tab"
@@ -954,14 +954,14 @@
         </v-card>
       </v-dialog>
       <div class="text-center">
-        <v-dialog v-model="viewDialog" width="1200" :key="employeeId">
+        <v-dialog persistent v-model="viewDialog" width="1200" :key="employeeId">
           <EmployeeDetails
             @close-parent-dialog="closeViewDialog"
             :employeeObject="employeeObject"
           />
         </v-dialog>
       </div>
-      <v-dialog v-model="dialog" max-width="500px">
+      <v-dialog persistent v-model="dialog" max-width="500px">
         <v-card>
           <v-card-title dense class="primary white--text background">
             Import Employee

@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
 
-    <v-dialog v-model="editDialog" width="900">
+    <v-dialog persistent v-model="editDialog" width="900">
       <v-card>
         <v-card-title dense class="primary white--text background">
           {{ !isEdit ? "View Shift(s)" : "Edit Shift(s)" }}
@@ -116,7 +116,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialog" width="1300">
+    <v-dialog persistent v-model="dialog" width="1300">
       <v-card>
         <v-card-title class="text-h5">
           Schedule Employees

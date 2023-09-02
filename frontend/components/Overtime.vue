@@ -1,6 +1,6 @@
 <template>
   <v-row class="pl-1 ma-2">
-    <v-dialog v-model="add_popup" max-width="500px">
+    <v-dialog persistent v-model="add_popup" max-width="500px">
       <v-card>
         <v-card-actions>
           <span class="headline">{{ caps(`${Model}s`) }}</span>
@@ -80,7 +80,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="edit_popup" max-width="500px">
+    <v-dialog persistent v-model="edit_popup" max-width="500px">
       <v-card>
         <v-card-actions>
           <span class="headline">{{ caps(`${Model}`) }}</span>

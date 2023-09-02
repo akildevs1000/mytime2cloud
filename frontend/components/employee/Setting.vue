@@ -7,51 +7,94 @@
     </div>
 
     <v-row>
-      <v-progress-linear :active="loading" color="primary" indeterminate></v-progress-linear>
+      <v-progress-linear
+        :active="loading"
+        color="primary"
+        indeterminate
+      ></v-progress-linear>
 
       <v-col cols="6" xs="6" sm="12" md="6" lg="6" xl="6">
         <v-col md="12" sm="12" cols="12">
-          <label class="col-form-label"> <strong>Leave Group Name</strong></label>
-          <v-autocomplete :items="leave_groups" item-text="group_name" item-value="id" placeholder="Select"
-            v-model="setting.leave_group_id" :hide-details="!errors.leave_group_id" :error="errors.leave_group_id"
-            :error-messages="errors && errors.leave_group_id
-              ? errors.leave_group_id[0]
-              : ''
-              " dense outlined></v-autocomplete>
+          <label class="col-form-label">
+            <strong>Leave Group Name</strong></label
+          >
+          <v-autocomplete
+            :items="leave_groups"
+            item-text="group_name"
+            item-value="id"
+            placeholder="Select"
+            v-model="setting.leave_group_id"
+            :hide-details="!errors.leave_group_id"
+            :error="errors.leave_group_id"
+            :error-messages="
+              errors && errors.leave_group_id ? errors.leave_group_id[0] : ''
+            "
+            dense
+            outlined
+          ></v-autocomplete>
         </v-col>
         <v-col md="12" sm="12" sx="12" xl="12" cols="12" outlined>
-          <label class="col-form-label"><strong>Leave Manager/Reporting Manger</strong> </label>
-          <v-autocomplete :items="leave_managers" :item-text="getEmployeeName" item-value="id" placeholder="Select"
-            v-model="setting.reporting_manager_id" :hide-details="!errors.reporting_manager_id"
-            :error="errors.reporting_manager_id" :error-messages="errors && errors.reporting_manager_id
-              ? errors.reporting_manager_id[0]
-              : ''
-              " dense outlined></v-autocomplete>
+          <label class="col-form-label"
+            ><strong>Leave Manager/Reporting Manger</strong>
+          </label>
+          <v-autocomplete
+            :items="leave_managers"
+            :item-text="getEmployeeName"
+            item-value="id"
+            placeholder="Select"
+            v-model="setting.reporting_manager_id"
+            :hide-details="!errors.reporting_manager_id"
+            :error="errors.reporting_manager_id"
+            :error-messages="
+              errors && errors.reporting_manager_id
+                ? errors.reporting_manager_id[0]
+                : ''
+            "
+            dense
+            outlined
+          ></v-autocomplete>
         </v-col>
-
-
-
       </v-col>
 
-      <v-col cols="6" xs="12" sm="12" md="6" lg="6" xl="6" outlined elevation="2">
-
-        <table style="width:70%">
+      <v-col
+        cols="6"
+        xs="12"
+        sm="12"
+        md="6"
+        lg="6"
+        xl="6"
+        outlined
+        elevation="2"
+      >
+        <table style="width: 70%">
           <tr>
             <td><strong>Employee Status</strong></td>
             <td>
-              <v-switch color="success" class="mt-0 ml-2" v-model="setting.status"></v-switch>
+              <v-switch
+                color="success"
+                class="mt-0 ml-2"
+                v-model="setting.status"
+              ></v-switch>
             </td>
           </tr>
           <tr>
             <td><strong>Web Login Access</strong></td>
             <td>
-              <v-switch color="success" class="mt-0 ml-2" v-model="setting.user.web_login_access"></v-switch>
+              <v-switch
+                color="success"
+                class="mt-0 ml-2"
+                v-model="setting.user.web_login_access"
+              ></v-switch>
             </td>
           </tr>
           <tr>
             <td><strong>Mobile App Login Access</strong></td>
             <td>
-              <v-switch color="success" class="mt-0 ml-2" v-model="setting.user.mobile_app_login_access"></v-switch>
+              <v-switch
+                color="success"
+                class="mt-0 ml-2"
+                v-model="setting.user.mobile_app_login_access"
+              ></v-switch>
             </td>
           </tr>
 
@@ -59,23 +102,22 @@
             <th>Over Time</th>
             <td>
               <div class="text-overline mb-1">
-                <v-switch color="success" class="mt-0 ml-2" v-model="setting.overtime"></v-switch>
+                <v-switch
+                  color="success"
+                  class="mt-0 ml-2"
+                  v-model="setting.overtime"
+                ></v-switch>
               </div>
             </td>
           </tr>
-
-
-
         </table>
       </v-col>
       <v-col col="12" class="text-right">
-        <div class=" text-right">
-          <v-btn small class="primary mt-1 " @click="update_setting">Save</v-btn>
+        <div class="text-right">
+          <v-btn small class="primary mt-1" @click="update_setting">Save</v-btn>
         </div>
       </v-col>
-
     </v-row>
-
   </div>
 </template>
 
@@ -127,8 +169,7 @@ export default {
       });
     },
     getEmployeeName(item) {
-
-      return item.first_name ? item.first_name + ' ' + item.last_name : '---';
+      return item.first_name ? item.first_name + " " + item.last_name : "---";
     },
     getInfo(id) {
       this.loading = true;
@@ -138,7 +179,6 @@ export default {
           ...data,
         };
         this.loading = false;
-
       });
     },
     caps(str) {
@@ -169,14 +209,13 @@ export default {
         .then(({ data }) => {
           this.loading = false;
 
-
           if (!data.status) {
             this.errors = data.errors;
           } else {
             this.errors = [];
             this.snackbar = true;
             this.response = "Settings has been successfully updated";
-
+            this.$emit("close-popup");
           }
         })
         .catch((e) => console.log(e));

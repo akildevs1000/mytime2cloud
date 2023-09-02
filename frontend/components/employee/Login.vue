@@ -8,7 +8,7 @@
     <v-card>
       <v-progress-linear :active="loading" color="primary" indeterminate></v-progress-linear>
       <v-card-text>
-        <v-dialog v-model="dialogCropping" width="400">
+        <v-dialog persistent v-model="dialogCropping" width="400">
           <v-card style="padding-top: 20px">
             <v-card-text>
               <!-- <img :src="imageUrl" alt="Preview Image" /> -->
@@ -219,6 +219,7 @@ export default {
             this.snackbar = true;
             this.response = "Employees Updated successfully";
             this.$emit("eventFromchild");
+            this.$emit("close-popup");
           }
         })
         .catch((e) => console.log(e));

@@ -7,7 +7,7 @@
     </div>
 
 
-    <v-dialog v-model="dialog" width="500px">
+    <v-dialog persistent v-model="dialog" width="500px">
 
       <v-card>
         <v-card-title dense class=" primary  white--text background">

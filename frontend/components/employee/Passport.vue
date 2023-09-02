@@ -142,7 +142,9 @@ export default {
     close_passport_info() {
       this.passport_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => {
+        this.$emit("close-popup");
+      }, 1000);
     },
 
     save_passport_info() {
