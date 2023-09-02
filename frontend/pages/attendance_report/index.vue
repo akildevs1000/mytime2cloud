@@ -86,6 +86,7 @@
           <v-col md="3">
             Departments
             <v-autocomplete
+              @change="getScheduledEmployees"
               class="mt-2"
               outlined
               dense

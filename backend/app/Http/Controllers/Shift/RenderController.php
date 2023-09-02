@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Shift;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
+use App\Models\Company;
 use App\Models\Employee;
 use App\Models\EmployeeLeaves;
 use App\Models\Holidays;
 use App\Models\Reason;
 use App\Models\ScheduleEmployee;
+use App\Models\Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -62,7 +64,8 @@ class RenderController extends Controller
 
         $logs = $this->processLogs($data, $schedule);
 
-        return $this->storeOrUpdate($AttendancePayload + $logs);
+        $response = $this->storeOrUpdate($AttendancePayload + $logs);
+        return $this->response($response, null, true);
     }
 
     public function renderGeneral(Request $request)
@@ -146,7 +149,102 @@ class RenderController extends Controller
             }
         }
 
+        $response = $this->storeOrUpdate($arr);
+        return $this->response($response, null, true);
+    }
+
+    public function renderAuto(Request $request)
+    {
+        $this->reason = $request->reason ?? null;
+
+        $this->updated_by = $request->updated_by ?? 0;
+
+        $response = $this->renderAutoScript($request->date, $request->company_id, $request->UserID);
+
+        return $this->response($response, null, true);
+    }
+
+
+    public function renderAutoScript($date, $company_id, $UserID)
+    {
+        $schedule = $this->getScheduleGeneral($date, $company_id, $UserID);
+
+        if (!$schedule) {
+            return "Employee with $UserID SYSTEM USER ID is not scheduled yet.";
+        }
+
+        $model = AttendanceLog::query();
+
+        $model->whereDate("LogTime", $date);
+        $model->where("company_id", $company_id);
+        $model->where("UserID", $UserID);
+
+        $model->whereHas("schedule", function ($q) use ($company_id) {
+            $q->whereNot('shift_type_id', 2);
+            $q->where("company_id", $company_id);
+        });
+
+        $model->distinct("LogTime");
+
+        $count = $model->count();
+
+        $data = [$model->clone()->orderBy("LogTime")->first(), $model->orderBy("LogTime", "desc")->first()];
+
+        if (!$count) {
+            return "Employee with $UserID SYSTEM USER ID has no Log(s).";
+        }
+
+        $shifts = $this->getShifts($company_id);
+
+        $nearestShift = $this->findClosest($shifts, count($shifts), $data[0]["show_log_time"], $date);
+
+        $arr = [];
+        $arr["company_id"] = $company_id;
+        $arr["date"] = $date;
+        $arr["employee_id"] = $UserID;
+        $arr["shift_type_id"] = $nearestShift["shift_type_id"];
+        $arr["shift_id"] = $nearestShift["id"];
+        $arr["device_id_in"] = $data[0]["DeviceID"];
+        $arr["in"] = $data[0]["time"];
+        $arr["status"] = "M";
+        $arr["is_manual_entry"] = true;
+
+        if ($schedule["shift_type_id"] == 4 && $schedule["shift_type_id"] == 6) {
+
+            $LateComing = $this->calculatedLateComing($arr["in"], $nearestShift["on_duty_time"], $nearestShift["late_time"]);
+
+            if ($LateComing) {
+                $arr["late_coming"] = $LateComing;
+            }
+        }
+
+        if ($count > 1) {
+            $arr["status"] = "P";
+            $arr["device_id_out"] = $data[1]["DeviceID"];
+            $arr["out"] = $data[1]["time"];
+            $arr["total_hrs"] = $this->getTotalHrsMins($data[0]["time"], $data[1]["time"]);
+
+            if ($schedule["isOverTime"]) {
+                $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $nearestShift['working_hours'], $nearestShift['overtime_interval']);
+            }
+
+            if ($nearestShift["shift_type_id"] == 4 && $nearestShift["shift_type_id"] == 6) {
+                $EarlyGoing = $this->calculatedEarlyGoing($arr["in"], $nearestShift["off_duty_time"], $nearestShift["early_time"]);
+
+                if ($EarlyGoing) {
+                    // $arr["status"] = "A";
+                    $arr["early_going"] = $EarlyGoing;
+                }
+            }
+        }
         return $this->storeOrUpdate($arr);
+    }
+
+    public function getShifts($companyId)
+    {
+        return Shift::orderBy("on_duty_time")->whereHas("autoshift", function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        })->get()->toArray();
     }
 
     public function createReason($id)
@@ -267,13 +365,13 @@ class RenderController extends Controller
             $attendance->fill($items)->save();
 
             if ($this->reason) {
-                $result = $this->createReason($attendance->id);
+                $this->createReason($attendance->id);
             }
 
             if (!$attendance) {
-                return $this->response("The Logs cannnot render against " . $items['employee_id'] . " SYSTEM USER ID.", null, false);
+                return "The Logs cannnot render against " . $items['employee_id'] . " SYSTEM USER ID.";
             }
-            return $this->response("The Logs has been render against " . $items['employee_id'] . " SYSTEM USER ID.", null, true);
+            return "The Logs has been render against " . $items['employee_id'] . " SYSTEM USER ID.";
         } catch (\Exception $e) {
             return $e;
         }
@@ -724,5 +822,72 @@ class RenderController extends Controller
         $model->insert($arr);
 
         return $arr;
+    }
+
+    public function findClosest($arr, $n, $target, $date)
+    {
+        if (count($arr) == 0) return false;
+
+        // Corner cases
+        if ($target <= $this->getItemByIndex($arr, 0, $date)) {
+            return $arr[0];
+        }
+
+        if ($target >= $this->getItemByIndex($arr, $n - 1, $date)) {
+            return $arr[$n - 1];
+        }
+
+        // Doing binary search
+        $i = 0;
+        $j = $n;
+        $mid = 0;
+        while ($i < $j) {
+            $mid = ($i + $j) / 2;
+
+            if ($this->getItemByIndex($arr, $mid, $date) == $target) {
+                return $arr[$mid];
+            }
+
+            /* If target is less than array element,
+            then search in left */
+            if ($target < $this->getItemByIndex($arr, $mid, $date)) {
+
+                // If target is greater than previous
+                // to mid, return closest of two
+                if ($mid > 0 && $target > $this->getItemByIndex($arr, $mid - 1, $date)) {
+                    return $this->getClosest($arr[$mid - 1], $arr[$mid], $target, $date);
+                }
+
+                /* Repeat for left half */
+                $j = $mid;
+            }
+
+            // If target is greater than mid
+            else {
+                if ($mid < $n - 1 && $target < $this->getItemByIndex($arr, $mid + 1, $date)) {
+                    return $this->getClosest($arr[$mid], $arr[$mid + 1], $target, $date);
+                }
+
+                // update i
+                $i = $mid + 1;
+            }
+        }
+
+        // Only single element left after search
+        return $arr[$mid];
+    }
+
+    public function getClosest($val1, $val2, $target, $date)
+    {
+        $v1 = strtotime($date . ' ' . $val1["on_duty_time"]);
+        $v2 = strtotime($date . ' ' . $val2["on_duty_time"]);
+
+        return ($target - $v1 > $v2 - $target) ? $val2 : $val1;
+    }
+    public function getItemByIndex($arr, $index, $date)
+    {
+        $dateTime = $date . ' ' . $arr[$index]["on_duty_time"];
+
+        return strtotime($dateTime);
     }
 }
