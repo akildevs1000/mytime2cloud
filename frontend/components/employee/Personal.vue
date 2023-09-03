@@ -274,7 +274,9 @@ export default {
     close_personal_info() {
       this.personal_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => {
+        this.$emit("close-popup");
+      }, 1000);
     },
     save_personal_info() {
       let payload = {

@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
 
-    <v-dialog v-model="dialogLeaveGroup" width="600px">
+    <v-dialog persistent v-model="dialogLeaveGroup" width="600px">
 
       <v-card>
         <v-card-title dense class=" primary  white--text background">
@@ -43,7 +43,7 @@
 
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialog" width="1000px">
+    <v-dialog persistent v-model="dialog" width="1000px">
 
 
       <v-card>
@@ -207,7 +207,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogUploadDocuments" width="800px" height="400px">
+    <v-dialog persistent v-model="dialogUploadDocuments" width="800px" height="400px">
 
       <v-card>
         <v-card-title dense class=" primary  white--text background">
@@ -279,7 +279,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogView" width="1000px">
+    <v-dialog persistent v-model="dialogView" width="1000px">
 
       <v-card>
         <v-card-title dense class=" primary  white--text background">

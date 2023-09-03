@@ -1,8 +1,6 @@
 <template>
   <v-stepper v-model="e6" vertical>
-    <v-stepper-step :complete="e6 > 1" step="1">
-      First Section
-    </v-stepper-step>
+    <v-stepper-step :complete="e6 > 1" step="1"> First Section </v-stepper-step>
 
     <v-stepper-content step="1">
       <v-row>
@@ -655,9 +653,7 @@
             >
               Continue
             </v-btn>
-            <v-btn dark small color="background" @click="e6 = 1">
-              Back
-            </v-btn>
+            <v-btn dark small color="background" @click="e6 = 1"> Back </v-btn>
           </div>
         </v-col>
       </v-row>
@@ -785,9 +781,7 @@
             >
               Submit
             </v-btn>
-            <v-btn dark small color="background" @click="e6 = 2">
-              Back
-            </v-btn>
+            <v-btn dark small color="background" @click="e6 = 2"> Back </v-btn>
           </div>
         </v-col>
       </v-row>
@@ -817,11 +811,11 @@ export default {
       { label: "Wed", value: "Wed" },
       { label: "Thu", value: "Thu" },
       { label: "Fri", value: "Fri" },
-      { label: "Sat", value: "Sat" }
+      { label: "Sat", value: "Sat" },
     ],
 
     payload: {
-      shift_type_id: "6"
+      shift_type_id: "6",
     },
 
     // payload: {
@@ -854,19 +848,19 @@ export default {
 
     shift_id: [],
     payload: {
-      days: []
+      days: [],
     },
 
     errors: [],
     shifts: [],
     data: [],
     response: "",
-    snackbar: false
+    snackbar: false,
   }),
   async created() {
     let options = {
       per_page: 1000,
-      company_id: this.$auth.user.company_id
+      company_id: this.$auth.user.company_id,
     };
 
     this.$axios.get("shift_type", { params: options }).then(({ data }) => {
@@ -881,7 +875,7 @@ export default {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -889,8 +883,8 @@ export default {
       let payload = {
         params: {
           shift_type_id: 6,
-          company_id: this.$auth.user.company_id
-        }
+          company_id: this.$auth.user.company_id,
+        },
       };
 
       this.$axios
@@ -898,7 +892,7 @@ export default {
         .then(({ data }) => {
           this.shifts = data;
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
 
     store_shift() {
@@ -913,14 +907,17 @@ export default {
           } else {
             this.snackbar = true;
             this.response = "Shift added successfully";
+            setTimeout(() => {
+              this.$router.push("/shift");
+            }, 1000);
           }
         })
         .catch(({ message }) => {
           this.snackbar = true;
           this.response = message;
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

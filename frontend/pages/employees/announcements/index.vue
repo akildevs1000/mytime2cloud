@@ -5,7 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="dialog" max-width="60%">
+    <v-dialog persistent v-model="dialog" max-width="60%">
       <v-card>
         <v-card-title>
           <span class="headline">{{ formTitle }} {{ Model }}</span>

@@ -12,7 +12,7 @@
       :dialog="childDialogVisible"
       @close="closeChildDialog"
     />
-    <v-dialog v-model="dialogEmployees" max-width="60%">
+    <v-dialog persistent v-model="dialogEmployees" max-width="60%">
       <v-card>
         <v-card-title dense class="primary white--text background">
           Employees List

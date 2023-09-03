@@ -12,263 +12,18 @@
         </template>
       </v-snackbar>
     </div>
-    <v-card elevation="0" v-if="can(`attendance_report_view`)">
-      <v-toolbar class="background" dense flat>
-        <span class="headline white--text"> {{ title }} Filters </span>
-        <v-spacer></v-spacer>
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              class="ma-0"
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="process_file(report_type)"
-            >
-              <v-icon class="white--text">mdi-printer-outline</v-icon>
-            </v-btn>
-          </template>
-          <span>PRINT</span>
-        </v-tooltip>
 
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="process_file(report_type + '_download_pdf')"
-            >
-              <v-icon class="white--text">mdi-download-outline</v-icon>
-            </v-btn>
-          </template>
-          <span>DOWNLOAD</span>
-        </v-tooltip>
-
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="process_file(report_type + '_download_csv')"
-            >
-              <v-icon class="white--text">mdi-file-outline</v-icon>
-            </v-btn>
-          </template>
-          <span>CSV</span>
-        </v-tooltip>
-      </v-toolbar>
-
-      <v-card-text class="py-3">
-        <v-row>
-          <v-col md="3">
-            <div>Frequency</div>
-            <v-autocomplete
-              class="mt-2"
-              @change="changeReportType(report_type)"
-              outlined
-              dense
-              v-model="report_type"
-              x-small
-              :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
-              item-text="['Daily']"
-              :hide-details="true"
-            ></v-autocomplete>
-          </v-col>
-          <v-col md="3">
-            Status
-            <v-select
-              @change="getDataFromApi(`report`)"
-              class="mt-2"
-              outlined
-              dense
-              v-model="payload.status"
-              x-small
-              :items="statuses"
-              item-value="id"
-              item-text="name"
-              :hide-details="true"
-            ></v-select>
-          </v-col>
-          <v-col md="3">
-            Departments
-            <v-autocomplete
-              @change="getScheduledEmployees"
-              class="mt-2"
-              outlined
-              dense
-              multiple
-              v-model="payload.department_ids"
-              x-small
-              :items="departments"
-              item-value="id"
-              item-text="name"
-              :hide-details="true"
-            ></v-autocomplete>
-          </v-col>
-          <v-col md="3">
-            Employee ID
-            <v-autocomplete
-              @change="getDataFromApi(`report`)"
-              class="mt-2"
-              outlined
-              dense
-              v-model="payload.employee_id"
-              x-small
-              :items="scheduled_employees"
-              item-value="system_user_id"
-              item-text="name_with_user_id"
-              :hide-details="true"
-            ></v-autocomplete>
-          </v-col>
-
-          <v-col md="3" v-if="report_type == 'Daily'">
-            <div>Date</div>
-            <div class="text-left mt-2">
-              <v-menu
-                class="mt-2"
-                ref="daily_menu"
-                v-model="daily_menu"
-                :close-on-content-click="false"
-                :return-value.sync="daily_date"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    :hide-details="payload.daily_date"
-                    outlined
-                    dense
-                    v-model="payload.daily_date"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker v-model="payload.daily_date" no-title scrollable>
-                  <v-spacer></v-spacer>
-                  <v-btn text color="primary" @click="daily_menu = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="set_date_save($refs.daily_menu, payload.daily_date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </div>
-          </v-col>
-          <v-col md="3" v-if="report_type !== 'Daily'">
-            <div class="text-left">
-              <v-menu
-                ref="from_menu"
-                v-model="from_menu"
-                :close-on-content-click="false"
-                :return-value.sync="from_date"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <div class="mb-2">From Date</div>
-                  <v-text-field
-                    :hide-details="payload.from_date"
-                    outlined
-                    dense
-                    v-model="payload.from_date"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker v-model="payload.from_date" no-title scrollable>
-                  <v-spacer></v-spacer>
-                  <v-btn text color="primary" @click="from_menu = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="set_date_save($refs.from_menu, payload.from_date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </div>
-          </v-col>
-          <v-col md="3" v-if="report_type !== 'Daily'">
-            <div class="mb-2">To Date</div>
-
-            <div class="text-left">
-              <v-menu
-                ref="to_menu"
-                v-model="to_menu"
-                :close-on-content-click="false"
-                :return-value.sync="to_date"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    :hide-details="payload.to_date"
-                    outlined
-                    dense
-                    v-model="payload.to_date"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="payload.to_date"
-                  :max="max_date"
-                  no-title
-                  scrollable
-                >
-                  <v-spacer></v-spacer>
-                  <v-btn text color="primary" @click="to_menu = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="set_date_save($refs.to_menu, payload.to_date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </div>
-          </v-col>
-        </v-row>
-      </v-card-text>
-
-      <v-divider></v-divider>
-    </v-card>
-    <v-card class="mb-5 mt-5" elevation="0" v-if="can(`attendance_report_view`)">
-      <v-toolbar class="background" dense dark flat>
-        <v-toolbar-title>
-          <span> {{ title }} </span>
-        </v-toolbar-title>
-
+    <v-card
+      class="mb-5 mt-5"
+      elevation="0"
+      v-if="can(`attendance_report_view`)"
+    >
+      <v-toolbar class="backgrounds" dense flat>
+        <v-toolbar-title> {{ title }}</v-toolbar-title>
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               x-small
-              :ripple="false"
               text
               v-bind="attrs"
               v-on="on"
@@ -279,40 +34,21 @@
           </template>
           <span>Reload</span>
         </v-tooltip>
-        <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="attendancFilters = true"
-                >
-                  <v-icon dark white @click="attendancFilters = true"
-                    >mdi-filter</v-icon
-                  >
-                </v-btn>
-              </template>
-              <span>Filter</span>
-            </v-tooltip> -->
-        <v-spacer></v-spacer>
 
-        <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
+        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               x-small
-              :ripple="false"
               text
               v-bind="attrs"
               v-on="on"
               @click="generateLogsDialog = true"
             >
-              <v-icon class="" dark white>mdi-plus-circle</v-icon>
+              <v-icon dark white>mdi-plus-circle-outline</v-icon>
             </v-btn>
           </template>
           <span>Generate Log</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
         <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
           <template v-slot:activator="{ on, attrs }">
@@ -324,7 +60,7 @@
               v-on="on"
               @click="reportSync = true"
             >
-              <v-icon class="" dark color="white">mdi-cached</v-icon>
+              <v-icon dark white>mdi-cached</v-icon>
             </v-btn>
           </template>
           <span>Render Report</span>
@@ -343,44 +79,6 @@
         model-value="data.id"
         :server-items-length="totalRowsCount"
       >
-        <template v-slot:header="{ props: { headers } }">
-          <tr v-if="isFilter">
-            <td
-              style="width: 40px"
-              v-for="header in headers"
-              :key="header.text"
-              class="table-search-header"
-            >
-              <v-text-field
-                style="padding-left: 10px"
-                v-if="header.filterable"
-                v-model="filters[header.value]"
-                id="header.value"
-                @input="applyFilters(header.value, $event)"
-                outlined
-                height="10px"
-                clearable
-                autocomplete="off"
-              ></v-text-field>
-
-              <template v-else>
-                <v-text-field
-                  style="display: none"
-                  outlined
-                  height="10px"
-                  clearable
-                  autocomplete="off"
-                ></v-text-field>
-              </template>
-            </td>
-          </tr>
-        </template>
-        <template v-slot:item.date="{ item }">
-          {{ item.date }}
-        </template>
-        <template v-slot:item.employee_id="{ item }">
-          {{ item.employee_id }}
-        </template>
         <template v-slot:item.employee_name="{ item }">
           {{ item.employee.first_name }} {{ item.employee.last_name }}
         </template>
@@ -825,6 +523,10 @@ export default {
     "headers",
     "render_endpoint",
     "process_file_endpoint",
+    "report_type",
+    "status",
+    "department_ids",
+    "employee_id",
   ],
 
   data: () => ({
@@ -888,7 +590,6 @@ export default {
     loading: false,
     total: 0,
 
-    report_type: "Monthly",
     payload: {
       from_date: null,
       to_date: null,
@@ -967,8 +668,19 @@ export default {
       this.errors = [];
       this.search = "";
     },
-    main_report_type() {
-      //this.getDataFromApi();
+    report_type(val) {
+      this.changeReportType(val);
+    },
+    department_ids(value) {
+      this.payload.department_ids = value;
+      this.getDataFromApi();
+    },
+    employee_id(value) {
+      this.payload.employee_id = value;
+      this.getDataFromApi();
+    },
+    report_type(val) {
+      this.changeReportType(val);
     },
     options: {
       handler() {
@@ -978,7 +690,6 @@ export default {
     },
   },
   async created() {
-    this.main_report_type = this.main_report_type_props;
     this.loading = true;
     // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
@@ -1009,6 +720,28 @@ export default {
   },
 
   methods: {
+    changeReportType(report_type) {
+      this.setFromDate();
+
+      switch (report_type) {
+        case "Daily":
+          this.setDailyDate();
+          break;
+        case "Weekly":
+          this.setSevenDays(this.payload.from_date);
+          break;
+        case "Monthly":
+        case "Custom":
+          this.setThirtyDays(this.payload.from_date);
+          break;
+
+        default:
+          this.max_date = null;
+          break;
+      }
+
+      this.getDataFromApi();
+    },
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -1076,28 +809,6 @@ export default {
         this.payload.from_date = `${y}-${formattedMonth}-01`;
       }
     },
-    changeReportType(report_type) {
-      this.setFromDate();
-
-      switch (report_type) {
-        case "Daily":
-          this.setDailyDate();
-          break;
-        case "Weekly":
-          this.setSevenDays(this.payload.from_date);
-          break;
-        case "Monthly":
-        case "Custom":
-          this.setThirtyDays(this.payload.from_date);
-          break;
-
-        default:
-          this.max_date = null;
-          break;
-      }
-
-      this.getDataFromApi();
-    },
 
     getDeviceList(options) {
       this.$axios.get(`/device_list`, options).then(({ data }) => {
@@ -1126,6 +837,7 @@ export default {
         .then(({ data }) => {
           this.getDataFromApi();
           this.add_manual_log = false;
+          this.generateLogsDialog = false;
           this.loading = false;
         })
         .catch(({ message }) => {
@@ -1150,27 +862,6 @@ export default {
       });
     },
 
-    getScheduledEmployees() {
-      let options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company_id,
-          department_ids: this.payload.department_ids,
-          shift_type_id: this.shift_type_id,
-        },
-      };
-
-      this.$axios
-        .get(`/scheduled_employees_with_type`, options)
-        .then(({ data }) => {
-          this.scheduled_employees = data;
-          this.scheduled_employees.unshift({
-            system_user_id: "",
-            name_with_user_id: "Select All",
-          });
-          this.getDataFromApi();
-        });
-    },
     // getDevices(options) {
     //   this.$axios.get(`/device`, options).then(({ data }) => {
     //     this.devices = data.data;
@@ -1250,7 +941,7 @@ export default {
           company_id: this.$auth.user.company_id,
           report_type: this.report_type,
           shift_type_id: this.shift_type_id,
-          status: this.payload.status,
+          status,
           late_early,
           overtime: this.overtime ? 1 : 0,
           ...this.filters,

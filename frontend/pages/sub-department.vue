@@ -20,7 +20,7 @@
     </v-row>
 
     <v-row>
-      <v-dialog v-model="dialogForm" :fullscreen="false" width="500px">
+      <v-dialog persistent v-model="dialogForm" :fullscreen="false" width="500px">
 
         <v-card elevation="0">
           <v-toolbar color="background" dense flat dark>

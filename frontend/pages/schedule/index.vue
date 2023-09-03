@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
 
-    <v-dialog v-model="editDialog" max-width="35%">
+    <v-dialog persistent v-model="editDialog" max-width="35%">
       <v-card>
         <v-card-title dense class="primary white--text background">
           Edit Schedule
@@ -103,7 +103,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialog" max-width="35%">
+    <v-dialog persistent v-model="dialog" max-width="35%">
       <v-card>
         <v-card-title dense class="primary white--text background">
           {{ formTitle }} Schedule

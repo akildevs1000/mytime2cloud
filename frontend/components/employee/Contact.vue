@@ -310,7 +310,9 @@ export default {
     close_contact_info() {
       this.contact_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => {
+        this.$emit("close-popup");
+      }, 1000);
     },
 
     can(item) {

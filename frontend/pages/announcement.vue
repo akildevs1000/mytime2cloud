@@ -5,7 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="dialog" max-width="60%">
+    <v-dialog persistent v-model="dialog" max-width="60%">
       <v-card>
         <v-card-title dense class="primary white--text background">
           {{ formTitle }} {{ Model }}
@@ -276,7 +276,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogEmployees" max-width="60%">
+    <v-dialog persistent v-model="dialogEmployees" max-width="60%">
       <v-card>
         <v-card-title dense class="primary white--text background">
           Employees List

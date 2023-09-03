@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="dialogCropping" width="500">
+    <v-dialog persistent v-model="dialogCropping" width="500">
       <v-card style="padding-top: 20px">
         <v-card-text>
           <VueCropper

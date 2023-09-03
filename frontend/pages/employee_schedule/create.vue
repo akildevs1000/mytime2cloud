@@ -29,7 +29,7 @@
 
     <component :is="currentComponent" />
 
-    <v-dialog v-model="dialog" width="900">
+    <v-dialog persistent v-model="dialog" width="900">
       <v-card>
         <v-card-title class="text-h5">
           Arrange Shift(s)
@@ -228,7 +228,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogVisible" max-width="500px">
+    <v-dialog persistent v-model="dialogVisible" max-width="500px">
       <v-card flat dense class="white--text">
         <v-card-title class="background">
           <span class="headline">Filter</span>

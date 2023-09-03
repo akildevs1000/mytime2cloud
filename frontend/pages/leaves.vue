@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
 
-    <v-dialog v-model="dialogLeaveGroup" width="500px">
+    <v-dialog persistent v-model="dialogLeaveGroup" width="500px">
 
       <v-card>
         <v-card-title dense class=" primary  white--text background">
@@ -48,7 +48,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialogView" width="1000px">
+    <v-dialog persistent v-model="dialogView" width="1000px">
       <v-card>
         <v-card-title dense class=" primary  white--text background">
           Leave Information

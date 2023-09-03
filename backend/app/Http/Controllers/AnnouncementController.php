@@ -15,8 +15,7 @@ class AnnouncementController extends Controller
 
     public function index(Request $request)
     {
-        return (new Announcement)->filters($request)->count();
-        $data = (new Announcement)->filters($request)->paginate($request->per_page ?? 100);
+        return $data = (new Announcement)->filters($request)->paginate($request->per_page ?? 100);
 
         foreach ($data as $key => $value) {
             return $value->department;

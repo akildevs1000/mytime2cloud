@@ -8,6 +8,7 @@
     <div v-if="can(`employee_view`)">
       <v-row>
         <v-dialog
+          persistent
           v-model="dialogFormDesignation"
           :fullscreen="false"
           width="500px"
@@ -79,6 +80,7 @@
           </v-card>
         </v-dialog>
         <v-dialog
+          persistent
           v-model="dialogFormSubdepartment"
           :fullscreen="false"
           width="500px"
@@ -150,7 +152,12 @@
             </v-card-text>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="dialogForm" :fullscreen="false" width="500px">
+        <v-dialog
+          persistent
+          v-model="dialogForm"
+          :fullscreen="false"
+          width="500px"
+        >
           <v-card>
             <v-card-title dense class="primary white--text background">
               <span>{{ formTitle }} {{ Model }}</span>
@@ -644,7 +651,7 @@ export default {
     },
     savenewDesignation() {
       let payload = {
-        name: this.new_Designation_name.toLowerCase(),
+        name: this.new_Designation_name,
         department_id: this.new_designation_department_id,
         company_id: this.$auth.user.company_id,
       };
@@ -671,7 +678,7 @@ export default {
     },
     saveSubDepartment() {
       let payload = {
-        name: this.New_sub_DepartmentName.toLowerCase(),
+        name: this.New_sub_DepartmentName,
         department_id: this.Newdepartment_id,
         company_id: this.$auth.user.company_id,
       };
@@ -697,7 +704,7 @@ export default {
     },
     save() {
       let payload = {
-        name: this.editedItem.name.toLowerCase(),
+        name: this.editedItem.name,
         company_id: this.$auth.user.company_id,
       };
       if (this.editedIndex > -1) {

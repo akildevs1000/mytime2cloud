@@ -13,7 +13,7 @@
       </v-snackbar>
     </div>
     <v-row justify="center">
-      <v-dialog v-model="generateLogsDialog" max-width="700px">
+      <v-dialog persistent v-model="generateLogsDialog" max-width="700px">
         <v-card>
           <v-card-title class="background">
             <span class="headline white--text" dense> Generate Log </span>

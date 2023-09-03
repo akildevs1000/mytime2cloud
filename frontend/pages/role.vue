@@ -1,6 +1,6 @@
 <template>
   <div v-if="can(`role_access`)">
-    <v-dialog v-model="dialogNewRole" width="500">
+    <v-dialog persistent v-model="dialogNewRole" width="500">
 
       <v-card>
         <v-card-title dense class=" primary  white--text background">

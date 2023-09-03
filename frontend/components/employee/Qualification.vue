@@ -11,15 +11,29 @@
           <div class="form-group">
             <label class="col-form-label">{{ caps("certificate") }}</label>
             <!-- <input v-model="qualification_list.certificate" type="text" class="form-control" /> -->
-            <v-text-field outlined dense small v-model="qualification_list.certificate"></v-text-field>
-            <span v-if="errors && errors.certificate" class="text-danger mt-2">{{ errors.certificate[0] }}</span>
+            <v-text-field
+              outlined
+              dense
+              small
+              v-model="qualification_list.certificate"
+            ></v-text-field>
+            <span
+              v-if="errors && errors.certificate"
+              class="text-danger mt-2"
+              >{{ errors.certificate[0] }}</span
+            >
           </div>
         </v-col>
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("college ") }}</label>
             <!-- <input v-model="qualification_list.collage" type="text" class="form-control" /> -->
-            <v-text-field outlined dense small v-model="qualification_list.collage"></v-text-field>
+            <v-text-field
+              outlined
+              dense
+              small
+              v-model="qualification_list.collage"
+            ></v-text-field>
             <span v-if="errors && errors.collage" class="text-danger mt-2">{{
               errors.collage[0]
             }}</span>
@@ -30,14 +44,33 @@
             <label class="col-form-label">{{ caps("start date") }}</label>
             <!-- <input v-model="qualification_list.start" class="form-control" type="date" /> -->
 
-            <v-menu v-model="menu_start" :close-on-content-click="false" transition="scale-transition" offset-y
-              max-width="290px" min-width="auto">
+            <v-menu
+              v-model="menu_start"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              max-width="290px"
+              min-width="auto"
+            >
               <template v-slot:activator="{ on, attrs }">
-                <v-text-field :hide-details="!qualification_list.start" :error-messages="errors.issue && errors.issue[0]"
-                  v-model="qualification_list.start" persistent-hint append-icon="mdi-calendar" readonly outlined dense
-                  v-bind="attrs" v-on="on"></v-text-field>
+                <v-text-field
+                  :hide-details="!qualification_list.start"
+                  :error-messages="errors.issue && errors.issue[0]"
+                  v-model="qualification_list.start"
+                  persistent-hint
+                  append-icon="mdi-calendar"
+                  readonly
+                  outlined
+                  dense
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
               </template>
-              <v-date-picker v-model="qualification_list.start" no-title @input="menu_start = false"></v-date-picker>
+              <v-date-picker
+                v-model="qualification_list.start"
+                no-title
+                @input="menu_start = false"
+              ></v-date-picker>
             </v-menu>
             <span v-if="errors && errors.start" class="text-danger mt-2">{{
               errors.start[0]
@@ -48,14 +81,33 @@
           <div class="form-group">
             <label class="col-form-label">{{ caps("end date") }}</label>
 
-            <v-menu v-model="menu_end" :close-on-content-click="false" transition="scale-transition" offset-y
-              max-width="290px" min-width="auto">
+            <v-menu
+              v-model="menu_end"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              max-width="290px"
+              min-width="auto"
+            >
               <template v-slot:activator="{ on, attrs }">
-                <v-text-field :hide-details="!qualification_list.end" :error-messages="errors.issue && errors.issue[0]"
-                  v-model="qualification_list.end" persistent-hint append-icon="mdi-calendar" readonly outlined dense
-                  v-bind="attrs" v-on="on"></v-text-field>
+                <v-text-field
+                  :hide-details="!qualification_list.end"
+                  :error-messages="errors.issue && errors.issue[0]"
+                  v-model="qualification_list.end"
+                  persistent-hint
+                  append-icon="mdi-calendar"
+                  readonly
+                  outlined
+                  dense
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
               </template>
-              <v-date-picker v-model="qualification_list.end" no-title @input="menu_end = false"></v-date-picker>
+              <v-date-picker
+                v-model="qualification_list.end"
+                no-title
+                @input="menu_end = false"
+              ></v-date-picker>
             </v-menu>
             <span v-if="errors && errors.end" class="text-danger mt-2">{{
               errors.end[0]
@@ -66,7 +118,12 @@
           <div class="form-group">
             <label class="col-form-label">{{ caps("type") }}</label>
             <!-- <input v-model="qualification_list.type" type="text" class="form-control" /> -->
-            <v-text-field outlined dense small v-model="qualification_list.type"></v-text-field>
+            <v-text-field
+              outlined
+              dense
+              small
+              v-model="qualification_list.type"
+            ></v-text-field>
             <span v-if="errors && errors.type" class="text-danger mt-2">{{
               errors.type[0]
             }}</span>
@@ -78,7 +135,9 @@
       </v-row>
       <v-row>
         <v-col cols="12" class="text-right">
-          <v-btn class="primary" small @click="save_qualification_info">Save</v-btn>
+          <v-btn class="primary" small @click="save_qualification_info"
+            >Save</v-btn
+          >
         </v-col>
       </v-row>
     </v-container>
@@ -152,7 +211,9 @@ export default {
     close_qualification_info() {
       this.qualification_info = false;
       this.errors = [];
-      setTimeout(() => { }, 300);
+      setTimeout(() => {
+        this.$emit("close-popup");
+      }, 1000);
     },
   },
 };

@@ -6,8 +6,14 @@
       </v-snackbar>
     </div>
     <div style="text-align: right" class="pr-5">
-      <v-icon @click="editItem" small class="red" style="border-radius: 50%; padding: 5px"
-        color="secondary">mdi-pencil</v-icon>
+      <v-icon
+        @click="editItem"
+        small
+        class="red"
+        style="border-radius: 50%; padding: 5px"
+        color="secondary"
+        >mdi-pencil</v-icon
+      >
     </div>
 
     <!-- <KeyValueTable :data="table_data" :hideEditBtn="true" /> -->
@@ -97,7 +103,6 @@ export default {
   methods: {
     getInfo() {
       this.$axios.get(`employee/${this.employeeId}`).then(async ({ data }) => {
-
         this.table_data2 = data;
         this.table_data = {
           Role: await data.role.name,
@@ -152,7 +157,7 @@ export default {
             this.errors = [];
             this.snackbar = true;
             this.response = "Setting has been successfully updated";
-
+            this.$emit("close-popup");
           }
         })
         .catch((e) => console.log(e));

@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
     <v-row justify="center">
-      <v-dialog v-model="generateLogsDialog" max-width="700px">
+      <v-dialog persistent v-model="generateLogsDialog" max-width="700px">
         <v-card>
           <v-card-title class="background">
             <span class="headline white--text" dense> Generate Log </span>
@@ -21,7 +21,14 @@
             </v-icon>
           </v-card-title>
           <v-card-text>
-            <GenerateLog @update-data-table="getDataFromApi()" />
+            <GenerateLog
+              @update-data-table="
+                () => {
+                  getDataFromApi();
+                  generateLogsDialog = false;
+                }
+              "
+            />
           </v-card-text>
         </v-card>
       </v-dialog>

@@ -7,7 +7,7 @@
     </div>
     <div v-if="!preloader">
       <div class="text-center">
-        <v-dialog v-model="dialog" width="500">
+        <v-dialog persistent v-model="dialog" width="500">
           <v-card>
             <v-card-title dense class="primary white--text background">
               Send Test message to Whatsapp

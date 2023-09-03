@@ -14,7 +14,7 @@
 
     <v-row justify="center">
       <div class="text-center">
-        <v-dialog v-model="attendancFilters" width="900">
+        <v-dialog persistent v-model="attendancFilters" width="900">
           <v-card>
             <v-card-title class="background">
               <span class="headline white--text">
@@ -311,7 +311,7 @@
           </v-card>
         </v-dialog>
       </div>
-      <v-dialog v-model="time_table_dialog" max-width="600px">
+      <v-dialog persistent v-model="time_table_dialog" max-width="600px">
         <v-card class="darken-1">
           <v-toolbar class="primary" dense dark flat>
             <span class="text-h5">Time Slots</span>
@@ -333,7 +333,7 @@
     </v-row>
 
     <v-row justify="center">
-      <v-dialog v-model="dialog" max-width="700px">
+      <v-dialog persistent v-model="dialog" max-width="700px">
         <v-card>
           <v-card-title class="primary darken-2">
             <span class="headline white--text"> Update Log </span>
@@ -448,7 +448,7 @@
       </v-dialog>
     </v-row>
 
-    <v-dialog v-model="add_manual_log" width="700">
+    <v-dialog persistent v-model="add_manual_log" width="700">
       <v-card>
         <v-card-title class="text-h5 primary white--text darken-2" dark>
           Manual Log
@@ -691,7 +691,7 @@
       </v-col>
     </v-row>
     <v-row justify="center">
-      <v-dialog v-model="log_details" max-width="600px">
+      <v-dialog persistent v-model="log_details" max-width="600px">
         <v-card class="darken-1">
           <v-toolbar class="primary" dense dark flat>
             <span class="text-h5 pa-2">Log Details</span>
@@ -709,7 +709,7 @@
           </v-card-text>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="renderVisitorDialog" max-width="500px">
+      <v-dialog persistent v-model="renderVisitorDialog" max-width="500px">
         <v-card>
           <v-card-title class="background">
             <span class="headline white--text">Submit Data</span>

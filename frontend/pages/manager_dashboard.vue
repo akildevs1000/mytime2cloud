@@ -1,7 +1,7 @@
 <template>
   <div v-if="can(`manager_dashboard_access`)">
     <v-row justify="center">
-      <v-dialog v-model="time_table_dialog" max-width="600px">
+      <v-dialog persistent v-model="time_table_dialog" max-width="600px">
         <v-card class="darken-1">
           <v-toolbar class="primary" dense dark flat>
             <span class="text-h5">Time Slots</span>
@@ -28,7 +28,7 @@
     </div>
 
     <v-row justify="center">
-      <v-dialog v-model="dialog" max-width="700px">
+      <v-dialog persistent v-model="dialog" max-width="700px">
         <v-card>
           <v-card-title class="primary darken-2">
             <span class="headline white--text"> Update Log </span>
@@ -351,7 +351,7 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-dialog v-model="add_manual_log" width="700">
+    <v-dialog persistent v-model="add_manual_log" width="700">
       <v-card>
         <v-card-title class="text-h5 primary white--text darken-2" dark>
           Manual Log
@@ -638,7 +638,7 @@
     <NoAccess v-else />
 
     <v-row justify="center">
-      <v-dialog v-model="log_details" max-width="600px">
+      <v-dialog persistent v-model="log_details" max-width="600px">
         <v-card class="darken-1">
           <v-toolbar class="primary" dense dark flat>
             <span class="text-h5 pa-2">Log Details</span>

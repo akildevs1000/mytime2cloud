@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <v-dialog
+      <v-dialog persistent>
         v-model="dialogGeneralreport"
         :fullscreen="false"
         max-width="80%"
@@ -98,7 +98,7 @@
             </v-container>
             <v-card class="mx-auto" max-width="500">
               <div class="text-center">
-                <v-dialog v-model="dialog" width="600">
+                <v-dialog persistent v-model="dialog" width="600">
                   <v-card>
                     <v-card-title class="text-h5 primary white--text">
                       Announcement Detail
@@ -255,7 +255,7 @@
               </v-list>
               <v-card class="mx-auto" max-width="500">
                 <div class="text-center">
-                  <v-dialog v-model="dialog" width="600">
+                  <v-dialog persistent v-model="dialog" width="600">
                     <v-card>
                       <v-card-title class="text-h5 primary white--text">
                         Announcement Detail

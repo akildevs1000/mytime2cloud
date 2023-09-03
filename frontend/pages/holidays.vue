@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
 
-    <v-dialog v-model="dialogFilter" width="300px">
+    <v-dialog persistent v-model="dialogFilter" width="300px">
 
       <v-card elevation="0">
         <v-toolbar color="background" dense flat dark>
@@ -29,7 +29,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialog" width="500px">
+    <v-dialog persistent v-model="dialog" width="500px">
 
       <v-card>
         <v-card-title dense class=" primary  white--text background">

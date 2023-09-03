@@ -204,7 +204,9 @@ export default {
     close_visa_info() {
       this.visa_info = false;
       this.errors = [];
-      setTimeout(() => {}, 300);
+      setTimeout(() => {
+        this.$emit("close-popup");
+      }, 1000);
     },
 
     save_visa_info() {
