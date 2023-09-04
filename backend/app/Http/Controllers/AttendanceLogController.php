@@ -92,6 +92,8 @@ class AttendanceLogController extends Controller
             return $this->getMeta("Sync Attenance Logs", $result["message"] . "\n");
         }
 
+        $result["data"] = array_values(array_unique($result["data"]));
+
         $records = [];
 
         foreach ($result["data"] as $row) {
@@ -107,7 +109,7 @@ class AttendanceLogController extends Controller
 
         try {
             AttendanceLog::insert($records);
-            Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
+            // Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
             Storage::put("logs-count-" . $result['date'] . ".txt", $result['totalLines']);
             return $this->getMeta("Sync Attenance Logs", count($records) . " new logs has been inserted." . "\n");
         } catch (\Throwable $th) {
