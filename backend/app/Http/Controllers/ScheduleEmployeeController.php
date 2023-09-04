@@ -172,13 +172,32 @@ class ScheduleEmployeeController extends Controller
 
                 $model->where("employee_id", $row["employee_id"]);
                 $model->where("roster_id", $roster["id"]);
+                $arr = [];
 
-                $shiftTypeIdIndex = $roster["shift_type_ids"][$index] == 0 ? $index - 1 : $index;
+                if ($index == -2) {
+                    $arr = [
+                        "shift_id" => -2,
+                        "shift_type_id" => -2,
+                    ];
+                } else if ($index == -1) {
+                    $arr = [
+                        "shift_id" => -1,
+                        "shift_type_id" => -1,
+                    ];
+                } else {
+                    $arr = [
+                        "shift_id" => $roster->shift_ids[$index],
+                        "shift_type_id" => $roster->shift_type_ids[$index]
+                    ];
+                }
 
-                $arr = [
-                    "shift_id" => $roster["shift_ids"][$index],
-                    "shift_type_id" => $roster["shift_type_ids"][$shiftTypeIdIndex],
-                ];
+
+                // $shiftTypeIdIndex = $roster["shift_type_ids"][$index] == 0 ? $index - 1 : $index;
+
+                // $arr = [
+                //     "shift_id" => $roster["shift_ids"][$index],
+                //     "shift_type_id" => $roster["shift_type_ids"][$shiftTypeIdIndex],
+                // ];
 
                 $model->update($arr);
                 $arr["employee_id"] = $row["employee_id"];
