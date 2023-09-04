@@ -220,15 +220,27 @@ class ScheduleEmployeeController extends Controller
 
             $index = array_search($currentDay, $roster->days);
 
-            if ($roster->shift_type_ids[$index] !== 0) {
-                $shift_type_id = $roster->shift_type_ids[$index];
+            $arr = [];
+
+            if ($index == -2) {
+                $arr = [
+                    "shift_id" => -2,
+                    "shift_type_id" => -2,
+                ];
+            } else if ($index == -1) {
+                $arr = [
+                    "shift_id" => -1,
+                    "shift_type_id" => -1,
+                ];
+            } else {
+                $arr = [
+                    "shift_id" => $roster->shift_ids[$index],
+                    "shift_type_id" => $roster->shift_type_ids[$index]
+                ];
             }
 
-            $schedule->update([
-                "shift_id" => $roster->shift_ids[$index],
-                "shift_type_id" => $roster->shift_type_ids[$index == 0 ? -1 : $index],
-                "is_week" => 1,
-            ]);
+
+            $schedule->update($arr);
 
             $employeesScheduled++;
         }
