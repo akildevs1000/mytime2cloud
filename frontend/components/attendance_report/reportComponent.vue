@@ -530,6 +530,9 @@ export default {
     "status",
     "department_ids",
     "employee_id",
+    "daily_date",
+    "from_date",
+    "to_date",
   ],
 
   data: () => ({
@@ -680,6 +683,18 @@ export default {
     },
     employee_id(value) {
       this.payload.employee_id = value;
+      this.getDataFromApi();
+    },
+    daily_date(value) {
+      this.payload.daily_date = value;
+      this.getDataFromApi();
+    },
+    from_date(value) {
+      this.payload.from_date = value;
+      this.getDataFromApi();
+    },
+    to_date(value) {
+      this.payload.to_date = value;
       this.getDataFromApi();
     },
     report_type(val) {

@@ -266,6 +266,9 @@
             :status="payload.status"
             :department_ids="payload.department_ids"
             :employee_id="payload.employee_id"
+            :daily_date="payload.daily_date"
+            :from_date="payload.from_date"
+            :to_date="payload.to_date"
             process_file_endpoint=""
             render_endpoint="render_general_report"
           />
@@ -278,6 +281,9 @@
             :status="payload.status"
             :department_ids="payload.department_ids"
             :employee_id="payload.employee_id"
+            :daily_date="payload.daily_date"
+            :from_date="payload.from_date"
+            :to_date="payload.to_date"
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
           />
@@ -290,6 +296,9 @@
             :status="payload.status"
             :department_ids="payload.department_ids"
             :employee_id="payload.employee_id"
+            :daily_date="payload.daily_date"
+            :from_date="payload.from_date"
+            :to_date="payload.to_date"
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
           />
