@@ -35,6 +35,55 @@
           <span>Reload</span>
         </v-tooltip>
 
+        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              class="ma-0"
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="process_file(report_type)"
+            >
+              <v-icon dark white>mdi-printer-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>PRINT</span>
+        </v-tooltip>
+
+        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="process_file(report_type + '_download_pdf')"
+            >
+              <v-icon dark white>mdi-download-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>DOWNLOAD</span>
+        </v-tooltip>
+
+        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+              @click="process_file(report_type + '_download_csv')"
+            >
+              <v-icon dark white>mdi-file-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>CSV</span>
+        </v-tooltip>
+
         <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -50,7 +99,7 @@
           <span>Generate Log</span>
         </v-tooltip> -->
 
-        <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
+        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               x-small
@@ -64,8 +113,9 @@
             </v-btn>
           </template>
           <span>Render Report</span>
-        </v-tooltip>
+        </v-tooltip> -->
       </v-toolbar>
+
       <v-data-table
         dense
         :headers="headers"
@@ -697,9 +747,7 @@ export default {
       this.payload.to_date = value;
       this.getDataFromApi();
     },
-    report_type(val) {
-      this.changeReportType(val);
-    },
+
     options: {
       handler() {
         this.getDataFromApi();
@@ -959,7 +1007,6 @@ export default {
           company_id: this.$auth.user.company_id,
           report_type: this.report_type,
           shift_type_id: this.shift_type_id,
-          status,
           late_early,
           overtime: this.overtime ? 1 : 0,
           ...this.filters,

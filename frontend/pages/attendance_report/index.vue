@@ -4,7 +4,7 @@
       <v-toolbar class="background" dense flat>
         <span class="headline white--text"> {{ title }} Filters </span>
         <v-spacer></v-spacer>
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
+        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               class="ma-0"
@@ -51,7 +51,7 @@
             </v-btn>
           </template>
           <span>CSV</span>
-        </v-tooltip>
+        </v-tooltip> -->
       </v-toolbar>
 
       <v-card-text class="py-3">
@@ -278,6 +278,7 @@
             title="Split Reports"
             shift_type_id="2"
             :headers="doubleHeaders"
+            :report_type="report_type"
             :status="payload.status"
             :department_ids="payload.department_ids"
             :employee_id="payload.employee_id"
@@ -293,6 +294,7 @@
             title="Multi In/Out Reports"
             shift_type_id="2"
             :headers="multiHeaders"
+            :report_type="report_type"
             :status="payload.status"
             :department_ids="payload.department_ids"
             :employee_id="payload.employee_id"
@@ -609,53 +611,6 @@ export default {
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
-    },
-
-    process_file(type) {
-      if (this.data && !this.data.length) {
-        alert("No data found");
-        return;
-      }
-
-      if (!this.payload.department_ids.length) {
-        alert("Department Must be selected");
-        return;
-      }
-      type = type.toLowerCase().replace("custom", "monthly");
-      let path =
-        process.env.BACKEND_URL +
-        "/" +
-        this.process_file_endpoint +
-        type.toLowerCase();
-
-      let qs = ``;
-
-      qs += `${path}`;
-      qs += `?main_shift_type=${this.shift_type_id}`;
-      qs += `&shift_type_id=${this.shift_type_id}`;
-      qs += `&company_id=${this.$auth.user.company_id}`;
-      qs += `&status=${this.payload.status}`;
-      if (
-        this.payload.department_ids &&
-        this.payload.department_ids.length > 0
-      ) {
-        qs += `&department_ids=${this.payload.department_ids.join(",")}`;
-      }
-      qs += `&employee_id=${this.payload.employee_id}`;
-      qs += `&report_type=${this.report_type}`;
-
-      if (this.report_type == "Daily") {
-        qs += `&daily_date=${this.payload.daily_date}`;
-      } else {
-        qs += `&from_date=${this.payload.from_date}&to_date=${this.payload.to_date}`;
-      }
-
-      let report = document.createElement("a");
-      report.setAttribute("href", qs);
-      report.setAttribute("target", "_blank");
-      report.click();
-
-      return;
     },
 
     setStatusLabel(status) {
