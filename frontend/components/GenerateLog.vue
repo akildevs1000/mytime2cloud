@@ -7,13 +7,17 @@
     </div>
     <v-row>
       <v-col md="4">
-        <v-text-field
+        <v-autocomplete
           class="mt-5"
-          dense
-          outlined
           placeholder="Employee Device Id"
           v-model="log_payload.user_id"
-        ></v-text-field>
+          :items="employees"
+          :item-text="`name_with_id`"
+          item-value="system_user_id"
+          dense
+          outlined
+        >
+        </v-autocomplete>
         <span v-if="errors && errors.user_id" class="text-danger mt-2">{{
           errors.user_id[0]
         }}</span>
@@ -160,6 +164,17 @@ export default {
     response: "",
     snackbar: false,
   }),
+  computed: {
+    employees() {
+      return this.$store.state.employees.map((e) => ({
+        system_user_id: e.system_user_id,
+        first_name: e.first_name,
+        last_name: e.last_name,
+        display_name: e.display_name,
+        name_with_id: `${e.first_name} - ${e.system_user_id}`,
+      }));
+    },
+  },
   created() {
     this.loading = true;
     let options = {
@@ -193,8 +208,7 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.$emit("update-data-table");
-            // this.render_report();
+            this.render_report();
 
             this.snackbar = true;
             this.response = data.message;
@@ -217,7 +231,7 @@ export default {
         },
       };
       this.$axios
-        .get(this.endpoint, payload)
+        .get("render_logs", payload)
         .then(({ data }) => {
           this.loading = false;
           this.$emit("update-data-table");

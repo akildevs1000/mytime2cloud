@@ -3,6 +3,8 @@
 use App\Http\Controllers\Shift\RenderController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('render_logs', [RenderController::class, 'renderLogs']);
+
 Route::get('render_multi_inout_report', [RenderController::class, 'renderMultiInOut']);
 Route::get('render_general_report', [RenderController::class, 'renderGeneral']);
 
