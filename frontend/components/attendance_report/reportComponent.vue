@@ -498,16 +498,19 @@
           <v-toolbar class="primary" dense dark flat>
             <span class="text-h5 pa-2">Log Details</span>
             <v-spacer></v-spacer>
-            Total logs
-            <b class="background--text mx-1">({{ log_list.length }})</b>
+
+            <v-icon @click="log_details = false"
+              >mdi-close-circle-outline</v-icon
+            >
           </v-toolbar>
           <v-card-text>
-            <div class="pt-5">
-              <span v-for="(log, index) in log_list" :key="index">
-                {{ log.date }} - {{ log.time }}
-                <hr />
-              </span>
-            </div>
+            <br />
+            Total logs
+            <b class="background--text mx-1">({{ log_list.length }})</b>
+            <hr />
+            <ul v-for="(log, index) in log_list" :key="index">
+              <li>{{ log.date }} - {{ log.time }}</li>
+            </ul>
           </v-card-text>
         </v-card>
       </v-dialog>

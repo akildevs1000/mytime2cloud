@@ -60,6 +60,7 @@
       </v-snackbar>
       <v-data-table
         dense
+        :server-items-length="total"
         :headers="headers_table"
         :items="data"
         model-value="data.id"
@@ -116,7 +117,6 @@
 <script>
 export default {
   data: () => ({
-    totalRowsCount: 0,
     isFilter: false,
     filters: {},
     shifts: [],
@@ -429,7 +429,6 @@ export default {
           this.loading = false;
           return false;
         }
-        this.totalRowsCount = data.total;
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
