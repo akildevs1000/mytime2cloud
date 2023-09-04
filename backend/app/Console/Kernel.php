@@ -20,6 +20,21 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
+        $schedule->call(function () {
+            exec('pm2 reload 18');
+            info("Log listener restart");
+        })->dailyAt('00:00');
+
+        $schedule
+            ->command('task:sync_auto')
+            // ->dailyAt('4:00')
+            // ->hourly()
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/$date-auto-logs.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
         if (env("APP_ENV") !== "local") {
 
             $schedule

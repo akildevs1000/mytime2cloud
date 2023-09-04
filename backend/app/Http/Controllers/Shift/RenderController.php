@@ -162,78 +162,98 @@ class RenderController extends Controller
 
     public function renderAutoCron()
     {
+        $message = "";
 
-        return $date = date("Y-m-d");
-
-        return;
-
-        $company_id = 8;
-
-        $UserID = 1006;
-
-        $schedule = $this->getScheduleAuto($date, $company_id, $UserID);
-
-        if (!$schedule) {
-            return $this->response("Employee with $UserID SYSTEM USER ID is not scheduled yet.", null, false);
-        }
+        $date = date("Y-m-d");
 
         $model = AttendanceLog::query();
+        $model->whereDate("LogTime", date("Y-m-d"));
+        $model->where("checked", false);
+        $model->distinct(["LogTime"]);
+        $model->where("company_id", ">", 0);
 
-        $model->whereDate("LogTime", $date);
-        $model->where("company_id", $company_id);
-        $model->where("UserID", $UserID);
-        $model->distinct("LogTime");
-        $count = $model->count();
-        $data = [$model->clone()->orderBy("LogTime")->first(), $model->orderBy("LogTime", "desc")->first()];
+        $model->orderBy("LogTime");
+        $data = $model->get()->groupBy(["UserID"]);
 
-        if (!$data) {
-            return ["error" => true, "message" => "Employee with $UserID SYSTEM USER ID has no Log(s)."];
+        if (!count($data)) {
+            return "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto No data found.\n";
         }
 
-        $shifts = $this->getShifts($company_id);
 
-        $nearestShift = $this->findClosest($shifts, count($shifts), $data[0]["show_log_time"], $date);
+        foreach ($data as $data) {
 
-        $arr = [];
-        $arr["company_id"] = $company_id;
-        $arr["date"] = $date;
-        $arr["employee_id"] = $UserID;
-        $arr["shift_type_id"] = $nearestShift["shift_type_id"];
-        $arr["shift_id"] = $nearestShift["id"];
-        $arr["device_id_in"] = $data[0]["DeviceID"];
-        $arr["in"] = $data[0]["time"];
-        $arr["status"] = "M";
-        $arr["is_manual_entry"] = true;
+            $company_id = $data[0]->company_id;
+            $UserID = $data[0]->UserID;
 
-        if ($schedule["shift_type_id"] == 4 && $schedule["shift_type_id"] == 6) {
+            $schedule = $this->getScheduleAuto($date, $company_id, $UserID);
 
-            $LateComing = $this->calculatedLateComing($arr["in"], $nearestShift["on_duty_time"], $nearestShift["late_time"]);
-
-            if ($LateComing) {
-                $arr["late_coming"] = $LateComing;
-            }
-        }
-
-        if ($count > 1) {
-            $arr["status"] = "P";
-            $arr["device_id_out"] = $data[1]["DeviceID"];
-            $arr["out"] = $data[1]["time"];
-            $arr["total_hrs"] = $this->getTotalHrsMins($data[0]["time"], $data[1]["time"]);
-
-            if ($schedule["isOverTime"]) {
-                $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $nearestShift['working_hours'], $nearestShift['overtime_interval']);
+            if (!$schedule) {
+                $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto Employee with $UserID SYSTEM USER ID is not scheduled yet.\n";
+                continue;
             }
 
-            if ($nearestShift["shift_type_id"] == 4 && $nearestShift["shift_type_id"] == 6) {
-                $EarlyGoing = $this->calculatedEarlyGoing($arr["in"], $nearestShift["off_duty_time"], $nearestShift["early_time"]);
+            if (!$data) {
+                $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto Employee with $UserID SYSTEM USER ID has no Log(s).\n";
+                continue;
+            }
 
-                if ($EarlyGoing) {
-                    // $arr["status"] = "A";
-                    $arr["early_going"] = $EarlyGoing;
+            $count = count($data);
+
+            $data = [$data[0], $data[$count - 1]];
+
+            $shifts = $this->getShifts($company_id);
+
+            $nearestShift = $this->findClosest($shifts, count($shifts), $data[0]["show_log_time"], $date);
+
+            $arr = [];
+            $arr["company_id"] = $company_id;
+            $arr["date"] = $date;
+            $arr["employee_id"] = $UserID;
+            $arr["shift_type_id"] = $nearestShift["shift_type_id"];
+            $arr["shift_id"] = $nearestShift["id"];
+            $arr["device_id_in"] = $data[0]["DeviceID"];
+            $arr["in"] = $data[0]["time"];
+            $arr["status"] = "M";
+            $arr["is_manual_entry"] = true;
+
+            if ($schedule["shift_type_id"] == 4 && $schedule["shift_type_id"] == 6) {
+
+                $LateComing = $this->calculatedLateComing($arr["in"], $nearestShift["on_duty_time"], $nearestShift["late_time"]);
+
+                if ($LateComing) {
+                    $arr["late_coming"] = $LateComing;
                 }
             }
+
+            if ($count > 1) {
+                $arr["status"] = "P";
+                $arr["device_id_out"] = $data[1]["DeviceID"];
+                $arr["out"] = $data[1]["time"];
+                $arr["total_hrs"] = $this->getTotalHrsMins($data[0]["time"], $data[1]["time"]);
+
+                if ($schedule["isOverTime"]) {
+                    $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $nearestShift['working_hours'], $nearestShift['overtime_interval']);
+                }
+
+                if ($nearestShift["shift_type_id"] == 4 && $nearestShift["shift_type_id"] == 6) {
+                    $EarlyGoing = $this->calculatedEarlyGoing($arr["in"], $nearestShift["off_duty_time"], $nearestShift["early_time"]);
+
+                    if ($EarlyGoing) {
+                        // $arr["status"] = "A";
+                        $arr["early_going"] = $EarlyGoing;
+                    }
+                }
+            }
+
+            AttendanceLog::where("UserID", $UserID)->where("company_id", $company_id)->update(["checked" => true]);
+
+            $this->storeOrUpdate($arr);
+
+            $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto The Log(s) has been rendered against " . $UserID . " SYSTEM USER ID.\n";
         }
-        return $this->storeOrUpdate($arr);
+
+
+        return $message;
     }
 
     public function renderAuto(Request $request)

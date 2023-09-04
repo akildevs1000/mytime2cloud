@@ -13,7 +13,7 @@ class SyncAutoShift extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_auto {id}';
+    protected $signature = 'task:sync_auto';
 
     /**
      * The console command description.
@@ -29,13 +29,11 @@ class SyncAutoShift extends Command
      */
     public function handle()
     {
-        $id = $this->argument('id');
-
         try {
-            echo (new RenderController)->renderAutoShiftCron($id);
+            echo (new RenderController)->renderAutoCron();
         } catch (\Throwable $th) {
-            Logger::channel("custom")->error('Cron: SyncOff. Error Details: ' . $th);
-            echo "[" . date("Y-m-d H:i:s") . "] Cron: SyncOff. Error occurred while inserting logs.\n";
+            Logger::channel("custom")->error('Cron: SyncAuto. Error Details: ' . $th);
+            echo "[" . date("Y-m-d H:i:s") . "] Cron: SyncAuto. Error occurred while inserting logs.\n";
         }
     }
 }
