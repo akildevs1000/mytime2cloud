@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Log as Logger;
 Route::get('/syncLogsScript', function (Request $request) {
 
     return (new RenderController)->renderAuto($request);
+    
 
 
     return [
