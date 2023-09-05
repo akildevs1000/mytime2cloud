@@ -3,55 +3,6 @@
     <v-card elevation="0" v-if="can(`attendance_report_view`)">
       <v-toolbar class="background" dense flat>
         <span class="headline white--text"> {{ title }} Filters </span>
-        <v-spacer></v-spacer>
-        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              class="ma-0"
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="process_file(report_type)"
-            >
-              <v-icon class="white--text">mdi-printer-outline</v-icon>
-            </v-btn>
-          </template>
-          <span>PRINT</span>
-        </v-tooltip>
-
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="process_file(report_type + '_download_pdf')"
-            >
-              <v-icon class="white--text">mdi-download-outline</v-icon>
-            </v-btn>
-          </template>
-          <span>DOWNLOAD</span>
-        </v-tooltip>
-
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="process_file(report_type + '_download_csv')"
-            >
-              <v-icon class="white--text">mdi-file-outline</v-icon>
-            </v-btn>
-          </template>
-          <span>CSV</span>
-        </v-tooltip> -->
       </v-toolbar>
 
       <v-card-text class="py-3">

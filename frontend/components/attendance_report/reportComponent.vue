@@ -99,7 +99,7 @@
           <span>Generate Log</span>
         </v-tooltip> -->
 
-        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
+        <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               x-small
@@ -113,7 +113,7 @@
             </v-btn>
           </template>
           <span>Render Report</span>
-        </v-tooltip> -->
+        </v-tooltip>
       </v-toolbar>
 
       <v-data-table
@@ -616,9 +616,7 @@ export default {
     dialog: false,
     generateLogsDialog: false,
     reportSync: false,
-    from_date: null,
     from_menu: false,
-    to_date: null,
     to_menu: false,
     ids: [],
     departments: [],
@@ -631,7 +629,6 @@ export default {
     deviceRules: [(v) => !!v || "device is required"],
     main_report_type: "Multi In/Out Report",
     daily_menu: false,
-    daily_date: null,
     dailyDate: false,
     editItems: {
       attendance_logs_id: "",
@@ -1136,6 +1133,11 @@ export default {
     process_file(type) {
       if (this.data && !this.data.length) {
         alert("No data found");
+        return;
+      }
+
+      if (this.payload.department_ids == undefined) {
+        alert("Department Must be selected");
         return;
       }
 
