@@ -26,12 +26,32 @@ class RenderController extends Controller
 
     public function renderLogs(Request $request)
     {
-        // return $this->renderAutoCron();
-        return [
-            "multi" => $this->renderMultiInOut($request),
-            "general" => $this->renderGeneral($request),
-            "auto" => $this->renderAuto($request)
-        ];
+        // Extract start and end dates from the JSON data
+        $startDateString = $request->dates[0];
+        $endDateString = $request->dates[1];
+        $company_id = $request->company_id;
+
+        // Convert start and end dates to DateTime objects
+        $startDate = new \DateTime($startDateString);
+        $endDate = new \DateTime($endDateString);
+        $currentDate = new \DateTime();
+
+        $arr = [];
+
+        while ($startDate <= $currentDate && $startDate <= $endDate) {
+            // Perform your actions or tasks for each date here
+            foreach ($request->UserIDs as $userID) {
+                $arr[] =  $this->renderAutoMultiple($startDate->format('Y-m-d'), $userID, $company_id);
+            }
+
+            // Increment the date by one day
+            $startDate->modify('+1 day');
+        }
+
+        // $this->renderMultiInOut($request);
+        // $this->renderGeneral($request);
+
+        return $arr;
     }
 
     public function renderMultiInOut(Request $request)
@@ -255,6 +275,90 @@ class RenderController extends Controller
 
         return $message;
     }
+    public function renderAutoMultiple($date, $UserID, $company_id,)
+    {
+        $schedule = $this->getScheduleAuto($date, $company_id, $UserID);
+
+        if (!$schedule) {
+            return "Employee with $UserID SYSTEM USER ID is not scheduled yet.";
+        }
+
+        $model = AttendanceLog::query();
+
+        $model->whereDate("LogTime", $date);
+        $model->where("company_id", $company_id);
+        $model->where("UserID", $UserID);
+        $model->distinct("LogTime");
+        $count = $model->count();
+        $data = [$model->clone()->orderBy("LogTime")->first(), $model->orderBy("LogTime", "desc")->first()];
+
+        if (!$count) {
+            return "Employee with $UserID SYSTEM USER ID has no Log(s) on $date.";
+        }
+
+        $shifts = $this->getShifts($company_id);
+
+        $nearestShift = $this->findClosest($shifts, count($shifts), $data[0]["show_log_time"], $date);
+
+        $arr = [];
+        $arr["company_id"] = $company_id;
+        $arr["date"] = $date;
+        $arr["employee_id"] = $UserID;
+        $arr["shift_type_id"] = $nearestShift["shift_type_id"];
+        $arr["shift_id"] = $nearestShift["id"];
+        $arr["device_id_in"] = $data[0]["DeviceID"];
+        $arr["in"] = $data[0]["time"];
+        $arr["status"] = "M";
+        $arr["is_manual_entry"] = true;
+
+        if ($schedule["shift_type_id"] == 4 && $schedule["shift_type_id"] == 6) {
+
+            $LateComing = $this->calculatedLateComing($arr["in"], $nearestShift["on_duty_time"], $nearestShift["late_time"]);
+
+            if ($LateComing) {
+                $arr["late_coming"] = $LateComing;
+            }
+        }
+
+        if ($count > 1) {
+            $arr["status"] = "P";
+            $arr["device_id_out"] = $data[1]["DeviceID"];
+            $arr["out"] = $data[1]["time"];
+            $arr["total_hrs"] = $this->getTotalHrsMins($data[0]["time"], $data[1]["time"]);
+
+            if ($schedule["isOverTime"]) {
+                $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $nearestShift['working_hours'], $nearestShift['overtime_interval']);
+            }
+
+            if ($nearestShift["shift_type_id"] == 4 && $nearestShift["shift_type_id"] == 6) {
+                $EarlyGoing = $this->calculatedEarlyGoing($arr["in"], $nearestShift["off_duty_time"], $nearestShift["early_time"]);
+
+                if ($EarlyGoing) {
+                    // $arr["status"] = "A";
+                    $arr["early_going"] = $EarlyGoing;
+                }
+            }
+        }
+
+        try {
+
+            $attendance = Attendance::firstOrNew([
+                'date' => $arr['date'],
+                'employee_id' => $arr['employee_id'],
+                'company_id' => $arr['company_id'],
+            ]);
+
+            $attendance->fill($arr)->save();
+
+
+            if (!$attendance) {
+                return "The Logs cannnot render against " . $arr['employee_id'] . " SYSTEM USER ID on $date.";
+            }
+            return "The Logs has been render against " . $arr['employee_id'] . " SYSTEM USER ID on $date.";
+        } catch (\Exception $e) {
+            return $e;
+        }
+    }
 
     public function renderAuto(Request $request)
     {
@@ -444,27 +548,6 @@ class RenderController extends Controller
 
     public function storeOrUpdate($items)
     {
-        try {
-
-            $attendance = Attendance::firstOrNew([
-                'date' => $items['date'],
-                'employee_id' => $items['employee_id'],
-                'company_id' => $items['company_id'],
-            ]);
-
-            $attendance->fill($items)->save();
-
-            if ($this->reason) {
-                $result = $this->createReason($attendance->id);
-            }
-
-            if (!$attendance) {
-                return $this->response("The Logs cannnot render against " . $items['employee_id'] . " SYSTEM USER ID.", null, false);
-            }
-            return $this->response("The Logs has been render against " . $items['employee_id'] . " SYSTEM USER ID.", null, true);
-        } catch (\Exception $e) {
-            return $e;
-        }
     }
 
     public function renderOff(Request $request)
