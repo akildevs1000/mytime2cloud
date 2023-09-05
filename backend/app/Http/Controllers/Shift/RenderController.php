@@ -51,7 +51,7 @@ class RenderController extends Controller
         // $this->renderMultiInOut($request);
         // $this->renderGeneral($request);
 
-        return $arr;
+        return info(json_encode($arr));
     }
 
     public function renderMultiInOut(Request $request)

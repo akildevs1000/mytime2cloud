@@ -106,9 +106,9 @@
             </v-col>
             <v-col cols="12">
               <ul>
-                <li v-for="(item, index) in result" :key="index">
-                  {{ item }}
-                </li>
+                {{
+                  result.length > 0 ? "Log(s) has been rendered" : ""
+                }}
               </ul>
             </v-col>
           </v-form>
