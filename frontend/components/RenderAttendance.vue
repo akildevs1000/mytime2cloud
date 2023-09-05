@@ -19,7 +19,51 @@
                 outlined
                 multiple
               >
+                <template v-if="employees.length" #prepend-item>
+                  <v-list-item @click="toggleEmployeeSelection">
+                    <v-list-item-action>
+                      <v-checkbox
+                        @click="toggleEmployeeSelection"
+                        v-model="selectAllEmployee"
+                        :indeterminate="isIndeterminateEmployee"
+                        :true-value="true"
+                        :false-value="false"
+                      ></v-checkbox>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{ selectAllEmployee ? "Unselect All" : "Select All" }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+                <template v-slot:selection="{ item, index }">
+                  <span v-if="index === 0 && editItems.UserIDs.length == 1"
+                    >{{ item.first_name }} {{ item.last_name }}</span
+                  >
+                  <span
+                    v-else-if="
+                      index === 1 &&
+                      editItems.UserIDs.length == employees.length
+                    "
+                    class=" "
+                  >
+                    All Selected
+                  </span>
+                  <span v-else-if="index === 1" class=" ">
+                    Selected {{ editItems.UserIDs.length }} Employee(s)
+                  </span>
+                </template>
+                <!-- <template v-slot:selection="{ item, index }">
+
+                    <span v-if="index === 0">{{ item.first_name }} {{ item.last_name }}</span>
+
+                    <span v-else-if="index === 1" class="grey--text text-caption">
+                      (+{{ editedItem.employees.length - 1 }} others)
+                    </span>
+                  </template> -->
               </v-autocomplete>
+
               <!-- <v-text-field
                   v-model="editItems.UserID"
                   label="User Id"
@@ -98,9 +142,12 @@ import DateRangePickerCommon from "./Snippets/DateRangePickerCommon.vue";
 export default {
   props: ["endpoint"],
   data: () => ({
+    valid: false,
     snackbar: false,
     loading: false,
     response: null,
+    selectAllEmployee: false,
+
     result: [],
     editItems: {
       attendance_logs_id: "",
@@ -109,13 +156,18 @@ export default {
       user_id: "",
       reason: "",
       date: "",
-
       UserIDs: [],
       dates: [],
       time: null,
     },
   }),
   computed: {
+    isIndeterminateEmployee() {
+      return (
+        this.editItems.UserIDs.length > 0 &&
+        this.editItems.UserIDs.length < this.employees.length
+      );
+    },
     employees() {
       return this.$store.state.employees.map((e) => ({
         system_user_id: e.system_user_id,
@@ -126,8 +178,20 @@ export default {
       }));
     },
   },
+  watch: {
+    selectAllEmployee(value) {
+      if (value) {
+        this.editItems.UserIDs = this.employees.map((e) => e.system_user_id);
+      } else {
+        this.editItems.UserIDs = [];
+      }
+    },
+  },
   created() {},
   methods: {
+    toggleEmployeeSelection() {
+      this.selectAllEmployee = !this.selectAllEmployee;
+    },
     handleDatesFilter(dates) {
       this.editItems.dates = dates;
     },
