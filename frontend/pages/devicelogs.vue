@@ -361,12 +361,12 @@ export default {
         value: "UserID",
       },
       { text: "DeviceID", align: "center", sortable: false, value: "DeviceID" },
-      {
-        text: "Device Name",
-        align: "center",
-        sortable: false,
-        value: "device.name",
-      },
+      // {
+      //   text: "Device Name",
+      //   align: "center",
+      //   sortable: false,
+      //   value: "device.name",
+      // },
       { text: "LogTime", align: "center", sortable: false, value: "LogTime" },
     ],
     ids: [],
