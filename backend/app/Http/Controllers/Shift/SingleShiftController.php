@@ -8,9 +8,110 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\ScheduleEmployee;
 
 class SingleShiftController extends Controller
 {
+    public function renderSingle()
+    {
+        $companyIds = Company::pluck("id");
+
+        if (count($companyIds) == 0) {
+            info($this->getMeta("SyncSingleShift", "No Company found."));
+        }
+
+        $UserIds = ScheduleEmployee::where("shift_type_id", 6)->get();
+
+        foreach ($UserIds as $UserID) {
+            $this->userFunc($UserID->company_id, $UserID);
+        }
+    }
+
+    public function getScheduleSingle($currentDate, $companyId, $UserID)
+    {
+        $schedule = ScheduleEmployee::where('company_id', $companyId)
+            ->where("employee_id", $UserID)
+            ->where("shift_type_id", 6)
+            ->first();
+
+        return $this->getSchedule($currentDate, $schedule);
+    }
+
+
+    public function userFunc($company_id, $schedule)
+    {
+
+        $date = date("Y-m-d");
+
+
+
+        $UserID = $schedule->employee_id;
+
+        $schedule = $this->getScheduleSingle($date, $company_id, $UserID);
+
+        if (!$schedule) {
+            return $this->response("Employee with $UserID SYSTEM USER ID is not scheduled yet.", null, false);
+        }
+
+
+        $model = AttendanceLog::query();
+
+        $model->whereDate("LogTime", $date);
+        $model->where("company_id", $company_id);
+        $model->where("UserID", $UserID);
+        $model->distinct("LogTime");
+
+        $count = $model->count();
+
+        $data = [$model->clone()->orderBy("LogTime")->first(), $model->orderBy("LogTime", "desc")->first()];
+
+        if (!$count) {
+            info("Employee with $UserID SYSTEM USER ID and company id = $company_id has no Log(s) on $date.");
+            return;
+        }
+
+        $arr = [];
+        $arr["company_id"] = $company_id;
+        $arr["date"] = $date;
+        $arr["employee_id"] = $UserID;
+        $arr["shift_type_id"] = $schedule["shift_type_id"];
+        $arr["shift_id"] = $schedule["shift_id"];
+        $arr["roster_id"] = $schedule["roster_id"];
+        $arr["device_id_in"] = $data[0]["DeviceID"];
+        $arr["in"] = $data[0]["time"];
+        $arr["status"] = "M";
+        $arr["late_coming"] = $this->calculatedLateComing($arr["in"], $schedule["on_duty_time"], $schedule["late_time"]);
+
+
+        if ($count > 1) {
+            $arr["status"] = "P";
+            $arr["device_id_out"] = $data[1]["DeviceID"];
+            $arr["out"] = $data[1]["time"];
+            $arr["total_hrs"] = $this->getTotalHrsMins($data[0]["time"], $data[1]["time"]);
+
+            if ($schedule["isOverTime"]) {
+                $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $schedule['working_hours'], $schedule['overtime_interval']);
+            }
+            $arr["early_going"] = $this->calculatedEarlyGoing($arr["out"], $schedule["off_duty_time"], $schedule["early_time"]);;
+        }
+
+        try {
+
+            $attendance = Attendance::firstOrNew([
+                'date' => $arr['date'],
+                'employee_id' => $arr['employee_id'],
+                'company_id' => $arr['company_id'],
+            ]);
+
+            $attendance->fill($arr)->save();
+
+            info("The Logs has been render against " . $arr['employee_id'] . " SYSTEM USER ID.");
+            return;
+        } catch (\Exception $e) {
+            return $e;
+        }
+    }
+
 
     public $shift_type_id = 6;
 
