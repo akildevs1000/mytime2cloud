@@ -550,6 +550,9 @@ export default {
             this.snackbar = true;
             this.response = "Employees Updated successfully";
             this.$emit("eventFromchild");
+            setTimeout(() => {
+              this.$emit("close-popup");
+            }, 1000);
 
             //this.employeeDialog = false;
           }

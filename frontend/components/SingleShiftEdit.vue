@@ -167,8 +167,6 @@
       </v-col>
 
       <v-col cols="12" md="3">
-        Late Time <span class="error--text">*</span>
-
         <v-menu
           ref="late_time_menu_ref"
           v-model="late_time_menu"
@@ -181,6 +179,7 @@
           min-width="290px"
         >
           <template v-slot:activator="{ on, attrs }">
+            Late Time
             <v-text-field
               append-icon="mdi-clock-outline"
               v-model="payload.late_time"
@@ -216,7 +215,6 @@
           errors.late_time[0]
         }}</span>
       </v-col>
-
       <v-col cols="12" md="3">
         <v-menu
           ref="time_out_menu_ref"
@@ -247,6 +245,8 @@
             format="24hr"
             v-if="time_out_menu"
             v-model="payload.off_duty_time"
+            :min="payload.on_duty_time"
+            max="23:59"
             full-width
           >
             <v-spacer></v-spacer>
@@ -655,7 +655,7 @@
 
 <script>
 export default {
-  props: ["shift_type_id"],
+  props: ["shift_type_id", "shift_id"],
 
   data: () => ({
     date: null,
@@ -692,18 +692,18 @@ export default {
     ending_out_menu: false,
 
     payload: {
-      on_duty_time: "21:00",
-      beginning_in: "20:00",
-      ending_in: "01:00",
-      late_time: "00:15",
-      off_duty_time: "06:00",
-      beginning_out: "05:00",
-      ending_out: "07:00",
-      early_time: "00:15",
+      on_duty_time: "09:00",
+      beginning_in: "06:00",
+      ending_in: "13:00",
+      late_time: "09:15",
+      off_duty_time: "18:00",
+      beginning_out: "17:00",
+      ending_out: "23:59",
+      early_time: "17:30",
       absent_min_in: "01:00",
       absent_min_out: "01:00",
       working_hours: "09:00",
-      overtime_interval: "00:30",
+      overtime_interval: "09:00",
       days: ["Sun"],
     },
     errors: [],
@@ -712,7 +712,34 @@ export default {
     response: "",
     snackbar: false,
   }),
-  async created() {},
+  async created() {
+    this.$axios
+      .get(`/shift/${this.shift_id}`)
+      .then(({ data }) => {
+        this.loading = false;
+        this.payload = {
+          name: data.name,
+          on_duty_time: data.on_duty_time,
+          beginning_in: data.beginning_in,
+          ending_in: data.ending_in,
+          late_time: data.late_time,
+          off_duty_time: data.off_duty_time,
+          beginning_out: data.beginning_out,
+          ending_out: data.ending_out,
+          early_time: data.early_time,
+          absent_min_in: data.absent_min_in,
+          absent_min_out: data.absent_min_out,
+          working_hours: data.working_hours,
+          overtime_interval: data.overtime_interval,
+          company_id: this.$auth.user.company_id,
+          shift_type_id: data.shift_type_id,
+        };
+      })
+      .catch(({ message }) => {
+        this.snackbar = true;
+        this.response = message;
+      });
+  },
   watch: {},
   computed: {},
   methods: {
@@ -723,22 +750,20 @@ export default {
       );
     },
     store_shift() {
-      this.payload.company_id = this.$auth.user.company_id;
-      this.payload.shift_type_id = this.shift_type_id;
-
       this.loading = true;
+
       this.$axios
-        .post(`/shift`, this.payload)
+        .put(`/shift/${this.shift_id}`, this.payload)
         .then(({ data }) => {
           this.loading = false;
           if (!data.status) {
             this.errors = data.errors;
           } else {
             this.snackbar = true;
-            this.response = "Shift added successfully";
+            this.response = "Shift update successfully";
             setTimeout(() => {
               this.$router.push("/shift");
-            },1000);
+            }, 1000);
           }
         })
         .catch(({ message }) => {

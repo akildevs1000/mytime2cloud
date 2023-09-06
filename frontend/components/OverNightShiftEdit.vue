@@ -643,7 +643,7 @@
             v-if="can(`shift_create`)"
             small
             color="primary"
-            @click="store_shift"
+            @click="submit"
           >
             Submit
           </v-btn>
@@ -655,7 +655,7 @@
 
 <script>
 export default {
-  props: ["shift_type_id"],
+  props: ["shift_type_id", "shift_id"],
 
   data: () => ({
     date: null,
@@ -712,7 +712,34 @@ export default {
     response: "",
     snackbar: false,
   }),
-  async created() {},
+  async created() {
+    this.$axios
+      .get(`/shift/${this.shift_id}`)
+      .then(({ data }) => {
+        this.loading = false;
+        this.payload = {
+          name: data.name,
+          on_duty_time: data.on_duty_time,
+          beginning_in: data.beginning_in,
+          ending_in: data.ending_in,
+          late_time: data.late_time,
+          off_duty_time: data.off_duty_time,
+          beginning_out: data.beginning_out,
+          ending_out: data.ending_out,
+          early_time: data.early_time,
+          absent_min_in: data.absent_min_in,
+          absent_min_out: data.absent_min_out,
+          working_hours: data.working_hours,
+          overtime_interval: data.overtime_interval,
+          company_id: this.$auth.user.company_id,
+          shift_type_id: data.shift_type_id,
+        };
+      })
+      .catch(({ message }) => {
+        this.snackbar = true;
+        this.response = message;
+      });
+  },
   watch: {},
   computed: {},
   methods: {
@@ -722,23 +749,21 @@ export default {
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
-    store_shift() {
-      this.payload.company_id = this.$auth.user.company_id;
-      this.payload.shift_type_id = this.shift_type_id;
-
+    submit() {
       this.loading = true;
+
       this.$axios
-        .post(`/shift`, this.payload)
+        .put(`/shift/${this.shift_id}`, this.payload)
         .then(({ data }) => {
           this.loading = false;
           if (!data.status) {
             this.errors = data.errors;
           } else {
             this.snackbar = true;
-            this.response = "Shift added successfully";
+            this.response = "Shift update successfully";
             setTimeout(() => {
               this.$router.push("/shift");
-            },1000);
+            }, 1000);
           }
         })
         .catch(({ message }) => {

@@ -432,6 +432,7 @@ export default {
     };
     this.getDepartments(options);
     this.getDeviceList(options);
+    this.getScheduledEmployees();
 
     let dt = new Date();
     let y = dt.getFullYear();

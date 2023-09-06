@@ -443,7 +443,8 @@ export default {
     },
 
     editItem(item) {
-      this.$router.push(`/shift/${item.id}`);
+      this.$store.commit("shift_type_id", item.shift_type_id);
+      this.$router.push(`/shift/edit/${item.id}`);
     },
 
     delteteSelectedRecords() {
