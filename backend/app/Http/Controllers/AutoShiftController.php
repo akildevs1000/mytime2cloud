@@ -42,6 +42,7 @@ class AutoShiftController extends Controller
         try {
             $model = AutoShift::query();
             $model->where("company_id", $request->company_id);
+            $model->orWhere("company_id", 0);
             $model->delete();
             $record = $model->insert($arr);
             if ($record) {

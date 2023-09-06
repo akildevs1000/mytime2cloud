@@ -22,7 +22,9 @@ class ShiftController extends Controller
         $model = Shift::query();
         $model->with("shift_type");
         $model->where('company_id', $request->company_id);
-        $model->withCount("autoshift");
+        $model->withCount(["autoshift" => function ($q) use ($request) {
+            return $q->where("company_id", $request->company_id);
+        }]);
         $model->when($request->filled('name'), function ($q) use ($request) {
             //$key = strtolower($request->name);
             $q->where('name', 'ILIKE', "$request->name%");
@@ -62,6 +64,11 @@ class ShiftController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function shiftValidate(StoreRequest $request, Shift $model)
+    {
+        return $request->validated();
+    }
+
     public function store(StoreRequest $request, Shift $model)
     {
         if ($request->shift_type_id == 3) {
