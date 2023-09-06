@@ -227,7 +227,7 @@
         <v-tab-item value="tab-2">
           <AttendanceReport
             title="Split Reports"
-            shift_type_id="2"
+            shift_type_id="5"
             :headers="doubleHeaders"
             :report_type="report_type"
             :status="payload.status"
