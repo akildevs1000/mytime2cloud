@@ -7,7 +7,7 @@
     </div>
     <v-row>
       <v-col md="12">
-        <b>Shifts</b>
+        <b>Shifts <small>(Single,Night,Split)</small> </b>
         <br />
         <v-skeleton-loader v-if="!shifts" type="card" />
 

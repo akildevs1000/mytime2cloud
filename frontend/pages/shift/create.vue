@@ -117,7 +117,7 @@ export default {
     beginning_out_menu: false,
     ending_out_menu: false,
 
-    shift_id: [],
+    shift_type_id: "",
     payload: {
       shift_type_id: 6,
       days: [],
