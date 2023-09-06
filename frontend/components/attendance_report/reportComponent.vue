@@ -84,7 +84,7 @@
           <span>CSV</span>
         </v-tooltip>
 
-        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
+        <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               x-small
@@ -97,7 +97,7 @@
             </v-btn>
           </template>
           <span>Generate Log</span>
-        </v-tooltip> -->
+        </v-tooltip>
 
         <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
           <template v-slot:activator="{ on, attrs }">

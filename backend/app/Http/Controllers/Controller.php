@@ -292,7 +292,7 @@ class Controller extends BaseController
         $in = strtotime($time);
 
         if ($in < $late_condition) {
-            return true;
+            return "---";
         }
 
         $diff = abs((strtotime($on_duty_time) - $in));
@@ -311,7 +311,7 @@ class Controller extends BaseController
         $out = strtotime($time);
 
         if ($out > $late_condition) {
-            return true;
+            return "---";
         }
 
         $diff = abs((strtotime($off_duty_time) - $out));

@@ -208,7 +208,9 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.render_report();
+            this.$emit("close-popup");
+
+            // this.render_report();
 
             this.snackbar = true;
             this.response = data.message;
@@ -235,6 +237,7 @@ export default {
         .then(({ data }) => {
           this.loading = false;
           this.$emit("update-data-table");
+
         })
         .catch((e) => console.log(e));
     },

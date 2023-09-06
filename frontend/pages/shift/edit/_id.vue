@@ -155,7 +155,7 @@ export default {
           this.comp = "SingleShiftEdit";
           break;
         case 5:
-          this.comp = "SplitShiftEdit";
+          this.comp = "widgetsShiftsSplitShiftEdit";
           break;
         case 4:
           this.comp = "OverNightShiftEdit";

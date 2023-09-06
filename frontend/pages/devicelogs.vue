@@ -22,12 +22,8 @@
           </v-card-title>
           <v-card-text>
             <GenerateLog
-              @update-data-table="
-                () => {
-                  getDataFromApi();
-                  generateLogsDialog = false;
-                }
-              "
+              @close-popup="generateLogsDialog = false"
+              @update-data-table="getDataFromApi"
             />
           </v-card-text>
         </v-card>

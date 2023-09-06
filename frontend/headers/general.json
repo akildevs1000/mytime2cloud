@@ -35,13 +35,7 @@
     "filterable": true,
     "value": "shift"
   },
-  {
-    "text": "Status",
-    "align": "left",
-    "sortable": true,
-    "filterable": false,
-    "value": "status"
-  },
+
   {
     "text": "In",
     "align": "left",
@@ -57,6 +51,20 @@
     "value": "out"
   },
   {
+    "text": "Late Coming",
+    "align": "left",
+    "sortable": true,
+    "filterable": false,
+    "value": "late_coming"
+  },
+  {
+    "text": "Early Out",
+    "align": "left",
+    "sortable": true,
+    "filterable": false,
+    "value": "early_going"
+  },
+  {
     "text": "Total Hrs",
     "align": "left",
     "sortable": true,
@@ -69,6 +77,14 @@
     "sortable": true,
     "filterable": true,
     "value": "ot"
+  },
+
+  {
+    "text": "Status",
+    "align": "left",
+    "sortable": true,
+    "filterable": false,
+    "value": "status"
   },
 
   { "text": "Actions", "value": "actions", "sortable": false }

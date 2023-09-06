@@ -45,6 +45,9 @@ class SingleShiftController extends Controller
                 continue;
             };
 
+            $schedule = $logs[0]["schedule"];
+            $shift    = $schedule["shift"];
+
             $arr["employee_id"] = $UserID;
 
             $model = $this->findAttendanceByUserId($arr);
@@ -56,6 +59,8 @@ class SingleShiftController extends Controller
                 $arr["shift_id"] = $logs[0]["schedule"]["shift_id"];
                 $arr["roster_id"] = $logs[0]["schedule"]["roster_id"];
                 $arr["in"] = $logs[0]["time"];
+                $arr["late_coming"] = $this->calculatedLateComing($logs[0]["time"], $shift["on_duty_time"], $shift["late_time"]);
+
                 $items[] = $arr;
                 $ids[] = $logs[0]["id"];
 
@@ -70,6 +75,8 @@ class SingleShiftController extends Controller
                 $schedule = $model->schedule ?? false;
                 $isOverTime = $schedule && $schedule->isOverTime ?? false;
                 $shift = $last['schedule']['shift'];
+                $arr["early_going"] = $this->calculatedEarlyGoing($last["time"], $shift["off_duty_time"], $shift["early_time"]);
+
                 if ($isOverTime) {
                     $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift['working_hours'], $shift['overtime_interval']);
                 }
