@@ -149,7 +149,7 @@ export default {
           this.comp = "SingleShift";
           break;
         case 5:
-          this.comp = "SplitShift";
+          this.comp = "widgetsShiftsSplitShift";
           break;
         case 4:
           this.comp = "OverNightShift";
