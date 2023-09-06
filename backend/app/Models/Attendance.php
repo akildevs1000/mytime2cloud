@@ -153,8 +153,12 @@ class Attendance extends Model
             $q->where('shift_type_id', 2);
         });
 
-        $model->when($request->filled('shift_type_id') && $request->shift_type_id != 2, function ($q) {
-            $q->whereNot('shift_type_id', 2);
+        $model->when($request->filled('shift_type_id') && $request->shift_type_id == 5, function ($q) {
+            $q->where('shift_type_id', 5);
+        });
+
+        $model->when($request->filled('shift_type_id') && in_array($request->shift_type_id, [1, 3, 4, 6]), function ($q) {
+            $q->whereIn('shift_type_id', [1, 3, 4, 6]);
         });
 
         $department_ids = $request->department_ids;
@@ -167,11 +171,11 @@ class Attendance extends Model
             $q->whereIn('employee_id', Employee::whereIn("department_id", $department_ids)->where('company_id', $request->company_id)->pluck("system_user_id"));
         });
 
-        $model->when($request->filled('status') && $request->status != "-1" , function ($q) use ($request) {
+        $model->when($request->filled('status') && $request->status != "-1", function ($q) use ($request) {
             $q->where('status', $request->status);
         });
 
-      
+
         $model->when($request->status == "ME", function ($q) {
             $q->where('is_manual_entry', true);
         });
