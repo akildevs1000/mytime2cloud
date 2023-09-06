@@ -97,14 +97,12 @@ class SingleShiftController extends Controller
 
         try {
 
-            $attendance = Attendance::firstOrNew([
-                'date' => $arr['date'],
-                'employee_id' => $arr['employee_id'],
-                'company_id' => $arr['company_id'],
-            ]);
-
-            $attendance->fill($arr)->save();
-
+            $model = Attendance::query();
+            $model->where("date", $arr['date']);
+            $model->where("employee_id", $arr['employee_id']);
+            $model->where("company_id", $arr['company_id']);
+            $model->delete();
+            $model->create($arr);
             info("The Logs has been render against " . $arr['employee_id'] . " SYSTEM USER ID.");
             return;
         } catch (\Exception $e) {
