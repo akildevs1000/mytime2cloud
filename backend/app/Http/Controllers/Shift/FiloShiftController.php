@@ -20,7 +20,7 @@ class FiloShiftController extends Controller
         $scheduleEmployees = ScheduleEmployee::with("shift")
             ->whereHas("attendance_logs", function ($q) use ($date) {
                 $q->whereDate("LogTime", $date);
-                $q->where("checked", false);
+                // $q->where("checked", false);
             })
             ->where("shift_type_id", 1)
             ->get();
