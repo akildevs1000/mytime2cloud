@@ -35,7 +35,6 @@ class SyncSingleShift extends Command
     {
         try {
             echo (new SingleShiftController)->render();
-            // echo (new MultiInOutShiftController)->syncLogsScript();
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncAllShift. Error Details: ' . $th);
             $date = date("Y-m-d H:i:s");

@@ -8,154 +8,98 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\ScheduleEmployee;
 
 class FiloShiftController extends Controller
 {
-
-    public $shift_type_id = 1;
-
-    public $result = "";
-
-    public $arr = [];
-
-    public function findAttendanceByUserId($item)
+    public function render()
     {
-        $model = Attendance::query();
-        $model->where("employee_id", $item["employee_id"]);
-        $model->where("company_id", $item["company_id"]);
-        $model->whereDate("date", $item["date"]);
+        $date = $this->getCurrentDate();
 
-        return !$model->first() ? false : $model->with(["schedule", "shift"])->first();
-    }
+        // Get all schedule employees for the current date and shift type id 6
+        $scheduleEmployees = ScheduleEmployee::with("shift")
+            ->whereHas("attendance_logs", function ($q) use ($date) {
+                $q->whereDate("LogTime", $date);
+                $q->where("checked", false);
+            })
+            ->where("shift_type_id", 1)
+            ->get();
 
-    public function processData($companyId, $data, $shift_type_id, $checked = true)
-    {
+        // If no schedule employees are found, log and return a message
+        if ($scheduleEmployees->isEmpty()) {
+            info("FiloShift: No Data Found.");
+            return "FiloShift: No Data Found";
+        }
+
+        $company_ids = $scheduleEmployees->pluck('company_id')->toArray();
+        $employee_ids = $scheduleEmployees->pluck('employee_id')->toArray();
+
+        $attendanceLogs = AttendanceLog::whereDate("LogTime", $date)
+            ->whereIn("company_id", $company_ids)
+            ->whereIn("UserID", $employee_ids)
+            ->distinct("LogTime", "UserID", "company_id")
+            ->get()
+            ->groupBy(['company_id', 'UserID']);
+
         $items = [];
-        $arr = [];
-        $ids = [];
-        $existing_ids = [];
-        $arr["company_id"] = $companyId;
-        $arr["date"] = $this->getCurrentDate();
 
-        $str = "";
+        foreach ($scheduleEmployees as $scheduleEmployee) {
+            $employeeAttendanceLogs = $attendanceLogs[$scheduleEmployee->company_id][$scheduleEmployee->employee_id];
 
-        foreach ($data as $UserID => $logs) {
-            if (count($logs) == 0) {
-                $str .= "No log(s) found for Company ID $companyId.\n";
+            if (!$employeeAttendanceLogs || $employeeAttendanceLogs->isEmpty()) {
+                info("FiloShift: No Data Found for employee {$scheduleEmployee->employee_id}");
                 continue;
-            };
+            }
 
-            $arr["employee_id"] = $UserID;
+            $firstLog = $employeeAttendanceLogs->first();
+            $lastLog = $employeeAttendanceLogs->last();
 
-            $model = $this->findAttendanceByUserId($arr);
+            $shift = $scheduleEmployee->shift;
 
-            if (!$model) {
-                $arr["shift_type_id"] = $shift_type_id;
+            $arr = [
+
+                "total_hrs" => "---",
+                "out" => "---",
+                "ot" => "---",
+
+                "company_id" => $scheduleEmployee->company_id,
+                "date" => $date,
+                "employee_id" => $scheduleEmployee->employee_id,
+                "shift_type_id" => $scheduleEmployee->shift_type_id,
+                "shift_id" => $scheduleEmployee->shift_id,
+                "roster_id" => $scheduleEmployee->roster_id,
+                "device_id_in" => $firstLog["DeviceID"],
+                "device_id_out" => $firstLog["DeviceID"],
+                "in" => $firstLog["time"],
+                "status" => "M",
+            ];
+
+            if (count($employeeAttendanceLogs) > 1) {
                 $arr["status"] = "P";
-                $arr["device_id_in"] = $logs[0]["DeviceID"];
-                $arr["shift_id"] = $logs[0]["schedule"]["shift_id"];
-                $arr["roster_id"] = $logs[0]["schedule"]["roster_id"];
-                $arr["in"] = $logs[0]["time"];
-                $items[] = $arr;
-                $ids[] = $logs[0]["id"];
+                $arr["device_id_out"] = $lastLog["DeviceID"];
+                $arr["out"] = $lastLog["time"];
+                $arr["total_hrs"] = $this->getTotalHrsMins($firstLog["time"], $lastLog["time"]);
 
-                Attendance::create($arr);
-                AttendanceLog::where("id", $logs[0]["id"])->update(["checked" => true]);
-            } else {
-
-                $last = array_reverse($logs)[0];
-                $arr["out"] = $last["time"];
-                $arr["device_id_out"] = $last["DeviceID"];
-                $arr["total_hrs"] = $this->getTotalHrsMins($model->in, $last["time"]);
-                $schedule = $model->schedule ?? false;
-                $isOverTime = $schedule && $schedule->isOverTime ?? false;
-                $shift = $last['schedule']['shift'];
-                if ($isOverTime) {
-                    $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift['working_hours'], $shift['overtime_interval']);
+                if ($scheduleEmployee->isOverTime) {
+                    $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift->working_hours, $shift->overtime_interval);
                 }
-
-                $items[] = $arr;
-
-                $model->update($arr);
-                $existing_ids[] = $UserID;
             }
+            $items[] = $arr;
         }
-        $new_logs = 0; //$this->storeAttendances($items, $ids);
-        $existing_logs = $this->updateAttendances($companyId, $existing_ids);
+        // return $items;
 
-        $result = $new_logs + $existing_logs;
-        $str .= $this->getMeta("SyncSingleShift", "Total $result Log(s) Processed against company $companyId.\n");
-        return $str;
-    }
-
-    public function storeAttendances($items, $ids)
-    {
-        Attendance::insert($items);
-
-        return AttendanceLog::whereIn("id", $ids)->update(["checked" => true]);
-    }
-
-    public function updateAttendances($companyId, $existing_ids)
-    {
-        return AttendanceLog::where("UserID", $existing_ids)->where("company_id", $companyId)->update(["checked" => true]);
-    }
-
-    public function syncLogsScript()
-    {
-        $companyIds = Company::pluck("id");
-
-        if (count($companyIds) == 0) {
-            return $this->getMeta("SyncFiloShift", "No Company found.");
+        try {
+            $model = Attendance::query();
+            $model->where("date", $date);
+            $model->whereIn("employee_id", $employee_ids);
+            $model->whereIn("company_id", $company_ids);
+            $model->delete();
+            $model->insert($items);
+            info("FiloShift: Log(s) has been render. Data: " . json_encode($items));
+            AttendanceLog::where("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
+            return count($items) . " Log(s) been inserted";
+        } catch (\Exception $e) {
+            return $e;
         }
-
-        return $this->runFunc($this->getCurrentDate(), $companyIds, []);
-    }
-
-
-    public function ClearDB($currentDate, $companyIds, $UserIDs)
-    {
-        // update attendance_logs table
-        DB::table('attendance_logs')
-            ->whereDate('LogTime', '=', $currentDate)
-            ->whereIn('company_id',  $companyIds)
-            ->whereIn('UserID', $UserIDs)
-            ->update(['checked' => false]);
-
-        // delete from attendances table
-        DB::table('attendances')
-            ->whereDate('date', '=', $currentDate)
-            ->whereIn('company_id',  $companyIds)
-            ->whereIn('employee_id',  $UserIDs)
-            ->delete();
-    }
-
-    public function processByManual(Request $request)
-    {
-        $currentDate = $request->input('date', $this->getCurrentDate());
-        $companyIds = $request->input('company_ids', []);
-        $UserIDs = $request->input('UserIDs', []);
-        // $this->ClearDB($currentDate, $companyIds, $UserIDs);
-        return $this->runFunc($currentDate, $companyIds, $UserIDs);
-    }
-
-    public function processByManualSingle(Request $request)
-    {
-        $currentDate = $request->input('date', $this->getCurrentDate());
-        return $this->runFunc($currentDate, [$request->company_id], [$request->UserID]);
-    }
-
-    public function runFunc($currentDate, $companyIds, $UserIDs)
-    {
-        foreach ($companyIds as $company_id) {
-            $data = $this->getModelDataByCompanyId($currentDate, $company_id, $UserIDs, $this->shift_type_id);
-            if (count($data) == 0) {
-                $this->result .= $this->getMeta("SyncFiloShift", "No Logs found against $company_id Company Id.\n");
-                continue;
-            }
-
-            $row = $this->processData($company_id, $data, $this->shift_type_id);
-            $this->result .= $row;
-        }
-        return $this->result;
     }
 }
