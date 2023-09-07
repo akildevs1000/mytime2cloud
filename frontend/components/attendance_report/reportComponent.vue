@@ -732,6 +732,10 @@ export default {
       this.payload.employee_id = value;
       this.getDataFromApi();
     },
+    status(value) {
+      this.payload.status = value;
+      this.getDataFromApi();
+    },
     daily_date(value) {
       this.payload.daily_date = value;
       this.getDataFromApi();
