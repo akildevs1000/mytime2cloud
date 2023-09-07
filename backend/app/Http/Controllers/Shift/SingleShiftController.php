@@ -27,8 +27,8 @@ class SingleShiftController extends Controller
 
         // If no schedule employees are found, log and return a message
         if ($scheduleEmployees->isEmpty()) {
-            info("No Data Found.");
-            return "No Data Found";
+            info("SingleShift: No Data Found.");
+            return "SingleShift: No Data Found";
         }
 
         $company_ids = $scheduleEmployees->pluck('company_id')->toArray();
@@ -47,7 +47,7 @@ class SingleShiftController extends Controller
             $employeeAttendanceLogs = $attendanceLogs[$scheduleEmployee->company_id][$scheduleEmployee->employee_id];
 
             if (!$employeeAttendanceLogs || $employeeAttendanceLogs->isEmpty()) {
-                info("No Data Found for employee {$scheduleEmployee->employee_id}");
+                info("SingleShift: No Data Found for employee {$scheduleEmployee->employee_id}");
                 continue;
             }
 
