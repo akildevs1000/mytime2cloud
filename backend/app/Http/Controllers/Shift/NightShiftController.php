@@ -9,7 +9,7 @@ use App\Models\Attendance;
 
 class NightShiftController extends Controller
 {
-    public function processNightShift()
+    public function render()
     {
         $model = AttendanceLog::query();
         $model->where("checked", false);
@@ -26,7 +26,7 @@ class NightShiftController extends Controller
 
         if (count($data) == 0) {
             info("NightShift: No Data Found.");
-            return;
+            return "NightShift: No Data Found.";
         }
 
         $i = 0;
@@ -37,7 +37,9 @@ class NightShiftController extends Controller
             foreach ($row as $log) {
                 $arr = [];
 
+                $company_id     = $log["company_id"];
                 $time     = $log["show_log_time"];
+
                 $schedule = $log["schedule"];
                 $shift    = $schedule["shift"];
 
@@ -58,7 +60,7 @@ class NightShiftController extends Controller
 
                     $arr["date"] = $date;
 
-                    $attendance = $this->attendanceFound($date, $UserID);
+                    $attendance = $this->attendanceFound($date, $UserID, $company_id);
 
                     $found = $attendance->clone()->first();
 
@@ -88,7 +90,7 @@ class NightShiftController extends Controller
 
                     $arr["date"] = date("Y-m-d", strtotime($date) - 86400);
 
-                    $attendance = $this->attendanceFound($arr["date"], $UserID);
+                    $attendance = $this->attendanceFound($arr["date"], $UserID, $company_id);
 
                     $found = $attendance->clone()->first();
 
@@ -119,7 +121,7 @@ class NightShiftController extends Controller
                 $arr["shift_id"] = $schedule["shift_id"];
                 $arr["shift_type_id"] = $schedule["shift_type_id"];
 
-                $attendance = $this->attendanceFound($arr["date"], $UserID);
+                $attendance = $this->attendanceFound($arr["date"], $UserID, $company_id);
 
                 $found = $attendance->first();
 
@@ -141,9 +143,9 @@ class NightShiftController extends Controller
         return $items;
     }
 
-    public function attendanceFound($date, $id)
+    public function attendanceFound($date, $id, $company_id)
     {
-        return Attendance::whereDate("date", $date)->where("employee_id", $id);
+        return Attendance::whereDate("date", $date)->where("company_id", $company_id)->where("employee_id", $id);
     }
 
     public function calculatedHours($in, $out)

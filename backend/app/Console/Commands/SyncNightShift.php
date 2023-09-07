@@ -34,7 +34,7 @@ class SyncNightShift extends Command
     public function handle()
     {
         try {
-            (new NightShiftController)->processNightShift();
+            return (new NightShiftController)->render();
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncNightShift. Error Details: ' . $th);
             $date = date("Y-m-d H:i:s");
