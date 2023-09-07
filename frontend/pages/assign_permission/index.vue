@@ -5,82 +5,108 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-row class=" ">
-      <v-col cols="6">
-        <h3>{{ Module }}</h3>
-        <!-- <div>Dashboard / {{ Module }}</div> -->
-      </v-col>
-      <v-col cols="6">
-        <div class="text-right">
-          <!-- <v-btn
-            v-if="can(`assign_permission_delete`)"
-            small
-            color="error"
-            class="mr-2 mb-2"
-            @click="delteteSelectedRecords"
-            >Delete Selected Records</v-btn
-          > -->
-
-
-        </div>
-      </v-col>
-    </v-row>
 
     <v-row>
       <v-col md="12">
+        <Back color="primary" />
 
-        <v-card class="mb-5" elevation="0" v-for="(item, index) in data" :key="index">
+        <v-btn
+          v-if="!data.length"
+          class="primary"
+          to="/assign_permission/create"
+        > Assign Permission(s)
+        </v-btn>
 
+        <v-card
+          class="mb-5 mt-2"
+          elevation="0"
+          v-for="(item, index) in data"
+          :key="index"
+        >
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> {{ item.role && capsTitle(item.role.name) }}</span></v-toolbar-title>
-
+            <v-toolbar-title
+              ><span>
+                {{ item.role && capsTitle(item.role.name) }}</span
+              ></v-toolbar-title
+            >
 
             <v-spacer></v-spacer>
 
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" to="/assign_permission/create">
-                  <v-icon dark white @click="clearFilters()">mdi-plus-circle</v-icon>
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  to="/assign_permission/create"
+                >
+                  <v-icon dark white @click="clearFilters()"
+                    >mdi-plus-circle</v-icon
+                  >
                 </v-btn>
               </template>
               <span>{{ Module }} </span>
             </v-tooltip>
-
           </v-toolbar>
 
-
-
-
           <table class="mb-15">
-            <tr style="text-align:center; ">
-              <th style="width:600px;text-align:center; padding: 5px 0 !important">
+            <tr style="text-align: center">
+              <th
+                style="
+                  width: 600px;
+                  text-align: center;
+                  padding: 5px 0 !important;
+                "
+              >
                 Module
               </th>
-              <th style="text-align:center;">Access</th>
-              <th style=" text-align:center;">View</th>
-              <th style="text-align:center;">Create</th>
-              <th style=" text-align:center;">Edit</th>
-              <th style="text-align:center;">Delete</th>
+              <th style="text-align: center">Access</th>
+              <th style="text-align: center">View</th>
+              <th style="text-align: center">Create</th>
+              <th style="text-align: center">Edit</th>
+              <th style="text-align: center">Delete</th>
             </tr>
-            <tr v-for=" (items, idx) in permissions" :key="idx">
+            <tr v-for="(items, idx) in permissions" :key="idx">
               <th class="ps-3">{{ capsTitle(idx) }}</th>
-              <th v-for="(pa, idx) in items" :key="idx" style="text-align:center !important;" class="">
-                <v-checkbox :value="pa.id" v-model="item.permission_ids" :hide-details="true"
-                  class="pt-0  py-1 chk-align">
+              <th
+                v-for="(pa, idx) in items"
+                :key="idx"
+                style="text-align: center !important"
+                class=""
+              >
+                <v-checkbox
+                  :value="pa.id"
+                  v-model="item.permission_ids"
+                  :hide-details="true"
+                  class="pt-0 py-1 chk-align"
+                >
                 </v-checkbox>
               </th>
             </tr>
-
-
           </table>
 
           <v-card-actions>
-            <v-btn v-if="can(`assign_permission_delete`)" dark small color="error" class="mx-1 my-4"
-              @click="deleteItem(item)">
+            <v-btn
+              v-if="can(`assign_permission_delete`)"
+              dark
+              small
+              color="error"
+              class="mx-1 my-4"
+              @click="deleteItem(item)"
+            >
               Delete
             </v-btn>
             <v-spacer></v-spacer>
-            <v-btn v-if="can(`assign_permission_edit`)" dark small color="primary" class="mx-1 my-4 " @click="save(item)">
+            <v-btn
+              v-if="can(`assign_permission_edit`)"
+              dark
+              small
+              color="primary"
+              class="mx-1 my-4"
+              @click="save(item)"
+            >
               Submit
             </v-btn>
           </v-card-actions>
@@ -203,7 +229,11 @@
   <NoAccess v-else />
 </template>
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
+
   data: () => ({
     panel: [0, 1, 2],
     readonly: false,
@@ -224,7 +254,7 @@ export default {
     data: [],
     errors: [],
     permission_ids: [],
-    permissions: []
+    permissions: [],
   }),
 
   computed: {
@@ -232,7 +262,7 @@ export default {
       return this.editedIndex === -1
         ? `New ${this.Module}`
         : `Edit ${this.Module}`;
-    }
+    },
   },
 
   watch: {
@@ -246,8 +276,8 @@ export default {
         this.getDataFromApi();
         this.getHeaders();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     this.loading = true;
@@ -259,20 +289,20 @@ export default {
       .then(({ data }) => {
         this.permissions = data.data;
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   },
 
   methods: {
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
     capsTitle(val) {
       let res = val;
       let r = res.replace(/[^a-z]/g, " ");
-      let title = r.replace(/\b\w/g, c => c.toUpperCase());
+      let title = r.replace(/\b\w/g, (c) => c.toUpperCase());
       return title;
     },
 
@@ -282,15 +312,15 @@ export default {
           text: "Role",
           align: "left",
           sortable: false,
-          value: "role.name"
+          value: "role.name",
         },
         {
           text: "Permissions",
           align: "left",
           sortable: false,
-          value: "permission_names"
+          value: "permission_names",
         },
-        { text: "Actions", align: "center", value: "action", sortable: false }
+        { text: "Actions", align: "center", value: "action", sortable: false },
       ];
     },
 
@@ -302,8 +332,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id
-        }
+          company_id: this.$auth.user.company_id,
+        },
       };
 
       this.$axios.get(`${url}`, options).then(({ data }) => {
@@ -321,7 +351,7 @@ export default {
     save(item) {
       let payload = {
         role_id: item.role_id,
-        permission_ids: item.permission_ids
+        permission_ids: item.permission_ids,
       };
       this.$axios
         .put("assign-permission/" + item.id, payload)
@@ -336,15 +366,15 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.id);
+      let just_ids = this.ids.map((e) => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids
+            ids: just_ids,
           })
-          .then(res => {
+          .then((res) => {
             if (!res.data.status) {
               this.errors = res.data.errors;
             } else {
@@ -354,7 +384,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -368,9 +398,9 @@ export default {
             this.snackbar = data.status;
             this.response = data.message;
           })
-          .catch(err => console.log(err));
-    }
-  }
+          .catch((err) => console.log(err));
+    },
+  },
 };
 </script>
 
@@ -402,7 +432,7 @@ td {
   box-sizing: border-box;
 }
 
-body>div {
+body > div {
   min-height: 100vh;
   display: flex;
   font-family: "Roboto", sans-serif;
@@ -426,12 +456,12 @@ table {
   border-collapse: collapse;
 }
 
-table>thead {
+table > thead {
   background-color: #00bcd4;
   color: #fff;
 }
 
-table>thead th {
+table > thead th {
   padding: 15px;
 }
 
@@ -441,7 +471,7 @@ table td {
   padding: 10px 15px;
 }
 
-table>tbody>tr>td>img {
+table > tbody > tr > td > img {
   display: inline-block;
   width: 60px;
   height: 60px;
@@ -457,7 +487,7 @@ table>tbody>tr>td>img {
   gap: 10px;
 }
 
-.action_btn>a {
+.action_btn > a {
   text-decoration: none;
   color: #444;
   background: #fff;
@@ -469,28 +499,28 @@ table>tbody>tr>td>img {
   transition: 0.3s ease-in-out;
 }
 
-.action_btn>a:nth-child(1) {
+.action_btn > a:nth-child(1) {
   border-color: #26a69a;
 }
 
-.action_btn>a:nth-child(2) {
+.action_btn > a:nth-child(2) {
   border-color: orange;
 }
 
-.action_btn>a:hover {
+.action_btn > a:hover {
   box-shadow: 0 3px 8px #0003;
 }
 
-table>tbody>tr {
+table > tbody > tr {
   background-color: #fff;
   transition: 0.3s ease-in-out;
 }
 
-table>tbody>tr:nth-child(even) {
+table > tbody > tr:nth-child(even) {
   background-color: rgb(238, 238, 238);
 }
 
-table>tbody>tr:hover {
+table > tbody > tr:hover {
   filter: drop-shadow(0px 2px 6px #0002);
 }
 </style>

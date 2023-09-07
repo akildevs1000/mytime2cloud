@@ -1,9 +1,8 @@
 <template>
   <div v-if="can(`role_access`)">
     <v-dialog persistent v-model="dialogNewRole" width="500">
-
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
+        <v-card-title dense class="primary white--text background">
           {{ formTitle }} {{ Model }}
           <v-spacer></v-spacer>
           <v-icon @click="dialogNewRole = false" outlined dark color="white">
@@ -15,9 +14,15 @@
             <v-row>
               <v-col cols="12">
                 <v-label>Role Name</v-label>
-                <v-text-field class="mt-1" outlined dense v-model="editedItem.name"></v-text-field>
+                <v-text-field
+                  class="mt-1"
+                  outlined
+                  dense
+                  v-model="editedItem.name"
+                ></v-text-field>
                 <span v-if="errors && errors.name" class="error--text">
-                  {{ errors.name[0] }}</span>
+                  {{ errors.name[0] }}</span
+                >
               </v-col>
               <v-col> </v-col>
             </v-row>
@@ -51,19 +56,50 @@
 
     <v-row>
       <v-col md="12">
-        <v-data-table v-if="can(`role_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
-          :loading="loading" :options.sync="options" :footer-props="{
-            itemsPerPageOptions: [50, 100, 500, 1000],
-          }" class="elevation-1">
-          <template v-slot:top>
+        <Back color="primary" />
 
+        <v-data-table
+          v-if="can(`role_view`)"
+          v-model="ids"
+          item-key="id"
+          :headers="headers"
+          :items="data"
+          :loading="loading"
+          :options.sync="options"
+          :footer-props="{
+            itemsPerPageOptions: [50, 100, 500, 1000],
+          }"
+          class="elevation-1"
+        >
+          <template v-slot:top>
             <v-card class="mb-5 rounded-md mt-3" elevation="0">
-              <v-toolbar class="rounded-md" style="border-radius: 5px 5px 0px 0px" color="background" dense flat dark>
+              <v-toolbar
+                class="rounded-md"
+                style="border-radius: 5px 5px 0px 0px"
+                color="background"
+                dense
+                flat
+                dark
+              >
                 <span> Dashboard / Roles List</span>
                 <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                      <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                    <v-btn
+                      dense
+                      class="ma-0 px-0"
+                      x-small
+                      :ripple="false"
+                      text
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon
+                        color="white"
+                        class="ml-2"
+                        @click="getDataFromApi()"
+                        dark
+                        >mdi mdi-reload</v-icon
+                      >
                     </v-btn>
                   </template>
                   <span>Reload</span>
@@ -77,8 +113,22 @@
                   <v-col>
                     <v-tooltip top color="primary">
                       <template v-slot:activator="{ on, attrs }">
-                        <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                          <v-icon color="white" class="ml-2" @click="dispalyNewDialog()" dark>mdi mdi-plus-circle</v-icon>
+                        <v-btn
+                          dense
+                          class="ma-0 px-0"
+                          x-small
+                          :ripple="false"
+                          text
+                          v-bind="attrs"
+                          v-on="on"
+                        >
+                          <v-icon
+                            color="white"
+                            class="ml-2"
+                            @click="dispalyNewDialog()"
+                            dark
+                            >mdi mdi-plus-circle</v-icon
+                          >
                         </v-btn>
                       </template>
                       <span>Add New Role</span>
@@ -96,23 +146,37 @@
             {{ item.name }}
           </template>
           <template v-slot:item.action="{ item }">
-            <v-icon v-if="can(`role_edit`)" color="secondary" small class="mr-2" @click="editItem(item)">
+            <v-icon
+              v-if="can(`role_edit`)"
+              color="secondary"
+              small
+              class="mr-2"
+              @click="editItem(item)"
+            >
               mdi-pencil
             </v-icon>
-            <v-icon v-if="can(`role_delete`)" color="error" small @click="deleteItem(item)">
+            <v-icon
+              v-if="can(`role_delete`)"
+              color="error"
+              small
+              @click="deleteItem(item)"
+            >
               {{ item.role === "customer" ? "" : "mdi-delete" }}
             </v-icon>
           </template>
           <template v-slot:no-data>
             <!-- <v-btn color="background" @click="initialize">Reset</v-btn> -->
           </template>
-        </v-data-table></v-col>
+        </v-data-table></v-col
+      >
     </v-row>
   </div>
   <NoAccess v-else />
 </template>
 <script>
+import Back from "../components/Snippets/Back.vue";
 export default {
+  components: { Back },
   data: () => ({
     dialogNewRole: false,
     options: {},
@@ -125,7 +189,13 @@ export default {
     loading: false,
     total: 0,
     headers: [
-      { text: "Role", align: "left", sortable: true, key: "name", value: "name" },
+      {
+        text: "Role",
+        align: "left",
+        sortable: true,
+        key: "name",
+        value: "name",
+      },
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     editedIndex: -1,
@@ -306,4 +376,3 @@ export default {
   },
 };
 </script>
-

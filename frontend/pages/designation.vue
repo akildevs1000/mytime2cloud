@@ -18,9 +18,14 @@
     </v-row> -->
 
     <v-row>
-      <v-dialog persistent v-model="dialogForm" :fullscreen="false" width="500px">
+      <v-dialog
+        persistent
+        v-model="dialogForm"
+        :fullscreen="false"
+        width="500px"
+      >
         <v-card>
-          <v-card-title dense class=" primary  white--text background">
+          <v-card-title dense class="primary white--text background">
             <span>{{ formTitle }} {{ Model }}</span>
             <v-spacer></v-spacer>
             <v-icon @click="dialogForm = false" outlined dark color="white">
@@ -31,16 +36,32 @@
             <v-container>
               <v-row class="mt-2">
                 <v-col cols="12">
-                  <v-text-field v-model="editedItem.name" placeholder="Designation" outlined dense></v-text-field>
+                  <v-text-field
+                    v-model="editedItem.name"
+                    placeholder="Designation"
+                    outlined
+                    dense
+                  ></v-text-field>
                   <span v-if="errors && errors.name" class="error--text">{{
                     errors.name[0]
                   }}</span>
                 </v-col>
                 <v-col cols="12">
-                  <v-autocomplete v-model="editedItem.department_id" :items="departments" item-text="name" item-value="id"
-                    placeholder="Select Departments" outlined dense>
+                  <v-autocomplete
+                    v-model="editedItem.department_id"
+                    :items="departments"
+                    item-text="name"
+                    item-value="id"
+                    placeholder="Select Departments"
+                    outlined
+                    dense
+                  >
                   </v-autocomplete>
-                  <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
+                  <span
+                    v-if="errors && errors.department_id"
+                    class="error--text"
+                    >{{ errors.department_id[0] }}</span
+                  >
                 </v-col>
                 <v-card-actions>
                   <!-- <v-col md="6" lg="6" style="padding: 0px">
@@ -56,22 +77,46 @@
         </v-card>
       </v-dialog>
       <v-col md="12">
-        <v-card class="mb-5" elevation="0">
+        <Back color="primary" />
+
+        <v-card class="mb-5 mt-2" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> {{ Model }}s List</span></v-toolbar-title>
+            <v-toolbar-title
+              ><span> {{ Model }}s List</span></v-toolbar-title
+            >
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="clearFilters()" dark>mdi mdi-reload</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon
+                    color="white"
+                    class="ml-2"
+                    @click="clearFilters()"
+                    dark
+                    >mdi mdi-reload</v-icon
+                  >
                 </v-btn>
               </template>
               <span>Reload</span>
             </v-tooltip>
 
-
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="toggleFilter()">
+                <v-btn
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="toggleFilter()"
+                >
                   <v-icon dark white>mdi-filter</v-icon>
                 </v-btn>
               </template>
@@ -80,8 +125,8 @@
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col>
-                <v-btn @click="newItem" small class="primary mr-2 mb-2  ">Add {{ Model
-                }}
+                <v-btn @click="newItem" small class="primary mr-2 mb-2"
+                  >Add {{ Model }}
                   +
                 </v-btn>
               </v-col>
@@ -97,26 +142,38 @@
             {{ snackText }}
 
             <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false">
-                Close
-              </v-btn>
+              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
+          <v-data-table
+            dense
+            :headers="headers_table"
+            :items="data"
+            model-value="data.id"
+            :loading="loading"
             :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
+            }"
+            class="elevation-1"
+            :options.sync="options"
+            :server-items-length="totalRowsCount"
+          >
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text">
-                  <v-text-field clearable :hide-details="true" v-if="header.filterable && !header.filterSpecial"
-                    v-model="filters[header.key]" :id="header.value" @input="applyFilters(header.key, $event)" outlined
-                    dense autocomplete="off"></v-text-field>
-
+                  <v-text-field
+                    clearable
+                    :hide-details="true"
+                    v-if="header.filterable && !header.filterSpecial"
+                    v-model="filters[header.key]"
+                    :id="header.value"
+                    @input="applyFilters(header.key, $event)"
+                    outlined
+                    dense
+                    autocomplete="off"
+                  ></v-text-field>
                 </td>
               </tr>
-
-
             </template>
             <template v-slot:item.sno="{ item, index }">
               {{ ++index }}
@@ -151,17 +208,18 @@
               </v-menu>
             </template>
           </v-data-table>
-
         </v-card>
-
       </v-col>
     </v-row>
   </div>
   <NoAccess v-else />
-  <NoAccess v-else />
 </template>
 <script>
+import Back from "../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
+
   data: () => ({
     totalRowsCount: 0,
 
@@ -169,11 +227,11 @@ export default {
     filters: {},
     isFilter: false,
 
-    datatable_search_textbox: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     dialogForm: false,
     pagination: {
       current: 1,
@@ -205,7 +263,6 @@ export default {
         align: "left",
         sortable: true,
         value: "sno",
-
       },
       {
         text: "Designation",
@@ -213,7 +270,7 @@ export default {
         sortable: true,
         value: "name",
         filterable: true,
-        key: "designation_name"
+        key: "designation_name",
       },
       {
         text: "Department Name ",
@@ -221,7 +278,7 @@ export default {
         sortable: true,
         value: "department.name",
         filterable: true,
-        key: "department_name"
+        key: "department_name",
       },
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
@@ -241,7 +298,6 @@ export default {
   },
 
   watch: {
-
     options: {
       handler() {
         this.getDataFromApi();
@@ -261,13 +317,12 @@ export default {
   },
 
   methods: {
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -319,11 +374,9 @@ export default {
       this.isFilter = false;
       this.getDataFromApi();
     },
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
-
-      if (url == '') url = this.endpoint;
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+      if (url == "") url = this.endpoint;
       this.loading = true;
-
 
       const { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
@@ -343,27 +396,26 @@ export default {
           company_id: this.$auth.user.company_id,
         },
       };
-      if (filter_column != '') {
-
+      if (filter_column != "") {
         this.payloadOptions.params[filter_column] = filter_value;
-
       }
-      this.$axios.get(`${url}?page=${page}`, this.payloadOptions).then(({ data }) => {
+      this.$axios
+        .get(`${url}?page=${page}`, this.payloadOptions)
+        .then(({ data }) => {
+          if (filter_column != "" && data.data.length == 0) {
+            this.snack = true;
+            this.snackColor = "error";
+            this.snackText = "No Results Found";
+            this.loading = false;
+            return false;
+          }
+          this.totalRowsCount = data.total;
+          this.data = data.data;
 
-        if (filter_column != '' && data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.pagination.current = data.current_page;
+          this.pagination.total = data.last_page;
           this.loading = false;
-          return false;
-        }
-        this.totalRowsCount = data.total;
-        this.data = data.data;
-
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
-        this.loading = false;
-      });
+        });
     },
 
     searchIt(e) {

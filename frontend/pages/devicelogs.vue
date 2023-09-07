@@ -31,7 +31,9 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-card class="mb-5" elevation="0">
+        <Back class="primary white--text" />
+
+        <v-card class="mb-5 mt-2" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title><span> Attendances Logs</span></v-toolbar-title>
             <v-tooltip top color="primary">
@@ -302,10 +304,12 @@
 
 <script>
 import DateRangePicker from "../components/Snippets/Filters/DateRangePicker.vue";
+import Back from "../components/Snippets/Back.vue";
 
 export default {
   components: {
     DateRangePicker,
+    Back,
   },
   data: () => ({
     id: "",

@@ -5,7 +5,10 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-toolbar class="background">
+
+    <Back class="primary white--text" />
+
+    <v-toolbar class="background mt-2">
       <v-btn
         class="mx-1 background white--text"
         tile
@@ -296,9 +299,10 @@
 <script>
 import ScheduledEmployees from "../../components/schedule_employee/ScheduledEmployees.vue";
 import UnScheduledEmployees from "../../components/schedule_employee/UnScheduledEmployees.vue";
+import Back from "../../components/Snippets/Back.vue";
 
 export default {
-  components: { ScheduledEmployees, UnScheduledEmployees },
+  components: { ScheduledEmployees, UnScheduledEmployees,Back },
   data: () => ({
     currentComponent: "UnScheduledEmployees",
     isActive: false,

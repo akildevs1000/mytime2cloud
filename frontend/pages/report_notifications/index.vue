@@ -43,7 +43,9 @@
           </v-card>
         </v-dialog>
       </div>
-      <v-card class="mb-5" elevation="0">
+      <Back class="primary white--text" />
+
+      <v-card class="mb-5 mt-2" elevation="0">
         <v-toolbar class="rounded-md" color="background" dense flat dark>
           <v-toolbar-title
             ><span> Report Notifications List</span></v-toolbar-title
@@ -251,7 +253,11 @@
 </template>
 
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
+
   data: () => ({
     showFilters: false,
     filters: {},

@@ -1,18 +1,21 @@
 <template>
-  <v-card>
-    <v-toolbar dense class="background" dark>
-      Card Builder
-      <v-spacer />
-      <Back color="primary"/>
-    </v-toolbar>
-    <v-container fluid>
-      <v-row>
-        <v-col cols="12">
-          <CardDesginer :propPage="page" />
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-card>
+  <div>
+    <Back color="primary" />
+
+    <v-card class="mt-2">
+      <v-toolbar dense class="background" dark>
+        Card Builder
+        <v-spacer />
+      </v-toolbar>
+      <v-container fluid>
+        <v-row>
+          <v-col cols="12">
+            <CardDesginer :propPage="page" />
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card>
+  </div>
 </template>
 
 <script>

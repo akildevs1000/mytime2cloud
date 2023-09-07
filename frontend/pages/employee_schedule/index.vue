@@ -346,7 +346,9 @@
       </v-card>
     </v-dialog>
 
-    <v-card class="mb-5 rounded-md mt-3" elevation="0">
+    <Back class="primary white--text" />
+
+    <v-card class="mb-5 rounded-md mt-2" elevation="0">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
         <v-toolbar-title><span> Schedule List</span></v-toolbar-title>
         <v-tooltip top color="primary">
@@ -648,7 +650,11 @@
   <NoAccess v-else />
 </template>
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
+
   data: () => ({
     shifts_for_filter: [],
     shiftsTypes_for_filter: [],

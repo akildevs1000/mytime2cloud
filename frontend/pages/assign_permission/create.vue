@@ -6,7 +6,9 @@
       </v-snackbar>
     </div>
     <!-- v-if="permissions && permissions.length > 0" -->
-    <v-card elevation="0">
+    <Back color="primary" />
+
+    <v-card elevation="0" class="mt-2">
       <v-form ref="form" lazy-validation>
         <v-card-text>
           <v-container>
@@ -14,18 +16,19 @@
               <v-col>
                 <div class="display-1 pa-2">Assign Permissions</div>
               </v-col>
-              <v-col>
-                <div class="display-1 pa-2 text-right">
-                  <v-btn small class="primary" to="/assign_permission">
-                    <v-icon small>mdi-arrow-left</v-icon>&nbsp;Back
-                  </v-btn>
-                </div>
-              </v-col>
               <v-col cols="12">
                 <v-row>
                   <v-col md="4">
-                    <v-select :rules="Rules" v-model="role_id" :items="roles" item-value="id" item-text="name"
-                      placeholder="Role*" outlined dense></v-select>
+                    <v-select
+                      :rules="Rules"
+                      v-model="role_id"
+                      :items="roles"
+                      item-value="id"
+                      item-text="name"
+                      placeholder="Role*"
+                      outlined
+                      dense
+                    ></v-select>
                     <span v-if="errors && errors.role_id" class="red--text">
                       {{ errors.role_id[0] }}
                     </span>
@@ -49,21 +52,36 @@
                 >
                 </v-checkbox> -->
                 <table class="mb-15">
-                  <tr style="text-align:center; ">
-                    <th style="width:600px;text-align:center; padding: 5px 0 !important">
+                  <tr style="text-align: center">
+                    <th
+                      style="
+                        width: 600px;
+                        text-align: center;
+                        padding: 5px 0 !important;
+                      "
+                    >
                       Module
                     </th>
-                    <th style="text-align:center;">Access</th>
-                    <th style="text-align:center;">View</th>
-                    <th style="text-align:center;">Create</th>
-                    <th style="text-align:center;">Edit</th>
-                    <th style="text-align:center;">Delete</th>
+                    <th style="text-align: center">Access</th>
+                    <th style="text-align: center">View</th>
+                    <th style="text-align: center">Create</th>
+                    <th style="text-align: center">Edit</th>
+                    <th style="text-align: center">Delete</th>
                   </tr>
                   <tr v-for="(items, idx) in permissions" :key="idx">
                     <th class="ps-3">{{ capsTitle(idx) }}</th>
-                    <th v-for="(pa, idx) in items" :key="idx" style="text-align:center !important;" class="">
-                      <v-checkbox :value="pa.id" v-model="permission_ids" :hide-details="true"
-                        class="pt-0  py-1 chk-align">
+                    <th
+                      v-for="(pa, idx) in items"
+                      :key="idx"
+                      style="text-align: center !important"
+                      class=""
+                    >
+                      <v-checkbox
+                        :value="pa.id"
+                        v-model="permission_ids"
+                        :hide-details="true"
+                        class="pt-0 py-1 chk-align"
+                      >
                       </v-checkbox>
                     </th>
                   </tr>
@@ -100,25 +118,26 @@
                   {{ errors.permission_ids[0] }}
                 </span>
               </v-col>
-
-
             </v-row>
           </v-container>
           <v-card-actions>
-
             <v-spacer></v-spacer>
-            <v-btn v-if="can(`assign_permission_create`)" dark small color="primary" class="mr-4" @click="save">
+            <v-btn
+              v-if="can(`assign_permission_create`)"
+              dark
+              small
+              color="primary"
+              class="mr-4"
+              @click="save"
+            >
               Submit
             </v-btn>
           </v-card-actions>
         </v-card-text>
-
       </v-form>
 
       <template v-slot:item.action="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)">
-          mdi-pencil
-        </v-icon>
+        <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
         <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
       </template>
     </v-card>
@@ -127,7 +146,11 @@
 </template>
 
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
+
   data: () => ({
     role_id: "",
     search: "",
@@ -135,22 +158,22 @@ export default {
     permissions: [],
     msg: "",
     snackbar: false,
-    Rules: [v => !!v || "This field is required"],
+    Rules: [(v) => !!v || "This field is required"],
     errors: [],
     roles: [],
-    just_ids: false
+    just_ids: false,
   }),
   created() {
     let options = {
       params: {
-        company_id: this.$auth.user.company_id
-      }
+        company_id: this.$auth.user.company_id,
+      },
     };
 
     this.$axios
       .get("assign-permission/nars", options)
       .then(({ data }) => (this.roles = data))
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
 
     this.getPermissions();
   },
@@ -158,13 +181,13 @@ export default {
     capsTitle(val) {
       let res = val;
       let r = res.replace(/[^a-z]/g, " ");
-      let title = r.replace(/\b\w/g, c => c.toUpperCase());
+      let title = r.replace(/\b\w/g, (c) => c.toUpperCase());
       return title;
     },
     can(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -174,11 +197,11 @@ export default {
         .then(({ data }) => {
           this.permissions = data.data;
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
     setAllIds() {
       this.permission_ids = this.just_ids
-        ? this.permissions.map(e => e.id)
+        ? this.permissions.map((e) => e.id)
         : [];
     },
     searchIt(key) {
@@ -194,7 +217,7 @@ export default {
       let payload = {
         role_id: this.role_id,
         permission_ids: this.permission_ids,
-        company_id: this.$auth.user.company_id
+        company_id: this.$auth.user.company_id,
       };
 
       this.$axios.post("assign-permission", payload).then(({ data }) => {
@@ -206,12 +229,10 @@ export default {
         this.snackbar = true;
         setTimeout(() => this.$router.push("/assign_permission"), 2000);
       });
-    }
-  }
+    },
+  },
 };
 </script>
-
-
 
 <style scoped>
 table {
@@ -241,7 +262,7 @@ td {
   box-sizing: border-box;
 }
 
-body>div {
+body > div {
   min-height: 100vh;
   display: flex;
   font-family: "Roboto", sans-serif;
@@ -265,12 +286,12 @@ table {
   border-collapse: collapse;
 }
 
-table>thead {
+table > thead {
   background-color: #00bcd4;
   color: #fff;
 }
 
-table>thead th {
+table > thead th {
   padding: 15px;
 }
 
@@ -280,7 +301,7 @@ table td {
   padding: 10px 15px;
 }
 
-table>tbody>tr>td>img {
+table > tbody > tr > td > img {
   display: inline-block;
   width: 60px;
   height: 60px;
@@ -296,7 +317,7 @@ table>tbody>tr>td>img {
   gap: 10px;
 }
 
-.action_btn>a {
+.action_btn > a {
   text-decoration: none;
   color: #444;
   background: #fff;
@@ -308,28 +329,28 @@ table>tbody>tr>td>img {
   transition: 0.3s ease-in-out;
 }
 
-.action_btn>a:nth-child(1) {
+.action_btn > a:nth-child(1) {
   border-color: #26a69a;
 }
 
-.action_btn>a:nth-child(2) {
+.action_btn > a:nth-child(2) {
   border-color: orange;
 }
 
-.action_btn>a:hover {
+.action_btn > a:hover {
   box-shadow: 0 3px 8px #0003;
 }
 
-table>tbody>tr {
+table > tbody > tr {
   background-color: #fff;
   transition: 0.3s ease-in-out;
 }
 
-table>tbody>tr:nth-child(even) {
+table > tbody > tr:nth-child(even) {
   background-color: rgb(238, 238, 238);
 }
 
-table>tbody>tr:hover {
+table > tbody > tr:hover {
   filter: drop-shadow(0px 2px 6px #0002);
 }
 </style>

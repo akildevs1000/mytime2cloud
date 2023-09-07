@@ -14,7 +14,9 @@
 
       <v-row>
         <v-col>
-          <v-card color="background">
+          <Back color="primary" />
+
+          <v-card class="mt-2" color="background">
             <v-tabs
               class="pt-3"
               :vertical="vertical"
@@ -721,7 +723,11 @@
 </template>
 
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: {  Back },
+
   data: () => ({
     show_password_confirm: false,
     current_password_show: false,

@@ -1,17 +1,22 @@
 <template>
   <div v-if="can(`leave_type_access`)">
     <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" top="top" :color="snackColor" elevation="24">
+      <v-snackbar
+        v-model="snackbar"
+        top="top"
+        :color="snackColor"
+        elevation="24"
+      >
         {{ response }}
       </v-snackbar>
     </div>
 
-
     <v-dialog persistent v-model="dialog" width="500px">
-
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
-          <span class="headline"><span class="headline">{{ formTitle }} </span></span>
+        <v-card-title dense class="primary white--text background">
+          <span class="headline"
+            ><span class="headline">{{ formTitle }} </span></span
+          >
           <v-spacer></v-spacer>
           <v-icon @click="dialog = false" outlined dark color="white">
             mdi mdi-close-circle
@@ -19,23 +24,30 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-
             <v-row>
               <v-col cols="12">
-                <label for="" style="margin-bottom:5px">Name</label> <br />
-                <v-text-field dense outlined v-model="editedItem.name" placeholder="Name" :error-messages="errors && errors.name ? errors.name[0] : ''
-                  "></v-text-field>
+                <label for="" style="margin-bottom: 5px">Name</label> <br />
+                <v-text-field
+                  dense
+                  outlined
+                  v-model="editedItem.name"
+                  placeholder="Name"
+                  :error-messages="errors && errors.name ? errors.name[0] : ''"
+                ></v-text-field>
               </v-col>
 
               <v-col cols="12">
-                <label for="" mb-1 style="margin-bottom:5px">Short Name</label>
-                <v-text-field dense outlined v-model="editedItem.short_name" placeholder="Short Name" :error-messages="errors && errors.short_name ? errors.short_name[0] : ''
-                  "></v-text-field>
+                <label for="" mb-1 style="margin-bottom: 5px">Short Name</label>
+                <v-text-field
+                  dense
+                  outlined
+                  v-model="editedItem.short_name"
+                  placeholder="Short Name"
+                  :error-messages="
+                    errors && errors.short_name ? errors.short_name[0] : ''
+                  "
+                ></v-text-field>
               </v-col>
-
-
-
-
             </v-row>
           </v-container>
         </v-card-text>
@@ -50,15 +62,32 @@
 
     <v-row>
       <v-col md="12">
+        <Back color="primary" />
 
-        <v-card class="mb-5 rounded-md" elevation="0">
+        <v-card class="mb-5 mt-2 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> Dashboard / {{ Model }}s</span></v-toolbar-title>
+            <v-toolbar-title
+              ><span> Dashboard / {{ Model }}s</span></v-toolbar-title
+            >
 
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon
+                    color="white"
+                    class="ml-2"
+                    @click="getDataFromApi()"
+                    dark
+                    >mdi mdi-reload</v-icon
+                  >
                 </v-btn>
               </template>
               <span>Reload</span>
@@ -66,33 +95,48 @@
             <v-spacer></v-spacer>
             <v-tooltip v-if="can(`leave_type_create`)" top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="newDialog()" dark>mdi mdi-plus-circle</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon color="white" class="ml-2" @click="newDialog()" dark
+                    >mdi mdi-plus-circle</v-icon
+                  >
                 </v-btn>
               </template>
               <span>Add LeaveType</span>
             </v-tooltip>
-
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
             {{ snackText }}
 
             <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false">
-                Close
-              </v-btn>
+              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table v-if="can(`leave_type_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
-            :loading="loading" :footer-props="{
+          <v-data-table
+            v-if="can(`leave_type_view`)"
+            v-model="ids"
+            item-key="id"
+            :headers="headers"
+            :items="data"
+            :loading="loading"
+            :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1">
+            }"
+            class="elevation-1"
+          >
             <template v-slot:item.name="{ item }">
-              {{ (item.name) }}
+              {{ item.name }}
             </template>
             <template v-slot:item.short_name="{ item }">
-              {{ (item.short_name) }}
+              {{ item.short_name }}
             </template>
 
             <template v-slot:item.action="{ item }">
@@ -103,19 +147,32 @@
                   </v-btn>
                 </template>
                 <v-list width="120" dense>
-
                   <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_type_edit`)" color="secondary" small @click="editItem(item)">
+                      <v-icon
+                        v-if="can(`leave_type_edit`)"
+                        color="secondary"
+                        small
+                        @click="editItem(item)"
+                      >
                         mdi-pencil
-                      </v-icon> Edit
+                      </v-icon>
+                      Edit
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_type_delete`)" color="error" small @click="deleteItem(item)">
-                        {{ item.announcement === "customer" ? "" : "mdi-delete" }}
-                      </v-icon> Delete
+                      <v-icon
+                        v-if="can(`leave_type_delete`)"
+                        color="error"
+                        small
+                        @click="deleteItem(item)"
+                      >
+                        {{
+                          item.announcement === "customer" ? "" : "mdi-delete"
+                        }}
+                      </v-icon>
+                      Delete
                     </v-list-item-title>
                   </v-list-item>
                 </v-list>
@@ -134,6 +191,8 @@
   <NoAccess v-else />
 </template>
 <script>
+import Back from "../components/Snippets/Back.vue";
+
 import {
   TiptapVuetify,
   Image,
@@ -157,17 +216,18 @@ import {
 export default {
   components: {
     TiptapVuetify,
+    Back,
   },
   data: () => ({
-    formTitle: 'New Leave Type',
+    formTitle: "New Leave Type",
     dialogEmployees: false,
     idsEmployeeList: [],
     //editor
-    datatable_search_textbox: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     extensions: [
       History,
       Blockquote,
@@ -220,7 +280,13 @@ export default {
     total: 0,
 
     headers: [
-      { text: "Name", align: "left", sortable: true, key: "name", value: "name" },
+      {
+        text: "Name",
+        align: "left",
+        sortable: true,
+        key: "name",
+        value: "name",
+      },
       {
         text: "Short Name",
         align: "left",
@@ -238,7 +304,6 @@ export default {
     defaultItem: {
       name: "",
       short_name: "",
-
     },
     response: "",
     data: [],
@@ -250,25 +315,18 @@ export default {
     DialogEmployeesData: {},
   }),
 
-  computed: {
+  computed: {},
 
-  },
-
-  watch: {
-
-  },
+  watch: {},
   created() {
     this.loading = true;
 
-
     this.getDataFromApi();
-
   },
 
   methods: {
-
     newDialog() {
-      this.formTitle = 'New Leave Type';
+      this.formTitle = "New Leave Type";
       this.errors = [];
       this.editedIndex = -1;
       this.editedItem = {
@@ -278,27 +336,21 @@ export default {
       this.defaultItem = {
         name: "",
         short_name: "",
-
       };
       this.dialog = true;
     },
     update_EdititemStart() {
-
-      this.$refs.from_menu.save(this.editedItem.start_date)
+      this.$refs.from_menu.save(this.editedItem.start_date);
       this.from_menu = false;
       this.getDayscount();
     },
     update_EdititemEnd() {
-
-      this.$refs.end_menu.save(this.editedItem.end_date)
+      this.$refs.end_menu.save(this.editedItem.end_date);
       this.end_menu = false;
 
       this.getDayscount();
-
     },
     getDayscount() {
-
-
       if (!this.editedItem.start_date || !this.editedItem.end_date) {
         return false;
       }
@@ -313,8 +365,6 @@ export default {
       // Convert the time difference to days
       let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-
-
       this.editedItem.total_days = diffDays + 1;
     },
     gotoDialogPage(item) {
@@ -322,13 +372,12 @@ export default {
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -385,13 +434,11 @@ export default {
       });
     },
 
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
-      if (url == '') url = this.endpoint;
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+      if (url == "") url = this.endpoint;
       this.loading = true;
 
       let endDate = new Date();
-
-
 
       const { page, itemsPerPage } = this.options;
 
@@ -402,18 +449,15 @@ export default {
           year: endDate.getFullYear(),
         },
       };
-      if (filter_column != '') {
-
+      if (filter_column != "") {
         options.params[filter_column] = filter_value;
-
       }
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-        if (filter_column != '' && data.data.length == 0) {
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }
@@ -436,7 +480,6 @@ export default {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
-
     },
 
     delteteSelectedRecords() {
@@ -504,8 +547,6 @@ export default {
     },
 
     save() {
-
-
       this.editedItem.company_id = this.$auth.user.company_id;
 
       if (this.editedIndex > -1) {
@@ -515,7 +556,7 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
               this.errors = data.errors;
-              this.snackColor = 'error';
+              this.snackColor = "error";
               this.snackbar = true;
               this.response = data.message;
             } else {
@@ -541,7 +582,7 @@ export default {
               this.errors = data.errors;
 
               this.snackbar = true;
-              this.snackColor = 'error';
+              this.snackColor = "error";
               this.response = data.message;
               this.loading = false;
             } else {
@@ -559,4 +600,3 @@ export default {
   },
 };
 </script>
-

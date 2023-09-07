@@ -212,7 +212,9 @@
     </v-dialog>
 
     <div v-if="!preloader">
-      <v-card elevation="0" v-if="can(`shift_view`)">
+    <Back class="primary white--text" />
+
+      <v-card elevation="0" class="mt-2" v-if="can(`shift_view`)">
         <v-toolbar class="rounded-md" color="background" dense flat dark>
           <v-toolbar-title><span> Schedule List</span></v-toolbar-title>
           <v-tooltip top color="primary">
@@ -323,7 +325,11 @@
 </template>
 
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
+
   data: () => ({
     datatable_search_textbox: "",
     datatable_searchById: "",

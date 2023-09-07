@@ -201,7 +201,9 @@
           </v-card>
         </v-dialog>
         <v-col md="12" lg="12">
-          <v-card class="mb-5 rounded-md" elevation="0">
+          <Back color="primary" />
+
+          <v-card class="mb-5 mt-2 rounded-md" elevation="0">
             <v-toolbar class="rounded-md" color="background" dense flat dark>
               <v-toolbar-title
                 ><span> {{ Model }} List</span></v-toolbar-title
@@ -377,7 +379,10 @@
   <NoAccess v-else />
 </template>
 <script>
+import Back from "../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
   data: () => ({
     show1: false,
     dialogFormDesignation: false,

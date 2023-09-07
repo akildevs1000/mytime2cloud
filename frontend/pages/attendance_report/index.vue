@@ -1,6 +1,7 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <v-card elevation="0" v-if="can(`attendance_report_view`)">
+    <Back class="primary white--text" />
+    <v-card elevation="0" class="mt-2" v-if="can(`attendance_report_view`)">
       <v-toolbar class="background" dense flat>
         <span class="headline white--text"> {{ title }} Filters </span>
       </v-toolbar>
@@ -263,13 +264,14 @@
 </template>
 <script>
 import AttendanceReport from "../../components/attendance_report/reportComponent.vue";
+import Back from "../../components/Snippets/Back.vue";
 
 import generalHeaders from "../../headers/general.json";
 import multiHeaders from "../../headers/multi.json";
 import doubleHeaders from "../../headers/double.json";
 
 export default {
-  components: { AttendanceReport },
+  components: { AttendanceReport, Back },
 
   props: ["title", "shift_type_id", "render_endpoint", "process_file_endpoint"],
 

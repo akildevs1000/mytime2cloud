@@ -1,8 +1,9 @@
 <template>
   <div v-if="can(`shift_create`)">
     <!-- <GenerateLog /> -->
+    <Back class="primary white--text" />
 
-    <v-card>
+    <v-card class="mt-2">
       <!-- <v-toolbar flat dark class="primary"> Create {{ Model }} </v-toolbar> -->
 
       <v-stepper v-model="e1">
@@ -77,7 +78,10 @@
 </template>
 
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
   data: () => ({
     Model: "Shift",
     comp: null,

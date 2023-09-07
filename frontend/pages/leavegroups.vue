@@ -1,16 +1,19 @@
 <template>
   <div v-if="can(`leave_group_access`)">
     <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" top="top" :color="snackColor" elevation="24">
+      <v-snackbar
+        v-model="snackbar"
+        top="top"
+        :color="snackColor"
+        elevation="24"
+      >
         {{ response }}
       </v-snackbar>
     </div>
 
-
     <v-dialog persistent v-model="dialog" width="500px">
-
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
+        <v-card-title dense class="primary white--text background">
           <span>{{ formTitle }} </span>
           <v-spacer></v-spacer>
           <v-icon @click="dialog = false" outlined dark color="white">
@@ -19,12 +22,18 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-
             <v-row>
               <v-col cols="12">
-                <label for="" style="margin-bottom:5px">Group Name</label>
-                <v-text-field outlined dense v-model="editedItem.group_name" v-bind="attrs" :error-messages="errors && errors.group_name ? errors.group_name[0] : ''
-                  ">
+                <label for="" style="margin-bottom: 5px">Group Name</label>
+                <v-text-field
+                  outlined
+                  dense
+                  v-model="editedItem.group_name"
+                  v-bind="attrs"
+                  :error-messages="
+                    errors && errors.group_name ? errors.group_name[0] : ''
+                  "
+                >
                 </v-text-field>
               </v-col>
               <!-- <v-col cols="12" style="margin-top: -10px;">
@@ -43,8 +52,6 @@
                     ">
                 </v-text-field>
               </v-col> -->
-
-
             </v-row>
           </v-container>
         </v-card-text>
@@ -59,14 +66,31 @@
 
     <v-row>
       <v-col md="12">
+        <Back color="primary" />
 
-        <v-card class="mb-5 rounded-md" elevation="0">
+        <v-card class="mb-5 mt-2 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> Dashboard / Leave Groups List</span></v-toolbar-title>
+            <v-toolbar-title
+              ><span> Dashboard / Leave Groups List</span></v-toolbar-title
+            >
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon
+                    color="white"
+                    class="ml-2"
+                    @click="getDataFromApi()"
+                    dark
+                    >mdi mdi-reload</v-icon
+                  >
                 </v-btn>
               </template>
               <span>Reload</span>
@@ -74,31 +98,45 @@
             <v-spacer></v-spacer>
             <v-tooltip v-if="can(`leave_group_create`)" top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="dialog = true" dark>mdi mdi-plus-circle</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon color="white" class="ml-2" @click="dialog = true" dark
+                    >mdi mdi-plus-circle</v-icon
+                  >
                 </v-btn>
               </template>
               <span>New LeaveGroup</span>
             </v-tooltip>
-
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
             {{ snackText }}
 
             <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false">
-                Close
-              </v-btn>
+              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table v-if="can(`leave_group_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
-            :loading="loading" :footer-props="{
+          <v-data-table
+            v-if="can(`leave_group_view`)"
+            v-model="ids"
+            item-key="id"
+            :headers="headers"
+            :items="data"
+            :loading="loading"
+            :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1">
-
+            }"
+            class="elevation-1"
+          >
             <template v-slot:item.group_name.name="{ item }">
-              {{ (item.group_name) }}
+              {{ item.group_name }}
             </template>
             <template v-slot:item.leave_count="{ item }">
               <div v-for="(leave, index) in item.leave_count" :key="index">
@@ -124,23 +162,43 @@
                 <v-list width="120" dense>
                   <v-list-item @click="viewItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_group_view`)" color="primary" small @click="viewItem(item)">
+                      <v-icon
+                        v-if="can(`leave_group_view`)"
+                        color="primary"
+                        small
+                        @click="viewItem(item)"
+                      >
                         mdi-eye
-                      </v-icon> View
+                      </v-icon>
+                      View
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_group_edit`)" color="secondary" small @click="editItem(item)">
+                      <v-icon
+                        v-if="can(`leave_group_edit`)"
+                        color="secondary"
+                        small
+                        @click="editItem(item)"
+                      >
                         mdi-pencil
-                      </v-icon> Edit
+                      </v-icon>
+                      Edit
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leave_group_delete`)" color="error" small @click="deleteItem(item)">
-                        {{ item.announcement === "customer" ? "" : "mdi-delete" }}
-                      </v-icon> Delete
+                      <v-icon
+                        v-if="can(`leave_group_delete`)"
+                        color="error"
+                        small
+                        @click="deleteItem(item)"
+                      >
+                        {{
+                          item.announcement === "customer" ? "" : "mdi-delete"
+                        }}
+                      </v-icon>
+                      Delete
                     </v-list-item-title>
                   </v-list-item>
                 </v-list>
@@ -178,23 +236,26 @@ import {
   History,
 } from "tiptap-vuetify";
 
+import Back from "../components/Snippets/Back.vue";
+
+
 export default {
   components: {
-    TiptapVuetify,
+    TiptapVuetify,Back
   },
   data: () => ({
     attrs: {},
     leaveTypes: [],
     designations: [],
-    formTitle: 'New Leave Group',
+    formTitle: "New Leave Group",
     dialogEmployees: false,
     idsEmployeeList: [],
     //editor
-    datatable_search_textbox: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     extensions: [
       History,
       Blockquote,
@@ -253,14 +314,19 @@ export default {
         sortable: true,
         value: "group_name",
       },
-      { text: "Leave Types", align: "left", sortable: true, key: "name", value: "leave_count" },
+      {
+        text: "Leave Types",
+        align: "left",
+        sortable: true,
+        key: "name",
+        value: "leave_count",
+      },
       // {
       //   text: "Short Name",
       //   align: "left",
       //   sortable: true,
       //   value: "leave_type.short_name",
       // },
-
 
       // {
       //   text: "Leaves count",
@@ -281,7 +347,6 @@ export default {
       //leave_type_id: "",
       group_name: "",
       //leave_type_count: "",
-
     },
     response: "",
     data: [],
@@ -293,16 +358,11 @@ export default {
     DialogEmployeesData: {},
   }),
 
-  computed: {
+  computed: {},
 
-  },
-
-  watch: {
-
-  },
+  watch: {},
   created() {
     this.loading = true;
-
 
     this.getDataFromApi();
     //this.getDesignations();
@@ -311,21 +371,17 @@ export default {
 
   methods: {
     update_EdititemStart() {
-
-      this.$refs.from_menu.save(this.editedItem.start_date)
+      this.$refs.from_menu.save(this.editedItem.start_date);
       this.from_menu = false;
       this.getDayscount();
     },
     update_EdititemEnd() {
-
-      this.$refs.end_menu.save(this.editedItem.end_date)
+      this.$refs.end_menu.save(this.editedItem.end_date);
       this.end_menu = false;
 
       this.getDayscount();
-
     },
     // getDayscount() {
-
 
     //   if (!this.editedItem.start_date || !this.editedItem.end_date) {
     //     return false;
@@ -341,8 +397,6 @@ export default {
     //   // Convert the time difference to days
     //   let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-
-
     //   this.editedItem.total_days = diffDays + 1;
     // },
     gotoDialogPage(item) {
@@ -350,13 +404,12 @@ export default {
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -423,13 +476,11 @@ export default {
     //   });
     // },
 
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
-      if (url == '') url = this.endpoint;
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+      if (url == "") url = this.endpoint;
       this.loading = true;
 
       let endDate = new Date();
-
-
 
       const { page, itemsPerPage } = this.options;
 
@@ -440,18 +491,15 @@ export default {
           year: endDate.getFullYear(),
         },
       };
-      if (filter_column != '') {
-
+      if (filter_column != "") {
         options.params[filter_column] = filter_value;
-
       }
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-        if (filter_column != '' && data.data.length == 0) {
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }
@@ -474,15 +522,10 @@ export default {
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
       this.error = [];
-
     },
     viewItem(item) {
-
       this.$router.push("/leavecount/" + item.id);
-
     },
-
-
 
     delteteSelectedRecords() {
       confirm(
@@ -549,9 +592,6 @@ export default {
     // },
 
     save() {
-
-
-
       let options = {
         params: {
           // leave_type_id: this.editedItem.leave_type_id,
@@ -569,7 +609,7 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
               this.errors = data.errors;
-              this.snackColor = 'error';
+              this.snackColor = "error";
               this.snackbar = true;
               this.response = data.message;
             } else {
@@ -593,7 +633,7 @@ export default {
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
-              this.snackColor = 'error';
+              this.snackColor = "error";
               this.snackbar = true;
               this.response = data.message;
               this.close();
@@ -614,4 +654,3 @@ export default {
   },
 };
 </script>
-

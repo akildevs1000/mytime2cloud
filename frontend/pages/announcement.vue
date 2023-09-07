@@ -327,7 +327,9 @@
 
     <v-row>
       <v-col md="12">
-        <v-card class="mb-5 rounded-md" elevation="0">
+        <Back color="primary" />
+
+        <v-card class="mb-5 mt-2 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
             <v-toolbar-title
               ><span> {{ Model }} List </span></v-toolbar-title
@@ -651,12 +653,14 @@
 import DateRangePicker from "../components/Snippets/Filters/DateRangePicker.vue";
 import TextField from "../components/Snippets/Filters/TextField.vue";
 import DropDown from "../components/Snippets/Filters/DropDown.vue";
+import Back from "../components/Snippets/Back.vue";
 
 export default {
   components: {
     DateRangePicker,
     TextField,
     DropDown,
+    Back,
   },
   data: () => ({
     totalRowsCount: 0,

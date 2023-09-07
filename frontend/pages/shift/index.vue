@@ -5,7 +5,9 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-card elevation="0" v-if="can(`shift_view`)">
+    <Back class="primary white--text" />
+
+    <v-card elevation="0" class="mt-2" v-if="can(`shift_view`)">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
         <v-toolbar-title
           ><span> {{ Model }} List</span></v-toolbar-title
@@ -115,7 +117,11 @@
   <NoAccess v-else />
 </template>
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
+
   data: () => ({
     isFilter: false,
     filters: {},

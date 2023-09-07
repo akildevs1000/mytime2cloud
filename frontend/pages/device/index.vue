@@ -16,8 +16,9 @@
           @input="searchIt" v-model="search" hide-details></v-text-field>
       </v-col> -->
     </v-row>
+    <Back color="primary" />
 
-    <v-card class="mb-5 mt-3" elevation="0">
+    <v-card class="mb-5 mt-2" elevation="0">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
         <v-toolbar-title><span> Devices List</span></v-toolbar-title>
 
@@ -204,7 +205,11 @@
   </div>
 </template>
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
+
   data: () => ({
     showFilters: false,
     filters: {},
