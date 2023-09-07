@@ -353,7 +353,12 @@
         </v-card>
       </v-dialog>
       <div class="text-center">
-        <v-dialog persistent v-model="viewDialog" width="1200" :key="employeeId">
+        <v-dialog
+          persistent
+          v-model="viewDialog"
+          width="1200"
+          :key="employeeId"
+        >
           <EmployeeDetails
             @close-parent-dialog="closeViewDialog"
             :employeeObject="employeeObject"
@@ -416,10 +421,12 @@
 
       <div v-if="can(`employee_view`)">
         <v-container>
-          <v-card elevation="0">
+          <Back class="primary white--text" />
+
+          <v-card elevation="0" class="mt-2">
             <v-toolbar class="mb-2 white--text" color="background" dense flat>
-              <v-toolbar-title
-                ><span>{{ Model }}s </span></v-toolbar-title
+              <v-toolbar-title>
+                <span> {{ Model }}s </span></v-toolbar-title
               >
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
@@ -777,6 +784,7 @@ import Qualification from "../../components/employee/Qualification.vue";
 import Setting from "../../components/employee/Setting.vue";
 import Payroll from "../../components/employee/Payroll.vue";
 import Login from "../../components/employee/Login.vue";
+import Back from "../../components/Snippets/Back.vue";
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
@@ -797,6 +805,7 @@ const compList = [
 export default {
   components: {
     VueCropper,
+    Back,
   },
 
   data: () => ({

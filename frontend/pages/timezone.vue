@@ -204,8 +204,9 @@
         </div>
       </v-col>
     </v-row> -->
+    <Back class="primary white--text" />
 
-    <v-card>
+    <v-card class="mt-2">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
         <v-toolbar-title><span> Timezones List</span></v-toolbar-title>
         <v-tooltip top color="primary">
@@ -334,7 +335,10 @@
   </div>
   <NoAccess v-else />
 </template>
+
 <script>
+import Back from "../components/Snippets/Back.vue"; 
+
 let days = [
   { index: "0", name: "Monday", short_name: "M" },
   { index: "1", name: "Tuesday", short_name: "T" },
@@ -345,6 +349,7 @@ let days = [
   { index: "6", name: "Sunday", short_name: "SU" },
 ];
 export default {
+  components: { Back },
   data: () => ({
     snack: false,
     snackColor: "",

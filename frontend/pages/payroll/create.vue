@@ -6,7 +6,9 @@
       </v-snackbar>
     </div>
     <div v-if="!preloader">
-      <v-card elevation="0" class="pa-3 mb-5">
+      <Back class="primary white--text" />
+
+      <v-card elevation="0" class="pa-3 mt-2 mb-5">
         <v-card-title>
           <label class="col-form-label pt-0 mt-5"
             ><b>Create Payroll Formula</b></label
@@ -140,7 +142,11 @@
 </template>
 
 <script>
+import Back from "../../components/Snippets/Back.vue";
+
 export default {
+  components: { Back },
+
   data: () => ({
     payload: {
       salary_type: "basic_salary",

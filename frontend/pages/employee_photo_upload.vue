@@ -1,163 +1,197 @@
-<template >
+<template>
   <div style="width: 100% !important">
-    <div>
-      <v-row>
-        <v-col cols="12">
-          <v-row class=" ">
-            <v-col cols="4">
-              <h4>Employee Photo Upload to Device</h4>
+    <div class="text-center ma-2">
+      <v-snackbar
+        :color="snackbar.color"
+        v-model="snackbar.show"
+        small
+        top="top"
+        :timeout="3000"
+      >
+        {{ response }}
+      </v-snackbar>
+    </div>
 
-            </v-col>
-          </v-row>
-
-        </v-col>
-        <!-- <v-toolbar class="rounded-md" color="background" dense flat dark>
-          <span> Employee Photo Upload to Device </span>
-
-          <v-spacer></v-spacer>
-          <v-toolbar-items>
-            <v-col class="toolbaritems-button-design">
-              <v-btn @click="goToCreatePage()" small dark class="primary pt-4 pb-4">Create New +
-              </v-btn>
-            </v-col>
-
-
-          </v-toolbar-items>
-        </v-toolbar> -->
-      </v-row>
-      <v-row>
-        <div class="text-center ma-2">
-          <v-snackbar :color="snackbar.color" v-model="snackbar.show" small top="top" :timeout="3000">
-            {{ response }}
-          </v-snackbar>
+    <v-row>
+      <v-col cols="12">
+        <Back class="primary white--text" />
+      </v-col>
+      <v-col cols="3">
+        <v-select
+          @change="loadDepartmentemployees"
+          v-model="departmentselected"
+          :items="departments"
+          dense
+          outlined
+          item-value="id"
+          item-text="name"
+          hide-details
+          label="Department"
+          :search-input.sync="searchInput"
+        ></v-select>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="5">
+        <v-toolbar color="background" dense flat dark>
+          <span>All Employees List</span>
+        </v-toolbar>
+        <div>
+          <v-card class="photo-displaylist">
+            <v-card-text
+              class="photo-displaylistview"
+              v-for="(user, index) in leftEmployees"
+              :id="user.id"
+              v-on:dblclick="
+                (counter += 1), moveToRightEmp(user.id, user.timezone)
+              "
+              :key="index"
+            >
+              <v-row>
+                <v-col class="col-1" style="padding: 0px">
+                  <v-checkbox
+                    v-if="user.profile_picture"
+                    class="col"
+                    v-model="leftSelectedEmp"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                  <v-checkbox
+                    v-else
+                    indeterminate
+                    value
+                    disabled
+                    hide-details
+                    class="col-1 d-flex flex-column justify-center"
+                  ></v-checkbox>
+                </v-col>
+                <v-col col="2" class="col" style="padding-top: 21px">
+                  {{ user.employee_id }}: {{ user.display_name }}
+                </v-col>
+                <v-col col=" 2">
+                  <v-img
+                    v-if="user.profile_picture != ''"
+                    style="border-radius: 50%; width: 40px"
+                    :src="user.profile_picture || '/no-profile-image.jpg'"
+                  >
+                  </v-img>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
         </div>
-      </v-row>
-      <v-row>
-        <v-col cols="4">
-          <v-select @change="loadDepartmentemployees" v-model="departmentselected" :items="departments" dense outlined
-            item-value="id" item-text="name" hide-details label="Department" :search-input.sync="searchInput"></v-select>
-        </v-col>
-        <v-col cols="4">
-          <!-- <v-select
-            v-model="timezonesselected"
-            :items="timezones"
-            dense
-            outlined
-            item-value="timezone_id"
-            item-text="timezone_name"
-            hide-details
-            label="Timezones"
-            required
-          ></v-select> -->
-        </v-col>
-        <v-col cols="4">
-          <div style="width: 150px; float: right">
-            <!-- <button @click="goback()" type="button" id="back" class="btn primary btn-block white--text v-size--default">
-              <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
-              View List
-            </button> -->
+      </v-col>
 
+      <v-col cols="2">
+        <div style="text-align: -webkit-center">
+          <button
+            type="button"
+            id="undo_redo_undo"
+            class="btn primary btn-block white--text"
+          >
+            Options
+          </button>
 
-            <!-- <v-btn class="primary" @click="goback" style> <v-icon color="white">mdi
-                mdi-format-list-bulleted-square</v-icon>
-              View List</v-btn> -->
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-progress-linear :active="loading" :indeterminate="loading" absolute color="primary"></v-progress-linear>
-      </v-row>
-      <v-row>
-        <v-col cols="5">
-          <v-toolbar color="background" dense flat dark>
-            <span>All Employees List</span>
-          </v-toolbar>
-          <div>
-            <v-card class="photo-displaylist">
-              <v-card-text class="photo-displaylistview" v-for="(user, index) in leftEmployees" :id="user.id"
-                v-on:dblclick="counter += 1, moveToRightEmp(user.id, user.timezone)" :key="user.id">
-                <v-row>
-                  <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox v-if="user.profile_picture" class="col    " v-model="leftSelectedEmp" :value="user.id"
-                      primary hide-details></v-checkbox>
-                    <v-checkbox v-else indeterminate value disabled hide-details
-                      class="col-1   d-flex flex-column  justify-center "></v-checkbox>
-                  </v-col>
-                  <v-col col="2" class=" col     " style="padding-top:21px">
+          <button
+            @click="moveToRightEmpOption2"
+            type="button"
+            id="undo_redo_rightSelected"
+            class="btn btn-default btn-block"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-right theme--red"
+            ></i>
+          </button>
 
-                    {{ user.employee_id }}: {{ user.display_name }}
-                  </v-col>
-                  <v-col col=" 2">
-                    <v-img v-if="user.profile_picture != ''" style="border-radius: 50%;   width: 40px"
-                      :src="user.profile_picture || '/no-profile-image.jpg'">
-                    </v-img>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </div>
-        </v-col>
+          <button
+            @click="allmoveToRightEmp"
+            type="button"
+            id="undo_redo_rightAll"
+            class="btn btn-default btn-block"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
+            ></i>
+          </button>
+          <button
+            @click="moveToLeftempOption2"
+            type="button"
+            id="undo_redo_leftSelected"
+            class="btn btn-default btn-block"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-left theme--red"
+            ></i>
+          </button>
+          <button
+            @click="allmoveToLeftemp"
+            type="button"
+            id="undo_redo_leftAll"
+            class="btn btn-default btn-block"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
+            ></i>
+          </button>
+        </div>
+      </v-col>
 
-        <v-col cols="2">
-          <div style="text-align: -webkit-center">
-            <button type="button" id="undo_redo_undo" class="btn primary btn-block white--text">
-              Options
-            </button>
-
-            <button @click="moveToRightEmpOption2" type="button" id="undo_redo_rightSelected"
-              class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
-            </button>
-
-            <button @click="allmoveToRightEmp" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
-            </button>
-            <button @click="moveToLeftempOption2" type="button" id="undo_redo_leftSelected"
-              class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
-            </button>
-            <button @click="allmoveToLeftemp" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
-            </button>
-          </div>
-        </v-col>
-
-        <v-col cols="5">
-          <v-toolbar color="background" dense flat dark>
-            <span>Selected Employees List</span>
-          </v-toolbar>
-          <div>
-            <v-card class="photo-displaylist">
-              <v-card-text class="photo-displaylistview" v-for="(user, index) in   rightEmployees  " :id="user.id"
-                v-model="rightSelectedEmp" :key="user.id">
-                <div class="row">
-                  <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center " v-model="rightSelectedEmp"
-                      :value="user.id" primary hide-details></v-checkbox>
-                  </v-col>
-                  <v-col col="2" class="  col  " style="padding-top:21px">
-
-                    {{ user.employee_id }} : {{ user.display_name }}
-
-                  </v-col>
-                  <v-col col="4">
-                    <span><v-img v-if="user.profile_picture != ''" style="border-radius: 50%;   width: 40px"
-                        :src="user.profile_picture">
-                      </v-img></span>
-                  </v-col>
-                  <v-col col="4">
-
-
-
-                    <span v-if="user.sdkEmpResponse == 'Success'" style="color: green">{{ user.sdkEmpResponse
-                    }}</span>
-                    <span v-else style="color: red">{{ user.sdkEmpResponse }}</span>
-
-                  </v-col>
-                </div>
-              </v-card-text>
-            </v-card>
-            <!-- <select
+      <v-col cols="5">
+        <v-toolbar color="background" dense flat dark>
+          <span>Selected Employees List</span>
+        </v-toolbar>
+        <div>
+          <v-card class="photo-displaylist">
+            <v-card-text
+              class="photo-displaylistview"
+              v-for="(user, index) in rightEmployees"
+              :id="user.id"
+              v-model="rightSelectedEmp"
+              :key="user.id"
+            >
+              <div class="row">
+                <v-col class="col-1" style="padding: 0px">
+                  <v-checkbox
+                    hideDetails
+                    class="col-1 d-flex flex-column justify-center"
+                    v-model="rightSelectedEmp"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                </v-col>
+                <v-col col="2" class="col" style="padding-top: 21px">
+                  {{ user.employee_id }} : {{ user.display_name }}
+                </v-col>
+                <v-col col="4">
+                  <span
+                    ><v-img
+                      v-if="user.profile_picture != ''"
+                      style="border-radius: 50%; width: 40px"
+                      :src="user.profile_picture"
+                    >
+                    </v-img
+                  ></span>
+                </v-col>
+                <v-col col="4">
+                  <span
+                    v-if="user.sdkEmpResponse == 'Success'"
+                    style="color: green"
+                    >{{ user.sdkEmpResponse }}</span
+                  >
+                  <span v-else style="color: red">{{
+                    user.sdkEmpResponse
+                  }}</span>
+                </v-col>
+              </div>
+            </v-card-text>
+          </v-card>
+          <!-- <select
               multiple
               v-model="rightSelectedEmp"
               @dblclick="moveToLeftemp"
@@ -172,129 +206,210 @@
                 Eid: {{ user.employee_id }} : {{ user.display_name }} :
               </option>
             </select> -->
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="5">
-          <v-toolbar color="background" dense flat dark>
-            <span>All Devices List</span>
-          </v-toolbar>
-          <div>
-            <v-card class="photo-displaylist">
-              <v-card-text class="photo-displaylistview" v-for="(  user, index  ) in   leftDevices  " :id="user.id"
-                v-model="leftSelectedDevices" :key="user.id">
-                <div class="row">
-                  <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox v-if="user.status.name == 'active'" hideDetails
-                      class="col-1   d-flex flex-column  justify-center " v-model="leftSelectedDevices" :value="user.id"
-                      primary hide-details></v-checkbox>
-                    <v-checkbox v-else indeterminate value disabled hide-details
-                      class="col-1   d-flex flex-column  justify-center "></v-checkbox>
-                  </v-col>
-                  <div col-4 class="col   " style="padding-top:21px">
-                    {{ user.name }} : {{ user.device_id }}
-                    <span style="color:green" v-if="user.status.name == 'active'">
-                      Online</span>
-                    <span style="color:red" v-else>Offline
-                    </span>
-                  </div>
+        </div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="5">
+        <v-toolbar color="background" dense flat dark>
+          <span>All Devices List</span>
+        </v-toolbar>
+        <div>
+          <v-card class="photo-displaylist">
+            <v-card-text
+              class="photo-displaylistview"
+              v-for="(user, index) in leftDevices"
+              :id="user.id"
+              v-model="leftSelectedDevices"
+              :key="user.id"
+            >
+              <div class="row">
+                <v-col class="col-1" style="padding: 0px">
+                  <v-checkbox
+                    v-if="user.status.name == 'active'"
+                    hideDetails
+                    class="col-1 d-flex flex-column justify-center"
+                    v-model="leftSelectedDevices"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                  <v-checkbox
+                    v-else
+                    indeterminate
+                    value
+                    disabled
+                    hide-details
+                    class="col-1 d-flex flex-column justify-center"
+                  ></v-checkbox>
+                </v-col>
+                <div col-4 class="col" style="padding-top: 21px">
+                  {{ user.name }} : {{ user.device_id }}
+                  <span
+                    style="color: green"
+                    v-if="user.status.name == 'active'"
+                  >
+                    Online</span
+                  >
+                  <span style="color: red" v-else>Offline </span>
                 </div>
-              </v-card-text>
-            </v-card>
-          </div>
-        </v-col>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
+      </v-col>
 
-        <v-col cols="2">
-          <div style="text-align: -webkit-center">
-            <button type="button" id="undo_redo_undo" class="btn primary btn-block white--text">
-              Options
-            </button>
+      <v-col cols="2">
+        <div style="text-align: -webkit-center">
+          <button
+            type="button"
+            id="undo_redo_undo"
+            class="btn primary btn-block white--text"
+          >
+            Options
+          </button>
 
-            <button @click="moveToRightDevicesOption2" type="button" id="undo_redo_rightSelected"
-              class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
-            </button>
+          <button
+            @click="moveToRightDevicesOption2"
+            type="button"
+            id="undo_redo_rightSelected"
+            class="btn btn-default btn-block"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-right theme--red"
+            ></i>
+          </button>
 
-            <button @click="allmoveToRightDevices" type="button" id="undo_redo_rightAll"
-              class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
-            </button>
-            <button @click="moveToLeftDevicesOption2" type="button" id="undo_redo_leftSelected"
-              class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
-            </button>
-            <button @click="allmoveToLeftDevices" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
-              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
-            </button>
-          </div>
-        </v-col>
+          <button
+            @click="allmoveToRightDevices"
+            type="button"
+            id="undo_redo_rightAll"
+            class="btn btn-default btn-block"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
+            ></i>
+          </button>
+          <button
+            @click="moveToLeftDevicesOption2"
+            type="button"
+            id="undo_redo_leftSelected"
+            class="btn btn-default btn-block"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-left theme--red"
+            ></i>
+          </button>
+          <button
+            @click="allmoveToLeftDevices"
+            type="button"
+            id="undo_redo_leftAll"
+            class="btn btn-default btn-block"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
+            ></i>
+          </button>
+        </div>
+      </v-col>
 
-        <v-col cols="5">
-          <v-toolbar color="background" dense flat dark>
-            <span>Selected Devices List</span>
-          </v-toolbar>
-          <div>
-            <v-card class="photo-displaylist">
-              <v-card-text class="photo-displaylistview" v-for="(  user, index  ) in   rightDevices  " :id="user.id"
-                v-model="rightSelectedDevices" :key="user.id">
-                <div class="row">
-
-                  <v-col class=" col-1   " style="padding:0px">
-                    <v-checkbox hideDetails class="col-1   d-flex flex-column  justify-center "
-                      v-model="rightSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
-                  </v-col>
-                  <div col class="col-sm" style="padding-top:21px">
-                    {{ user.name }} : {{ user.device_id }}
-                  </div>
-                  <div col class="col-sm   d-flex flex-column  justify-center  ">
-                    <span v-if="user.sdkDeviceResponse == 'Success'" style="color: green">{{ user.sdkDeviceResponse
-                    }}</span>
-                    <span v-else style="color: red">{{ user.sdkDeviceResponse }}</span>
-                  </div>
+      <v-col cols="5">
+        <v-toolbar color="background" dense flat dark>
+          <span>Selected Devices List</span>
+        </v-toolbar>
+        <div>
+          <v-card class="photo-displaylist">
+            <v-card-text
+              class="photo-displaylistview"
+              v-for="(user, index) in rightDevices"
+              :id="user.id"
+              v-model="rightSelectedDevices"
+              :key="user.id"
+            >
+              <div class="row">
+                <v-col class="col-1" style="padding: 0px">
+                  <v-checkbox
+                    hideDetails
+                    class="col-1 d-flex flex-column justify-center"
+                    v-model="rightSelectedDevices"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                </v-col>
+                <div col class="col-sm" style="padding-top: 21px">
+                  {{ user.name }} : {{ user.device_id }}
                 </div>
-              </v-card-text>
-            </v-card>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <!-- <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
+                <div col class="col-sm d-flex flex-column justify-center">
+                  <span
+                    v-if="user.sdkDeviceResponse == 'Success'"
+                    style="color: green"
+                    >{{ user.sdkDeviceResponse }}</span
+                  >
+                  <span v-else style="color: red">{{
+                    user.sdkDeviceResponse
+                  }}</span>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <!-- <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
           color="primary"></v-progress-linear> -->
-        <v-col cols="12">
-          <div class="row">
-            <div class="col col-lg-6 text-center">
-              <span v-if="errors && errors.message" class="text-danger mt-2">{{
-                errors.message
-              }}</span>
-            </div>
-            <div class="col col-lg-3 text-right">
-              <div style="width: 150px; float: right">
-                <button :loading="loading" @click="goback()" type="button" id="save"
-                  class="btn primary btn-block white--text v-size--default">
-                  Back
-                </button>
-              </div>
-            </div>
-            <div class="col col-lg-3 text-right">
-              <div style="width: 150px; float: right">
-                <button :disabled='!displaybutton' :loading="loading" @click="onSubmit" type="button" id="save"
-                  class="btn primary btn-block white--text v-size--default">
-                  Submit
-                </button>
-              </div>
+      <v-col cols="12">
+        <div class="row">
+          <div class="col col-lg-6 text-center">
+            <span v-if="errors && errors.message" class="text-danger mt-2">{{
+              errors.message
+            }}</span>
+          </div>
+          <div class="col col-lg-3 text-right">
+            <div style="width: 150px; float: right">
+              <button
+                :loading="loading"
+                @click="goback()"
+                type="button"
+                id="save"
+                class="btn primary btn-block white--text v-size--default"
+              >
+                Back
+              </button>
             </div>
           </div>
-        </v-col>
-      </v-row>
-
-    </div>
-    <!-- <Preloader v-else /> -->
+          <div class="col col-lg-3 text-right">
+            <div style="width: 150px; float: right">
+              <button
+                :disabled="!displaybutton"
+                :loading="loading"
+                @click="onSubmit"
+                type="button"
+                id="save"
+                class="btn primary btn-block white--text v-size--default"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script>
+import Back from "../components/Snippets/Back.vue";
+
 export default {
+  components: {
+    Back,
+  },
   data() {
     return {
       loading: false,
@@ -361,7 +476,7 @@ export default {
     this.getTimezonesFromApi();
   },
   methods: {
-    fetch_logs() { },
+    fetch_logs() {},
     loadDepartmentemployees() {
       //this.loading = true;
       // let page = this.pagination.current;
@@ -432,16 +547,13 @@ export default {
       // });
       this.leftEmployees.forEach((element) => {
         element["sdkEmpResponse"] = "";
-
       });
       this.leftDevices.forEach((element) => {
         element["sdkDeviceResponse"] = "";
-
       });
     },
 
     onSubmit_old() {
-
       this.resetErrorMessages();
 
       if (this.timezonesselected == "") {
@@ -533,7 +645,6 @@ export default {
               (e) => e.sn == rightDevicesobj.device_id
             );
 
-
             let deviceStatusResponse = "";
             let EmpStatusResponse = "";
 
@@ -555,7 +666,6 @@ export default {
                 EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
                 deviceStatusResponse = "";
 
-
                 if (EmpStatusResponse != "") {
                   //Adding extra parameters for Employee object
                   if (selectedEmpobject) {
@@ -568,8 +678,6 @@ export default {
                     });
                   }
                 }
-
-
               });
             } else {
             }
@@ -605,9 +713,6 @@ export default {
           return false;
         }
       });
-
-
-
     },
     goback() {
       this.$router.push("/timezonemapping/list");
@@ -656,7 +761,6 @@ export default {
             return 0;
           }
         } else {
-
         }
       }),
     sortObjectD: (o) =>
@@ -673,13 +777,11 @@ export default {
             return 0;
           }
         } else {
-
           return 0;
         }
       }),
     sortObjectC: (o) =>
       o.sort(function compareByName(a, b) {
-
         if (a.name && b.name) {
           let nameA = a.name.toUpperCase(); // Convert names to uppercase for case-insensitive sorting
           let nameB = b.name.toUpperCase();
@@ -689,7 +791,6 @@ export default {
           } else if (nameA > nameB) {
             return 1;
           } else {
-
             return 0;
           }
         }
@@ -697,8 +798,7 @@ export default {
     verifySubmitButton() {
       if (this.rightEmployees.length > 0 && this.rightDevices.length > 0) {
         this.displaybutton = true;
-      }
-      else {
+      } else {
         this.displaybutton = false;
       }
     },
@@ -715,9 +815,13 @@ export default {
       // this.rightEmployees = this.rightEmployees.concat(this.leftEmployees);
       // this.leftEmployees = [];
 
-      this.rightEmployees = this.rightEmployees.concat(this.leftEmployees.filter((el) => el.profile_picture != null));
+      this.rightEmployees = this.rightEmployees.concat(
+        this.leftEmployees.filter((el) => el.profile_picture != null)
+      );
 
-      this.leftEmployees = this.leftEmployees.filter((el) => el.profile_picture == null);
+      this.leftEmployees = this.leftEmployees.filter(
+        (el) => el.profile_picture == null
+      );
 
       this.rightEmployees = this.sortObject(this.rightEmployees);
       this.verifySubmitButton();
@@ -746,7 +850,6 @@ export default {
       }
       this.leftEmployees = this.sortObject(this.leftEmployees);
       for (let i = 0; i < _rightSelectedEmp_length; i++) {
-
         this.rightSelectedEmp.pop(this.rightSelectedEmp[i]);
       }
 
@@ -780,11 +883,8 @@ export default {
       this.rightSelectedEmp.pop(id);
       this.verifySubmitButton();
     },
-    check: function (id, e) {
-
-    },
+    check: function (id, e) {},
     selectLeftEmployee(id) {
-
       this.leftSelectedEmp.push(id);
     },
 
@@ -795,7 +895,6 @@ export default {
 
       let _leftSelectedEmp_length = this.leftSelectedEmp.length;
       for (let i = 0; i < _leftSelectedEmp_length; i++) {
-
         if (this.leftSelectedEmp) {
           let selectedindex = this.leftEmployees.findIndex(
             (e) => e.id == this.leftSelectedEmp[i]
@@ -809,7 +908,6 @@ export default {
 
           this.leftEmployees.splice(selectedindex, 1);
         }
-
       }
       this.rightEmployees = this.sortObject(this.rightEmployees);
 
@@ -833,10 +931,13 @@ export default {
       ///this.rightDevices = this.rightDevices.concat(this.leftDevices);
       //this.leftDevices = [];
 
+      this.rightDevices = this.rightDevices.concat(
+        this.leftDevices.filter((el) => el.status.name == "active")
+      );
 
-      this.rightDevices = this.rightDevices.concat(this.leftDevices.filter((el) => el.status.name == "active"));
-
-      this.leftDevices = this.leftDevices.filter((el) => el.status.name == "inactive");
+      this.leftDevices = this.leftDevices.filter(
+        (el) => el.status.name == "inactive"
+      );
 
       this.rightDevices = this.sortObjectD(this.rightDevices);
       this.verifySubmitButton();
@@ -845,7 +946,6 @@ export default {
       this.resetErrorMessages();
 
       if (!this.rightSelectedDevices.length) return;
-
 
       //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
       let _rightSelectedDevices_length = this.rightSelectedDevices.length;
@@ -876,9 +976,7 @@ export default {
       this.resetErrorMessages();
       this.rightSelectedDevices.push(id);
 
-
       if (!this.rightSelectedDevices.length) return;
-
 
       //for (let i = this.leftSelectedDevices.length; i > 0; i--) {
       let _rightSelectedDevices_length = this.rightSelectedDevices.length;
@@ -902,10 +1000,8 @@ export default {
 
       this.rightSelectedDevices.pop(id);
       this.verifySubmitButton();
-
     },
     moveToRightDevicesOption2() {
-
       this.resetErrorMessages();
 
       if (!this.leftSelectedDevices.length) return;
@@ -926,8 +1022,6 @@ export default {
           this.leftDevices.splice(selectedindex, 1);
         }
       }
-
-
 
       this.rightDevices = this.sortObjectD(this.rightDevices);
 
@@ -984,15 +1078,12 @@ export default {
           userCode: parseInt(item.system_user_id),
 
           //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
-          faceImage: item.profile_picture
+          faceImage: item.profile_picture,
         };
         personListArray.push(person);
-
-
       });
 
       this.rightDevices.forEach(async (item) => {
-
         // let person = {
         //   name: item.display_name,
         //   userCode: parseInt(item.system_user_id),
@@ -1001,7 +1092,6 @@ export default {
         //   faceImage: item.profile_picture
         // };
         // personListArray.push(person);
-
 
         let payload = {
           personList: personListArray,
@@ -1021,10 +1111,8 @@ export default {
         //try {
         const { data } = await this.$axios.post(`/Person/AddRange`, payload);
 
-
         if (data.status == 200) {
           this.loading_dialog = false;
-
 
           this.snackbar.show = true;
           this.response = "Employee(s) pictures has been uploaded";
@@ -1035,7 +1123,6 @@ export default {
             let SdkResponseDeviceobject = data.data.find(
               (e) => e.sn == elementDevice.device_id
             );
-
 
             let deviceStatusResponse = "";
             let EmpStatusResponse = "";
@@ -1060,7 +1147,6 @@ export default {
                 EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
                 deviceStatusResponse = "";
 
-
                 if (EmpStatusResponse != "") {
                   //Adding extra parameters for Employee object
                   if (selectedEmpobject) {
@@ -1075,8 +1161,6 @@ export default {
                     element["sdkEmpResponse"] = "Success";
                   }
                 }
-
-
               });
             } else {
             }
@@ -1108,14 +1192,12 @@ export default {
           //     this.devices_dialog.splice(index, 1, updatedElement);
           //   }
           // });
-        }
-        else {
+        } else {
           this.loading_dialog = false;
           this.snackbar.show = true;
           this.response = data.message;
 
           this.loading = false;
-
         }
 
         this.displaybutton = true;
@@ -1126,10 +1208,8 @@ export default {
 
         // }
       });
-
     },
     async onSubmit() {
-
       this.displaybutton = false;
       this.loading = true;
       if (this.rightEmployees.length == 0) {
@@ -1149,7 +1229,7 @@ export default {
           userCode: parseInt(item.system_user_id),
 
           //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
-          faceImage: item.profile_picture
+          faceImage: item.profile_picture,
         };
         personListArray.push(person);
       });
@@ -1170,12 +1250,13 @@ export default {
       });
 
       //try {
-      const { data } = await this.$axios.post(`/Person/AddRange/Photos`, payload);
-
+      const { data } = await this.$axios.post(
+        `/Person/AddRange/Photos`,
+        payload
+      );
 
       if (data.status == 200) {
         this.loading_dialog = false;
-
 
         this.snackbar.show = true;
         this.response = "Employee(s) Pictures  has been uploaded";
@@ -1205,14 +1286,12 @@ export default {
         //     this.devices_dialog.splice(index, 1, updatedElement);
         //   }
         // });
-      }
-      else {
+      } else {
         this.loading_dialog = false;
         this.snackbar.show = true;
         this.response = data.message;
 
         this.loading = false;
-
       }
 
       this.displaybutton = true;
@@ -1222,8 +1301,6 @@ export default {
       //   this.response = error.message;
 
       // }
-
-
     },
   },
 };

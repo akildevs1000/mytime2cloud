@@ -5,7 +5,12 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog persistent v-model="dialogPayslipsResults" :fullscreen="false" width="700px">
+    <v-dialog
+      persistent
+      v-model="dialogPayslipsResults"
+      :fullscreen="false"
+      width="700px"
+    >
       <v-card>
         <v-card-title dense class="primary white--text background">
           Payslip Results
@@ -149,7 +154,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="generatePayslipDialog" :fullscreen="false" width="600px">
+    <v-dialog
+      persistent
+      v-model="generatePayslipDialog"
+      :fullscreen="false"
+      width="600px"
+    >
       <v-card>
         <v-card-title dense class="primary white--text background">
           Generate Payslips
@@ -235,7 +245,9 @@
     <div v-if="can(`employee_view`)">
       <v-row>
         <v-col>
-          <v-card class="mb-5" elevation="0">
+          <Back class="primary white--text" />
+
+          <v-card class="mb-5 mt-2" elevation="0">
             <v-toolbar
               class="rounded-md mb-2 white--text"
               color="background"
@@ -652,7 +664,9 @@
   <NoAccess v-else />
 </template>
 <script>
+import Back from "../../../components/Snippets/Back.vue";
 export default {
+  components: { Back },
   data: () => ({
     filterLoader: false,
     filters: {},
