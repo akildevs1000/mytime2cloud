@@ -25,7 +25,7 @@ class NightShiftController extends Controller
         $data = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy("UserID")->toArray();
 
         if (count($data) == 0) {
-            info("No Log found");
+            info("NightShift: No Data Found");
             return;
         }
 
