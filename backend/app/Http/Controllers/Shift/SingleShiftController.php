@@ -98,9 +98,9 @@ class SingleShiftController extends Controller
             $model->whereIn("company_id", $company_ids);
             $model->delete();
             $model->insert($items);
-            info("SingleShift: Logs has been render. Data: " . json_encode($items));
+            info("SingleShift: Log(s) has been render. Data: " . json_encode($items));
             AttendanceLog::where("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
-            return $items;
+            return count($items) . " Log(s) been inserted";
         } catch (\Exception $e) {
             return $e;
         }
