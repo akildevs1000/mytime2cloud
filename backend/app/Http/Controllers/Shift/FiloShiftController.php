@@ -97,7 +97,7 @@ class FiloShiftController extends Controller
             $model->insert($items);
             info("FiloShift: Log(s) has been render. Data: " . json_encode($items));
             AttendanceLog::where("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
-            return count($items) . " Log(s) been inserted";
+            return "FiloShift: Log(s) has been render. Data: " . json_encode($items);
         } catch (\Exception $e) {
             return $e;
         }
