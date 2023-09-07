@@ -8,6 +8,7 @@ use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Reports\WeeklyController;
 use App\Http\Controllers\Reports\MonthlyController;
 use App\Http\Controllers\Reports\MonthlyMimoController;
+use App\Http\Controllers\Reports\PDFController;
 use App\Http\Controllers\Reports\WeeklyMimoController;
 
 
@@ -67,9 +68,9 @@ Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download
 
 
 //for testing static
-Route::get('/daily_html', [Controller::class, 'daily_html']);
-Route::get('/weekly_html', [WeeklyController::class, 'weekly_html']);
-Route::get('/monthly_html', [MonthlyController::class, 'monthly_html']);
+Route::get('/daily_summary', [PDFController::class, 'daily_summary']);
+Route::get('/weekly_summary', [PDFController::class, 'weekly_summary']);
+Route::get('/monthly_summary', [PDFController::class, 'monthly_summary']);
 
 
 

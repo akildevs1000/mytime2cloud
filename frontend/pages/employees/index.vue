@@ -712,7 +712,7 @@
               <template v-slot:item.user.email="{ item }" style="width: 200px">
                 {{ item.user.email }}
               </template>
-              <template v-slot:item.schedule.shift_name="{ item }">
+              <!-- <template v-slot:item.schedule.shift_name="{ item }">
                 {{
                   (item.schedule &&
                     item.schedule.shift &&
@@ -728,7 +728,7 @@
                 >
                   Working Hours: {{ item.schedule.shift.working_hours }}
                 </div>
-              </template>
+              </template> -->
               <template v-slot:item.timezone.name="{ item }">
                 {{ item.timezone ? item.timezone.timezone_name : "" }}
               </template>
@@ -966,15 +966,15 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-      {
-        text: "Shift",
-        align: "left",
-        sortable: false,
-        key: "shceduleshift_id", //sorting without . _
-        value: "schedule.shift_name",
-        filterable: true,
-        filterSpecial: true,
-      },
+      // {
+      //   text: "Shift",
+      //   align: "left",
+      //   sortable: false,
+      //   key: "shceduleshift_id", //sorting without . _
+      //   value: "schedule.shift_name",
+      //   filterable: true,
+      //   filterSpecial: true,
+      // },
       {
         text: "Timezone",
         align: "left",
@@ -1098,9 +1098,9 @@ export default {
       // Define an array of day names
       const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
       const dayName = daysOfWeek[new Date().getDay()];
-      const { shift_name } = item.roster.json.find((e) => e.day == dayName);
+      const { shift_name } = item && item.roster.json.find((e) => e.day == dayName);
 
-      return shift_name;
+      return shift_name || "---";
     },
     closeViewDialog() {
       this.viewDialog = false;

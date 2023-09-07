@@ -602,11 +602,6 @@ class MonthlyController extends Controller
         return $str;
     }
 
-    public function monthly_html(Request $request)
-    {
-        return Pdf::loadView('pdf.html.monthly.monthly_summary')->stream();
-    }
-
     public function getTotalHours($times)
     {
         $sum_minutes = 0;
