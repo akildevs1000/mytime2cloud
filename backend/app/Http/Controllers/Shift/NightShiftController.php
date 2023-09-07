@@ -42,6 +42,8 @@ class NightShiftController extends Controller
                 $shift    = $schedule["shift"];
 
                 $date = $log['edit_date'];
+                $arr["date"] = $date;
+
 
                 $beginning_in = $date . " " . $shift["beginning_in"];
                 $beginning_out = $date . " " . $shift["beginning_out"];
