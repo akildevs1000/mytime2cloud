@@ -227,6 +227,8 @@ class MultiInOutShiftController extends Controller
             // $result += $this->processData($company_id, $data, $currentDate, $shift_type_id);
         }
 
+        info("Log(s) Count " . array_sum($arr));
+
         return "Log(s) Count " . array_sum($arr);
     }
 }
