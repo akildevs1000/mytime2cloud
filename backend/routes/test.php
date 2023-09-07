@@ -3,8 +3,10 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\Shift\AutoShiftController;
+use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\RenderController;
+use App\Http\Controllers\Shift\SingleShiftController;
 use App\Mail\ReportNotificationMail;
 use App\Models\Attendance;
 use App\Models\Device;
@@ -22,8 +24,15 @@ use Illuminate\Support\Facades\Log as Logger;
 
 Route::get('/syncLogsScript', function (Request $request) {
 
+    return [
+        (new FiloShiftController)->render(),
+        (new SingleShiftController)->render()
+    ];
+
+
     return (new RenderController)->renderAuto($request);
-    
+
+
 
 
     return [
