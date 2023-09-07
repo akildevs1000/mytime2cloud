@@ -289,6 +289,8 @@ class ScheduleEmployeeController extends Controller
         $date = $request->date ?? date('Y-m-d');
         $employee = ScheduleEmployee::query();
         $model = $employee->where('company_id', $request->company_id);
+        $model->whereHas('roster');
+
         // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
         $model->whereDate('from_date', '<=', $date);
         $model->whereDate('to_date', '>=', $date);
@@ -296,6 +298,8 @@ class ScheduleEmployeeController extends Controller
 
             $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
         });
+
+
 
 
         $model->when($request->filled('department_ids') && count($request->department_ids) > 0, function ($q) use ($request) {
