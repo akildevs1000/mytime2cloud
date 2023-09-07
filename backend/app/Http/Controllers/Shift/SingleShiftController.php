@@ -36,7 +36,7 @@ class SingleShiftController extends Controller
         $attendanceLogs = AttendanceLog::whereDate("LogTime", $date)
             ->whereIn("company_id", $company_ids)
             ->whereIn("UserID", $employee_ids)
-            ->distinct("LogTime","UserID","company_id")
+            ->distinct("LogTime", "UserID", "company_id")
             ->get()
             ->groupBy(['company_id', 'UserID']);
 
@@ -97,8 +97,7 @@ class SingleShiftController extends Controller
             $model->whereIn("company_id", $company_ids);
             $model->delete();
             $model->insert($items);
-            info("The Logs has been render.");
-            info("Data: " . json_encode($items));
+            info("SingleShift: Logs has been render. Data: " . json_encode($items));
             return $items;
         } catch (\Exception $e) {
             return $e;
