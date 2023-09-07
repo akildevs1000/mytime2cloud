@@ -29,7 +29,6 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/$date-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        return;
 
         $schedule->call(function () {
             exec('pm2 reload 18');
