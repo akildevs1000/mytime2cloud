@@ -227,7 +227,7 @@ class MultiInOutShiftController extends Controller
             // $result += $this->processData($company_id, $data, $currentDate, $shift_type_id);
         }
 
-        info("MultiShift: Log(s) has been render. Data: " . json_encode($arr));
+        info("MultiShift: Log(s) has been render. Data: " . array_sum($arr));
         return "MultiShift: Log(s) has been render. Data: " . array_sum($arr);
     }
 }
