@@ -1,9 +1,26 @@
 <?php
 
+use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\RenderController;
+use App\Http\Controllers\Shift\SingleShiftController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('render_logs', [RenderController::class, 'renderLogs']);
+// Route::get('render_logs', [RenderController::class, 'renderLogs']);
+
+Route::get('render_logs', [FiloShiftController::class, 'renderData']);
+
+
+Route::get('/render_logs', function (Request $request) {
+
+    $filo = (new FiloShiftController)->renderData($request);
+    $single = (new SingleShiftController)->renderData($request);
+
+
+    return  ["Filo Shift" => $filo, "Single Shift" => $single];
+});
+
+
 
 Route::get('render_multi_inout_report', [RenderController::class, 'renderMultiInOut']);
 Route::get('render_general_report', [RenderController::class, 'renderGeneral']);

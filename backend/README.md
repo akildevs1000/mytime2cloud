@@ -9,28 +9,36 @@ sqlite3 extension for ubunut
 
 -   sudo apt-get install php-sqlite3
 
+let employee_ids = [1, 2, 3];
 function getDatesInRange(startDate, endDate) {
-const date = new Date(startDate.getTime());
+    const date = new Date(startDate.getTime());
 
     const dates = [];
 
     // ✅ Exclude end date
-    while (date < endDate) {
-            let today = new Date(date);
-            let [y,m,d] = [today.getDate(),today.getMonth() + 1,today.getFullYear()]
+    while (date <= endDate) {
+        let today = new Date(date);
+        let y = today.getFullYear();
+        let m = (today.getMonth() + 1).toString().padStart(2, '0');
+        let d = today.getDate().toString().padStart(2, '0');
 
-      dates.push(`${y}-${m}-${d}`);
-      date.setDate(date.getDate() + 1);
+        employee_ids.forEach(e => {
+            dates.push(`${y}-${m}-${d},${e}`);
+
+        })
+
+        date.setDate(date.getDate() + 1);
     }
 
     return dates;
-
 }
 
-const d1 = new Date('2022-01-18');
-const d2 = new Date('2022-01-24');
+const d1 = new Date('2022-01-01');
+const d2 = new Date('2022-01-05');
 
-console.log(getDatesInRange(d1, d2));
+const datesInRange = getDatesInRange(d1, d2);
+console.log(datesInRange);
+
 
 Payslip references
 

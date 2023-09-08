@@ -105,11 +105,18 @@
                 </v-menu> -->
             </v-col>
             <v-col cols="12">
-              <ul>
-                {{
-                  result.length > 0 ? "Log(s) has been rendered" : ""
-                }}
-              </ul>
+              <v-card outlined>
+                <ul style="height: 150px; overflow-y: scroll">
+                  <li v-for="(item, index) in result" :key="index">
+                    {{ index }}
+                    <ul>
+                      <li v-for="(childItem, index) in item" :key="index">
+                        {{ childItem }}
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </v-card>
             </v-col>
           </v-form>
         </v-row>
@@ -211,11 +218,11 @@ export default {
           company_id,
           manual_entry: true,
           reason,
-          UserIDs,
+          employee_ids: UserIDs,
           dates,
         },
       };
-      console.log(payload);
+
       // return;
       let endpoint = "/" + type;
       if (type != "render_off" && type != "render_absent") {
@@ -224,9 +231,9 @@ export default {
       this.$axios
         .get(endpoint, payload)
         .then(({ data }) => {
-          console.log(data);
           this.loading = false;
           // this.snackbar = true; //snackbar : false,
+
           this.response =
             endpoint !== "render_logs" ? data.message : (this.result = data);
           this.$emit("update-data-table");
