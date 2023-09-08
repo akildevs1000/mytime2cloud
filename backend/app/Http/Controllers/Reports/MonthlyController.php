@@ -170,7 +170,7 @@ class MonthlyController extends Controller
 
         $model = (new Attendance)->processAttendanceModel($request);
 
-        $data = $model->get()->groupBy(['employee_id', 'date'])->take(31);
+        $data = $model->get()->groupBy(['employee_id', 'date']);
 
         $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
@@ -189,10 +189,6 @@ class MonthlyController extends Controller
             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
             'report_type' => $request->report_type ?? "",
             'total_leave' => 0,
-            'employee' => Employee::where([
-                "system_user_id" => $request->employee_id,
-                "company_id" => $companyID,
-            ])->first(),
         ];
 
         // if ($request->employee_id && $request->filled('employee_id')) {
@@ -200,10 +196,10 @@ class MonthlyController extends Controller
         //     return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
         // }
 
-        $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
+        // $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
 
         $arr = ['data' => $data, 'company' => $company, 'info' => $info];
-        return Pdf::loadView('pdf.' . $fileName, $arr);
+        return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
     }
 
     public function getHTML($data, $company)

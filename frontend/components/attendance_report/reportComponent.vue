@@ -571,6 +571,7 @@
 <script>
 export default {
   props: [
+    "report_template",
     "title",
     "shift_type_id",
     "headers",
@@ -1159,7 +1160,8 @@ export default {
       let qs = ``;
 
       qs += `${path}`;
-      qs += `?main_shift_type=${this.shift_type_id}`;
+      qs += `?report_template=${this.report_template}`;
+      qs += `&main_shift_type=${this.shift_type_id}`;
       qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
       qs += `&status=${this.payload.status}`;

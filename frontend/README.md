@@ -65,3 +65,61 @@ npm install --save vue-notification
 > mdi mdi-filter</v-icon
 
 <!-- dialogVisible: false, -->
+
+let data = {
+    "filo": [
+        "01-Sep-23: No Data Found",
+        "02-Sep-23: No Data Found",
+        "03-Sep-23: No Data Found",
+        "04-Sep-23: No Data Found",
+        "05-Sep-23: No Data Found",
+        "06-Sep-23: No Data Found",
+        "07-Sep-23: No Data Found",
+        "08-Sep-23: No Data Found"
+    ],
+    "single": [
+        "01-Sep-23: No Data Found",
+        "02-Sep-23: No Data Found",
+        "03-Sep-23: No Data Found",
+        "04-Sep-23: No Data Found",
+        "05-Sep-23: No Data Found",
+        "06-Sep-23: No Data Found",
+        "07-Sep-23: No Data Found",
+        "08-Sep-23: No Data Found"
+    ]
+};
+
+const targetArray = [];
+const sourceArray = Object.keys(data);
+
+let index = 0;
+
+function pushValueWithDelay() {
+
+    if (index < sourceArray.length) {
+        const currentKey = sourceArray[index];
+
+        // Push the current key from the source array to the target array
+        targetArray.push(currentKey);
+        console.log(targetArray); // Optional: Display the target array
+
+        const currentArray = data[currentKey];
+
+        if (currentArray.length > 0) {
+            // Push the first value from the current array with a 1-second delay
+            setTimeout(() => {
+                targetArray.push(currentArray.shift());
+                console.log(targetArray); // Optional: Display the target array
+                pushValueWithDelay(); // Call the function recursively
+            }, 1000);
+        } else {
+            // If the current array is empty, move to the next key
+            index++;
+            pushValueWithDelay(); // Call the function recursively
+        }
+    }
+}
+
+// Start the process by calling the function for the first time
+pushValueWithDelay();
+

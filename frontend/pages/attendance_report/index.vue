@@ -8,20 +8,7 @@
 
       <v-card-text class="py-3">
         <v-row>
-          <v-col md="3">
-            <div>Frequency</div>
-            <v-autocomplete
-              class="mt-2"
-              outlined
-              dense
-              v-model="report_type"
-              x-small
-              :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
-              item-text="['Daily']"
-              :hide-details="true"
-            ></v-autocomplete>
-          </v-col>
-          <v-col md="3">
+          <v-col md="2">
             Status
             <v-select
               class="mt-2"
@@ -35,7 +22,7 @@
               :hide-details="true"
             ></v-select>
           </v-col>
-          <v-col md="3">
+          <v-col md="2">
             Departments
             <v-autocomplete
               @change="getScheduledEmployees"
@@ -51,7 +38,7 @@
               :hide-details="true"
             ></v-autocomplete>
           </v-col>
-          <v-col md="3">
+          <v-col md="2">
             Employee ID
             <v-autocomplete
               class="mt-2"
@@ -65,8 +52,22 @@
               :hide-details="true"
             ></v-autocomplete>
           </v-col>
-
-          <v-col md="3" v-if="report_type == 'Daily'">
+        </v-row>
+        <v-row>
+          <v-col md="2">
+            <div>Frequency</div>
+            <v-autocomplete
+              class="mt-2"
+              outlined
+              dense
+              v-model="report_type"
+              x-small
+              :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
+              item-text="['Daily']"
+              :hide-details="true"
+            ></v-autocomplete>
+          </v-col>
+          <v-col md="2" v-if="report_type == 'Daily'">
             <div>Date</div>
             <div class="text-left mt-2">
               <v-menu
@@ -106,7 +107,7 @@
               </v-menu>
             </div>
           </v-col>
-          <v-col md="3" v-if="report_type !== 'Daily'">
+          <v-col md="2" v-if="report_type !== 'Daily'">
             <div class="text-left">
               <v-menu
                 ref="from_menu"
@@ -145,7 +146,7 @@
               </v-menu>
             </div>
           </v-col>
-          <v-col md="3" v-if="report_type !== 'Daily'">
+          <v-col md="2" v-if="report_type !== 'Daily'">
             <div class="mb-2">To Date</div>
 
             <div class="text-left">
@@ -191,6 +192,21 @@
             </div>
           </v-col>
         </v-row>
+        <v-row>
+          <v-col md="2">
+            <div>Report Templates</div>
+            <v-autocomplete
+              class="mt-2"
+              outlined
+              dense
+              v-model="report_template"
+              x-small
+              :items="['Template1', 'Template2']"
+              item-text="['Daily']"
+              :hide-details="true"
+            ></v-autocomplete>
+          </v-col>
+        </v-row>
       </v-card-text>
     </v-card>
     <v-card
@@ -214,6 +230,7 @@
             title="General Reports"
             shift_type_id="1"
             :headers="generalHeaders"
+            :report_template="report_template"
             :report_type="report_type"
             :status="payload.status"
             :department_ids="payload.department_ids"
@@ -230,6 +247,7 @@
             title="Split Reports"
             shift_type_id="5"
             :headers="doubleHeaders"
+            :report_template="report_template"
             :report_type="report_type"
             :status="payload.status"
             :department_ids="payload.department_ids"
@@ -246,6 +264,7 @@
             title="Multi In/Out Reports"
             shift_type_id="2"
             :headers="multiHeaders"
+            :report_template="report_template"
             :report_type="report_type"
             :status="payload.status"
             :department_ids="payload.department_ids"
@@ -338,13 +357,14 @@ export default {
     loading: false,
     total: 0,
 
+    report_template: "Template1",
     report_type: "Monthly",
     payload: {
       from_date: null,
       to_date: null,
       daily_date: null,
       employee_id: "",
-      department_ids: [],
+      department_ids: [{ id: "-1", name: "" }],
       status: "-1",
       late_early: "Select All",
     },

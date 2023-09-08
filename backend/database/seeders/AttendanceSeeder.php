@@ -10,6 +10,8 @@ use Illuminate\Support\Arr;
 
 class AttendanceSeeder extends Seeder
 {
+    // run this command to seed the data => php artisan db:seed --class=AttendanceSeeder
+
     /**
      * Run the database seeds.
      *
@@ -30,13 +32,13 @@ class AttendanceSeeder extends Seeder
         }
 
         foreach (range(1, $daysInMonth) as $day) {
-            foreach (range(1, 2) as $emp_id) {
+            foreach (range(1, 1) as $emp_id) {
                 $data =  Attendance::factory(1)->create([
                     "date" => date("Y-m-") . ($day < 10 ? '0' . $day : $day),
-                    "employee_id" => $emp_id,
-                    "shift_id" => Arr::random([1, 2, 3, 4, 5]),
-                    "shift_type_id" => Arr::random([1, 2, 3, 4, 5]),
-                    "time_table_id" => Arr::random([1, 2, 3, 4, 5]),
+                    "employee_id" => 1005,
+                    "shift_id" => 23,
+                    "shift_type_id" => 6,
+                    "time_table_id" => 0,
                     "status" => Arr::random(["A", "P"]),
                     "in" => Arr::random([$min . ':' . $sec, '---']),
                     "out" => Arr::random([$min . ':' . $sec, '---']),
@@ -46,7 +48,7 @@ class AttendanceSeeder extends Seeder
                     "early_going" => Arr::random([$min . ':' . $sec, '---']),
                     "device_id_in" => Arr::random(["MED", 'BED']),
                     "device_id_out" => Arr::random(["MED", 'BED']),
-                    "company_id" => 1,
+                    "company_id" => 8,
                 ]);
             }
         }

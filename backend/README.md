@@ -68,3 +68,22 @@ $ sudo systemctl restart nginx
 
 SDK Live port : 9001
 SDK Live port : 9001
+
+
+
+
+public function getCurrentMonthDates()
+    {
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+        // Get the number of days in the current month
+        $numDays = date('t', strtotime("$currentYear-$currentMonth-01"));
+        $dates = [];
+        // Loop through the days of the current month and display them
+        for ($day = 1; $day <= $numDays; $day++) {
+            $date = sprintf("%04d-%02d-%02d", $currentYear, $currentMonth, $day);
+            $dates[] = ["date" => $date, "day" => date("D", strtotime($date))];
+            // $dates[] = $date;
+        }
+        return $dates;
+    }
