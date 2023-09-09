@@ -77,7 +77,7 @@ die();
 </head>
 
 <body>
-     <div id="footer">
+    <div id="footer">
         <div class="pageCounter">
             {{-- <p class="page"> </p> --}}
             <p></p>
@@ -119,7 +119,13 @@ die();
         <tr>
             <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
                 <div style=";">
-                    <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="70px" width="200">
+                    @if (env('APP_ENV') !== 'local')
+                        <img src="{{ $company->logo }}" height="70px" width="200">
+                    @else
+                        <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0"
+                            height="70px" width="200">
+                    @endif
+                    {{-- <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="70px" width="200"> --}}
                 </div>
             </td>
             <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
@@ -328,7 +334,7 @@ die();
             </tr>
         </table>
     @endforeach
-    
+
     @php
         function getStatus($employeeData)
         {
