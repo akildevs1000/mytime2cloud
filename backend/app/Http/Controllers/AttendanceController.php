@@ -87,15 +87,16 @@ class AttendanceController extends Controller
 
         $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
 
-        $startDate = $request->date ?? date('j');
+        $startDate = $request->startDate ?? date('j');
 
+        $endDate = $request->endDate ?? $daysInMonth;
 
 
         $arr = [];
 
 
         foreach ($scheduleEmployees as $scheduleEmployee) {
-            foreach (range($startDate, $daysInMonth) as $day) {
+            foreach (range($startDate, $endDate) as $day) {
                 $arr[] = [
                     "date" => date("Y-m-") . ($day < 10 ? '0' . $day : $day),
                     "employee_id" => $scheduleEmployee->employee_id,
