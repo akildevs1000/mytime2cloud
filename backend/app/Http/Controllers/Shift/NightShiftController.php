@@ -53,7 +53,7 @@ class NightShiftController extends Controller
                 $date = $log['edit_date'];
                 $arr["date"] = $date;
 
-                if (array_key_exists("beginning_in", $shift)) {
+                if (!array_key_exists("beginning_in", $shift)) {
                     Logger::channel("custom")->error('Cron: SyncNightShift. Error Details: ' . $row);
                     continue;
                 }
