@@ -752,13 +752,13 @@ export default {
 
     options: {
       handler() {
-        this.getDataFromApi();
+        // this.getDataFromApi();
       },
       deep: true,
     },
   },
   async created() {
-    this.loading = true;
+    // this.loading = true;
     // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
 
@@ -783,8 +783,6 @@ export default {
 
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
-
-    await this.getDataFromApi();
   },
 
   methods: {
