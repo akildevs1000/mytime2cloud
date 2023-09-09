@@ -62,7 +62,7 @@ class SplitShiftController extends Controller
                 "out" => "---",
                 "ot" => "---",
 
-                "company_id" => $company_id,
+                "company_id" => $scheduleEmployee->company_id,
                 "date" => $date,
                 "employee_id" => $scheduleEmployee->employee_id,
                 "shift_type_id" => $scheduleEmployee->shift_type_id,
