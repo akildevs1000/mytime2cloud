@@ -60,9 +60,8 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:render_missing')
-            // ->dailyAt('00:15')
-            ->everyMinute()
-
+            ->dailyAt('00:15')
+            // ->everyMinute()
             ->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/$date-render-missing-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
