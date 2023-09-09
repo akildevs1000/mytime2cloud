@@ -247,8 +247,30 @@ die();
                     <td style="text-align:center;">
                         {{ date('D', strtotime($employeeDays->date)) ?? '---' }}</td>
                 @endforeach
+            </tr>
 
+            <tr style="background-color: none;">
+                <td> <b>In</b> </td>
 
+                @foreach ($employee as $date)
+                    @php
+                        $employeeDays = $date[0];
+                    @endphp
+                    <td style="text-align:center;">
+                        {{ $employeeDays->in }}</td>
+                @endforeach
+            </tr>
+
+            <tr style="background-color: none;">
+                <td> <b>Out</b> </td>
+
+                @foreach ($employee as $date)
+                    @php
+                        $employeeDays = $date[0];
+                    @endphp
+                    <td style="text-align:center;">
+                        {{ $employeeDays->out }}</td>
+                @endforeach
             </tr>
 
             <tr>
@@ -296,7 +318,6 @@ die();
                 @foreach ($employee as $date)
                     @php
                         $employeeOut = $date[0];
-                        
                     @endphp
                     <td style="text-align:  center;"> {{ $employeeOut->early_going ?? '---' }}
                     </td>
@@ -310,7 +331,6 @@ die();
                 @foreach ($employee as $date)
                     @php
                         $employeeOut = $date[0];
-                        
                     @endphp
                     <td style="text-align:  center;"> {{ $employeeOut->total_hrs ?? '---' }}
                     </td>
@@ -324,7 +344,6 @@ die();
                 @foreach ($employee as $date)
                     @php
                         $employeeOut = $date[0];
-                        
                     @endphp
                     <td style="text-align:  center;"> {{ $employeeOut->ot ?? '---' }}
                     </td>
