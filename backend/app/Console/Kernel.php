@@ -93,11 +93,11 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/$date-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        $schedule
-            ->command('task:sync_night')
-            ->everyMinute()
-            ->withoutOverlapping()
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        // $schedule
+        //     ->command('task:sync_night')
+        //     ->everyMinute()
+        //     ->withoutOverlapping()
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
             ->command('task:update_visitor_company_ids')
