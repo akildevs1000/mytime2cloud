@@ -21,6 +21,12 @@ class Kernel extends ConsoleKernel
         $date = date("M-Y");
 
         $schedule
+            ->command('task:attendance_seeder')
+            ->monthly(1, '00:00')
+            ->withoutOverlapping()
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        $schedule
             ->command('task:sync_single_shift')
             // ->dailyAt('4:00')
             // ->hourly()

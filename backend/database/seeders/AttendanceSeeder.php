@@ -19,7 +19,7 @@ class AttendanceSeeder extends Seeder
      */
     public function run()
     {
-        Attendance::truncate();
+        // Attendance::truncate();
         $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
 
         $min = rand(0, 9);
