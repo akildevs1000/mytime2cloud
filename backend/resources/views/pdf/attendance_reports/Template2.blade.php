@@ -120,7 +120,7 @@ die();
             <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
                 <div style=";">
                     @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" height="70px" width="200">
+                        <img src="{{ $company->logo }}" height="70px" width="150">
                     @else
                         <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0"
                             height="70px" width="200">
