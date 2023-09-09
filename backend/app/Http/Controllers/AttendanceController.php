@@ -15,12 +15,75 @@ class AttendanceController extends Controller
 {
     public function seedDefaultData()
     {
-        $scheduleEmployees = ScheduleEmployee::withOut("shift", "shift_type")->get([
-            "shift_id",
-            "employee_id",
-            "shift_type_id",
-            "company_id",
-        ]);
+        $scheduleEmployees = ScheduleEmployee::withOut("shift", "shift_type")
+            ->get([
+                "shift_id",
+                "employee_id",
+                "shift_type_id",
+                "company_id",
+            ]);
+
+        if ($scheduleEmployees->isEmpty()) {
+            $message = "Cron AttendanceSeeder: No record found.";
+            info($message);
+            return $message;
+        }
+
+        $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
+
+        $arr = [];
+
+
+        foreach ($scheduleEmployees as $scheduleEmployee) {
+            foreach (range(1, $daysInMonth) as $day) {
+                $arr[] = [
+                    "date" => date("Y-m-") . ($day < 10 ? '0' . $day : $day),
+                    "employee_id" => $scheduleEmployee->employee_id,
+                    "shift_id" => $scheduleEmployee->shift_id,
+                    "shift_type_id" => $scheduleEmployee->shift_type_id,
+                    "status" => "---",
+                    "in" => "---",
+                    "out" => "---",
+                    "total_hrs" => "---",
+                    "ot" => "---",
+                    "late_coming" => "---",
+                    "early_going" => "---",
+                    "device_id_in" => "---",
+                    "device_id_out" => "---",
+                    "company_id" => $scheduleEmployee->company_id,
+                ];
+            }
+        }
+
+        $attendance = Attendance::query();
+        $attendance->whereIn("date", array_column($arr, "date"));
+        $attendance->where("employee_id", $scheduleEmployees->pluck("employee_id"));
+        $attendance->where("company_id", $scheduleEmployees->pluck("company_id"));
+        $attendance->delete();
+        $attendance->insert($arr);
+        $message = "Cron AttendanceSeeder: " . count($arr) . " record has been inserted.";
+
+        info($message);
+
+        return $message;
+    }
+
+    public function seedDefaultDataManual(Request $request)
+    {
+        $scheduleEmployees = ScheduleEmployee::withOut("shift", "shift_type")
+            ->where("company_id", $request->company_id)
+            ->get([
+                "shift_id",
+                "employee_id",
+                "shift_type_id",
+                "company_id",
+            ]);
+
+        if ($scheduleEmployees->isEmpty()) {
+            $message = "Cron AttendanceSeeder: No record found.";
+            info($message);
+            return $message;
+        }
 
         $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
 
