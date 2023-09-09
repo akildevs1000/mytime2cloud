@@ -43,6 +43,11 @@ class NightShiftController extends Controller
                 $schedule = $log["schedule"];
                 $shift    = $schedule["shift"];
 
+                if (!$schedule) {
+                    info("NightShift: No Schedule Found.");
+                    continue;
+                }
+
                 $date = $log['edit_date'];
                 $arr["date"] = $date;
 
