@@ -30,8 +30,8 @@ class SplitShiftController extends Controller
 
         // If no schedule employees are found, log and return a message
         if ($scheduleEmployees->isEmpty()) {
-            info("FiloShift: No Data Found.");
-            return "FiloShift: No Data Found";
+            info("SplitShift: No Data Found.");
+            return "SplitShift: No Data Found";
         }
 
         $company_ids = $scheduleEmployees->pluck('company_id')->toArray();
@@ -121,9 +121,9 @@ class SplitShiftController extends Controller
             $model->whereIn("company_id", $company_ids);
             $model->delete();
             $model->insert($items);
-            info("FiloShift: Log(s) has been render. Data: " . json_encode($items));
+            info("SplitShift: Log(s) has been render. Data: " . json_encode($items));
             AttendanceLog::where("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
-            return "FiloShift: Log(s) has been render. Data: " . json_encode($items);
+            return "SplitShift: Log(s) has been render. Data: " . json_encode($items);
         } catch (\Exception $e) {
             return $e;
         }
