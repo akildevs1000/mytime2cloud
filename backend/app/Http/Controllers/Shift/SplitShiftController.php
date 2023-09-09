@@ -25,7 +25,7 @@ class SplitShiftController extends Controller
                 $q->whereDate("LogTime", $date);
                 $q->where("checked", false);
             })
-            ->where("shift_type_id", 1)
+            ->where("shift_type_id", 5)
             ->get();
 
         // If no schedule employees are found, log and return a message
@@ -47,7 +47,7 @@ class SplitShiftController extends Controller
         $items = [];
 
         foreach ($scheduleEmployees as $scheduleEmployee) {
-            $employeeAttendanceLogs = $attendanceLogs[$scheduleEmployee->employee_id];
+            $employeeAttendanceLogs = $attendanceLogs[$scheduleEmployee->company_id][$scheduleEmployee->employee_id];
 
             if (!$employeeAttendanceLogs || $employeeAttendanceLogs->isEmpty()) {
                 continue;
@@ -131,6 +131,7 @@ class SplitShiftController extends Controller
 
     public function renderData(Request $request)
     {
+        return $this->render();
         // Extract start and end dates from the JSON data
         $startDateString = $request->dates[0];
         $endDateString = $request->dates[1];
