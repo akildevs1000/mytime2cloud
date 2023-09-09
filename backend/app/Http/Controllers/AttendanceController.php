@@ -114,6 +114,7 @@ class AttendanceController extends Controller
         $attendance = Attendance::query();
         $attendance->whereIn("date", array_column($arr, "date"));
         $attendance->where("employee_id", $scheduleEmployees->pluck("employee_id"));
+        $attendance->where("company_id", $request->company_id);
         $attendance->delete();
         $attendance->insert($arr);
         $message = "Cron AttendanceSeeder: " . count($arr) . " record has been inserted.";
