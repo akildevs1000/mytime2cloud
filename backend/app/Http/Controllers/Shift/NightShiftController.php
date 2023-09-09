@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 
 use App\Models\AttendanceLog;
 use App\Models\Attendance;
+use Illuminate\Support\Facades\Log as Logger;
+
 
 class NightShiftController extends Controller
 {
@@ -51,7 +53,8 @@ class NightShiftController extends Controller
                 $date = $log['edit_date'];
                 $arr["date"] = $date;
 
-                if (!$shift["beginning_in"]) {
+                if (array_key_exists("beginning_in", $shift)) {
+                    Logger::channel("custom")->error('Cron: SyncNightShift. Error Details: ' . $row);
                     continue;
                 }
 
