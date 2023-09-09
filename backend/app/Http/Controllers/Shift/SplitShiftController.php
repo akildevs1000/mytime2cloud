@@ -110,9 +110,9 @@ class SplitShiftController extends Controller
             }
         }
         AttendanceLog::whereIn("UserID", $employee_ids)->whereDate("LogTime", $date)->whereIn("company_id", $company_ids)->update(["checked" => true]);
-        return "{$dateObj->format('d-M-y')}: Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
-
-        return;
+        $message = "{$dateObj->format('d-M-y')}: Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
+        info($message);
+        return $message;
 
         try {
             $model = Attendance::query();
