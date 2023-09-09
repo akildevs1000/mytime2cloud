@@ -340,6 +340,39 @@ die();
             @endif
 
 
+            @if ($info->shift_type_id == 5)
+                <tr style="background-color: none;">
+                    <td> <b>In1</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[0]['in'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+                <tr style="background-color: none;">
+                    <td> <b>Out1</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[0]['out'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+
+                <tr style="background-color: none;">
+                    <td> <b>In2</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[1]['in'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+                <tr style="background-color: none;">
+                    <td> <b>Out2</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[1]['out'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+            @endif
+
+
             @if ($info->shift_type_id == 4 || $info->shift_type_id == 6)
                 <tr>
                     <td> <b>Late In</b> </td>
