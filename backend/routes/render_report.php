@@ -3,6 +3,7 @@
 use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\RenderController;
 use App\Http\Controllers\Shift\SingleShiftController;
+use App\Http\Controllers\Shift\SplitShiftController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,11 +14,14 @@ Route::get('render_logs', [FiloShiftController::class, 'renderData']);
 
 Route::get('/render_logs', function (Request $request) {
 
+
     $filo = (new FiloShiftController)->renderData($request);
     $single = (new SingleShiftController)->renderData($request);
+    $split = (new SplitShiftController)->renderData($request);
 
+    return $split;
 
-    return  ["Filo Shift" => $filo, "Single Shift" => $single];
+    return  ["Filo Shift" => $filo, "Single Shift" => $single, "Split Shift" => $split];
 });
 
 
