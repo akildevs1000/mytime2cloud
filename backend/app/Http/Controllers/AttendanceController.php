@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 class AttendanceController extends Controller
 {
     public function seedDefaultData()
-    {
+    {        
         $scheduleEmployees = ScheduleEmployee::withOut("shift", "shift_type")
             ->get([
                 "shift_id",
@@ -69,7 +69,7 @@ class AttendanceController extends Controller
     }
 
     public function seedDefaultDataManual(Request $request)
-    {
+    {        
         $scheduleEmployees = ScheduleEmployee::withOut("shift", "shift_type")
             ->where("company_id", $request->company_id)
             ->get([

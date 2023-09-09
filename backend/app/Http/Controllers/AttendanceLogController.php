@@ -22,22 +22,90 @@ class AttendanceLogController extends Controller
         return $model->where("company_id", $request->company_id)->paginate($request->per_page);
     }
 
-    public function checkMissingLogsCount()
+    public function handleFileForCron()
     {
-        $fullPath = storage_path("app/logs-" . date("d-m-Y") . ".csv");
+        $date = date("d-m-Y", strtotime("yesterday"));
+
+        $csvPath = "app/logs-$date.csv"; // The path to the file relative to the "Storage" folder
+
+        $fullPath = storage_path($csvPath);
+
+        if (!file_exists($fullPath)) {
+            return ["error" => true, "message" => "File doest not exist on $date."];
+        }
 
         $file = fopen($fullPath, 'r');
+
         $data = file($fullPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        if (!count($data)) {
+            return ["error" => true, "message" => 'File is empty.'];
+        }
+
+        $previoulyAddedLineNumbers = Storage::get("logs-count-$date.txt") ?? 0;
+
+        // return $this->getMeta("Sync Attenance Logs", $previoulyAddedLineNumbers . "\n");
+
+        $totalLines = count($data);
+
+        $currentLength = 0;
+
+        if ($previoulyAddedLineNumbers == $totalLines) {
+            return ["error" => true, "message" => 'No new data found.'];
+        } else if ($previoulyAddedLineNumbers > 0 && $totalLines > 0) {
+            $currentLength = $previoulyAddedLineNumbers;
+        }
+
         fclose($file);
 
-        $actualCount = (int) Storage::get("logs-count-" . date("d-m-Y") . ".txt");
-        $expectedCount = count($data);
+        return [
+            "date" => $date,
+            "totalLines" => $totalLines,
+            "data" => array_slice($data, $currentLength)
 
-        // if ($expectedCount === $actualCount) {
-        //     throw new \Exception("Log count mismatch. Expected: $expectedCount, Actual: $actualCount");
-        // }
+        ];
+    }
 
-        return $this->getMeta("Check Missing Count", "Final log count $expectedCount. Last inserted log count: $actualCount.\n");
+    public function renderMissing()
+    {
+        $result = $this->handleFileForCron();
+
+        if (array_key_exists("error", $result)) {
+            return $this->getMeta("Sync Attenance Logs", $result["message"] . "\n");
+        }
+
+        $result["data"] = array_values(array_unique($result["data"]));
+
+        $records = [];
+
+        foreach ($result["data"] as $row) {
+            $columns = explode(',', $row);
+
+            $records[] = [
+                "UserID" => $columns[0],
+                "DeviceID" => $columns[1],
+                "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, -3),
+                "SerialNumber" => $columns[3]
+            ];
+        }
+
+        try {
+            AttendanceLog::insert($records);
+            // Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
+            Storage::put("logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+            return $this->getMeta("Sync Attenance Logs", count($records) . " new logs has been inserted." . "\n");
+        } catch (\Throwable $th) {
+
+            Logger::channel("custom")->error('Error occured while inserting logs.');
+            Logger::channel("custom")->error('Error Details: ' . $th);
+            return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
+
+            // return $data = [
+            //     'title' => 'Quick action required',
+            //     'body' => $th,
+            // ];
+            // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+        }
     }
 
     public function handleFile()

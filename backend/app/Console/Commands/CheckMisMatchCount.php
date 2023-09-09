@@ -12,7 +12,7 @@ class CheckMisMatchCount extends Command
      *
      * @var string
      */
-    protected $signature = 'task:check_mismatch_count';
+    protected $signature = 'task:render_missing';
 
     /**
      * The console command description.
@@ -28,6 +28,6 @@ class CheckMisMatchCount extends Command
      */
     public function handle()
     {
-        echo (new AttendanceLogController)->checkMissingLogsCount();
+        echo (new AttendanceLogController)->renderMissing();
     }
 }
