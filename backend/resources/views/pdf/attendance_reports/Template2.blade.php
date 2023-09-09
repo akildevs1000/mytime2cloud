@@ -241,90 +241,122 @@ die();
                 <td> <b>Days</b> </td>
 
                 @foreach ($employee as $date)
-                    @php
-                        $employeeDays = $date[0];
-                    @endphp
                     <td style="text-align:center;">
-                        {{ date('D', strtotime($employeeDays->date)) ?? '---' }}</td>
+                        {{ date('D', strtotime($date[0]->date)) ?? '---' }}</td>
                 @endforeach
             </tr>
 
+            <?php if(in_array($info->shift_type_id,[1,4,6])) {?>
             <tr style="background-color: none;">
                 <td> <b>In</b> </td>
 
                 @foreach ($employee as $date)
-                    @php
-                        $employeeDays = $date[0];
-                    @endphp
-                    <td style="text-align:center;">
-                        {{ $employeeDays->in }}</td>
+                    <td style="text-align:  center;"> {{ $date[0]->in ?? '---' }} </td>
                 @endforeach
             </tr>
-
             <tr style="background-color: none;">
                 <td> <b>Out</b> </td>
-
                 @foreach ($employee as $date)
-                    @php
-                        $employeeDays = $date[0];
-                    @endphp
-                    <td style="text-align:center;">
-                        {{ $employeeDays->out }}</td>
+                    <td style="text-align:  center;"> {{ $date[0]->out ?? '---' }} </td>
                 @endforeach
             </tr>
+            <?php }?>
 
-            <tr>
-                <td> <b>Status</b> </td>
-                @foreach ($employee as $date)
-                    @php
-                        $employeeStatus = $date[0];
-                        if ($employeeStatus->status == 'P') {
-                            $statusColor = 'green';
-                        } elseif ($employeeStatus->status == 'A') {
-                            $statusColor = 'red';
-                        } elseif ($employeeStatus->status == 'M') {
-                            $statusColor = 'orange';
-                        } elseif ($employeeStatus->status == 'O') {
-                            $statusColor = 'gray';
-                        } elseif ($employeeStatus->status == 'L') {
-                            $statusColor = 'blue';
-                        } elseif ($employeeStatus->status == 'H') {
-                            $statusColor = 'pink';
-                        } elseif ($employeeStatus->status == '---') {
-                            $statusColor = '#f34100ed';
-                        }
-                        
-                    @endphp
-                    <td style="text-align:  center; color:{{ $statusColor }}"> {{ $employeeStatus->status ?? '---' }}
-                    </td>
-                @endforeach
-            </tr>
-            <tr>
-                <td> <b>Late In</b> </td>
-                @foreach ($employee as $date)
-                    @php
-                        $employeeIn = $date[0];
-                        
-                    @endphp
-                    <td style="text-align:  center;"> {{ $employeeIn->late_coming ?? '---' }}
-                    </td>
-                @endforeach
+            @if ($info->shift_type_id == 2)
+                <tr style="background-color: none;">
+                    <td> <b>In1</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[0]['in'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+                <tr style="background-color: none;">
+                    <td> <b>Out1</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[0]['out'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+
+                <tr style="background-color: none;">
+                    <td> <b>In2</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[1]['in'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+                <tr style="background-color: none;">
+                    <td> <b>Out2</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[1]['out'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+
+                <tr style="background-color: none;">
+                    <td> <b>In3</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[2]['in'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+                <tr style="background-color: none;">
+                    <td> <b>Out3</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[2]['out'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+
+                <tr style="background-color: none;">
+                    <td> <b>In4</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[3]['in'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+                <tr style="background-color: none;">
+                    <td> <b>Out4</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[3]['out'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+
+                <tr style="background-color: none;">
+                    <td> <b>In5</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[4]['in'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+                <tr style="background-color: none;">
+                    <td> <b>Out5</b> </td>
+
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->logs[4]['out'] ?? '---' }} </td>
+                    @endforeach
+                </tr>
+            @endif
 
 
-            </tr>
+            @if ($info->shift_type_id == 4 || $info->shift_type_id == 6)
+                <tr>
+                    <td> <b>Late In</b> </td>
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->late_coming ?? '---' }}
+                        </td>
+                    @endforeach
+                </tr>
 
-            <tr>
-                <td> <b>Early Out</b> </td>
-                @foreach ($employee as $date)
-                    @php
-                        $employeeOut = $date[0];
-                    @endphp
-                    <td style="text-align:  center;"> {{ $employeeOut->early_going ?? '---' }}
-                    </td>
-                @endforeach
-
-
-            </tr>
+                <tr>
+                    <td> <b>Early Out</b> </td>
+                    @foreach ($employee as $date)
+                        <td style="text-align:  center;"> {{ $date[0]->early_going ?? '---' }}
+                        </td>
+                    @endforeach
+                </tr>
+            @endif
 
             <tr>
                 <td> <b>Total Hrs</b> </td>
@@ -350,6 +382,32 @@ die();
                 @endforeach
 
 
+            </tr>
+            <tr>
+                <td> <b>Status</b> </td>
+                @foreach ($employee as $date)
+                    @php
+                        $date[0] = $date[0];
+                        if ($date[0]->status == 'P') {
+                            $statusColor = 'green';
+                        } elseif ($date[0]->status == 'A') {
+                            $statusColor = 'red';
+                        } elseif ($date[0]->status == 'M') {
+                            $statusColor = 'orange';
+                        } elseif ($date[0]->status == 'O') {
+                            $statusColor = 'gray';
+                        } elseif ($date[0]->status == 'L') {
+                            $statusColor = 'blue';
+                        } elseif ($date[0]->status == 'H') {
+                            $statusColor = 'pink';
+                        } elseif ($date[0]->status == '---') {
+                            $statusColor = '';
+                        }
+                        
+                    @endphp
+                    <td style="text-align:  center; color:{{ $statusColor }}"> {{ $date[0]->status ?? '---' }}
+                    </td>
+                @endforeach
             </tr>
         </table>
     @endforeach

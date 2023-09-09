@@ -188,6 +188,7 @@ class MonthlyController extends Controller
             'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
             'report_type' => $request->report_type ?? "",
+            'shift_type_id' => $request->shift_type_id ?? 0,
             'total_leave' => 0,
         ];
 
@@ -197,7 +198,7 @@ class MonthlyController extends Controller
         // }
 
         // $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
-
+            
         $arr = ['data' => $data, 'company' => $company, 'info' => $info];
         return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
     }
