@@ -19,7 +19,7 @@ Route::get('/render_logs', function (Request $request) {
     $single = (new SingleShiftController)->renderData($request);
     $split = (new SplitShiftController)->renderData($request);
 
-    return $split;
+    // return $split;
 
     return  ["Filo Shift" => $filo, "Single Shift" => $single, "Split Shift" => $split];
 });
