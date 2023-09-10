@@ -131,7 +131,6 @@ class SplitShiftController extends Controller
 
     public function renderData(Request $request)
     {
-        return $this->render();
         // Extract start and end dates from the JSON data
         $startDateString = $request->dates[0];
         $endDateString = $request->dates[1];
