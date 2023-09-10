@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Shift;
 
-use App\Models\Company;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\ScheduleEmployee;
 
@@ -90,16 +88,16 @@ class FiloShiftController extends Controller
 
         try {
             $model = Attendance::query();
-            $model->where("date", $date);
-            $model->whereIn("employee_id", $employee_ids);
-            $model->whereIn("company_id", $company_ids);
-            $model->delete();
-            $model->insert($items);
-            info("FiloShift: Log(s) has been render. Data: " . json_encode($items));
-            AttendanceLog::where("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
-            return "FiloShift: Log(s) has been render. Data: " . json_encode($items);
+        $model->where("date", $date);
+        $model->whereIn("employee_id", $employee_ids);
+        $model->whereIn("company_id", $company_ids);
+        $model->delete();
+        $model->insert($items);
+        info("FiloShift: Log(s) has been render. Data: " . json_encode($items));
+        AttendanceLog::where("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
+        return "FiloShift: Log(s) has been render. Data: " . json_encode($items);
         } catch (\Exception $e) {
-            return $e;
+        return $e;
         }
     }
 
@@ -128,88 +126,81 @@ class FiloShiftController extends Controller
 
     public function renderManual($dateObj, $employee_ids, $company_id)
     {
-        $date = $dateObj->format('Y-m-d');
-        // Get all schedule employees for the current date and shift type id 6
-        $scheduleEmployees = ScheduleEmployee::with("shift")
-            ->whereHas("attendance_logs", function ($q) use ($date, $employee_ids, $company_id) {
-                $q->where("company_id", $company_id);
-                $q->whereDate("LogTime", $date);
-                $q->where("checked", false);
-                $q->whereIn("employee_id", $employee_ids);
-            })
-            ->where("shift_type_id", 1)
-            ->get();
+        $params = [
+            "date" => $dateObj->format("Y-m-d"),
+            "company_id" => $company_id,
+            "employee_ids" => $employee_ids,
+            "shift_type_id" => 1,
+            "checked" => true
+        ];
 
-        // If no schedule employees are found, log and return a message
-        if ($scheduleEmployees->isEmpty()) {
-            return "{$dateObj->format('d-M-y')}: No Data Found";
+        $logs = (new AttendanceLog)->getLogsByUser($params);
+
+        $payload = $this->prepareAttendanceRecords($dateObj->format("Y-m-d"), $logs);
+
+        if (!count($payload)) {
+            info("(Filo Shift) {$dateObj->format('d-M-y')}: No Data Found");
+            return "(Filo Shift) {$dateObj->format('d-M-y')}: No Data Found";
         }
 
-        $attendanceLogs = AttendanceLog::whereDate("LogTime", $date)
-            ->where("company_id", $company_id)
-            ->whereIn("UserID", $employee_ids)
-            ->distinct("LogTime", "UserID", "company_id")
-            ->get()
-            ->groupBy(['UserID']);
+        try {
+            $model = Attendance::query();
+            $model->where("date", $dateObj->format("Y-m-d"));
+            $model->whereIn("employee_id", $employee_ids);
+            $model->whereIn("company_id", $company_id);
+            $model->delete();
+            $model->insert($payload);
+            AttendanceLog::whereIn("UserID", $employee_ids)->where("company_id", $company_id)->update(["checked" => true]);
+            return "(Filo Shift) {$dateObj->format('d-M-y')}: Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
+        } catch (\Exception $e) {
+            return $e;
+        }
+    }
 
+    public function prepareAttendanceRecords($date, $data)
+    {
         $items = [];
 
-        foreach ($scheduleEmployees as $scheduleEmployee) {
-            $employeeAttendanceLogs = $attendanceLogs[$scheduleEmployee->employee_id];
+        foreach ($data as $UserID => $logs) {
 
-            if (!$employeeAttendanceLogs || $employeeAttendanceLogs->isEmpty()) {
+            $logs = $data[$UserID];
+
+            if (!$logs || $logs->isEmpty()) {
                 continue;
             }
 
-            $firstLog = $employeeAttendanceLogs->first();
-            $lastLog = $employeeAttendanceLogs->last();
+            $firstLog = $logs->first();
+            $lastLog = $logs->last();
 
-            $shift = $scheduleEmployee->shift;
+            $schedule = $firstLog->schedule;
+
+            // if (!$schedule || !$schedule->shift) {
+            //     continue;
+            // }
 
             $arr = [
-
                 "total_hrs" => "---",
                 "out" => "---",
                 "ot" => "---",
-
-                "company_id" => $company_id,
+                "company_id" => $firstLog->company_id,
                 "date" => $date,
-                "employee_id" => $scheduleEmployee->employee_id,
+                "employee_id" => $UserID,
+                "shift_id" => $schedule->shift_id,
                 "shift_type_id" => 1,
-                "shift_id" => $scheduleEmployee->shift_id,
-                "roster_id" => $scheduleEmployee->roster_id,
                 "device_id_in" => $firstLog["DeviceID"],
                 "device_id_out" => $firstLog["DeviceID"],
                 "in" => $firstLog["time"],
                 "status" => "M",
             ];
 
-            if (count($employeeAttendanceLogs) > 1) {
+            if (count($logs) > 1) {
                 $arr["status"] = "P";
                 $arr["device_id_out"] = $lastLog["DeviceID"];
                 $arr["out"] = $lastLog["time"];
                 $arr["total_hrs"] = $this->getTotalHrsMins($firstLog["time"], $lastLog["time"]);
-
-                if ($scheduleEmployee->isOverTime) {
-                    $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift->working_hours, $shift->overtime_interval);
-                }
             }
             $items[] = $arr;
         }
-        // return $items;
-
-        try {
-            $model = Attendance::query();
-            $model->where("date", $date);
-            $model->whereIn("employee_id", $employee_ids);
-            $model->where("company_id", $company_id);
-            $model->delete();
-            $model->insert($items);
-            AttendanceLog::where("UserID", $employee_ids)->where("company_id", $company_id)->update(["checked" => true]);
-            return "{$dateObj->format('d-M-y')}: Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
-            return;
-        } catch (\Exception $e) {
-            return $e;
-        }
+        return $items;
     }
 }

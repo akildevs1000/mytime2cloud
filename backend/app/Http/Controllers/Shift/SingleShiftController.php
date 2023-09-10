@@ -145,7 +145,7 @@ class SingleShiftController extends Controller
 
         // If no schedule employees are found, log and return a message
         if ($scheduleEmployees->isEmpty()) {
-            return "{$dateObj->format('d-M-y')}: No Data Found";
+            return "(Single Shift) {$dateObj->format('d-M-y')}: No Data Found";
         }
 
         $attendanceLogs = AttendanceLog::whereDate("LogTime", $date)
@@ -212,7 +212,7 @@ class SingleShiftController extends Controller
             $model->delete();
             $model->insert($items);
             AttendanceLog::where("UserID", $employee_ids)->where("company_id", $company_id)->update(["checked" => true]);
-            return "{$dateObj->format('d-M-y')}: Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
+            return "(Single Shift) {$dateObj->format('d-M-y')}: Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
             return;
         } catch (\Exception $e) {
             return $e;

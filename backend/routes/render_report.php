@@ -9,19 +9,22 @@ use Illuminate\Support\Facades\Route;
 
 // Route::get('render_logs', [RenderController::class, 'renderLogs']);
 
-Route::get('render_logs', [FiloShiftController::class, 'renderData']);
+// Route::get('render_logs', [FiloShiftController::class, 'renderData']);
 
 
 Route::get('/render_logs', function (Request $request) {
 
+    $shift_type_id = $request->shift_type_id;
 
-    $filo = (new FiloShiftController)->renderData($request);
-    $single = (new SingleShiftController)->renderData($request);
-    $split = (new SplitShiftController)->renderData($request);
+    if ($shift_type_id == 5) {
+        return (new SplitShiftController)->renderData($request);
+    } else if ($shift_type_id == 2) {
+    }
 
-    // return $split;
-
-    return  ["Filo Shift" => $filo, "Single Shift" => $single, "Split Shift" => $split];
+    return  array_merge(
+        (new FiloShiftController)->renderData($request),
+        (new SingleShiftController)->renderData($request)
+    );
 });
 
 

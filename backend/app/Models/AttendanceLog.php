@@ -166,4 +166,21 @@ class AttendanceLog extends Model
 
         return $model;
     }
+
+    public function getLogsByUser($params)
+    {
+        return self::where("checked", $params["checked"])
+            ->whereIn("company_id", $params["company_id"])
+            ->whereIn("UserID", $params["employee_ids"])
+            ->whereDate("LogTime", $params["date"])
+            ->distinct("LogTime", "UserID", "company_id")
+            ->with(["schedule" => function ($q) use ($params) {
+                $q->whereIn("company_id", $params["company_id"]);
+                $q->where("shift_type_id", $params["shift_type_id"]);
+                $q->where("employee_id", $params["employee_ids"]);
+                $q->withOut(["shift", "shift_type"]);
+            }])
+            ->get()
+            ->groupBy(['UserID']);
+    }
 }
