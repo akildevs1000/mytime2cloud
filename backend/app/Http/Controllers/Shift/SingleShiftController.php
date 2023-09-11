@@ -14,96 +14,19 @@ class SingleShiftController extends Controller
 {
     public function render()
     {
-        $date = $this->getCurrentDate();
+        $dateObj = new \DateTime($this->getCurrentDate());
 
-        // Get all schedule employees for the current date and shift type id 6
-        $scheduleEmployees = ScheduleEmployee::with("shift")
-            ->whereHas("attendance_logs", function ($q) use ($date) {
-                $q->whereDate("LogTime", $date);
-                $q->where("checked", false);
-            })
-            ->where("shift_type_id", 6)
-            ->get();
+        $params = [
+            "date" => $dateObj,
+            "company_ids" => [],
+            "employee_ids" => [],
+            "shift_type_id" => 6,
+            "checked" => false
+        ];
 
-        // If no schedule employees are found, log and return a message
-        if ($scheduleEmployees->isEmpty()) {
-            info("SingleShift: No Data Found.");
-            return "SingleShift: No Data Found";
-        }
 
-        $company_ids = $scheduleEmployees->pluck('company_id')->toArray();
-        $employee_ids = $scheduleEmployees->pluck('employee_id')->toArray();
-
-        $attendanceLogs = AttendanceLog::whereDate("LogTime", $date)
-            ->whereIn("company_id", $company_ids)
-            ->whereIn("UserID", $employee_ids)
-            ->distinct("LogTime", "UserID", "company_id")
-            ->get()
-            ->groupBy(['company_id', 'UserID']);
-
-        $items = [];
-
-        foreach ($scheduleEmployees as $scheduleEmployee) {
-            $employeeAttendanceLogs = $attendanceLogs[$scheduleEmployee->company_id][$scheduleEmployee->employee_id];
-
-            if (!$employeeAttendanceLogs || $employeeAttendanceLogs->isEmpty()) {
-                info("SingleShift: No Data Found for employee {$scheduleEmployee->employee_id}");
-                continue;
-            }
-
-            $firstLog = $employeeAttendanceLogs->first();
-            $lastLog = $employeeAttendanceLogs->last();
-
-            $shift = $scheduleEmployee->shift;
-
-            $arr = [
-
-                "total_hrs" => "---",
-                "early_going" => "---",
-                "out" => "---",
-                "ot" => "---",
-
-                "company_id" => $scheduleEmployee->company_id,
-                "date" => $date,
-                "employee_id" => $scheduleEmployee->employee_id,
-                "shift_type_id" => 6,
-                "shift_id" => $scheduleEmployee->shift_id,
-                "roster_id" => $scheduleEmployee->roster_id,
-                "device_id_in" => $firstLog["DeviceID"],
-                "device_id_out" => $firstLog["DeviceID"],
-                "in" => $firstLog["time"],
-                "status" => "M",
-                "late_coming" => $this->calculatedLateComing($firstLog["time"], $shift->on_duty_time, $shift->late_time),
-            ];
-
-            if (count($employeeAttendanceLogs) > 1) {
-                $arr["status"] = "P";
-                $arr["device_id_out"] = $lastLog["DeviceID"];
-                $arr["out"] = $lastLog["time"];
-                $arr["total_hrs"] = $this->getTotalHrsMins($firstLog["time"], $lastLog["time"]);
-
-                if ($scheduleEmployee->isOverTime) {
-                    $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift->working_hours, $shift->overtime_interval);
-                }
-                $arr["early_going"] = $this->calculatedEarlyGoing($lastLog["time"], $shift->off_duty_time, $shift->early_time);
-            }
-            $items[] = $arr;
-        }
-        // return $items;
-
-        try {
-            $model = Attendance::query();
-            $model->where("date", $date);
-            $model->whereIn("employee_id", $employee_ids);
-            $model->whereIn("company_id", $company_ids);
-            $model->delete();
-            $model->insert($items);
-            info("SingleShift: Log(s) has been render. Data: " . json_encode($items));
-            AttendanceLog::where("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
-            return "SingleShift: Log(s) has been render. Data: " . json_encode($items);
-        } catch (\Exception $e) {
-            return $e;
-        }
+        $arr[] = $this->renderManual($params);
+        return json_encode($arr);
     }
 
     public function renderData(Request $request)
@@ -111,7 +34,7 @@ class SingleShiftController extends Controller
         // Extract start and end dates from the JSON data
         $startDateString = $request->dates[0];
         $endDateString = $request->dates[1];
-        $company_id = $request->company_id;
+        $company_ids = $request->company_ids;
         $employee_ids = $request->employee_ids;
 
         // Convert start and end dates to DateTime objects
@@ -121,101 +44,116 @@ class SingleShiftController extends Controller
 
         $arr = [];
 
+        $params = [
+            "company_ids" => $company_ids,
+            "employee_ids" => $employee_ids,
+            "shift_type_id" => 6,
+            "checked" => true
+        ];
+
         while ($startDate <= $currentDate && $startDate <= $endDate) {
-            $arr[] =  $this->renderManual($startDate, $employee_ids, $company_id);
+
+            $params["date"] = $startDate;
+            $arr[] =  $this->renderManual($params);
             $startDate->modify('+1 day');
         }
 
         return $arr;
     }
 
-    public function renderManual($dateObj, $employee_ids, $company_id)
+    public function renderManual($params)
     {
-        $date = $dateObj->format('Y-m-d');
-        // Get all schedule employees for the current date and shift type id 6
-        $scheduleEmployees = ScheduleEmployee::with("shift")
-            ->whereHas("attendance_logs", function ($q) use ($date, $employee_ids, $company_id) {
-                $q->where("company_id", $company_id);
-                $q->whereDate("LogTime", $date);
-                $q->where("checked", false);
-                $q->whereIn("employee_id", $employee_ids);
-            })
-            ->where("shift_type_id", 6)
-            ->get();
+        $payload = $this->prepareAttendanceRecords($params);
 
-        // If no schedule employees are found, log and return a message
-        if ($scheduleEmployees->isEmpty()) {
-            return "(Single Shift) {$dateObj->format('d-M-y')}: No Data Found";
+        if (!count($payload)) {
+            info("(Filo Shift) {$params['date']->format('d-M-y')}: No Data Found");
+            return "(Filo Shift) {$params['date']->format('d-M-y')}: No Data Found";
         }
 
-        $attendanceLogs = AttendanceLog::whereDate("LogTime", $date)
-            ->where("company_id", $company_id)
-            ->whereIn("UserID", $employee_ids)
-            ->distinct("LogTime", "UserID", "company_id")
-            ->get()
-            ->groupBy(['UserID']);
+        $employee_ids = array_column($payload, "employee_id");
+        $company_ids = array_column($payload, "company_id");
+
+        try {
+            $model = Attendance::query();
+            $model->where("date", $params["date"]->format('Y-m-d'));
+            $model->whereIn("employee_id", $employee_ids);
+            $model->whereIn("company_id", $company_ids);
+            $model->delete();
+            $model->insert($payload);
+            AttendanceLog::whereIn("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
+            return "(Filo Shift) " . $params['date']->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($employee_ids) . ". Affected Company Ids: " . json_encode($company_ids);
+        } catch (\Throwable $e) {
+            return $e;
+        }
+    }
+
+    public function prepareAttendanceRecords($params)
+    {
+        $employeesByType = (new ScheduleEmployee)->getEmployeesByType($params);
+
+        $companyIdWithUserIds = (new AttendanceLog)->getEmployeeIdsForNewLogs($params);
+
+        $logs = (new AttendanceLog)->getLogsByUser($params);
 
         $items = [];
 
-        foreach ($scheduleEmployees as $scheduleEmployee) {
-            $employeeAttendanceLogs = $attendanceLogs[$scheduleEmployee->employee_id];
+        foreach ($companyIdWithUserIds as $companyIdWithUserId) {
 
-            if (!$employeeAttendanceLogs || $employeeAttendanceLogs->isEmpty()) {
+            $filteredLogs = $logs[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID];
+
+            $firstLog = $filteredLogs->first();
+            $lastLog = $filteredLogs->last();
+
+            $arr = [];
+
+            $schedule = $employeesByType[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0];
+
+            if (!$schedule) {
                 continue;
             }
 
-            $firstLog = $employeeAttendanceLogs->first();
-            $lastLog = $employeeAttendanceLogs->last();
+            if (!$filteredLogs || $filteredLogs->isEmpty()) {
+                continue;
+            }
 
-            $shift = $scheduleEmployee->shift;
+            $shift = $schedule["shift"];
+
+            $firstLog = $filteredLogs->first();
+            $lastLog = $filteredLogs->last();
 
             $arr = [
-
                 "total_hrs" => "---",
                 "out" => "---",
                 "ot" => "---",
-
-                "company_id" => $company_id,
-                "date" => $date,
-                "employee_id" => $scheduleEmployee->employee_id,
-                "shift_type_id" => 6,
-                "shift_id" => $scheduleEmployee->shift_id,
-                "roster_id" => $scheduleEmployee->roster_id,
+                "date" => $params["date"]->format('Y-m-d'),
+                "company_id" => $companyIdWithUserId->company_id,
+                "employee_id" => $companyIdWithUserId->UserID,
+                "shift_id" => $schedule["shift_id"],
+                "shift_type_id" => $params["shift_type_id"],
                 "device_id_in" => $firstLog["DeviceID"],
                 "device_id_out" => $firstLog["DeviceID"],
                 "in" => $firstLog["time"],
                 "status" => "M",
                 "late_coming" => $this->calculatedLateComing($firstLog["time"], $shift->on_duty_time, $shift->late_time),
-
             ];
 
-            if (count($employeeAttendanceLogs) > 1) {
+            if (count($filteredLogs) > 1) {
                 $arr["status"] = "P";
                 $arr["device_id_out"] = $lastLog["DeviceID"];
                 $arr["out"] = $lastLog["time"];
                 $arr["total_hrs"] = $this->getTotalHrsMins($firstLog["time"], $lastLog["time"]);
 
-                if ($scheduleEmployee->isOverTime) {
+                if ($schedule["isOverTime"]) {
                     $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift->working_hours, $shift->overtime_interval);
                 }
+
                 $arr["early_going"] = $this->calculatedEarlyGoing($lastLog["time"], $shift->off_duty_time, $shift->early_time);
             }
-            $items[] = $arr;
-        }
-        // return $items;
 
-        try {
-            $model = Attendance::query();
-            $model->where("date", $date);
-            $model->whereIn("employee_id", $employee_ids);
-            $model->where("company_id", $company_id);
-            $model->delete();
-            $model->insert($items);
-            AttendanceLog::where("UserID", $employee_ids)->where("company_id", $company_id)->update(["checked" => true]);
-            return "(Single Shift) {$dateObj->format('d-M-y')}: Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
-            return;
-        } catch (\Exception $e) {
-            return $e;
+
+            $items[$companyIdWithUserId->company_id] = $arr;
         }
+
+        return array_values($items);
     }
 }
