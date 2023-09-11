@@ -38,10 +38,8 @@ class SyncMultiInOut extends Command
         $meta = "[$date] Cron: $script_name.";
 
         try {
-            $Attendance = new MultiInOutShiftController;
-            $result = $Attendance->syncLogsScript();
-            $message =  $meta . " " . $result . ".\n";
-            echo $message;
+            $result = (new MultiInOutShiftController)->render();
+            echo  $meta . " " . $result . ".\n";
             return;
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncMultiInOut. Error Details: ' . $th);
