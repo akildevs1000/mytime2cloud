@@ -134,7 +134,7 @@ class SplitShiftController extends Controller
         // Extract start and end dates from the JSON data
         $startDateString = $request->dates[0];
         $endDateString = $request->dates[1];
-        $company_id = $request->company_id;
+        $company_ids = $request->company_ids;
         $employee_ids = $request->employee_ids;
 
         // Convert start and end dates to DateTime objects
@@ -144,70 +144,68 @@ class SplitShiftController extends Controller
 
         $arr = [];
 
+        $params = [
+            "company_ids" => $company_ids,
+            "employee_ids" => $employee_ids,
+            "shift_type_id" => 5,
+            "checked" => true
+        ];
+
         while ($startDate <= $currentDate && $startDate <= $endDate) {
-            $arr[] =  $this->renderManual($startDate, $employee_ids, $company_id);
+
+            $params["date"] = $startDate;
+            $arr[] = $this->prepareAttendanceRecords($params);
             $startDate->modify('+1 day');
         }
 
         return $arr;
     }
 
-    public function renderManual($dateObj, $employee_ids, $company_id)
+    public function prepareAttendanceRecords($params)
     {
-        $date = $dateObj->format('Y-m-d');
-        // Get all schedule employees for the current date and shift type id 6
-        $scheduleEmployees = ScheduleEmployee::with("shift")
-            ->whereHas("attendance_logs", function ($q) use ($date, $employee_ids, $company_id) {
-                $q->where("company_id", $company_id);
-                $q->whereDate("LogTime", $date);
-                // $q->where("checked", false);
-                $q->whereIn("employee_id", $employee_ids);
-            })
-            ->where("shift_type_id", 5)
-            ->get();
+        $employeesByType = (new ScheduleEmployee)->getEmployeesByType($params);
 
-        // If no schedule employees are found, log and return a message
-        if ($scheduleEmployees->isEmpty()) {
-            return "{$dateObj->format('d-M-y')}: No Data Found";
-        }
+        $companyIdWithUserIds = (new AttendanceLog)->getEmployeeIdsForNewLogs($params);
 
-        $attendanceLogs = AttendanceLog::whereDate("LogTime", $date)
-            ->where("company_id", $company_id)
-            ->whereIn("UserID", $employee_ids)
-            ->distinct("LogTime", "UserID", "company_id")
-            ->get()
-            ->groupBy(['UserID']);
+        $logs = (new AttendanceLog)->getLogsByUser($params);
 
         $items = [];
 
-        foreach ($scheduleEmployees as $scheduleEmployee) {
-            $employeeAttendanceLogs = $attendanceLogs[$scheduleEmployee->employee_id];
+        foreach ($companyIdWithUserIds as $companyIdWithUserId) {
 
-            if (!$employeeAttendanceLogs || $employeeAttendanceLogs->isEmpty()) {
+            $filteredLogs = $logs[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID] ?? false;
+
+
+            if (!$filteredLogs || $filteredLogs->isEmpty()) {
                 continue;
             }
 
-            $shift = $scheduleEmployee->shift;
+            $schedule = $employeesByType[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0] ?? false;
+
+            if (!$schedule) {
+                continue;
+            }
+
+
+            $shift = $schedule["shift"];
 
             $temp = [
                 "logs" => [],
-
                 "total_hrs" => 0,
                 "out" => "---",
                 "ot" => "---",
-
-                "company_id" => $company_id,
-                "date" => $date,
-                "employee_id" => $scheduleEmployee->employee_id,
-                "shift_type_id" => 5,
-                "shift_id" => $scheduleEmployee->shift_id,
-                "roster_id" => $scheduleEmployee->roster_id,
-                "status" => count($employeeAttendanceLogs)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+                "company_id" => $companyIdWithUserId->company_id,
+                "date" => $params["date"]->format('Y-m-d'),
+                "employee_id" => $companyIdWithUserId->UserID,
+                "shift_type_id" => $params["shift_type_id"],
+                "shift_id" => $schedule["shift_id"],
+                "roster_id" => $schedule["roster_id"],
+                "status" => count($filteredLogs)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
             ];
 
             $totalMinutes = 0;
 
-            $data = $employeeAttendanceLogs;
+            $data = $filteredLogs;
 
             for ($i = 0; $i < count($data); $i++) {
                 $currentLog = $data[$i];
@@ -235,29 +233,19 @@ class SplitShiftController extends Controller
                 $temp["total_hrs"] = $this->minutesToHours($totalMinutes);
 
 
-                if ($scheduleEmployee->isOverTime) {
+                if ($schedule["isOverTime"]) {
                     $temp["ot"] = $this->calculatedOT($temp["total_hrs"], $shift->working_hours, $shift->overtime_interval);
                 }
+
                 $this->storeOrUpdate($temp);
-                $items[] = $temp;
+
+                // $items[] = $temp;
                 $i++;
             }
         }
-        AttendanceLog::whereIn("UserID", $employee_ids)->whereDate("LogTime", $date)->where("company_id", $company_id)->update(["checked" => true]);
-        return "{$dateObj->format('d-M-y')}: Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
+        return "(Split Shift) " . $params['date']->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($params["employee_ids"]);
 
-        // try {
-        //     $model = Attendance::query();
-        //     $model->where("date", $date);
-        //     $model->whereIn("employee_id", $employee_ids);
-        //     $model->where("company_id", $company_id);
-        //     $model->delete();
-        //     $model->insert($items);
-        //     return "{$dateObj->format('d-M-y')}: Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
-        //     return;
-        // } catch (\Exception $e) {
-        //     return $e;
-        // }
+        return array_values($items);
     }
     public function storeOrUpdate($items)
     {
