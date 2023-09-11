@@ -203,6 +203,8 @@ export default {
         alert("System User Id and Date field is required");
         return;
       }
+      this.result = ["Processing..."];
+
       this.loading = true;
       let payload = {
         params: {
