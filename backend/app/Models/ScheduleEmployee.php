@@ -80,4 +80,9 @@ class ScheduleEmployee extends Model
     {
         return $this->belongsTo(Roster::class);
     }
+
+    public function getEmployeesByType($params)
+    {
+        return self::where("shift_type_id", $params["shift_type_id"])->with("shift")->get()->groupBy(["company_id", "employee_id"]);
+    }
 }

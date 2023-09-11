@@ -167,20 +167,25 @@ class AttendanceLog extends Model
         return $model;
     }
 
-    public function getLogsByUser($params)
+    public function getEmployeeIdsForNewLogs($params)
     {
         return self::where("checked", $params["checked"])
-            ->whereIn("company_id", $params["company_id"])
-            ->whereIn("UserID", $params["employee_ids"])
-            ->whereDate("LogTime", $params["date"])
+            ->when(count($params["company_ids"] ?? []) > 0, function ($q) use ($params) {
+                $q->whereIn("company_id", $params["company_ids"]);
+            })
+            ->when(count($params["employee_ids"] ?? []) > 0, function ($q) use ($params) {
+                $q->whereIn("UserID", $params["employee_ids"]);
+            })
+            ->whereDate("LogTime", $params["date"]->format('Y-m-d'))
             ->distinct("LogTime", "UserID", "company_id")
-            ->with(["schedule" => function ($q) use ($params) {
-                $q->whereIn("company_id", $params["company_id"]);
-                $q->where("shift_type_id", $params["shift_type_id"]);
-                $q->where("employee_id", $params["employee_ids"]);
-                $q->withOut(["shift", "shift_type"]);
-            }])
+            ->get(['company_id', 'UserID']);
+    }
+
+    public function getLogsByUser($params)
+    {
+        return self::whereDate("LogTime", $params["date"]->format('Y-m-d'))
+            ->distinct("LogTime", "UserID", "company_id")
             ->get()
-            ->groupBy(['UserID']);
+            ->groupBy(['company_id', 'UserID']);
     }
 }
