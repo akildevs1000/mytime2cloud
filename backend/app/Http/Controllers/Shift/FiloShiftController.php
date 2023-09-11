@@ -127,7 +127,7 @@ class FiloShiftController extends Controller
                 "company_id" => $companyIdWithUserId->company_id,
                 "employee_id" => $companyIdWithUserId->UserID,
                 "shift_id" => $schedule["shift_id"],
-                "shift_type_id" => 1,
+                "shift_type_id" => $params["shift_type_id"],
                 "device_id_in" => $firstLog["DeviceID"],
                 "device_id_out" => $firstLog["DeviceID"],
                 "in" => $firstLog["time"],
