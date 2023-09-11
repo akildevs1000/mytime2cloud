@@ -227,7 +227,128 @@ class MultiInOutShiftController extends Controller
             // $result += $this->processData($company_id, $data, $currentDate, $shift_type_id);
         }
 
+        return $arr;
+
         info("MultiShift: Log(s) has been render. Data: " . array_sum($arr));
         return "MultiShift: Log(s) has been render. Data: " . array_sum($arr);
+    }
+
+    public function renderData(Request $request)
+    {
+        // Extract start and end dates from the JSON data
+        $startDateString = $request->dates[0];
+        $endDateString = $request->dates[1];
+        $company_ids = $request->company_ids;
+        $employee_ids = $request->employee_ids;
+
+        // Convert start and end dates to DateTime objects
+        $startDate = new \DateTime($startDateString);
+        $endDate = new \DateTime($endDateString);
+        $currentDate = new \DateTime();
+
+        $arr = [];
+
+        $params = [
+            "company_ids" => $company_ids,
+            "employee_ids" => $employee_ids,
+            "shift_type_id" => 2,
+            "checked" => true
+        ];
+
+        while ($startDate <= $currentDate && $startDate <= $endDate) {
+
+            $params["date"] = $startDate;
+            $arr[] = $this->prepareAttendanceRecords($params);
+            $startDate->modify('+1 day');
+        }
+
+        return $arr;
+    }
+
+    public function prepareAttendanceRecords($params)
+    {
+        $employeesByType = (new ScheduleEmployee)->getEmployeesByType($params);
+
+        $companyIdWithUserIds = (new AttendanceLog)->getEmployeeIdsForNewLogs($params);
+
+        $logs = (new AttendanceLog)->getLogsByUser($params);
+
+        $items = [];
+
+        foreach ($companyIdWithUserIds as $companyIdWithUserId) {
+
+            $filteredLogs = $logs[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID] ?? false;
+
+
+            if (!$filteredLogs || $filteredLogs->isEmpty()) {
+                continue;
+            }
+
+            $schedule = $employeesByType[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0] ?? false;
+
+            if (!$schedule) {
+                continue;
+            }
+
+
+            $shift = $schedule["shift"];
+
+            $temp = [
+                "logs" => [],
+                "total_hrs" => 0,
+                "out" => "---",
+                "ot" => "---",
+                "company_id" => $companyIdWithUserId->company_id,
+                "date" => $params["date"]->format('Y-m-d'),
+                "employee_id" => $companyIdWithUserId->UserID,
+                "shift_type_id" => $params["shift_type_id"],
+                "shift_id" => $schedule["shift_id"],
+                "roster_id" => $schedule["roster_id"],
+                "status" => count($filteredLogs)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+            ];
+
+            $totalMinutes = 0;
+
+            $data = $filteredLogs;
+
+            for ($i = 0; $i < count($data); $i++) {
+                $currentLog = $data[$i];
+                $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
+
+                $temp["logs"][] =  [
+                    "in" => $currentLog['time'],
+                    "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
+                    "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
+                    // $currentLog['LogTime'], $nextLog['time'] ?? "---"
+                ];
+
+                if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
+
+                    $parsed_out = strtotime($nextLog['time'] ?? 0);
+                    $parsed_in = strtotime($currentLog['time'] ?? 0);
+
+                    $diff = $parsed_out - $parsed_in;
+
+                    $minutes = floor($diff / 60);
+
+                    $totalMinutes += $minutes > 0 ? $minutes : 0;
+                }
+
+                $temp["total_hrs"] = $this->minutesToHours($totalMinutes);
+
+
+                if ($schedule["isOverTime"]) {
+                    $temp["ot"] = $this->calculatedOT($temp["total_hrs"], $shift->working_hours, $shift->overtime_interval);
+                }
+
+                $this->storeOrUpdate($temp);
+
+                // $items[] = $temp;
+                $i++;
+            }
+        }
+        return "(Multi Shift) " . $params['date']->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($params["employee_ids"]);
+
+        return array_values($items);
     }
 }

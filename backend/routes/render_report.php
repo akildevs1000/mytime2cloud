@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Shift\FiloShiftController;
+use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\RenderController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Http\Controllers\Shift\SplitShiftController;
@@ -19,6 +20,7 @@ Route::get('/render_logs', function (Request $request) {
     if ($shift_type_id == 5) {
         return (new SplitShiftController)->renderData($request);
     } else if ($shift_type_id == 2) {
+        return (new MultiInOutShiftController)->renderData($request);
     }
 
     return array_merge(

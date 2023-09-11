@@ -366,6 +366,7 @@
             >
           </v-card-title>
           <RenderAttendance
+            :shift_type_id="shift_type_id"
             :endpoint="render_endpoint"
             @update-data-table="getDataFromApi()"
           />

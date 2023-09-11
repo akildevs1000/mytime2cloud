@@ -142,7 +142,7 @@
 import DateRangePickerCommon from "./Snippets/DateRangePickerCommon.vue";
 
 export default {
-  props: ["endpoint"],
+  props: ["endpoint", "shift_type_id"],
   data: () => ({
     valid: false,
     snackbar: false,
@@ -209,11 +209,12 @@ export default {
           date,
           UserID,
           updated_by: this.$auth.user.id,
-          company_ids : [this.$auth.user.company_id],
+          company_ids: [this.$auth.user.company_id],
           manual_entry: true,
           reason,
           employee_ids: UserIDs,
           dates,
+          shift_type_id: this.shift_type_id,
         },
       };
 
