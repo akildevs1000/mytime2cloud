@@ -21,7 +21,7 @@ Route::get('/render_logs', function (Request $request) {
     } else if ($shift_type_id == 2) {
     }
 
-    return  array_merge(
+    return array_merge(
         (new FiloShiftController)->renderData($request),
         (new SingleShiftController)->renderData($request)
     );
