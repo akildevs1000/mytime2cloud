@@ -66,8 +66,8 @@ class SingleShiftController extends Controller
         $payload = $this->prepareAttendanceRecords($params);
 
         if (!count($payload)) {
-            info("(Filo Shift) {$params['date']->format('d-M-y')}: No Data Found");
-            return "(Filo Shift) {$params['date']->format('d-M-y')}: No Data Found";
+            info("(Single Shift) {$params['date']->format('d-M-y')}: No Data Found");
+            return "(Single Shift) {$params['date']->format('d-M-y')}: No Data Found";
         }
 
         $employee_ids = array_column($payload, "employee_id");
@@ -81,7 +81,7 @@ class SingleShiftController extends Controller
             $model->delete();
             $model->insert($payload);
             AttendanceLog::whereIn("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
-            return "(Filo Shift) " . $params['date']->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($employee_ids) . ". Affected Company Ids: " . json_encode($company_ids);
+            return "(Single Shift) " . $params['date']->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($employee_ids) . ". Affected Company Ids: " . json_encode($company_ids);
         } catch (\Throwable $e) {
             return $e;
         }
