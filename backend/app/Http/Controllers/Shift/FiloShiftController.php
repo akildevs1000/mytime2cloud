@@ -114,6 +114,8 @@ class FiloShiftController extends Controller
                 continue;
             }
 
+            $shift = $schedule["shift"];
+
             $firstLog = $filteredLogs->first();
             $lastLog = $filteredLogs->last();
 
@@ -137,6 +139,10 @@ class FiloShiftController extends Controller
                 $arr["device_id_out"] = $lastLog["DeviceID"];
                 $arr["out"] = $lastLog["time"];
                 $arr["total_hrs"] = $this->getTotalHrsMins($firstLog["time"], $lastLog["time"]);
+
+                if ($schedule["isOverTime"]) {
+                    $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift->working_hours, $shift->overtime_interval);
+                }
             }
 
 
