@@ -97,20 +97,20 @@ class FiloShiftController extends Controller
 
         foreach ($companyIdWithUserIds as $companyIdWithUserId) {
 
-            $filteredLogs = $logs[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID];
+            $filteredLogs = $logs[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID] ?? false;
+
+            if (!$filteredLogs || $filteredLogs->isEmpty()) {
+                continue;
+            }
 
             $firstLog = $filteredLogs->first();
             $lastLog = $filteredLogs->last();
 
             $arr = [];
 
-            $schedule = $employeesByType[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0];
+            $schedule = $employeesByType[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0] ?? false;
 
             if (!$schedule) {
-                continue;
-            }
-
-            if (!$filteredLogs || $filteredLogs->isEmpty()) {
                 continue;
             }
 
