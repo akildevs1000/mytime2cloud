@@ -108,12 +108,7 @@
               <v-card outlined>
                 <ul style="height: 150px; overflow-y: scroll">
                   <li v-for="(item, index) in result" :key="index">
-                    {{ index }}
-                    <ul>
-                      <li v-for="(childItem, index) in item" :key="index">
-                        {{ childItem }}
-                      </li>
-                    </ul>
+                    {{ item }}
                   </li>
                 </ul>
               </v-card>
@@ -204,7 +199,6 @@ export default {
     },
     renderByType(type) {
       const { UserID, date, reason, UserIDs, dates } = this.editItems;
-      const company_id = this.$auth.user.company_id;
       if (!UserIDs.length || !dates.length) {
         alert("System User Id and Date field is required");
         return;
@@ -215,7 +209,7 @@ export default {
           date,
           UserID,
           updated_by: this.$auth.user.id,
-          company_id,
+          company_ids : [this.$auth.user.company_id],
           manual_entry: true,
           reason,
           employee_ids: UserIDs,

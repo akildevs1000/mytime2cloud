@@ -356,7 +356,7 @@
     </v-row>
 
     <v-row justify="center">
-      <v-dialog persistent v-model="reportSync" max-width="700px">
+      <v-dialog persistent v-model="reportSync" max-width="800px">
         <v-card>
           <v-card-title class="background">
             <span class="headline white--text"> Render Report </span>
