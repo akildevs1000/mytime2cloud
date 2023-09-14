@@ -83,7 +83,7 @@ class AuthController extends Controller
                 $msg .= "$random_number \n";
 
                 $data = [
-                    'to'           => env('COUNTRY_CODE') . $mobile_number,
+                    'to'           =>   $mobile_number,
                     'message'      => $msg,
                     'company'      =>  $user->company ?? false,
                     'instance_id'  => $user->company->whatsapp_instance_id,
