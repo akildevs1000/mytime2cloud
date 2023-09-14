@@ -204,7 +204,7 @@ class MultiInOutShiftController extends Controller
         return $found ? $attendance->update($items) : Attendance::create($items);
     }
 
-    public function syncLogsScript()
+    public function render()
     {
         $shift_type_id = 2;
 
@@ -227,7 +227,7 @@ class MultiInOutShiftController extends Controller
             // $result += $this->processData($company_id, $data, $currentDate, $shift_type_id);
         }
 
-        return $arr;
+        // return $arr;
 
         info("MultiShift: Log(s) has been render. Data: " . array_sum($arr));
         return "MultiShift: Log(s) has been render. Data: " . array_sum($arr);
