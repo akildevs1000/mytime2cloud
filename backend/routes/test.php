@@ -43,6 +43,18 @@ Route::get('/syncLogsScript', function (Request $request) {
 });
 
 Route::get('/test', function (Request $request) {
+
+
+
+    // return  $response = Http::withoutVerifying()->get("https://ezwhat.com/api/send.php", [
+    //     'number' => "919701226007",
+    //     'type' => 'text',
+    //     'message' => "Hello",
+    //     'instance_id' => "650300B673EFA",
+    //     'access_token' => "a27e1f9ca2347bb766f332b8863ebe9f",
+    // ]);
+
+
     return defaultCards();
 
     Logger::channel('custom')->info('This is a custom log message.');

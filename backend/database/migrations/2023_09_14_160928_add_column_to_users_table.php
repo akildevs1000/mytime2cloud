@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('enable_whatsapp_otp')->default(0);
+            //$table->integer('enable_whatsapp_otp')->default(0);
         });
     }
 
