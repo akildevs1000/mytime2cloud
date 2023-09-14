@@ -187,6 +187,12 @@
       },
       {
         "icon": "mdi-lanss",
+        "title": "Branches",
+        "to": "/branches",
+        "menu": "branch_access"
+      },
+      {
+        "icon": "mdi-lanss",
         "title": "Departments",
         "to": "/department",
         "menu": "department_access"
