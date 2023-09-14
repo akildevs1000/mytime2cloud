@@ -27,3 +27,4 @@ include('theme.php');
 include('announcement.php');
 include('assigned_department_employee.php');
 include('attendance.php');
+include('branch.php');
