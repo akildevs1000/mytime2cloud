@@ -305,7 +305,7 @@
 
                       <v-col cols="6">
                         <label class="col-form-label">
-                          Contact Person Whatsapp
+                          Contact Person Whatsapp (with Country Code ex: 919999988888)
                         </label>
                         <span class="text-danger">*</span>
                         <v-text-field dense outlined v-model="contact_payload.whatsapp"></v-text-field>

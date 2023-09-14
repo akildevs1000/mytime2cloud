@@ -19,9 +19,7 @@
             <v-list-item>
               <v-list-item-avatar tile size="120">
                 <v-avatar size="100">
-                  <img
-                    :src="payload.employee.profile_picture || '/no-image.PNG'"
-                  />
+                  <img :src="payload.employee.profile_picture || '/no-image.PNG'" />
                 </v-avatar>
               </v-list-item-avatar>
               <v-list-item-content>
@@ -95,7 +93,7 @@
 
               <v-col cols="6">
                 <v-list-item-title class="text-h7 mb-1">
-                  Whatsapp Number
+                  Whatsapp Number (with Country Code ex: 919999988888)
                 </v-list-item-title>
               </v-col>
               <v-col cols="6">

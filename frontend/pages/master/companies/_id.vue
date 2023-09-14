@@ -311,7 +311,7 @@
                       </div>
                       <div class="col-sm-6">
                         <div class="form-group">
-                          <label class="col-form-label">Contact Person Whatsapp
+                          <label class="col-form-label">Contact Person Whatsapp (with Country Code ex: 919999988888)
                           </label>
                           <span class="text-danger">*</span>
                           <input v-model="contact_payload.whatsapp" class="form-control" type="number" />

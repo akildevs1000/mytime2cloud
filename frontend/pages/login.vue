@@ -16,10 +16,23 @@
           <div class="row g-0">
             <div class="col-lg-12">
               <div class="card-body p-md-5 mx-md-4">
+                <v-row class="pb-5">
+                  <v-col md="12" cols="12" class="text-center">
+                    <h2>EzTime</h2>
+                  </v-col>
+                </v-row>
 
 
+                <h5>Two Step Whatsapp OTP Verification <v-icon dark color="green" fill>mdi-whatsapp</v-icon></h5>
+                <p>We sent a verification code to your mobile number.
+                  Enter the Code from the mobile in the filed below
+                </p>
+                <h4>
+                  {{ maskMobileNumber }}
+                </h4>
                 <v-form ref="form" method="post" v-model="whatsappFormValid" lazy-validation>
-                  <label for="">OTP</label>
+                  <label for="" class="pb-5" style="font-weight:bold;font-size: 20px;">Type your 6 Digit Security
+                    Code</label>
                   <div class="form-outline mb-4">
                     <v-otp-input v-model="otp" length="6" :rules="requiredRules"></v-otp-input>
                   </div>
@@ -28,7 +41,8 @@
                     <span v-if="msg" class="error--text">
                       {{ msg }}
                     </span>
-                    <v-btn :loading="loading" @click="checkOTP(otp)" class="btn   btn-block   fa-lg   mt-1 mb-3 btntext">
+                    <v-btn :loading="loading" @click="checkOTP(otp)" class="btn   btn-block   fa-lg   mt-1 mb-3  "
+                      style="background-color: #6946dd;color:#FFF">
                       Verify OTP
                     </v-btn>
                     <!-- <v-btn :loading="loading" @click="checkOTP(otp)"
@@ -206,6 +220,7 @@ export default {
     // sitekey: "6Lf1wYwhAAAAAOMJYvI73SgjCSrS_OSS2kDJbVvs", // i am not robot
     // reCaptcha: null,
     // showGRC: false,
+    maskMobileNumber: '',
     whatsappFormValid: '',
     logo: "/ideaHRMS-final-blue.svg",
     valid: true,
@@ -231,8 +246,37 @@ export default {
     otp: '',
     userId: '',
   }),
-  created() { },
+  created() {
+
+
+
+
+
+
+
+
+  },
   methods: {
+    hideMobileNumber(inputString) {
+      // Check if the input is a valid string
+      if (typeof inputString !== 'string' || inputString.length < 4) {
+        return inputString; // Return input as is if it's not a valid string
+      }
+
+      // Use a regular expression to match all but the last 3 digits
+      var regex = /^(.*)(\d{3})$/;
+      var matches = inputString.match(regex);
+
+      if (matches) {
+        var prefix = matches[1]; // Text before the last 3 digits
+        var lastDigits = matches[2]; // Last 3 digits
+        var maskedPrefix = '*'.repeat(prefix.length); // Create a string of asterisks of the same length as the prefix
+        return maskedPrefix + lastDigits;
+      } else {
+        return inputString; // Return input as is if there are fewer than 3 digits
+      }
+    },
+
     handleInputChange() {
 
     },
@@ -262,6 +306,8 @@ export default {
     },
 
     loginWithOTP() {
+
+      console.log(this.$refs.form.validate());
       if (this.$refs.form.validate()) {
         let credentials = {
           email: this.email,
@@ -272,7 +318,7 @@ export default {
 
         //geenrate OTP 
         this.$axios
-          .post(`loginwith_otp`, payload)
+          .post('loginwith_otp?time=' + new Date().getTime(), payload)
           .then(({ data }) => {
             if (!data.status) {
               alert('OTP Verification: ' + data.message);
@@ -282,6 +328,13 @@ export default {
               if (data.enable_whatsapp_otp == 1) {
                 this.dialogWhatsapp = true;
                 this.userId = data.user_id;
+                if (data.mobile_number) {
+
+                  this.maskMobileNumber = this.hideMobileNumber(data.mobile_number);
+                }
+
+
+
 
               }
               else {

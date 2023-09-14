@@ -37,6 +37,8 @@ class AuthController extends Controller
         if ($user->enable_whatsapp_otp == 1 && $user->company->enable_whatsapp_otp == 1) {
             $mobile_number = $user->user_type == 'employee' ? $user->employee->whatsapp_number : $user->company->contact->whatsapp;
 
+
+
             if ($mobile_number != '')
                 $this->generateOTP($mobile_number, $user);
             else {
@@ -51,6 +53,7 @@ class AuthController extends Controller
                 'enable_whatsapp_otp' => $user->enable_whatsapp_otp,
                 'user_id' => $user->id,
                 'message' => 'OTP Is generated',
+                'mobile_number' => $mobile_number,
                 'status' => true
             ], 200);
         } else {
