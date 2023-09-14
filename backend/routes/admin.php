@@ -27,6 +27,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/loginwith_otp', [AuthController::class, 'loginwithOTP']);
+Route::post('/check_otp/{key}', [AuthController::class, 'verifyOTP']);
+
+
 Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -53,6 +57,10 @@ Route::apiResource('company', CompanyController::class)->except('update');
 Route::post('company/{id}/update', [CompanyController::class, 'updateCompany']);
 Route::post('company/{id}/update/contact', [CompanyController::class, 'updateContact']);
 Route::post('company/{id}/update/user', [CompanyController::class, 'updateCompanyUser']);
+Route::post('company/{id}/update/user_whatsapp', [CompanyController::class, 'updateCompanyUserWhatsapp']);
+Route::post('company/{id}/update/whatsapp_settings', [CompanyController::class, 'updateCompanyWhatsappSettings']);
+
+
 Route::post('company/{id}/update/geographic', [CompanyController::class, 'updateCompanyGeographic']);
 Route::post('company/validate', [CompanyController::class, 'validateCompany']);
 Route::post('company/contact/validate', [CompanyController::class, 'validateContact']);

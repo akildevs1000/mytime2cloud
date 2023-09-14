@@ -32,6 +32,7 @@ class User extends Authenticatable
         'reset_password_code',
         'employee_role_id',
         'email_verified_at',
+        'enable_whatsapp_otp',
     ];
 
     protected $with = ['assigned_permissions'];
@@ -40,7 +41,7 @@ class User extends Authenticatable
     {
         return $this->hasOne(AssignPermission::class, 'role_id', 'role_id');
     }
-    
+
     /**
      * The attributes that should be hidden for serialization.
      *

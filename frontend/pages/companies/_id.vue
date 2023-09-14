@@ -36,6 +36,10 @@
                 <v-icon left> mdi-lock </v-icon>
                 <span>Password</span>
               </v-tab>
+              <v-tab>
+                <v-icon left> mdi-whatsapp </v-icon>
+                <span>Whatsapp Settings</span>
+              </v-tab>
 
               <v-tab-item>
                 <v-card flat>
@@ -408,6 +412,48 @@
                   </v-row>
                 </v-container>
               </v-tab-item>
+              <v-tab-item>
+                <v-card flat>
+                  <v-card-text>
+                    <v-row>
+                      <v-col cols="3">
+                        <label class="col-form-label"> Whatsapp Login Enable </label>
+
+                        <v-switch color="success" class="mt-0 ml-2" v-model="enable_whatsapp_otp"></v-switch>
+                        <span v-if="errors && errors.enable_whatsapp_otp" class="text-danger mt-2">{{
+                          errors.enable_whatsapp_otp[0]
+                        }}</span>
+                      </v-col>
+
+                      <!-- <v-col cols="3">
+                        <label class="col-form-label"> INSTANCE_ID </label>
+
+                        <v-text-field dense outlined v-model="company_payload.whatsapp_instance_id"></v-text-field>
+                        <span v-if="errors && errors.whatsapp_instance_id" class="text-danger mt-2">{{
+                          errors.whatsapp_instance_id[0] }}</span>
+                      </v-col>
+
+
+                      <v-col cols="3">
+                        <label class="col-form-label"> ACCESS_TOKEN </label>
+
+                        <v-text-field dense outlined v-model="company_payload.whatsapp_access_token"></v-text-field>
+                        <span v-if="errors && errors.whatsapp_access_token" class="text-danger mt-2">{{
+                          errors.whatsapp_access_token[0] }}</span>
+                      </v-col>-->
+                    </v-row>
+                    <v-col cols="12">
+                      <div class="text-right">
+                        <v-btn v-if="can('company_edit')" small :loading="loading" color="primary"
+                          @click="update_user_whatsapp">
+                          Submit
+                        </v-btn>
+                      </div>
+                    </v-col>
+
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
             </v-tabs>
           </v-card>
         </v-col>
@@ -446,6 +492,7 @@ export default {
       max_devices: "",
       mol_id: "",
       p_o_box_no: "",
+
     },
 
     company_trade_license: {
@@ -467,7 +514,9 @@ export default {
     user_payload: {
       password: "",
       password_confirmation: "",
+
     },
+    enable_whatsapp_otp: 0,
     payload: {
       password: "",
       current_password: "",
@@ -522,6 +571,8 @@ export default {
         this.company_payload = r;
         this.contact_payload = r.contact;
         this.user_payload = r.user;
+
+        this.enable_whatsapp_otp = r.user.enable_whatsapp_otp;
 
         if (r.trade_license) {
           this.company_trade_license = r.trade_license;
@@ -609,6 +660,13 @@ export default {
       this.start_process(
         `/company/${this.id}/update/user`,
         this.user_payload,
+        `User`
+      );
+    },
+    update_user_whatsapp() {
+      this.start_process(
+        `/company/${this.id}/update/user_whatsapp`,
+        { enable_whatsapp_otp: this.enable_whatsapp_otp },
         `User`
       );
     },

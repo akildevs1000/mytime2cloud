@@ -1,44 +1,33 @@
-pm2 start "node log-listener.js" --name "staging worker"
-
-
 // run this command to seed the data => php artisan db:seed --class=StatusSeeder
 
-php artisan serve --host 192.168.2.192
+php artisan serve --host 192.168.2.174
 
 sqlite3 extension for ubunut
 
 -   sudo apt-get install php-sqlite3
 
-let employee_ids = [1, 2, 3];
 function getDatesInRange(startDate, endDate) {
-    const date = new Date(startDate.getTime());
+const date = new Date(startDate.getTime());
 
     const dates = [];
 
     // ✅ Exclude end date
-    while (date <= endDate) {
-        let today = new Date(date);
-        let y = today.getFullYear();
-        let m = (today.getMonth() + 1).toString().padStart(2, '0');
-        let d = today.getDate().toString().padStart(2, '0');
+    while (date < endDate) {
+            let today = new Date(date);
+            let [y,m,d] = [today.getDate(),today.getMonth() + 1,today.getFullYear()]
 
-        employee_ids.forEach(e => {
-            dates.push(`${y}-${m}-${d},${e}`);
-
-        })
-
-        date.setDate(date.getDate() + 1);
+      dates.push(`${y}-${m}-${d}`);
+      date.setDate(date.getDate() + 1);
     }
 
     return dates;
+
 }
 
-const d1 = new Date('2022-01-01');
-const d2 = new Date('2022-01-05');
+const d1 = new Date('2022-01-18');
+const d2 = new Date('2022-01-24');
 
-const datesInRange = getDatesInRange(d1, d2);
-console.log(datesInRange);
-
+console.log(getDatesInRange(d1, d2));
 
 Payslip references
 
@@ -68,22 +57,3 @@ $ sudo systemctl restart nginx
 
 SDK Live port : 9001
 SDK Live port : 9001
-
-
-
-
-public function getCurrentMonthDates()
-    {
-        $currentMonth = date('m');
-        $currentYear = date('Y');
-        // Get the number of days in the current month
-        $numDays = date('t', strtotime("$currentYear-$currentMonth-01"));
-        $dates = [];
-        // Loop through the days of the current month and display them
-        for ($day = 1; $day <= $numDays; $day++) {
-            $date = sprintf("%04d-%02d-%02d", $currentYear, $currentMonth, $day);
-            $dates[] = ["date" => $date, "day" => date("D", strtotime($date))];
-            // $dates[] = $date;
-        }
-        return $dates;
-    }

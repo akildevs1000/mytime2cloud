@@ -311,6 +311,48 @@ class CompanyController extends Controller
 
         return $this->response('Geographic Info successfully updated.', $geographic, true);
     }
+    public function updateCompanyUserWhatsapp(Request $request, $id)
+    {
+
+        $user = User::find(Company::find($id)->user_id);
+
+        $arr = [
+
+            "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
+        ];
+
+
+        $record = $user->update($arr);
+
+
+        if (!$record) {
+            return $this->response('User cannot update.', null, false);
+        }
+        return $this->response('User successfully updated.', $record, true);
+    }
+
+    public function updateCompanyWhatsappSettings(Request $request, $id)
+    {
+
+        $company = Company::find($id);
+
+        $arr = [
+
+            "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
+            "whatsapp_instance_id" => $request->whatsapp_instance_id,
+            "whatsapp_access_token" => $request->whatsapp_access_token,
+        ];
+
+
+        $record = $company->update($arr);
+
+
+        if (!$record) {
+            return $this->response('Company cannot update.', null, false);
+        }
+        return $this->response('Company successfully updated.', $record, true);
+    }
+
 
     public function updateCompanyUser(UserUpdateRequest $request, $id)
     {
@@ -320,8 +362,9 @@ class CompanyController extends Controller
         $arr = [
             "password" => Hash::make($data["password"]),
             "first_login" => 0,
+            "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
         ];
-
+        return $arr;
         if (Hash::check($request->current_password, $user->password)) {
             $record = $user->update($arr);
             if (!$record) {

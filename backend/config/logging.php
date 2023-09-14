@@ -61,6 +61,11 @@ return [
             'path' => storage_path('logs/jobs.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+        'whatsapp_logs' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/whatsapp_logs.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
         'custom' => [
             'driver' => 'single',
             'path' => storage_path('logs/custom.log'),

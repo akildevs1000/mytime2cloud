@@ -105,4 +105,34 @@ class WhatsappController extends Controller
 
         return false;
     }
+
+    public function sentOTP($data)
+    {
+        try {
+            if ($data['instance_id']) {
+                $response = Http::withoutVerifying()->get(env('WHATSAPP_URL'), [
+                    'number' => $data['to'],
+                    'type' => 'text',
+                    'message' => $data['message'],
+                    'instance_id' => $data['instance_id'],
+                    'access_token' => $data['access_token'],
+                ]);
+
+                $msg = 'company Id: ' . $data['company']['id'] . ' User Name : ' . $data['userName'] . ' '
+                    . $data['type'] . ' from: ' . $data['to'];
+
+                // dd($response->status());
+
+                //if ($response->status() == 200) 
+                {
+                    Log::channel('whatsapp_logs')->info($msg);
+                    Log::channel('whatsapp_logs')->info($response);
+                }
+            } else {
+                Log::channel('whatsapp_logs')->info('Company Insance ID is not exist');
+            }
+        } catch (\Throwable $th) {
+            Log::channel("custom")->error("BookingController: " . $th);
+        }
+    }
 }
