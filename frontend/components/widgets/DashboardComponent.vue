@@ -23,7 +23,7 @@ import AttendancePIE from "./AttendancePIE.vue";
 import AnnouncementNew from "./Announcement.vue";
 import RealTimeLog from "./RealTimeLog.vue";
 import DevicePIE from "./DevicePIE.vue";
-// import AttendanceLog from "./AttendanceLog.vue";
+import AttendanceLog from "./AttendanceLog.vue";
 import Device from "./Device.vue";
 import ReportNotification from "./ReportNotification.vue";
 

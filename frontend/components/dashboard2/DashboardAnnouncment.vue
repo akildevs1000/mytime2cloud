@@ -1,30 +1,46 @@
 <template>
     <div :class="!dataLength ? `center-both` : ``" style="min-height: 300px">
-        <center>
-            <h4>Announcements</h4>
-        </center>
+
+        <v-row>
+
+            <v-col md="10">
+                <center>
+                    <h4>Announcements</h4>
+                </center>
+            </v-col>
+            <v-col md="2"> <v-icon>mdi-dots-vertical</v-icon></v-col>
+        </v-row>
+
         <ComonPreloader icon="notification" v-if="loading" />
         <div v-else-if="!loading && !dataLength">No record found</div>
         <div v-else>
 
             <v-row v-for="(announcement, i) in data" :key="i">
-                <v-col md="2"></v-col>
-                <v-col md="7">{{ announcement.title }}
-                    <div> {{ announcement.dateTime }}</div>
+                <v-col md="2" class="text--center " style=" text-align:right">
+                    <v-avatar color="#FFB74D" size="40">
+                        <v-icon size="20" style="color:#FFF" :color="i % 2 == 0 ? 'green' : 'red'">mdi-email</v-icon>
+                    </v-avatar>
+
+
 
                 </v-col>
-                <v-col md="3"> <v-chip color="orange">Category</v-chip></v-col>
+                <v-col md="10">
+                    <v-row>
+                        <v-col md="8">
+
+                            {{ announcement.title }}
+                            <div style="color:grey"><v-icon>mdi-calendar-month</v-icon> {{ announcement.dateTime }}</div>
+                        </v-col>
+                        <v-col md="4"> <v-chip color="orange">Category</v-chip></v-col>
+                    </v-row>
+
+
+
+                </v-col>
+
             </v-row>
 
-            <!-- <v-card-text class="px-2" v-for="(announcement, i) in data" :key="i">
-                <b>{{ announcement.title }}</b>
-                <p>
-                    {{ announcement.description }}
-                    <small style="float: right; font-size: 9px">Created At {{ announcement.dateTime }}</small>
-                </p>
 
-                <div v-if="i + 1 !== data.length" style="border-bottom: 1px solid #b3b1b1"></div>
-            </v-card-text> -->
         </div>
     </div>
 </template>
@@ -90,7 +106,7 @@ export default {
                 this.loading = false;
                 this.dataLength = data.total;
                 this.data = data.data;
-                if (!data.total) this.headers = [];
+                if (!data.total) this.headers
             });
         },
     },

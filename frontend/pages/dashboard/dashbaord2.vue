@@ -1,47 +1,24 @@
 <template>
-    <div>
-        <v-row>
+    <div style="width:100%">
+        <v-row style="width:100%">
 
-            <v-col md="9">
+            <v-col lg="9" md="9" sm="12" xs="12">
                 <v-card class="pa-2">
                     <v-row background fill>
-                        <v-col md=" 8">
-
-                            <h4>September 2023 Attendance</h4>
-                            <DashboardAttendanceChart :name="'AttendanceChart1'" :height="'400'" />
+                        <v-col md=" 8" style="width:100%">
+                            <DashboardAttendanceChart :name="'AttendanceChart1'" :height="'250'" style="width:100%" />
 
                         </v-col>
 
 
-                        <v-col md="4" class="pa-2">
-                            Aug 2023 Attendance(previous Month)
-                            <v-row>
-                                <v-col md="2"><v-icon color="green" size="50" fill>mdi-account-box</v-icon></v-col>
-                                <v-col md="10">150<br /> Presents</v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col md="2"><v-icon color="red" size="50" fille>mdi-account-box</v-icon></v-col>
-                                <v-col md="10">150<br /> Presents</v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col md="2"><v-icon color="grey" size="50" fill>mdi-account-box</v-icon></v-col>
-                                <v-col md="10">150<br /> Presents</v-col>
-                            </v-row>
+                        <v-col md="4" class="pa-2" style="    border-left: 1px solid #DDD;">
 
-                            <v-row>
-                                <v-col md="12">
+                            <DashboardlLastMonthStatistics />
 
-                                    <v-btn size="small" class="btn   btn-block   fa-lg   mt-1 mb-3  "
-                                        style="background-color: #6946dd;color:#FFF">
-                                        View Reports
-                                    </v-btn>
-                                </v-col>
-
-                            </v-row>
                         </v-col>
                     </v-row>
                 </v-card>
-                <v-row>
+                <v-row class="pt-2">
                     <v-col md="6">
                         <v-card class="py-2 mt-2" style="height:500px">
 
@@ -50,61 +27,15 @@
                         </v-card>
                     </v-col>
                     <v-col md="6">
+                        <DashboardlastMultiStatistics />
 
-                        <v-row>
-
-                            <v-col md="6">
-                                <v-card class="py-2 mt-2" style="height:230px">
-
-
-                                    <v-row>
-                                        <v-col md="6"><v-icon color="green" size="50" fill>mdi-account-box</v-icon></v-col>
-
-                                        <v-col md="6"> <v-icon>mdi-dots-vertical</v-icon></v-col>
-
-
-                                        <v-col md="12">
-                                            <div>Multi In/Out</div>
-                                            <div class="text-h4 green--text">180</div>
-                                            <div>Today Presents</div>
-                                        </v-col>
-
-
-                                    </v-row>
-
-                                </v-card>
-                            </v-col>
-
-
-                            <v-col md="6">
-                                <v-card class="py-2 mt-2" style="height:230px">
-
-
-                                    <v-row>
-                                        <v-col md="6"><v-icon color="green" size="50" fill>mdi-account-box</v-icon></v-col>
-
-                                        <v-col md="6"> <v-icon>mdi-dots-vertical</v-icon></v-col>
-
-
-                                        <v-col md="12">
-                                            <div>Multi In/Out</div>
-                                            <div class="text-h4 green--text">180</div>
-                                            <div>Today Presents</div>
-                                        </v-col>
-
-
-                                    </v-row>
-
-                                </v-card>
-                            </v-col>
-                        </v-row>
 
                         <v-row>
                             <v-col md="12">
-                                <v-card class="py-2  " style="height:250px">Hourly In/Out
+                                <v-card class="py-2  " style="height:250px">
 
 
-                                    <DashboardAttendanceChart :name="'AttendanceChart2'" :height="'200'" />
+                                    <DashboardAttendanceHourChart :name="'AttendanceChart2'" :height="'200'" />
                                 </v-card>
 
                             </v-col>
@@ -128,7 +59,7 @@
                 </v-row>
             </v-col>
 
-            <v-col md="3">
+            <v-col lg="3" md="3" sm="12" xs="12">
 
                 <DashboardRightsideStaticstics />
 
@@ -165,9 +96,11 @@ import DashboardAnnouncment from "../../components/dashboard2/DashboardAnnouncme
 import DashboardLoginActivities from "../../components/dashboard2/DashboardLoginActivities.vue";
 import DashboardAttednaceDepartmentWise from "../../components/dashboard2/DashboardAttednaceDepartmentWise.vue";
 import DashboardRightsideStaticstics from "../../components/dashboard2/DashboardRightsideStaticstics.vue";
-
+import DashboardlastMultiStatistics from "../../components/dashboard2/DashboardlastMultiStatistics.vue";
+import DashboardlLastMonthStatistics from "../../components/dashboard2/DashboardlLastMonthStatistics.vue";
+import DashboardAttendanceHourChart from "../../components/dashboard2/DashboardAttendanceHourChart.vue";
 export default {
-    components: { DashboardAttendanceChart, DashboardRealTimeLogTableview, DashboardAnnouncment, DashboardLoginActivities, DashboardAttednaceDepartmentWise, DashboardRightsideStaticstics },
+    components: { DashboardAttendanceChart, DashboardRealTimeLogTableview, DashboardAnnouncment, DashboardLoginActivities, DashboardAttednaceDepartmentWise, DashboardRightsideStaticstics, DashboardlastMultiStatistics, DashboardlLastMonthStatistics, DashboardAttendanceHourChart },
     data() {
         return {
 

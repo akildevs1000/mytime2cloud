@@ -1,6 +1,10 @@
 <template>
     <div style="width:100%">
-        <h4>Recent 7 days Attendance</h4>
+        <v-row>
+            <v-col md="10"> Hourly Logs (in/out)</v-col>
+
+            <v-col md="2" class="menu-icon-right"> <v-icon>mdi-dots-vertical</v-icon></v-col>
+        </v-row>
         <div :id="name" style="width:100%"></div>
 
 
@@ -14,13 +18,7 @@ export default {
     data() {
         return {
             series: [{
-                name: 'Present',
-                data: []
-            }, {
-                name: 'Absent',
-                data: []
-            }, {
-                name: 'Missing',
+                name: 'Log count',
                 data: []
             }],
             chartOptions: {
@@ -105,16 +103,16 @@ export default {
                 },
             };
 
-            this.$axios.get('dashboard_counts_last_7_days', options).then(({ data }) => {
+            this.$axios.get('dashboard_get_counts_today_hour_in_out', options).then(({ data }) => {
 
 
                 let counter = 0;
                 data.forEach(item => {
 
-                    this.chartOptions.series[0]["data"][counter] = parseInt(item.presentCount);
-                    this.chartOptions.series[1]["data"][counter] = parseInt(item.absentCount);
-                    this.chartOptions.series[2]["data"][counter] = parseInt(item.missingCount);
-                    this.chartOptions.xaxis.categories[counter] = item.date;
+                    this.chartOptions.series[0]["data"][counter] = parseInt(item.count);
+                    // this.chartOptions.series[1]["data"][counter] = parseInt(item.absentCount);
+                    //this.chartOptions.series[2]["data"][counter] = parseInt(item.missingCount);
+                    this.chartOptions.xaxis.categories[counter] = item.hour;
 
                     counter++;
 
