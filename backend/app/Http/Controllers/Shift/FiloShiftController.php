@@ -10,20 +10,21 @@ use App\Models\ScheduleEmployee;
 
 class FiloShiftController extends Controller
 {
+    const SHIFTYPE = 1;
+
     public function render()
     {
-        $dateObj = new \DateTime($this->getCurrentDate());
-
         $params = [
-            "date" => $dateObj,
+            "date" => new \DateTime($this->getCurrentDate()),
             "company_ids" => [],
             "employee_ids" => [],
-            "shift_type_id" => 1,
-            "checked" => false
+            "employeesByType" => (new ScheduleEmployee)->getEmployeesByType(self::SHIFTYPE),
         ];
 
+        $payload = $this->prepareAttendanceRecords($params);
 
-        $arr[] = $this->renderManual($params);
+        $arr[] =  (new Attendance)->startDBOperation($params["date"], "Filo", $payload);
+
         return json_encode($arr);
     }
 
@@ -45,49 +46,27 @@ class FiloShiftController extends Controller
         $params = [
             "company_ids" => $company_ids,
             "employee_ids" => $employee_ids,
-            "shift_type_id" => 1,
-            "checked" => true
+            "employeesByType" => (new ScheduleEmployee)->getEmployeesByType(self::SHIFTYPE),
         ];
+
 
         while ($startDate <= $currentDate && $startDate <= $endDate) {
 
             $params["date"] = $startDate;
-            $arr[] =  $this->renderManual($params);
+
+            $payload = $this->prepareAttendanceRecords($params);
+
+            $arr[] =  (new Attendance)->startDBOperation($params["date"], "Filo", $payload);
+
             $startDate->modify('+1 day');
         }
 
         return $arr;
     }
 
-    public function renderManual($params)
-    {
-        $payload = $this->prepareAttendanceRecords($params);
-
-        if (!count($payload)) {
-            info("(Filo Shift) {$params['date']->format('d-M-y')}: No Data Found");
-            return "(Filo Shift) {$params['date']->format('d-M-y')}: No Data Found";
-        }
-
-        $employee_ids = array_column($payload, "employee_id");
-        $company_ids = array_column($payload, "company_id");
-
-        try {
-            $model = Attendance::query();
-            $model->where("date", $params["date"]->format('Y-m-d'));
-            $model->whereIn("employee_id", $employee_ids);
-            $model->whereIn("company_id", $company_ids);
-            $model->delete();
-            $model->insert($payload);
-            AttendanceLog::whereIn("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
-            return "(Filo Shift) " . $params['date']->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($employee_ids) . ". Affected Company Ids: " . json_encode($company_ids);
-        } catch (\Throwable $e) {
-            return $e;
-        }
-    }
 
     public function prepareAttendanceRecords($params)
     {
-        $employeesByType = (new ScheduleEmployee)->getEmployeesByType($params);
 
         $companyIdWithUserIds = (new AttendanceLog)->getEmployeeIdsForNewLogs($params);
 
@@ -99,6 +78,7 @@ class FiloShiftController extends Controller
 
             $filteredLogs = $logs[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID] ?? false;
 
+
             if (!$filteredLogs || $filteredLogs->isEmpty()) {
                 continue;
             }
@@ -108,11 +88,12 @@ class FiloShiftController extends Controller
 
             $arr = [];
 
-            $schedule = $employeesByType[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0] ?? false;
+            $schedule = $params["employeesByType"][$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0] ?? false;
 
             if (!$schedule) {
                 continue;
             }
+
 
             $shift = $schedule["shift"];
 
@@ -127,7 +108,7 @@ class FiloShiftController extends Controller
                 "company_id" => $companyIdWithUserId->company_id,
                 "employee_id" => $companyIdWithUserId->UserID,
                 "shift_id" => $schedule["shift_id"],
-                "shift_type_id" => $params["shift_type_id"],
+                "shift_type_id" => self::SHIFTYPE,
                 "device_id_in" => $firstLog["DeviceID"],
                 "device_id_out" => $firstLog["DeviceID"],
                 "in" => $firstLog["time"],

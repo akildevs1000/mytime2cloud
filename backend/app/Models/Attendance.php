@@ -237,4 +237,28 @@ class Attendance extends Model
         });
         return $model;
     }
+
+
+    public function startDBOperation($date, $script, $payload)
+    {
+        if (!count($payload)) {
+            return "($script Shift) {$date->format('d-M-y')}: No Data Found";
+        }
+
+        $employee_ids = array_column($payload, "employee_id");
+        $company_ids = array_column($payload, "company_id");
+
+        try {
+            $model = self::query();
+            $model->where("date", $date->format('Y-m-d'));
+            $model->whereIn("employee_id", $employee_ids);
+            $model->whereIn("company_id", $company_ids);
+            $model->delete();
+            $model->insert($payload);
+            AttendanceLog::whereIn("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
+            return "($script Shift) " . $date->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
+        } catch (\Throwable $e) {
+            return $e->getMessage();
+        }
+    }
 }

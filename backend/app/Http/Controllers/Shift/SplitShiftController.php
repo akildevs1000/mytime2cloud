@@ -12,6 +12,8 @@ use App\Models\ScheduleEmployee;
 
 class SplitShiftController extends Controller
 {
+    const SHIFTYPE = 5;
+
     public function render()
     {
         $date = $this->getCurrentDate();
@@ -147,14 +149,18 @@ class SplitShiftController extends Controller
         $params = [
             "company_ids" => $company_ids,
             "employee_ids" => $employee_ids,
-            "shift_type_id" => 5,
-            "checked" => true
+            "employeesByType" => (new ScheduleEmployee)->getEmployeesByType(self::SHIFTYPE),
         ];
+
 
         while ($startDate <= $currentDate && $startDate <= $endDate) {
 
             $params["date"] = $startDate;
-            $arr[] = $this->prepareAttendanceRecords($params);
+
+            $payload = $this->prepareAttendanceRecords($params);
+
+            $arr[] = (new Attendance)->startDBOperation($params["date"], "Split", $payload);
+
             $startDate->modify('+1 day');
         }
 
@@ -163,8 +169,6 @@ class SplitShiftController extends Controller
 
     public function prepareAttendanceRecords($params)
     {
-        $employeesByType = (new ScheduleEmployee)->getEmployeesByType($params);
-
         $companyIdWithUserIds = (new AttendanceLog)->getEmployeeIdsForNewLogs($params);
 
         $logs = (new AttendanceLog)->getLogsByUser($params);
@@ -180,7 +184,7 @@ class SplitShiftController extends Controller
                 continue;
             }
 
-            $schedule = $employeesByType[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0] ?? false;
+            $schedule = $params["employeesByType"][$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0] ?? false;
 
             if (!$schedule) {
                 continue;
@@ -197,7 +201,7 @@ class SplitShiftController extends Controller
                 "company_id" => $companyIdWithUserId->company_id,
                 "date" => $params["date"]->format('Y-m-d'),
                 "employee_id" => $companyIdWithUserId->UserID,
-                "shift_type_id" => $params["shift_type_id"],
+                "shift_type_id" => self::SHIFTYPE,
                 "shift_id" => $schedule["shift_id"],
                 "roster_id" => $schedule["roster_id"],
                 "status" => count($filteredLogs)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
@@ -237,13 +241,15 @@ class SplitShiftController extends Controller
                     $temp["ot"] = $this->calculatedOT($temp["total_hrs"], $shift->working_hours, $shift->overtime_interval);
                 }
 
-                $this->storeOrUpdate($temp);
+                // $this->storeOrUpdate($temp);
 
-                // $items[] = $temp;
+                $items[] = $temp;
+                // $items[$companyIdWithUserId->company_id] = $arr;
+
                 $i++;
             }
         }
-        return "(Split Shift) " . $params['date']->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($params["employee_ids"]);
+        // return "(Split Shift) " . $params['date']->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($params["employee_ids"]);
 
         return array_values($items);
     }
