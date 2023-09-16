@@ -26,32 +26,17 @@ class RenderController extends Controller
 
     public function renderLogs(Request $request)
     {
-        // Extract start and end dates from the JSON data
-        $startDateString = $request->dates[0];
-        $endDateString = $request->dates[1];
-        $company_id = $request->company_id;
+        $shift_type_id = $request->shift_type_id;
 
-        // Convert start and end dates to DateTime objects
-        $startDate = new \DateTime($startDateString);
-        $endDate = new \DateTime($endDateString);
-        $currentDate = new \DateTime();
-
-        $arr = [];
-
-        while ($startDate <= $currentDate && $startDate <= $endDate) {
-            // Perform your actions or tasks for each date here
-            foreach ($request->UserIDs as $userID) {
-                $arr[] =  $this->renderAutoMultiple($startDate->format('Y-m-d'), $userID, $company_id);
-            }
-
-            // Increment the date by one day
-            $startDate->modify('+1 day');
+        if ($shift_type_id == 5) {
+            return (new SplitShiftController)->renderData($request);
+        } else if ($shift_type_id == 2) {
+            return (new MultiInOutShiftController)->renderData($request);
         }
-
-        // $this->renderMultiInOut($request);
-        // $this->renderGeneral($request);
-
-        return info(json_encode($arr));
+        return array_merge(
+            (new FiloShiftController)->renderData($request),
+            (new SingleShiftController)->renderData($request)
+        );
     }
 
     public function renderMultiInOut(Request $request)
