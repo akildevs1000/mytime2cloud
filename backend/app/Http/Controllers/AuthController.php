@@ -31,6 +31,15 @@ class AuthController extends Controller
             ->first();
 
 
+
+        if ($user == null) {
+            return Response::json([
+                'enable_whatsapp_otp' => 0,
+                'user_id' => "",
+                'message' => 'OTP Is generated',
+                'status' => true
+            ], 200);
+        }
         $user->user_type = $this->getUserType($user);
 
 

@@ -1,9 +1,7 @@
 <template>
   <v-card class="mb-5 rounded-md" elevation="1">
     <v-toolbar class="rounded-md" color="background" dense flat dark>
-      <v-toolbar-title
-        ><span> {{ Model }} </span></v-toolbar-title
-      >
+      <v-toolbar-title><span> {{ Model }} </span></v-toolbar-title>
       <!-- <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -25,16 +23,7 @@
       <v-spacer></v-spacer>
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            to="/attendance_report"
-            dense
-            class="ma-0 px-0"
-            x-small
-            :ripple="false"
-            text
-            v-bind="attrs"
-            v-on="on"
-          >
+          <v-btn to="/attendance_report" dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
             <v-icon color="white" class="ml-2" dark>mdi mdi-eye-outline</v-icon>
           </v-btn>
         </template>
@@ -50,7 +39,7 @@
 </template>
 <script>
 export default {
-  props:["page"],
+  props: ["page"],
   data: () => ({
     Model: "Attendance",
     data: [],
@@ -132,7 +121,8 @@ export default {
 </script>
 <style scoped>
 .center-both {
-  height: 31vh; /* Adjust the height as needed */
+  height: 31vh;
+  /* Adjust the height as needed */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -30,29 +30,29 @@
                 <h4>
                   {{ maskMobileNumber }}
                 </h4>
-                <v-form ref="form" method="post" v-model="whatsappFormValid" lazy-validation>
-                  <label for="" class="pb-5" style="font-weight:bold;font-size: 20px;">Type your 6 Digit Security
-                    Code</label>
-                  <div class="form-outline mb-4">
-                    <v-otp-input v-model="otp" length="6" :rules="requiredRules"></v-otp-input>
-                  </div>
+                <!-- <v-form ref="form" method="post" v-model="whatsappFormValid" lazy-validation> -->
+                <label for="" class="pb-5" style="font-weight:bold;font-size: 20px;">Type your 6 Digit Security
+                  Code</label>
+                <div class="form-outline mb-4">
+                  <v-otp-input v-model="otp" length="6" :rules="requiredRules"></v-otp-input>
+                </div>
 
-                  <div class="text-center pt-1 mb-5 pb-1">
-                    <span v-if="msg" class="error--text">
-                      {{ msg }}
-                    </span>
-                    <v-btn :loading="loading" @click="checkOTP(otp)" class="btn   btn-block   fa-lg   mt-1 mb-3  "
-                      style="background-color: #6946dd;color:#FFF">
-                      Verify OTP
-                    </v-btn>
-                    <!-- <v-btn :loading="loading" @click="checkOTP(otp)"
+                <div class="text-center pt-1 mb-5 pb-1">
+                  <span v-if="msg" class="error--text">
+                    {{ msg }}
+                  </span>
+                  <v-btn :loading="loading" @click="checkOTP(otp)" class="btn   btn-block   fa-lg   mt-1 mb-3  "
+                    style="background-color: #6946dd;color:#FFF">
+                    Verify OTP
+                  </v-btn>
+                  <!-- <v-btn :loading="loading" @click="checkOTP(otp)"
                       class="btn btn-primary btn-block text-white fa-lg primary mt-1 mb-3 btntext">
                       Verify OTP
                     </v-btn> -->
-                  </div>
+                </div>
 
-                  <div class="d-flex align-items-center justify-content-center pb-4"></div>
-                </v-form>
+                <div class="d-flex align-items-center justify-content-center pb-4"></div>
+                <!-- </v-form> -->
 
               </div>
             </div>
@@ -221,7 +221,7 @@ export default {
     // reCaptcha: null,
     // showGRC: false,
     maskMobileNumber: '',
-    whatsappFormValid: '',
+    whatsappFormValid: true,
     logo: "/ideaHRMS-final-blue.svg",
     valid: true,
     loading: false,
@@ -307,8 +307,11 @@ export default {
 
     loginWithOTP() {
 
+
+      this.loading = true;
       console.log(this.$refs.form.validate());
-      if (this.$refs.form.validate()) {
+      //if (this.$refs.form.validate()) 
+      {
         let credentials = {
           email: this.email,
           password: this.password,
@@ -318,7 +321,7 @@ export default {
 
         //geenrate OTP 
         this.$axios
-          .post('loginwith_otp?time=' + new Date().getTime(), payload)
+          .post('loginwith_otp', payload)
           .then(({ data }) => {
             if (!data.status) {
               alert('OTP Verification: ' + data.message);
@@ -334,7 +337,7 @@ export default {
                 }
 
 
-
+                this.loading = false;
 
               }
               else {
@@ -350,6 +353,7 @@ export default {
           .catch((err) => console.log(err));
       }
 
+      this.loading = false;
     },
     login() {
 
