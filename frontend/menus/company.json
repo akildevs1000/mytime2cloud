@@ -16,6 +16,12 @@
         "title": "General",
         "to": "/dashboard/2",
         "menu": "dashboard_access"
+      },
+      {
+        "icon": "mdi-appss",
+        "title": "Dashbaord 2",
+        "to": "/dashboard/dashboard2",
+        "menu": "dashboard_access"
       }
     ]
   },
