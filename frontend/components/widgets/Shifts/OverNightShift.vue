@@ -133,28 +133,28 @@
     <v-col cols="12" md="4">
       <WeekendPickerCommon
         label="Weekend 1"
-        @selectedWeekend="(value) => (payload.weekend_1 = value)"
+        @selectedWeekend="(value) => (payload.weekend1 = value)"
       />
-      <span v-if="errors && errors.weekend_1" class="text-danger">{{
-        errors.weekend_1[0]
+      <span v-if="errors && errors.weekend1" class="text-danger">{{
+        errors.weekend1[0]
       }}</span>
     </v-col>
     <v-col cols="12" md="4">
       <WeekendPickerCommon
         label="Weekend 2"
-        @selectedWeekend="(value) => (payload.weekend_2 = value)"
+        @selectedWeekend="(value) => (payload.weekend2 = value)"
       />
-      <span v-if="errors && errors.weekend_2" class="text-danger">{{
-        errors.weekend_2[0]
+      <span v-if="errors && errors.weekend2" class="text-danger">{{
+        errors.weekend2[0]
       }}</span>
     </v-col>
     <v-col cols="12" md="4">
       <MonthlyFlexiHolidays
         label="Monthly Flexible Holidays"
-        @selectedMonthlyHolidays="(value) => (payload.weekend_3 = value)"
+        @selectedMonthlyHolidays="(value) => (payload.monthly_flexi_holidays = value)"
       />
-      <span v-if="errors && errors.weekend_3" class="text-danger">{{
-        errors.weekend_3[0]
+      <span v-if="errors && errors.monthly_flexi_holidays" class="text-danger">{{
+        errors.monthly_flexi_holidays[0]
       }}</span>
     </v-col>
   </v-row>

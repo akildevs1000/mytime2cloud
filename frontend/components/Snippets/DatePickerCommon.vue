@@ -37,6 +37,11 @@ export default {
   created() {
     this.date = this.formatDate(this.default_value);
   },
+  watch: {
+    default_value(value) {
+      this.date = this.formatDate(value);
+    },
+  },
   methods: {
     formatDate(date) {
       const year = date.getFullYear();

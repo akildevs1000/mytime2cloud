@@ -615,9 +615,6 @@
           >
           <v-icon v-else color="error">mdi-close</v-icon>
         </template>
-        <template v-slot:item.shift.name="{ item }">
-          {{ getCurrentShift(item) }}
-        </template>
         <template v-slot:item.shift_type.name="{ item }">
           {{ item.shift_type && item.shift_type.name }}
         </template>
@@ -730,12 +727,13 @@ export default {
         filterName: "employee_first_name",
       },
       {
-        text: "	Current Schedule Name",
+        text: "Current Schedule Name",
         align: "left",
         sortable: true,
-        value: "roster.name",
+        value: "shift.name",
         filterable: true,
-        filterName: "roster_name",
+        filterName: "shift_id",
+        filterSpecial: true,
       },
       {
         text: "Schedule Start",
@@ -764,15 +762,7 @@ export default {
         filterName: "isOverTime",
         filterSpecial: true,
       },
-      {
-        text: "Shift Name",
-        align: "left",
-        sortable: true,
-        value: "shift.name",
-        filterable: true,
-        filterName: "shift_id",
-        filterSpecial: true,
-      },
+
       // {
       //   text: "Shift Type",
       //   align: "left",

@@ -6,7 +6,7 @@
       @change="setWeekend"
       v-model="weekend"
       :items="items"
-      item-value="id"
+      item-value="name"
       item-text="name"
       dense
       outlined
@@ -21,7 +21,7 @@ export default {
   layout: "login",
   data() {
     return {
-      weekend: 1,
+      weekend: `Not Applicable`,
       items: [
         { id: 1, name: `Not Applicable` },
         { id: 2, name: `Flexi` },
@@ -35,6 +35,11 @@ export default {
         { id: 10, name: `Sunday` },
       ],
     };
+  },
+  watch: {
+    weekend(value) {
+      this.weekend = value;
+    },
   },
   methods: {
     setWeekend() {

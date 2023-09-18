@@ -32,68 +32,31 @@
         <v-card-title class="text-h5">
           Arrange Shift(s)
           <v-spacer></v-spacer>
-          <v-btn class="primary" small fab @click="addRow(rosterFirstValue)">
+          <v-btn class="primary" small fab @click="addRow">
             <b>+</b>
           </v-btn>
         </v-card-title>
 
         <v-divider></v-divider>
         <!-- {{ schedules_temp_list }} <br /> -->
-        <!-- {{ rosters }} -->
         <v-card-text v-for="(item, i) in schedules_temp_list" :key="i">
           <v-row>
             <v-col md="3">
               <div class="">Schedule List</div>
               <v-autocomplete
+                @change="getUpdateSchedule(item)"
                 outlined
                 dense
                 x-small
-                v-model="item.schedule_id"
-                :items="rosters"
-                item-value="schedule_id"
+                v-model="item.shift_id"
+                :items="shifts"
+                item-value="shift_id"
                 item-text="name"
               ></v-autocomplete>
             </v-col>
             <v-col md="3">
               <div class="mb-6">
                 <div>From</div>
-                <!-- <v-menu
-                  v-model="from_menu[i]"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="item.from_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      outlined
-                      dense
-                      :hide-details="true"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="item.from_date"
-                    @input="from_menu[i] = false"
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="from_menu[i] = false">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="set_date_save($refs.from_menu[i], item.from_date)"
-                    >
-                      OK
-                    </v-btn>
-                  </v-date-picker>
-                </v-menu> -->
-
                 <v-menu
                   ref="from_menu"
                   v-model="from_menu[i]"
@@ -235,7 +198,6 @@
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
-
         <v-progress-linear
           v-if="filterLoader"
           indeterminate
@@ -284,11 +246,6 @@
             ></v-text-field>
           </div>
         </v-card-text>
-
-        <!-- <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn dark color="background" @click="dialogVisible = false">Close</v-btn>
-        </v-card-actions> -->
       </v-card>
     </v-dialog>
   </div>
@@ -307,14 +264,7 @@ export default {
     to_menu: [],
 
     Module: "Employee Schedule",
-    schedules_temp_list: [
-      // {
-      //   schedule_id: 1,
-      //   from_date: new Date().toJSON().slice(0, 10),
-      //   to_date: new Date().toJSON().slice(0, 10),
-      //   is_over_time: false,
-      // },
-    ],
+    schedules_temp_list: [],
     options: {},
     endpoint: "scheduled_employees",
     snackbar: false,
@@ -329,7 +279,7 @@ export default {
     sub_department_ids: ["---"],
     employee_ids: [],
     payload: {
-      schedule_id: [1],
+      shift_id: [1],
       from_date: [new Date().toJSON().slice(0, 10)],
       to_date: [new Date().toJSON().slice(0, 10)],
       is_over_time: [false],
@@ -339,20 +289,10 @@ export default {
     employees: [],
     departments: [],
     sub_departments: [],
-    shifts: [
-      {
-        id: 1,
-        name: "Week 1",
-      },
-      {
-        id: 2,
-        name: "Week 2",
-      },
-    ],
     ids: [],
     response: "",
     data: [],
-    rosters: [],
+    shifts: [],
     rosterFirstValue: "",
     max_date: [],
     min_date: [],
@@ -414,29 +354,43 @@ export default {
   created() {
     this.loading = true;
     // this.loading = true;
-    this.get_rosters();
     this.options = {
       params: {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
       },
     };
+    this.getShifts(this.options);
 
     this.getDepartments(this.options);
     // this.getDataFromApi();
   },
 
   methods: {
+    getUpdateSchedule(item) {
+      let { from_date, to_date, shift_type_id } = this.shifts.find(
+        (e) => e.shift_id == item.shift_id
+      );
+      item.shift_type_id = shift_type_id;
+      item.from_date = from_date;
+      item.to_date = to_date;
+    },
     arrangeShift() {
+      if (!this.shifts.length) {
+        alert("No shift found. Please create shift and come back.");
+        return;
+      }
+      this.addRow();
       if (!this.employee_ids.length) {
         alert("Atleast one employee must be selected.");
         return;
       }
       this.dialog = true;
     },
-    addRow(id) {
+    addRow() {
       let item = {
-        schedule_id: id,
+        shift_id: this.shifts[0].shift_id,
+        shift_type_id: this.shifts[0].shift_type_id,
         from_date: new Date().toJSON().slice(0, 10),
         to_date: new Date().toJSON().slice(0, 10),
         is_over_time: false,
@@ -489,14 +443,15 @@ export default {
       return `${y}-${m}-${d}`;
     },
 
-    get_rosters() {
-      let options = {
-        company_id: this.$auth.user.company_id,
-      };
-      this.$axios.get("roster_list", { params: options }).then(({ data }) => {
-        this.rosters = data;
-        this.addRow(data[0].schedule_id);
-        this.rosterFirstValue = data[0].schedule_id;
+    getShifts(options) {
+      this.$axios.get("shift", options).then(({ data }) => {
+        this.shifts = data.data.map((e) => ({
+          shift_id: e.id,
+          name: e.name,
+          shift_type_id: e.shift_type_id,
+          from_date: e.from_date,
+          to_date: e.to_date,
+        }));
       });
     },
 
@@ -704,17 +659,45 @@ export default {
         company_id: this.$auth.user.company_id,
       };
 
-      // return;
-      if (this.is_edit) {
-        this.process(
-          this.$axios.post(
-            `schedule_employees/${payload.employee_ids}`,
-            payload
-          )
-        );
-      } else {
-        this.process(this.$axios.post(`store_schedule_arrange`, payload));
-      }
+      console.log(payload);
+
+      this.$axios
+        .post(`schedule_employees`, payload)
+        .then(({ data }) => {
+          if (!data.status) {
+            if (data?.custom_errors) {
+              this.custom_errors = data.custom_errors;
+              this.errors = [];
+            }
+            if (data?.errors) {
+              this.errors = data.errors;
+              this.custom_errors = [];
+            }
+            this.loading = false;
+            return;
+          }
+          this.dialog = false;
+          this.response = data.message;
+          this.snackbar = true;
+          this.loading = false;
+          setTimeout(() => {
+            this.$router.push("/employee_schedule");
+          }, 1000);
+          // this.getDataFromApi();
+        })
+        .catch((err) => console.log(err));
+
+      // // return;
+      // if (this.is_edit) {
+      //   this.process(
+      //     this.$axios.post(
+      //       `schedule_employees/${payload.employee_ids}`,
+      //       payload
+      //     )
+      //   );
+      // } else {
+      //   this.process(this.$axios.post(`store_schedule_arrange`, payload));
+      // }
     },
 
     process(method) {
