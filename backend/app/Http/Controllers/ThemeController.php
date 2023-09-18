@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
+use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Theme;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,7 +37,10 @@ class ThemeController extends Controller
         }
         return $jsonColumn;
     }
-
+    public function dashboardCount(Request $request)
+    {
+        return $this->getCounts($request->company_id, $request);
+    }
     public function getCounts($id = 0, $request): array
     {
         $model = Attendance::where('company_id', $id)
@@ -74,6 +78,170 @@ class ThemeController extends Controller
             "leaveCount" => $model->where('status', 'L')->count(),
             "vaccationCount" => $model->where('status', 'V')->count(),
         ];
+    }
+    public function dashboardGetCountDepartment(Request $request)
+    {
+        $model = Attendance::with(['employee:id,employee_id,status,system_user_id,department_id'])->where('company_id', $request->company_id)
+            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
+            ->whereDate('date', date("Y-m-d"))
+
+
+            ->get();
+
+        $departments = Department::where('company_id', $request->company_id)->get();
+
+        $return = [];
+        foreach ($departments as $department) {
+
+
+            $return[$department->name] =   [
+
+                "presentCount" => $model->where('status', 'P')->where('employee.department_id', $department->id)->count(),
+                "absentCount" => $model->where('status', 'A')->where('employee.department_id', $department->id)->count(),
+                "missingCount" => $model->where('status', 'M')->where('employee.department_id', $department->id)->count(),
+                "offCount" => $model->where('status', 'O')->where('employee.department_id', $department->id)->count(),
+                "holidayCount" => $model->where('status', 'H')->where('employee.department_id', $department->id)->count(),
+                "leaveCount" => $model->where('status', 'L')->where('employee.department_id', $department->id)->count(),
+                "vaccationCount" => $model->where('status', 'V')->where('employee.department_id', $department->id)->count(),
+            ];
+        }
+
+        return  $return;
+    }
+    public function dashboardGetCountPreviousMonth(Request $request)
+    {
+
+        $finalarray = [];
+
+        $dates = [];
+        for ($i = 14; $i >= 7; $i--) {
+            $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
+            $dates[] = $date;
+        }
+
+
+
+        $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
+        $model = Attendance::where('company_id', $request->company_id)
+            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
+            ->whereIn('date', $dates)
+            ->select('status')
+            ->get();
+
+        $finalarray[] = [
+            "date" => $date,
+            "presentCount" => $model->where('status', 'P')->count(),
+            "absentCount" => $model->where('status', 'A')->count(),
+            "missingCount" => $model->where('status', 'M')->count(),
+            "offCount" => $model->where('status', 'O')->count(),
+            "holidayCount" => $model->where('status', 'H')->count(),
+            "leaveCount" => $model->where('status', 'L')->count(),
+            "vaccationCount" => $model->where('status', 'V')->count(),
+        ];
+
+
+
+        return  $finalarray;
+    }
+    public function dashboardGetCountslast7Days(Request $request)
+    {
+
+        $finalarray = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+
+
+            $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
+            $model = Attendance::where('company_id', $request->company_id)
+                ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
+                ->whereDate('date', $date)
+                ->select('status')
+                ->get();
+
+            $finalarray[] = [
+                "date" => $date,
+                "presentCount" => $model->where('status', 'P')->count(),
+                "absentCount" => $model->where('status', 'A')->count(),
+                "missingCount" => $model->where('status', 'M')->count(),
+                "offCount" => $model->where('status', 'O')->count(),
+                "holidayCount" => $model->where('status', 'H')->count(),
+                "leaveCount" => $model->where('status', 'L')->count(),
+                "vaccationCount" => $model->where('status', 'V')->count(),
+            ];
+        }
+
+
+        return  $finalarray;
+    }
+    public function dashboardGetCountsTodayHourInOut(Request $request)
+    {
+
+        $finalarray = [];
+
+        for ($i = 0; $i < 24; $i++) {
+
+            $j = $i;
+
+            $j = $i <= 9 ? "0" . $i : $i;
+
+            $date = date('Y-m-d'); //, strtotime(date('Y-m-d') . '-' . $i . ' days'));
+            $model = AttendanceLog::where('company_id', $request->company_id)
+
+                // ->whereDate('LogTime', $date)
+
+                ->where('LogTime', '>=', $date . ' ' . $j . ':00:00')
+                ->where('LogTime', '<', $date  . ' ' . $j . ':59:59')
+                ->get();
+
+            $finalarray[] = [
+                "date" => $date,
+                "hour" => $i,
+                "count" => $model->count(),
+
+            ];
+        }
+
+
+        return  $finalarray;
+    }
+    public function dashboardGetCountsTodayMultiGeneral(Request $request)
+    {
+
+        $finalarray = []; {
+
+
+
+            $model = Attendance::where('company_id', $request->company_id)
+                ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
+                ->whereDate('date', date('Y-m-d'))
+                ->select('status')
+                ->get();
+
+            $finalarray['multi'] = [
+                "date" => date('Y-m-d'),
+                "presentCount" => $model->where('status', 'P')->where('shift_type_id', 2)->count(),
+                "absentCount" => $model->where('status', 'A')->where('shift_type_id', 2)->count(),
+                "missingCount" => $model->where('status', 'M')->where('shift_type_id', 2)->count(),
+                "offCount" => $model->where('status', 'O')->where('shift_type_id', 2)->count(),
+                "holidayCount" => $model->where('status', 'H')->where('shift_type_id', 2)->count(),
+                "leaveCount" => $model->where('status', 'L')->where('shift_type_id', 2)->count(),
+                "vaccationCount" => $model->where('status', 'V')->where('shift_type_id', 2)->count(),
+            ];
+
+            $finalarray['general'] = [
+                "date" => date('Y-m-d'),
+                "presentCount" => $model->where('status', 'P')->where('shift_type_id', '!=', 2)->count(),
+                "absentCount" => $model->where('status', 'A')->where('shift_type_id', '!=', 2)->count(),
+                "missingCount" => $model->where('status', 'M')->where('shift_type_id', '!=', 2)->count(),
+                "offCount" => $model->where('status', 'O')->where('shift_type_id', '!=', 2)->count(),
+                "holidayCount" => $model->where('status', 'H')->where('shift_type_id', '!=', 2)->count(),
+                "leaveCount" => $model->where('status', 'L')->where('shift_type_id', '!=', 2)->count(),
+                "vaccationCount" => $model->where('status', 'V')->where('shift_type_id', '!=', 2)->count(),
+            ];
+        }
+
+
+        return  $finalarray;
     }
 
     /**

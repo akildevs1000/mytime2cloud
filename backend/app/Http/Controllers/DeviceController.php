@@ -143,35 +143,7 @@ class DeviceController extends Controller
             //$q->Where(DB::raw('lower(DeviceID)'), 'LIKE', "$key%");
             $q->Where('DeviceID', 'LIKE', "$key%");
         });
-        // $model->when($request->filled('sortBy'), function ($q) use ($request) {
 
-        //     $sortDesc = $request->input('sortDesc');
-        //     if (strpos($request->sortBy, '.')) {
-        //         if ($request->sortBy == 'employee.first_name') {
-        //             $q->orderBy(Employee::select("first_name")->where('employees.company_id', $request->company_id)->whereColumn("employees.system_user_id", "attendance_logs.UserID"), $sortDesc == 'true' ? 'desc' : 'asc');
-        //         }
-        //         if ($request->sortBy == 'employee.department') {
-        //             // $q->orderBy(Employee::with(['department' => function ($query) {
-        //             //     $query->select('name');
-        //             // }])->where('employees.company_id', $request->company_id)->whereColumn("employees.system_user_id", "attendance_logs.UserID"), $sortDesc == 'true' ? 'desc' : 'asc');
-        //         }
-        //         if ($request->sortBy == 'device.device_name') {
-        //             $q->orderBy(Device::select("name")->where('devices.company_id', $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
-        //         }
-        //         if ($request->sortBy == 'device.device_id') {
-        //             $q->orderBy(Device::select("device_id")->where('devices.company_id', $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
-        //         }
-        //         if ($request->sortBy == 'device.location') {
-        //             $q->orderBy(Device::select("location")->where('devices.company_id', $request->company_id)->whereColumn("devices.device_id", "attendance_logs.DeviceID"), $sortDesc == 'true' ? 'desc' : 'asc');
-        //         }
-        //     } else {
-        //         $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{
-
-        //         }
-
-        //     }
-
-        // });
         if (!$request->sortBy) {
 
             $model->orderBy("LogTime", 'desc');
