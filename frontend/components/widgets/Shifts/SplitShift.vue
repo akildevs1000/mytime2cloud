@@ -1,1166 +1,403 @@
 <template>
-  <v-stepper v-model="e6" vertical elevation="0">
-    <v-stepper-step :complete="e6 > 1" step="1">
-      Common Section
-    </v-stepper-step>
+  <div>
+    <span v-if="errors && errors.name" class="text-danger">{{
+      errors.name[0]
+    }}</span>
+    <v-card class="mt-1" outlined>
+      <v-container>
+        <label dense>
+          <b>Section 1</b>
+        </label>
+        <v-row>
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="On Duty Time"
+              :default_value="payload.on_duty_time"
+              @getTime="(value) => (payload.on_duty_time = value)"
+            />
+            <span v-if="errors && errors.off_duty_time" class="text-danger">{{
+              errors.off_duty_time[0]
+            }}</span>
+          </v-col>
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Off Duty Time"
+              :default_value="payload.off_duty_time"
+              @getTime="(value) => (payload.off_duty_time = value)"
+            />
+            <span v-if="errors && errors.off_duty_time" class="text-danger">{{
+              errors.off_duty_time[0]
+            }}</span>
+          </v-col>
 
-    <v-stepper-content step="1">
-      <v-row>
-        <v-col cols="12" md="12">
-          Shift Name <span class="error--text">*</span>
-          <v-text-field
-            :hide-details="!errors.name"
-            :error-messages="errors.name && errors.name[0]"
-            class="mt-1"
-            outlined
-            dense
-            v-model="payload.name"
-          ></v-text-field>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="late_time_menu_ref"
-            v-model="late_time_menu"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload.late_time"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Late Time
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload.late_time"
-                :hide-details="!errors.late_time"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="late_time_menu"
-              v-model="payload.late_time"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="late_time_menu = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.late_time_menu_ref.save(payload.late_time)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span v-if="errors && errors.late_time" class="text-danger mt-2">{{
-            errors.late_time[0]
-          }}</span>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="early_time_menu_ref"
-            v-model="early_time_menu"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload.early_time"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Early Time
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload.early_time"
-                :hide-details="!errors.early_time"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="early_time_menu"
-              v-model="payload.early_time"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="early_time_menu = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.early_time_menu_ref.save(payload.early_time)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span v-if="errors && errors.early_time" class="text-danger mt-2">{{
-            errors.early_time[0]
-          }}</span>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="absent_min_in_menu_ref"
-            v-model="absent_min_in_menu"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload.absent_min_in"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Absent In
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload.absent_min_in"
-                :hide-details="!errors.absent_min_in"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="absent_min_in_menu"
-              v-model="payload.absent_min_in"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn
-                x-small
-                color="primary"
-                @click="absent_min_in_menu = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="
-                  $refs.absent_min_in_menu_ref.save(payload.absent_min_in)
-                "
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span
-            v-if="errors && errors.absent_min_in"
-            class="text-danger mt-2"
-            >{{ errors.absent_min_in[0] }}</span
-          >
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="absent_min_out_menu_ref"
-            v-model="absent_min_out_menu"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload.absent_min_out"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Absent Out
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload.absent_min_out"
-                :hide-details="!errors.absent_min_out"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="absent_min_out_menu"
-              v-model="payload.absent_min_out"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn
-                x-small
-                color="primary"
-                @click="absent_min_out_menu = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="
-                  $refs.absent_min_out_menu_ref.save(payload.absent_min_out)
-                "
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span
-            v-if="errors && errors.absent_min_out"
-            class="text-danger mt-2"
-            >{{ errors.absent_min_out[0] }}</span
-          >
-        </v-col>
-        <v-col cols="12" md="2">
-          Minimum Working Hours <span class="error--text">*</span>
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Beginning In"
+              :default_value="payload.beginning_in"
+              @getTime="(value) => (payload.beginning_in = value)"
+            />
+            <span v-if="errors && errors.beginning_in" class="text-danger">{{
+              errors.beginning_in[0]
+            }}</span>
+          </v-col>
 
-          <v-menu
-            ref="working_hours_menu_ref"
-            v-model="working_hours_menu"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload.working_hours"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload.working_hours"
-                readonly
-                :hide-details="!errors.working_hours"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              format="24hr"
-              v-if="working_hours_menu"
-              v-model="payload.working_hours"
-              full-width
-            >
-              <v-spacer></v-spacer>
-              <v-btn
-                x-small
-                color="primary"
-                @click="working_hours_menu = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="
-                  $refs.working_hours_menu_ref.save(payload.working_hours)
-                "
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span
-            v-if="errors && errors.working_hours"
-            class="text-danger mt-2"
-            >{{ errors.working_hours[0] }}</span
-          >
-        </v-col>
-        <v-col cols="12" md="2">
-          Overtime start after duty hours <span class="error--text">*</span>
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Beginning Out"
+              :default_value="payload.beginning_out"
+              @getTime="(value) => (payload.beginning_out = value)"
+            />
+            <span v-if="errors && errors.beginning_out" class="text-danger">{{
+              errors.beginning_out[0]
+            }}</span>
+          </v-col>
 
-          <v-menu
-            ref="overtime_interval_menu_ref"
-            v-model="overtime_interval_menu"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload.overtime_interval"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload.overtime_interval"
-                readonly
-                :hide-details="!errors.working_hours"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              format="24hr"
-              v-if="overtime_interval_menu"
-              v-model="payload.overtime_interval"
-              full-width
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Ending In"
+              :default_value="payload.ending_in"
+              @getTime="(value) => (payload.ending_in = value)"
+            />
+            <span v-if="errors && errors.ending_in" class="text-danger">{{
+              errors.ending_in[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Ending Out"
+              :default_value="payload.ending_out"
+              @getTime="(value) => (payload.ending_out = value)"
+            />
+            <span v-if="errors && errors.ending_out" class="text-danger">{{
+              errors.ending_out[0]
+            }}</span>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card>
+    <br />
+    <v-card outlined>
+      <v-container>
+        <label dense>
+          <b>Section 2</b>
+        </label>
+        <v-row>
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="On Duty Time"
+              :default_value="payload.on_duty_time1"
+              @getTime="(value) => (payload.on_duty_time1 = value)"
+            />
+            <span v-if="errors && errors.on_duty_time1" class="text-danger">{{
+              errors.on_duty_time1[0]
+            }}</span>
+          </v-col>
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Off Duty Time"
+              :default_value="payload.off_duty_time1"
+              @getTime="(value) => (payload.off_duty_time1 = value)"
+            />
+            <span v-if="errors && errors.off_duty_time1" class="text-danger">{{
+              errors.off_duty_time1[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Beginning In"
+              :default_value="payload.beginning_in1"
+              @getTime="(value) => (payload.beginning_in1 = value)"
+            />
+            <span v-if="errors && errors.beginning_in1" class="text-danger">{{
+              errors.beginning_in1[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Beginning Out"
+              :default_value="payload.beginning_out1"
+              @getTime="(value) => (payload.beginning_out1 = value)"
+            />
+            <span v-if="errors && errors.beginning_out1" class="text-danger">{{
+              errors.beginning_out1[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Ending In"
+              :default_value="payload.ending_in1"
+              @getTime="(value) => (payload.ending_in1 = value)"
+            />
+            <span v-if="errors && errors.ending_in1" class="text-danger">{{
+              errors.ending_in1[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Ending Out"
+              :default_value="payload.ending_out1"
+              @getTime="(value) => (payload.ending_out1 = value)"
+            />
+            <span v-if="errors && errors.ending_out1" class="text-danger">{{
+              errors.ending_out1[0]
+            }}</span>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card>
+    <br />
+    <v-card outlined>
+      <v-container>
+        <div><h6>Common Section</h6></div>
+        <v-row>
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Late Time"
+              :default_value="payload.late_time"
+              @getTime="(value) => (payload.late_time = value)"
+            />
+            <span v-if="errors && errors.late_time" class="text-danger">{{
+              errors.late_time[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Early Time"
+              :default_value="payload.early_time"
+              @getTime="(value) => (payload.early_time = value)"
+            />
+            <span v-if="errors && errors.early_time" class="text-danger">{{
+              errors.early_time[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Absent In"
+              :default_value="payload.absent_min_in"
+              @getTime="(value) => (payload.absent_min_in = value)"
+            />
+            <span v-if="errors && errors.absent_min_in" class="text-danger">{{
+              errors.absent_min_in[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Absent Out"
+              :default_value="payload.absent_min_out"
+              @getTime="(value) => (payload.absent_min_out = value)"
+            />
+            <span v-if="errors && errors.absent_min_out" class="text-danger">{{
+              errors.absent_min_out[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="Min working hrs"
+              :default_value="payload.working_hours"
+              @getTime="(value) => (payload.working_hours = value)"
+            />
+            <span v-if="errors && errors.working_hours" class="text-danger">{{
+              errors.working_hours[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <TimePickerCommon
+              label="OT start after duty hrs"
+              :default_value="payload.overtime_interval"
+              @getTime="(value) => (payload.overtime_interval = value)"
+            />
+            <span
+              v-if="errors && errors.overtime_interval"
+              class="text-danger"
+              >{{ errors.overtime_interval[0] }}</span
             >
-              <v-spacer></v-spacer>
-              <v-btn
-                x-small
-                color="primary"
-                @click="overtime_interval_menu = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="
-                  $refs.overtime_interval_menu_ref.save(
-                    payload.overtime_interval
-                  )
-                "
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span
-            v-if="errors && errors.overtime_interval"
-            class="text-danger mt-2"
-            >{{ errors.overtime_interval[0] }}</span
-          >
-        </v-col>
-        <v-col cols="12">
-          <div class="text-left mb-1">
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="12">
+            <DaysPickerCommon
+              label="Working Days"
+              :default_value="payload.days"
+              @selectedDays="(value) => (payload.days = value)"
+            />
+            <span v-if="errors && errors.days" class="text-danger">{{
+              errors.days[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="4">
+            <WeekendPickerCommon
+              label="Weekend 1"
+              @selectedWeekend="(value) => (payload.weekend_1 = value)"
+            />
+            <span v-if="errors && errors.weekend_1" class="text-danger">{{
+              errors.weekend_1[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="4">
+            <WeekendPickerCommon
+              label="Weekend 2"
+              @selectedWeekend="(value) => (payload.weekend_2 = value)"
+            />
+            <span v-if="errors && errors.weekend_2" class="text-danger">{{
+              errors.weekend_2[0]
+            }}</span>
+          </v-col>
+
+          <v-col cols="12" md="4">
+            <MonthlyFlexiHolidays
+              label="Monthly Flexible Holidays"
+              @selectedMonthlyHolidays="(value) => (payload.weekend_3 = value)"
+            />
+            <span v-if="errors && errors.weekend_3" class="text-danger">{{
+              errors.weekend_3[0]
+            }}</span>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="6">
+            <DatePickerCommon
+              label="From Date"
+              :default_value="currentDate"
+              @selectedDate="(value) => (payload.from_date = value)"
+            />
+            <span v-if="errors && errors.from_date" class="text-danger">{{
+              errors.from_date[0]
+            }}</span>
+          </v-col>
+          <v-col cols="12" md="6">
+            <DatePickerCommon
+              label="To Date"
+              :default_value="nextYearDate"
+              @selectedDate="(value) => (payload.to_date = value)"
+            />
+            <span v-if="errors && errors.to_date" class="text-danger">{{
+              errors.to_date[0]
+            }}</span>
+          </v-col>
+          <v-col cols="12">
             <v-btn
-              v-if="can(`shift_create`)"
+              v-if="payload && payload.id > 0"
               small
               color="primary"
-              @click="e6 = 2"
+              @click="update"
             >
-              Continue
+              Update
             </v-btn>
-          </div>
-        </v-col>
-      </v-row>
-    </v-stepper-content>
-
-    <v-stepper-step :complete="e6 > 2" step="2">
-      Second Section
-    </v-stepper-step>
-
-    <v-stepper-content step="2">
-      <v-row>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="time_in_menu_ref1"
-            v-model="time_in_menu1"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload1.on_duty_time"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              On Duty Time
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                :hide-details="!errors.on_duty_time"
-                v-model="payload1.on_duty_time"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-                :class="payload1.shift_type_id !== 1 ? '' : 'red lighten-1'"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="time_in_menu1"
-              v-model="payload1.on_duty_time"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="time_in_menu1 = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.time_in_menu_ref1.save(payload1.on_duty_time)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span v-if="errors && errors.on_duty_time" class="text-danger mt-2">{{
-            errors.on_duty_time[0]
-          }}</span>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="time_out_menu_ref1"
-            v-model="time_out_menu1"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload1.off_duty_time"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Off Duty Time
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload1.off_duty_time"
-                readonly
-                :hide-details="!errors.off_duty_time"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              format="24hr"
-              v-if="time_out_menu1"
-              v-model="payload1.off_duty_time"
-              :min="payload1.on_duty_time"
-              max="23:59"
-              full-width
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="time_out_menu1 = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.time_out_menu_ref1.save(payload1.off_duty_time)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span
-            v-if="errors && errors.off_duty_time"
-            class="text-danger mt-2"
-            >{{ errors.off_duty_time[0] }}</span
-          >
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="beginning_in_menu_ref1"
-            v-model="beginning_in_menu1"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload1.beginning_in"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Beginning In
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload1.beginning_in"
-                readonly
-                :hide-details="!errors.beginning_in"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="beginning_in_menu1"
-              v-model="payload1.beginning_in"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn
-                x-small
-                color="primary"
-                @click="beginning_in_menu1 = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="
-                  $refs.beginning_in_menu_ref1.save(payload1.beginning_in)
-                "
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span v-if="errors && errors.beginning_in" class="text-danger mt-2">{{
-            errors.beginning_in[0]
-          }}</span>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="beginning_out_menu_ref1"
-            v-model="beginning_out_menu1"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload1.beginning_out"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Beginning Out
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload1.beginning_out"
-                readonly
-                :hide-details="!errors.beginning_out"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="beginning_out_menu1"
-              v-model="payload1.beginning_out"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn
-                x-small
-                color="primary"
-                @click="beginning_out_menu1 = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="
-                  $refs.beginning_out_menu_ref1.save(payload1.beginning_out)
-                "
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span
-            v-if="errors && errors.beginning_out"
-            class="text-danger mt-2"
-            >{{ errors.beginning_out[0] }}</span
-          >
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="ending_in_menu_ref1"
-            v-model="ending_in_menu1"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload1.ending_in"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Ending In
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload1.ending_in"
-                readonly
-                :hide-details="!errors.ending_in"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="ending_in_menu1"
-              v-model="payload1.ending_in"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="ending_in_menu1 = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.ending_in_menu_ref1.save(payload1.ending_in)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span v-if="errors && errors.ending_in" class="text-danger mt-2">{{
-            errors.ending_in[0]
-          }}</span>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="ending_out_menu_ref1"
-            v-model="ending_out_menu1"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload1.ending_out"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Ending Out
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload1.ending_out"
-                :hide-details="!errors.ending_out"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="ending_out_menu1"
-              v-model="payload1.ending_out"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="ending_out_menu1 = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.ending_out_menu_ref1.save(payload1.ending_out)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span v-if="errors && errors.ending_out" class="text-danger mt-2">{{
-            errors.ending_out[0]
-          }}</span>
-        </v-col>
-        <v-col cols="12">
-          <div class="text-left mb-1">
-            <v-btn
-              v-if="can(`shift_create`)"
-              small
-              color="primary"
-              @click="e6 = 3"
-            >
-              Continue
-            </v-btn>
-            <v-btn dark small color="background" @click="e6 = 1"> Back </v-btn>
-          </div>
-        </v-col>
-      </v-row>
-    </v-stepper-content>
-
-    <v-stepper-step :complete="e6 > 3" step="3">Third Section</v-stepper-step>
-
-    <v-stepper-content step="3">
-      <v-row>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="time_in_menu_ref2"
-            v-model="time_in_menu2"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload2.on_duty_time"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              On Duty Time
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                :hide-details="!errors.on_duty_time"
-                v-model="payload2.on_duty_time"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-                :class="payload2.shift_type_id !== 1 ? '' : 'red lighten-1'"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="time_in_menu2"
-              v-model="payload2.on_duty_time"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="time_in_menu2 = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.time_in_menu_ref2.save(payload2.on_duty_time)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span
-            v-if="errors1 && errors1.on_duty_time"
-            class="text-danger mt-2"
-            >{{ errors.on_duty_time[0] }}</span
-          >
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="time_out_menu_ref2"
-            v-model="time_out_menu2"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload2.off_duty_time"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Off Duty Time
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload2.off_duty_time"
-                readonly
-                :hide-details="!errors.off_duty_time"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              format="24hr"
-              v-if="time_out_menu2"
-              v-model="payload2.off_duty_time"
-              :min="payload2.on_duty_time"
-              max="23:59"
-              full-width
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="time_out_menu2 = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.time_out_menu_ref2.save(payload2.off_duty_time)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span
-            v-if="errors && errors.off_duty_time"
-            class="text-danger mt-2"
-            >{{ errors.off_duty_time[0] }}</span
-          >
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="beginning_in_menu_ref2"
-            v-model="beginning_in_menu2"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload2.beginning_in"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Beginning In
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload2.beginning_in"
-                readonly
-                :hide-details="!errors.beginning_in"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="beginning_in_menu2"
-              v-model="payload2.beginning_in"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn
-                x-small
-                color="primary"
-                @click="beginning_in_menu2 = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="
-                  $refs.beginning_in_menu_ref2.save(payload2.beginning_in)
-                "
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span v-if="errors && errors.beginning_in" class="text-danger mt-2">{{
-            errors.beginning_in[0]
-          }}</span>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="beginning_out_menu_ref2"
-            v-model="beginning_out_menu2"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload2.beginning_out"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Beginning Out
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload2.beginning_out"
-                readonly
-                :hide-details="!errors.beginning_out"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="beginning_out_menu2"
-              v-model="payload2.beginning_out"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn
-                x-small
-                color="primary"
-                @click="beginning_out_menu2 = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="
-                  $refs.beginning_out_menu_ref2.save(payload2.beginning_out)
-                "
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span
-            v-if="errors && errors.beginning_out"
-            class="text-danger mt-2"
-            >{{ errors.beginning_out[0] }}</span
-          >
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="ending_in_menu_ref2"
-            v-model="ending_in_menu2"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload2.ending_in"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Ending In
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload2.ending_in"
-                readonly
-                :hide-details="!errors.ending_in"
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="ending_in_menu2"
-              v-model="payload2.ending_in"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="ending_in_menu2 = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.ending_in_menu_ref2.save(payload2.ending_in)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span v-if="errors1 && errors1.ending_in" class="text-danger mt-2">{{
-            errors.ending_in[0]
-          }}</span>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-menu
-            ref="ending_out_menu_ref2"
-            v-model="ending_out_menu2"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="payload2.ending_out"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              Ending Out
-              <v-text-field
-                append-icon="mdi-clock-outline"
-                v-model="payload2.ending_out"
-                :hide-details="!errors1.ending_out"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                dense
-                outlined
-                class="mt-2"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="ending_out_menu2"
-              v-model="payload2.ending_out"
-              full-width
-              format="24hr"
-            >
-              <v-spacer></v-spacer>
-              <v-btn x-small color="primary" @click="ending_out_menu2 = false">
-                Cancel
-              </v-btn>
-              <v-btn
-                x-small
-                color="primary"
-                @click="$refs.ending_out_menu_ref2.save(payload2.ending_out)"
-              >
-                OK
-              </v-btn>
-            </v-time-picker>
-          </v-menu>
-          <span v-if="errors && errors.ending_out" class="text-danger mt-2">{{
-            errors.ending_out[0]
-          }}</span>
-        </v-col>
-        <v-col cols="12">
-          <div class="text-left mb-1">
-            <v-btn
-              v-if="can(`shift_create`)"
-              small
-              color="primary"
-              @click="submit"
-            >
-              Submit
-            </v-btn>
-            <v-btn dark small color="background" @click="e6 = 2"> Back </v-btn>
-          </div>
-        </v-col>
-      </v-row>
-    </v-stepper-content>
-  </v-stepper>
+            <v-btn v-else small color="primary" @click="submit"> Submit </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card>
+  </div>
 </template>
 
 <script>
+import TimePickerCommon from "../../Snippets/TimePickerCommon.vue";
+import DaysPickerCommon from "../../Snippets/DaysPickerCommon.vue";
+import WeekendPickerCommon from "../../Snippets/WeekendPickerCommon.vue";
+import MonthlyFlexiHolidays from "../../Snippets/MonthlyFlexiHolidays.vue";
+import DatePickerCommon from "../../Snippets/DatePickerCommon.vue";
+
+const currentDate = new Date();
+const nextYearDate = new Date(currentDate);
+nextYearDate.setFullYear(currentDate.getFullYear() + 1);
+
 export default {
-  props: ["shift_type_id"],
-
+  props: ["shift_type_id", "name", "shift_id", "payload"],
+  components: {
+    TimePickerCommon,
+    DaysPickerCommon,
+    WeekendPickerCommon,
+    MonthlyFlexiHolidays,
+    DatePickerCommon,
+  },
+  watch: {
+    name(value) {
+      this.payload.name = value;
+    },
+  },
   data: () => ({
-    date: null,
-    menu: false,
-
-    date1: null,
-    menu1: false,
-
-    e6: 1,
-    week_days: [
-      { label: "Sun", value: "Sun" },
-      { label: "Mon", value: "Mon" },
-      { label: "Tue", value: "Tue" },
-      { label: "Wed", value: "Wed" },
-      { label: "Thu", value: "Thu" },
-      { label: "Fri", value: "Fri" },
-      { label: "Sat", value: "Sat" },
-    ],
-
-    loading: false,
-
-    late_time_menu: false,
-    early_time_menu: false,
-    absent_min_in_menu: false,
-    absent_min_out_menu: false,
-    working_hours_menu: false,
-    overtime_interval_menu: false,
-
-    time_in_menu1: false,
-    time_out_menu1: false,
-    beginning_in_menu1: false,
-    beginning_out_menu1: false,
-    ending_in_menu1: false,
-    ending_out_menu1: false,
-
-    time_in_menu2: false,
-    time_out_menu2: false,
-    beginning_in_menu2: false,
-    beginning_out_menu2: false,
-    ending_in_menu2: false,
-    ending_out_menu2: false,
-
-    payload: {
-      name: "",
-      late_time: "00:15",
-      early_time: "00:15",
-      absent_min_in: "01:00",
-      absent_min_out: "01:00",
-      working_hours: "09:00",
-      overtime_interval: "00:30",
-    },
-
-    payload1: {
-      on_duty_time: "09:00",
-      off_duty_time: "14:00",
-
-      beginning_in: "06:00",
-      beginning_out: "17:00",
-
-      ending_in: "06:00",
-      ending_out: "13:00",
-    },
-
-    payload2: {
-      on_duty_time: "17:00",
-      off_duty_time: "21:00",
-
-      beginning_in: "16:00",
-      beginning_out: "18:00",
-
-      ending_in: "20:00",
-      ending_out: "23:59",
-    },
-
+    currentDate,
+    nextYearDate,
     errors: [],
-    errors1: [],
-
-    shifts: [],
-    data: [],
-    response: "",
-    snackbar: false,
   }),
-  async created() {},
-  watch: {},
-  computed: {},
+  created() {
+    this.$axios
+      .get(`/shift/${this.shift_id}`)
+      .then(({ data }) => {
+        // this.payload = data;
+        console.log(data);
+      })
+      .catch(({ message }) => {
+        this.snackbar = true;
+        this.response = message;
+        this.showDialog = false;
+      });
+  },
   methods: {
-    can(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
-      );
-    },
     submit() {
-      let payload = {
-        ...this.payload,
-        shift_type_id: this.shift_type_id,
-        company_id: this.$auth.user.company_id,
+      this.payload.company_id = this.$auth.user.company_id;
 
-        on_duty_time:
-          this.payload1.on_duty_time + "|" + this.payload2.on_duty_time,
-        off_duty_time:
-          this.payload1.off_duty_time + "|" + this.payload2.off_duty_time,
-        beginning_in:
-          this.payload1.beginning_in + "|" + this.payload2.beginning_in,
-        beginning_out:
-          this.payload1.beginning_out + "|" + this.payload2.beginning_out,
-        ending_in: this.payload1.ending_in + "|" + this.payload2.ending_in,
-        ending_out: this.payload1.ending_out + "|" + this.payload2.ending_out,
-      };
+      this.payload.shift_type_id = this.shift_type_id;
+      if (!this.payload.from_date) {
+        this.payload.from_date = this.currentDate;
+      }
+      if (!this.payload.to_date) {
+        this.payload.to_date = this.nextYearDate;
+      }
 
       this.loading = true;
       this.$axios
-        .post(`/shift`, payload)
+        .post(`/shift`, this.payload)
         .then(({ data }) => {
           this.loading = false;
           if (!data.status) {
             this.errors = data.errors;
-            return;
+          } else {
+            this.errors = [];
+            this.snackbar = true;
+            this.response = "Shift added successfully";
+            this.$emit("success");
+            this.$emit("close-popup");
           }
-          this.snackbar = false;
-          this.response = "Shift added successfully";
-          setTimeout(() => {
-            this.$router.push("/shift");
-          }, 1000);
+        })
+        .catch(({ message }) => {
+          this.snackbar = true;
+          this.response = message;
+          this.showDialog = false;
+        });
+    },
+    update() {
+      this.payload.company_id = this.$auth.user.company_id;
+
+      this.payload.shift_type_id = this.shift_type_id;
+      this.loading = true;
+
+      this.$axios
+        .put(`/shift/${this.payload.id}`, this.payload)
+        .then(({ data }) => {
+          this.loading = false;
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.errors = [];
+            this.snackbar = true;
+            this.response = "Shift update successfully";
+            this.$emit("success");
+            this.$emit("close-popup");
+          }
         })
         .catch(({ message }) => {
           this.snackbar = true;
