@@ -13,7 +13,12 @@
       :class="!miniVariant ? 'leftMenuWidth' : ''"
     >
       <br />
-      <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
+      <v-list
+        v-for="(i, idx) in items"
+        :key="idx"
+        style="padding: 5px 0 0 0px"
+        :title="i.title"
+      >
         <v-list-item
           :to="i.to"
           router
@@ -21,6 +26,7 @@
           :class="!miniVariant || 'pl-2'"
           vertical
           style="display: inline-block"
+          :title="i.title"
         >
           <v-list-item-icon class="ma-2" :title="i.title">
             <v-icon>{{ i.icon }}</v-icon>
@@ -126,52 +132,53 @@
       <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
       </v-btn>
-      <v-btn icon @click.stop="clipped = !clipped">
+      <!-- <v-btn icon @click.stop="clipped = !clipped">
         <v-icon>mdi-application</v-icon>
-      </v-btn>
+      </v-btn> -->
       <span class="text-overflow">{{ title }}</span>
 
       <v-spacer></v-spacer>
       <span style="100%">
         <v-bottom-navigation
+          :elevation="0"
+          plain
           dense
-          elevation="0"
           :value="0"
-          background-color="primary"
+          :background-color="changeColor"
         >
           <v-btn
             text
             class="btn-text-size"
-            :elevation="menuProperties['dashboard'].elevation"
+            :elevation="0"
             :color="menuProperties['dashboard'].selected"
             @click="setTopMenuItems('dashboard', '/dashboard2')"
           >
             <span>Dashboard</span>
 
-            <v-icon>mdi-view-dashboard</v-icon>
+            <!-- <v-icon>mdi-view-dashboard</v-icon> -->
           </v-btn>
-          <v-btn
+          <!-- <v-btn
             text
             class="btn-text-size"
-            :elevation="menuProperties['settings'].elevation"
+            :elevation="0"
             :color="menuProperties['settings'].selected"
             @click="setTopMenuItems('settings', '/branches')"
           >
             <span>Settings</span>
 
-            <v-icon>mdi-keyboard-settings-outline</v-icon>
-          </v-btn>
+            
+          </v-btn> -->
 
           <v-btn
             text
             class="btn-text-size"
-            :elevation="menuProperties['employees'].elevation"
+            :elevation="0"
             :color="menuProperties['employees'].selected"
             @click="setTopMenuItems('employees', '/employees')"
           >
             <span>Employees</span>
 
-            <v-icon>mdi-account-tie</v-icon>
+            <!-- <v-icon>mdi-account-tie</v-icon> -->
           </v-btn>
 
           <v-btn
@@ -183,7 +190,7 @@
           >
             <span>Attendance</span>
 
-            <v-icon>mdi-calendar-clock</v-icon>
+            <!-- <v-icon>mdi-calendar-clock</v-icon> -->
           </v-btn>
           <v-btn
             text
@@ -194,7 +201,7 @@
           >
             <span>Payroll</span>
 
-            <v-icon>mdi-cash-multiple</v-icon>
+            <!-- <v-icon>mdi-cash-multiple</v-icon> -->
           </v-btn>
           <v-btn
             text
@@ -205,7 +212,7 @@
           >
             <span>Access Control </span>
 
-            <v-icon>mdi-security</v-icon>
+            <!-- <v-icon>mdi-security</v-icon> -->
           </v-btn>
           <v-btn
             text
@@ -216,14 +223,9 @@
           >
             <span>Visitor App</span>
 
-            <v-icon>mdi-account-check-outline</v-icon>
+            <!-- <v-icon>mdi-account-check-outline</v-icon> -->
           </v-btn>
         </v-bottom-navigation>
-        <!-- <v-btn text color="#6946dd" class="text-white"> Primary </v-btn
-        ><v-btn text color="#6946dd"> Primary </v-btn
-        ><v-btn text color="#6946dd"> Primary </v-btn
-        ><v-btn text color="#6946dd"> Primary </v-btn
-        ><v-btn text color="#6946dd"> Primary </v-btn> -->
       </span>
       <v-spacer></v-spacer>
       <v-menu
@@ -297,6 +299,10 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
+      <v-btn plain @click="goToSettings()"
+        ><v-icon class="pr-2">mdi-settings</v-icon></v-btn
+      >
+
       <label class=" ">
         <v-badge
           v-if="pendingLeavesCount > 0"
@@ -579,7 +585,7 @@ export default {
   },
   computed: {
     changeColor() {
-      return this.$store.state.color;
+      return "#ecf0f4"; //this.$store.state.color;
     },
 
     getUser() {
@@ -614,6 +620,9 @@ export default {
     },
   },
   methods: {
+    goToSettings() {
+      this.setTopMenuItems("settings", "/branches");
+    },
     setTopMenuItems(menu_name, page) {
       this.topMenu_Selected = menu_name;
 
@@ -818,6 +827,9 @@ export default {
   text-align: center;
   width: 100%;
 }
+</style>
+<!-- Extra overriting classes-->
+<style scoped>
 .v-list-item--active i {
   color: #6946dd;
 }
@@ -828,5 +840,20 @@ export default {
 .theme--dark.v-list-item:not(.v-list-item--active):not(.v-list-item--disabled)
   i {
   color: #9aa9b9;
+}
+
+header,
+header button,
+header a,
+header i {
+  color: black !important;
+}
+
+.theme--dark.v-bottom-navigation .v-btn:not(.v-btn--active) {
+  color: black !important;
+}
+.theme--dark.v-bottom-navigation .v-btn--active {
+  background: rgb(105, 70, 221);
+  color: #fff !important;
 }
 </style>
