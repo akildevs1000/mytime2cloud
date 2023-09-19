@@ -7,6 +7,109 @@
     </div>
     <Back class="primary white--text" />
 
+    <v-dialog persistent v-model="showDialog" width="1100">
+      <v-card>
+        <v-card-title dark class="primary white--text background">
+          {{ Model }}
+          <v-spacer></v-spacer>
+          <v-icon @click="showDialog = false" outlined dark color="white">
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <v-row class="pa-1">
+            <v-col md="6" sm="12" cols="12">
+              <label>Name of Schedule <span class="error--text">*</span></label>
+              <v-text-field
+                v-model="payload.name"
+                :hide-details="true"
+                dense
+                outlined
+              ></v-text-field>
+              <span v-if="errors && errors.name" class="text-danger">{{
+                errors.name[0]
+              }}</span>
+            </v-col>
+            <v-col md="6" sm="12" cols="12">
+              <label>Type of Schedule <span class="error--text">*</span></label>
+              <v-select
+                @change="getRelatedShiftComponent"
+                v-model="payload.shift_type_id"
+                :items="[
+                  { id: 1, name: `Flexi` },
+                  { id: 4, name: `Night` },
+                  { id: 6, name: `Single` },
+                  { id: 5, name: `Dual` },
+                  { id: 2, name: `Multi` },
+                ]"
+                item-value="id"
+                item-text="name"
+                :hide-details="true"
+                dense
+                outlined
+              ></v-select>
+              <span v-if="errors && errors.shift_type_id" class="text-danger">{{
+                errors.shift_type_id[0]
+              }}</span>
+            </v-col>
+            <v-col cols="12">
+              <SplitShift
+                v-if="payload.shift_type_id == 5"
+                :key="renderComponent"
+                :shift_type_id="payload.shift_type_id"
+                :name="payload.name"
+                @success="getDataFromApi"
+                :payload="payload"
+                @close-popup="showDialog = false"
+              />
+              <component
+                v-if="payload.shift_type_id != 5"
+                :key="renderComponent"
+                :errors="errors"
+                :payload="payload"
+                :is="comp"
+              />
+            </v-col>
+          </v-row>
+          <v-row v-if="can(`shift_create`) && payload.shift_type_id != 5">
+            <v-col cols="12" md="6">
+              <DatePickerCommon
+                label="From Date"
+                :default_value="currentDate"
+                @selectedDate="(value) => (payload.from_date = value)"
+              />
+              <span v-if="errors && errors.from_date" class="text-danger">{{
+                errors.from_date[0]
+              }}</span>
+            </v-col>
+            <v-col cols="12" md="6">
+              <DatePickerCommon
+                label="To Date"
+                :default_value="nextYearDate"
+                @selectedDate="(value) => (payload.to_date = value)"
+              />
+              <span v-if="errors && errors.to_date" class="text-danger">{{
+                errors.to_date[0]
+              }}</span>
+            </v-col>
+            <v-col cols="12">
+              <v-btn
+                v-if="payload && payload.id > 0"
+                small
+                color="primary"
+                @click="update"
+              >
+                Update
+              </v-btn>
+              <v-btn v-else small color="primary" @click="submit">
+                Submit
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <v-card elevation="0" class="mt-2" v-if="can(`shift_view`)">
       <v-toolbar class="rounded-md" color="background" dense flat dark>
         <v-toolbar-title
@@ -36,16 +139,8 @@
 
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              dense
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="goToCreate"
-            >
-              <v-icon color="white" @click="getDataFromApi()" dark
+            <v-btn dense x-small :ripple="false" text v-bind="attrs" v-on="on">
+              <v-icon color="white" @click="goToCreate" dark
                 >mdi mdi-plus-circle</v-icon
               >
             </v-btn>
@@ -91,23 +186,41 @@
           </tr>
         </template>
         <template v-slot:item.sno="{ item, index }">
-          <b>{{ ++index }}</b>
+          {{ ++index }}
         </template>
 
-        <template v-slot:item.autoshift_count="{ item }">
-          <v-icon v-if="item && item.autoshift_count" color="success darken-1"
-            >mdi-check</v-icon
-          >
-          <v-icon v-else color="error">mdi-close</v-icon>
+        <template v-slot:item.scheduled_time="{ item, index }">
+          {{ item.on_duty_time }} to {{ item.off_duty_time }}
+          <span v-if="item.shift_type_id == 5">
+            -
+            {{ item.on_duty_time1 }} to {{ item.off_duty_time1 }}
+          </span>
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <v-icon color="primary" small class="mr-2" @click="editItem(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon color="error" small @click="deleteItem(item)">
-            mdi-delete
-          </v-icon>
+          <v-menu bottom left>
+            <template v-slot:activator="{ on, attrs }">
+              <div class="text-center">
+                <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </div>
+            </template>
+            <v-list width="120" dense>
+              <v-list-item @click="editItem(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-pencil </v-icon>
+                  Edit
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="deleteItem(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="error" small> mdi-delete </v-icon>
+                  Delete
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </template>
       </v-data-table>
     </v-card>
@@ -117,12 +230,23 @@
   <NoAccess v-else />
 </template>
 <script>
+import DatePickerCommon from "../../components/Snippets/DatePickerCommon.vue";
 import Back from "../../components/Snippets/Back.vue";
+import headers_table from "../../menus/shift.json";
+import defaults from "../../defaults/shift.json";
+
+import SplitShift from "../../components/widgets/Shifts/SplitShift.vue";
+
+const currentDate = new Date();
+const nextYearDate = new Date(currentDate);
+nextYearDate.setFullYear(currentDate.getFullYear() + 1);
 
 export default {
-  components: { Back },
+  components: { Back, DatePickerCommon, SplitShift },
 
   data: () => ({
+    showDialog: false,
+
     isFilter: false,
     filters: {},
     shifts: [],
@@ -132,201 +256,29 @@ export default {
     snack: false,
     snackColor: "",
     snackText: "",
+    employee: {},
+    defaults,
+    currentDate,
+    nextYearDate,
 
+    payload: {
+      shift_type_id: 1,
+    },
+    isNew: true,
     options: {},
-    Model: "Shift",
+    Model: "Shift & Schedule",
     endpoint: "shift",
     search: "",
     snackbar: false,
     ids: [],
     loading: false,
     total: 0,
-    headers: [
-      { text: "Name" },
-      { text: "Type" },
-      { text: "In" },
-      // { text: "Start In" },
-      // { text: "Ending In" },
-      // { text: "Late In" },
-      // { text: "Gap In" },
-      { text: "Out" },
-      // { text: "Start Out" },
-      // { text: "Ending Out" },
-      // { text: "Early Out" },
-      // { text: "Gap Out" },
-      // { text: "Absent In" },
-      // { text: "Absent Out" },
-      { text: "Working Hrs" },
-      // { text: "OT Interval" },
-      // { text: "Off Days" },
-      { text: "Actions" },
-    ],
-    headers_table: [
-      {
-        text: "Name",
-        align: "left",
-        sortable: true,
-        key: "name",
-        value: "name",
-        filterable: true,
-        filterSpecial: false,
-      },
-      {
-        text: "Shift Type",
-        align: "left",
-        sortable: true,
-        key: "shift_type_name",
-        value: "shift_type.name",
-        filterable: true,
-        filterSpecial: false,
-      },
-      {
-        text: "Auto Shift",
-        align: "left",
-        sortable: true,
-        key: "autoshift_count",
-        value: "autoshift_count",
-        filterable: true,
-        filterSpecial: false,
-      },
-      {
-        text: "In",
-        align: "left",
-        sortable: true,
-        key: "on_duty_time",
-        value: "on_duty_time",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Start In",
-        align: "left",
-        sortable: true,
-        key: "beginning_in",
-        value: "beginning_in",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Ending In",
-        align: "left",
-        sortable: true,
-        key: "ending_in",
-        value: "ending_in",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Late In",
-        align: "left",
-        sortable: true,
-        key: "late_time",
-        value: "late_time",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Gap In",
-        align: "left",
-        sortable: true,
-        key: "gap_in",
-        value: "gap_in",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Out",
-        align: "left",
-        sortable: true,
-        key: "off_duty_time",
-        value: "off_duty_time",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Start Out",
-        align: "left",
-        sortable: true,
-        key: "beginning_out",
-        value: "beginning_out",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Ending Out",
-        align: "left",
-        sortable: true,
-        key: "ending_out",
-        value: "ending_out",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Early Out",
-        align: "left",
-        sortable: true,
-        key: "early_time",
-        value: "early_time",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Gap Out",
-        align: "left",
-        sortable: true,
-        key: "gap_out",
-        value: "gap_out",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Absent In",
-        align: "left",
-        sortable: true,
-        key: "absent_min_in",
-        value: "absent_min_in",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Absent Out",
-        align: "left",
-        sortable: true,
-        key: "absent_min_out",
-        value: "absent_min_out",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "Working Hrs",
-        align: "left",
-        sortable: true,
-        key: "working_hours",
-        value: "working_hours",
-        filterable: false,
-        filterSpecial: false,
-      },
-      {
-        text: "OT Interval",
-        align: "left",
-        sortable: true,
-        key: "overtime_interval",
-        value: "overtime_interval",
-        filterable: false,
-        filterSpecial: false,
-      },
-      // { text: "Off Days" },
-      {
-        text: "Actions",
-        align: "left",
-        sortable: false,
-        key: "actions",
-        value: "actions",
-      },
-    ],
+    headers: headers_table,
+    headers_table,
     response: "",
     data: [],
     errors: [],
+    renderComponent: 0,
   }),
 
   watch: {
@@ -341,9 +293,38 @@ export default {
     this.loading = true;
     this.getDataFromApi();
     // this.getShifts();
+    this.getComponent();
   },
 
   methods: {
+    getRelatedShiftComponent() {
+      this.payload = {
+        shift_type_id: this.payload.shift_type_id,
+        ...this.defaults[this.payload.shift_type_id],
+      };
+      this.renderComponent = Math.random() * (1000 - 1) + 1;
+      this.getComponent();
+    },
+    getComponent() {
+      switch (this.payload.shift_type_id) {
+        case 6:
+          this.comp = "widgetsShiftsSingleShift";
+          break;
+        case 4:
+          this.comp = "widgetsShiftsOverNightShift";
+          break;
+        case 3:
+          this.comp = "widgetsShiftsAutoShift";
+          break;
+        case 2:
+          this.comp = "widgetsShiftsMultiInOutShift";
+          break;
+        default:
+          this.comp = "widgetsShiftsFiloShift";
+          break;
+      }
+    },
+
     getShifts() {
       let options = {
         per_page: 1000,
@@ -359,7 +340,16 @@ export default {
       this.isFilter = !this.isFilter;
     },
     goToCreate() {
-      this.$router.push(`/shift/create`);
+      this.isNew = true;
+      this.payload = {
+        shift_type_id: 1,
+        ...this.defaults[this.payload.shift_type_id],
+      };
+
+      this.renderComponent = Math.random() * (1000 - 1) + 1;
+      this.showDialog = true;
+      this.getComponent();
+      // this.$router.push(`/shift/create`);
     },
     datatable_cancel() {
       this.datatable_search_textbox = "";
@@ -449,8 +439,13 @@ export default {
     },
 
     editItem(item) {
-      this.$store.commit("shift_type_id", item.shift_type_id);
-      this.$router.push(`/shift/edit/${item.id}`);
+      this.isNew = false;
+      this.renderComponent = Math.random() * (1000 - 1) + 1;
+      this.payload = item;
+      this.payload.from_date = new Date(item.from_date);
+      this.payload.to_date = new Date(item.to_date);
+      this.showDialog = true;
+      this.getComponent();
     },
 
     delteteSelectedRecords() {
@@ -490,6 +485,57 @@ export default {
             }
           })
           .catch((err) => console.log(err));
+    },
+    submit() {
+      this.payload.company_id = this.$auth.user.company_id;
+
+      if (!this.payload.from_date) {
+        this.payload.from_date = this.currentDate;
+      }
+      if (!this.payload.to_date) {
+        this.payload.to_date = this.nextYearDate;
+      }
+      this.loading = true;
+      this.$axios
+        .post(`/shift`, this.payload)
+        .then(({ data }) => {
+          this.loading = false;
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.errors = [];
+            this.snackbar = true;
+            this.response = "Shift added successfully";
+            this.showDialog = false;
+            this.getDataFromApi();
+          }
+        })
+        .catch(({ message }) => {
+          this.snackbar = true;
+          this.response = message;
+          this.showDialog = false;
+        });
+    },
+    update() {
+      this.loading = true;
+      this.$axios
+        .put(`/shift/${this.payload.id}`, this.payload)
+        .then(({ data }) => {
+          this.loading = false;
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.errors = [];
+            this.snackbar = true;
+            this.response = "Shift update successfully";
+            this.showDialog = false;
+            this.getDataFromApi();
+          }
+        })
+        .catch(({ message }) => {
+          this.snackbar = true;
+          this.response = message;
+        });
     },
   },
 };

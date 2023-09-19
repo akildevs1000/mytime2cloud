@@ -147,16 +147,10 @@
     "hasChildren": [
       {
         "icon": "mdi-clock-outliness",
-        "title": "Shifts",
+        "title": "Shift & Schedule",
         "to": "/shift",
         "menu": "shift_access"
-      },
-      {
-        "icon": "mdi mdi-calendar-clockss",
-        "title": "Schedule List",
-        "to": "/schedule",
-        "menu": "schedule_access"
-      },
+      },  
       {
         "icon": "mdi-account-tiess",
         "title": "Employee Schedule",

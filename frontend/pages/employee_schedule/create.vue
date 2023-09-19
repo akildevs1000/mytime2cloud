@@ -14,7 +14,9 @@
         tile
         small
         style="border-bottom: 1px solid white !important"
-        @click="changeComponent('UnScheduledEmployees')"
+        @click="
+          changeComponent('UnScheduledEmployees', 'not_scheduled_employees')
+        "
       >
         UnScheduled Employees
       </v-btn>
@@ -23,14 +25,14 @@
         tile
         small
         style="border-bottom: 1px solid white !important"
-        @click="changeComponent('ScheduledEmployees')"
+        @click="changeComponent('ScheduledEmployees', 'scheduled_employees')"
       >
         Scheduled Employees
       </v-btn>
       <v-spacer></v-spacer>
     </v-toolbar>
 
-    <component :is="currentComponent" />
+    <component :is="currentComponent" :endpoint="create_endpoint" />
 
     <v-dialog persistent v-model="dialog" width="900">
       <v-card>
@@ -302,7 +304,7 @@ import UnScheduledEmployees from "../../components/schedule_employee/UnScheduled
 import Back from "../../components/Snippets/Back.vue";
 
 export default {
-  components: { ScheduledEmployees, UnScheduledEmployees,Back },
+  components: { ScheduledEmployees, UnScheduledEmployees, Back },
   data: () => ({
     currentComponent: "UnScheduledEmployees",
     isActive: false,
@@ -336,6 +338,7 @@ export default {
     ],
     options: {},
     options_dialog: {},
+    create_endpoint: "not_scheduled_employees",
     endpoint: "scheduled_employees",
     endpoint_dialog: "scheduled_employees_list",
     search: "",
@@ -376,6 +379,7 @@ export default {
     ids: [],
     response: "",
     data: [],
+    shifts: [],
     rosters: [],
     rosterFirstValue: "",
     max_date: [],
@@ -425,7 +429,6 @@ export default {
       this.errors = [];
       this.search = "";
       if (!this.is_edit) {
-        this.getDepartments(this.options);
         this.getDataFromApi();
       }
     },
@@ -460,13 +463,12 @@ export default {
         company_id: this.$auth.user.company_id,
       },
     };
-
-    this.getDepartments(this.options);
     // this.getDataFromApi();
   },
 
   methods: {
-    changeComponent(componentName) {
+    changeComponent(componentName, createEndpoint) {
+      this.create_endpoint = createEndpoint;
       this.currentComponent = componentName;
     },
     toggleActiveState() {
@@ -509,9 +511,6 @@ export default {
 
     set_date_save(from_menu, from, index) {
       from_menu.save(from);
-      return;
-      let toDate = this.setSevenDays(from, index);
-      this.schedules_temp_list[index].to_date = toDate;
     },
 
     set_to_date_save(from_menu, from, index) {
@@ -560,6 +559,7 @@ export default {
         })
         .catch((err) => console.log(err));
     },
+
     employeesByDepartment() {
       this.loading_dialog = true;
 

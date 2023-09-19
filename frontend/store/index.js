@@ -6,6 +6,9 @@ export const state = () => ({
     main_report_type: "",
     loginType: "manager",
     shift_type_id: "",
+    shift_id: "",
+    shift_name: "",
+
     devices: [],
     employees: [],
 });
@@ -36,5 +39,11 @@ export const mutations = {
     },
     shift_type_id(state, value) {
         state.shift_type_id = value;
+    },
+    shift_id(state, value) {
+        state.shift_id = value;
+    },
+    shift_name(state, value) {
+        state.shift_name = value;
     }
 };

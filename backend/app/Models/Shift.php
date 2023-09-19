@@ -12,7 +12,7 @@ class Shift extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['time_in_numbers'];
+    protected $appends = ['time_in_numbers', "show_from_date", "show_to_date"];
 
     protected $with = ['shift_type'];
 
@@ -20,12 +20,15 @@ class Shift extends Model
         'days' => 'array',
     ];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at',
-        // 'company_id',
-        'branch_id',
-    ];
+    public function getShowFromDateAttribute(): string
+    {
+        return date('d M Y', strtotime($this->from_date));
+    }
+
+    public function getShowToDateAttribute(): string
+    {
+        return date('d M Y', strtotime($this->to_date));
+    }
 
     public function shift_type()
     {

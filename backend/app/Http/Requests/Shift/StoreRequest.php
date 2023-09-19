@@ -36,10 +36,15 @@ class StoreRequest extends FormRequest
             'overtime_interval' => ["required"],
             'shift_type_id' => ["required"],
             'company_id' => ["required"],
-            'working_hours' => ['nullable'],
+            'working_hours' => ['required'],
             'days' => ['nullable'],
-            'on_duty_time' => 'nullable',
-            'off_duty_time' => 'nullable',
+            'break' => ["nullable"],
+            'on_duty_time' => ["required"],
+            'off_duty_time' => ["required"],
+            'on_duty_time' => ["required"],
+            'off_duty_time' => ["required"],
+            'from_date' => ["required"],
+            'to_date' => ["required"],
             'late_time' => 'nullable',
             'early_time' => 'nullable',
             'beginning_in' => 'nullable',
@@ -50,6 +55,19 @@ class StoreRequest extends FormRequest
             'absent_min_out' => 'nullable',
             'gap_in' => 'nullable',
             'gap_out' => 'nullable',
+
+            // columns for split shift only
+            'on_duty_time1' => 'nullable',
+            'off_duty_time1' => 'nullable',
+            'beginning_in1' => 'nullable',
+            'ending_in1' => 'nullable',
+            'beginning_out1' => 'nullable',
+            'ending_out1' => 'nullable',
+
+            'weekend1' => 'nullable',
+            'weekend2' => 'nullable',
+            'monthly_flexi_holidays' => 'nullable',
+
         ];
     }
 }
