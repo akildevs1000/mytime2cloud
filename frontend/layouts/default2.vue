@@ -10,7 +10,6 @@
       :color="sideBarcolor"
       :style="miniVariant ? 'width: 60px' : ''"
       @transitionend="collapseSubItems"
-      :class="!miniVariant ? 'leftMenuWidth' : ''"
     >
       <br />
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
@@ -20,13 +19,11 @@
           v-if="!i.hasChildren"
           :class="!miniVariant || 'pl-2'"
           vertical
-          style="display: inline-block"
         >
-          <v-list-item-icon class="ma-2" :title="i.title">
+          <v-list-item-icon class="ma-2">
             <v-icon>{{ i.icon }}</v-icon>
           </v-list-item-icon>
-
-          <v-list-item-title class="text-center p-2">
+          <v-list-item-title class="text-center">
             {{ i.title }}&nbsp;
           </v-list-item-title>
         </v-list-item>
@@ -810,23 +807,5 @@ export default {
 <style scoped>
 .btn-text-size {
   font-size: 17px !important;
-}
-.leftMenuWidth {
-  width: 180px !important;
-}
-.v-list-item {
-  text-align: center;
-  width: 100%;
-}
-.v-list-item--active i {
-  color: #6946dd;
-}
-
-.theme--dark.v-list-item:not(.v-list-item--active):not(.v-list-item--disabled) {
-  color: #9aa9b9;
-}
-.theme--dark.v-list-item:not(.v-list-item--active):not(.v-list-item--disabled)
-  i {
-  color: #9aa9b9;
 }
 </style>

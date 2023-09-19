@@ -1,6 +1,6 @@
 [
   {
-    "icon": "mdi-lanss",
+    "icon": "mdi-filmstrip-box-multiple",
     "title": "Branches",
     "to": "/branches",
     "menu": "branch_access",
@@ -15,7 +15,7 @@
   },
 
   {
-    "icon": "mdi mdi-card-account-detailsss",
+    "icon": "mdi-domain",
     "title": "Profile",
     "to": "/companies",
     "menu": "setting_access",
@@ -24,35 +24,35 @@
   },
 
   {
-    "icon": "mdi-lanss",
+    "icon": "mdi-chair-rolling",
     "title": "Departments",
     "to": "/department",
     "menu": "department_access",
     "module": "settings"
   },
   {
-    "icon": "mdi mdi-account-check-outliness",
+    "icon": "mdi-account-supervisor-circle",
     "title": "Roles",
     "to": "/role",
     "menu": "role_access",
     "module": "settings"
   },
   {
-    "icon": "mdi mdi-account-detailsss",
+    "icon": "mdi-security",
     "title": "Assign Permissions",
     "to": "/assign_permission",
     "menu": "assign_permission_access",
     "module": "settings"
   },
   {
-    "icon": "mdi-cellphone-textss",
+    "icon": "mdi-star-box-multiple-outline",
     "title": "Assign Departments",
     "to": "/department-mapping/",
     "menu": "assign_permission_access",
     "module": "settings"
   },
   {
-    "icon": "mdi-cellphone-textss",
+    "icon": "mdi-cellphone-text",
     "title": "Devices",
     "to": "/device",
     "menu": "device_access",
@@ -89,14 +89,14 @@
     "module": "employees"
   },
   {
-    "icon": "mdi-appss",
+    "icon": "mdi-monitor-dashboard",
     "title": "Dashboard Multi  ",
     "to": "/dashboard/1",
     "menu": "dashboard_access",
     "module": "attendance"
   },
   {
-    "icon": "mdi-appss",
+    "icon": "mdi-apps",
     "title": "Dashboard General",
     "to": "/dashboard/2",
     "menu": "dashboard_access",
@@ -104,21 +104,15 @@
   },
 
   {
-    "icon": "mdi-clock-outliness",
+    "icon": "mdi-clock-outline",
     "title": "Shifts",
     "to": "/shift",
     "menu": "shift_access",
     "module": "attendance"
   },
+
   {
-    "icon": "mdi-clock-outliness",
-    "title": "Schedule",
-    "to": "/schedule",
-    "menu": "shift_access",
-    "module": "attendance"
-  },
-  {
-    "icon": "mdi-account-tiess",
+    "icon": "mdi-account-tie",
     "title": "Employee Schedule",
     "to": "/employee_schedule",
     "menu": "employee_schedule_access",
@@ -139,56 +133,56 @@
     "module": "attendance"
   },
   {
-    "icon": "mdi-cashss",
+    "icon": "mdi-cash",
     "title": "Salary",
     "to": "/payroll/salary",
     "menu": "payroll_access",
     "module": "payroll"
   },
   {
-    "icon": "mdi mdi-calculatorss",
+    "icon": "mdi mdi-calculator",
     "title": "Payroll Settings",
     "to": "/payroll/create",
     "menu": "payroll_settings_access",
     "module": "payroll"
   },
   {
-    "icon": "mdi mdi-calendar-accountss",
+    "icon": "mdi mdi-calendar-account",
     "title": "Leave Applications",
     "to": "/leaves",
     "menu": "leave_application_access",
     "module": "payroll"
   },
   {
-    "icon": "mdi mdi-calendarss",
+    "icon": "mdi mdi-calendar",
     "title": "Leave Types",
     "to": "/leavetype",
     "menu": "leave_type_accessss",
     "module": "payroll"
   },
   {
-    "icon": "mdi mdi-calendar-textss",
+    "icon": "mdi mdi-calendar-text",
     "title": "Leave Groups",
     "to": "/leavegroups",
     "menu": "leave_group_access",
     "module": "payroll"
   },
   {
-    "icon": "mdi mdi-clock-time-four-outliness",
+    "icon": "mdi mdi-clock-time-four-outline",
     "title": "Timezones",
     "to": "/timezone",
     "menu": "timezone",
     "module": "access_control"
   },
   {
-    "icon": "mdi mdi-credit-card-clock-outliness",
+    "icon": "mdi mdi-credit-card-clock-outline",
     "title": "TImezone Mapped List",
     "to": "/timezonemapping/list",
     "menu": "timezone_mapping_list",
     "module": "access_control"
   },
   {
-    "icon": "mdi mdi-camera-accountss",
+    "icon": "mdi mdi-camera-account",
     "title": "Employee Photo Upload",
     "to": "/employee_photo_upload",
     "menu": "employee_photo_upload",
@@ -196,49 +190,49 @@
   },
 
   {
-    "icon": "mdi-homess",
+    "icon": "mdi-home",
     "title": "Dashboard",
     "to": "/visitor-dashboard",
     "menu": true,
     "module": "visitors"
   },
   {
-    "icon": "mdi-chart-box-outliness",
+    "icon": "mdi-chart-box-outline",
     "title": "Visitors Report",
     "to": "/visitors_report",
     "menu": true,
     "module": "visitors"
   },
   {
-    "icon": "mdi-accountss",
+    "icon": "mdi-account",
     "title": "Visitors",
     "to": "/visitor",
     "menu": true,
     "module": "visitors"
   },
   {
-    "icon": "mdi-account-tiess",
+    "icon": "mdi-account-tie",
     "title": "Host",
     "to": "/host",
     "menu": true,
     "module": "visitors"
   },
   {
-    "icon": "mdi-bullhornss",
+    "icon": "mdi-bullhorn",
     "title": "Purpose",
     "to": "/purpose",
     "menu": true,
     "module": "visitors"
   },
   {
-    "icon": "mdi-select-groupss",
+    "icon": "mdi-select-group",
     "title": "Zones",
     "to": "/zone",
     "menu": true,
     "module": "visitors"
   },
   {
-    "icon": "mdi-chart-box-outliness",
+    "icon": "mdi-chart-box-outline",
     "title": "Visitors Logs",
     "to": "/visitor_logs",
     "menu": true,
