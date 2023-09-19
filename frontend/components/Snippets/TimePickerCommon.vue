@@ -1,7 +1,6 @@
 <template>
- 
- <div>
-   <!-- <VueTimepicker
+  <div>
+    <!-- <VueTimepicker
       v-model="value"
       :minute-step="30"
       :hour-options="hours"
@@ -11,72 +10,72 @@
       placeholder="HH:mm"
       style="width: 100%;"
     ></VueTimepicker> -->
-  <v-menu
-    ref="menu"
-    dense
-    v-model="menu2"
-    :close-on-content-click="false"
-    transition="scale-transition"
-    offset-y
-    max-width="15%"
-  >
-    <template v-slot:activator="{ on, attrs }">
-     <label for=""> {{ label }}</label>
-      <v-text-field
-        class="mt-1"
-        outlined
-        dense
-        v-model="time"
-        append-icon="mdi-clock-time-four-outline"
-        v-bind="attrs"
-        v-on="on"
-        :hide-details="true"
-      ></v-text-field>
-    </template>
-    <v-list style="height: 55px">
-      <v-list-item class="pb-2">
-        <input
-          v-model="hour"
-          @input="updateTime"
-          @click="updateTime"
-          @keydown.up.prevent="incrementHour"
-          @keydown.down.prevent="decrementHour"
-          @keydown.enter.prevent="menu2 = false"
+    <v-menu
+      ref="menu"
+      dense
+      v-model="menu2"
+      :close-on-content-click="false"
+      transition="scale-transition"
+      offset-y
+      max-width="15%"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <label for=""> {{ label }}</label>
+        <v-text-field
+          class="mt-1"
           outlined
           dense
-          placeholder="HH"
-          type="number"
-          min="0"
-          max="23"
-          style="border: 1px solid grey; border-radius: 5px"
-        />
-        &nbsp;
-        <input
-          v-model="minute"
-          @input="updateTime"
-          @click="updateTime"
-          @keydown.up.prevent="incrementMinute"
-          @keydown.down.prevent="decrementMinute"
-          @keydown.enter.prevent="menu2 = false"
-          outlined
-          dense
-          placeholder="MM"
-          type="number"
-          min="0"
-          max="59"
-          style="border: 1px solid grey; border-radius: 5px"
-        />
-      </v-list-item>
-    </v-list>
-  </v-menu>
- </div>
+          v-model="time"
+          append-icon="mdi-clock-time-four-outline"
+          v-bind="attrs"
+          v-on="on"
+          :hide-details="true"
+        ></v-text-field>
+      </template>
+      <v-list style="height: 55px">
+        <v-list-item class="pb-2">
+          <input
+            v-model="hour"
+            @input="updateTime"
+            @click="updateTime"
+            @keydown.up.prevent="incrementHour"
+            @keydown.down.prevent="decrementHour"
+            @keydown.enter.prevent="menu2 = false"
+            outlined
+            dense
+            placeholder="HH"
+            type="number"
+            min="0"
+            max="23"
+            style="border: 1px solid grey; border-radius: 5px"
+          />
+          &nbsp;
+          <input
+            v-model="minute"
+            @input="updateTime"
+            @click="updateTime"
+            @keydown.up.prevent="incrementMinute"
+            @keydown.down.prevent="decrementMinute"
+            @keydown.enter.prevent="menu2 = false"
+            outlined
+            dense
+            placeholder="MM"
+            type="number"
+            min="0"
+            max="59"
+            style="border: 1px solid grey; border-radius: 5px"
+          />
+        </v-list-item>
+      </v-list>
+    </v-menu>
+  </div>
 </template>
 <script>
-import VueTimepicker from "vue2-timepicker";
-import "vue2-timepicker/dist/VueTimepicker.css";
+// import VueTimepicker from "vue2-timepicker";
+// import "vue2-timepicker/dist/VueTimepicker.css";
 
 export default {
-  components: { VueTimepicker },
+  //  components: { VueTimepicker },
 
   props: ["label", "default_value"],
   auth: false,
