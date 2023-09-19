@@ -35,6 +35,9 @@ class StoreRequest extends FormRequest
             'max_devices' => ['required', 'integer'],
             'location' => ['nullable', 'min:3', 'max:255'],
 
+            'lat' => ['nullable'],
+            'lon' => ['nullable'],
+
             'email' => 'required|email|min:3|max:191|unique:users',
 
             'contact_name' => ['required', 'min:3', 'max:100'],

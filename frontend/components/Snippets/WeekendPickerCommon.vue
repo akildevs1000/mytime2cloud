@@ -6,7 +6,7 @@
       @change="setWeekend"
       v-model="weekend"
       :items="items"
-      item-value="name"
+      item-value="id"
       item-text="name"
       dense
       outlined
@@ -16,25 +16,29 @@
 </template>
 <script>
 export default {
-  props: ["label"],
+  props: ["label", "default_value"],
   auth: false,
   layout: "login",
   data() {
     return {
       weekend: `Not Applicable`,
       items: [
-        { id: 1, name: `Not Applicable` },
-        { id: 2, name: `Flexi` },
-        { id: 3, name: `Half Day` },
-        { id: 4, name: `Monday` },
-        { id: 5, name: `Tueday` },
-        { id: 6, name: `Wednesday` },
-        { id: 7, name: `Thursday` },
-        { id: 8, name: `Friday` },
-        { id: 9, name: `Saturday` },
-        { id: 10, name: `Sunday` },
+        { id: `Not Applicable`, name: `Not Applicable` },
+        { id: `Flexi`, name: `Flexi` },
+        { id: `Half Day`, name: `Half Day` },
+        { id: `Monday`, name: `Monday` },
+        { id: `Tuesday`, name: `Tuesday` },
+        { id: `Wednesday`, name: `Wednesday` },
+        { id: `Thursday`, name: `Thursday` },
+        { id: `Friday`, name: `Friday` },
+        { id: `Saturday`, name: `Saturday` },
+        { id: `Sunday`, name: `Sunday` },
       ],
     };
+  },
+  created() {
+    this.weekend = this.default_value;
+    this.$emit("selectedWeekend", this.default_value);
   },
   watch: {
     weekend(value) {

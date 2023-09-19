@@ -229,10 +229,13 @@ export default {
         .get(endpoint, payload)
         .then(({ data }) => {
           this.loading = false;
-          // this.snackbar = true; //snackbar : false,
 
-          this.response =
-            endpoint !== "render_logs" ? data.message : (this.result = data);
+          if (endpoint !== "render_logs") {
+            this.result = [payload];
+            return;
+          }
+
+          this.result = data;
           this.$emit("update-data-table");
         })
         .catch((e) => console.log(e));

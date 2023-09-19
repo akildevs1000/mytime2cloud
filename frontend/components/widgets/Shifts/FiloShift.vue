@@ -53,6 +53,7 @@
     <v-col cols="12" md="4">
       <WeekendPickerCommon
         label="Weekend 1"
+        :default_value="payload.weekend1"
         @selectedWeekend="(value) => (payload.weekend1 = value)"
       />
       <span v-if="errors && errors.weekend1" class="text-danger">{{
@@ -63,6 +64,7 @@
     <v-col cols="12" md="4">
       <WeekendPickerCommon
         label="Weekend 2"
+        :default_value="payload.weekend2"
         @selectedWeekend="(value) => (payload.weekend2 = value)"
       />
       <span v-if="errors && errors.weekend2" class="text-danger">{{
@@ -72,6 +74,7 @@
     <v-col cols="12" md="4">
       <MonthlyFlexiHolidays
         label="Monthly Flexible Holidays"
+        :default_value="payload.monthly_flexi_holidays"
         @selectedMonthlyHolidays="
           (value) => (payload.monthly_flexi_holidays = value)
         "

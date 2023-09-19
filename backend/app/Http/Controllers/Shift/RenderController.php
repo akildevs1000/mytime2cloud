@@ -543,19 +543,7 @@ class RenderController extends Controller
 
         return $this->response("$result Employee has been marked as OFF", null, true);
     }
-
-    public function renderAbsent(Request $request)
-    {
-        $UserIds = $this->renderAbsentScript($request->company_id, $request->date, $request->UserID);
-
-        $result = json_encode($UserIds);
-
-        if (!count($UserIds)) {
-            $result = "No";
-        }
-
-        return $this->response("$result Employee has been marked as Absent", null, true);
-    }
+    
     public function renderLeaves($company_id = 0, Request $request)
     {
         $schedule = null;
@@ -693,30 +681,17 @@ class RenderController extends Controller
         }
     }
 
-    public function renderAbsentCron($company_id = 0)
-    {
-        $UserIds = $this->renderAbsentScript($company_id, date('Y-m-d', strtotime('-1 day')));
-
-        $result = json_encode($UserIds);
-
-        if (!count($UserIds)) {
-            $result = "No";
-        }
-
-        return $this->getMeta("Sync Absent", "$result Employee has been marked as Absent" . ".\n");
-    }
-
-    public function renderAbsentScript($company_id, $date, $user_id = 0)
+    public function renderWeekendScript($company_id, $date, $user_id = 0)
     {
         $model = ScheduleEmployee::query();
 
         $model->where("company_id", $company_id);
 
+        $model->whereHas("shift", fn ($q) => $q->where("weekend1", "Not Applicable"));
+
         $model->when($user_id, function ($q) use ($user_id) {
             return $q->where("employee_id", $user_id);
         });
-
-        $model->whereNot("shift_id", -1);
 
         $model->whereDoesntHave("attendance_logs", function ($q) use ($company_id, $date) {
             $q->whereDate('LogTime', $date);
@@ -738,7 +713,7 @@ class RenderController extends Controller
                 "date" => $date,
                 "status" => "A",
                 "employee_id" => $missingEmployee->employee_id,
-                "shift_id" => -2,
+                "shift_id" => $missingEmployee->shift_id,
                 "shift_type_id" => $missingEmployee->shift_type_id,
             ];
         }
