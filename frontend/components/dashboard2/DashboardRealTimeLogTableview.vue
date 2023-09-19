@@ -1,8 +1,27 @@
 <template>
   <div>
-    <center>
-      <h5>Recent Employee Logs on Devices</h5>
-    </center>
+    <v-row>
+      <v-col md="10" sm="10" xs="10">
+        <h5>Recent Employee Logs on Devices</h5>
+      </v-col>
+
+      <v-col md="2" sm="2" xs="2" class="text-end">
+        <v-menu bottom left>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn dark-2 icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list width="120" dense>
+            <v-list-item @click="viewLogs()">
+              <v-list-item-title style="cursor: pointer">
+                View Logs
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-col>
+    </v-row>
     <v-dialog persistent v-model="dialogEmployeeAttendance" width="1200px">
       <v-card>
         <v-card-title dense class="primary white--text background">
@@ -22,6 +41,7 @@
             <DashboardEmployeeAttendanceLog
               :system_user_id="system_user_id"
               :key1="componentKey"
+              :key="componentKey"
             />
           </v-container>
         </v-card-text>
@@ -121,9 +141,9 @@
           }}
         </div>
       </template>
-      <template v-slot:item.log="{ item }">
+      <!-- <template v-slot:item.log="{ item }">
         <v-btn @click="viewLog(item.UserID)">View Log</v-btn>
-      </template>
+      </template> -->
     </v-data-table>
   </div>
 </template>
@@ -205,14 +225,14 @@ export default {
 
           value: "device.device_name",
         },
-        {
-          text: "Log",
-          align: "left",
-          sortable: true,
-          filterable: true,
+        // {
+        //   text: "Log",
+        //   align: "left",
+        //   sortable: true,
+        //   filterable: true,
 
-          value: "log",
-        },
+        //   value: "log",
+        // },
       ],
     };
   },
@@ -246,11 +266,13 @@ export default {
     },
   },
   methods: {
+    viewLogs() {
+      this.$router.push("/attendance_report");
+    },
     viewLog(system_user_id) {
-      this.componentKey = this.componentKey + 2;
-      this.system_user_id = system_user_id;
       this.dialogEmployeeAttendance = true;
-
+      this.componentKey = this.componentKey + 1;
+      this.system_user_id = system_user_id;
       console.log(this.system_user_id, this.componentKey);
     },
     caps(str) {

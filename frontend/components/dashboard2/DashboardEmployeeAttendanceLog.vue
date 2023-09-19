@@ -34,7 +34,6 @@
             ></v-autocomplete>
           </v-col> -->
           <v-col md="2">
-            
             Employee ID
             <v-autocomplete
               class="mt-2"
@@ -235,6 +234,7 @@
             process_file_endpoint=""
             render_endpoint="render_general_report"
             :key="key1"
+            :key1="payload.key1"
           />
         </v-tab-item>
         <v-tab-item value="tab-2">
@@ -253,6 +253,7 @@
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
             :key="key1"
+            :key1="payload.key1"
           />
         </v-tab-item>
         <v-tab-item value="tab-3">
@@ -268,6 +269,7 @@
             :daily_date="payload.daily_date"
             :from_date="payload.from_date"
             :to_date="payload.to_date"
+            :key1="payload.key1"
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
             :key="key1"
@@ -372,6 +374,7 @@ export default {
       department_ids: [{ id: "-1", name: "" }],
       status: "-1",
       late_early: "Select All",
+      key1: "1",
     },
     log_payload: {
       user_id: null,
@@ -444,21 +447,20 @@ export default {
     },
     system_user_id(val) {
       console.log("----------", val);
-      setTimeout(() => {
-        this.payload.employee_id = val;
-        this.CustomComponentKey = this.CustomComponentKey + 1;
-      }, 1000 * 3);
+
+      this.payload.employee_id = val;
+      this.CustomComponentKey = this.CustomComponentKey + 1;
     },
     key1(val) {
       console.log("----------", val);
-      setTimeout(() => {
-        this.payload.employee_id = val;
-        this.CustomComponentKey = this.CustomComponentKey + 1;
-      }, 1000 * 3);
+
+      this.CustomComponentKey = this.CustomComponentKey + 1;
     },
   },
   async created() {
     this.payload.employee_id = this.system_user_id;
+    this.payload.key1 = this.CustomComponentKey + 1;
+
     this.loading = true;
     // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
@@ -485,6 +487,8 @@ export default {
 
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
+
+    this.CustomComponentKey = this.CustomComponentKey + 1;
   },
 
   methods: {

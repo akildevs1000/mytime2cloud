@@ -32,7 +32,7 @@
       <!-- <v-col md="1" title="absentCount" style="text-align: center">V </v-col> -->
       <v-col md="1" title="missingCount" style="text-align: center">L </v-col>
     </v-row>
-    <v-row v-for="(item, index, i) in departments">
+    <v-row v-for="(item, index, i) in departments" :key="'department' + i">
       <v-col md="2" class="text-center">
         <v-avatar
           size="40"
