@@ -1,91 +1,104 @@
 <template>
-    <div class="py-2 mt-2 pl-5">
+  <div class="mt-2 pl-2">
+    <v-row>
+      <v-col cols="10" md="10" sm="10" xs="10" style="flex: auto">
+        <h5>Today Presents By Department wise</h5>
+      </v-col>
 
-        <v-row>
-            <v-col md=" 6">
-                <h4>Today Presents By Department wise</h4>
-            </v-col>
-
-            <v-col md="2"> <v-icon>mdi-dots-vertical</v-icon></v-col>
-
-        </v-row>
-        <v-row style="font-weight: bold;">
-            <v-col md="1" class="text--center"> </v-col>
-            <v-col md="5"> </v-col>
-            <v-col md="1" title="presentCount" style="text-align: center;">P</v-col>
-            <v-col md="1" title="absentCount" style="text-align: center;">A </v-col>
-            <v-col md="1" title="missingCount" style="text-align: center;">M </v-col>
-            <v-col md="1" title="absentCount" style="text-align: center;">V </v-col>
-            <v-col md="1" title="missingCount" style="text-align: center;">L </v-col>
-        </v-row>
-        <v-row v-for="(item, index, i) in departments">
-            <v-col md="1" class="text--center">
-                <v-avatar size="40" style="color:#FFF" :color="(i + 1) % 2 == 0 ? 'green' : 'red'">
-                    <v-icon size="20" style="color:#FFF">mdi-laptop</v-icon>
-                </v-avatar>
-
-
-            </v-col>
-            <v-col md="5" class="mt-2">{{ index }} </v-col>
-            <v-col md="1" title="Presents" style="color:green;text-align: center;">
-                {{ item.presentCount }}
-            </v-col>
-            <v-col md="1" title="Absents" style="color:red;text-align: center;">{{ item.absentCount }}</v-col>
-            <v-col md="1" title="Missing" style="color:orange;text-align: center;">{{ item.missingCount }} </v-col>
-            <v-col md="1" title="Vacation" style=" text-align: center;">{{ item.vaccationCount }} </v-col>
-            <v-col md="1" title="Leave" style=" text-align: center;">{{ item.leaveCount }} </v-col>
-        </v-row>
-
-
-
-
-    </div>
+      <v-col md="2" sm="2" xs="2" class="text-end">
+        <v-menu bottom left>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn dark-2 icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list width="120" dense>
+            <v-list-item @click="viewLogs()">
+              <v-list-item-title style="cursor: pointer">
+                View Logs
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-col>
+    </v-row>
+    <ComonPreloader icon="face-scan" v-if="loading" />
+    <v-row v-else style="font-weight: bold">
+      <v-col md="2" class="text-center"># </v-col>
+      <v-col md="5">&nbsp; </v-col>
+      <v-col md="1" title="presentCount" style="text-align: center">P</v-col>
+      <v-col md="1" title="absentCount" style="text-align: center">A </v-col>
+      <v-col md="1" title="missingCount" style="text-align: center">M </v-col>
+      <!-- <v-col md="1" title="absentCount" style="text-align: center">V </v-col> -->
+      <v-col md="1" title="missingCount" style="text-align: center">L </v-col>
+    </v-row>
+    <v-row v-for="(item, index, i) in departments">
+      <v-col md="2" class="text-center">
+        <v-avatar
+          size="40"
+          style="color: #fff"
+          :color="(i + 1) % 2 == 0 ? 'green' : 'red'"
+        >
+          <v-icon size="20" style="color: #fff">mdi-laptop</v-icon>
+        </v-avatar>
+      </v-col>
+      <v-col md="5" class="mt-2" style="overflow: hidden">{{ index }} </v-col>
+      <v-col md="1" title="Presents" style="color: green; text-align: center">
+        {{ item.presentCount }}
+      </v-col>
+      <v-col md="1" title="Absents" style="color: red; text-align: center">{{
+        item.absentCount
+      }}</v-col>
+      <v-col md="1" title="Missing" style="color: orange; text-align: center"
+        >{{ item.missingCount }}
+      </v-col>
+      <!-- <v-col md="1" title="Vacation" style="text-align: center"
+        >{{ item.vaccationCount }}
+      </v-col> -->
+      <v-col md="1" title="Leave" style="text-align: center"
+        >{{ item.leaveCount }}
+      </v-col>
+    </v-row>
+  </div>
 </template>
-  
+
 <script>
 // import VueApexCharts from 'vue-apexcharts'
 export default {
+  data() {
+    return {
+      departments: [],
+      loading: false,
+    };
+  },
+  watch: {},
+  created() {},
+  mounted() {
+    this.loading = true;
+    setTimeout(() => {
+      this.getDataFromApi();
+    }, 1000 * 2);
+  },
 
-    data() {
-        return {
-            departments: [],
-        };
+  methods: {
+    viewLogs() {
+      this.$router.push("/attendance_report");
     },
-    watch: {
+    getDataFromApi() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
 
+      this.$axios
+        .get("dashboard_get_count_department", options)
+        .then(({ data }) => {
+          this.departments = data;
 
-
+          this.loading = false;
+        });
     },
-    created() {
-        //  this.loading = true;
-        this.getDataFromApi();
-
-    },
-    mounted() {
-
-
-    },
-
-    methods: {
-
-        getDataFromApi() {
-            let options = {
-                params: {
-
-                    company_id: this.$auth.user.company_id,
-                },
-            };
-
-            this.$axios.get('dashboard_get_count_department', options).then(({ data }) => {
-
-                this.departments = data;
-
-
-
-            });
-        }
-
-    },
+  },
 };
 </script>
-  

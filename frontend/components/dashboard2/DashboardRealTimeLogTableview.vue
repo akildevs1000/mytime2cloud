@@ -1,46 +1,79 @@
 <template>
   <div>
     <center>
-      <h4>Recent Employee Logs on Devices</h4>
+      <h5>Recent Employee Logs on Devices</h5>
     </center>
-
+    <v-dialog persistent v-model="dialogEmployeeAttendance" width="1200px">
+      <v-card>
+        <v-card-title dense class="primary white--text background">
+          Employee Attendance
+          <v-spacer></v-spacer>
+          <v-icon
+            @click="dialogEmployeeAttendance = false"
+            outlined
+            dark
+            color="white"
+          >
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <DashboardEmployeeAttendanceLog
+              :system_user_id="system_user_id"
+              :key1="componentKey"
+            />
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <ComonPreloader icon="face-scan" v-if="loading" />
-    <div v-else-if="!logs.length">No record found</div>
 
-    <v-data-table dense :headers="headers_table" :items="logs" :loading="loading" :options.sync="options" :footer-props="{
-      itemsPerPageOptions: [5, 10, 50, 100, 500, 1000],
-    }" class="elevation-1" :server-items-length="totalRowsCount">
-
+    <v-data-table
+      dense
+      :headers="headers_table"
+      :items="logs"
+      :loading="loading"
+      :options.sync="options"
+      :footer-props="{
+        itemsPerPageOptions: [5, 10, 50, 100, 500, 1000],
+      }"
+      class="elevation-1"
+      :server-items-length="totalRowsCount"
+    >
       <template v-slot:item.employee.first_name="{ item, index }">
         <v-row no-gutters>
-          <v-col style="
-                      padding: 5px;
-                      padding-left: 0px;
-                      width: 50px;
-                      max-width: 50px;
-                    ">
-            <v-img style="
-                        border-radius: 50%;
-                        height: auto;
-                        width: 50px;
-                        max-width: 50px;
-                      " :src="item.employee && item.employee.profile_picture
-                        ? item.employee.profile_picture
-                        : '/no-profile-image.jpg'
-                        ">
+          <v-col
+            style="
+              padding: 5px;
+              padding-left: 0px;
+              width: 50px;
+              max-width: 50px;
+            "
+          >
+            <v-img
+              style="
+                border-radius: 50%;
+                height: auto;
+                width: 50px;
+                max-width: 50px;
+              "
+              :src="
+                item.employee && item.employee.profile_picture
+                  ? item.employee.profile_picture
+                  : '/no-profile-image.jpg'
+              "
+            >
             </v-img>
           </v-col>
           <v-col style="padding: 10px">
-
             {{ item.employee ? item.employee.first_name : "---" }}
-            {{
-              item.employee ? item.employee.last_name : "---"
-            }}
+            {{ item.employee ? item.employee.last_name : "---" }}
             <div>
               {{
                 item.employee && item.employee.designation
-                ? caps(item.employee.designation.name)
-                : "---"
+                  ? caps(item.employee.designation.name)
+                  : "---"
               }}
             </div>
           </v-col>
@@ -49,23 +82,19 @@
       <template v-slot:item.employee.department="{ item }">
         {{
           item.employee && item.employee.department
-          ? caps(item.employee.department.name)
-          : "---"
+            ? caps(item.employee.department.name)
+            : "---"
         }}
         <div>
           {{
             item.employee && item.employee.sub_department
-            ? caps(item.employee.sub_department.name)
-            : "---"
+              ? caps(item.employee.sub_department.name)
+              : "---"
           }}
         </div>
       </template>
 
-
-
-      <template v-slot:item.UserID="{ item }">
-        #{{ item.UserID }}
-      </template>
+      <template v-slot:item.UserID="{ item }"> #{{ item.UserID }} </template>
       <template v-slot:item.employee.employee_id="{ item }">
         {{ item.employee && item.employee.employee_id }}
       </template>
@@ -74,30 +103,38 @@
       </template>
 
       <template v-slot:item.online="{ item }">
-
-        <v-icon v-if="item.device.location" color="green" fill>mdi-map-marker-radius</v-icon>
+        <v-icon v-if="item.device && item.device.location" color="green" fill
+          >mdi-map-marker-radius</v-icon
+        >
         <v-icon v-else color="red" fill>mdi-map-marker-radius</v-icon>
       </template>
       <template v-slot:item.device.device_name="{ item }">
-        <div :style="item.device.location ? 'color:green' : 'color: red;'">
+        <div
+          :style="
+            item.device && item.device.location ? 'color:green' : 'color: red;'
+          "
+        >
           {{ item.device ? caps(item.device.name) : "---" }} <br />
 
-          {{ item.device.location ? item.device.location : "---" }}
+          {{
+            item.device && item.device.location ? item.device.location : "---"
+          }}
         </div>
       </template>
-
-
+      <template v-slot:item.log="{ item }">
+        <v-btn @click="viewLog(item.UserID)">View Log</v-btn>
+      </template>
     </v-data-table>
-
-
-
-
   </div>
-</template>>
+</template>
+>
 <script>
 export default {
   data() {
     return {
+      componentKey: 1,
+      system_user_id: "0",
+      dialogEmployeeAttendance: false,
       loading: false,
       items: [],
       emptyLogmessage: "",
@@ -168,10 +205,15 @@ export default {
 
           value: "device.device_name",
         },
+        {
+          text: "Log",
+          align: "left",
+          sortable: true,
+          filterable: true,
 
+          value: "log",
+        },
       ],
-
-
     };
   },
   watch: {
@@ -183,13 +225,13 @@ export default {
     },
   },
   mounted() {
-    this.socketConnection();
+    setTimeout(() => {
+      this.socketConnection();
+    }, 1000 * 5);
 
     //this.getRecords();
   },
-  created() {
-
-  },
+  created() {},
   computed: {
     employees() {
       return this.$store.state.employees.map((e) => ({
@@ -204,6 +246,13 @@ export default {
     },
   },
   methods: {
+    viewLog(system_user_id) {
+      this.componentKey = this.componentKey + 2;
+      this.system_user_id = system_user_id;
+      this.dialogEmployeeAttendance = true;
+
+      console.log(this.system_user_id, this.componentKey);
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";
@@ -214,8 +263,6 @@ export default {
     },
     getRecords(filter_column = "", filter_value = "") {
       this.loading = true;
-
-
 
       //let filter_value = this.datatable_search_textbox;
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
@@ -251,7 +298,6 @@ export default {
           this.logs = data.data;
           this.loading = false;
         });
-
     },
     socketConnection() {
       this.socket = new WebSocket(this.url);
@@ -291,8 +337,9 @@ export default {
       };
       this.$axios
         .get(
-          `device/getLastRecordsHistory/${this.$auth.user.company_id}/${this.number_of_records}`
-          , options)
+          `device/getLastRecordsHistory/${this.$auth.user.company_id}/${this.number_of_records}`,
+          options
+        )
         .then(async ({ data }) => {
           this.loading = false;
           this.total = data.total;
@@ -304,7 +351,9 @@ export default {
               (e.employee.display_name ||
                 e.employee.first_name ||
                 e.employee.last_name),
-            image: e.employee && e.employee.profile_picture || '/no-profile-image.jpg',
+            image:
+              (e.employee && e.employee.profile_picture) ||
+              "/no-profile-image.jpg",
           }));
         });
     },
@@ -326,7 +375,7 @@ export default {
 
         let item = {
           UserCode,
-          image: "data:image;base64," + RecordImage || '/no-profile-image.jpg',
+          image: "data:image;base64," + RecordImage || "/no-profile-image.jpg",
           time: this.setTime(RecordDate),
           name:
             employee &&

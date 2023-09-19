@@ -1,266 +1,335 @@
 <template>
-    <div>
+  <div>
+    <v-row>
+      <v-col md="6">
+        <v-card class="py-2">
+          <v-row class="p-2">
+            <v-row>
+              <v-col md="6">
+                <v-avatar color="green">
+                  <v-icon size="30" style="color: #fff"
+                    >mdi-account-outline</v-icon
+                  >
+                </v-avatar>
+              </v-col>
 
-        <v-row>
+              <v-col md="6" class="menu-icon-right text-end">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="viewLogs()">
+                      <v-list-item-title style="cursor: pointer">
+                        View Logs
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col md="12" style="text-align: center; padding-top: 0px">
+                <div class="bold text-h3 green--text">
+                  {{ data.presentCount }}
+                </div>
 
-            <v-col md="6">
-                <v-card class="py-2">
-                    <v-row class="p-2">
-                        <v-col md="6">
-                            <v-avatar color="green">
-                                <v-icon size="30" style="color:#FFF">mdi-account-outline</v-icon>
-                            </v-avatar>
+                <div>Today Presents</div>
+              </v-col>
+            </v-row>
+          </v-row>
+        </v-card>
+      </v-col>
 
+      <v-col md="6">
+        <v-card class="py-2">
+          <v-row class="p-2">
+            <v-row>
+              <v-col md="6">
+                <v-avatar color="red">
+                  <v-icon size="30" style="color: #fff"
+                    >mdi-account-minus-outline</v-icon
+                  >
+                </v-avatar>
+              </v-col>
 
+              <v-col md="6" class="menu-icon-right">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="viewLogs()">
+                      <v-list-item-title style="cursor: pointer">
+                        View Logs
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col md="12" style="text-align: center; padding-top: 0px">
+                <div class="bold text-h3 red--text">{{ data.absentCount }}</div>
 
-                        </v-col>
+                <div>Today Absensts</div>
+              </v-col>
+            </v-row>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
 
-                        <v-col md="6" class="menu-icon-right"> <v-icon>mdi-dots-vertical</v-icon></v-col>
+    <v-row>
+      <v-col md="6">
+        <v-card class="py-2">
+          <v-row class="p-2">
+            <v-row>
+              <v-col md="6">
+                <v-avatar color="blue">
+                  <v-icon size="30" style="color: #fff"
+                    >mdi-airplane-takeoff</v-icon
+                  >
+                </v-avatar>
+                <!-- <v-icon color="blue" size="30" fill>mdi-airplane-takeoff</v-icon> -->
+              </v-col>
 
+              <v-col md="6" class="menu-icon-right">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="viewLogs()">
+                      <v-list-item-title style="cursor: pointer">
+                        View Logs
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col md="12" style="text-align: center; padding-top: 0px">
+                <div class="bold text-h3 blue--text">
+                  {{ data.vaccationCount }}
+                </div>
 
-                        <v-col md="12" style="text-align:center;padding-top:0px">
-                            <div class="bold text-h3 green--text  ">{{ data.presentCount }}</div>
+                <div>On Vacation</div>
+              </v-col>
+            </v-row>
+          </v-row>
+        </v-card>
+      </v-col>
+      <v-col md="6">
+        <v-card class="py-2">
+          <v-row class="p-2">
+            <v-row>
+              <v-col md="6">
+                <v-avatar color="yellow">
+                  <v-icon size="30" style="color: #fff"
+                    >mdi-clock-time-eight-outline</v-icon
+                  >
+                </v-avatar>
+              </v-col>
 
-                            <div>Today Presents</div>
-                        </v-col>
+              <v-col md="6" class="menu-icon-right">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="viewLogs()">
+                      <v-list-item-title style="cursor: pointer">
+                        View Logs
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col md="12" style="text-align: center; padding-top: 0px">
+                <div class="bold text-h3 orange--text">
+                  {{ data.missingCount }}
+                </div>
 
+                <div>Log Pending</div>
+              </v-col>
+            </v-row>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
 
-                    </v-row>
-                </v-card>
-            </v-col>
+    <v-row>
+      <v-col md="6">
+        <v-card class="py-2">
+          <v-row class="p-2">
+            <v-row>
+              <v-col md="6">
+                <v-avatar color="#E65100">
+                  <v-icon size="30" style="color: #fff"
+                    >mdi-cellphone-information</v-icon
+                  >
+                </v-avatar>
+              </v-col>
 
+              <v-col md="6" class="menu-icon-right">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="viewLogs()">
+                      <v-list-item-title style="cursor: pointer">
+                        View Logs
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col md="12" style="text-align: center; padding-top: 0px">
+                <div class="bold text-h3 red--text">{{ offlineDevices }}</div>
 
-            <v-col md="6">
-                <v-card class="py-2">
-                    <v-row class="p-2">
-                        <v-col md="6">
-                            <v-avatar color="red">
-                                <v-icon size="30" style="color:#FFF">mdi-account-minus-outline</v-icon>
-                            </v-avatar>
-                            <!-- <v-icon color="red" size="30" fill>mdi-account-circle-outline</v-icon> -->
+                <div>Offline Devices</div>
+              </v-col>
+            </v-row>
+          </v-row>
+        </v-card>
+      </v-col>
 
+      <v-col md="6">
+        <v-card class="py-2">
+          <v-row class="p-2">
+            <v-row>
+              <v-col md="6">
+                <v-avatar color="black">
+                  <v-icon size="30" style="color: #fff"
+                    >mdi-card-account-mail-outline</v-icon
+                  >
+                </v-avatar>
+              </v-col>
 
+              <v-col md="6" class="menu-icon-right">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="viewLogs()">
+                      <v-list-item-title style="cursor: pointer">
+                        View Logs
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col md="12" style="text-align: center; padding-top: 0px">
+                <div class="bold text-h3 black--text">{{ leaveRequests }}</div>
 
-                        </v-col>
-
-                        <v-col md="6" class="menu-icon-right"> <v-icon>mdi-dots-vertical</v-icon></v-col>
-
-
-                        <v-col md="12" style="text-align:center;padding-top:0px">
-                            <div class="bold text-h3 red--text  ">{{ data.absentCount }}</div>
-
-                            <div>Today Absensts</div>
-                        </v-col>
-
-
-                    </v-row>
-                </v-card>
-            </v-col>
-        </v-row>
-
-        <v-row>
-            <v-col md="6">
-                <v-card class="py-2">
-                    <v-row class="p-2">
-                        <v-col md="6">
-
-                            <v-avatar color="blue">
-                                <v-icon size="30" style="color:#FFF">mdi-airplane-takeoff</v-icon>
-                            </v-avatar>
-                            <!-- <v-icon color="blue" size="30" fill>mdi-airplane-takeoff</v-icon> -->
-
-
-                        </v-col>
-
-                        <v-col md="6" class="menu-icon-right"> <v-icon>mdi-dots-vertical</v-icon></v-col>
-
-
-                        <v-col md="12" style="text-align:center;padding-top:0px">
-                            <div class="bold text-h3 blue--text  ">{{ data.vaccationCount }}</div>
-
-                            <div>On Vacation</div>
-                        </v-col>
-
-
-                    </v-row>
-                </v-card>
-            </v-col>
-            <v-col md="6">
-                <v-card class="py-2">
-                    <v-row class="p-2">
-                        <v-col md="6">
-                            <v-avatar color="yellow">
-                                <v-icon size="30" style="color:#FFF">mdi-clock-time-eight-outline</v-icon>
-                            </v-avatar>
-                            <!-- <v-icon color="orange" size="30" fill>mdi-account-clock</v-icon> -->
-
-
-                        </v-col>
-
-                        <v-col md="6" class="menu-icon-right"> <v-icon>mdi-dots-vertical</v-icon></v-col>
-
-
-                        <v-col md="12" style="text-align:center;padding-top:0px">
-                            <div class="bold text-h3 orange--text  ">{{ data.missingCount }}</div>
-
-                            <div>Log Pending</div>
-                        </v-col>
-
-
-                    </v-row>
-                </v-card>
-            </v-col>
-        </v-row>
-
-        <v-row>
-            <v-col md="6">
-                <v-card class="py-2">
-                    <v-row class="p-2">
-                        <v-col md="6">
-                            <v-avatar color="#E65100">
-                                <v-icon size="30" style="color:#FFF">mdi-cellphone-information</v-icon>
-                            </v-avatar>
-
-                            <!-- <v-icon color="red" size="30" fill>mdi-cellphone-information</v-icon> -->
-
-                        </v-col>
-
-                        <v-col md="6" class="menu-icon-right"> <v-icon>mdi-dots-vertical</v-icon></v-col>
-
-
-                        <v-col md="12" style="text-align:center;padding-top:0px">
-                            <div class="bold text-h3 red--text  ">{{ offlineDevices }}</div>
-
-                            <div>Offline Devices</div>
-                        </v-col>
-
-
-                    </v-row>
-                </v-card>
-            </v-col>
-
-
-            <v-col md="6">
-                <v-card class="py-2">
-                    <v-row class="p-2">
-                        <v-col md="6">
-                            <v-avatar color="black">
-                                <v-icon size="30" style="color:#FFF">mdi-card-account-mail-outline</v-icon>
-                            </v-avatar>
-                            <!-- <v-icon color="black" size="30" fill>mdi-card-account-mail-outline</v-icon> -->
-
-
-                        </v-col>
-
-                        <v-col md="6" class="menu-icon-right"> <v-icon>mdi-dots-vertical</v-icon></v-col>
-
-
-                        <v-col md="12" style="text-align:center;padding-top:0px">
-                            <div class="bold text-h3 black--text  ">{{ leaveRequests }}</div>
-
-                            <div>Leave Requests </div>
-                        </v-col>
-
-
-                    </v-row>
-                </v-card>
-            </v-col>
-        </v-row>
-
-    </div>
+                <div>Leave Requests</div>
+              </v-col>
+            </v-row>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
+  </div>
 </template>
-  
+
 <script>
 // import VueApexCharts from 'vue-apexcharts'
 export default {
+  data() {
+    return {
+      offlineDevices: 0,
+      leaveRequests: 0,
+      data: {
+        employeeCount: 3,
+        totalIn: 0,
+        totalOut: 0,
+        presentCount: 0,
+        absentCount: 0,
+        missingCount: 0,
+        offCount: 0,
+        holidayCount: 0,
+        leaveCount: 0,
+        vaccationCount: 0,
+      },
+    };
+  },
+  watch: {},
+  created() {},
+  mounted() {
+    setTimeout(() => {
+      this.getDataFromApi();
+    }, 1000 * 2);
+  },
 
-    data() {
-        return {
-            offlineDevices: 0,
-            leaveRequests: 0,
-            data: {
-                "employeeCount": 3,
-                "totalIn": 0,
-                "totalOut": 0,
-                "presentCount": 0,
-                "absentCount": 0,
-                "missingCount": 0,
-                "offCount": 0,
-                "holidayCount": 0,
-                "leaveCount": 0,
-                "vaccationCount": 0
-            }
-        };
+  methods: {
+    viewLogs() {
+      this.$router.push("/attendance_report");
     },
-    watch: {
-
-
-
-    },
-    created() {
-        this.getDataFromApi();
-
-
-    },
-    mounted() {
-
-
-    },
-
-    methods: {
-        getDataFromApi() {
-
-
-            let options = {
-                params: {
-
-                    company_id: this.$auth.user.company_id,
-                },
-            };
-
-            this.$axios.get('dashbaord_attendance_count', options).then(({ data }) => {
-
-                this.data = data;
-
-                this.getDeviceStatus();
-                this.getPendingLeavesCount();
-
-            });
+    getDataFromApi() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
         },
+      };
 
-        getDeviceStatus() {
-
-
-            this.$axios.get(`/devcie_count_Status/${this.$auth.user.company_id}`).then(({ data }) => {
-
-                this.offlineDevices = data.series ? data.series[1] : 0;
-
-
-            });
-        },
-        getPendingLeavesCount() {
-
-            let options = {
-                params: {
-                    company_id: this.$auth.user.company_id || 0,
-                },
-            };
-
-            this.$axios.get(`employee_leaves_new`, options).then(({ data }) => {
-
-                this.leaveRequests = data.total_pending_count;
-            });
-
-        }
+      this.$axios
+        .get("dashbaord_attendance_count", options)
+        .then(({ data }) => {
+          this.data = data;
+          setTimeout(() => {
+            this.getDeviceStatus();
+            this.getPendingLeavesCount();
+          }, 1000 * 2);
+        });
     },
+
+    getDeviceStatus() {
+      this.$axios
+        .get(`/devcie_count_Status/${this.$auth.user.company_id}`)
+        .then(({ data }) => {
+          this.offlineDevices = data.series ? data.series[1] : 0;
+        });
+    },
+    getPendingLeavesCount() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id || 0,
+        },
+      };
+
+      this.$axios.get(`employee_leaves_new`, options).then(({ data }) => {
+        this.leaveRequests = data.total_pending_count;
+      });
+    },
+  },
 };
 </script>
 
-
 <style>
 .menu-icon-right {
-    margin: auto;
-    text-align: right;
+  margin: auto;
+  text-align: right;
 }
 </style>
-  

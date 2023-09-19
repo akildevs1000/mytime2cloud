@@ -20,7 +20,7 @@
       {
         "icon": "mdi-appss",
         "title": "Dashbaord 2",
-        "to": "/dashboard/dashboard2",
+        "to": "/dashboard2",
         "menu": "dashboard_access"
       }
     ]
@@ -266,5 +266,11 @@
     "title": "Announcements",
     "open_menu": false,
     "to": "/announcement"
+  },
+  {
+    "icon": "mdi-web-box",
+    "title": "Web Login Log",
+    "open_menu": false,
+    "to": "/web_login_logs"
   }
 ]

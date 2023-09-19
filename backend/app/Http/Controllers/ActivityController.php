@@ -32,7 +32,11 @@ class ActivityController extends Controller
         $model->when($request->filled("type"), function ($q) use ($request) {
             return $q->where("type", $request->type);
         });
-        return $model->with('employee');
+        $model->with(['user' => function ($query) {
+            return   $query->with('employee');
+        }]);
+
+        return $model;
     }
 
     public function store(Request $request)

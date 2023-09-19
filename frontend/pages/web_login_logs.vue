@@ -25,85 +25,89 @@
     </v-row>
 
     <ComonPreloader icon="face-scan" v-if="loading" />
-
-    <v-data-table
-      dense
-      :headers="headers_table"
-      :items="logs"
-      :loading="loading"
-      :options.sync="options"
-      :footer-props="{
-        itemsPerPageOptions: [5, 10],
-      }"
-      :server-items-length="totalRowsCount"
-      hide-default-header
-    >
-      <template v-slot:item.employee.pic="{ item, index }">
-        <v-row no-gutters>
-          <v-col
-            style="
-              padding: 5px;
-              padding-left: 0px;
-              width: 30px;
-              max-width: 30px;
-            "
-          >
-            <v-img
+    <!-- <div v-else-if="!logs.length">No record found</div> -->
+    <v-card class="mb-5 mt-2 rounded-md" elevation="0">
+      <v-toolbar class="rounded-md" color="background" dense flat dark>
+        <v-toolbar-title><span> Web uesr Login List </span></v-toolbar-title>
+      </v-toolbar>
+      <v-data-table
+        dense
+        :headers="headers_table"
+        :items="logs"
+        :loading="loading"
+        :options.sync="options"
+        :footer-props="{
+          itemsPerPageOptions: [10, 50, 100],
+        }"
+        :server-items-length="totalRowsCount"
+      >
+        <template v-slot:item.employee.pic="{ item, index }">
+          <v-row no-gutters>
+            <v-col
               style="
-                border-radius: 50%;
-                height: auto;
+                padding: 5px;
+                padding-left: 0px;
                 width: 30px;
                 max-width: 30px;
               "
-              :src="
-                item.user.employee
-                  ? item.user.employee.profile_picture
-                  : '/no-profile-image.jpg'
-              "
             >
-            </v-img>
-          </v-col>
-        </v-row>
-      </template>
-      <template v-slot:item.employee.first_name="{ item, index }">
-        {{ item.user.employee ? item.user.employee.first_name : "Admin" }}
-        {{ item.user.employee ? item.user.employee.last_name : " " }}
+              <v-img
+                style="
+                  border-radius: 50%;
+                  height: auto;
+                  width: 30px;
+                  max-width: 30px;
+                "
+                :src="
+                  item.user.employee
+                    ? item.user.employee.profile_picture
+                    : '/no-profile-image.jpg'
+                "
+              >
+              </v-img>
+            </v-col>
+          </v-row>
+        </template>
+        <template v-slot:item.employee.first_name="{ item, index }">
+          {{ item.user.employee ? item.user.employee.first_name : "Admin" }}
+          {{ item.user.employee ? item.user.employee.last_name : " " }}
 
-        <div>
-          {{
-            item.user.employee && item.user.employee.department
-              ? caps(item.user.employee.department.name)
-              : "---"
-          }}
-        </div>
-      </template>
+          <div>
+            {{
+              item.user.employee && item.user.employee.department
+                ? caps(item.user.employee.department.name)
+                : "---"
+            }}
+          </div>
+        </template>
 
-      <template v-slot:item.UserID="{ item }"> #{{ item.UserID }} </template>
-      <template v-slot:item.employee.employee_id="{ item }">
-        {{ item.employee && item.employee.employee_id }}
-      </template>
-      <template v-slot:item.LogTime="{ item }" style="color: green">
-        <v-icon color="green" fill>mdi-clock-outline</v-icon
-        >{{ item.date_time }}
-      </template>
+        <template v-slot:item.UserID="{ item }"> #{{ item.UserID }} </template>
+        <template v-slot:item.employee.employee_id="{ item }">
+          {{ item.employee && item.employee.employee_id }}
+        </template>
+        <template v-slot:item.LogTime="{ item }" style="color: green">
+          <v-icon color="green" fill>mdi-clock-outline</v-icon
+          >{{ item.date_time }}
+        </template>
 
-      <template v-slot:item.online="{ item }">
-        <v-icon v-if="item.device.location" color="green" fill
-          >mdi-map-marker-radius</v-icon
-        >
-        <v-icon v-else color="red" fill>mdi-map-marker-radius</v-icon>
-      </template>
-      <template v-slot:item.device.device_name="{ item }">
-        <div :style="item.device.location ? 'color:green' : 'color: red;'">
-          {{ item.device ? caps(item.device.name) : "---" }} <br />
+        <template v-slot:item.online="{ item }">
+          <v-icon v-if="item.device.location" color="green" fill
+            >mdi-map-marker-radius</v-icon
+          >
+          <v-icon v-else color="red" fill>mdi-map-marker-radius</v-icon>
+        </template>
+        <template v-slot:item.device.device_name="{ item }">
+          <div :style="item.device.location ? 'color:green' : 'color: red;'">
+            {{ item.device ? caps(item.device.name) : "---" }} <br />
 
-          {{ item.device.location ? item.device.location : "---" }}
-        </div>
-      </template>
-    </v-data-table>
+            {{ item.device.location ? item.device.location : "---" }}
+          </div>
+        </template>
+      </v-data-table>
+    </v-card>
   </div>
 </template>
->
+
 <script>
 export default {
   data() {
@@ -123,7 +127,7 @@ export default {
         {
           text: "Pic",
           align: "left",
-          sortable: true,
+          sortable: false,
           filterable: true,
 
           value: "employee.pic",
@@ -131,16 +135,41 @@ export default {
         {
           text: "Employee Name",
           align: "left",
-          sortable: true,
+          sortable: false,
           filterable: true,
 
           value: "employee.first_name",
+        },
+        {
+          text: "Page",
+          align: "left",
+          sortable: false,
+          filterable: true,
+
+          value: "action",
+        },
+        {
+          text: "User ",
+          align: "left",
+          sortable: false,
+          filterable: true,
+
+          value: "user.user_type",
+        },
+
+        {
+          text: "Page",
+          align: "left",
+          sortable: false,
+          filterable: true,
+
+          value: "user.email",
         },
 
         {
           text: "Time",
           align: "left",
-          sortable: true,
+          sortable: false,
           filterable: true,
 
           value: "LogTime", //edit purpose
@@ -156,7 +185,10 @@ export default {
       deep: true,
     },
   },
-  mounted() {},
+  mounted() {
+    //this.socketConnection();
+    //this.getRecords();
+  },
   created() {},
   computed: {
     employees() {
@@ -184,14 +216,12 @@ export default {
       }
     },
     getRecords(filter_column = "", filter_value = "") {
-      this.loading = true;
-
       //let filter_value = this.datatable_search_textbox;
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
-
+      if (page == 1) this.loading = true;
       // if (this.filters) {
       //   page = 1;
       // }
@@ -242,10 +272,11 @@ export default {
       });
     },
     getDataFromApi() {
-      this.loading = true;
-
       const { page, itemsPerPage } = this.options;
-
+      console.log(page);
+      if (page == 1) {
+        this.loading = true;
+      }
       let options = {
         params: {
           page: page,
@@ -312,9 +343,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.v-application--is-ltr .v-data-footer__pagination {
-  margin: 0px;
-}
-</style>
