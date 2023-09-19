@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\Shift\RenderController;
+use App\Http\Controllers\AbsentController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log as Logger;
 
@@ -32,7 +32,7 @@ class SyncAbsent extends Command
         $id = $this->argument('id');
 
         try {
-            echo (new RenderController)->renderAbsentCron($id);
+            echo (new AbsentController)->renderAbsentCron($id);
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncAbsent. Error Details: ' . $th);
             echo "[" . date("Y-m-d H:i:s") . "] Cron: SyncAbsent. Error occurred while inserting logs.\n";
