@@ -90,7 +90,7 @@ class ScheduleEmployeeController extends Controller
 
     public function destroy($id)
     {
-        $record = ScheduleEmployee::where("employee_id", $id)->delete();
+        $record = ScheduleEmployee::where("id", $id)->delete();
 
         try {
             if ($record) {

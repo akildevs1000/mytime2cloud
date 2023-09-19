@@ -391,8 +391,8 @@ export default {
       let item = {
         shift_id: this.shifts[0].shift_id,
         shift_type_id: this.shifts[0].shift_type_id,
-        from_date: new Date().toJSON().slice(0, 10),
-        to_date: new Date().toJSON().slice(0, 10),
+        from_date: this.shifts[0].from_date,
+        to_date: this.shifts[0].to_date,
         is_over_time: false,
       };
 
@@ -638,7 +638,7 @@ export default {
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
       ) &&
         this.$axios
-          .delete("schedule_employees/" + item.employee.system_user_id)
+          .delete("schedule_employees/" + item.id)
           .then(({ data }) => {
             const index = this.employees.indexOf(item);
             this.employees.splice(index, 1);
