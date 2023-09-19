@@ -8,9 +8,9 @@
       fixed
       app
       :color="sideBarcolor"
-      :style="miniVariant ? 'width: 40px' : ''"
+      :style="miniVariant ? 'width: 60px' : ''"
       @transitionend="collapseSubItems"
-      class="leftMenuWidth"
+      :class="!miniVariant ? 'leftMenuWidth' : ''"
     >
       <br />
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
@@ -20,14 +20,13 @@
           v-if="!i.hasChildren"
           :class="!miniVariant || 'pl-2'"
           vertical
+          style="display: inline-block"
         >
-          <!-- <v-list-item-icon class="ma-2">
+          <v-list-item-icon class="ma-2" :title="i.title">
             <v-icon>{{ i.icon }}</v-icon>
-          </v-list-item-icon> -->
-          <v-list-item-title class="text-center p-3">
-            <div>
-              <v-icon class="p-2">{{ i.icon }}</v-icon>
-            </div>
+          </v-list-item-icon>
+
+          <v-list-item-title class="text-center p-2">
             {{ i.title }}&nbsp;
           </v-list-item-title>
         </v-list-item>
@@ -812,11 +811,13 @@ export default {
 .btn-text-size {
   font-size: 17px !important;
 }
-
 .leftMenuWidth {
-  width: 200px !important;
+  width: 180px !important;
 }
-
+.v-list-item {
+  text-align: center;
+  width: 100%;
+}
 .v-list-item--active i {
   color: #6946dd;
 }
