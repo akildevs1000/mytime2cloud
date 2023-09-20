@@ -78,7 +78,7 @@ class FlexibleOffController extends Controller
                 $week = $shift->weekend2 == "Flexi";
             }
 
-            if ($missingEmployee->schedule->shift_id && $missingEmployee->attendances_count != 0 && $week) {
+            if ($missingEmployee->schedule->shift_id && $missingEmployee->attendances_count == 0 && $week) {
                 $records[] = [
                     "company_id" => $company_id,
                     "date" => $date,

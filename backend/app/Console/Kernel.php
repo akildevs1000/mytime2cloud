@@ -174,16 +174,16 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/pdf.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        $schedule
-            ->command('task:assign_schedule_to_employee')
-            // ->everyThirtyMinutes()
-            // ->everyMinute()
-            ->dailyAt('1:30')
-            ->runInBackground()
-            ->withoutOverlapping()
-            // ->between('7:00', '23:59')
-            ->appendOutputTo(storage_path("logs/$date-assigned-schedule-emplyees.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        // $schedule
+        //     ->command('task:assign_schedule_to_employee')
+        //     // ->everyThirtyMinutes()
+        //     // ->everyMinute()
+        //     ->dailyAt('1:30')
+        //     ->runInBackground()
+        //     ->withoutOverlapping()
+        //     // ->between('7:00', '23:59')
+        //     ->appendOutputTo(storage_path("logs/$date-assigned-schedule-emplyees.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $payroll_settings = PayrollSetting::get(["id", "date", "company_id"]);
 
@@ -201,6 +201,12 @@ class Kernel extends ConsoleKernel
         $companyIds = Company::pluck("id");
 
         foreach ($companyIds as $companyId) {
+            $schedule
+            ->command("task:sync_monthly_flexible_holidays --company_id=$companyId")
+            ->everyMinute()
+            // ->dailyAt('00:30')
+            ->runInBackground()
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_absent $companyId")
@@ -226,13 +232,13 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("logs/$date-holidays-$companyId.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-            $schedule
-                ->command("task:sync_off $companyId")
-                // ->everyMinute()
-                ->dailyAt('2:30')
-                ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-offs-$companyId.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command("task:sync_off $companyId")
+            //     // ->everyMinute()
+            //     ->dailyAt('2:30')
+            //     ->runInBackground()
+            //     ->appendOutputTo(storage_path("logs/$date-offs-$companyId.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
         if (env("APP_ENV") == "production") {
