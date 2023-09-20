@@ -638,6 +638,12 @@
                   Edit
                 </v-list-item-title>
               </v-list-item>
+              <v-list-item @click="deleteItem(item, 'edit')">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="error" small> mdi-delete </v-icon>
+                  Delete
+                </v-list-item-title>
+              </v-list-item>
             </v-list>
           </v-menu>
         </template>
@@ -1275,7 +1281,7 @@ export default {
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
       ) &&
         this.$axios
-          .delete("schedule_employees/" + item.employee.system_user_id)
+          .delete("schedule_employees/" + item.id)
           .then(({ data }) => {
             const index = this.employees.indexOf(item);
             this.employees.splice(index, 1);
