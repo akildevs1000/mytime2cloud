@@ -33,7 +33,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [5, 10],
+        itemsPerPageOptions: [10, 20, 50],
       }"
       :server-items-length="totalRowsCount"
       hide-default-header
@@ -111,14 +111,16 @@ export default {
       loading: false,
       items: [],
       emptyLogmessage: "",
-      number_of_records: 5,
+      number_of_records: 20,
       logs: [],
       url: process.env.SOCKET_ENDPOINT,
       socket: null,
       totalRowsCount: 0,
 
       total: 0,
-      options: {},
+      options: {
+        itemsPerPage: 20,
+      },
       headers_table: [
         {
           text: "Pic",
