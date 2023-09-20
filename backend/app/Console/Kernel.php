@@ -205,6 +205,7 @@ class Kernel extends ConsoleKernel
             ->command("task:sync_monthly_flexible_holidays --company_id=$companyId")
             ->everyMinute()
             // ->dailyAt('00:30')
+            ->appendOutputTo(storage_path("logs/$date-monthly-flexible-holidays-$companyId.log"))
             ->runInBackground()
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
