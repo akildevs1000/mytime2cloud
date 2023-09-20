@@ -6,6 +6,7 @@ use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Models\AttendanceLog;
 use App\Models\Attendance;
 use App\Models\Device;
+use App\Models\Employee;
 use App\Models\ScheduleEmployee;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,55 +14,54 @@ use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
 {
-    public function seedDefaultData()
-    {        
-        $scheduleEmployees = ScheduleEmployee::withOut("shift", "shift_type")
-            ->get([
-                "shift_id",
-                "employee_id",
-                "shift_type_id",
-                "company_id",
-            ]);
+    public function seedDefaultData($company_id, $employee_id, $day_count)
+    {
+        $model = Employee::query();
+        $model->withOut(["department", "designation", "sub_department"]);
+        $model->where("company_id", $company_id);
+        $model->where("employee_id", $employee_id);
+        $model->with(["schedule" => function ($q) {
+            $q->whereHas("shift");
+            $q->withOut(["shift", "shift_type"]);
+            $q->select("shift_id", "shift_type_id", "employee_id");
+        }]);
+        $first = $model->first("system_user_id", "company_id", "employee_id");
 
-        if ($scheduleEmployees->isEmpty()) {
-            $message = "Cron AttendanceSeeder: No record found.";
-            info($message);
-            return $message;
+        // $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
+
+        if (!$first) {
+            info("No employee found");
+            return;
         }
 
-        $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
+        $data = [];
 
-        $arr = [];
-
-
-        foreach ($scheduleEmployees as $scheduleEmployee) {
-            foreach (range(1, $daysInMonth) as $day) {
-                $arr[] = [
-                    "date" => date("Y-m-") . ($day < 10 ? '0' . $day : $day),
-                    "employee_id" => $scheduleEmployee->employee_id,
-                    "shift_id" => $scheduleEmployee->shift_id,
-                    "shift_type_id" => $scheduleEmployee->shift_type_id,
-                    "status" => "---",
-                    "in" => "---",
-                    "out" => "---",
-                    "total_hrs" => "---",
-                    "ot" => "---",
-                    "late_coming" => "---",
-                    "early_going" => "---",
-                    "device_id_in" => "---",
-                    "device_id_out" => "---",
-                    "company_id" => $scheduleEmployee->company_id,
-                ];
-            }
+        foreach (range(1, $day_count) as $day) {
+            $data[] = [
+                "date" => date("Y-m-") . sprintf("%02d", $day),
+                "employee_id" => $employee_id,
+                "shift_id" => $first->schedule->shift_id,
+                "shift_type_id" => $first->schedule->shift_type_id,
+                "status" => "A",
+                "in" => "---",
+                "out" => "---",
+                "total_hrs" => "---",
+                "ot" => "---",
+                "late_coming" => "---",
+                "early_going" => "---",
+                "device_id_in" => "---",
+                "device_id_out" => "---",
+                "company_id" => $company_id,
+            ];
         }
 
         $attendance = Attendance::query();
-        $attendance->whereIn("date", array_column($arr, "date"));
-        $attendance->where("employee_id", $scheduleEmployees->pluck("employee_id"));
-        $attendance->where("company_id", $scheduleEmployees->pluck("company_id"));
+        $attendance->whereIn("date", array_column($data, "date"));
+        $attendance->where("employee_id", $employee_id);
+        $attendance->where("company_id", $company_id);
         $attendance->delete();
-        $attendance->insert($arr);
-        $message = "Cron AttendanceSeeder: " . count($arr) . " record has been inserted.";
+        $attendance->insert($data);
+        $message = "Cron AttendanceSeeder: " . count($data) . " record has been inserted.";
 
         info($message);
 
@@ -69,7 +69,7 @@ class AttendanceController extends Controller
     }
 
     public function seedDefaultDataManual(Request $request)
-    {        
+    {
         $scheduleEmployees = ScheduleEmployee::withOut("shift", "shift_type")
             ->where("company_id", $request->company_id)
             ->get([

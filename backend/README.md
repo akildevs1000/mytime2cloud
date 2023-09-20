@@ -57,3 +57,6 @@ $ sudo systemctl restart nginx
 
 SDK Live port : 9001
 SDK Live port : 9001
+
+laravel Commands
+php artisan task:attendance_seeder --company_id=8 --employee_id=5656 --day_count=10

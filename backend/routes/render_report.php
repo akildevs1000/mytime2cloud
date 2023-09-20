@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AbsentController;
 use App\Http\Controllers\FlexibleOffController;
+use App\Http\Controllers\MonthlyFlexibleHolidaysController;
 use App\Http\Controllers\OffByDayController;
 use App\Http\Controllers\Shift\RenderController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,9 @@ Route::get('render_flexible_off_week2', [FlexibleOffController::class, 'renderFl
 
 Route::get('render_off_by_day_week1', [OffByDayController::class, 'renderOffByDayWeek1']);
 Route::get('render_off_by_day_week2', [OffByDayController::class, 'renderOffByDayWeek2']);
+
+
+Route::get('render_monthly_flexible_holidays', [MonthlyFlexibleHolidaysController::class, 'renderMonthlyFlexibleHolidays']);
 
 Route::get('render_off_by_day', [RenderController::class, 'renderOffByDay']);
 Route::get('render_leaves/{company_id}', [RenderController::class, 'renderLeaves']);
