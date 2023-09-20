@@ -69,6 +69,12 @@ class Employee extends Model
     {
         return $this->belongsTo(LeaveGroups::class, "leave_group_id", "id");
     }
+    public function reporting_manager()
+    {
+        return $this->belongsTo(Employee::class, "reporting_manager_id", "id");
+    }
+
+
     public function role()
     {
         return $this->belongsTo(Role::class)->withDefault([
@@ -96,7 +102,10 @@ class Employee extends Model
             "emirate_id" => "---",
         ]);
     }
-
+    public function visa()
+    {
+        return $this->hasOne(Visa::class);
+    }
     public function qualification()
     {
         return $this->hasOne(Qualification::class)->withDefault([
@@ -200,6 +209,9 @@ class Employee extends Model
         return $this->belongsToMany(Employee::class, 'employee_report', 'employee_id', 'report_id')->withTimestamps();
     }
 
+
+
+
     public function leave()
     {
         return $this->hasMany(Leave::class, 'employee_id', 'employee_id');
@@ -250,7 +262,7 @@ class Employee extends Model
         ])
             ->with([
                 "reportTo", "department", "sub_department", "designation", "payroll", "timezone", "passport",
-                "emirate", "qualification", "bank", "leave_group",
+                "emirate", "qualification", "bank", "leave_group",  "Visa", "reporting_manager",
             ])
             ->with(["schedule" => function ($q) {
                 $q->with("roster");

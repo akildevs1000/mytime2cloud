@@ -401,7 +401,10 @@
       </v-snackbar>
     </v-app-bar>
 
-    <v-main class="main_bg">
+    <v-main
+      class="main_bg"
+      :style="miniVariant ? 'padding-left: 60px;' : 'padding-left: 180px;'"
+    >
       <v-container style="max-width: 100%">
         <nuxt />
       </v-container>
@@ -892,6 +895,9 @@ export default {
 .leftMenuWidth {
   width: 180px !important;
 }
+.main_bg {
+  padding-left: 200px;
+}
 .v-list-item {
   text-align: center;
   width: 100%;
@@ -924,5 +930,19 @@ header i {
 .theme--dark.v-bottom-navigation .v-btn--active {
   background: rgb(105, 70, 221);
   color: #fff !important;
+}
+</style>
+
+<style>
+.view-profile-table-lineheight {
+  line-height: 40px;
+  width: 100%;
+}
+.view-profile-table-lineheight tr {
+  border-bottom: 1px solid #ddd;
+}
+
+.whitebackground--text {
+  background-color: #ddd;
 }
 </style>

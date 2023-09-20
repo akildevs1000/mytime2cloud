@@ -356,10 +356,14 @@
         <v-dialog
           persistent
           v-model="viewDialog"
-          width="1200"
+          width="1400px"
           :key="employeeId"
         >
-          <EmployeeDetails
+          <!-- <EmployeeDetails
+            @close-parent-dialog="closeViewDialog"
+            :employeeObject="employeeObject"
+          /> -->
+          <EmployeeDetails2
             @close-parent-dialog="closeViewDialog"
             :employeeObject="employeeObject"
           />
@@ -421,14 +425,16 @@
 
       <div v-if="can(`employee_view`)">
         <v-container>
-          <Back class="primary white--text" />
+          <!-- <Back class="primary white--text" /> -->
 
           <v-card elevation="0" class="mt-2">
-            <v-toolbar class="mb-2 white--text" color="background" dense flat>
+            <v-toolbar class="mb-2 white--text" color="white" dense flat>
               <v-toolbar-title>
-                <span> {{ Model }}s </span></v-toolbar-title
+                <span style="color: black">
+                  {{ Model }}s
+                </span></v-toolbar-title
               >
-              <v-tooltip top color="primary">
+              <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     dense
@@ -449,7 +455,7 @@
                   </v-btn>
                 </template>
                 <span>Reload</span>
-              </v-tooltip>
+              </v-tooltip> -->
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
@@ -461,10 +467,7 @@
                     v-bind="attrs"
                     v-on="on"
                   >
-                    <v-icon
-                      color="white"
-                      @click="toggleFilter"
-                      class="mx-1 ml-2"
+                    <v-icon @click="toggleFilter" class="mx-1 ml-2"
                       >mdi mdi-filter</v-icon
                     >
                   </v-btn>
@@ -485,9 +488,7 @@
                     v-on="on"
                     @click="dialog = true"
                   >
-                    <v-icon color="white" right dark size="x-large"
-                      >mdi-cloud-upload</v-icon
-                    >
+                    <v-icon right dark size="x-large">mdi-cloud-upload</v-icon>
                   </v-btn>
                 </template>
                 <span>Import</span>
@@ -503,7 +504,7 @@
                     v-on="on"
                     @click="export_submit"
                   >
-                    <v-icon color="white" right size="x-large" dark
+                    <v-icon right size="x-large" dark
                       >mdi-cloud-download</v-icon
                     >
                   </v-btn>
@@ -523,7 +524,6 @@
                     @click="employeeDialog = true"
                   >
                     <v-icon
-                      color="white"
                       right
                       size="x-large"
                       dark
@@ -1098,7 +1098,8 @@ export default {
       // Define an array of day names
       const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
       const dayName = daysOfWeek[new Date().getDay()];
-      const { shift_name } = item && item.roster.json.find((e) => e.day == dayName);
+      const { shift_name } =
+        item && item.roster.json.find((e) => e.day == dayName);
 
       return shift_name || "---";
     },

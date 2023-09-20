@@ -359,8 +359,8 @@ export default {
     this.getSubDepartments();
     this.getDesignations();
     this.getRoles();
-    //this.getLeaveGroups();
-    //this.getLeaveManagers();
+    this.getLeaveGroups();
+    this.getLeaveManagers();
 
     try {
       let employee_id = this.$route.params.id;
@@ -408,23 +408,20 @@ export default {
         this.roles = data.data;
       });
     },
-    // getLeaveGroups() {
-    //   this.payloadOptions.params.company_id = this.$auth.user.company_id;
+    getLeaveGroups() {
+      this.payloadOptions.params.company_id = this.$auth.user.company_id;
 
-    //   this.$axios.get(`leave_groups`, this.payloadOptions).then(({ data }) => {
-    //     this.leave_groups = data.data;
+      this.$axios.get(`leave_groups`, this.payloadOptions).then(({ data }) => {
+        this.leave_groups = data.data;
+      });
+    },
+    getLeaveManagers() {
+      this.payloadOptions.params.company_id = this.$auth.user.company_id;
 
-    //   });
-    // },
-    // getLeaveManagers() {
-
-    //   this.payloadOptions.params.company_id = this.$auth.user.company_id;
-
-    //   this.$axios.get(`employeesList`, this.payloadOptions).then(({ data }) => {
-    //     this.leave_managers = data.data;
-
-    //   });
-    // },
+      this.$axios.get(`employeesList`, this.payloadOptions).then(({ data }) => {
+        this.leave_managers = data.data;
+      });
+    },
     // getEmployeeName(item) {
 
     //   return item.first_name ? item.first_name + ' ' + item.last_name : '---';

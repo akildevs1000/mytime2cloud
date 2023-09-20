@@ -133,7 +133,10 @@ class DeviceController extends Controller
 
             $query->select('system_user_id')->from('employees')->where('employees.company_id', $request->company_id);
         });
+        $model->when($request->filled('system_user_id'), function ($q) use ($request) {
 
+            $q->Where('UserID',   $request->system_user_id);
+        });
         $model->when($request->filled('search_time'), function ($q) use ($request) {
             $key = date('Y-m-d') . ' ' . $request->search_time;
             $q->Where('LogTime', 'LIKE', "$key%");

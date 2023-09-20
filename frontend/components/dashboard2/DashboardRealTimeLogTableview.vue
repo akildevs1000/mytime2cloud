@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-row>
-      <v-col md="10" sm="10" xs="10">
+      <v-col md="10" sm="10" xs="10" class="pl-5">
         <h5>Recent Employee Logs on Devices</h5>
       </v-col>
 
@@ -147,13 +147,14 @@
     </v-data-table>
   </div>
 </template>
->
+
 <script>
 export default {
+  props: ["system_user_id"],
   data() {
     return {
       componentKey: 1,
-      system_user_id: "0",
+
       dialogEmployeeAttendance: false,
       loading: false,
       items: [],
@@ -167,14 +168,14 @@ export default {
       total: 0,
       options: {},
       headers_table: [
-        {
-          text: "#E.ID",
-          align: "left",
-          sortable: true,
-          filterable: true,
+        // {
+        //   text: "#E.ID",
+        //   align: "left",
+        //   sortable: true,
+        //   filterable: true,
 
-          value: "UserID",
-        },
+        //   value: "UserID",
+        // },
         {
           text: "Employee   Id",
           align: "left",
@@ -305,6 +306,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage1,
           filter_column: filter_value,
+          system_user_id: this.system_user_id,
           ...this.filters,
         },
       };
