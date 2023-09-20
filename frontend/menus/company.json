@@ -1,5 +1,55 @@
 [
   {
+    "icon": "mdi-view-dashboard",
+    "title": "Dashboard",
+    "to": "/dashboard2",
+    "click": "dashboard",
+    "menu": "branch_access",
+    "module": "dashboard"
+  },
+  {
+    "icon": "mdi-account-tie",
+    "title": "Employees",
+
+    "to": "/employees",
+    "menu": "branch_access",
+    "click": "employees",
+    "module": "dashboard"
+  },
+  {
+    "icon": "mdi-clock-time-five-outline",
+    "title": "Attendance",
+    "to": "/dashboard/1",
+    "menu": "branch_access",
+    "click": "attendance",
+    "module": "dashboard"
+  },
+  {
+    "icon": "mdi-cash-multiple",
+    "title": "Payroll",
+    "to": "/payroll/salary",
+    "menu": "branch_access",
+    "click": "payroll",
+    "module": "dashboard"
+  },
+  {
+    "icon": "mdi-security",
+    "title": "Access Control",
+    "to": "/timezone",
+    "menu": "branch_access",
+    "click": "access_control",
+    "module": "dashboard"
+  },
+
+  {
+    "icon": "mdi-transit-transfer",
+    "title": "Visitor App",
+    "to": "/visitor-dashboard",
+    "menu": "branch_access",
+    "click": "visitors",
+    "module": "dashboard"
+  },
+  {
     "icon": "mdi-filmstrip-box-multiple",
     "title": "Branches",
     "to": "/branches",

@@ -20,7 +20,8 @@
         :title="i.title"
       >
         <v-list-item
-          :to="i.to"
+          :to="i.module != 'dashboard' ? i.to : ''"
+          @click="getTopMenuItems(i)"
           router
           v-if="!i.hasChildren"
           :class="!miniVariant || 'pl-2'"
@@ -139,7 +140,79 @@
 
       <v-spacer></v-spacer>
       <span style="100%">
-        <v-bottom-navigation
+        <template>
+          <v-row align="center" justify="space-around" class="">
+            <v-col>
+              <v-btn
+                small
+                text
+                class="btn-text-size"
+                :elevation="0"
+                :color="menuProperties['dashboard'].selected"
+                fill
+                @click="setTopMenuItems('dashboard', '/dashboard2')"
+              >
+                <span>Dashboard</span>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn
+                text
+                class="btn-text-size d-none d-lg-block"
+                :elevation="0"
+                :color="menuProperties['employees'].selected"
+                @click="setTopMenuItems('employees', '/employees')"
+              >
+                <span>Employees</span>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn
+                text
+                class="btn-text-size d-none d-lg-block"
+                :elevation="menuProperties['attendance'].elevation"
+                :color="menuProperties['attendance'].selected"
+                @click="setTopMenuItems('attendance', '/dashboard/1')"
+              >
+                <span>Attendance</span>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn
+                text
+                class="btn-text-size d-none d-lg-block"
+                :elevation="menuProperties['payroll'].elevation"
+                :color="menuProperties['payroll'].selected"
+                @click="setTopMenuItems('payroll', '/payroll/salary')"
+              >
+                <span>Payroll</span>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn
+                text
+                class="btn-text-size d-none d-lg-block"
+                :elevation="menuProperties['access_control'].elevation"
+                :color="menuProperties['access_control'].selected"
+                @click="setTopMenuItems('access_control', '/timezone')"
+              >
+                <span>Access Control </span>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn
+                text
+                class="btn-text-size d-none d-lg-block"
+                :elevation="menuProperties['visitors'].elevation"
+                :color="menuProperties['visitors'].selected"
+                @click="setTopMenuItems('visitors', '/visitor-dashboard')"
+              >
+                <span>Visitor App</span>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </template>
+        <!-- <v-bottom-navigation
           :elevation="0"
           plain
           dense
@@ -155,19 +228,9 @@
           >
             <span>Dashboard</span>
 
-            <!-- <v-icon>mdi-view-dashboard</v-icon> -->
-          </v-btn>
-          <!-- <v-btn
-            text
-            class="btn-text-size"
-            :elevation="0"
-            :color="menuProperties['settings'].selected"
-            @click="setTopMenuItems('settings', '/branches')"
-          >
-            <span>Settings</span>
-
             
-          </v-btn> -->
+          </v-btn>
+           
 
           <v-btn
             text
@@ -178,7 +241,7 @@
           >
             <span>Employees</span>
 
-            <!-- <v-icon>mdi-account-tie</v-icon> -->
+            
           </v-btn>
 
           <v-btn
@@ -190,7 +253,7 @@
           >
             <span>Attendance</span>
 
-            <!-- <v-icon>mdi-calendar-clock</v-icon> -->
+             
           </v-btn>
           <v-btn
             text
@@ -201,7 +264,7 @@
           >
             <span>Payroll</span>
 
-            <!-- <v-icon>mdi-cash-multiple</v-icon> -->
+             
           </v-btn>
           <v-btn
             text
@@ -212,7 +275,7 @@
           >
             <span>Access Control </span>
 
-            <!-- <v-icon>mdi-security</v-icon> -->
+             
           </v-btn>
           <v-btn
             text
@@ -223,9 +286,9 @@
           >
             <span>Visitor App</span>
 
-            <!-- <v-icon>mdi-account-check-outline</v-icon> -->
+            
           </v-btn>
-        </v-bottom-navigation>
+        </v-bottom-navigation> -->
       </span>
       <v-spacer></v-spacer>
       <v-menu
@@ -620,13 +683,19 @@ export default {
     },
   },
   methods: {
+    getTopMenuItems(i) {
+      console.log(i.module);
+      if (i.module == "dashboard") {
+        this.setTopMenuItems(i.click, i.to);
+      }
+    },
     goToSettings() {
       this.setTopMenuItems("settings", "/branches");
     },
     setTopMenuItems(menu_name, page) {
       this.topMenu_Selected = menu_name;
 
-      let bgColor = "#6946dd";
+      let bgColor = "violet";
       this.setMenus();
 
       // Check if menu_name exists in menuProperties
@@ -818,7 +887,7 @@ export default {
 </script>
 <style scoped>
 .btn-text-size {
-  font-size: 17px !important;
+  font-size: 15px !important;
 }
 .leftMenuWidth {
   width: 180px !important;

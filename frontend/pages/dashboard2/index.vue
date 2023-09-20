@@ -33,7 +33,13 @@
             </v-card>
           </v-col>
         </v-row>
-
+        <v-row>
+          <v-col lg="12" md="12" sm="12" xs="12">
+            <v-card class="py-2" style="min-height: 300px">
+              <DashboardRealTimeLogTableview />
+            </v-card>
+          </v-col>
+        </v-row>
         <v-row class="d-xs-flex">
           <v-col
             lg="6"
@@ -57,14 +63,6 @@
                 :name="'AttendanceChart2'"
                 :height="'200'"
               />
-            </v-card>
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col lg="12" md="12" sm="12" xs="12">
-            <v-card class="py-2" style="min-height: 300px">
-              <DashboardRealTimeLogTableview />
             </v-card>
           </v-col>
         </v-row>
