@@ -353,12 +353,7 @@
         </v-card>
       </v-dialog>
       <div class="text-center">
-        <v-dialog
-          persistent
-          v-model="viewDialog"
-          width="1400px"
-          :key="employeeId"
-        >
+        <v-dialog v-model="viewDialog" width="1400px" :key="employeeId">
           <!-- <EmployeeDetails
             @close-parent-dialog="closeViewDialog"
             :employeeObject="employeeObject"
@@ -476,8 +471,42 @@
               </v-tooltip>
 
               <v-spacer></v-spacer>
+              <!-- <v-btn rounded color="grey" dark flat> Rounded Button </v-btn>
+              <v-btn color="blue-grey">Import </v-btn>
+              <v-btn text>Import </v-btn>
+              <v-btn text>Export </v-btn>
+              <v-btn text> New </v-btn> -->
 
-              <v-tooltip top color="primary">
+              <v-icon
+                title="Upload"
+                @click="dialog = true"
+                right
+                dark
+                color="black"
+                size="x-large"
+                >mdi-arrow-up-bold-circle</v-icon
+              >
+              <v-icon
+                title="Download"
+                @click="export_submit"
+                right
+                dark
+                color="black"
+                size="x-large"
+                >mdi-arrow-down-bold-circle</v-icon
+              >
+
+              <v-icon
+                title="New Employee"
+                @click="employeeDialog = true"
+                right
+                dark
+                color="black"
+                size="x-large"
+                >mdi-plus-circle</v-icon
+              >
+
+              <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     dense
@@ -488,11 +517,17 @@
                     v-on="on"
                     @click="dialog = true"
                   >
-                    <v-icon right dark size="x-large">mdi-cloud-upload</v-icon>
+                    <v-icon
+                      right
+                      dark
+                      size="x-large"
+                      style="transform: rotate(180deg)"
+                      >mdi-download-circle</v-icon
+                    >
                   </v-btn>
                 </template>
                 <span>Import</span>
-              </v-tooltip>
+              </v-tooltip> 
               <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
@@ -505,7 +540,7 @@
                     @click="export_submit"
                   >
                     <v-icon right size="x-large" dark
-                      >mdi-cloud-download</v-icon
+                      >mdi-download-circle</v-icon
                     >
                   </v-btn>
                 </template>
@@ -533,7 +568,7 @@
                   </v-btn>
                 </template>
                 <span>Add New Employee</span>
-              </v-tooltip>
+              </v-tooltip>-->
             </v-toolbar>
             <v-data-table
               dense

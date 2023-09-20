@@ -403,7 +403,7 @@
 
     <v-main
       class="main_bg"
-      :style="miniVariant ? 'padding-left: 60px;' : 'padding-left: 180px;'"
+      :style="miniVariant ? 'padding-left: 60px;' : 'padding-left: 140px;'"
     >
       <v-container style="max-width: 100%">
         <nuxt />
@@ -893,10 +893,10 @@ export default {
   font-size: 15px !important;
 }
 .leftMenuWidth {
-  width: 180px !important;
+  width: 140px !important;
 }
 .main_bg {
-  padding-left: 200px;
+  padding-left: 140px;
 }
 .v-list-item {
   text-align: center;

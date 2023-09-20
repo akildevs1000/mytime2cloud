@@ -53,7 +53,7 @@
       dense
       :headers="headers_table"
       :items="logs"
-      :loading="loading"
+      :loading="tableloading"
       :options.sync="options"
       :footer-props="{
         itemsPerPageOptions: [5, 10, 50, 100, 500, 1000],
@@ -157,6 +157,7 @@ export default {
 
       dialogEmployeeAttendance: false,
       loading: false,
+      tableloading: false,
       items: [],
       emptyLogmessage: "",
       number_of_records: 5,
@@ -285,10 +286,13 @@ export default {
       }
     },
     getRecords(filter_column = "", filter_value = "") {
-      this.loading = true;
-
+      this.tableloading = true;
       //let filter_value = this.datatable_search_textbox;
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      if (page == 1) {
+        this.loading = true;
+      }
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
@@ -321,6 +325,7 @@ export default {
           this.totalRowsCount = data.total;
           this.logs = data.data;
           this.loading = false;
+          this.tableloading = false;
         });
     },
     socketConnection() {
@@ -350,7 +355,7 @@ export default {
     },
     getDataFromApi() {
       this.loading = true;
-
+      this.tableloading = true;
       const { page, itemsPerPage } = this.options;
 
       let options = {
@@ -366,6 +371,7 @@ export default {
         )
         .then(async ({ data }) => {
           this.loading = false;
+          this.tableloading = false;
           this.total = data.total;
           this.logs = await data.data.map((e) => ({
             UserCode: e.UserID,

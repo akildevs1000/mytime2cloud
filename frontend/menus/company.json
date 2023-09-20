@@ -43,7 +43,7 @@
 
   {
     "icon": "mdi-transit-transfer",
-    "title": "Visitor App",
+    "title": "Visitors",
     "to": "/visitor-dashboard",
     "menu": "branch_access",
     "click": "visitors",
@@ -58,7 +58,7 @@
   },
   {
     "icon": "mdi-email",
-    "title": "Mail Notifications",
+    "title": "Notifications",
     "to": "/report_notifications",
     "menu": "notifications_access",
     "module": "settings"
@@ -89,14 +89,14 @@
   },
   {
     "icon": "mdi-security",
-    "title": "Assign Permissions",
+    "title": "Permissions",
     "to": "/assign_permission",
     "menu": "assign_permission_access",
     "module": "settings"
   },
   {
     "icon": "mdi-star-box-multiple-outline",
-    "title": "Assign Departments",
+    "title": "Departments",
     "to": "/department-mapping/",
     "menu": "assign_permission_access",
     "module": "settings"
@@ -126,7 +126,7 @@
   },
   {
     "icon": "mdi-web-box",
-    "title": "Web Login Log",
+    "title": "Web Logins",
     "open_menu": false,
     "to": "/web_login_logs",
     "module": "settings"
@@ -140,14 +140,14 @@
   },
   {
     "icon": "mdi-monitor-dashboard",
-    "title": "Dashboard Multi  ",
+    "title": "Multi ",
     "to": "/dashboard/1",
     "menu": "dashboard_access",
     "module": "attendance"
   },
   {
     "icon": "mdi-apps",
-    "title": "Dashboard General",
+    "title": "General",
     "to": "/dashboard/2",
     "menu": "dashboard_access",
     "module": "attendance"
@@ -163,21 +163,21 @@
 
   {
     "icon": "mdi-account-tie",
-    "title": "Employee Schedule",
+    "title": "Schedule",
     "to": "/employee_schedule",
     "menu": "employee_schedule_access",
     "module": "attendance"
   },
   {
     "icon": "mdi-clipboard-text-clock",
-    "title": "Attendances Logs",
+    "title": "Attendances",
     "to": "/devicelogs",
     "menu": "logs_access",
     "module": "attendance"
   },
   {
     "icon": "mdi-calendar-today",
-    "title": "Attendances Reports",
+    "title": "Reports",
     "to": "/attendance_report",
     "menu": "attendance_report_access",
     "module": "attendance"
@@ -191,28 +191,28 @@
   },
   {
     "icon": "mdi mdi-calculator",
-    "title": "Payroll Settings",
+    "title": "Settings",
     "to": "/payroll/create",
     "menu": "payroll_settings_access",
     "module": "payroll"
   },
   {
     "icon": "mdi mdi-calendar-account",
-    "title": "Leave Applications",
+    "title": "Leaves",
     "to": "/leaves",
     "menu": "leave_application_access",
     "module": "payroll"
   },
   {
     "icon": "mdi mdi-calendar",
-    "title": "Leave Types",
+    "title": "Types",
     "to": "/leavetype",
     "menu": "leave_type_accessss",
     "module": "payroll"
   },
   {
     "icon": "mdi mdi-calendar-text",
-    "title": "Leave Groups",
+    "title": "Groups",
     "to": "/leavegroups",
     "menu": "leave_group_access",
     "module": "payroll"
@@ -226,14 +226,14 @@
   },
   {
     "icon": "mdi mdi-credit-card-clock-outline",
-    "title": "TImezone Mapped List",
+    "title": "Mapped List",
     "to": "/timezonemapping/list",
     "menu": "timezone_mapping_list",
     "module": "access_control"
   },
   {
     "icon": "mdi mdi-camera-account",
-    "title": "Employee Photo Upload",
+    "title": "Photo Upload",
     "to": "/employee_photo_upload",
     "menu": "employee_photo_upload",
     "module": "access_control"
@@ -248,7 +248,7 @@
   },
   {
     "icon": "mdi-chart-box-outline",
-    "title": "Visitors Report",
+    "title": "Reports",
     "to": "/visitors_report",
     "menu": true,
     "module": "visitors"
@@ -283,7 +283,7 @@
   },
   {
     "icon": "mdi-chart-box-outline",
-    "title": "Visitors Logs",
+    "title": "Logs",
     "to": "/visitor_logs",
     "menu": true,
     "module": "visitors"

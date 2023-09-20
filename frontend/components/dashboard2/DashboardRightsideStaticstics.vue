@@ -231,9 +231,9 @@
                     </v-btn>
                   </template>
                   <v-list width="120" dense>
-                    <v-list-item @click="viewLogs()">
+                    <v-list-item @click="viewLeaves()">
                       <v-list-item-title style="cursor: pointer">
-                        View Logs
+                        View Leaves
                       </v-list-item-title>
                     </v-list-item>
                   </v-list>
@@ -284,6 +284,9 @@ export default {
   },
 
   methods: {
+    viewLeaves() {
+      this.$router.push("/leaves");
+    },
     viewLogs() {
       this.$router.push("/attendance_report");
     },
