@@ -2,10 +2,10 @@
   <div v-if="can(`attendance_report_access`)">
     <Back class="primary white--text" />
     <v-card elevation="0" class="mt-2" v-if="can(`attendance_report_view`)">
-      <v-toolbar class="background" dense flat>
-        <span class="headline white--text"> {{ title }} Filters </span>
+      <v-toolbar dense flat>
+        <span class="headline black--text"> {{ title }} Filters </span>
       </v-toolbar>
-
+      <v-divider></v-divider>
       <v-card-text class="py-3">
         <v-row>
           <v-col md="2">
@@ -52,8 +52,19 @@
               :hide-details="true"
             ></v-autocomplete>
           </v-col>
-        </v-row>
-        <v-row>
+          <v-col md="2">
+            <div>Report Templates</div>
+            <v-autocomplete
+              class="mt-2"
+              outlined
+              dense
+              v-model="report_template"
+              x-small
+              :items="['Template1', 'Template2']"
+              item-text="['Daily']"
+              :hide-details="true"
+            ></v-autocomplete>
+          </v-col>
           <v-col md="2">
             <div>Frequency</div>
             <v-autocomplete
@@ -67,7 +78,7 @@
               :hide-details="true"
             ></v-autocomplete>
           </v-col>
-          <v-col md="2" v-if="report_type == 'Daily'">
+          <v-col md="1" v-if="report_type == 'Daily'">
             <div>Date</div>
             <div class="text-left mt-2">
               <v-menu
@@ -107,7 +118,7 @@
               </v-menu>
             </div>
           </v-col>
-          <v-col md="2" v-if="report_type !== 'Daily'">
+          <v-col md="1" v-if="report_type !== 'Daily'">
             <div class="text-left">
               <v-menu
                 ref="from_menu"
@@ -146,7 +157,7 @@
               </v-menu>
             </div>
           </v-col>
-          <v-col md="2" v-if="report_type !== 'Daily'">
+          <v-col md="1" v-if="report_type !== 'Daily'">
             <div class="mb-2">To Date</div>
 
             <div class="text-left">
@@ -192,21 +203,6 @@
             </div>
           </v-col>
         </v-row>
-        <v-row>
-          <v-col md="2">
-            <div>Report Templates</div>
-            <v-autocomplete
-              class="mt-2"
-              outlined
-              dense
-              v-model="report_template"
-              x-small
-              :items="['Template1', 'Template2']"
-              item-text="['Daily']"
-              :hide-details="true"
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
       </v-card-text>
     </v-card>
     <v-card
@@ -214,14 +210,14 @@
       elevation="0"
       v-if="can(`attendance_report_view`)"
     >
-      <v-tabs v-model="tab" background-color="background" right dark>
-        <v-tabs-slider></v-tabs-slider>
+      <v-tabs v-model="tab" background-color="popup_background" right dark>
+        <v-tabs-slider class="violet"></v-tabs-slider>
 
-        <v-tab href="#tab-1"> Single </v-tab>
+        <v-tab href="#tab-1" class="black--text"> Single </v-tab>
 
-        <v-tab href="#tab-2"> Double </v-tab>
+        <v-tab href="#tab-2" class="black--text"> Double </v-tab>
 
-        <v-tab href="#tab-3"> Multi </v-tab>
+        <v-tab href="#tab-3" class="black--text"> Multi </v-tab>
       </v-tabs>
 
       <v-tabs-items v-model="tab">

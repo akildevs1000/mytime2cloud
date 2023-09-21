@@ -23,13 +23,13 @@ class EmployeeLeavesController extends Controller
             $q->where('employee_id', $request->employee_id);
         });
         $model->when($request->filled('employee_name'), function ($q) use ($request) {
-            $q->whereHas('employee', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_name%"));
+            $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_name%"));
         });
         // $model->when($request->filled('group_name'), function ($q) use ($request) {
         //     $q->whereHas('employee.leave_group', fn(Builder $query) => $query->where('group_name', 'ILIKE', "$request->group_name%"));
         // });
         $model->when($request->filled('group_name_id'), function ($q) use ($request) {
-            $q->whereHas('employee', fn(Builder $query) => $query->where('leave_group_id', $request->group_name_id));
+            $q->whereHas('employee', fn (Builder $query) => $query->where('leave_group_id', $request->group_name_id));
         });
         $model->when($request->filled('leave_type_id'), function ($q) use ($request) {
             $q->where('leave_type_id', $request->leave_type_id);
@@ -44,7 +44,7 @@ class EmployeeLeavesController extends Controller
             $q->where('reason', 'ILIKE', "$request->leave_note%");
         });
         $model->when($request->filled('reporting'), function ($q) use ($request) {
-            $q->whereHas('reporting', fn(Builder $query) => $query->where('first_name', 'ILIKE', "$request->reporting%"));
+            $q->whereHas('reporting', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->reporting%"));
         });
         $model->when($request->filled('created_at'), function ($q) use ($request) {
             $q->where('created_at', 'ILIKE', "$request->created_at%");
@@ -57,27 +57,21 @@ class EmployeeLeavesController extends Controller
             } else if (strtolower($request->status) == 'pending') {
                 $q->where('status', 0);
             }
-
         });
         $model->when($request->filled('sortBy'), function ($q) use ($request) {
             $sortDesc = $request->input('sortDesc');
             if (strpos($request->sortBy, '.')) {
                 if ($request->sortBy == 'employee.name') {
                     $q->orderBy(Employee::select("first_name")->whereColumn("employees.id", "employee_leaves.employee_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-
                 } else if ($request->sortBy == 'group.name') {
                     $q->orderBy(Employee::select("first_name")->whereColumn("employees.id", "employee_leaves.employee_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-
                 } else if ($request->sortBy == 'leave_type.name') {
                     $q->orderBy(LeaveType::select("name")->whereColumn("leave_types.id", "employee_leaves.leave_type_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-
                 }
-
             } else {
-                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
-
+                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                }
             }
-
         });
 
         if (!$request->sortBy) {
@@ -92,7 +86,8 @@ class EmployeeLeavesController extends Controller
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
-    function list(Request $request) {
+    function list(Request $request)
+    {
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
@@ -189,7 +184,7 @@ class EmployeeLeavesController extends Controller
         $model->with(["leave_type", "employee.leave_group", "reporting"]);
         $model->where('company_id', $request->company_id);
         $model->where('status', 0);
-        $model->where('created_at', '>=', date('Y-m-d H:i:00', strtotime('-2 minutes')));
+        /// $model->where('created_at', '>=', date('Y-m-d H:i:00', strtotime('-2 minutes')));
 
         $data['new_leaves_data'] = $model->paginate($request->per_page ?? 100);
 
@@ -242,5 +237,4 @@ class EmployeeLeavesController extends Controller
             return $this->response('Employee Leave data is not available.', null, false);
         }
     }
-
 }

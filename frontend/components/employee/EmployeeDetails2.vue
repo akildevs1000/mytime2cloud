@@ -1,13 +1,13 @@
 <template>
   <v-card>
-    <v-toolbar class="primary white--text background" dense dark
+    <v-toolbar class="popup_background" dense
       >Profile Details
       <v-spacer></v-spacer>
       <!-- <v-btn @click="openDocumentDrawer" small class="primary"
         >Documents&nbsp;<v-icon small> mdi-file </v-icon></v-btn
       >
       &nbsp; -->
-      <v-icon @click="closeParentDialog" outlined dark color="white">
+      <v-icon @click="closeParentDialog" outlined dark>
         mdi mdi-close-circle
       </v-icon>
     </v-toolbar>

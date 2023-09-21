@@ -9,10 +9,10 @@
 
     <v-dialog persistent v-model="showDialog" width="1100">
       <v-card>
-        <v-card-title dark class="primary white--text background">
+        <v-card-title dark class="popup_background">
           {{ Model }}
           <v-spacer></v-spacer>
-          <v-icon @click="showDialog = false" outlined dark color="white">
+          <v-icon @click="showDialog = false" dark outlined>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -109,44 +109,39 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-
     <v-card elevation="0" class="mt-2" v-if="can(`shift_view`)">
-      <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <v-toolbar-title
+      <v-toolbar class="mb-2 white--text" color="white" dense flat>
+        <v-toolbar-title style="color: black"
           ><span> {{ Model }} List</span></v-toolbar-title
         >
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn dense x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-icon color="white" @click="getDataFromApi()" dark
-                >mdi mdi-reload</v-icon
-              >
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn dense x-small :ripple="false" text title="Reload">
+          <v-icon dark white @click="getDataFromApi()">mdi mdi-reload</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Reload</span>
-        </v-tooltip>
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-icon dark white @click="toggleFilter">mdi-filter</v-icon>
-            </v-btn>
-          </template>
+        </v-tooltip> -->
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn x-small :ripple="false" text title="Filter"></v-btn>
+          <v-icon dark white @click="toggleFilter">mdi-filter</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Filter</span>
-        </v-tooltip>
+        </v-tooltip> -->
         <!-- <a style="padding-left: 10px" title="Reload Page/Reset Form" @click="getDataFromApi"><v-icon class="mx-1">mdi
             mdi-reload</v-icon></a> -->
         <v-spacer></v-spacer>
 
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn dense x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-icon color="white" @click="goToCreate" dark
-                >mdi mdi-plus-circle</v-icon
-              >
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn dense x-small :ripple="false" text title="Add   Shift Details" >
+              <v-icon dark @click="goToCreate">mdi mdi-plus-circle</v-icon>
             </v-btn>
-          </template>
+          <!-- </template>
           <span>Add New Shift Details</span>
-        </v-tooltip>
+        </v-tooltip> -->
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -155,6 +150,7 @@
           <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
         </template>
       </v-snackbar>
+
       <v-data-table
         dense
         :server-items-length="total"
@@ -171,17 +167,19 @@
         <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
             <td v-for="header in headers" :key="header.text">
-              <v-text-field
-                clearable
-                :hide-details="true"
-                v-if="header.filterable && !header.filterSpecial"
-                v-model="filters[header.key]"
-                :id="header.value"
-                @input="applyFilters(header.key, $event)"
-                outlined
-                dense
-                autocomplete="off"
-              ></v-text-field>
+              <v-container>
+                <v-text-field
+                  clearable
+                  :hide-details="true"
+                  v-if="header.filterable && !header.filterSpecial"
+                  v-model="filters[header.key]"
+                  :id="header.value"
+                  @input="applyFilters(header.key, $event)"
+                  outlined
+                  dense
+                  autocomplete="off"
+                ></v-text-field>
+              </v-container>
             </td>
           </tr>
         </template>

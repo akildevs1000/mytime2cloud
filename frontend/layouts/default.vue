@@ -172,7 +172,7 @@
                 class="btn-text-size d-none d-lg-block"
                 :elevation="menuProperties['attendance'].elevation"
                 :color="menuProperties['attendance'].selected"
-                @click="setTopMenuItems('attendance', '/dashboard/1')"
+                @click="setTopMenuItems('attendance', '/shift')"
               >
                 <span>Attendance</span>
               </v-btn>
@@ -363,14 +363,14 @@
         </v-list>
       </v-menu>
       <v-btn plain @click="goToSettings()"
-        ><v-icon class="pr-2">mdi-settings</v-icon></v-btn
+        ><v-icon class="pr-3 black--text">mdi-settings</v-icon></v-btn
       >
 
       <label class=" ">
         <v-badge
           v-if="pendingLeavesCount > 0"
           @click="navigateToLeavePage()"
-          :color="pendingLeavesCount > 0 ? 'red' : 'black'"
+          :color="pendingLeavesCount > 0 ? 'red' : 'white'"
           :content="pendingLeavesCount"
         >
           <v-icon @click="navigateToLeavePage()">mdi mdi-bell-ring</v-icon>
@@ -768,40 +768,35 @@ export default {
       // 1	OPEN	The connection is open and ready to communicate.
       // 2	CLOSING	The connection is in the process of closing.
       // 3	CLOSED
-
-      let company_id = this.$auth.user.company_id;
-
-      if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
-      this.socket = new WebSocket(
-        process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT
-      );
-
-      this.socket.onopen = function () {
-        this.socketConnectionStatus = this.socket.readyState;
-
-        const data = {
-          company_id: company_id,
-        };
-        this.socket.send(JSON.stringify(data)); // this works
-      };
-      this.socket.onclose = function () {
-        this.socketConnectionStatus = 0;
-      };
-      this.socket.onmessage = ({ data }) => {
-        data = JSON.parse(data);
-        if (data.status && data.new_leaves_data[0]) {
-          let element = data.new_leaves_data[0];
-          //data.new_leaves_data.data.forEach(element => {
-
-          this.snackNotification = true;
-          this.snackNotificationText =
-            "New Leave Notification - From : " +
-            element.first_name +
-            " " +
-            element.last_name;
-        }
-        this.pendingLeavesCount = data.total_pending_count;
-      };
+      // let company_id = this.$auth.user.company_id;
+      // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
+      // this.socket = new WebSocket(
+      //   process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT
+      // );
+      // this.socket.onopen = function () {
+      //   this.socketConnectionStatus = this.socket.readyState;
+      //   const data = {
+      //     company_id: company_id,
+      //   };
+      //   this.socket.send(JSON.stringify(data)); // this works
+      // };
+      // this.socket.onclose = function () {
+      //   this.socketConnectionStatus = 0;
+      // };
+      // this.socket.onmessage = ({ data }) => {
+      //   data = JSON.parse(data);
+      //   if (data.status && data.new_leaves_data[0]) {
+      //     let element = data.new_leaves_data[0];
+      //     //data.new_leaves_data.data.forEach(element => {
+      //     this.snackNotification = true;
+      //     this.snackNotificationText =
+      //       "New Leave Notification - From : " +
+      //       element.first_name +
+      //       " " +
+      //       element.last_name;
+      //   }
+      //   this.pendingLeavesCount = data.total_pending_count;
+      //};
     },
     verifyLeaveNotificationsApi() {
       if (!this.$auth.user.company_id) return false;
@@ -943,6 +938,79 @@ header i {
 }
 
 .whitebackground--text {
-  background-color: #ddd;
+  background-color: #ecf0f4;
+}
+</style>
+
+<style>
+/* New Theme  popup_background*/
+.v-application .popup_background {
+  background-color: #ecf0f4 !important;
+}
+.popup_background {
+  background-color: #ecf0f4 !important;
+  color: black;
+  font-weight: 400;
+
+  font-size: 1.25rem;
+}
+.popup_background i {
+  color: black !important;
+}
+.popup_background button {
+  color: black !important;
+}
+
+.popup_background .v-tabs-bar {
+  background-color: #ecf0f4 !important;
+  color: black;
+  font-weight: 400;
+
+  font-size: 1.25rem;
+}
+.popup_background .v-tabs-bar i {
+  color: black !important;
+}
+.popup_background .v-toolbar__title {
+  color: black !important;
+}
+.popup_background .v-icon {
+  color: black !important;
+}
+
+/* .theme--dark.v-toolbar.v-sheet {
+  background-color: #cfd8dc !important;
+} */
+/* .v-card {
+  background-color: #cfd8dc;
+}
+.v-card header {
+  background-color: #cfd8dc;
+}
+.v-card .v-card__title {
+  color: black;
+}
+.v-card i {
+  color: black;
+}
+
+.v-card .v-toolbar__title {
+  color: black;
+} */
+
+.input-small-fieldset fieldset {
+  height: 30px;
+}
+.input-small-fieldset input {
+  margin-top: -15px;
+}
+.input-small-fieldset .v-input__append-inner {
+  margin-top: -2px;
+}
+.black--text {
+  color: black;
+}
+.black {
+  color: black;
 }
 </style>

@@ -6,17 +6,12 @@
       </v-snackbar>
     </div>
     <v-row justify="center">
-      <v-dialog persistent v-model="generateLogsDialog" max-width="700px">
+      <v-dialog v-model="generateLogsDialog" max-width="700px">
         <v-card>
-          <v-card-title class="background">
-            <span class="headline white--text" dense> Generate Log </span>
+          <v-card-title dark class="popup_background">
+            <span dense> Generate Log </span>
             <v-spacer></v-spacer>
-            <v-icon
-              dark
-              @click="generateLogsDialog = false"
-              outlined
-              color="white"
-            >
+            <v-icon dark @click="generateLogsDialog = false" outlined>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
@@ -33,61 +28,60 @@
       <v-col>
         <Back class="primary white--text" />
 
-        <v-card class="mb-5 mt-2" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> Attendances Logs</span></v-toolbar-title>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  @click="getRecords"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" class="ml-2" dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
+        <v-card elevation="0" class="mt-2">
+          <v-toolbar class="mb-2 white--text" color="white" dense flat>
+            <v-toolbar-title>
+              <span style="color: black">
+                Attendances Logs</span
+              ></v-toolbar-title
+            >
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              title="Reload"
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              @click="getRecords"
+              text
+            >
+              <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="toggleFilter"
-                >
-                  <v-icon dark white>mdi-filter</v-icon>
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              title="Filter"
+              x-small
+              :ripple="false"
+              text
+              @click="toggleFilter"
+            >
+              <v-icon dark white>mdi-filter</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>Filter</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
             <v-spacer></v-spacer>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="generateLogsDialog = true"
-                >
-                  <v-icon class="">mdi mdi-plus-circle</v-icon>
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              title="Attendance Log"
+              x-small
+              :ripple="false"
+              text
+              @click="generateLogsDialog = true"
+            >
+              <v-icon class="">mdi mdi-plus-circle</v-icon>
+            </v-btn>
+            <!-- </template>
               <span> Attendance Log</span>
-            </v-tooltip>
+            </v-tooltip> -->
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -113,41 +107,42 @@
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text">
-                  <v-text-field
-                    clearable
-                    :hide-details="true"
-                    v-if="header.filterable && !header.filterSpecial"
-                    v-model="filters[header.key]"
-                    :id="header.value"
-                    @input="applyFilters(header.key, $event)"
-                    outlined
-                    dense
-                    autocomplete="off"
-                  ></v-text-field>
+                  <v-container>
+                    <v-text-field
+                      clearable
+                      :hide-details="true"
+                      v-if="header.filterable && !header.filterSpecial"
+                      v-model="filters[header.key]"
+                      :id="header.value"
+                      @input="applyFilters(header.key, $event)"
+                      outlined
+                      dense
+                      autocomplete="off"
+                    ></v-text-field>
 
-                  <v-select
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial &&
-                      header.value == 'department.name.id'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="id"
-                    :items="[
-                      { name: `All Departments`, id: `` },
-                      ...departments,
-                    ]"
-                    placeholder="Department"
-                    solo
-                    flat
-                    @change="applyFilters(header.key, id)"
-                  ></v-select>
-                  <!-- <v-menu v-if="header.filterSpecial && header.value == 'LogTime'" ref="from_menu_filter"
+                    <v-select
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial &&
+                        header.value == 'department.name.id'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="name"
+                      item-value="id"
+                      :items="[
+                        { name: `All Departments`, id: `` },
+                        ...departments,
+                      ]"
+                      placeholder="Department"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+                    <!-- <v-menu v-if="header.filterSpecial && header.value == 'LogTime'" ref="from_menu_filter"
                     v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
                     min-width="auto">
                     <template v-slot:activator="{ on, attrs }">
@@ -164,51 +159,55 @@
                       </v-btn>
                     </v-date-picker>
                   </v-menu> -->
-                  <DateRangePicker
-                    :disabled="false"
-                    :header="header"
-                    column="date_range"
-                    @selected-dates="handleDatesFilter"
-                  />
-                  <v-select
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="header.filterSpecial && header.value == 'device.name'"
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="device_id"
-                    :items="[
-                      { name: `All Devices`, device_id: `` },
-                      { name: `Manual`, device_id: `Manual` },
+                    <DateRangePicker
+                      :disabled="false"
+                      :header="header"
+                      column="date_range"
+                      @selected-dates="handleDatesFilter"
+                    />
+                    <v-select
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial && header.value == 'device.name'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="name"
+                      item-value="device_id"
+                      :items="[
+                        { name: `All Devices`, device_id: `` },
+                        { name: `Manual`, device_id: `Manual` },
 
-                      ...devices,
-                    ]"
-                    placeholder="Device Name"
-                    solo
-                    flat
-                    @change="applyFilters(header.key, id)"
-                  ></v-select>
-                  <v-select
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial && header.value == 'device.location'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="location"
-                    item-value="location"
-                    :items="[{ location: `All Locations` }, ...devices]"
-                    placeholder="Location"
-                    solo
-                    flat
-                    @change="applyFilters(header.key, id)"
-                  ></v-select>
+                        ...devices,
+                      ]"
+                      placeholder="Device Name"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+                    <v-select
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial &&
+                        header.value == 'device.location'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="location"
+                      item-value="location"
+                      :items="[{ location: `All Locations` }, ...devices]"
+                      placeholder="Location"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+                  </v-container>
                 </td>
               </tr>
             </template>

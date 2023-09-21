@@ -1,9 +1,9 @@
 <template>
-  <v-btn x-small fab :color="color" @click="goBack">
+  <!-- <v-btn x-small fab color="black" @click="goBack" title="Previous Page">
     <v-avatar>
       <v-icon small>mdi-arrow-left</v-icon>
     </v-avatar>
-  </v-btn>
+  </v-btn> -->
 </template>
 
 <script>

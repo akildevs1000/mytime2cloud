@@ -30,10 +30,10 @@
       </v-col>
 
       <v-col
-        lg="2"
-        md="3"
-        sm="2"
-        xs="2"
+        lg="4"
+        md="4"
+        sm="4"
+        xs="4"
         class="text-red bold text-h3 red--text laptop-padding"
         align-self="center"
         >{{ data.absentCount }}</v-col
@@ -50,10 +50,10 @@
       </v-col>
 
       <v-col
-        lg="2"
-        md="3"
-        sm="2"
-        xs="2"
+        lg="4"
+        md="4"
+        sm="4"
+        xs="4"
         class="text-red bold text-h3 blue--text laptop-padding"
         align-self="center"
         >{{ data.leaveCount }}</v-col
@@ -69,10 +69,10 @@
         </v-avatar>
       </v-col>
       <v-col
-        lg="2"
-        md="3"
-        sm="2"
-        xs="2"
+        lg="4"
+        md="4"
+        sm="4"
+        xs="4"
         class="text-red bold text-h3 orange--text laptop-padding"
         align-self="center"
         >{{ data.missingCount }}</v-col

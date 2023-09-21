@@ -139,21 +139,6 @@
     "module": "employees"
   },
   {
-    "icon": "mdi-monitor-dashboard",
-    "title": "Multi ",
-    "to": "/dashboard/1",
-    "menu": "dashboard_access",
-    "module": "attendance"
-  },
-  {
-    "icon": "mdi-apps",
-    "title": "General",
-    "to": "/dashboard/2",
-    "menu": "dashboard_access",
-    "module": "attendance"
-  },
-
-  {
     "icon": "mdi-clock-outline",
     "title": "Shifts",
     "to": "/shift",

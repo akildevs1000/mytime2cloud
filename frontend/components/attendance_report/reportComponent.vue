@@ -20,100 +20,89 @@
     >
       <v-toolbar class="backgrounds" dense flat>
         <v-toolbar-title> {{ title }}</v-toolbar-title>
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="clearFilters()"
-            >
-              <v-icon dark white>mdi-reload</v-icon>
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn x-small text v-bind="attrs" v-on="on" @click="clearFilters()">
+          <v-icon dark white>mdi-reload</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Reload</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              class="ma-0"
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="process_file(report_type)"
-            >
-              <v-icon dark white>mdi-printer-outline</v-icon>
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          class="ma-0"
+          x-small
+          :ripple="false"
+          text
+          title="PRINT"
+          @click="process_file(report_type)"
+        >
+          <v-icon dark white>mdi-printer-outline</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>PRINT</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="process_file(report_type + '_download_pdf')"
-            >
-              <v-icon dark white>mdi-download-outline</v-icon>
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          x-small
+          :ripple="false"
+          text
+          title="DOWNLOAD"
+          @click="process_file(report_type + '_download_pdf')"
+        >
+          <v-icon dark white>mdi-download-outline</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>DOWNLOAD</span>
-        </v-tooltip>
-
+        </v-tooltip> -->
+        <!-- 
         <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="process_file(report_type + '_download_csv')"
-            >
-              <v-icon dark white>mdi-file-outline</v-icon>
-            </v-btn>
-          </template>
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          x-small
+          :ripple="false"
+          text
+          title="CSV"
+          @click="process_file(report_type + '_download_csv')"
+        >
+          <v-icon dark white>mdi-file-outline</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>CSV</span>
-        </v-tooltip>
-
+        </v-tooltip> -->
+        <!-- 
         <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="generateLogsDialog = true"
-            >
-              <v-icon dark white>mdi-plus-circle-outline</v-icon>
-            </v-btn>
-          </template>
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          x-small
+          text
+          title="Generate Log"
+          @click="generateLogsDialog = true"
+        >
+          <v-icon dark white>mdi-plus-circle-outline</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Generate Log</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
-        <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="reportSync = true"
-            >
-              <v-icon dark white>mdi-cached</v-icon>
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          x-small
+          :ripple="false"
+          text
+          title="Render Report"
+          @click="reportSync = true"
+        >
+          <v-icon dark white>mdi-cached</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Render Report</span>
-        </v-tooltip>
+        </v-tooltip> -->
       </v-toolbar>
 
       <v-data-table

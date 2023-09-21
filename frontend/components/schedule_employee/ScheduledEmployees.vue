@@ -27,17 +27,22 @@
         {{ item.last_name ? item.last_name : "---" }}
       </template>
     </v-data-table>
-    <v-dialog persistent v-model="dialog" width="900">
-      <v-card>
-        <v-card-title class="text-h5">
+    <v-dialog v-model="dialog" width="900">
+      <v-card dense>
+        <v-card-title dark class="popup_background mb-1">
           Arrange Shift(s)
           <v-spacer></v-spacer>
-          <v-btn class="primary" small fab @click="addRow">
-            <b>+</b>
-          </v-btn>
+          <v-icon
+            title="Close "
+            @click="close"
+            right
+            dark
+            color="black"
+            size="x-large"
+            >mdi mdi-close-circle</v-icon
+          >
         </v-card-title>
 
-        <v-divider></v-divider>
         <!-- {{ schedules_temp_list }} <br /> -->
         <v-card-text v-for="(item, i) in schedules_temp_list" :key="i">
           <v-row>
@@ -176,6 +181,15 @@
               <v-icon v-if="i" @click="removeItem(i)" color="error"
                 >mdi-delete</v-icon
               >
+              <v-icon
+                v-else
+                title="Add   Schedule "
+                @click="addRow"
+                dark
+                color="black"
+                size="x-large"
+                >mdi-plus-circle</v-icon
+              >
             </v-col>
           </v-row>
         </v-card-text>
@@ -191,10 +205,10 @@
     </v-dialog>
     <v-dialog persistent v-model="dialogVisible" max-width="500px">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense dark class="popup_background">
           Filter
           <v-spacer></v-spacer>
-          <v-icon @click="dialogVisible = false" outlined dark color="white">
+          <v-icon @click="dialogVisible = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>

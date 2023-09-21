@@ -7,36 +7,51 @@
     </div>
 
     <Back class="primary white--text" />
+    <v-container>
+      <v-card elevation="0" class="mt-2">
+        <v-toolbar class="mt-2">
+          <v-btn
+            class="mx-1"
+            :color="
+              this.currentComponent == 'UnScheduledEmployees' ? 'violet' : ''
+            "
+            :outlined="
+              this.currentComponent == 'UnScheduledEmployees' ? true : ''
+            "
+            tile
+            small
+            @click="
+              changeComponent('UnScheduledEmployees', 'not_scheduled_employees')
+            "
+          >
+            UnScheduled Employees
+          </v-btn>
+          <v-btn
+            :color="
+              this.currentComponent == 'ScheduledEmployees' ? 'violet' : ''
+            "
+            :outlined="
+              this.currentComponent == 'ScheduledEmployees' ? true : false
+            "
+            class="mx-1"
+            outlined
+            tile
+            small
+            @click="
+              changeComponent('ScheduledEmployees', 'scheduled_employees')
+            "
+          >
+            Scheduled Employees
+          </v-btn>
+          <v-spacer></v-spacer>
+        </v-toolbar>
 
-    <v-toolbar class="background mt-2">
-      <v-btn
-        class="mx-1 background white--text"
-        tile
-        small
-        style="border-bottom: 1px solid white !important"
-        @click="
-          changeComponent('UnScheduledEmployees', 'not_scheduled_employees')
-        "
-      >
-        UnScheduled Employees
-      </v-btn>
-      <v-btn
-        class="mx-1 background white--text"
-        tile
-        small
-        style="border-bottom: 1px solid white !important"
-        @click="changeComponent('ScheduledEmployees', 'scheduled_employees')"
-      >
-        Scheduled Employees
-      </v-btn>
-      <v-spacer></v-spacer>
-    </v-toolbar>
-
-    <component :is="currentComponent" :endpoint="create_endpoint" />
-
+        <component :is="currentComponent" :endpoint="create_endpoint" />
+      </v-card>
+    </v-container>
     <v-dialog persistent v-model="dialog" width="900">
       <v-card>
-        <v-card-title class="text-h5">
+        <v-card-title class="text-h5 popup_background" dark>
           Arrange Shift(s)
           <v-spacer></v-spacer>
           <v-btn class="primary" small fab @click="addRow(rosterFirstValue)">
@@ -233,9 +248,9 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="dialogVisible" max-width="500px">
-      <v-card flat dense class="white--text">
-        <v-card-title class="background">
+    <v-dialog v-model="dialogVisible" max-width="500px">
+      <v-card dense>
+        <v-card-title dark class="popup_background">
           <span class="headline">Filter</span>
         </v-card-title>
         <v-progress-linear

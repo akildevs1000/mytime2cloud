@@ -1,10 +1,28 @@
 <template>
   <div>
+    <v-card class="py-2 mb-2">
+      <v-row align-self="center">
+        <v-col lg="6" md="6" sm="6" xs="6" class=" " align-self="center"
+          >Total Employees</v-col
+        >
+
+        <v-col
+          lg="4"
+          md="4"
+          sm="4"
+          xs="4"
+          class="text-red bold text-h3 red--text laptop-padding"
+          align-self="center"
+          >{{ data.employeeCount }}</v-col
+        >
+      </v-row>
+    </v-card>
+
     <v-row>
       <v-col md="6">
         <v-card class="py-2">
           <v-row class="p-2">
-            <v-row>
+            <v-row class="p-0 m-0">
               <v-col md="6">
                 <v-avatar color="green">
                   <v-icon size="30" style="color: #fff"
@@ -46,7 +64,7 @@
       <v-col md="6">
         <v-card class="py-2">
           <v-row class="p-2">
-            <v-row>
+            <v-row class="p-0 m-0">
               <v-col md="6">
                 <v-avatar color="red">
                   <v-icon size="30" style="color: #fff"
@@ -55,7 +73,7 @@
                 </v-avatar>
               </v-col>
 
-              <v-col md="6" class="menu-icon-right">
+              <v-col md="6" class="menu-icon-right text-end">
                 <v-menu bottom left>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn dark-2 icon v-bind="attrs" v-on="on">
@@ -88,7 +106,7 @@
       <v-col md="6">
         <v-card class="py-2">
           <v-row class="p-2">
-            <v-row>
+            <v-row class="p-0 m-0">
               <v-col md="6">
                 <v-avatar color="blue">
                   <v-icon size="30" style="color: #fff"
@@ -130,7 +148,7 @@
       <v-col md="6">
         <v-card class="py-2">
           <v-row class="p-2">
-            <v-row>
+            <v-row class="p-0 m-0">
               <v-col md="6">
                 <v-avatar color="yellow">
                   <v-icon size="30" style="color: #fff"
@@ -159,10 +177,10 @@
             <v-row>
               <v-col md="12" style="text-align: center; padding-top: 0px">
                 <div class="bold text-h3 orange--text">
-                  {{ data.missingCount }}
+                  {{ data.leaveCount }}
                 </div>
 
-                <div>Log Pending</div>
+                <div>On Leave</div>
               </v-col>
             </v-row>
           </v-row>
@@ -262,7 +280,7 @@ export default {
       offlineDevices: 0,
       leaveRequests: 0,
       data: {
-        employeeCount: 3,
+        employeeCount: 0,
         totalIn: 0,
         totalOut: 0,
         presentCount: 0,

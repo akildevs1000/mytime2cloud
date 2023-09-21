@@ -49,10 +49,28 @@
       </v-dialog>
       <v-dialog persistent v-model="employeeDialog" width="900">
         <v-card>
-          <v-card-title dark class="primary white--text background">
-            Create {{ Model }}
+          <v-card-title dark class="popup_background" style="font-weight: 400">
+            Add {{ Model }}
             <v-spacer></v-spacer>
-            <v-icon @click="employeeDialog = false" outlined dark color="white">
+
+            <v-icon
+              outlined
+              dark
+              color="black"
+              class="mr-5"
+              title="Save Employee"
+              :loading="loading"
+              @click="store_data"
+            >
+              mdi mdi-content-save-all
+            </v-icon>
+            <v-icon
+              title="Close"
+              @click="employeeDialog = false"
+              outlined
+              dark
+              color="black"
+            >
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
@@ -307,10 +325,10 @@
         <v-card>
           <v-tabs
             v-model="tab"
-            background-color="primary"
+            class="popup_background"
             centered
-            dark
             icons-and-text
+            color="violet"
           >
             <v-tabs-slider></v-tabs-slider>
 
@@ -328,7 +346,7 @@
               text-right
               outlined
               dark
-              color="white"
+              color="black"
             >
               mdi mdi-close-circle
             </v-icon>
@@ -420,7 +438,7 @@
 
       <div v-if="can(`employee_view`)">
         <v-container>
-          <!-- <Back class="primary white--text" /> -->
+          <Back class="primary white--text" />
 
           <v-card elevation="0" class="mt-2">
             <v-toolbar class="mb-2 white--text" color="white" dense flat>
@@ -476,6 +494,18 @@
               <v-btn text>Import </v-btn>
               <v-btn text>Export </v-btn>
               <v-btn text> New </v-btn> -->
+              <v-col cols="12" md="2">
+                <v-text-field
+                  @input="serachAll($event)"
+                  style="height: 30px; margin-top: 5px"
+                  clearable
+                  :hide-details="true"
+                  outlined
+                  dense
+                  autocomplete="off"
+                  placeholder="Employee Details"
+                ></v-text-field>
+              </v-col>
 
               <v-icon
                 title="Upload"
@@ -503,7 +533,7 @@
                 dark
                 color="black"
                 size="x-large"
-                >mdi-plus-circle</v-icon
+                >mdi-account-plus mdi-flip-h</v-icon
               >
 
               <!-- <v-tooltip top color="primary">
@@ -587,104 +617,107 @@
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
                   <td v-for="header in headers" :key="header.text">
-                    <v-text-field
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :hide-details="true"
-                      v-if="header.filterable && !header.filterSpecial"
-                      v-model="filters[header.value]"
-                      :id="header.value"
-                      @input="applyFilters(header.key, $event)"
-                      outlined
-                      dense
-                      autocomplete="off"
-                    ></v-text-field>
+                    <v-container>
+                      <v-text-field
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :hide-details="true"
+                        v-if="header.filterable && !header.filterSpecial"
+                        v-model="filters[header.value]"
+                        :id="header.value"
+                        @input="applyFilters(header.key, $event)"
+                        outlined
+                        dense
+                        autocomplete="off"
+                      ></v-text-field>
 
-                    <v-select
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :id="header.key"
-                      :hide-details="true"
-                      v-if="
-                        header.filterSpecial &&
-                        header.value == 'department.name.id'
-                      "
-                      outlined
-                      dense
-                      small
-                      v-model="filters[header.key]"
-                      item-text="name"
-                      item-value="id"
-                      :items="[
-                        { name: `All Departments`, id: `` },
-                        ...departments,
-                      ]"
-                      placeholder="Department"
-                      solo
-                      flat
-                      @change="applyFilters(header.key, id)"
-                    ></v-select>
-                    <v-select
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :id="header.key"
-                      :hide-details="true"
-                      v-if="
-                        header.filterSpecial &&
-                        header.value == 'schedule.shift_name'
-                      "
-                      outlined
-                      dense
-                      small
-                      v-model="filters[header.key]"
-                      item-text="name"
-                      item-value="id"
-                      :items="[{ name: `All Shifts`, id: `` }, ...shifts]"
-                      placeholder="Shift"
-                      solo
-                      flat
-                      @change="applyFilters(header.key, id)"
-                    ></v-select>
-                    <v-select
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :id="header.key"
-                      :hide-details="true"
-                      v-if="
-                        header.filterSpecial && header.value == 'timezone.name'
-                      "
-                      outlined
-                      dense
-                      small
-                      v-model="filters[header.key]"
-                      item-text="timezone_name"
-                      item-value="timezone_id"
-                      :items="[
-                        {
-                          name: `All Timezones`,
-                          timezone_name: `All Timezones`,
-                          timezone_id: '',
-                          id: ``,
-                        },
-                        ...timezones,
-                      ]"
-                      placeholder="Timezone"
-                      solo
-                      flat
-                      @change="applyFilters(header.key, id)"
-                    ></v-select>
+                      <v-select
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :id="header.key"
+                        :hide-details="true"
+                        v-if="
+                          header.filterSpecial &&
+                          header.value == 'department.name.id'
+                        "
+                        outlined
+                        dense
+                        small
+                        v-model="filters[header.key]"
+                        item-text="name"
+                        item-value="id"
+                        :items="[
+                          { name: `All Departments`, id: `` },
+                          ...departments,
+                        ]"
+                        placeholder="Department"
+                        solo
+                        flat
+                        @change="applyFilters(header.key, id)"
+                      ></v-select>
+                      <v-select
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :id="header.key"
+                        :hide-details="true"
+                        v-if="
+                          header.filterSpecial &&
+                          header.value == 'schedule.shift_name'
+                        "
+                        outlined
+                        dense
+                        small
+                        v-model="filters[header.key]"
+                        item-text="name"
+                        item-value="id"
+                        :items="[{ name: `All Shifts`, id: `` }, ...shifts]"
+                        placeholder="Shift"
+                        solo
+                        flat
+                        @change="applyFilters(header.key, id)"
+                      ></v-select>
+                      <v-select
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :id="header.key"
+                        :hide-details="true"
+                        v-if="
+                          header.filterSpecial &&
+                          header.value == 'timezone.name'
+                        "
+                        outlined
+                        dense
+                        small
+                        v-model="filters[header.key]"
+                        item-text="timezone_name"
+                        item-value="timezone_id"
+                        :items="[
+                          {
+                            name: `All Timezones`,
+                            timezone_name: `All Timezones`,
+                            timezone_id: '',
+                            id: ``,
+                          },
+                          ...timezones,
+                        ]"
+                        placeholder="Timezone"
+                        solo
+                        flat
+                        @change="applyFilters(header.key, id)"
+                      ></v-select>
+                    </v-container>
                   </td>
                 </tr>
               </template>
@@ -1275,6 +1308,51 @@ export default {
 
       this.isFilter = false;
       this.getDataFromApi();
+    },
+    serachAll(e) {
+      if (e.length == 0) {
+        this.getDataFromApi();
+      } else if (e.length <= 3) {
+        return false;
+      }
+
+      let url = `${this.endpoint}/search/${e}`;
+      //this.loading = true;
+      this.loadinglinear = true;
+
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
+      let options = {
+        params: {
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
+          company_id: this.$auth.user.company_id,
+          // department_id: this.department_filter_id,
+        },
+      };
+
+      this.$axios.get(`${url}?page = ${page}`, options).then(({ data }) => {
+        if (data.data.length == 0) {
+          this.snack = true;
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
+          this.loading = false;
+          return false;
+        }
+
+        this.data = data.data;
+        this.pagination.current = data.current_page;
+        this.pagination.total = data.last_page;
+
+        this.data.length == 0
+          ? (this.displayErrormsg = true)
+          : (this.displayErrormsg = false);
+
+        this.loadinglinear = false;
+      });
     },
     getDataFromApi(url = this.endpoint) {
       //this.loading = true;

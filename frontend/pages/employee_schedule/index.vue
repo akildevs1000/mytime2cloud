@@ -8,11 +8,11 @@
 
     <v-dialog persistent v-model="editDialog" width="900">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense dark class="popup_background">
           {{ !isEdit ? "View Shift(s)" : "Edit Shift(s)" }}
           <v-spacer></v-spacer>
 
-          <v-icon @click="editDialog = false" outlined dark color="white">
+          <v-icon @click="editDialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -348,10 +348,12 @@
 
     <Back class="primary white--text" />
 
-    <v-card class="mb-5 rounded-md mt-2" elevation="0">
-      <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <v-toolbar-title><span> Schedule List</span></v-toolbar-title>
-        <v-tooltip top color="primary">
+    <v-card elevation="0" class="mt-2">
+      <v-toolbar class="mb-2 white--text" color="white" dense flat>
+        <v-toolbar-title class="black--text"
+          ><span> Schedule List</span></v-toolbar-title
+        >
+        <v-tooltip top dark>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               dense
@@ -362,7 +364,7 @@
               v-bind="attrs"
               v-on="on"
             >
-              <v-icon color="white" class="ml-2" @click="clearFilters" dark
+              <v-icon class="ml-2" @click="clearFilters" dark
                 >mdi mdi-reload</v-icon
               >
             </v-btn>
@@ -380,7 +382,7 @@
               v-bind="attrs"
               v-on="on"
             >
-              <v-icon color="white" class="ml-2" @click="toggleFilter" dark
+              <v-icon class="ml-2" @click="toggleFilter" dark
                 >mdi mdi-filter</v-icon
               >
             </v-btn>
@@ -390,28 +392,24 @@
 
         <v-spacer></v-spacer>
 
-        <v-tooltip top color="primary" v-if="can(`employee_schedule_create`)">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon
-                color="white"
-                class="ml-2"
-                @click="gotoCreateSchedule"
-                dark
-                >mdi mdi-plus-circle</v-icon
-              >
-            </v-btn>
-          </template>
-          <span>Add Schedule</span>
-        </v-tooltip>
+        <!-- <v-tooltip top color="primary" v-if="can(`employee_schedule_create`)">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          title="Add Schedule"
+          dense
+          class="ma-0 px-0"
+          x-small
+          :ripple="false"
+          text
+          v-bind="attrs"
+          v-on="on"
+          @click="gotoCreateSchedule"
+        >
+          <v-icon class="ml-2" dark>mdi mdi-plus-circle</v-icon>
+        </v-btn>
+        <!-- </template>  
+       <span>Add Schedule</span>  
+        </v-tooltip> -->
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
