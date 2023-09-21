@@ -545,7 +545,7 @@
                               <td>
                                 <strong>Visa Number </strong> :
                                 {{
-                                  employeeObject.visa.visa_no
+                                  employeeObject.visa
                                     ? employeeObject.visa.visa_no
                                     : "---"
                                 }}
