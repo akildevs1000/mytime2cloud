@@ -417,7 +417,7 @@
                               <td>
                                 <strong>Passport No </strong> :
                                 {{
-                                  employeeObject.passport.passport_no
+                                  employeeObject.passport
                                     ? employeeObject.passport.passport_no
                                     : "---"
                                 }}
@@ -427,7 +427,7 @@
                               <td>
                                 <strong>Place Of Issue </strong> :
                                 {{
-                                  employeeObject.passport.place_of_issues
+                                  employeeObject.passport
                                     ? employeeObject.passport.place_of_issues
                                     : "---"
                                 }}
@@ -437,7 +437,7 @@
                               <td>
                                 <strong>Issue Date</strong> :
                                 {{
-                                  employeeObject.passport.issue_date
+                                  employeeObject.passport
                                     ? employeeObject.passport.issue_date
                                     : "---"
                                 }}
@@ -447,7 +447,7 @@
                               <td>
                                 <strong>Expiry Date </strong> :
                                 {{
-                                  employeeObject.passport.expiry_date
+                                  employeeObject.passport
                                     ? employeeObject.passport.expiry_date
                                     : "---"
                                 }}
@@ -457,7 +457,7 @@
                               <td>
                                 <strong>Country</strong> :
                                 {{
-                                  employeeObject.passport.country
+                                  employeeObject.passport
                                     ? employeeObject.passport.country
                                     : "---"
                                 }}
@@ -467,7 +467,7 @@
                               <td>
                                 <strong>Note</strong> :
                                 {{
-                                  employeeObject.passport.note
+                                  employeeObject.passport
                                     ? employeeObject.passport.note
                                     : "---"
                                 }}
@@ -482,7 +482,7 @@
                               <td>
                                 <strong>Emirate Id </strong> :
                                 {{
-                                  employeeObject.emirate.emirate_id
+                                  employeeObject.emirate
                                     ? employeeObject.emirate.emirate_id
                                     : "---"
                                 }}
@@ -492,7 +492,7 @@
                               <td>
                                 <strong>Nationality </strong> :
                                 {{
-                                  employeeObject.emirate.nationality
+                                  employeeObject.emirate
                                     ? employeeObject.emirate.nationality
                                     : "---"
                                 }}
@@ -502,7 +502,7 @@
                               <td>
                                 <strong>Issue Date</strong> :
                                 {{
-                                  employeeObject.emirate.issue
+                                  employeeObject.emirate
                                     ? employeeObject.emirate.issue
                                     : "---"
                                 }}
@@ -512,7 +512,7 @@
                               <td>
                                 <strong>Expiry Date </strong> :
                                 {{
-                                  employeeObject.emirate.expiry
+                                  employeeObject.emirate
                                     ? employeeObject.emirate.expiry
                                     : "---"
                                 }}
@@ -522,7 +522,7 @@
                               <td>
                                 <strong>Date of Birth</strong> :
                                 {{
-                                  employeeObject.emirate.date_of_birth
+                                  employeeObject.emirate
                                     ? employeeObject.emirate.date_of_birth
                                     : "---"
                                 }}
@@ -555,7 +555,7 @@
                               <td>
                                 <strong>Place Of Issue </strong> :
                                 {{
-                                  employeeObject.visa.place_of_issues
+                                  employeeObject.visa
                                     ? employeeObject.visa.place_of_issues
                                     : "---"
                                 }}
@@ -565,7 +565,7 @@
                               <td>
                                 <strong>Issue Date</strong> :
                                 {{
-                                  employeeObject.visa.issue_date
+                                  employeeObject.visa
                                     ? employeeObject.visa.issue_date
                                     : "---"
                                 }}
@@ -575,7 +575,7 @@
                               <td>
                                 <strong>Expiry Date </strong> :
                                 {{
-                                  employeeObject.visa.expiry_date
+                                  employeeObject.visa
                                     ? employeeObject.visa.expiry_date
                                     : "---"
                                 }}
@@ -585,7 +585,7 @@
                               <td>
                                 <strong>Country</strong> :
                                 {{
-                                  employeeObject.visa.country
+                                  employeeObject.visa
                                     ? employeeObject.visa.country
                                     : "---"
                                 }}
@@ -595,7 +595,7 @@
                               <td>
                                 <strong>Labour No</strong> :
                                 {{
-                                  employeeObject.visa.note
+                                  employeeObject.visa
                                     ? employeeObject.visa.note
                                     : "---"
                                 }}
@@ -605,7 +605,7 @@
                               <td>
                                 <strong>Note</strong> :
                                 {{
-                                  employeeObject.visa.note
+                                  employeeObject.visa
                                     ? employeeObject.visa.note
                                     : "---"
                                 }}
@@ -620,7 +620,7 @@
                               <td>
                                 <strong>Bank Name</strong> :
                                 {{
-                                  employeeObject.bank.bank_name
+                                  employeeObject.bank
                                     ? employeeObject.bank.bank_name
                                     : "---"
                                 }}
@@ -630,7 +630,7 @@
                               <td>
                                 <strong>Bank Address </strong> :
                                 {{
-                                  employeeObject.bank.address
+                                  employeeObject.bank
                                     ? employeeObject.bank.address
                                     : "---"
                                 }}
@@ -640,7 +640,7 @@
                               <td>
                                 <strong>Account No</strong> :
                                 {{
-                                  employeeObject.bank.account_no
+                                  employeeObject.bank
                                     ? employeeObject.bank.account_no
                                     : "---"
                                 }}
@@ -650,7 +650,7 @@
                               <td>
                                 <strong>Account Name</strong> :
                                 {{
-                                  employeeObject.bank.account_title
+                                  employeeObject.bank
                                     ? employeeObject.bank.account_title
                                     : "---"
                                 }}
@@ -660,7 +660,7 @@
                               <td>
                                 <strong>IBAN</strong> :
                                 {{
-                                  employeeObject.bank.iban
+                                  employeeObject.bank
                                     ? employeeObject.bank.iban
                                     : "---"
                                 }}
@@ -670,7 +670,7 @@
                               <td>
                                 <strong>Other Text</strong> :
                                 {{
-                                  employeeObject.bank.other_text
+                                  employeeObject.bank
                                     ? employeeObject.bank.other_text
                                     : "---"
                                 }}
@@ -680,7 +680,7 @@
                               <td>
                                 <strong>Other Value</strong> :
                                 {{
-                                  employeeObject.bank.other_value
+                                  employeeObject.bank
                                     ? employeeObject.bank.other_value
                                     : "---"
                                 }}
