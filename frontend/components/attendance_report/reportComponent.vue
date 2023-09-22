@@ -641,7 +641,6 @@ export default {
       employee_id: "",
       department_ids: [],
       status: "-1",
-      late_early: "Select All",
     },
     log_payload: {
       user_id: null,
@@ -671,6 +670,14 @@ export default {
       {
         name: `Absent`,
         id: `A`,
+      },
+      {
+        name: `Late In`,
+        id: `LC`,
+      },
+      {
+        name: `Early Out`,
+        id: `EG`,
       },
       {
         name: `Missing`,
@@ -970,19 +977,6 @@ export default {
     },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       this.loading = true;
-
-      let late_early = this.payload.late_early;
-
-      switch (late_early) {
-        case "Select All":
-          late_early = "SA";
-          break;
-
-        default:
-          late_early = late_early.charAt(0);
-          break;
-      }
-
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
       let sortedBy = sortBy ? sortBy[0] : "";
@@ -997,7 +991,6 @@ export default {
           company_id: this.$auth.user.company_id,
           report_type: this.report_type,
           shift_type_id: this.shift_type_id,
-          late_early,
           overtime: this.overtime ? 1 : 0,
           ...this.filters,
           ...this.payload,
@@ -1182,6 +1175,8 @@ export default {
         A: "Absent",
         P: "Present",
         M: "Missing",
+        LC: "Late In",
+        EG: "Early Out",
         O: "Week Off",
         L: "Leave",
         H: "Holiday",

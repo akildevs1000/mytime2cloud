@@ -358,7 +358,6 @@ export default {
       employee_id: "",
       department_ids: [{ id: "-1", name: "" }],
       status: "-1",
-      late_early: "Select All",
     },
     log_payload: {
       user_id: null,
@@ -392,6 +391,14 @@ export default {
       {
         name: `Missing`,
         id: `M`,
+      },
+      {
+        name: `Late In`,
+        id: `LC`,
+      },
+      {
+        name: `Early Out`,
+        id: `EG`,
       },
       {
         name: `Off`,
@@ -584,6 +591,8 @@ export default {
         A: "Absent",
         P: "Present",
         M: "Missing",
+        LC: "Late In",
+        EG: "Early Out",
         O: "Week Off",
         L: "Leave",
         H: "Holiday",
