@@ -42,7 +42,7 @@
       </v-dialog>
       <v-dialog persistent v-model="DialogBox" width="1100">
         <v-card>
-          <v-toolbar dark class="background" flat>
+          <v-toolbar class="popup_background" flat>
             {{ formAction }} Company
           </v-toolbar>
           <v-container>
@@ -436,104 +436,83 @@
       <div v-if="can(`employee_view`)">
         <v-container>
           <v-card elevation="0">
-            <v-toolbar class="mb-2 white--text" color="background" dense flat>
+            <v-toolbar class="mb-2" dense flat>
               <v-toolbar-title
                 ><span>{{ Model }}s </span></v-toolbar-title
               >
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon
-                      color="white"
-                      class="ml-2"
-                      @click="clearFilters"
-                      dark
-                      >mdi mdi-reload</v-icon
-                    >
-                  </v-btn>
-                </template>
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
+              >
+                <v-icon class="ml-2" @click="clearFilters" dark
+                  >mdi mdi-reload</v-icon
+                >
+              </v-btn>
+              <!-- </template>
                 <span>Reload</span>
-              </v-tooltip>
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon
-                      color="white"
-                      @click="toggleFilter"
-                      class="mx-1 ml-2"
-                      >mdi mdi-filter</v-icon
-                    >
-                  </v-btn>
-                </template>
+              </v-tooltip> -->
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
+              >
+                <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                  >mdi mdi-filter</v-icon
+                >
+              </v-btn>
+              <!-- </template>
                 <span>Filter</span>
-              </v-tooltip>
+              </v-tooltip> -->
 
               <v-spacer></v-spacer>
 
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    x-small
-                    class="ma-0 px-0"
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="addItem"
-                  >
-                    <v-icon
-                      color="white"
-                      right
-                      size="x-large"
-                      dark
-                      v-if="can('employee_create')"
-                      >mdi-plus-circle</v-icon
-                    >
-                  </v-btn>
-                </template>
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                dense
+                x-small
+                class="ma-0 px-0"
+                :ripple="false"
+                text
+                title="Add Company"
+                @click="addItem"
+              >
+                <v-icon right size="x-large" dark v-if="can('employee_create')"
+                  >mdi-plus-circle</v-icon
+                >
+              </v-btn>
+              <!-- </template>
                 <span>Add Company</span>
-              </v-tooltip>
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    x-small
-                    class="ma-0 px-0"
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="dialog = true"
-                  >
-                    <v-icon
-                      color="white"
-                      right
-                      size="x-large"
-                      dark
-                      v-if="can('employee_create')"
-                      >mdi-apps</v-icon
-                    >
-                  </v-btn>
-                </template>
+              </v-tooltip> -->
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                dense
+                x-small
+                class="ma-0 px-0"
+                :ripple="false"
+                text
+                title="QR Code"
+                @click="dialog = true"
+              >
+                <v-icon right size="x-large" dark v-if="can('employee_create')"
+                  >mdi-apps</v-icon
+                >
+              </v-btn>
+              <!-- </template>
                 <span>Test</span>
-              </v-tooltip>
+              </v-tooltip> -->
             </v-toolbar>
             <v-data-table
               dense
@@ -551,21 +530,23 @@
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
                   <td v-for="header in headers" :key="header.text">
-                    <v-text-field
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :hide-details="true"
-                      v-if="header.filterable && !header.filterSpecial"
-                      v-model="filters[header.value]"
-                      :id="header.value"
-                      @input="applyFilters(header.key, $event)"
-                      outlined
-                      dense
-                      autocomplete="off"
-                    ></v-text-field>
+                    <v-container>
+                      <v-text-field
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :hide-details="true"
+                        v-if="header.filterable && !header.filterSpecial"
+                        v-model="filters[header.value]"
+                        :id="header.value"
+                        @input="applyFilters(header.key, $event)"
+                        outlined
+                        dense
+                        autocomplete="off"
+                      ></v-text-field>
+                    </v-container>
                   </td>
                 </tr>
               </template>

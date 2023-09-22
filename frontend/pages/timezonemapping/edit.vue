@@ -70,7 +70,7 @@
       </v-row>
       <v-row>
         <v-col cols="5">
-          <v-toolbar dense flat style="border: 1px solid #ddd">
+          <v-toolbar dense flat style="border-bottom: 1px solid #ddd">
             <span>All Employees List</span>
           </v-toolbar>
           <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
@@ -188,7 +188,7 @@
         </v-col>
 
         <v-col cols="5">
-          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+          <v-toolbar color=" " dense flat style="border-bottom: 1px solid #ddd">
             <span>Selected Employees List</span>
           </v-toolbar>
           <div style="height: 250px; overflow-y: auto; overflow-x: hidden">
@@ -241,7 +241,7 @@
       </v-row>
       <v-row>
         <v-col cols="5">
-          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+          <v-toolbar color=" " dense flat style="border-bottom: 1px solid #ddd">
             <span>All Devices List</span>
           </v-toolbar>
           <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
@@ -366,7 +366,7 @@
         </v-col>
 
         <v-col cols="5">
-          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+          <v-toolbar color=" " dense flat style="border-bottom: 1px solid #ddd">
             <span>Selected Devices List</span>
           </v-toolbar>
           <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">

@@ -32,7 +32,7 @@
       </v-col>
       <v-col cols="4"> </v-col>
 
-      <v-col cols="4">
+      <!-- <v-col cols="4">
         <div class="text-right">
           <v-btn small fab class="primary">
             <v-icon small @click="goback()" color="white"
@@ -40,17 +40,16 @@
             >
           </v-btn>
         </div>
-      </v-col>
+      </v-col> -->
     </v-row>
 
     <v-row>
       <v-col cols="5">
-        <v-toolbar color="background" dense flat dark>
-          <span>All Devices List</span>
-          <v-spacer></v-spacer>
-        </v-toolbar>
-        <div>
-          <v-card style="min-height: 500px" scrollable>
+        <v-card style="min-height: 500px" scrollable>
+          <v-toolbar dense flat style="border-bottom: 1px solid #ddd">
+            <span> Devices </span>
+          </v-toolbar>
+          <div style="">
             <v-card-text
               class="timezone-displaylistview"
               v-for="(device, index) in leftDevices"
@@ -82,8 +81,8 @@
                 </div>
               </div>
             </v-card-text>
-          </v-card>
-        </div>
+          </div>
+        </v-card>
       </v-col>
 
       <v-col cols="2">
@@ -145,11 +144,11 @@
       </v-col>
 
       <v-col cols="5">
-        <v-toolbar color="background" dense flat dark>
-          <span>Selected Devices List</span>
-        </v-toolbar>
-        <div>
-          <v-card style="min-height: 500px">
+        <v-card style="min-height: 500px" scrollable>
+          <v-toolbar dense flat style="border-bottom: 1px solid #ddd">
+            <span> Selected Devices </span>
+          </v-toolbar>
+          <div>
             <v-card-text
               class="error--text text-center"
               v-if="errors && errors.device_ids"
@@ -186,8 +185,8 @@
                 </div>
               </div>
             </v-card-text>
-          </v-card>
-        </div>
+          </div>
+        </v-card>
       </v-col>
     </v-row>
 

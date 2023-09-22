@@ -22,7 +22,7 @@
         <v-toolbar-title> {{ title }}</v-toolbar-title>
         <!-- <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn x-small text v-bind="attrs" v-on="on" @click="clearFilters()">
+        <v-btn x-small text title="Reload" @click="clearFilters()">
           <v-icon dark white>mdi-reload</v-icon>
         </v-btn>
         <!-- </template>

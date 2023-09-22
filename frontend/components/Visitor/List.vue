@@ -51,17 +51,17 @@
           >
             <v-tabs-slider color="violet"></v-tabs-slider>
 
-            <v-tab href="#tab-1" color="black">
+            <v-tab href="#tab-1" class="black--text">
               Visitor
               <v-icon>mdi-account</v-icon>
             </v-tab>
 
-            <v-tab href="#tab-2" color="black">
+            <v-tab href="#tab-2" class="black--text">
               Host
               <v-icon>mdi-account-tie</v-icon>
             </v-tab>
 
-            <v-tab href="#tab-3" color="black">
+            <v-tab href="#tab-3" class="black--text">
               Status
               <v-icon>mdi-pencil</v-icon>
             </v-tab>
@@ -1105,21 +1105,23 @@
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
                   <td v-for="header in headers" :key="header.text">
-                    <v-text-field
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :hide-details="true"
-                      v-if="header.filterable && !header.filterSpecial"
-                      v-model="filters[header.value]"
-                      :id="header.value"
-                      @input="applyFilters(header.key, $event)"
-                      outlined
-                      dense
-                      autocomplete="off"
-                    ></v-text-field>
+                    <v-container>
+                      <v-text-field
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :hide-details="true"
+                        v-if="header.filterable && !header.filterSpecial"
+                        v-model="filters[header.value]"
+                        :id="header.value"
+                        @input="applyFilters(header.key, $event)"
+                        outlined
+                        dense
+                        autocomplete="off"
+                      ></v-text-field>
+                    </v-container>
                   </td>
                 </tr>
               </template>

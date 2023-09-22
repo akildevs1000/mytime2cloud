@@ -315,7 +315,7 @@
 
         <v-card class="mb-5 mt-2 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" dense flat>
-            <v-toolbar-title><span> Applications List</span></v-toolbar-title>
+            <v-toolbar-title><span> Leaves List</span></v-toolbar-title>
 
             <!-- <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->

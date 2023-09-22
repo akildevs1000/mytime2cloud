@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-toolbar class="primary white--text background" dense dark
+    <v-toolbar class="   " dense
       >Branch Details
       <v-spacer></v-spacer>
       <!-- <v-btn @click="openDocumentDrawer" small class="primary"
@@ -27,7 +27,9 @@
                 border-radius: 50%;
                 margin: 0 auto;
               "
-              :src="employeeObject.profile_picture || '/no-profile-image.jpg'"
+              :src="
+                employeeObject.profile_picture || '/no-business_profile.png'
+              "
             ></v-img>
           </div>
           <br />
