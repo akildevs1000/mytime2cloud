@@ -189,6 +189,13 @@ class Employee extends Model
         });
     }
 
+    public function company()
+    {
+        return $this->belongsTo(Company::class)->withDefault([
+            "name" => "---",
+        ]);
+    }
+
     public function attendances()
     {
         return $this->hasMany(Attendance::class, "employee_id", "employee_id");
