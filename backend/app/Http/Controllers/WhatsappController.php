@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
+use App\Models\Company;
 use App\Models\Device;
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+
 
 class WhatsappController extends Controller
 {
@@ -134,5 +138,78 @@ class WhatsappController extends Controller
         } catch (\Throwable $th) {
             Log::channel("custom")->error("BookingController: " . $th);
         }
+    }
+
+    public function attendanceSummary()
+    {
+        $companies = Company::pluck("id");
+
+        $result = [];
+
+        foreach ($companies as $id) {
+            return $result[] = $this->prepareSummary($id);
+        }
+
+        return $result;
+    }
+
+    public function prepareSummary($id)
+    {
+        $date = date("d-M-Y");
+
+        $attendance = Attendance::where("company_id", $id)
+            ->whereHas("company")
+            ->where('date', $date)
+            ->whereIn("status", ["P", "A", "M", "O", "LC", "EG"])
+            ->selectRaw("status, COUNT(*) as count")
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        $presentCount = $attendance->get("P", 0);
+        $absentCount = $attendance->get("A", 0);
+        $missingCount = $attendance->get("M", 0);
+        $offCount = $attendance->get("O", 0);
+        $lateInCount = $attendance->get("LC", 0);
+        $earlyOutCount = $attendance->get("EG", 0);
+
+        $company = Company::withCount("employees")->where("id", $id)->first();
+
+        $message = "📊 *Daily Attendance Report* 📊\n\n";
+        $message .= "*Hello, {$company->name}*\n\n";
+        $message .= "This is your daily attendance summary report.\n\n";
+        $message .= "*Date:* $date\n\n";
+        $message .= "👥 Total Employees: *{$company->employees_count}*\n";
+        $message .= "✅ Total Present: *$presentCount*\n";
+        $message .= "❌ Total Absent: *$absentCount*\n";
+        $message .= "⏰ Total Late In: *$lateInCount*\n"; // Using ⏰ for Late In
+        $message .= "🚪 Total Early Out: *$earlyOutCount*\n"; // Using 🚪 for Early Out
+        $message .= "❓ Total Missing: *$missingCount*\n"; // Using ❓ for Missing
+        $message .= "🏖️ Total Employee on Holiday: *$offCount*\n\n"; // Using 🏖️ for Off
+
+        $message .= "Best regards\n";
+        $message .= "*EZTime*";
+
+        return $message;
+
+        return $this->sendMessage($message, '971554501483');
+    }
+
+    public function sendMessage($message, $number)
+    {
+        $response = Http::withoutVerifying()->get('https://ezwhat.com/api/send.php', [
+            'number' => $number,
+            'type' => 'text',
+            'message' => $message,
+            'instance_id' => '64DB354A9EBCC',
+            'access_token' => 'a27e1f9ca2347bb766f332b8863ebe9f',
+        ]);
+
+        // You can check the response status and get the response content as needed
+        if ($response->successful()) {
+            Log::channel('whatsapp_logs')->info($response->json());
+        } else {
+            Log::channel('whatsapp_logs')->info($response->body());
+        }
+        return $message;
     }
 }

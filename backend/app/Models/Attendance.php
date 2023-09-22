@@ -119,9 +119,9 @@ class Attendance extends Model
         return $this->belongsTo(ScheduleEmployee::class, "employee_id", "employee_id")->withOut(["shift_type"]);
     }
 
-    public function roster()
+    public function company()
     {
-        return $this->belongsTo(Roster::class);
+        return $this->belongsTo(Company::class);
     }
 
     protected static function boot()
@@ -175,17 +175,8 @@ class Attendance extends Model
             $q->where('status', $request->status);
         });
 
-
         $model->when($request->status == "ME", function ($q) {
             $q->where('is_manual_entry', true);
-        });
-
-        $model->when($request->late_early == "LC", function ($q) {
-            $q->where('late_coming', "!=", "---");
-        });
-
-        $model->when($request->late_early == "EG", function ($q) {
-            $q->where('early_going', "!=", "---");
         });
 
         $model->when($request->overtime == 1, function ($q) {

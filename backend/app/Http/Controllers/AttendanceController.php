@@ -10,39 +10,40 @@ use App\Models\Employee;
 use App\Models\ScheduleEmployee;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
 {
     public function seedDefaultData($company_id, $employee_id, $day_count)
     {
-        $model = Employee::query();
-        $model->withOut(["department", "designation", "sub_department"]);
-        $model->where("company_id", $company_id);
-        $model->where("employee_id", $employee_id);
-        $model->with(["schedule" => function ($q) {
-            $q->whereHas("shift");
-            $q->withOut(["shift", "shift_type"]);
-            $q->select("shift_id", "shift_type_id", "employee_id");
-        }]);
-        $first = $model->first("system_user_id", "company_id", "employee_id");
+        // $model = Employee::query();
+        // $model->withOut(["department", "designation", "sub_department"]);
+        // $model->where("company_id", $company_id);
+        // $model->where("employee_id", $employee_id);
+        // $model->with(["schedule" => function ($q) {
+        //     $q->whereHas("shift");
+        //     $q->withOut(["shift", "shift_type"]);
+        //     $q->select("shift_id", "shift_type_id", "employee_id");
+        // }]);
+        // $first = $model->first("system_user_id", "company_id", "employee_id");
 
         // $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
 
-        if (!$first) {
-            info("No employee found");
-            return;
-        }
+        // if (!$first) {
+        //     info("No employee found");
+        //     return;
+        // }
 
         $data = [];
 
-        foreach (range(1, $day_count) as $day) {
+        foreach (range(1, 1) as $day) {
             $data[] = [
-                "date" => date("Y-m-") . sprintf("%02d", $day),
+                "date" => date("Y-m-") . sprintf("%02d", date("d")),
                 "employee_id" => $employee_id,
-                "shift_id" => $first->schedule->shift_id,
-                "shift_type_id" => $first->schedule->shift_type_id,
-                "status" => "A",
+                // "shift_id" => $first->schedule->shift_id,
+                // "shift_type_id" => $first->schedule->shift_type_id,
+                "status" => Arr::random(["P", "A", "M"]),
                 "in" => "---",
                 "out" => "---",
                 "total_hrs" => "---",
