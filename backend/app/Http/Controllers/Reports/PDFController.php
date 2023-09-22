@@ -30,4 +30,29 @@ class PDFController extends Controller
     {
         return Pdf::loadView('pdf.html.monthly.monthly_summary_v1')->stream();
     }
+
+    public function dailyAccessControl()
+    {
+        return Pdf::loadView('pdf.html.daily.access_control')->stream();
+    }
+    public function weeklyAccessControl()
+    {
+        return Pdf::loadView('pdf.html.weekly.access_control')->stream();
+    }
+    public function monthlyAccessControl()
+    {
+        return Pdf::loadView('pdf.html.monthly.access_control')->stream();
+    }
+    public function monthlyAccessControlV1()
+    {
+        return Pdf::loadView('pdf.html.monthly.access_control_v1')->stream();
+    }
+    public function monthlyAccessControlCount()
+    {
+        return Pdf::loadView('pdf.html.monthly.access_control_count')->stream();
+    }
+    public function monthlyAccessControlByDevice()
+    {
+        return Pdf::loadView('pdf.html.monthly.access_control_by_device')->stream();
+    }
 }

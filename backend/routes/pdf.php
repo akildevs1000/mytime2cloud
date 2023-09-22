@@ -84,3 +84,19 @@ Route::get('/test_week', [TestController::class, 'test_week']);
 Route::get('/daily_mimo', [Controller::class, 'mimo']);
 Route::get('/weekly_mimo', [WeeklyMimoController::class, 'weekly']);
 Route::get('/monthly_mimo', [MonthlyMimoController::class, 'monthly']);
+
+
+
+
+//static
+Route::get('/daily_access_control', [PDFController::class, 'dailyAccessControl']);
+Route::get('/weekly_access_control', [PDFController::class, 'weeklyAccessControl']);
+Route::get('/monthly_access_control', [PDFController::class, 'monthlyAccessControl']);
+Route::get('/monthly_access_control_v1', [PDFController::class, 'monthlyAccessControlV1']);
+
+
+Route::get('/access_control_by_device', [PDFController::class, 'monthlyAccessControlByDevice']);
+
+
+Route::get('/monthly_access_control_count', [PDFController::class, 'monthlyAccessControlCount']);
+

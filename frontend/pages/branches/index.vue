@@ -57,253 +57,196 @@
             </v-icon>
           </v-card-title>
           <v-card-text>
-            <v-row>
-              <v-col cols="12" md="3">
-                <div
-                  class="form-group pt-15"
-                  style="margin: 0 auto; width: 200px"
-                >
-                  <v-img
-                    style="
-                      width: 100%;
-                      height: 200px;
-                      border: 1px solid #5fafa3;
-                      border-radius: 50%;
-                      margin: 0 auto;
-                    "
-                    :src="previewImage || '/no-business_profile.png'"
-                  ></v-img>
-                  <br />
-                  <v-btn
-                    small
-                    class="form-control primary"
-                    @click="onpick_attachment"
-                    >{{ !upload.name ? "Upload" : "Change" }} Profile Image
-                    <v-icon right dark>mdi-cloud-upload</v-icon>
-                  </v-btn>
-                  <input
-                    required
-                    type="file"
-                    @change="attachment"
-                    style="display: none"
-                    accept="image/*"
-                    ref="attachment_input"
-                  />
+            <v-container>
+              <v-row>
+                <v-col cols="12" md="3">
+                  <div class="text-center mt-7">
+                    <v-img
+                      style="
+                        width: 150px;
+                        height: 150px;
+                        border-radius: 50%;
+                        margin: 0 auto;
+                      "
+                      :src="previewImage || '/no-image.PNG'"
+                    ></v-img>
+                    <v-btn
+                      class="mt-2"
+                      style="width: 100%"
+                      small
+                      @click="onpick_attachment"
+                      >{{ !upload.name ? "Upload" : "Change" }}
+                      <v-icon right dark>mdi-cloud-upload</v-icon>
+                    </v-btn>
+                    <input
+                      required
+                      type="file"
+                      @change="attachment"
+                      style="display: none"
+                      accept="image/*"
+                      ref="attachment_input"
+                    />
 
-                  <span
-                    v-if="errors && errors.profile_picture"
-                    class="text-danger mt-2"
-                    >{{ errors.profile_picture[0] }}</span
-                  >
-                </div>
-              </v-col>
-              <v-col md="9" sm="12" cols="12" dense>
-                <v-row>
-                  <v-col md="6" cols="12" sm="12" dense>
-                    <label class="col-form-label">Branch Name</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.branch_name"
-                      :hide-details="!errors.branch_name"
-                      :error="errors.branch_name"
-                      :error-messages="
-                        errors && errors.branch_name
-                          ? errors.branch_name[0]
-                          : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="6" cols="12" sm="12" dense>
-                    <label class="col-form-label">Manager Name</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.name"
-                      :hide-details="!errors.name"
-                      :error="errors.name"
-                      :error-messages="
-                        errors && errors.name ? errors.name[0] : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="6" cols="12" sm="12" dense>
-                    <label class="col-form-label">Email</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.email"
-                      :hide-details="!errors.email"
-                      :error="errors.email"
-                      :error-messages="
-                        errors && errors.email ? errors.email[0] : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="6" cols="12" sm="12" dense>
-                    <label class="col-form-label">Password</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      type="password"
-                      v-model="employee.password"
-                      :hide-details="!errors.password"
-                      :error="errors.password"
-                      :error-messages="
-                        errors && errors.password ? errors.password[0] : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="6" cols="12" sm="12" dense>
-                    <label class="col-form-label">Mobile Number</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      v-model="employee.telephone"
-                      :hide-details="!errors.telephone"
-                      :error="errors.telephone"
-                      :error-messages="
-                        errors && errors.telephone ? errors.telephone[0] : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="6" cols="12" sm="12" dense>
-                    <label class="col-form-label">Phone Number</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      v-model="employee.phone"
-                      :hide-details="!errors.phone"
-                      :error="errors.phone"
-                      :error-messages="
-                        errors && errors.phone ? errors.phone[0] : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-
-                  <v-col md="4" cols="12" sm="12" dense>
-                    <label class="col-form-label">Licence Number</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.licence_number"
-                      :hide-details="!errors.licence_number"
-                      :error="errors.licence_number"
-                      :error-messages="
-                        errors && errors.licence_number
-                          ? errors.licence_number[0]
-                          : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="4" cols="12" sm="12" dense>
-                    <label class="col-form-label">Licence Issued By</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.licence_issue_by_department"
-                      :hide-details="!errors.licence_issue_by_department"
-                      :error="errors.licence_issue_by_department"
-                      :error-messages="
-                        errors && errors.licence_issue_by_department
-                          ? errors.licence_issue_by_department[0]
-                          : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="4" sm="12" cols="12">
-                    <label class="col-form-label"
-                      >Licence Expiry Date
-                      <span class="text-danger">*</span></label
+                    <span
+                      v-if="errors && errors.profile_picture"
+                      class="text-danger mt-2"
+                      >{{ errors.profile_picture[0] }}</span
                     >
-                    <div>
-                      <v-menu
-                        v-model="joiningDateMenuOpen"
-                        :close-on-content-click="false"
-                        transition="scale-transition"
-                        offset-y
-                        max-width="290px"
-                        min-width="auto"
+                  </div>
+                </v-col>
+                <v-col md="9" sm="12" cols="12" dense>
+                  <v-row>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label>Branch Name</label>
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="employee.name"
+                        hide-details
+                      ></v-text-field>
+                      <span
+                        v-if="errors && errors.name"
+                        class="text-danger mt-2"
+                        >{{ errors.name[0] }}</span
                       >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            :hide-details="!errors.licence_expiry"
-                            :error-messages="
-                              errors && errors.licence_expiry
-                                ? errors.licence_expiry[0]
-                                : ''
-                            "
-                            v-model="employee.licence_expiry"
-                            persistent-hint
-                            append-icon="mdi-calendar"
-                            readonly
-                            outlined
-                            dense
-                            v-bind="attrs"
-                            v-on="on"
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker
-                          style="min-height: 320px"
-                          v-model="employee.licence_expiry"
-                          no-title
-                          @input="joiningDateMenuOpen = false"
-                        ></v-date-picker>
-                      </v-menu>
-                    </div>
-                  </v-col>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label>Manager</label>
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="employee.employee_id"
+                        hide-details
+                      ></v-text-field>
+                      <span
+                        v-if="errors && errors.employee_id"
+                        class="text-danger mt-2"
+                        >{{ errors.employee_id[0] }}</span
+                      >
+                    </v-col>
 
-                  <v-col md="6" cols="12" sm="12" dense>
-                    <label class="col-form-label">Location</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.location"
-                      :hide-details="!errors.location"
-                      :error="errors.location"
-                      :error-messages="
-                        errors && errors.location ? errors.location[0] : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="6" cols="12" sm="12" dense>
-                    <label class="col-form-label">P.O BOX</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.po_box"
-                      :hide-details="!errors.po_box"
-                      :error="errors.po_box"
-                      :error-messages="
-                        errors && errors.po_box ? errors.po_box[0] : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col md="12" cols="12" sm="12" dense>
-                    <label class="col-form-label">Address</label>
-                    <v-textarea
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.address"
-                      :hide-details="!errors.address"
-                      :error="errors.address"
-                      :error-messages="
-                        errors && errors.address ? errors.address[0] : ''
-                      "
-                    >
-                    </v-textarea>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
+                    <v-col md="4" cols="12" sm="12" dense>
+                      <label>Licence Number</label>
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="employee.licence_number"
+                        hide-details
+                      ></v-text-field>
+                      <span
+                        v-if="errors && errors.licence_number"
+                        class="text-danger mt-2"
+                        >{{ errors.licence_number[0] }}</span
+                      >
+                    </v-col>
+                    <v-col md="4" cols="12" sm="12" dense>
+                      <label>Licence Issued By</label>
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="employee.licence_issue_by_department"
+                        hide-details
+                      ></v-text-field>
+                      <span
+                        v-if="errors && errors.licence_issue_by_department"
+                        class="text-danger mt-2"
+                        >{{ errors.licence_issue_by_department[0] }}</span
+                      >
+                    </v-col>
+                    <v-col md="4" sm="12" cols="12">
+                      <label
+                        >Licence Expiry Date
+                        <span class="text-danger">*</span></label
+                      >
+                      <div>
+                        <v-menu
+                          v-model="joiningDateMenuOpen"
+                          :close-on-content-click="false"
+                          transition="scale-transition"
+                          offset-y
+                          max-width="290px"
+                          min-width="auto"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              hide-details
+                              v-model="employee.licence_expiry"
+                              persistent-hint
+                              append-icon="mdi-calendar"
+                              readonly
+                              outlined
+                              dense
+                              v-bind="attrs"
+                              v-on="on"
+                            ></v-text-field>
+                            <span
+                              v-if="errors && errors.licence_expiry"
+                              class="text-danger mt-2"
+                              >{{ errors.licence_expiry[0] }}</span
+                            >
+                          </template>
+                          <v-date-picker
+                            style="min-height: 320px"
+                            v-model="employee.licence_expiry"
+                            no-title
+                            @input="joiningDateMenuOpen = false"
+                          ></v-date-picker>
+                        </v-menu>
+                      </div>
+                    </v-col>
+
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label>Lat</label>
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="employee.lat"
+                        hide-details
+                        :error="errors.lat"
+                        :error-messages="
+                          errors && errors.lat ? errors.lat[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="6" cols="12" sm="12" dense>
+                      <label>Lon</label>
+                      <v-text-field
+                        dense
+                        outlined
+                        type="text"
+                        v-model="employee.po_box"
+                        :hide-details="!errors.po_box"
+                        :error="errors.po_box"
+                        :error-messages="
+                          errors && errors.po_box ? errors.po_box[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="12" cols="12" sm="12" dense>
+                      <label>Address</label>
+                      <v-textarea
+                        dense
+                        outlined
+                        type="text"
+                        rows="3"
+                        v-model="employee.address"
+                        :hide-details="!errors.address"
+                        :error="errors.address"
+                        :error-messages="
+                          errors && errors.address ? errors.address[0] : ''
+                        "
+                      >
+                      </v-textarea>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+            </v-container>
           </v-card-text>
 
           <v-divider></v-divider>

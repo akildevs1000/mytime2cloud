@@ -118,6 +118,10 @@ class SingleShiftController extends Controller
                 "late_coming" => $this->calculatedLateComing($firstLog["time"], $shift->on_duty_time, $shift->late_time),
             ];
 
+            if ($arr["late_coming"] != "---") {
+                $arr["status"] = "LC";
+            }
+
             if (count($filteredLogs) > 1) {
                 $arr["status"] = "P";
                 $arr["device_id_out"] = $lastLog["DeviceID"];
@@ -129,6 +133,10 @@ class SingleShiftController extends Controller
                 }
 
                 $arr["early_going"] = $this->calculatedEarlyGoing($lastLog["time"], $shift->off_duty_time, $shift->early_time);
+
+                if ($arr["early_going"] != "---") {
+                    $arr["status"] = "EG";
+                }
             }
 
 
