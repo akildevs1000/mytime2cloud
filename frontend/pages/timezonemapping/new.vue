@@ -87,10 +87,10 @@
       </v-row>
       <v-row>
         <v-col cols="5">
-          <v-toolbar color="background" dense flat dark>
-            <span>All Employees List</span>
+          <v-toolbar dense flat style="border: 1px solid #ddd">
+            <span> Employees </span>
           </v-toolbar>
-          <div>
+          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
             <v-card class="timezone-displaylist">
               <v-card-text
                 class="timezone-displaylistview"
@@ -210,10 +210,10 @@
         </v-col>
 
         <v-col cols="5">
-          <v-toolbar color="background" dense flat dark>
+          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
             <span>Selected Employees List</span>
           </v-toolbar>
-          <div>
+          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
             <v-card class="timezone-displaylist">
               <v-card-text
                 class="timezone-displaylistview"
@@ -263,10 +263,10 @@
       </v-row>
       <v-row>
         <v-col cols="5">
-          <v-toolbar color="background" dense flat dark>
-            <span>All Devices List</span>
+          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+            <span> Devices </span>
           </v-toolbar>
-          <div>
+          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
             <v-card class="timezone-displaylist">
               <v-card-text
                 class="timezone-displaylistview"
@@ -288,11 +288,12 @@
                     ></v-checkbox>
                     <v-checkbox
                       v-else
-                      indeterminate
-                      value
-                      disabled
-                      hide-details
+                      hideDetails
                       class="col-1 d-flex flex-column justify-center"
+                      v-model="leftSelectedDevices"
+                      :value="user.id"
+                      primary
+                      hide-details
                     ></v-checkbox>
                   </v-col>
                   <div class="col-sm" style="padding-top: 21px; color: #000000">
@@ -371,10 +372,10 @@
         </v-col>
 
         <v-col cols="5">
-          <v-toolbar color="background" dense flat dark>
+          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
             <span>Selected Devices List</span>
           </v-toolbar>
-          <div>
+          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
             <v-card class="timezone-displaylist">
               <v-card-text
                 class="timezone-displaylistview"

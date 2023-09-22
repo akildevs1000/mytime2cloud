@@ -14,7 +14,7 @@
 
     <v-row>
       <v-col cols="12">
-        <Back class="primary white--text" />
+        <!-- <Back class="primary white--text" /> -->
       </v-col>
       <v-col cols="3">
         <v-select
@@ -33,10 +33,10 @@
     </v-row>
     <v-row>
       <v-col cols="5">
-        <v-toolbar color="background" dense flat dark>
-          <span>All Employees List</span>
+        <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+          <span> Employees </span>
         </v-toolbar>
-        <div>
+        <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
           <v-card class="photo-displaylist">
             <v-card-text
               class="photo-displaylistview"
@@ -142,10 +142,10 @@
       </v-col>
 
       <v-col cols="5">
-        <v-toolbar color="background" dense flat dark>
-          <span>Selected Employees List</span>
+        <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+          <span>Selected Employees </span>
         </v-toolbar>
-        <div>
+        <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
           <v-card class="photo-displaylist">
             <v-card-text
               class="photo-displaylistview"
@@ -211,10 +211,10 @@
     </v-row>
     <v-row>
       <v-col cols="5">
-        <v-toolbar color="background" dense flat dark>
-          <span>All Devices List</span>
+        <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+          <span> Devices</span>
         </v-toolbar>
-        <div>
+        <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
           <v-card class="photo-displaylist">
             <v-card-text
               class="photo-displaylistview"
@@ -318,10 +318,10 @@
       </v-col>
 
       <v-col cols="5">
-        <v-toolbar color="background" dense flat dark>
-          <span>Selected Devices List</span>
+        <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+          <span>Selected Devices</span>
         </v-toolbar>
-        <div>
+        <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
           <v-card class="photo-displaylist">
             <v-card-text
               class="photo-displaylistview"

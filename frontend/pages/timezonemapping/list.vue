@@ -7,78 +7,67 @@
     </div>
     <v-row class=" ">
       <v-col cols="12">
-        <Back class="primary white--text" />
+        <!-- <Back class="primary white--text" /> -->
 
         <v-card class="mb-5 mt-2 rounded-md" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title
               ><span> {{ Model }} </span></v-toolbar-title
             >
 
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
+            >
+              <v-icon class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+            <!-- </template>
+              <span>Reload</span>
+            </v-tooltip> -->
+
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+              @click="attendancFilters = true"
+            >
+              <v-icon dark @click="toggleFilter">mdi-filter</v-icon>
+            </v-btn>
+            <!-- </template>
+              <span>Filter</span>
+            </v-tooltip> -->
+
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-col class="toolbaritems-button-design">
+                <!-- <v-tooltip top color="primary">
+                  <template v-slot:activator="{ on, attrs }"> -->
                 <v-btn
                   dense
                   class="ma-0 px-0"
                   x-small
                   :ripple="false"
                   text
-                  v-bind="attrs"
-                  v-on="on"
+                  title="Add Timezone"
                 >
-                  <v-icon
-                    color="white"
-                    class="ml-2"
-                    @click="getDataFromApi()"
-                    dark
-                    >mdi mdi-reload</v-icon
+                  <v-icon class="ml-2" @click="goToCreatePage()" dark
+                    >mdi mdi-plus-circle</v-icon
                   >
                 </v-btn>
-              </template>
-              <span>Reload</span>
-            </v-tooltip>
-
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="attendancFilters = true"
-                >
-                  <v-icon dark white @click="toggleFilter">mdi-filter</v-icon>
-                </v-btn>
-              </template>
-              <span>Filter</span>
-            </v-tooltip>
-
-            <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-col class="toolbaritems-button-design">
-                <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      dense
-                      class="ma-0 px-0"
-                      x-small
-                      :ripple="false"
-                      text
-                      v-bind="attrs"
-                      v-on="on"
-                    >
-                      <v-icon
-                        color="white"
-                        class="ml-2"
-                        @click="goToCreatePage()"
-                        dark
-                        >mdi mdi-plus-circle</v-icon
-                      >
-                    </v-btn>
-                  </template>
+                <!-- </template>
                   <span>Add New Timezone</span>
-                </v-tooltip>
+                </v-tooltip> -->
               </v-col>
             </v-toolbar-items>
           </v-toolbar>
@@ -105,18 +94,20 @@
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text">
-                  <v-text-field
-                    clearable
-                    :hide-details="true"
-                    v-if="header.filterable"
-                    v-model="filters[header.key]"
-                    :id="header.key"
-                    @input="applyFilters(header.key, $event)"
-                    outlined
-                    dense
-                    autocomplete="off"
-                    :placeholder="header.placeHolder"
-                  ></v-text-field>
+                  <v-container>
+                    <v-text-field
+                      clearable
+                      :hide-details="true"
+                      v-if="header.filterable"
+                      v-model="filters[header.key]"
+                      :id="header.key"
+                      @input="applyFilters(header.key, $event)"
+                      outlined
+                      dense
+                      autocomplete="off"
+                      :placeholder="header.placeHolder"
+                    ></v-text-field>
+                  </v-container>
                 </td>
               </tr>
             </template>

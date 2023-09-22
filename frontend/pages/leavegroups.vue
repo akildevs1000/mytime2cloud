@@ -11,9 +11,9 @@
       </v-snackbar>
     </div>
 
-    <v-dialog persistent v-model="dialog" width="500px">
+    <v-dialog v-model="dialog" width="500px">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="popup_background">
           <span>{{ formTitle }} </span>
           <v-spacer></v-spacer>
           <v-icon @click="dialog = false" outlined dark color="white">
@@ -66,54 +66,46 @@
 
     <v-row>
       <v-col md="12">
-        <Back color="primary" />
+        <!-- <Back color="primary" /> -->
 
         <v-card class="mb-5 mt-2 rounded-md" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title
-              ><span> Dashboard / Leave Groups List</span></v-toolbar-title
+          <v-toolbar class="rounded-md" dense flat>
+            <v-toolbar-title><span> Leave Groups List</span></v-toolbar-title>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
             >
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon
-                    color="white"
-                    class="ml-2"
-                    @click="getDataFromApi()"
-                    dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
+              <v-icon class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
+            </v-tooltip> -->
             <v-spacer></v-spacer>
-            <v-tooltip v-if="can(`leave_group_create`)" top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" class="ml-2" @click="dialog = true" dark
-                    >mdi mdi-plus-circle</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip v-if="can(`leave_group_create`)" top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Add LeaveGroup"
+            >
+              <v-icon class="ml-2" @click="dialog = true" dark
+                >mdi mdi-plus-circle</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>New LeaveGroup</span>
-            </v-tooltip>
+            </v-tooltip> -->
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -170,7 +162,7 @@
                       >
                         mdi-eye
                       </v-icon>
-                      View
+                      Add Count
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="editItem(item)">
@@ -183,7 +175,7 @@
                       >
                         mdi-pencil
                       </v-icon>
-                      Edit
+                      Edit Name
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
@@ -238,10 +230,10 @@ import {
 
 import Back from "../components/Snippets/Back.vue";
 
-
 export default {
   components: {
-    TiptapVuetify,Back
+    TiptapVuetify,
+    Back,
   },
   data: () => ({
     attrs: {},

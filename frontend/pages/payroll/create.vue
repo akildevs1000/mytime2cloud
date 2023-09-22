@@ -6,135 +6,150 @@
       </v-snackbar>
     </div>
     <div v-if="!preloader">
-      <Back class="primary white--text" />
-
-      <v-card elevation="0" class="pa-3 mt-2 mb-5">
-        <v-card-title>
-          <label class="col-form-label pt-0 mt-5"
-            ><b>Create Payroll Formula</b></label
+      <!-- <Back class="primary white--text" /> -->
+      <v-row>
+        <v-col md="6"
+          ><v-card
+            elevation="0"
+            class="pa-3 mt-2 mb-5"
+            style="min-height: 400px"
           >
-          <!-- <v-spacer></v-spacer>
-          <v-btn small fab color="background" dark to="/report_notifications">
-            <v-icon>mdi-arrow-left</v-icon>
-          </v-btn> -->
-        </v-card-title>
-        <v-container>
-          <v-row>
-            <v-col cols="2">
-              <label class="col-form-label pt-0 mt-5"
-                ><b>Salary calculation formula</b></label
+            <v-toolbar class=" " dense flat>
+              <v-toolbar-title style="color: black"
+                ><span> Create Payroll Formula</span></v-toolbar-title
               >
-            </v-col>
-            <v-col cols="10">
-              <div style="display: inline-flex">
-                <v-radio-group v-model="payload.salary_type" row>
-                  <v-radio label="Basic Salary" value="basic_salary"></v-radio>
-                  <v-radio label="Net Salary" value="net_salary"></v-radio>
-                </v-radio-group>
-              </div>
-              <span v-if="errors && errors.salary_type" class="text-danger">{{
-                errors.salary_type[0]
-              }}</span>
-            </v-col>
+            </v-toolbar>
+            <v-container>
+              <v-divider></v-divider>
+              <v-row>
+                <v-col cols="4">
+                  <label class="col-form-label pt-0 mt-5"
+                    ><b>Salary calculation formula</b></label
+                  >
+                </v-col>
+                <v-col cols="6">
+                  <div style="display: inline-flex">
+                    <v-radio-group v-model="payload.salary_type" row>
+                      <v-radio
+                        label="Basic Salary"
+                        value="basic_salary"
+                      ></v-radio>
+                      <v-radio label="Net Salary" value="net_salary"></v-radio>
+                    </v-radio-group>
+                  </div>
+                  <span
+                    v-if="errors && errors.salary_type"
+                    class="text-danger"
+                    >{{ errors.salary_type[0] }}</span
+                  >
+                </v-col>
 
-            <v-col cols="2">
-              <label class="col-form-label"><b>OT formula</b></label>
-            </v-col>
-            <v-col cols="10">
-              <div style="display: inline-flex">
-                <input
-                  class="form-control"
-                  type="text"
-                  outlined
-                  dense
-                  value="Per Hour Salary"
-                  readonly
-                />
-                <span class="pa-2">x</span>
-                <input
-                  v-model="payload.ot_value"
-                  class="form-control"
-                  type="text"
-                  outlined
-                  dense
-                />
-              </div>
-              <span v-if="errors && errors.ot_value" class="text-danger">{{
-                errors.ot_value[0]
-              }}</span>
-            </v-col>
+                <v-col cols="4">
+                  <label class="col-form-label"><b>OT formula</b></label>
+                </v-col>
+                <v-col cols="6">
+                  <div style="display: inline-flex">
+                    <input
+                      class="form-control"
+                      type="text"
+                      outlined
+                      dense
+                      value="Per Hour Salary"
+                      readonly
+                    />
+                    <span class="pa-2">x</span>
+                    <input
+                      v-model="payload.ot_value"
+                      class="form-control"
+                      type="text"
+                      outlined
+                      dense
+                    />
+                  </div>
+                  <span v-if="errors && errors.ot_value" class="text-danger">{{
+                    errors.ot_value[0]
+                  }}</span>
+                </v-col>
 
-            <v-col cols="2">
-              <label class="col-form-label"
-                ><b>Late Deduction formula</b></label
-              >
-            </v-col>
-            <v-col cols="8">
-              <div style="display: inline-flex">
-                <input
-                  class="form-control"
-                  type="text"
-                  outlined
-                  dense
-                  value="Per Hour Salary"
-                  readonly
-                />
-                <span class="pa-2">x</span>
-                <input
-                  v-model="payload.deduction_value"
-                  class="form-control"
-                  type="text"
-                  outlined
-                  dense
-                />
-              </div>
-              <span
-                v-if="errors && errors.deduction_value"
-                class="text-danger"
-                d
-                >{{ errors.deduction_value[0] }}</span
-              >
-            </v-col>
-            <v-col cols="12">
-              <v-btn small color="primary" @click="store"> Submit </v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-card>
+                <v-col cols="4">
+                  <label class="col-form-label"
+                    ><b>Late Deduction formula</b></label
+                  >
+                </v-col>
+                <v-col cols="6">
+                  <div style="display: inline-flex">
+                    <input
+                      class="form-control"
+                      type="text"
+                      outlined
+                      dense
+                      value="Per Hour Salary"
+                      readonly
+                    />
+                    <span class="pa-2">x</span>
+                    <input
+                      v-model="payload.deduction_value"
+                      class="form-control"
+                      type="text"
+                      outlined
+                      dense
+                    />
+                  </div>
+                  <span
+                    v-if="errors && errors.deduction_value"
+                    class="text-danger"
+                    d
+                    >{{ errors.deduction_value[0] }}</span
+                  >
 
-      <v-card elevation="0" class="pa-3">
-        <v-card-title>
-          <label class="col-form-label pt-0 mt-5"
-            ><b>Create Payroll Generation Date</b></label
+                  <v-col cols="12" class="text-right">
+                    <v-btn small color="primary" @click="store"> Submit </v-btn>
+                  </v-col>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card></v-col
+        >
+        <v-col md="6">
+          <v-card
+            elevation="0"
+            class="pa-3 mt-2 mb-5"
+            style="min-height: 400px"
           >
-          <!-- <v-spacer></v-spacer>
-          <v-btn small fab color="background" dark to="/report_notifications">
-            <v-icon>mdi-arrow-left</v-icon>
-          </v-btn> -->
-        </v-card-title>
-        <v-container>
-          <v-row>
-            <v-col cols="2">
-              <label class="col-form-label"
-                ><b>Set date for payroll generation</b></label
+            <v-toolbar class=" " dense flat>
+              <v-toolbar-title style="color: black"
+                ><span> Create Payroll Generation Date</span></v-toolbar-title
               >
-            </v-col>
-            <v-col cols="2">
-              <v-autocomplete
-                dense
-                outlined
-                v-model="date"
-                :items="dayOptions"
-                item-value="value"
-                item-text="label"
-              ></v-autocomplete>
-            </v-col>
-            <v-col cols="12">
-              <v-btn small color="primary" @click="storeDate"> Submit </v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-card>
+            </v-toolbar>
+
+            <v-container>
+              <v-divider></v-divider>
+              <v-row>
+                <v-col cols="4">
+                  <label class="col-form-label"
+                    ><b>Salary Payslip Generation Date (Every Month)</b></label
+                  >
+                </v-col>
+                <v-col cols="3">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    v-model="date"
+                    :items="dayOptions"
+                    item-value="value"
+                    item-text="label"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="7" class="align-end text-right">
+                  <v-btn small color="primary" @click="storeDate">
+                    Submit
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card>
+        </v-col>
+      </v-row>
     </div>
     <Preloader v-else />
   </div>

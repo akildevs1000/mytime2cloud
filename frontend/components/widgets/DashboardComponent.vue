@@ -32,7 +32,7 @@ export default {
   components: {
     RealTimeLog,
     AnnouncementNew,
-    // AttendanceLog,
+    AttendanceLog,
     Device,
     ReportNotification,
     AttendancePIE,

@@ -44,24 +44,24 @@
         <v-card>
           <v-tabs
             v-model="tab"
-            background-color="background"
+            class="popup_background"
             right
             dark
             icons-and-text
           >
-            <v-tabs-slider></v-tabs-slider>
+            <v-tabs-slider color="violet"></v-tabs-slider>
 
-            <v-tab href="#tab-1">
+            <v-tab href="#tab-1" color="black">
               Visitor
               <v-icon>mdi-account</v-icon>
             </v-tab>
 
-            <v-tab href="#tab-2">
+            <v-tab href="#tab-2" color="black">
               Host
               <v-icon>mdi-account-tie</v-icon>
             </v-tab>
 
-            <v-tab href="#tab-3">
+            <v-tab href="#tab-3" color="black">
               Status
               <v-icon>mdi-pencil</v-icon>
             </v-tab>
@@ -954,7 +954,12 @@
         </v-card>
       </v-dialog>
       <div class="text-center">
-        <v-dialog persistent v-model="viewDialog" width="1200" :key="employeeId">
+        <v-dialog
+          persistent
+          v-model="viewDialog"
+          width="1200"
+          :key="employeeId"
+        >
           <EmployeeDetails
             @close-parent-dialog="closeViewDialog"
             :employeeObject="employeeObject"
@@ -1025,79 +1030,64 @@
       <div v-if="can(`employee_view`)">
         <v-container>
           <v-card elevation="0">
-            <v-toolbar class="mb-2 white--text" color="background" dense flat>
+            <v-toolbar class="mb-2" dense flat>
               <v-toolbar-title
                 ><span>{{ Model }}s </span></v-toolbar-title
               >
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon
-                      color="white"
-                      class="ml-2"
-                      @click="clearFilters"
-                      dark
-                      >mdi mdi-reload</v-icon
-                    >
-                  </v-btn>
-                </template>
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
+              >
+                <v-icon class="ml-2" @click="clearFilters" dark
+                  >mdi mdi-reload</v-icon
+                >
+              </v-btn>
+              <!-- </template>
                 <span>Reload</span>
-              </v-tooltip>
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon
-                      color="white"
-                      @click="toggleFilter"
-                      class="mx-1 ml-2"
-                      >mdi mdi-filter</v-icon
-                    >
-                  </v-btn>
-                </template>
+              </v-tooltip> -->
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
+              >
+                <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                  >mdi mdi-filter</v-icon
+                >
+              </v-btn>
+              <!-- </template>
                 <span>Filter</span>
-              </v-tooltip>
+              </v-tooltip> -->
 
               <v-spacer></v-spacer>
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    x-small
-                    class="ma-0 px-0"
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="DialogBox = true"
-                  >
-                    <v-icon
-                      color="white"
-                      right
-                      size="x-large"
-                      dark
-                      v-if="can('employee_create')"
-                      >mdi-plus-circle</v-icon
-                    >
-                  </v-btn>
-                </template>
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                dense
+                x-small
+                class="ma-0 px-0"
+                :ripple="false"
+                text
+                title="Add Visitor"
+                @click="DialogBox = true"
+              >
+                <v-icon right size="x-large" dark v-if="can('employee_create')"
+                  >mdi-plus-circle</v-icon
+                >
+              </v-btn>
+              <!-- </template>
                 <span>Add Visitor</span>
-              </v-tooltip>
+              </v-tooltip> -->
             </v-toolbar>
             <v-data-table
               dense

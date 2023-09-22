@@ -32,33 +32,35 @@
       <!-- <v-col md="1" title="absentCount" style="text-align: center">V </v-col> -->
       <v-col md="1" title="missingCount" style="text-align: center">L </v-col>
     </v-row>
-    <v-row v-for="(item, index, i) in departments" :key="'department' + i">
-      <v-col md="2" class="text-center">
-        <v-avatar
-          size="40"
-          style="color: #fff"
-          :color="(i + 1) % 2 == 0 ? 'green' : 'red'"
-        >
-          <v-icon size="20" style="color: #fff">mdi-laptop</v-icon>
-        </v-avatar>
-      </v-col>
-      <v-col md="5" class="mt-2" style="overflow: hidden">{{ index }} </v-col>
-      <v-col md="1" title="Presents" style="color: green; text-align: center">
-        {{ item.presentCount }}
-      </v-col>
-      <v-col md="1" title="Absents" style="color: red; text-align: center">{{
-        item.absentCount
-      }}</v-col>
-      <v-col md="1" title="Missing" style="color: orange; text-align: center"
-        >{{ item.missingCount }}
-      </v-col>
-      <!-- <v-col md="1" title="Vacation" style="text-align: center"
+    <div style="height: 500px; overflow-y: auto; overflow-x: hidden">
+      <v-row v-for="(item, index, i) in departments" :key="'department' + i">
+        <v-col md="2" class="text-center">
+          <v-avatar
+            size="40"
+            style="color: #fff"
+            :color="(i + 1) % 2 == 0 ? 'green' : 'red'"
+          >
+            <v-icon size="20" style="color: #fff">mdi-laptop</v-icon>
+          </v-avatar>
+        </v-col>
+        <v-col md="5" class="mt-2" style="overflow: hidden">{{ index }} </v-col>
+        <v-col md="1" title="Presents" style="color: green; text-align: center">
+          {{ item.presentCount }}
+        </v-col>
+        <v-col md="1" title="Absents" style="color: red; text-align: center">{{
+          item.absentCount
+        }}</v-col>
+        <v-col md="1" title="Missing" style="color: orange; text-align: center"
+          >{{ item.missingCount }}
+        </v-col>
+        <!-- <v-col md="1" title="Vacation" style="text-align: center"
         >{{ item.vaccationCount }}
       </v-col> -->
-      <v-col md="1" title="Leave" style="text-align: center"
-        >{{ item.leaveCount }}
-      </v-col>
-    </v-row>
+        <v-col md="1" title="Leave" style="text-align: center"
+          >{{ item.leaveCount }}
+        </v-col>
+      </v-row>
+    </div>
   </div>
 </template>
 

@@ -5,7 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <Back class="primary white--text" />
+    <!-- <Back class="primary white--text" /> -->
 
     <v-dialog persistent v-model="showDialog" width="1100">
       <v-card>
@@ -124,7 +124,7 @@
         </v-tooltip> -->
         <!-- <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn x-small :ripple="false" text title="Filter"></v-btn>
+        <v-btn x-small :ripple="false" text title="Filter">
           <v-icon dark white @click="toggleFilter">mdi-filter</v-icon>
         </v-btn>
         <!-- </template>
@@ -136,10 +136,10 @@
 
         <!-- <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn dense x-small :ripple="false" text title="Add   Shift Details" >
-              <v-icon dark @click="goToCreate">mdi mdi-plus-circle</v-icon>
-            </v-btn>
-          <!-- </template>
+        <v-btn dense x-small :ripple="false" text title="Add   Shift Details">
+          <v-icon dark @click="goToCreate">mdi mdi-plus-circle</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Add New Shift Details</span>
         </v-tooltip> -->
       </v-toolbar>

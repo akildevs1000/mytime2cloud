@@ -508,13 +508,13 @@
               </v-col>
 
               <v-icon
-                title="Upload"
+                title="Import File"
                 @click="dialog = true"
                 right
                 dark
                 color="black"
                 size="x-large"
-                >mdi-arrow-up-bold-circle</v-icon
+                >mdi-file-import</v-icon
               >
               <v-icon
                 title="Download"

@@ -47,6 +47,8 @@
       <!-- <v-col md="2" sm="2" xs="2" class="text-center">
           <v-chip color="orange">Category</v-chip>
         </v-col> -->
+
+      <v-col md="12" v-if="announcement.length == 0"> No Announcements</v-col>
     </v-row>
   </div>
 </template>

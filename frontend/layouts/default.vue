@@ -949,10 +949,17 @@ header i {
 }
 .popup_background {
   background-color: #ecf0f4 !important;
-  color: black;
-  font-weight: 400;
+  color: black !important;
+  font-weight: 400 !important;
 
-  font-size: 1.25rem;
+  font-size: 1.25rem !important;
+}
+.popup_title,
+.v-dialog > .v-card > .v-card__title {
+  color: black !important;
+  font-weight: 400 !important;
+
+  font-size: 1.25rem !important;
 }
 .popup_background i {
   color: black !important;

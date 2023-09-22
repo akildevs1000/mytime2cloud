@@ -7,10 +7,10 @@
     </div>
     <v-dialog persistent v-model="dialog" max-width="1100">
       <v-card>
-        <v-card-title dense class="primary white--text background">
-          {{ Module }}
+        <v-card-title dense class="popup_background">
+          <span> {{ Module }}</span>
           <v-spacer></v-spacer>
-          <v-icon @click="dialog = false" outlined dark color="white">
+          <v-icon @click="dialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -56,14 +56,20 @@
         <v-card-text>
           <table style="width: 100%">
             <thead>
-              <tr class="background white--text" dark>
-                <th class="text-center">Time</th>
+              <tr class="popup_background popup_title" dark>
                 <th
-                  class="text-center"
+                  class="text-center popup_title"
+                  style="font-size: 17px !important"
+                >
+                  Time
+                </th>
+                <th
+                  class="text-center popup_title"
                   colspan="2"
                   v-for="n in 4"
                   :key="n"
                   :value="n"
+                  style="font-size: 17px !important"
                 >
                   Interval {{ n }}
                 </th>
@@ -148,10 +154,11 @@
 
     <v-dialog persistent v-model="syncDeviceDialog" max-width="1100">
       <v-card>
-        <v-card-title dense class="primary white--text background">
-          Sync Device
+        <v-card-title dense class="popup_background">
+          <span class="popup_title">Sync Device</span>
+
           <v-spacer></v-spacer>
-          <v-icon @click="syncDeviceDialog = false" outlined dark color="white">
+          <v-icon @click="syncDeviceDialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -165,7 +172,7 @@
           ></v-progress-linear>
           <table style="width: 100%" class="mt-2">
             <thead>
-              <tr class="background white--text" dark>
+              <tr class=" " dark>
                 <th style="width: 20%">Device ID</th>
                 <th style="width: 70%">Message</th>
                 <th class="text-center">Status</th>
@@ -180,6 +187,10 @@
                   <v-icon color="primary" v-if="d.status">mdi-check</v-icon>
                   <v-icon color="error" v-else>mdi-close</v-icon>
                 </td>
+              </tr>
+
+              <tr v-if="deviceResults.length == 0">
+                <td colspan="3" class="text-center">No Data is available</td>
               </tr>
             </tbody>
           </table>
@@ -204,62 +215,59 @@
         </div>
       </v-col>
     </v-row> -->
-    <Back class="primary white--text" />
+    <!-- <Back class="primary white--text" /> -->
 
     <v-card class="mt-2">
-      <v-toolbar class="rounded-md" color="background" dense flat dark>
+      <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title><span> Timezones List</span></v-toolbar-title>
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark
-                >mdi mdi-reload</v-icon
-              >
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          dense
+          class="ma-0 px-0"
+          x-small
+          :ripple="false"
+          text
+          title="Reload"
+        >
+          <v-icon class="ml-2" @click="getDataFromApi()" dark
+            >mdi mdi-reload</v-icon
+          >
+        </v-btn>
+        <!-- </template>
           <span>Reload</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
         <v-spacer></v-spacer>
 
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="openDeviceDialog"
-            >
-              <v-icon dark white>mdi-laptop</v-icon>
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          x-small
+          :ripple="false"
+          text
+          title="Sync To Devices"
+          @click="openDeviceDialog"
+        >
+          <v-icon dark>mdi-laptop</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Sync To Devices</span>
-        </v-tooltip>
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="addItem"
-            >
-              <v-icon dark white>mdi-plus-circle</v-icon>
-            </v-btn>
-          </template>
+        </v-tooltip> -->
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          x-small
+          :ripple="false"
+          text
+          title="Add Timezone"
+          @click="addItem"
+        >
+          <v-icon dark white>mdi-plus-circle</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Add New Timezone</span>
-        </v-tooltip>
+        </v-tooltip> -->
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -337,7 +345,7 @@
 </template>
 
 <script>
-import Back from "../components/Snippets/Back.vue"; 
+import Back from "../components/Snippets/Back.vue";
 
 let days = [
   { index: "0", name: "Monday", short_name: "M" },

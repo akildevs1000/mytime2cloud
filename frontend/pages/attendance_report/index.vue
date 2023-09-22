@@ -205,11 +205,7 @@
         </v-row>
       </v-card-text>
     </v-card>
-    <v-card
-      class="mb-5 mt-5"
-      elevation="0"
-      v-if="can(`attendance_report_view`)"
-    >
+    <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
       <v-tabs v-model="tab" background-color="popup_background" right dark>
         <v-tabs-slider class="violet"></v-tabs-slider>
 

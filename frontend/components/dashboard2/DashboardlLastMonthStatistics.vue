@@ -34,7 +34,7 @@
         md="4"
         sm="4"
         xs="4"
-        class="text-red bold text-h3 red--text laptop-padding"
+        class="text-red bold text-h3 red--text text-center laptop-padding"
         align-self="center"
         >{{ data.absentCount }}</v-col
       >
@@ -54,7 +54,7 @@
         md="4"
         sm="4"
         xs="4"
-        class="text-red bold text-h3 blue--text laptop-padding"
+        class="text-red bold text-h3 blue--text text-center laptop-padding"
         align-self="center"
         >{{ data.leaveCount }}</v-col
       >
@@ -73,7 +73,7 @@
         md="4"
         sm="4"
         xs="4"
-        class="text-red bold text-h3 orange--text laptop-padding"
+        class="text-red bold text-h3 orange--text text-center laptop-padding"
         align-self="center"
         >{{ data.missingCount }}</v-col
       >

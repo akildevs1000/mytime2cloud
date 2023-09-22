@@ -21,27 +21,38 @@
       </v-col>
     </v-row> -->
     <v-dialog persistent v-model="dialog" width="500px">
-
       <v-card>
-        <v-card-title dense class=" primary  white--text background">
+        <v-card-title dense class="popup_background">
           {{ formTitle }}
           <v-spacer></v-spacer>
-          <v-icon @click="dialog = false" outlined dark color="white">
+          <v-icon @click="dialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
         <v-card-text>
           <v-container>
-
             <v-row>
               <v-col cols="12">
-                <label for="" style="margin-bottom:5px">Select leave Type</label>
-                <v-autocomplete :items="UpdatedLeaveTypes" item-text="name" item-value="id"
-                  placeholder="Select Leave Type" v-model="editedItem.leave_type_id" :hide-details="!errors.leave_type_id"
-                  :error="errors.leave_type_id" :error-messages="errors && errors.leave_type_id
-                    ? errors.leave_type_id[0]
-                    : ''
-                    " dense outlined :disabled="editedItem.id > -1"></v-autocomplete>
+                <label for="" style="margin-bottom: 5px"
+                  >Select leave Type</label
+                >
+                <v-autocomplete
+                  :items="UpdatedLeaveTypes"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select Leave Type"
+                  v-model="editedItem.leave_type_id"
+                  :hide-details="!errors.leave_type_id"
+                  :error="errors.leave_type_id"
+                  :error-messages="
+                    errors && errors.leave_type_id
+                      ? errors.leave_type_id[0]
+                      : ''
+                  "
+                  dense
+                  outlined
+                  :disabled="editedItem.id > -1"
+                ></v-autocomplete>
               </v-col>
 
               <!-- <v-col cols="12">
@@ -54,14 +65,21 @@
               </v-col> -->
 
               <v-col cols="12">
-                <label for="" style="margin-bottom:5px">Leaves Count</label>
-                <v-text-field type="number" outlined dense v-model="editedItem.leave_type_count" v-bind="attrs"
-                  :error-messages="errors && errors.leave_type_count ? errors.leave_type_count[0] : ''
-                    ">
+                <label for="" style="margin-bottom: 5px">Leaves Count</label>
+                <v-text-field
+                  type="number"
+                  outlined
+                  dense
+                  v-model="editedItem.leave_type_count"
+                  v-bind="attrs"
+                  :error-messages="
+                    errors && errors.leave_type_count
+                      ? errors.leave_type_count[0]
+                      : ''
+                  "
+                >
                 </v-text-field>
               </v-col>
-
-
             </v-row>
           </v-container>
         </v-card-text>
@@ -76,56 +94,78 @@
 
     <v-row>
       <v-col md="12">
-
         <v-card class="mb-5 rounded-md" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> Dashboard / Leave Group / Count List</span></v-toolbar-title>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
-                </v-btn>
-              </template>
+          <v-toolbar class="rounded-md" dense flat>
+            <v-toolbar-title
+              ><span> Leave Group - Count List</span></v-toolbar-title
+            >
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
+            >
+              <v-icon class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
+            </v-tooltip> -->
             <v-spacer></v-spacer>
-            <v-tooltip v-if="can(`leavecount_create`)" top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="newDialog()" dark>mdi mdi-plus-circle</v-icon>
-                </v-btn>
-              </template>
+            <!-- <v-tooltip v-if="can(`leavecount_create`)" top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Add Count"
+            >
+              <v-icon class="ml-2" @click="newDialog()" dark
+                >mdi mdi-plus-circle</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Add </span>
-            </v-tooltip>
-
-
-
+            </v-tooltip> -->
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
             {{ snackText }}
 
             <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false">
-                Close
-              </v-btn>
+              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table v-if="can(`leavecount_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
-            :loading="loading" :footer-props="{
+          <v-data-table
+            v-if="can(`leavecount_view`)"
+            v-model="ids"
+            item-key="id"
+            :headers="headers"
+            :items="data"
+            :loading="loading"
+            :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1">
+            }"
+            class="elevation-1"
+          >
             <template v-slot:item.leave_type.name="{ item }">
-              {{ (item.leave_type.name) }}
+              {{ item.leave_type.name }}
             </template>
             <template v-slot:item.leave_type.short_name="{ item }">
-              {{ (item.leave_type.short_name) }}
+              {{ item.leave_type.short_name }}
             </template>
             <template v-slot:item.leave_groups.group_name="{ item }">
-              {{ (item.leave_groups.group_name) }}
+              {{ item.leave_groups.group_name }}
             </template>
             <template v-slot:item.leave_type_count="{ item }">
-              {{ (item.leave_type_count) }}
+              {{ item.leave_type_count }}
             </template>
             <template v-slot:item.action="{ item }">
               <v-menu bottom left>
@@ -135,19 +175,32 @@
                   </v-btn>
                 </template>
                 <v-list width="120" dense>
-
                   <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leavecount_edit`)" color="secondary" small @click="editItem(item)">
+                      <v-icon
+                        v-if="can(`leavecount_edit`)"
+                        color="secondary"
+                        small
+                        @click="editItem(item)"
+                      >
                         mdi-pencil
-                      </v-icon> Edit
+                      </v-icon>
+                      Edit
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon v-if="can(`leavecount_delete`)" color="error" small @click="deleteItem(item)">
-                        {{ item.announcement === "customer" ? "" : "mdi-delete" }}
-                      </v-icon> Delete
+                      <v-icon
+                        v-if="can(`leavecount_delete`)"
+                        color="error"
+                        small
+                        @click="deleteItem(item)"
+                      >
+                        {{
+                          item.announcement === "customer" ? "" : "mdi-delete"
+                        }}
+                      </v-icon>
+                      Delete
                     </v-list-item-title>
                   </v-list-item>
                 </v-list>
@@ -194,15 +247,15 @@ export default {
     attrs: {},
     leaveTypes: [],
     designations: [],
-    formTitle: 'New Leave Count',
+    formTitle: "New Leave Count",
     dialogEmployees: false,
     idsEmployeeList: [],
     //editor
-    datatable_search_textbox: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     extensions: [
       History,
       Blockquote,
@@ -261,14 +314,19 @@ export default {
         sortable: true,
         value: "leave_groups.group_name",
       },
-      { text: "Leave Type", align: "left", sortable: true, key: "name", value: "leave_type.name" },
+      {
+        text: "Leave Type",
+        align: "left",
+        sortable: true,
+        key: "name",
+        value: "leave_type.name",
+      },
       {
         text: "Short Name",
         align: "left",
         sortable: true,
         value: "leave_type.short_name",
       },
-
 
       {
         text: "Leaves   count",
@@ -289,7 +347,6 @@ export default {
       leave_type_id: "",
       group_id: "",
       leave_type_count: "",
-
     },
     response: "",
     data: [],
@@ -302,20 +359,15 @@ export default {
     id: "",
   }),
 
-  computed: {
+  computed: {},
 
-  },
-
-  watch: {
-
-  },
+  watch: {},
   created() {
     this.loading = true;
     this.id = this.$route.params.id;
 
     this.getDataFromApi();
     this.getDesignations();
-
   },
 
   methods: {
@@ -326,27 +378,22 @@ export default {
         group_id: "",
         leave_type_count: "",
       };
-      this.formTitle = 'New Leave Count';
+      this.formTitle = "New Leave Count";
       this.errors = [];
       this.dialog = true;
     },
     update_EdititemStart() {
-
-      this.$refs.from_menu.save(this.editedItem.start_date)
+      this.$refs.from_menu.save(this.editedItem.start_date);
       this.from_menu = false;
       this.getDayscount();
     },
     update_EdititemEnd() {
-
-      this.$refs.end_menu.save(this.editedItem.end_date)
+      this.$refs.end_menu.save(this.editedItem.end_date);
       this.end_menu = false;
 
       this.getDayscount();
-
     },
     getDayscount() {
-
-
       if (!this.editedItem.start_date || !this.editedItem.end_date) {
         return false;
       }
@@ -361,22 +408,18 @@ export default {
       // Convert the time difference to days
       let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-
-
       this.editedItem.total_days = diffDays + 1;
     },
     gotoDialogPage(item) {
-
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -411,23 +454,20 @@ export default {
         this.leaveTypes = data.data;
         // if (this.editedIndex <= -1) {
 
-
-        this.leaveTypes.forEach(leavetype => {
+        this.leaveTypes.forEach((leavetype) => {
           let alreadyExist = false;
-          this.data.forEach(group => {
+          this.data.forEach((group) => {
             if (group.leave_type_id == leavetype.id) {
               alreadyExist = true;
             }
           });
 
-          if (!alreadyExist)
-            this.UpdatedLeaveTypes.push(leavetype);
+          if (!alreadyExist) this.UpdatedLeaveTypes.push(leavetype);
         });
 
         // this.leaveTypes = UpdatedLeaveTypes;
 
         // }
-
       });
     },
     getDesignations() {
@@ -465,13 +505,11 @@ export default {
       });
     },
 
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
-      if (url == '') url = this.endpoint;
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+      if (url == "") url = this.endpoint;
       this.loading = true;
 
       let endDate = new Date();
-
-
 
       const { page, itemsPerPage } = this.options;
 
@@ -483,18 +521,15 @@ export default {
           year: endDate.getFullYear(),
         },
       };
-      if (filter_column != '') {
-
+      if (filter_column != "") {
         options.params[filter_column] = filter_value;
-
       }
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-        if (filter_column != '' && data.data.length == 0) {
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }
@@ -518,14 +553,11 @@ export default {
 
       this.dialog = true;
       this.error = [];
-      this.editedItem =
-      {
+      this.editedItem = {
         leave_type_id: "",
         group_id: "",
         leave_type_count: "",
-      }
-
-
+      };
     },
     editItem(item) {
       this.formTitle = "Edit leave Type";
@@ -534,9 +566,7 @@ export default {
       this.dialog = true;
       this.error = [];
 
-
       this.UpdatedLeaveTypes = this.leaveTypes;
-
     },
 
     delteteSelectedRecords() {
@@ -656,4 +686,3 @@ export default {
   },
 };
 </script>
-

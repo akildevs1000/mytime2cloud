@@ -2,7 +2,13 @@
   <div>
     <v-card class="py-2 mb-2">
       <v-row align-self="center">
-        <v-col lg="6" md="6" sm="6" xs="6" class=" " align-self="center"
+        <v-col
+          lg="6"
+          md="6"
+          sm="6"
+          xs="6"
+          class="laptop-padding"
+          align-self="center"
           >Total Employees</v-col
         >
 
@@ -13,6 +19,7 @@
           xs="4"
           class="text-red bold text-h3 red--text laptop-padding"
           align-self="center"
+          style="margin-left: 5px"
           >{{ data.employeeCount }}</v-col
         >
       </v-row>

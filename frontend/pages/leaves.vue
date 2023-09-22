@@ -8,10 +8,10 @@
 
     <v-dialog persistent v-model="dialogLeaveGroup" width="500px">
       <v-card>
-        <v-card-title dense class="primary white--text background">
-          <span>Employee - {{ viewEmployeeName }} </span>
+        <v-card-title dense class="popup_background popup_title">
+          Employee - {{ viewEmployeeName }}
           <v-spacer></v-spacer>
-          <v-icon @click="dialogLeaveGroup = false" outlined dark color="white">
+          <v-icon @click="dialogLeaveGroup = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -48,10 +48,10 @@
 
     <v-dialog persistent v-model="dialogView" width="1000px">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="popup_background">
           Leave Information
           <v-spacer></v-spacer>
-          <v-icon @click="dialogView = false" outlined dark color="white">
+          <v-icon @click="dialogView = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -283,14 +283,14 @@
               <!-- <v-btn class="error" small @click="close"> Close </v-btn> -->
               <v-spacer></v-spacer>
               <v-btn
-                class="error text-right"
+                class="error align-right mr-5"
                 v-if="dialogViewObject.status == 0"
                 small
                 @click="rejectLeave(dialogViewObject.id)"
               >
                 Reject
               </v-btn>
-              <v-spacer></v-spacer>
+
               <v-btn
                 class="primary"
                 v-if="dialogViewObject.status == 0"
@@ -311,53 +311,47 @@
     </v-dialog>
     <v-row>
       <v-col md="12">
-        <Back color="primary" />
+        <!-- <Back color="primary" /> -->
 
         <v-card class="mb-5 mt-2 rounded-md" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title><span> Applications List</span></v-toolbar-title>
 
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon
-                    color="white"
-                    class="ml-2"
-                    @click="clearFilters()"
-                    dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
+            >
+              <v-icon class="ml-2" @click="clearFilters()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" class="ml-2" @click="toggleFilter" dark
-                    >mdi mdi-filter</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+            >
+              <v-icon class="ml-2" @click="toggleFilter" dark
+                >mdi mdi-filter</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Filter</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
             <v-spacer></v-spacer>
             <!-- <v-toolbar-items>
@@ -393,256 +387,265 @@
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text">
-                  <v-text-field
-                    clearable
-                    :hide-details="true"
-                    v-if="
-                      !header.filterSpecial &&
-                      header.filterable &&
-                      header.text != 'Status'
-                    "
-                    v-model="filters[header.key]"
-                    id="header.value"
-                    @input="applyFilters(header.key, $event)"
-                    outlined
-                    dense
-                    autocomplete="off"
-                  ></v-text-field>
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      applyFilters();
-                    "
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="header.filterSpecial && header.value == 'group.name'"
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="group_name"
-                    item-value="id"
-                    :items="[
-                      { group_name: `All Groups`, id: `` },
-                      ...leaveGroups,
-                    ]"
-                    placeholder="Leave Groups"
-                    solo
-                    flat
-                    @change="applyFilters(header.key, id)"
-                  ></v-select>
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      applyFilters();
-                    "
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial && header.value == 'leave_type.name'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="id"
-                    :items="[
-                      { name: `All Leave Types`, id: `` },
-                      ...leaveTypes,
-                    ]"
-                    placeholder="Leave Types"
-                    solo
-                    flat
-                    @change="applyFilters(header.key, id)"
-                  ></v-select>
-                  <v-menu
-                    v-if="header.filterSpecial && header.value == 'start_date'"
-                    ref="from_menu_filter"
-                    v-model="from_menu_filter"
-                    :close-on-content-click="false"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="auto"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        clearable
-                        @click:clear="
-                          filters[header.value] = '';
-                          applyFilters();
-                        "
-                        :hide-details="!from_date_filter"
-                        outlined
-                        dense
-                        v-model="filters[header.value]"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        placeholder="Start Date"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
+                  <v-container>
+                    <v-text-field
+                      clearable
+                      :hide-details="true"
+                      v-if="
+                        !header.filterSpecial &&
+                        header.filterable &&
+                        header.text != 'Status'
+                      "
+                      v-model="filters[header.key]"
+                      id="header.value"
+                      @input="applyFilters(header.key, $event)"
+                      outlined
+                      dense
+                      autocomplete="off"
+                    ></v-text-field>
+                    <v-select
                       clearable
                       @click:clear="
                         filters[header.value] = '';
                         applyFilters();
                       "
-                      style="height: 350px"
-                      v-model="filters[header.value]"
-                      no-title
-                      scrollable
-                      @input="applyFilters()"
-                    >
-                      <v-spacer></v-spacer>
-
-                      <v-btn
-                        text
-                        color="primary"
-                        @click="
-                          filters[header.value] = '';
-                          from_menu_filter = false;
-                          applyFilters();
-                        "
-                      >
-                        Clear
-                      </v-btn>
-                    </v-date-picker>
-                  </v-menu>
-                  <v-menu
-                    v-if="header.filterSpecial && header.value == 'end_date'"
-                    ref="to_menu_filter"
-                    v-model="to_menu_filter"
-                    :close-on-content-click="false"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="auto"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        clearable
-                        @click:clear="
-                          filters[header.value] = '';
-                          applyFilters();
-                        "
-                        :hide-details="!to_date_filter"
-                        outlined
-                        dense
-                        v-model="filters[header.value]"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        placeholder="End Date"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial && header.value == 'group.name'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="group_name"
+                      item-value="id"
+                      :items="[
+                        { group_name: `All Groups`, id: `` },
+                        ...leaveGroups,
+                      ]"
+                      placeholder="Leave Groups"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+                    <v-select
                       clearable
                       @click:clear="
                         filters[header.value] = '';
                         applyFilters();
                       "
-                      style="height: 350px"
-                      v-model="filters[header.value]"
-                      no-title
-                      scrollable
-                      @input="applyFilters()"
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial &&
+                        header.value == 'leave_type.name'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="name"
+                      item-value="id"
+                      :items="[
+                        { name: `All Leave Types`, id: `` },
+                        ...leaveTypes,
+                      ]"
+                      placeholder="Leave Types"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+                    <v-menu
+                      v-if="
+                        header.filterSpecial && header.value == 'start_date'
+                      "
+                      ref="from_menu_filter"
+                      v-model="from_menu_filter"
+                      :close-on-content-click="false"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
                     >
-                      <v-spacer></v-spacer>
-
-                      <v-btn
-                        text
-                        color="primary"
-                        @click="
-                          filters[header.value] = '';
-                          to_menu_filter = false;
-                          applyFilters();
-                        "
-                      >
-                        Clear
-                      </v-btn>
-                    </v-date-picker>
-                  </v-menu>
-                  <v-menu
-                    v-if="header.filterSpecial && header.value == 'created_at'"
-                    ref="created_at_menu_filter"
-                    v-model="created_at_menu_filter"
-                    :close-on-content-click="false"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="auto"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          clearable
+                          @click:clear="
+                            filters[header.value] = '';
+                            applyFilters();
+                          "
+                          :hide-details="!from_date_filter"
+                          outlined
+                          dense
+                          v-model="filters[header.value]"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          placeholder="Start Date"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
                         clearable
                         @click:clear="
                           filters[header.value] = '';
                           applyFilters();
                         "
-                        :hide-details="!created_at_filter"
-                        outlined
-                        dense
+                        style="height: 350px"
                         v-model="filters[header.value]"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        placeholder="Application Date"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
+                        no-title
+                        scrollable
+                        @input="applyFilters()"
+                      >
+                        <v-spacer></v-spacer>
+
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="
+                            filters[header.value] = '';
+                            from_menu_filter = false;
+                            applyFilters();
+                          "
+                        >
+                          Clear
+                        </v-btn>
+                      </v-date-picker>
+                    </v-menu>
+                    <v-menu
+                      v-if="header.filterSpecial && header.value == 'end_date'"
+                      ref="to_menu_filter"
+                      v-model="to_menu_filter"
+                      :close-on-content-click="false"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          clearable
+                          @click:clear="
+                            filters[header.value] = '';
+                            applyFilters();
+                          "
+                          :hide-details="!to_date_filter"
+                          outlined
+                          dense
+                          v-model="filters[header.value]"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          placeholder="End Date"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        style="height: 350px"
+                        v-model="filters[header.value]"
+                        no-title
+                        scrollable
+                        @input="applyFilters()"
+                      >
+                        <v-spacer></v-spacer>
+
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="
+                            filters[header.value] = '';
+                            to_menu_filter = false;
+                            applyFilters();
+                          "
+                        >
+                          Clear
+                        </v-btn>
+                      </v-date-picker>
+                    </v-menu>
+                    <v-menu
+                      v-if="
+                        header.filterSpecial && header.value == 'created_at'
+                      "
+                      ref="created_at_menu_filter"
+                      v-model="created_at_menu_filter"
+                      :close-on-content-click="false"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          clearable
+                          @click:clear="
+                            filters[header.value] = '';
+                            applyFilters();
+                          "
+                          :hide-details="!created_at_filter"
+                          outlined
+                          dense
+                          v-model="filters[header.value]"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          placeholder="Application Date"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        style="height: 350px"
+                        v-model="filters[header.value]"
+                        no-title
+                        scrollable
+                        @input="applyFilters()"
+                      >
+                        <v-spacer></v-spacer>
+
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="
+                            filters[header.value] = '';
+                            to_menu_filter = false;
+                            applyFilters();
+                          "
+                        >
+                          Clear
+                        </v-btn>
+                      </v-date-picker>
+                    </v-menu>
+
+                    <v-select
                       clearable
                       @click:clear="
                         filters[header.value] = '';
                         applyFilters();
                       "
-                      style="height: 350px"
+                      :hide-details="true"
+                      @change="applyFilters('status', $event)"
+                      item-value="value"
+                      item-text="title"
                       v-model="filters[header.value]"
-                      no-title
-                      scrollable
-                      @input="applyFilters()"
-                    >
-                      <v-spacer></v-spacer>
-
-                      <v-btn
-                        text
-                        color="primary"
-                        @click="
-                          filters[header.value] = '';
-                          to_menu_filter = false;
-                          applyFilters();
-                        "
-                      >
-                        Clear
-                      </v-btn>
-                    </v-date-picker>
-                  </v-menu>
-
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      applyFilters();
-                    "
-                    :hide-details="true"
-                    @change="applyFilters('status', $event)"
-                    item-value="value"
-                    item-text="title"
-                    v-model="filters[header.value]"
-                    outlined
-                    dense
-                    v-else-if="header.filterable && header.text == 'Status'"
-                    :items="[
-                      { value: '', title: 'All' },
-                      { value: 'approved', title: 'Approved' },
-                      {
-                        value: 'rejected',
-                        title: 'Rejected',
-                      },
-                      { value: 'pending', title: 'Pending' },
-                    ]"
-                    placeholder="Status"
-                  ></v-select>
+                      outlined
+                      dense
+                      v-else-if="header.filterable && header.text == 'Status'"
+                      :items="[
+                        { value: '', title: 'All' },
+                        { value: 'approved', title: 'Approved' },
+                        {
+                          value: 'rejected',
+                          title: 'Rejected',
+                        },
+                        { value: 'pending', title: 'Pending' },
+                      ]"
+                      placeholder="Status"
+                    ></v-select>
+                  </v-container>
                 </td>
               </tr>
             </template>
