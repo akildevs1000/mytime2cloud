@@ -62,61 +62,30 @@ class DailyController extends Controller
     {
         return $this->processPDF($request)->download();
     }
-    
-    public function generateSummaryReport()
+
+    public function generateSummaryReport($id)
     {
-        $company_ids = $this->getNotificationCompanyIds();
-
-        foreach ($company_ids as $company_id) {
-
-            $this->processData($company_id, "daily_summary", "SA");
-        }
-
-        return true;
+        $this->processData($id, "daily_summary", "SA");
     }
 
-    public function generatePresentReport()
+    public function generatePresentReport($id)
     {
-        $company_ids = $this->getNotificationCompanyIds();
-
-        foreach ($company_ids as $company_id) {
-            $this->processData($company_id, "daily_present", "P");
-        }
-
-        return true;
+        return $this->processData($id, "daily_present", "P");
     }
 
-    public function generateAbsentReport()
+    public function generateAbsentReport($id)
     {
-        $company_ids = $this->getNotificationCompanyIds();
-
-        foreach ($company_ids as $company_id) {
-            $this->processData($company_id, "daily_absent", "A");
-        }
-
-        return true;
+        return $this->processData($id, "daily_present", "P");
     }
 
-    public function generateMissingReport()
+    public function generateMissingReport($id)
     {
-        $company_ids = $this->getNotificationCompanyIds();
-
-        foreach ($company_ids as $company_id) {
-            $this->processData($company_id, "daily_missing", "M");
-        }
-
-        return true;
+        return $this->processData($id, "daily_missing", "M");
     }
 
-    public function generateManualReport()
+    public function generateManualReport($id)
     {
-        $company_ids = $this->getNotificationCompanyIds();
-
-        foreach ($company_ids as $company_id) {
-            $this->processData($company_id, "daily_manual", "ME");
-        }
-
-        return true;
+        $this->processData($id, "daily_manual", "ME");
     }
 
     public function report($company_id, $report_type, $file_name, $status  = null)

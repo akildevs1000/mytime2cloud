@@ -45,13 +45,11 @@ Route::get('/multi_in_out_monthly_download_pdf', [MonthlyController::class, 'mul
 Route::get('report_multi_in_out', [ReportController::class, 'multiInOut']);
 Route::get('csv_pdf', [MonthlyController::class, 'csvPdf']);
 
-
-
-Route::get('/generateSummaryReport', [DailyController::class, 'generateSummaryReport']);
-Route::get('/generatePresentReport', [DailyController::class, 'generatePresentReport']);
-Route::get('/generateAbsentReport', [DailyController::class, 'generateAbsentReport']);
-Route::get('/generateMissingReport', [DailyController::class, 'generateMissingReport']);
-Route::get('/generateManualReport', [DailyController::class, 'generateManualReport']);
+Route::get('/generateSummaryReport/{id}', [DailyController::class, 'generateSummaryReport']);
+Route::get('/generatePresentReport/{id}', [DailyController::class, 'generatePresentReport']);
+Route::get('/generateAbsentReport/{id}', [DailyController::class, 'generateAbsentReport']);
+Route::get('/generateMissingReport/{id}', [DailyController::class, 'generateMissingReport']);
+Route::get('/generateManualReport/{id}', [DailyController::class, 'generateManualReport']);
 
 // weekly
 Route::get('/weekly', [WeeklyController::class, 'weekly']);
@@ -99,4 +97,3 @@ Route::get('/access_control_by_device', [PDFController::class, 'monthlyAccessCon
 
 
 Route::get('/monthly_access_control_count', [PDFController::class, 'monthlyAccessControlCount']);
-
