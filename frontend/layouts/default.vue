@@ -207,7 +207,18 @@
                 :color="menuProperties['visitors'].selected"
                 @click="setTopMenuItems('visitors', '/visitor-dashboard')"
               >
-                <span>Visitor App</span>
+                <span>Visitors</span>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn
+                text
+                class="btn-text-size d-none d-lg-block"
+                :elevation="menuProperties['reports'].elevation"
+                :color="menuProperties['reports'].selected"
+                @click="setTopMenuItems('reports', '/attendance_report')"
+              >
+                <span>Reports</span>
               </v-btn>
             </v-col>
           </v-row>
@@ -362,8 +373,10 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
-      <v-btn plain @click="goToSettings()"
-        ><v-icon class="pr-3 black--text">mdi-settings</v-icon></v-btn
+      <v-btn icon plan @click="goToSettings()"
+        ><v-icon class="pr-3 black--text" style="color: black"
+          >mdi-settings</v-icon
+        ></v-btn
       >
 
       <label class=" ">
@@ -582,6 +595,10 @@ export default {
           selected: "",
         },
         visitors: {
+          elevation: 0,
+          selected: "",
+        },
+        reports: {
           elevation: 0,
           selected: "",
         },

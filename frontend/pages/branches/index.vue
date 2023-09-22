@@ -49,10 +49,10 @@
       </v-dialog>
       <v-dialog persistent v-model="employeeDialog" width="900">
         <v-card>
-          <v-card-title dark class="primary white--text background">
+          <v-card-title dark class="popup_background">
             {{ formTitle }} {{ Model }}
             <v-spacer></v-spacer>
-            <v-icon @click="employeeDialog = false" outlined dark color="white">
+            <v-icon @click="employeeDialog = false" outlined dark>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>

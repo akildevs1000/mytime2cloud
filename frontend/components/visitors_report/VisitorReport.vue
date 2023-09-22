@@ -16,59 +16,54 @@
       <div class="text-center">
         <v-dialog persistent v-model="attendancFilters" width="900">
           <v-card>
-            <v-card-title class="background">
-              <span class="headline white--text">
-                Visitor Reports Filters
-              </span>
+            <v-card-title class="popup_background">
+              <span class="headline"> Visitor Reports Filters </span>
               <v-spacer></v-spacer>
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    class="ma-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="process_file('print')"
-                  >
-                    <v-icon class="white--text">mdi-printer-outline</v-icon>
-                  </v-btn>
-                </template>
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                class="ma-0"
+                x-small
+                :ripple="false"
+                text
+                title="PRINT"
+                @click="process_file('print')"
+              >
+                <v-icon>mdi-printer-outline</v-icon>
+              </v-btn>
+              <!-- </template>
                 <span>PRINT</span>
-              </v-tooltip>
+              </v-tooltip> -->
 
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="process_file('download')"
-                  >
-                    <v-icon class="white--text">mdi-download-outline</v-icon>
-                  </v-btn>
-                </template>
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="DOWNLOAD"
+                @click="process_file('download')"
+              >
+                <v-icon>mdi-download-outline</v-icon>
+              </v-btn>
+              <!-- </template>
                 <span>DOWNLOAD</span>
-              </v-tooltip>
+              </v-tooltip> -->
 
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="process_file('csv')"
-                  >
-                    <v-icon class="white--text">mdi-file-outline</v-icon>
-                  </v-btn>
-                </template>
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="CSV"
+                @click="process_file('csv')"
+              >
+                <v-icon>mdi-file-outline</v-icon>
+              </v-btn>
+              <!-- </template>
                 <span>CSV</span>
-              </v-tooltip>
+              </v-tooltip> -->
 
               <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }">
@@ -313,7 +308,7 @@
       </div>
       <v-dialog persistent v-model="time_table_dialog" max-width="600px">
         <v-card class="darken-1">
-          <v-toolbar class="primary" dense dark flat>
+          <v-toolbar class="popup-background" dense flat>
             <span class="text-h5">Time Slots</span>
           </v-toolbar>
           <v-card-text>
@@ -596,60 +591,55 @@
     <v-row>
       <v-col>
         <v-card class="mb-5" elevation="0">
-          <v-toolbar class="background" dark flat>
+          <v-toolbar flat>
             <v-toolbar-title>
               <span> Visitor Report </span>
             </v-toolbar-title>
 
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="clearFilters()"
-                >
-                  <v-icon dark white @click="clearFilters()">mdi-reload</v-icon>
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
+              @click="clearFilters()"
+            >
+              <v-icon dark @click="clearFilters()">mdi-reload</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="attendancFilters = true"
-                >
-                  <v-icon dark white @click="attendancFilters = true"
-                    >mdi-filter</v-icon
-                  >
-                </v-btn>
-              </template>
+            </v-tooltip> -->
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+              @click="attendancFilters = true"
+            >
+              <v-icon dark @click="attendancFilters = true">mdi-filter</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>Filter</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
             <v-spacer></v-spacer>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="renderVisitorDialog = true"
-                >
-                  <v-icon dark white>mdi-cached</v-icon>
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              title="Render"
+              @click="renderVisitorDialog = true"
+            >
+              <v-icon dark>mdi-cached</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>Render Fake Data</span>
-            </v-tooltip>
+            </v-tooltip> -->
           </v-toolbar>
 
           <v-data-table
@@ -711,10 +701,19 @@
       </v-dialog>
       <v-dialog persistent v-model="renderVisitorDialog" max-width="500px">
         <v-card>
-          <v-card-title class="background">
-            <span class="headline white--text">Submit Data</span>
+          <v-card-title class="popup_background">
+            <span class="headline">Submit Data</span>
             <v-spacer></v-spacer>
-            <v-btn class="primary" small @click="addUser">Add User</v-btn>
+
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              title="Add user"
+              @click="addUser"
+            >
+              <v-icon dark>mdi-plus-circle</v-icon>
+            </v-btn>
           </v-card-title>
           <v-card-text>
             <v-form @submit.prevent="submitData">

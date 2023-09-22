@@ -12,7 +12,7 @@
     "title": "Employees",
 
     "to": "/employees",
-    "menu": "branch_access",
+    "menu": "employee_access",
     "click": "employees",
     "module": "dashboard"
   },
@@ -20,7 +20,7 @@
     "icon": "mdi-clock-time-five-outline",
     "title": "Attendance",
     "to": "/dashboard/1",
-    "menu": "branch_access",
+    "menu": "employee_schedule_access",
     "click": "attendance",
     "module": "dashboard"
   },
@@ -28,7 +28,7 @@
     "icon": "mdi-cash-multiple",
     "title": "Payroll",
     "to": "/payroll/salary",
-    "menu": "branch_access",
+    "menu": "payroll_access",
     "click": "payroll",
     "module": "dashboard"
   },
@@ -36,7 +36,7 @@
     "icon": "mdi-security",
     "title": "Access Control",
     "to": "/timezone",
-    "menu": "branch_access",
+    "menu": "timezone",
     "click": "access_control",
     "module": "dashboard"
   },
@@ -45,10 +45,19 @@
     "icon": "mdi-transit-transfer",
     "title": "Visitors",
     "to": "/visitor-dashboard",
-    "menu": "branch_access",
+    "menu": "true",
     "click": "visitors",
     "module": "dashboard"
   },
+  {
+    "icon": "mdi-transit-transfer",
+    "title": "Reports",
+    "to": "/visitor-dashboard",
+    "menu": "true",
+    "click": "visitors",
+    "module": "dashboard"
+  },
+
   {
     "icon": "mdi-filmstrip-box-multiple",
     "title": "Branches",
@@ -272,5 +281,49 @@
     "to": "/visitor_logs",
     "menu": true,
     "module": "visitors"
+  },
+
+  {
+    "icon": "mdi-calendar-today",
+    "title": "Attendance",
+    "to": "/attendance_report",
+    "menu": "attendance_report_access",
+    "module": "reports"
+  },
+  {
+    "icon": "mdi-clipboard-text-clock",
+    "title": "Attendance Logs",
+    "to": "/devicelogs",
+    "menu": "logs_access",
+    "module": "reports"
+  },
+  {
+    "icon": "mdi-cash",
+    "title": "Salary",
+    "to": "/payroll/salary",
+    "menu": true,
+    "module": "reports"
+  },
+  {
+    "icon": "mdi mdi-calendar-account",
+    "title": "Leaves",
+    "to": "/leaves",
+    "menu": true,
+    "module": "reports"
+  },
+  {
+    "icon": "mdi-account",
+    "title": "Visitors",
+    "to": "/visitors_report",
+    "menu": true,
+    "module": "reports"
+  },
+
+  {
+    "icon": "mdi-chart-box-outline",
+    "title": "Visitor Logs",
+    "to": "/visitor_logs",
+    "menu": true,
+    "module": "reports"
   }
 ]

@@ -15,15 +15,10 @@
     <v-row justify="center">
       <v-dialog persistent v-model="generateLogsDialog" max-width="700px">
         <v-card>
-          <v-card-title class="background">
-            <span class="headline white--text" dense> Generate Log </span>
+          <v-card-title class="popup_background">
+            <span class="headline" dense> Generate Log </span>
             <v-spacer></v-spacer>
-            <v-icon
-              dark
-              @click="generateLogsDialog = false"
-              outlined
-              color="white"
-            >
+            <v-icon dark @click="generateLogsDialog = false" outlined>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
@@ -137,43 +132,39 @@
     <v-row>
       <v-col>
         <v-card class="mb-5" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title><span> Visitor Logs</span></v-toolbar-title>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  @click="getRecords"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" class="ml-2" dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              @click="getRecords"
+              text
+              title="Reload"
+            >
+              <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="toggleFilter"
-                >
-                  <v-icon dark white>mdi-filter</v-icon>
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+              @click="toggleFilter"
+            >
+              <v-icon dark>mdi-filter</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>Filter</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
             <v-spacer></v-spacer>
           </v-toolbar>

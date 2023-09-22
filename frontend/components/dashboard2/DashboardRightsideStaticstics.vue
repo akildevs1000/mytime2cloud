@@ -3,6 +3,7 @@
     <v-card class="py-2 mb-2">
       <v-row align-self="center">
         <v-col
+          style="padding-left: 25px"
           lg="6"
           md="6"
           sm="6"
