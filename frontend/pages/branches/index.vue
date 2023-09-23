@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('employee_access')">
+  <div v-if="can('branch_access')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
@@ -13,46 +13,12 @@
       </v-snackbar>
     </div>
     <div v-if="!loading">
-      <v-dialog persistent v-model="dialogCropping" width="500">
-        <v-card style="padding-top: 20px">
-          <v-card-text>
-            <VueCropper
-              v-show="selectedFile"
-              ref="cropper"
-              :src="selectedFile"
-              alt="Source Image"
-              :aspectRatio="1"
-              :autoCropArea="0.9"
-              :viewMode="3"
-            ></VueCropper>
-          </v-card-text>
-
-          <v-card-actions>
-            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
-              <v-btn
-                class="danger btn btn-danger text-left"
-                text
-                @click="closePopup()"
-                style="float: left"
-                >Cancel</v-btn
-              >
-            </div>
-            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
-              <v-btn
-                class="primary btn btn-danger text-right"
-                @click="saveCroppedImageStep2(), (dialog = false)"
-                >Crop</v-btn
-              >
-            </div>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <v-dialog persistent v-model="employeeDialog" width="900">
+      <v-dialog persistent v-model="branchDialog" width="900">
         <v-card>
           <v-card-title dark class="popup_background">
             {{ formTitle }} {{ Model }}
             <v-spacer></v-spacer>
-            <v-icon @click="employeeDialog = false" outlined dark>
+            <v-icon @click="branchDialog = false" outlined dark>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
@@ -78,6 +44,7 @@
                       >{{ !upload.name ? "Upload" : "Change" }}
                       <v-icon right dark>mdi-cloud-upload</v-icon>
                     </v-btn>
+
                     <input
                       required
                       type="file"
@@ -88,9 +55,9 @@
                     />
 
                     <span
-                      v-if="errors && errors.profile_picture"
+                      v-if="errors && errors.logo"
                       class="text-danger mt-2"
-                      >{{ errors.profile_picture[0] }}</span
+                      >{{ errors.logo[0] }}</span
                     >
                   </div>
                 </v-col>
@@ -99,41 +66,46 @@
                     <v-col md="6" cols="12" sm="12" dense>
                       <label>Branch Name</label>
                       <v-text-field
+                        :disabled="disabled"
                         dense
                         outlined
                         type="text"
-                        v-model="employee.name"
+                        v-model="branch.branch_name"
                         hide-details
                       ></v-text-field>
                       <span
-                        v-if="errors && errors.name"
+                        v-if="errors && errors.branch_name"
                         class="text-danger mt-2"
-                        >{{ errors.name[0] }}</span
+                        >{{ errors.branch_name[0] }}</span
                       >
                     </v-col>
                     <v-col md="6" cols="12" sm="12" dense>
                       <label>Manager</label>
-                      <v-text-field
+                      <v-autocomplete
+                        :disabled="disabled"
+                        v-model="branch.user_id"
+                        :items="managers"
+                        item-text="first_name"
+                        item-value="user_id"
+                        hide-details
                         dense
                         outlined
-                        type="text"
-                        v-model="employee.employee_id"
-                        hide-details
-                      ></v-text-field>
+                      ></v-autocomplete>
                       <span
-                        v-if="errors && errors.employee_id"
+                        v-if="errors && errors.user_id"
                         class="text-danger mt-2"
-                        >{{ errors.employee_id[0] }}</span
+                        >{{ errors.user_id[0] }}</span
                       >
                     </v-col>
 
                     <v-col md="4" cols="12" sm="12" dense>
                       <label>Licence Number</label>
                       <v-text-field
+                        :disabled="disabled"
                         dense
                         outlined
                         type="text"
-                        v-model="employee.licence_number"
+                        v-model="branch.licence_number"
                         hide-details
                       ></v-text-field>
                       <span
@@ -145,10 +117,11 @@
                     <v-col md="4" cols="12" sm="12" dense>
                       <label>Licence Issued By</label>
                       <v-text-field
+                        :disabled="disabled"
                         dense
                         outlined
                         type="text"
-                        v-model="employee.licence_issue_by_department"
+                        v-model="branch.licence_issue_by_department"
                         hide-details
                       ></v-text-field>
                       <span
@@ -173,8 +146,9 @@
                         >
                           <template v-slot:activator="{ on, attrs }">
                             <v-text-field
+                              :disabled="disabled"
                               hide-details
-                              v-model="employee.licence_expiry"
+                              v-model="branch.licence_expiry"
                               persistent-hint
                               append-icon="mdi-calendar"
                               readonly
@@ -191,7 +165,7 @@
                           </template>
                           <v-date-picker
                             style="min-height: 320px"
-                            v-model="employee.licence_expiry"
+                            v-model="branch.licence_expiry"
                             no-title
                             @input="joiningDateMenuOpen = false"
                           ></v-date-picker>
@@ -202,46 +176,52 @@
                     <v-col md="6" cols="12" sm="12" dense>
                       <label>Lat</label>
                       <v-text-field
+                        :disabled="disabled"
                         dense
                         outlined
                         type="text"
-                        v-model="employee.lat"
+                        v-model="branch.lat"
                         hide-details
-                        :error="errors.lat"
-                        :error-messages="
-                          errors && errors.lat ? errors.lat[0] : ''
-                        "
                       ></v-text-field>
+                      <span
+                        v-if="errors && errors.lat"
+                        class="text-danger mt-2"
+                        >{{ errors.lat[0] }}</span
+                      >
                     </v-col>
                     <v-col md="6" cols="12" sm="12" dense>
                       <label>Lon</label>
                       <v-text-field
+                        :disabled="disabled"
                         dense
                         outlined
                         type="text"
-                        v-model="employee.po_box"
-                        :hide-details="!errors.po_box"
-                        :error="errors.po_box"
-                        :error-messages="
-                          errors && errors.po_box ? errors.po_box[0] : ''
-                        "
+                        v-model="branch.lon"
+                        hide-details
                       ></v-text-field>
+                      <span
+                        v-if="errors && errors.lon"
+                        class="text-danger mt-2"
+                        >{{ errors.lon[0] }}</span
+                      >
                     </v-col>
                     <v-col md="12" cols="12" sm="12" dense>
                       <label>Address</label>
                       <v-textarea
+                        :disabled="disabled"
                         dense
                         outlined
                         type="text"
                         rows="3"
-                        v-model="employee.address"
-                        :hide-details="!errors.address"
-                        :error="errors.address"
-                        :error-messages="
-                          errors && errors.address ? errors.address[0] : ''
-                        "
+                        v-model="branch.address"
+                        hide-details
                       >
                       </v-textarea>
+                      <span
+                        v-if="errors && errors.address"
+                        class="text-danger mt-2"
+                        >{{ errors.address[0] }}</span
+                      >
                     </v-col>
                   </v-row>
                 </v-col>
@@ -253,40 +233,32 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <!-- <v-btn small color="grey white--text" @click="employeeDialog = false">
-              Close
-            </v-btn> -->
-
             <v-btn
-              v-if="can('employee_create')"
+              v-if="can('branch_create')"
               small
               :loading="loading"
               color="primary"
-              @click="store_data"
+              @click="submit"
             >
               Submit
+            </v-btn>
+            <v-btn
+              v-if="formTitle == 'Update'"
+              small
+              :loading="loading"
+              color="primary"
+              @click="update"
+            >
+              Update
             </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
-      <div class="text-center">
-        <v-dialog
-          persistent
-          v-model="viewDialog"
-          width="1200"
-          :key="employeeId"
-        >
-          <BranchDetails
-            @close-parent-dialog="closeViewDialog"
-            :employeeObject="employeeObject"
-          />
-        </v-dialog>
-      </div>
       <!-- <v-dialog persistent v-model="dialog" max-width="500px">
         <v-card>
           <v-card-title dense class="primary white--text background">
-            Import Employee
+            Import branch
             <v-spacer></v-spacer>
             <v-icon @click="dialog = false" outlined dark color="white">
               mdi mdi-close-circle
@@ -310,7 +282,7 @@
                     </template>
                   </v-file-input>
                   <br />
-                  <a href="/employees.csv" download> Download Sample</a>
+                  <a href="/branchs.csv" download> Download Sample</a>
                   <br />
                   <span
                     v-if="errors && errors.length > 0"
@@ -330,14 +302,14 @@
               class="primary"
               :loading="btnLoader"
               small
-              @click="importEmployee"
+              @click="importbranch"
               >Save</v-btn
             >
           </v-card-actions>
         </v-card>
       </v-dialog> -->
 
-      <div v-if="can(`employee_view`)">
+      <div v-if="can(`branch_view`)">
         <v-container>
           <!-- <Back class="primary white--text" /> -->
 
@@ -472,7 +444,7 @@
                         width: 50px;
                         max-width: 50px;
                       "
-                      :src="item.logo ? item.logo : '/no-profile-image.jpg'"
+                      :src="item.logo ? item.logo : '/no-image.PNG'"
                     >
                     </v-img>
                   </v-col>
@@ -485,9 +457,9 @@
                 </v-row>
               </template>
               <template v-slot:item.location_address="{ item }">
-                {{ item.location }}
+                {{ item.location || "---" }}
                 <br />
-                {{ item.address }}
+                {{ item.address || "---" }}
               </template>
 
               <template v-slot:item.manager_mobile="{ item }">
@@ -537,35 +509,11 @@
 </template>
 
 <script>
-import EmployeeEdit from "../../components/employee/EmployeeEdit.vue";
-import Contact from "../../components/employee/Contact.vue";
-import Passport from "../../components/employee/Passport.vue";
-import Emirates from "../../components/employee/Emirates.vue";
-import Visa from "../../components/employee/Visa.vue";
-import Bank from "../../components/employee/Bank.vue";
-import Document from "../../components/employee/Document.vue";
-import Qualification from "../../components/employee/Qualification.vue";
-import Setting from "../../components/employee/Setting.vue";
-import Payroll from "../../components/employee/Payroll.vue";
-import Login from "../../components/employee/Login.vue";
 import Back from "../../components/Snippets/Back.vue";
 import headers_table from "../../menus/branch.json";
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
-const compList = [
-  EmployeeEdit,
-  Contact,
-  Passport,
-  Emirates,
-  Visa,
-  Bank,
-  Document,
-  Qualification,
-  Setting,
-  Payroll,
-  Login,
-];
 
 export default {
   components: {
@@ -583,7 +531,7 @@ export default {
     showFilters: false,
     filters: {},
     isFilter: false,
-    sortBy: "employee_id",
+    sortBy: "branch_id",
     sortDesc: false,
     server_datatable_totalItems: 1000,
     snack: false,
@@ -600,18 +548,15 @@ export default {
     cropper: "",
     autoCrop: false,
     dialogCropping: false,
-    compList,
-    comp: "EmployeeEdit",
-    tabMenu: [],
+    comp: "branchEdit",
     tab: "0",
-    employeeId: 0,
-    employeeObject: {},
+    branchId: 0,
+    branchObject: {},
     attrs: [],
     dialog: false,
     editDialog: false,
-    viewDialog: false,
     selectedFile: "",
-    employeeDialog: false,
+    branchDialog: false,
     m: false,
     expand: false,
     expand2: false,
@@ -635,8 +580,8 @@ export default {
     response: "",
     snackbar: false,
     btnLoader: false,
-    max_employee: 0,
-    employee: {},
+    max_branch: 0,
+    branch: {},
     upload: {
       name: "",
     },
@@ -671,89 +616,33 @@ export default {
     departments: [],
     sub_departments: [],
     designations: [],
-    roles: [],
+    managers: [],
     department_filter_id: "",
     dialogVisible: false,
-    payloadOptions: {},
     headers_table,
     formTitle: "Create",
+    disabled: false,
   }),
 
   async created() {
     this.loading = false;
     this.boilerplate = true;
 
-    this.payloadOptions = {
+    let options = {
       params: {
-        per_page: 10,
+        per_page: 1000,
         company_id: this.$auth.user.company_id,
+        // department_ids: this.$auth.user.assignedDepartments,
       },
     };
 
     this.getDataFromApi();
-    this.getDepartments();
-    this.getShifts();
-    this.getTimezone();
+    this.getManagers(options);
+    this.getDepartments(options);
   },
   mounted() {
     //this.getDataFromApi();
-    this.tabMenu = [
-      {
-        text: "Profile",
-        icon: "mdi-account-box",
-        value: "#0",
-      },
-      {
-        text: "Contact",
-        icon: "mdi-phone",
-        value: "#1",
-      },
-      {
-        text: "Passport",
-        icon: "mdi-file-powerpoint-outline",
-        value: "#2",
-      },
-      {
-        text: "Emirates",
-        icon: "mdi-city-variant",
-        value: "#3",
-      },
-      {
-        text: "Visa",
-        icon: "mdi-file-document-multiple",
-        value: "#4",
-      },
-      {
-        text: "Bank",
-        icon: "mdi-bank",
-        value: "#5",
-      },
-      {
-        text: "Documents",
-        icon: "mdi-file",
-        value: "#6",
-      },
-      {
-        text: "Qualification",
-        icon: "mdi-account-box",
-        value: "#7",
-      },
-      {
-        text: "Setting",
-        icon: "mdi-phone",
-        value: "#8",
-      },
-      {
-        text: "Payroll",
-        icon: "mdi-briefcase",
-        value: "#9",
-      },
-      {
-        text: "Login",
-        icon: "mdi-lock",
-        value: "#10",
-      },
-    ];
+
     this.headers = [
       // { text: "#" },
       { text: "E.ID" },
@@ -779,23 +668,19 @@ export default {
     },
   },
   methods: {
+    getManagers(options) {
+      //
+      this.$axios.get(`assigned-employee-list`, options).then(({ data }) => {
+        this.managers = data;
+      });
+    },
     OpenDialog(action) {
       this.formTitle = action;
-      this.employee = {};
-      this.employeeDialog = true;
+      this.branch = {};
+      this.branchDialog = true;
+      this.disabled = false;
     },
-    getCurrentShift(item) {
-      // Define an array of day names
-      const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const dayName = daysOfWeek[new Date().getDay()];
-      const { shift_name } =
-        item && item.roster.json.find((e) => e.day == dayName);
 
-      return shift_name || "---";
-    },
-    closeViewDialog() {
-      this.viewDialog = false;
-    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";
@@ -828,9 +713,7 @@ export default {
 
       this.dialogCropping = false;
     },
-    getComponent() {
-      return this.compList[this.tab];
-    },
+
     close() {
       this.dialog = false;
       this.errors = [];
@@ -846,7 +729,7 @@ export default {
         whatsapp_number: e.whatsapp_number,
         phone_relative_number: e.phone_relative_number,
         whatsapp_relative_number: e.whatsapp_relative_number,
-        employee_id: e.employee_id,
+        branch_id: e.branch_id,
         department_code: e.department_id,
         designation_code: e.designation_id,
         department: e.department.name,
@@ -877,9 +760,9 @@ export default {
       element.click();
       document.body.removeChild(element);
     },
-    importEmployee() {
+    importbranch() {
       let payload = new FormData();
-      payload.append("employees", this.files);
+      payload.append("branchs", this.files);
       payload.append("company_id", this.$auth?.user?.company?.id);
       let options = {
         headers: {
@@ -888,16 +771,16 @@ export default {
       };
       this.btnLoader = true;
       this.$axios
-        .post("/employee/import", payload, options)
+        .post("/branch/import", payload, options)
         .then(({ data }) => {
           this.btnLoader = false;
           if (!data.status) {
             this.errors = data.errors;
-            payload.delete("employees");
+            payload.delete("branchs");
           } else {
             this.errors = [];
             this.snackbar = true;
-            this.response = "Employees imported successfully";
+            this.response = "branchs imported successfully";
             this.getDataFromApi();
             this.close();
           }
@@ -953,31 +836,6 @@ export default {
 
       this.$axios.get(url, options).then(({ data }) => {
         this.data = data.data;
-        // this.data = [
-        //   {
-        //     branch_code: "NAME01",
-        //     branch_name: "value2",
-        //     location_address:"test",
-        //     manager_name:"test",
-        //     department: { name: { id: "value3" } },
-        //     phone_number: "value4",
-        //     user: { email: "value5" },
-        //     timezone: { name: "value6" },
-        //     options: "value7",
-        //   },
-        //   {
-        //     branch_code: "NAME02",
-        //     branch_name: "value9",
-        //     location_address:"test",
-        //     manager_name:"test",
-        //     department: { name: { id: "value10" } },
-        //     phone_number: "value11",
-        //     user: { email: "value12" },
-        //     timezone: { name: "value13" },
-        //     options: "value14",
-        //   },
-        // ];
-        //this.server_datatable_totalItems = data.total;
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
 
@@ -991,53 +849,26 @@ export default {
       });
     },
 
-    getDepartments() {
-      let options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company_id,
-          department_ids: this.$auth.user.assignedDepartments,
-        },
-      };
+    getDepartments(options) {
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
         // this.departments.unshift({ name: "All Departments", id: "" });
       });
     },
-    getShifts() {
-      let options = {
-        per_page: 1000,
-        company_id: this.$auth.user.company_id,
-      };
-      this.$axios.get("shift", { params: options }).then(({ data }) => {
-        this.shifts = data.data;
-        //this.shifts.unshift({ name: "All Shifts", id: "" });
-      });
-    },
-    getTimezone() {
-      let options = {
-        per_page: 1000,
-        company_id: this.$auth.user.company_id,
-      };
-      this.$axios.get("timezone", { params: options }).then(({ data }) => {
-        this.timezones = data.data;
-        // this.timezones.unshift({ name: "All Timezones", id: "" });
-        //this.timezones.unshift({ timezone_name: "24HOURS", id: "1", timezone_id: '1' });
-      });
-    },
+
     editItem(item) {
-      this.employee = item;
-      this.employeeId = item.id;
-      this.employee.name = item.user.name;
-      this.employee.email = item.user.email;
+      this.previewImage = item.logo;
       this.formTitle = "Update";
-      this.employeeDialog = true;
+      this.branch = item;
+      this.branchDialog = true;
+      this.disabled = false;
     },
     viewItem(item) {
-      this.employeeId = item.id;
-
-      this.employeeObject = item;
-      this.viewDialog = true;
+      this.previewImage = item.logo;
+      this.formTitle = "View";
+      this.branch = item;
+      this.branchDialog = true;
+      this.disabled = true;
     },
     deleteItem(item) {
       confirm(
@@ -1117,9 +948,7 @@ export default {
 
       if (file[0].size > 1024 * 1024) {
         e.preventDefault();
-        this.errors["profile_picture"] = [
-          "File too big (> 1MB). Upload less than 1MB",
-        ];
+        this.errors["logo"] = ["File too big (> 1MB). Upload less than 1MB"];
         return;
       }
 
@@ -1127,52 +956,40 @@ export default {
         let reader = new FileReader();
         reader.onload = (e) => {
           //croppedimage step6
-          // this.previewImage = e.target.result;
+          this.previewImage = e.target.result;
 
-          this.selectedFile = event.target.result;
+          // this.selectedFile = event.target.result;
 
-          this.$refs.cropper.replace(this.selectedFile);
+          // this.$refs.cropper.replace(this.selectedFile);
         };
         reader.readAsDataURL(file[0]);
         this.$emit("input", file[0]);
 
-        this.dialogCropping = true;
+        // this.dialogCropping = true;
       }
     },
-    mapper(obj) {
-      let employee = new FormData();
+    submit() {
+      let branch = new FormData();
+      branch.append("company_id", this.$auth.user.company_id);
+      branch.append("branch_name", this.branch.branch_name);
+      branch.append("user_id", this.branch.user_id);
 
-      for (let x in obj) {
-        employee.append(x, obj[x]);
+      branch.append("licence_number", this.branch.licence_number);
+      branch.append(
+        "licence_issue_by_department",
+        this.branch.licence_issue_by_department
+      );
+      branch.append("licence_expiry", this.branch.licence_expiry);
+      branch.append("lat", this.branch.lat);
+      branch.append("lon", this.branch.lon);
+      branch.append("address", this.branch.address);
+
+      if (this.upload.name) {
+        branch.append("logo", this.upload.name);
       }
-      employee.append("profile_picture", this.upload.name);
-      employee.append("company_id", this.$auth.user.company_id);
 
-      return employee;
-    },
-    store_data() {
-      let final = Object.assign(this.employee);
-      let employee = this.mapper(final);
-
-      //croppedimageStep3
-      if (this.$refs.attachment_input.files[0]) {
-        this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
-
-        this.$refs.cropper.getCroppedCanvas().toBlob((blob) => {
-          // Create a FormData object and append the Blob as a file
-          //const formData = new FormData();
-          employee.append("profile_picture", blob, "cropped_image.jpg");
-
-          //croppedimagesptep4 //push to API in blob method only
-          this.saveToAPI(employee);
-        }, "image/jpeg");
-      } else {
-        this.saveToAPI(employee);
-      }
-    },
-    saveToAPI(employee) {
       this.$axios
-        .post("/branch", employee)
+        .post("/branch", branch)
         .then(({ data }) => {
           //this.loading = false;
 
@@ -1183,7 +1000,45 @@ export default {
             this.snackbar = true;
             this.response = "Branch inserted successfully";
             this.getDataFromApi();
-            this.employeeDialog = false;
+            this.branchDialog = false;
+          }
+        })
+        .catch((e) => console.log(e));
+    },
+
+    update() {
+      let branch = new FormData();
+      branch.append("company_id", this.$auth.user.company_id);
+      branch.append("branch_name", this.branch.branch_name);
+      branch.append("user_id", this.branch.user_id);
+
+      branch.append("licence_number", this.branch.licence_number);
+      branch.append(
+        "licence_issue_by_department",
+        this.branch.licence_issue_by_department
+      );
+      branch.append("licence_expiry", this.branch.licence_expiry);
+      branch.append("lat", this.branch.lat);
+      branch.append("lon", this.branch.lon);
+      branch.append("address", this.branch.address);
+
+      if (this.upload.name) {
+        branch.append("logo", this.upload.name);
+      }
+
+      this.$axios
+        .post(`/branch/${this.branch.id}`, branch)
+        .then(({ data }) => {
+          //this.loading = false;
+
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.errors = [];
+            this.snackbar = true;
+            this.response = "Branch updated successfully";
+            this.getDataFromApi();
+            this.branchDialog = false;
           }
         })
         .catch((e) => console.log(e));

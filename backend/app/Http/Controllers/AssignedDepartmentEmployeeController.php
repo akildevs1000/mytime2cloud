@@ -7,8 +7,6 @@ use App\Http\Requests\AssignedDepartmentEmployee\UpdateRequest;
 use App\Models\AssignDepartment;
 use App\Models\AssignedDepartmentEmployee;
 use App\Models\AssignEmployee;
-use App\Models\Department;
-use App\Models\DepartmentEmployee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -25,6 +23,16 @@ class AssignedDepartmentEmployeeController extends Controller
         $model->with(["employees", "departments"]);
         $model->where("company_id", $request->company_id);
         return $model->paginate($request->per_page ?? 100);
+    }
+
+    public function assigned_employee_list(Request $request)
+    {
+        $model = AssignedDepartmentEmployee::query();
+        $model->with(["employees"]);
+        $model->where("company_id", $request->company_id);
+        $data = $model->get();
+
+        return $data->pluck('employees')->flatten()->map(fn ($e) => $e->only(['id', 'first_name', "user_id"]));
     }
 
     public function show($id)
