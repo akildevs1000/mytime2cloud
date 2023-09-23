@@ -65,7 +65,7 @@
         <v-card class="mb-5 mt-2 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title
-              ><span> Dashboard / {{ Model }}s</span></v-toolbar-title
+              ><span> {{ Model }}s</span></v-toolbar-title
             >
 
             <!-- <v-tooltip top color="primary">
@@ -183,8 +183,6 @@
   <NoAccess v-else />
 </template>
 <script>
-import Back from "../components/Snippets/Back.vue";
-
 import {
   TiptapVuetify,
   Image,
@@ -208,7 +206,6 @@ import {
 export default {
   components: {
     TiptapVuetify,
-    Back,
   },
   data: () => ({
     formTitle: "New Leave Type",

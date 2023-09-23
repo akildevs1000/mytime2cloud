@@ -25,10 +25,10 @@
         width="500px"
       >
         <v-card>
-          <v-card-title dense class="primary white--text background">
+          <v-card-title dense class="popup_background">
             <span>{{ formTitle }} {{ Model }}</span>
             <v-spacer></v-spacer>
-            <v-icon @click="dialogForm = false" outlined dark color="white">
+            <v-icon @click="dialogForm = false" outlined dark>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
@@ -77,59 +77,50 @@
         </v-card>
       </v-dialog>
       <v-col md="12">
-        <Back color="primary" />
+        <!-- <Back color="primary" /> -->
 
         <v-card class="mb-5 mt-2" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title
               ><span> {{ Model }}s List</span></v-toolbar-title
             >
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon
-                    color="white"
-                    class="ml-2"
-                    @click="clearFilters()"
-                    dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
+            >
+              <v-icon class="ml-2" @click="clearFilters()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
-
+            </v-tooltip> -->
+            <!-- 
             <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="toggleFilter()"
-                >
-                  <v-icon dark white>mdi-filter</v-icon>
-                </v-btn>
-              </template>
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+              @click="toggleFilter()"
+            >
+              <v-icon dark white>mdi-filter</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>Filter</span>
-            </v-tooltip>
+            </v-tooltip> -->
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-col>
-                <v-btn @click="newItem" small class="primary mr-2 mb-2"
-                  >Add {{ Model }}
-                  +
-                </v-btn>
-              </v-col>
+              <v-btn text @click="newItem" small>
+                <v-icon class="ml-2">mdi mdi-plus-circle</v-icon>
+              </v-btn>
             </v-toolbar-items>
           </v-toolbar>
 

@@ -8,7 +8,7 @@
     <div v-if="!preloader">
       <!-- <Back class="primary white--text" /> -->
       <v-row>
-        <v-col md="6"
+        <v-col md="12"
           ><v-card
             elevation="0"
             class="pa-3 mt-2 mb-5"
@@ -102,7 +102,7 @@
                     >{{ errors.deduction_value[0] }}</span
                   >
 
-                  <v-col cols="12" class="text-right">
+                  <v-col cols="6" class="text-right">
                     <v-btn small color="primary" @click="store"> Submit </v-btn>
                   </v-col>
                 </v-col>
@@ -110,7 +110,7 @@
             </v-container>
           </v-card></v-col
         >
-        <v-col md="6">
+        <v-col md="12">
           <v-card
             elevation="0"
             class="pa-3 mt-2 mb-5"

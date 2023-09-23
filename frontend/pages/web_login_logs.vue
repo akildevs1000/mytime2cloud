@@ -1,34 +1,10 @@
 <template>
   <div>
-    <v-row>
-      <v-col md="10">
-        <center>
-          <h5>Web Login Activities</h5>
-        </center>
-      </v-col>
-      <v-col md="2" class="text-end">
-        <v-menu bottom left>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn dark-2 icon v-bind="attrs" v-on="on">
-              <v-icon>mdi-dots-vertical</v-icon>
-            </v-btn>
-          </template>
-          <v-list width="120" dense>
-            <v-list-item @click="viewLogs()">
-              <v-list-item-title style="cursor: pointer">
-                View Logs
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-col>
-    </v-row>
-
     <ComonPreloader icon="face-scan" v-if="loading" />
     <!-- <div v-else-if="!logs.length">No record found</div> -->
     <v-card class="mb-5 mt-2 rounded-md" elevation="0">
-      <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <v-toolbar-title><span> Web uesr Login List </span></v-toolbar-title>
+      <v-toolbar class="rounded-md" dense flat>
+        <v-toolbar-title><span> Web user Logins </span></v-toolbar-title>
       </v-toolbar>
       <v-data-table
         dense

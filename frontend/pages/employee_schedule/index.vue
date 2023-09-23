@@ -346,8 +346,6 @@
       </v-card>
     </v-dialog>
 
-    <Back class="primary white--text" />
-
     <v-card elevation="0" class="mt-2">
       <v-toolbar class="mb-2 white--text" color="white" dense flat>
         <v-toolbar-title class="black--text"
@@ -651,11 +649,7 @@
   <NoAccess v-else />
 </template>
 <script>
-import Back from "../../components/Snippets/Back.vue";
-
 export default {
-  components: { Back },
-
   data: () => ({
     shifts_for_filter: [],
     shiftsTypes_for_filter: [],

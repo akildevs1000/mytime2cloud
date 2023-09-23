@@ -13,7 +13,8 @@ class Role extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'created_at' => 'datetime:d-M-y',
+        'created_at' => 'datetime:d-m-y',
+        'updated_at' => 'datetime:d-m-y',
     ];
 
     protected static function boot()

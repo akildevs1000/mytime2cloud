@@ -7,10 +7,10 @@
     </div>
     <v-dialog persistent v-model="dialog" max-width="60%">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="popup_background">
           {{ formTitle }} {{ Model }}
           <v-spacer></v-spacer>
-          <v-icon @click="dialog = false" outlined dark color="white">
+          <v-icon @click="dialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -278,10 +278,10 @@
     </v-dialog>
     <v-dialog persistent v-model="dialogEmployees" max-width="60%">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="popup_background">
           Employees List
           <v-spacer></v-spacer>
-          <v-icon @click="dialogEmployees = false" outlined dark color="white">
+          <v-icon @click="dialogEmployees = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -327,72 +327,63 @@
 
     <v-row>
       <v-col md="12">
-        <Back color="primary" />
-
         <v-card class="mb-5 mt-2 rounded-md" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title
               ><span> {{ Model }} List </span></v-toolbar-title
             >
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon
-                    color="white"
-                    class="ml-2"
-                    @click="getDataFromApi()"
-                    dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
+            >
+              <v-icon class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" @click="toggleFilter" class="mx-1 ml-2"
-                    >mdi mdi-filter</v-icon
-                  >
-                </v-btn>
-              </template>
+            </v-tooltip> -->
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+            >
+              <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                >mdi mdi-filter</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Filter</span>
-            </v-tooltip>
+            </v-tooltip> -->
             <v-spacer></v-spacer>
-            <v-tooltip top color="primary" v-if="can(`announcement_create`)">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" class="ml-2" @click="dialog = true" dark
-                    >mdi mdi-plus-circle</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary" v-if="can(`announcement_create`)">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Announcement"
+            >
+              <v-icon class="ml-2" @click="dialog = true" dark
+                >mdi mdi-plus-circle</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>New Announcement</span>
-            </v-tooltip>
+            </v-tooltip> -->
           </v-toolbar>
           <!-- <v-text-field class=" form-control py-0 ma-1 mb-0 w-25 float-start custom-text-box floating
                   shadow-none" placeholder="Search..." solo flat @input="searchIt" v-model="search"
@@ -653,14 +644,12 @@
 import DateRangePicker from "../components/Snippets/Filters/DateRangePicker.vue";
 import TextField from "../components/Snippets/Filters/TextField.vue";
 import DropDown from "../components/Snippets/Filters/DropDown.vue";
-import Back from "../components/Snippets/Back.vue";
 
 export default {
   components: {
     DateRangePicker,
     TextField,
     DropDown,
-    Back,
   },
   data: () => ({
     totalRowsCount: 0,

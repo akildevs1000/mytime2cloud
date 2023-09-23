@@ -2,10 +2,10 @@
   <div v-if="can(`role_access`)">
     <v-dialog persistent v-model="dialogNewRole" width="500">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="popup_background">
           {{ formTitle }} {{ Model }}
           <v-spacer></v-spacer>
-          <v-icon @click="dialogNewRole = false" outlined dark color="white">
+          <v-icon @click="dialogNewRole = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -56,7 +56,7 @@
 
     <v-row>
       <v-col md="12">
-        <Back color="primary" />
+        <!-- <Back color="primary" /> -->
 
         <v-data-table
           v-if="can(`role_view`)"
@@ -76,34 +76,27 @@
               <v-toolbar
                 class="rounded-md"
                 style="border-radius: 5px 5px 0px 0px"
-                color="background"
                 dense
                 flat
-                dark
               >
-                <span> Dashboard / Roles List</span>
-                <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      dense
-                      class="ma-0 px-0"
-                      x-small
-                      :ripple="false"
-                      text
-                      v-bind="attrs"
-                      v-on="on"
-                    >
-                      <v-icon
-                        color="white"
-                        class="ml-2"
-                        @click="getDataFromApi()"
-                        dark
-                        >mdi mdi-reload</v-icon
-                      >
-                    </v-btn>
-                  </template>
+                <span> Roles </span>
+                <!-- <v-tooltip top color="primary">
+                  <template v-slot:activator="{ on, attrs }"> -->
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Reload"
+                >
+                  <v-icon class="ml-2" @click="getDataFromApi()" dark
+                    >mdi mdi-reload</v-icon
+                  >
+                </v-btn>
+                <!-- </template>
                   <span>Reload</span>
-                </v-tooltip>
+                </v-tooltip> -->
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
                   <!-- <v-col>
@@ -111,28 +104,23 @@
                       @click="delteteSelectedRecords">Delete Selected Records</v-btn>
                   </v-col> -->
                   <v-col>
-                    <v-tooltip top color="primary">
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-btn
-                          dense
-                          class="ma-0 px-0"
-                          x-small
-                          :ripple="false"
-                          text
-                          v-bind="attrs"
-                          v-on="on"
-                        >
-                          <v-icon
-                            color="white"
-                            class="ml-2"
-                            @click="dispalyNewDialog()"
-                            dark
-                            >mdi mdi-plus-circle</v-icon
-                          >
-                        </v-btn>
-                      </template>
+                    <!-- <v-tooltip top color="primary">
+                      <template v-slot:activator="{ on, attrs }"> -->
+                    <v-btn
+                      dense
+                      class="ma-0 px-0"
+                      x-small
+                      :ripple="false"
+                      text
+                      title="Add Role"
+                    >
+                      <v-icon class="ml-2" @click="dispalyNewDialog()" dark
+                        >mdi mdi-plus-circle</v-icon
+                      >
+                    </v-btn>
+                    <!-- </template>
                       <span>Add New Role</span>
-                    </v-tooltip>
+                    </v-tooltip> -->
                   </v-col>
                 </v-toolbar-items>
               </v-toolbar>

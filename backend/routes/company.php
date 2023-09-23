@@ -68,6 +68,7 @@ Route::post('assign-permission/delete/selected', [AssignPermissionController::cl
 Route::get('assign-permission/search/{key}', [AssignPermissionController::class, 'search']); // search records
 Route::get('assign-permission/nars', [AssignPermissionController::class, 'notAssignedRoleIds']);
 Route::resource('assign-permission', AssignPermissionController::class);
+Route::get('assign-permission/role-id/{key}', [AssignPermissionController::class, 'assignPermissionsByRoleid']);
 
 // User
 Route::apiResource('users', UserController::class);

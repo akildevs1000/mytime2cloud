@@ -62,18 +62,16 @@ class LeaveGroupsController extends Controller
                     $value2->employee_used = $leaves_count;
                     $value2->year = $year;
                 }
-
             }
 
             return $data;
-
         } else {
             return $data;
         }
-
     }
 
-    function list(Request $request) {
+    function list(Request $request)
+    {
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
@@ -87,7 +85,28 @@ class LeaveGroupsController extends Controller
             $isExist = LeaveGroups::where('company_id', '=', $request->company_id)->where('group_name', '=', $request->group_name)->first();
             if ($isExist == null) {
 
-                $record = LeaveGroups::create($request->all());
+                $record = LeaveGroups::create($request->only(['group_name', 'company_id']));
+                $leaveCountArray = $request->leave_counts;
+
+                foreach ($leaveCountArray as $key => $value) {
+                    $leave_count = LeaveCount::where('company_id', $request->company_id)
+                        ->where('leave_type_id', $value['id'])
+                        ->where('group_id', $record->id);
+
+                    if ($leave_count->count() != 0) {
+                        $leave_count->update(["leave_type_count" => $value['leave_type_count']]);
+                    } else {
+                        $data = [
+                            "company_id" => $value['company_id'],
+                            "leave_type_id" => $value['id'],
+                            "group_id" => $record->id,
+                            "leave_type_count" => $value['leave_type_count']
+                        ];
+
+
+                        $leave_count->create($data);
+                    }
+                }
 
                 DB::commit();
                 if ($record) {
@@ -114,7 +133,29 @@ class LeaveGroupsController extends Controller
                 ->first();
             if ($isExist == null) {
 
-                $record = LeaveGroups::find($id)->update($request->all());
+                $record = LeaveGroups::find($id)->update($request->only(['group_name', 'company_id']));
+
+                $leaveCountArray = $request->leave_counts;
+
+                foreach ($leaveCountArray as $key => $value) {
+                    $leave_count = LeaveCount::where('company_id', $request->company_id)
+                        ->where('leave_type_id', $value['id'])
+                        ->where('group_id', $id);
+
+                    if ($leave_count->count() != 0) {
+                        $leave_count->update(["leave_type_count" => $value['leave_type_count']]);
+                    } else {
+                        $data = [
+                            "company_id" => $value['company_id'],
+                            "leave_type_id" => $value['id'],
+                            "group_id" => $id,
+                            "leave_type_count" => $value['leave_type_count']
+                        ];
+
+
+                        $leave_count->create($data);
+                    }
+                }
 
                 if ($record) {
 
@@ -155,5 +196,4 @@ class LeaveGroupsController extends Controller
             return $this->response('Leave Groups cannot delete.', null, false);
         }
     }
-
 }

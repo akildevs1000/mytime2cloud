@@ -9,10 +9,10 @@
       <div class="text-center">
         <v-dialog persistent v-model="dialog" width="500">
           <v-card>
-            <v-card-title dense class="primary white--text background">
+            <v-card-title dense class="popup_background">
               Send Test message to Whatsapp
               <v-spacer></v-spacer>
-              <v-icon @click="dialog = false" outlined dark color="white">
+              <v-icon @click="dialog = false" outlined dark>
                 mdi mdi-close-circle
               </v-icon>
             </v-card-title>
@@ -43,51 +43,43 @@
           </v-card>
         </v-dialog>
       </div>
-      <Back class="primary white--text" />
+      <!-- <Back class="primary white--text" /> -->
 
       <v-card class="mb-5 mt-2" elevation="0">
-        <v-toolbar class="rounded-md" color="background" dense flat dark>
-          <v-toolbar-title
-            ><span> Report Notifications List</span></v-toolbar-title
+        <v-toolbar class="rounded-md" dense flat>
+          <v-toolbar-title><span> Notifications List</span></v-toolbar-title>
+          <!-- <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }"> -->
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Reload"
           >
-          <v-tooltip top color="primary">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-icon
-                  color="white"
-                  class="ml-2"
-                  @click="getDataFromApi()"
-                  dark
-                  >mdi mdi-reload</v-icon
-                >
-              </v-btn>
-            </template>
+            <v-icon class="ml-2" @click="getDataFromApi()" dark
+              >mdi mdi-reload</v-icon
+            >
+          </v-btn>
+          <!-- </template>
             <span>Reload</span>
-          </v-tooltip>
+          </v-tooltip> -->
 
-          <v-tooltip top color="primary">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                x-small
-                :ripple="false"
-                text
-                v-bind="attrs"
-                v-on="on"
-                @click="toggleFilter()"
-              >
-                <v-icon dark white>mdi-filter</v-icon>
-              </v-btn>
-            </template>
+          <!-- <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }"> -->
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            title="Filter"
+            @click="toggleFilter()"
+          >
+            <v-icon dark>mdi-filter</v-icon>
+          </v-btn>
+          <!-- </template>
             <span>Filter</span>
-          </v-tooltip>
+          </v-tooltip> -->
 
           <v-spacer></v-spacer>
 
@@ -99,21 +91,20 @@
                   </template>
                   <span>Whatsapp Test</span>
                 </v-tooltip> -->
-          <v-tooltip top color="primary">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                x-small
-                :ripple="false"
-                text
-                v-bind="attrs"
-                v-on="on"
-                to="/report_notifications/create"
-              >
-                <v-icon dark white>mdi-plus-circle-outline</v-icon>
-              </v-btn>
-            </template>
+          <!-- <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }"> -->
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            title="Add   Notification"
+            to="/report_notifications/create"
+          >
+            <v-icon dark>mdi-plus-circle-outline</v-icon>
+          </v-btn>
+          <!--</template>
             <span> Add Email Notification</span>
-          </v-tooltip>
+          </v-tooltip> -->
           <!-- <v-toolbar-items>
                   <v-col class="toolbaritems-button-design1">
                     <v-btn @click="dialog = true" small color="primary" class="primary mr-2 mb-2 toolbar-button-design1">
@@ -152,17 +143,19 @@
           <template v-slot:header="{ props: { headers } }">
             <tr v-if="isFilter">
               <td v-for="header in headers" :key="header.text">
-                <v-text-field
-                  clearable
-                  :hide-details="true"
-                  v-if="header.filterable && !header.filterSpecial"
-                  v-model="filters[header.value]"
-                  :id="header.value"
-                  @input="applyFilters(header.key, $event)"
-                  outlined
-                  dense
-                  autocomplete="off"
-                ></v-text-field>
+                <v-container>
+                  <v-text-field
+                    clearable
+                    :hide-details="true"
+                    v-if="header.filterable && !header.filterSpecial"
+                    v-model="filters[header.value]"
+                    :id="header.value"
+                    @input="applyFilters(header.key, $event)"
+                    outlined
+                    dense
+                    autocomplete="off"
+                  ></v-text-field>
+                </v-container>
               </td>
             </tr>
           </template>

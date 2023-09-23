@@ -16,7 +16,7 @@
         <v-card-title dense class="popup_background">
           <span>{{ formTitle }} </span>
           <v-spacer></v-spacer>
-          <v-icon @click="dialog = false" outlined dark color="white">
+          <v-icon @click="dialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -36,22 +36,23 @@
                 >
                 </v-text-field>
               </v-col>
-              <!-- <v-col cols="12" style="margin-top: -10px;">
-                <label for="" style="margin-bottom:5px">Select leave Type</label>
-                <v-autocomplete :items="leaveTypes" item-text="name" item-value="id" placeholder="Select Leave Type"
-                  v-model="editedItem.leave_type_id" :hide-details="!errors.leave_type_id" :error="errors.leave_type_id"
-                  :error-messages="errors && errors.leave_type_id
-                    ? errors.leave_type_id[0]
-                    : ''
-                    " dense outlined></v-autocomplete>
+            </v-row>
+
+            <v-row v-for="item in leaveTypes">
+              <v-col cols="6">
+                {{ item.name }}
               </v-col>
-              <v-col cols="12">
-                <label for="" style="margin-bottom:5px">Leaves Count</label>
-                <v-text-field type="number" outlined dense v-model="editedItem.leave_type_count" v-bind="attrs"
-                  :error-messages="errors && errors.leave_type_count ? errors.leave_type_count[0] : ''
-                    ">
+
+              <v-col cols="6">
+                <v-text-field
+                  type="number"
+                  outlined
+                  dense
+                  v-model="item.leave_type_count"
+                  v-bind="attrs"
+                >
                 </v-text-field>
-              </v-col> -->
+              </v-col>
             </v-row>
           </v-container>
         </v-card-text>
@@ -99,7 +100,7 @@
               text
               title="Add LeaveGroup"
             >
-              <v-icon class="ml-2" @click="dialog = true" dark
+              <v-icon class="ml-2" @click="createNew()" dark
                 >mdi mdi-plus-circle</v-icon
               >
             </v-btn>
@@ -152,7 +153,7 @@
                   </v-btn>
                 </template>
                 <v-list width="120" dense>
-                  <v-list-item @click="viewItem(item)">
+                  <!-- <v-list-item @click="viewItem(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon
                         v-if="can(`leave_group_view`)"
@@ -164,7 +165,7 @@
                       </v-icon>
                       Add Count
                     </v-list-item-title>
-                  </v-list-item>
+                  </v-list-item> -->
                   <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon
@@ -175,7 +176,7 @@
                       >
                         mdi-pencil
                       </v-icon>
-                      Edit Name
+                      Edit
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="deleteItem(item)">
@@ -228,14 +229,12 @@ import {
   History,
 } from "tiptap-vuetify";
 
-import Back from "../components/Snippets/Back.vue";
-
 export default {
   components: {
     TiptapVuetify,
-    Back,
   },
   data: () => ({
+    dialogEdit: false,
     attrs: {},
     leaveTypes: [],
     designations: [],
@@ -358,7 +357,7 @@ export default {
 
     this.getDataFromApi();
     //this.getDesignations();
-    //this.getLeaveTypes();
+    this.getLeaveTypes();
   },
 
   methods: {
@@ -422,17 +421,17 @@ export default {
       this.scrollInvoked++;
     },
 
-    // getLeaveTypes() {
-    //   let options = {
-    //     params: {
-    //       per_page: 1000,
-    //       company_id: this.$auth.user.company_id,
-    //     },
-    //   };
-    //   this.$axios.get(`leave_type`, options).then(({ data }) => {
-    //     this.leaveTypes = data.data;
-    //   });
-    // },
+    getLeaveTypes() {
+      let options = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      };
+      this.$axios.get(`leave_type`, options).then(({ data }) => {
+        this.leaveTypes = data.data;
+      });
+    },
     // getDesignations() {
     //   let options = {
     //     params: {
@@ -507,11 +506,27 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
-
+    createNew() {
+      this.leaveTypes.forEach((element) => {
+        element.leave_type_count = "";
+      });
+      this.dialog = true;
+      this.error = [];
+    },
     editItem(item) {
-      this.formTitle = "Edit Group Name";
+      this.formTitle = "Edit Group Details";
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
+
+      this.leaveTypes.forEach((element) => {
+        element.leave_type_count = this.editedItem.leave_count.filter(
+          (e) => e.leave_type_id == element.id
+        );
+        if (element.leave_type_count[0])
+          element.leave_type_count =
+            element.leave_type_count[0].leave_type_count;
+      });
+
       this.dialog = true;
       this.error = [];
     },
@@ -590,6 +605,7 @@ export default {
           company_id: this.$auth.user.company_id,
           group_name: this.editedItem.group_name,
           //leave_type_count: this.editedItem.leave_type_count,
+          leave_counts: this.leaveTypes,
         },
       };
       this.editedItem.company_id = this.$auth.user.company_id;
@@ -620,16 +636,24 @@ export default {
           })
           .catch((err) => console.log(err));
       } else {
+        let options = {
+          params: {
+            // leave_type_id: this.editedItem.leave_type_id,
+            company_id: this.$auth.user.company_id,
+            group_name: this.editedItem.group_name,
+            //leave_type_count: this.editedItem.leave_type_count,
+            leave_counts: this.leaveTypes,
+          },
+        };
         this.$axios
-          .post(this.endpoint, this.editedItem)
+          .post(this.endpoint, options.params)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
-              this.snackColor = "error";
-              this.snackbar = true;
+              //this.snackColor = "error";
+              //this.snackbar = true;
               this.response = data.message;
-              this.close();
-              this.errors = [];
+
               this.search = "";
             } else {
               this.getDataFromApi();

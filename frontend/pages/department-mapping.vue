@@ -14,10 +14,10 @@
     />
     <v-dialog persistent v-model="dialogEmployees" max-width="60%">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="popup_background">
           Employees List
           <v-spacer></v-spacer>
-          <v-icon @click="dialogEmployees = false" outlined dark color="white">
+          <v-icon @click="dialogEmployees = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -63,74 +63,65 @@
 
     <v-row>
       <v-col md="12">
-        <Back color="primary" />
+        <!-- <Back color="primary" /> -->
 
         <v-card class="mb-5 mt-2 rounded-md" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title
               ><span> {{ Model }} List </span></v-toolbar-title
             >
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon
-                    color="white"
-                    class="ml-2"
-                    @click="getDataFromApi()"
-                    dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
+            >
+              <v-icon class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" @click="toggleFilter" class="mx-1 ml-2"
-                    >mdi mdi-filter</v-icon
-                  >
-                </v-btn>
-              </template>
+            </v-tooltip> -->
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+            >
+              <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                >mdi mdi-filter</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Filter</span>
-            </v-tooltip>
+            </v-tooltip> -->
             <v-spacer></v-spacer>
 
-            <v-tooltip top color="primary" v-if="can(`announcement_create`)">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="openChildDialog"
-                >
-                  <v-icon color="white" class="ml-2" dark
-                    >mdi mdi-plus-circle</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary" v-if="can(`announcement_create`)">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Add Department Mapping"
+              @click="openChildDialog"
+            >
+              <v-icon class="ml-2" dark>mdi mdi-plus-circle</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>New Department Mapping</span>
-            </v-tooltip>
+            </v-tooltip> -->
           </v-toolbar>
           <!-- <v-text-field class=" form-control py-0 ma-1 mb-0 w-25 float-start custom-text-box floating
                   shadow-none" placeholder="Search..." solo flat @input="searchIt" v-model="search"
@@ -159,25 +150,27 @@
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="(header, index) in headers" :key="index">
-                  <TextField
-                    :header="header"
-                    column="title"
-                    @entered-value="handleFilter"
-                  />
-                  <DropDown
-                    :disabled="true"
-                    :header="header"
-                    column="department"
-                    @entered-value="handleFilter"
-                    :items="departments"
-                  />
-                  <DropDown
-                    :disabled="true"
-                    :header="header"
-                    column="employees"
-                    @entered-value="handleFilter"
-                    :items="employees"
-                  />
+                  <v-container>
+                    <TextField
+                      :header="header"
+                      column="title"
+                      @entered-value="handleFilter"
+                    />
+                    <DropDown
+                      :disabled="true"
+                      :header="header"
+                      column="department"
+                      @entered-value="handleFilter"
+                      :items="departments"
+                    />
+                    <DropDown
+                      :disabled="true"
+                      :header="header"
+                      column="employees"
+                      @entered-value="handleFilter"
+                      :items="employees"
+                    />
+                  </v-container>
                 </td>
               </tr>
             </template>
@@ -273,13 +266,12 @@ import DropDown from "../components/Snippets/Filters/DropDown.vue";
 import DepartmentMappingCreate from "../components/widgets/DepartmentMappingCreate.vue";
 import Back from "../components/Snippets/Back.vue";
 
-
 export default {
   components: {
     TextField,
     DropDown,
     DepartmentMappingCreate,
-    Back
+    Back,
   },
   data: () => ({
     childDialogVisible: false,

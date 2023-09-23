@@ -438,8 +438,6 @@
 
       <div v-if="can(`employee_view`)">
         <v-container>
-          <Back class="primary white--text" />
-
           <v-card elevation="0" class="mt-2">
             <v-toolbar class="mb-2 white--text" color="white" dense flat>
               <v-toolbar-title>
@@ -852,7 +850,6 @@ import Qualification from "../../components/employee/Qualification.vue";
 import Setting from "../../components/employee/Setting.vue";
 import Payroll from "../../components/employee/Payroll.vue";
 import Login from "../../components/employee/Login.vue";
-import Back from "../../components/Snippets/Back.vue";
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
@@ -873,7 +870,6 @@ const compList = [
 export default {
   components: {
     VueCropper,
-    Back,
   },
 
   data: () => ({

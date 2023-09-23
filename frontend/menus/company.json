@@ -50,7 +50,7 @@
     "module": "dashboard"
   },
   {
-    "icon": "mdi-transit-transfer",
+    "icon": "mdi-chart-box-outline",
     "title": "Reports",
     "to": "/visitor-dashboard",
     "menu": "true",
@@ -96,13 +96,7 @@
     "menu": "role_access",
     "module": "settings"
   },
-  {
-    "icon": "mdi-security",
-    "title": "Permissions",
-    "to": "/assign_permission",
-    "menu": "assign_permission_access",
-    "module": "settings"
-  },
+
   {
     "icon": "mdi-star-box-multiple-outline",
     "title": "Departments",
@@ -123,6 +117,13 @@
     "title": "Holidays",
     "to": "/holidays",
     "menu": "holiday_access",
+    "module": "settings"
+  },
+  {
+    "icon": "mdi mdi-calendar",
+    "title": "Leaves",
+    "to": "/leaves/leave_types",
+    "menu": "leave_type_access",
     "module": "settings"
   },
 
@@ -195,22 +196,9 @@
     "title": "Leaves",
     "to": "/leaves",
     "menu": "leave_application_access",
-    "module": "payroll"
+    "module": "employees"
   },
-  {
-    "icon": "mdi mdi-calendar",
-    "title": "Types",
-    "to": "/leavetype",
-    "menu": "leave_type_accessss",
-    "module": "payroll"
-  },
-  {
-    "icon": "mdi mdi-calendar-text",
-    "title": "Groups",
-    "to": "/leavegroups",
-    "menu": "leave_group_access",
-    "module": "payroll"
-  },
+
   {
     "icon": "mdi mdi-clock-time-four-outline",
     "title": "Timezones",

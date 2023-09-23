@@ -1,15 +1,15 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <Back class="primary white--text" />
+    <!-- <Back class="primary white--text" /> -->
     <v-card elevation="0" class="mt-2" v-if="can(`attendance_report_view`)">
       <v-toolbar dense flat>
-        <span class="headline black--text"> {{ title }} Filters </span>
+        <span class="headline black--text"> Attendance Reports </span>
       </v-toolbar>
-      <v-divider></v-divider>
+
       <v-card-text class="py-3">
         <v-row>
           <v-col md="2">
-            Status
+            Type
             <v-select
               class="mt-2"
               outlined
