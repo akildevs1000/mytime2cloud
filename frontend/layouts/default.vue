@@ -136,8 +136,8 @@
       <!-- <v-btn icon @click.stop="clipped = !clipped">
         <v-icon>mdi-application</v-icon>
       </v-btn> -->
-      <span class="text-overflow">{{ title }}</span>
-
+      <!-- <span class="text-overflow">{{ title }}</span> -->
+      <span class="text-overflow"> <img :src="logo_src" width="75px" /></span>
       <v-spacer></v-spacer>
       <span style="100%">
         <template>
@@ -373,8 +373,8 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
-      <v-btn icon plan @click="goToSettings()"
-        ><v-icon class="pr-3 black--text" style="color: black"
+      <v-btn icon plan @click="goToSettings()" class="mr-3"
+        ><v-icon class="black--text" style="color: black; text-align: center"
           >mdi-settings</v-icon
         ></v-btn
       >
@@ -625,7 +625,7 @@ export default {
       drawer: true,
       fixed: false,
       order_count: "",
-
+      logo_src: "",
       items: [],
       modules: {
         module_ids: [],
@@ -650,6 +650,7 @@ export default {
     this.getEmployeeList();
 
     this.setTopMenuItems("dashboard", "/dashboard2");
+    this.logo_src = require("@/static/logo1.jpg");
   },
 
   mounted() {
