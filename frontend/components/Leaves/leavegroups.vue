@@ -38,7 +38,7 @@
               </v-col>
             </v-row>
 
-            <v-row v-for="item in leaveTypes">
+            <v-row v-for="item in leaveTypes" :key="index">
               <v-col cols="6">
                 {{ item.name }}
               </v-col>

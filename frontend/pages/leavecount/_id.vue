@@ -31,7 +31,7 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-            <v-row v-for="item in items">
+            <v-row v-for="item in items" :key="index">
               <v-col cols="6">
                 {{ item.leave_type && item.leave_type.name }}
               </v-col>
