@@ -37,30 +37,45 @@ class CompanyBranchController extends Controller
 
     public function store(CompanyBranch $model, StoreRequest $request)
     {
-        $user = User::create([
-            "name" => $request->name,
-            "email" => $request->email,
-            "password" => $request->password,
-        ]);
-
-
-        $data = $request->except(["name", "email", "password"]);
+        $data = $request->validated();
         $data["created_date"] = date("Y-m-d");
-        $data["user_id"] = $user->id;
         $data["branch_code"] = strtoupper(substr($data["branch_name"], 0, 3)) . CompanyBranch::where("company_id", $request->company_id)->orderBy("id", "desc")->value("id") ?? 0;
 
-
-        if (isset($request->profile_picture)) {
-
-            $file = $request->file('profile_picture');
+        if (isset($request->logo)) {
+            $file = $request->file('logo');
             $ext = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
-            $request->file('profile_picture')->move(public_path('/upload'), $fileName);
+            $request->file('logo')->move(public_path('/upload'), $fileName);
             $data['logo'] = $fileName;
         }
-        unset($data["profile_picture"]);
+
         try {
             $record = $model->create($data);
+
+            if ($record) {
+                return $this->response('Branch successfully added.', null, true);
+            } else {
+                return $this->response('Branch cannot add.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function update(CompanyBranch $model, StoreRequest $request, $id)
+    {
+        $data = $request->validated();
+
+        if (isset($request->logo)) {
+            $file = $request->file('logo');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $request->file('logo')->move(public_path('/upload'), $fileName);
+            $data['logo'] = $fileName;
+        }
+
+        try {
+            $record = $model->where("id", $id)->update($data);
 
             if ($record) {
                 return $this->response('Branch successfully added.', null, true);
