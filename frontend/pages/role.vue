@@ -174,9 +174,7 @@
                   title="Add Role"
                   @click="getDataFromApi()"
                 >
-                  <v-icon color="white" class="ml-2" dark
-                    >mdi mdi-reload</v-icon
-                  >
+                  <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
                 </v-btn>
                 <!-- </template>
                   <span>Reload</span>
@@ -198,11 +196,7 @@
                       text
                       title="Add Role"
                     >
-                      <v-icon
-                        color="white"
-                        class="ml-2"
-                        @click="dispalyNewDialog()"
-                        dark
+                      <v-icon class="ml-2" @click="dispalyNewDialog()" dark
                         >mdi mdi-plus-circle</v-icon
                       >
                     </v-btn>

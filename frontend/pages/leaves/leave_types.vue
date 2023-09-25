@@ -1,6 +1,6 @@
 <template>
   <div v-if="can('leave_type_access')">
-    <v-tabs>
+    <v-tabs right>
       <v-tab> Leave Types </v-tab>
       <v-tab> Groups </v-tab>
       <v-tab-slider color="violet"></v-tab-slider>

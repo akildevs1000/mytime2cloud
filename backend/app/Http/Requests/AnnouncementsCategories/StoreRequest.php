@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Announcement;
+namespace App\Http\Requests\AnnouncementsCategories;
 
 use App\Traits\failedValidationWithName;
 use Illuminate\Foundation\Http\FormRequest;
@@ -13,6 +13,8 @@ class StoreRequest extends FormRequest
      *
      * @return bool
      */
+
+
     public function authorize()
     {
         return true;
@@ -26,14 +28,11 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required|min:4|max:100',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'description' => 'required',
+
+            'name' => 'required',
+
+
             'company_id' => 'required',
-            'departments' => 'required|array',
-            'employees' => 'required|array',
-            'category_id' => 'required',
 
         ];
     }

@@ -40,13 +40,26 @@
 
       <v-col md="10" sm="10" xs="10">
         {{ announcement.title }}
-        <div style="color: grey">
-          <v-icon>mdi-calendar-month</v-icon> {{ announcement.dateTime }}
-        </div>
+
+        <v-row>
+          <v-col md="6" sm="6" xs="6">
+            <div style="color: grey; font-size: 12px">
+              {{ announcement.dateTime }}
+            </div>
+          </v-col>
+          <v-col
+            md="6"
+            sm="6"
+            xs="6"
+            class="text-center"
+            style="font-size: 12px"
+          >
+            <span :style="getPriorityColor(announcement.category.name)">{{
+              announcement.category.name
+            }}</span>
+          </v-col>
+        </v-row>
       </v-col>
-      <!-- <v-col md="2" sm="2" xs="2" class="text-center">
-          <v-chip color="orange">Category</v-chip>
-        </v-col> -->
 
       <v-col md="12" v-if="announcement.length == 0"> No Announcements</v-col>
     </v-row>
@@ -97,6 +110,21 @@ export default {
   },
 
   methods: {
+    getPriorityColor(name) {
+      if (name == "Urgent") {
+        return "color:#F44336";
+      } else if (name == "Informational") {
+        return "color:#3F51B5";
+      } else if (name == "Meeting") {
+        return "color:#FF5722";
+      } else if (name == "Priority") {
+        return "color:#4CAF50";
+      } else if (name == "Informational") {
+        return "color:#607D8B";
+      } else if (name == "Low Priority") {
+        return "color:#000000";
+      }
+    },
     viewLogs() {
       this.$router.push("/announcement");
     },

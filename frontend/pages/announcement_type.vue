@@ -1,15 +1,15 @@
 <template>
   <div v-if="can('announcement_access')">
-    <Announcements />
+    <AnnouncementType />
   </div>
   <NoAccess v-else />
 </template>
 
 <script>
-import Announcements from "../components/announcements/Announcements.vue";
+import AnnouncementType from "../components/announcements/AnnouncementType.vue";
 
 export default {
-  components: { Announcements },
+  components: { AnnouncementType },
   data: () => ({}),
   created() {},
   methods: {

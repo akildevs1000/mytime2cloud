@@ -270,6 +270,8 @@ Route::apiResource('employee_document', EmployeeLeaveDocumentController::class);
 //Leave Type
 Route::apiResource('leave_type', LeaveTypesController::class);
 
+
+
 Route::apiResource('leave_count', LeaveCountController::class);
 
 Route::apiResource('leave_groups', LeaveGroupsController::class);

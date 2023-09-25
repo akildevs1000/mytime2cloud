@@ -58,7 +58,7 @@
           <v-col lg="6" md="6" sm="12" xs="12">
             <DashboardlastMultiStatistics />
 
-            <v-card class="mt-2" style="height: 260px">
+            <v-card class="mt-2" style="height: 370px">
               <DashboardAttendanceHourChart
                 :name="'AttendanceChart2'"
                 :height="'200'"

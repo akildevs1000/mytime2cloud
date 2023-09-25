@@ -111,7 +111,7 @@ export default {
       loading: false,
       items: [],
       emptyLogmessage: "",
-      number_of_records: 20,
+      number_of_records: 10,
       logs: [],
       url: process.env.SOCKET_ENDPOINT,
       socket: null,
@@ -119,7 +119,7 @@ export default {
 
       total: 0,
       options: {
-        itemsPerPage: 20,
+        itemsPerPage: 10,
       },
       headers_table: [
         {

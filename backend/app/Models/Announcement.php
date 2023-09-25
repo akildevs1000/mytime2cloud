@@ -31,7 +31,10 @@ class Announcement extends Model
     {
         return $this->belongsToMany(Employee::class)->withTimestamps();
     }
-
+    public function category()
+    {
+        return $this->belongsTo(AnnouncementsCategories::class);
+    }
     protected static function boot()
     {
         parent::boot();
@@ -46,9 +49,9 @@ class Announcement extends Model
     {
         $model = self::query();
 
-        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'departments']);
+        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'departments', 'category']);
 
-      
+
         $model->where('company_id', $request->company_id);
 
         $model->when($request->filled('title'), function ($q) use ($request) {
@@ -64,6 +67,14 @@ class Announcement extends Model
                     ->where('end_date', '<=', $request->dates[1]);
             });
         });
+
+        $model->when($request->filled('categories'), function ($q) use ($request) {
+            $key = $request->categories;
+            $q->where('category_id',   $key);
+        });
+
+
+
 
         $model->when($request->filled('sortBy'), function ($q) use ($request) {
             $sortDesc = $request->input('sortDesc');

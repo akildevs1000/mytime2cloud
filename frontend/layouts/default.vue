@@ -137,9 +137,9 @@
         <v-icon>mdi-application</v-icon>
       </v-btn> -->
       <!-- <span class="text-overflow">{{ title }}</span> -->
-      <span class="text-overflow"> <img :src="logo_src" width="75px" /></span>
+      <span class="text-overflow"> <img :src="logo_src" /> </span>
       <v-spacer></v-spacer>
-      <span style="100%">
+      <span style="100%" v-if="getLoginType == 'company'">
         <template>
           <v-row align="center" justify="space-around" class="">
             <v-col>
@@ -626,6 +626,7 @@ export default {
       fixed: false,
       order_count: "",
       logo_src: "",
+      logo_src2: "",
       items: [],
       modules: {
         module_ids: [],
@@ -649,8 +650,8 @@ export default {
     this.deviceList();
     this.getEmployeeList();
 
-    this.setTopMenuItems("dashboard", "/dashboard2");
-    this.logo_src = require("@/static/logo1.jpg");
+    this.setTopMenuItems("dashboard", "/dashboard2", false);
+    this.logo_src = require("@/static/logo22.png");
   },
 
   mounted() {
@@ -713,7 +714,7 @@ export default {
     goToSettings() {
       this.setTopMenuItems("settings", "/branches");
     },
-    setTopMenuItems(menu_name, page) {
+    setTopMenuItems(menu_name, page, redirect = true) {
       this.topMenu_Selected = menu_name;
 
       let bgColor = "violet";
@@ -729,8 +730,7 @@ export default {
         this.menuProperties[menu_name].elevation = 0;
         this.menuProperties[menu_name].selected = bgColor;
       }
-
-      this.$router.push(page);
+      if (redirect) this.$router.push(page);
     },
     deviceList() {
       this.$axios

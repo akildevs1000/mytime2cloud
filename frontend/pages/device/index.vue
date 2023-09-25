@@ -19,61 +19,58 @@
     <Back color="primary" />
 
     <v-card class="mb-5 mt-2" elevation="0">
-      <v-toolbar class="rounded-md" color="background" dense flat dark>
+      <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title><span> Devices List</span></v-toolbar-title>
 
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark
-                >mdi mdi-reload</v-icon
-              >
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          dense
+          class="ma-0 px-0"
+          x-small
+          :ripple="false"
+          text
+          title="Reload"
+        >
+          <v-icon class="ml-2" @click="getDataFromApi()" dark
+            >mdi mdi-reload</v-icon
+          >
+        </v-btn>
+        <!-- </template>
           <span>Reload</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="toggleFilter()"
-            >
-              <v-icon dark white>mdi-filter</v-icon>
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          x-small
+          :ripple="false"
+          text
+          title="Filter"
+          @click="toggleFilter()"
+        >
+          <v-icon dark>mdi-filter</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Filter</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
         <v-spacer></v-spacer>
 
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-              @click="updateDevicesHealth"
-            >
-              <v-icon dark white>mdi-cached</v-icon>
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          x-small
+          :ripple="false"
+          text
+          title="Sync Devices"
+          @click="updateDevicesHealth"
+        >
+          <v-icon dark white>mdi-cached</v-icon>
+        </v-btn>
+        <!-- </template>
           <span>Sync Devices</span>
-        </v-tooltip>
+        </v-tooltip> -->
       </v-toolbar>
 
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -103,35 +100,37 @@
               v-for="header in headers"
               :key="header.text"
             >
-              <v-text-field
-                clearable
-                :hide-details="true"
-                v-if="header.filterable && !header.filterSpecial"
-                v-model="filters[header.value]"
-                :id="header.value"
-                @input="applyFilters(header.key, $event)"
-                outlined
-                dense
-                autocomplete="off"
-              ></v-text-field>
-              <v-select
-                :hide-details="true"
-                @change="applyFilters('status', $event)"
-                item-value="value"
-                item-text="title"
-                v-model="filters[header.text]"
-                outlined
-                dense
-                v-else-if="header.filterSpecial && header.text == 'Status'"
-                :items="[
-                  { value: '', title: 'All' },
-                  { value: '1', title: 'Online' },
-                  {
-                    value: '2',
-                    title: 'Offline',
-                  },
-                ]"
-              ></v-select>
+              <v-container>
+                <v-text-field
+                  clearable
+                  :hide-details="true"
+                  v-if="header.filterable && !header.filterSpecial"
+                  v-model="filters[header.value]"
+                  :id="header.value"
+                  @input="applyFilters(header.key, $event)"
+                  outlined
+                  dense
+                  autocomplete="off"
+                ></v-text-field>
+                <v-select
+                  :hide-details="true"
+                  @change="applyFilters('status', $event)"
+                  item-value="value"
+                  item-text="title"
+                  v-model="filters[header.text]"
+                  outlined
+                  dense
+                  v-else-if="header.filterSpecial && header.text == 'Status'"
+                  :items="[
+                    { value: '', title: 'All' },
+                    { value: '1', title: 'Online' },
+                    {
+                      value: '2',
+                      title: 'Offline',
+                    },
+                  ]"
+                ></v-select>
+              </v-container>
             </td>
           </tr>
         </template>

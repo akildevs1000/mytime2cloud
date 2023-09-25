@@ -8,7 +8,7 @@
 
     <v-dialog persistent v-model="dialogFilter" width="300px">
       <v-card elevation="0">
-        <v-toolbar color="background" dense flat dark>
+        <v-toolbar class="popup_background" dense flat dark>
           <span> Select year</span>
         </v-toolbar>
         <v-divider class="py-0 my-0"></v-divider>
@@ -36,10 +36,10 @@
 
     <v-dialog persistent v-model="dialog" width="500px">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="popup_background">
           <span class="headline">{{ formTitle }} </span>
           <v-spacer></v-spacer>
-          <v-icon @click="dialog = false" outlined dark color="white">
+          <v-icon @click="dialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -145,74 +145,63 @@
 
     <v-row>
       <v-col md="12">
-        <Back color="primary" />
+        <!-- <Back color="primary" /> -->
 
         <v-card class="mb-5 mt-2 rounded-md" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
+          <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title
-              ><span> Dashboard / {{ Model }} List</span></v-toolbar-title
+              ><span> {{ Model }} </span></v-toolbar-title
             >
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon
-                    color="white"
-                    class="ml-2"
-                    @click="getDataFromApi()"
-                    dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
+            >
+              <v-icon class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Reload</span>
-            </v-tooltip>
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon
-                    color="white"
-                    class="ml-2"
-                    @click="dialogFilter = true"
-                    dark
-                    >mdi mdi-filter</v-icon
-                  >
-                </v-btn>
-              </template>
+            </v-tooltip> -->
+            <!-- <v-tooltip top color="primary">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Select Year"
+            >
+              <v-icon class="ml-2" @click="dialogFilter = true" dark
+                >mdi mdi-filter</v-icon
+              >
+            </v-btn>
+            <!-- </template>
               <span>Select Year</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
             <v-spacer></v-spacer>
-            <v-tooltip top color="primary" v-if="can(`holiday_create`)">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="dialog = true"
-                >
-                  <v-icon dark white>mdi-plus-circle</v-icon>
-                </v-btn>
-              </template>
+            <!-- <v-tooltip top color="primary" v-if="can(`holiday_create`)">
+              <template v-slot:activator="{ on, attrs }"> -->
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              title="Add Holiday"
+              @click="dialog = true"
+            >
+              <v-icon dark>mdi-plus-circle</v-icon>
+            </v-btn>
+            <!-- </template>
               <span>Add Holiday</span>
-            </v-tooltip>
+            </v-tooltip> -->
             <!-- <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
                 <v-btn v-if="can(`holiday_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
