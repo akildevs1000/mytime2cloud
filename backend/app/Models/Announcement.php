@@ -35,13 +35,17 @@ class Announcement extends Model
     {
         return $this->belongsTo(AnnouncementsCategories::class);
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     protected static function boot()
     {
         parent::boot();
 
         // Order by name ASC
         static::addGlobalScope('order', function (Builder $builder) {
-            //$builder->orderBy('id', 'desc');
+            $builder->orderBy('updated_at', 'desc');
         });
     }
 
@@ -49,7 +53,7 @@ class Announcement extends Model
     {
         $model = self::query();
 
-        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'departments', 'category']);
+        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'departments', 'category', 'user.company', 'user.employee']);
 
 
         $model->where('company_id', $request->company_id);

@@ -250,12 +250,28 @@
                   item-value="id"
                   item-text="name"
                   v-model="editedItem.category_id"
+                  :error-messages="
+                    errors && errors.category_id ? errors.category_id[0] : ''
+                  "
                 >
                 </v-select>
               </v-col>
               <v-col cols="12">
-                <label for="">Description</label>
-                <v-textarea
+                <ClientOnly>
+                  <tiptap-vuetify
+                    class="tiptap-icon"
+                    v-model="editedItem.description"
+                    :extensions="extensions"
+                    v-scroll.self="onScroll"
+                    max-height="400"
+                    :toolbar-attributes="{
+                      color: 'background red--text',
+                    }"
+                  />
+                  <template #placeholder> Loading... </template>
+                </ClientOnly>
+                <!-- <label for="">Description</label> -->
+                <!-- <v-textarea
                   dense
                   outlined
                   v-model="editedItem.description"
@@ -263,7 +279,7 @@
                     errors && errors.description ? errors.description[0] : ''
                   "
                 >
-                </v-textarea>
+                </v-textarea> -->
                 <!-- <ClientOnly>
                   <tiptap-vuetify
                     v-model="editedItem.description"
@@ -582,6 +598,12 @@
             <template v-slot:item.priority="{ item }">
               {{ item.category && item.category.priority }}
             </template>
+            <template v-slot:item.description="{ item }">
+              <div class="breakthewords" v-html="item.description"></div>
+            </template>
+            <template v-slot:item.user="{ item }">
+              {{ getUserDetails(item) }}
+            </template>
             <template v-slot:item.action="{ item }">
               <v-menu bottom left>
                 <template v-slot:activator="{ on, attrs }">
@@ -672,14 +694,49 @@
 import DateRangePicker from "../../components/Snippets/Filters/DateRangePicker.vue";
 import TextField from "../../components/Snippets/Filters/TextField.vue";
 import DropDown from "../../components/Snippets/Filters/DropDown.vue";
+import {
+  TiptapVuetify,
+  Heading,
+  Bold,
+  Italic,
+  Strike,
+  Underline,
+  Paragraph,
+  BulletList,
+  OrderedList,
+  ListItem,
+  Blockquote,
+  History,
+} from "tiptap-vuetify";
 
 export default {
   components: {
     DateRangePicker,
     TextField,
     DropDown,
+    TiptapVuetify,
   },
   data: () => ({
+    extensions: [
+      History,
+      Blockquote,
+      Underline,
+      Strike,
+      Italic,
+      ListItem,
+      BulletList,
+      OrderedList,
+      [
+        Heading,
+        {
+          options: {
+            levels: [1, 2, 3],
+          },
+        },
+      ],
+      Bold,
+      Paragraph,
+    ],
     categories: [],
     totalRowsCount: 0,
     from_menu_filter: "",
@@ -767,6 +824,7 @@ export default {
         key: "description",
         value: "description",
         fieldType: "text",
+        class: "breakthewords",
       },
       {
         text: "Date Range",
@@ -782,6 +840,14 @@ export default {
         sortable: false,
         key: "categories",
         value: "categories",
+        fieldType: "dropdown",
+      },
+      {
+        text: "User",
+        align: "left",
+        sortable: false,
+        key: "user",
+        value: "user",
         fieldType: "dropdown",
       },
 
@@ -1101,7 +1167,19 @@ export default {
         this.loading = false;
       });
     },
-
+    getUserDetails(item) {
+      if (item != null) {
+        if (item.user && item.user.user_type == "company") {
+          return item.user.name;
+        } else if (item.user && item.user.user_type == "employee") {
+          return (
+            item.user.employee.first_name + " " + item.user.employee.last_name
+          );
+        }
+      } else {
+        return "---";
+      }
+    },
     getEmployees(url = "employee") {
       this.loading = true;
 
@@ -1123,6 +1201,8 @@ export default {
 
     save() {
       this.editedItem.company_id = this.$auth.user.company_id;
+
+      this.editedItem.user_id = this.$auth.user.id;
 
       if (this.editedIndex > -1) {
         this.$axios
@@ -1159,3 +1239,29 @@ export default {
   },
 };
 </script>
+<style>
+.tiptap-vuetify-editor__content {
+  min-height: 400px !important;
+}
+
+.ProseMirror .ProseMirror-focused {
+  height: 400px !important;
+}
+
+.tiptap-icon .v-icon {
+  color: white !important;
+}
+
+.tiptap-icon .v-btn--icon {
+  color: white !important;
+}
+
+.breakthewords {
+  display: -webkit-box;
+  font-size: 12px !important;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>

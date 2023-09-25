@@ -1,5 +1,24 @@
 <template>
   <div style="min-height: 300px">
+    <v-dialog persistent v-model="announcementDialog" max-width="60%">
+      <v-card>
+        <v-card-title dense class="popup_background">
+          Announcement
+          <v-spacer></v-spacer>
+          <v-icon @click="announcementDialog = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <h3>{{ announcementViewObj.title }}</h3>
+
+            <div v-html="announcementViewObj.description"></div>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <v-row>
       <v-col md="10">
         <center>
@@ -26,20 +45,48 @@
     <v-row v-if="loading">
       <ComonPreloader icon="face-scan" />
     </v-row>
-    <v-row v-else v-for="(announcement, i) in data" :key="i">
-      <v-col md="2" sm="2" xs="2" class="text-center" style="text-align: right">
-        <v-avatar color="#FFB74D" size="40">
+    <v-row
+      v-else
+      v-for="(announcement, i) in data"
+      :key="i"
+      @click="viewDetails(announcement)"
+    >
+      <v-col
+        md="2"
+        sm="2"
+        xs="2"
+        class="text-right"
+        style="text-align: right; float: right"
+      >
+        <!-- <v-avatar color="#FFB74D" size="40">
           <v-icon
             size="20"
             style="color: #fff"
             :color="i % 2 == 0 ? 'green' : 'red'"
             >mdi-email</v-icon
           >
-        </v-avatar>
+        </v-avatar> -->
+
+        <v-img
+          style="
+            border-radius: 50%;
+            height: auto;
+            width: 40px;
+            max-width: 40px;
+            float: right;
+          "
+          :src="getUserPic(announcement)"
+        >
+        </v-img>
       </v-col>
 
       <v-col md="10" sm="10" xs="10">
-        {{ announcement.title }}
+        <div style="font-weight: bold">{{ announcement.title }}</div>
+
+        <div
+          class="breakthewords"
+          v-html="announcement.description.replace(/<[^>]*>/g, '')"
+        ></div>
 
         <v-row>
           <v-col md="6" sm="6" xs="6">
@@ -54,8 +101,8 @@
             class="text-center"
             style="font-size: 12px"
           >
-            <span :style="getPriorityColor(announcement.category.name)">{{
-              announcement.category.name
+            <span :style="getPriorityColor(announcement.category)">{{
+              announcement.category && announcement.category.name
             }}</span>
           </v-col>
         </v-row>
@@ -68,6 +115,8 @@
 <script>
 export default {
   data: () => ({
+    announcementDialog: false,
+    announcementViewObj: {},
     options: {},
     Model: "Announcement",
     endpoint: "announcement_list",
@@ -110,19 +159,41 @@ export default {
   },
 
   methods: {
-    getPriorityColor(name) {
-      if (name == "Urgent") {
-        return "color:#F44336";
-      } else if (name == "Informational") {
-        return "color:#3F51B5";
-      } else if (name == "Meeting") {
-        return "color:#FF5722";
-      } else if (name == "Priority") {
-        return "color:#4CAF50";
-      } else if (name == "Informational") {
-        return "color:#607D8B";
-      } else if (name == "Low Priority") {
-        return "color:#000000";
+    viewDetails(announcement) {
+      this.announcementViewObj = announcement;
+      this.announcementDialog = true;
+    },
+    getUserPic(announcement) {
+      let name = "";
+      if (announcement.user != null) {
+        if (announcement.user && announcement.user.user_type == "company") {
+          return announcement.user.company.logo;
+        } else if (
+          announcement.user &&
+          announcement.user.user_type == "employee"
+        ) {
+          return announcement.user.employee.profile_picture;
+        }
+      } else {
+        return "/no-profile-image.jpg";
+      }
+    },
+    getPriorityColor(category) {
+      if (category == null) return "";
+      else {
+        if (category.name == "Urgent") {
+          return "color:#F44336";
+        } else if (category.name == "Informational") {
+          return "color:#3F51B5";
+        } else if (category.name == "Meeting") {
+          return "color:#FF5722";
+        } else if (category.name == "Priority") {
+          return "color:#4CAF50";
+        } else if (category.name == "Informational") {
+          return "color:#607D8B";
+        } else if (category.name == "Low Priority") {
+          return "color:#000000";
+        }
       }
     },
     viewLogs() {
@@ -163,5 +234,14 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.breakthewords {
+  display: -webkit-box;
+  font-size: 12px;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

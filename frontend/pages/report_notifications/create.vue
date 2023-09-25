@@ -428,10 +428,9 @@ import {
   Blockquote,
   History,
 } from "tiptap-vuetify";
-import Back from "../../components/Snippets/Back.vue";
 
 export default {
-  components: { TiptapVuetify, Back },
+  components: { TiptapVuetify },
 
   data: () => ({
     menu: false,
