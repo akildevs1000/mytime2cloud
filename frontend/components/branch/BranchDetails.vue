@@ -14,7 +14,6 @@
         mdi mdi-close-circle
       </v-icon>
     </v-toolbar>
-
     <v-card-text>
       <v-row class="pt-5">
         <v-col cols="3">

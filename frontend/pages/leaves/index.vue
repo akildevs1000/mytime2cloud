@@ -801,8 +801,6 @@
   <NoAccess v-else />
 </template>
 <script>
-import Back from "../components/Snippets/Back.vue";
-
 import {
   TiptapVuetify,
   Image,
@@ -826,7 +824,6 @@ import {
 export default {
   components: {
     TiptapVuetify,
-    Back,
   },
   data: () => ({
     from_menu_filter: "",

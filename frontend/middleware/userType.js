@@ -9,7 +9,7 @@ const data = ({ $auth, redirect }) => {
       redirect("/dashboard/employee");
       break;
     default:
-      redirect("/dashboard");
+      redirect("/dashboard2");
       break;
   }
 };

@@ -37,7 +37,7 @@ class StoreRequest extends FormRequest
                 }),
             ],
             'company_id' => 'required',
+            'description' => 'required',
         ];
-
     }
 }

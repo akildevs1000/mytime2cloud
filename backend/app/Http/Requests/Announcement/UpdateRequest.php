@@ -32,6 +32,8 @@ class UpdateRequest extends FormRequest
             'description' => 'required',
             'departments' => 'required',
             'company_id' => 'required',
+            'category_id' => 'required',
+            'user_id' => 'required',
         ];
     }
 }

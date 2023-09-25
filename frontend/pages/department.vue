@@ -14,15 +14,10 @@
           width="500px"
         >
           <v-card>
-            <v-card-title dense class="primary white--text background">
+            <v-card-title dense class="popup_background">
               <span>New Designation</span>
               <v-spacer></v-spacer>
-              <v-icon
-                @click="dialogFormDesignation = false"
-                outlined
-                dark
-                color="white"
-              >
+              <v-icon @click="dialogFormDesignation = false" outlined>
                 mdi mdi-close-circle
               </v-icon>
             </v-card-title>
@@ -86,15 +81,10 @@
           width="500px"
         >
           <v-card>
-            <v-card-title dense class="primary white--text background">
+            <v-card-title dense class="popup_background">
               <span>New Sub Department</span>
               <v-spacer></v-spacer>
-              <v-icon
-                @click="dialogFormSubdepartment = false"
-                outlined
-                dark
-                color="white"
-              >
+              <v-icon @click="dialogFormSubdepartment = false" outlined>
                 mdi mdi-close-circle
               </v-icon>
             </v-card-title>
@@ -159,10 +149,10 @@
           width="500px"
         >
           <v-card>
-            <v-card-title dense class="primary white--text background">
+            <v-card-title dense class="popup_background">
               <span>{{ formTitle }} {{ Model }}</span>
               <v-spacer></v-spacer>
-              <v-icon @click="dialogForm = false" outlined dark color="white">
+              <v-icon @click="dialogForm = false" outlined>
                 mdi mdi-close-circle
               </v-icon>
             </v-card-title>
@@ -201,49 +191,45 @@
           </v-card>
         </v-dialog>
         <v-col md="12" lg="12">
-          <Back color="primary" />
+          <!-- <Back color="primary" /> -->
 
           <v-card class="mb-5 mt-2 rounded-md" elevation="0">
-            <v-toolbar class="rounded-md" color="background" dense flat dark>
+            <v-toolbar class="rounded-md" dense flat>
               <v-toolbar-title
                 ><span> {{ Model }} List</span></v-toolbar-title
               >
-
+              <!-- 
               <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="clearFilters()"
-                  >
-                    <v-icon color="white" class="ml-2" dark
-                      >mdi mdi-reload</v-icon
-                    >
-                  </v-btn>
-                </template>
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
+                @click="clearFilters()"
+              >
+                <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
+              </v-btn>
+              <!-- </template>
                 <span>Reload</span>
-              </v-tooltip>
+              </v-tooltip> -->
 
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="toggleFilter"
-                  >
-                    <v-icon dark white>mdi-filter</v-icon>
-                  </v-btn>
-                </template>
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
+                @click="toggleFilter"
+              >
+                <v-icon dark white>mdi-filter</v-icon>
+              </v-btn>
+              <!-- </template>
                 <span>Filter</span>
-              </v-tooltip>
+              </v-tooltip> -->
 
               <v-spacer></v-spacer>
               <v-btn to="/designation" small class="primary mr-1">
@@ -286,17 +272,19 @@
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
                   <td v-for="header in headers" :key="header.text">
-                    <v-text-field
-                      clearable
-                      :hide-details="true"
-                      v-if="header.filterable && !header.filterSpecial"
-                      v-model="filters[header.key]"
-                      :id="header.value"
-                      @input="applyFilters(header.key, $event)"
-                      outlined
-                      dense
-                      autocomplete="off"
-                    ></v-text-field>
+                    <v-container>
+                      <v-text-field
+                        clearable
+                        :hide-details="true"
+                        v-if="header.filterable && !header.filterSpecial"
+                        v-model="filters[header.key]"
+                        :id="header.value"
+                        @input="applyFilters(header.key, $event)"
+                        outlined
+                        dense
+                        autocomplete="off"
+                      ></v-text-field>
+                    </v-container>
                   </td>
                 </tr>
               </template>

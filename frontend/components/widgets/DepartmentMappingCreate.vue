@@ -5,10 +5,10 @@
     </v-snackbar>
     <v-dialog persistent v-model="dialog" max-width="700px">
       <v-card>
-        <v-card-title class="background white--text" dark dense>
+        <v-card-title class="popup_background" dark dense>
           <span class="text-h5">Department Mapping</span>
           <v-spacer></v-spacer>
-          <v-icon @click="close" outlined dark color="white">
+          <v-icon @click="close" outlined dark>
             mdi-close-circle-outline
           </v-icon>
         </v-card-title>

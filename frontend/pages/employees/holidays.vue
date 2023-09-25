@@ -7,7 +7,6 @@
     </div>
 
     <v-dialog persistent v-model="dialogFilter" width="300px">
-
       <v-card elevation="0">
         <v-toolbar color="background" dense flat dark>
           <span> Select year</span>
@@ -17,12 +16,18 @@
           <v-container>
             <v-row>
               <v-col cols="12">
-
-                <v-select @change="getDataFromApi()" outlined dense x-small v-model="filterYear" :items="dataYears"
-                  placeholder="Year" solo flat></v-select>
+                <v-select
+                  @change="getDataFromApi()"
+                  outlined
+                  dense
+                  x-small
+                  v-model="filterYear"
+                  :items="dataYears"
+                  placeholder="Year"
+                  solo
+                  flat
+                ></v-select>
               </v-col>
-
-
             </v-row>
           </v-container>
         </v-card-text>
@@ -37,48 +42,92 @@
 
         <v-card-text>
           <v-container>
-
             <v-row>
               <v-col cols="12">
-                <label for="" style="padding-bottom:5px">Title</label>
-                <v-text-field dense outlined v-model="editedItem.name" placeholder="Name" :error-messages="errors && errors.name ? errors.name[0] : ''
-                  "></v-text-field>
+                <label for="" style="padding-bottom: 5px">Title</label>
+                <v-text-field
+                  dense
+                  outlined
+                  v-model="editedItem.name"
+                  placeholder="Name"
+                  :error-messages="errors && errors.name ? errors.name[0] : ''"
+                ></v-text-field>
               </v-col>
 
               <v-col cols="12">
-                <v-menu ref="from_menu" v-model="start_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.start_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="from_menu"
+                  v-model="start_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.start_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">Start Date</div>
-                    <v-text-field outlined dense v-model="editedItem.start_date" readonly v-bind="attrs" v-on="on"
-                      :error-messages="errors && errors.start_date ? errors.start_date[0] : ''
-                        ">
+                    <v-text-field
+                      outlined
+                      dense
+                      v-model="editedItem.start_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      :error-messages="
+                        errors && errors.start_date ? errors.start_date[0] : ''
+                      "
+                    >
                     </v-text-field>
                   </template>
-                  <v-date-picker v-model="editedItem.start_date" small no-title scrollable @change="update_EdititemStart">
-
+                  <v-date-picker
+                    v-model="editedItem.start_date"
+                    small
+                    no-title
+                    scrollable
+                    @change="update_EdititemStart"
+                  >
                   </v-date-picker>
                 </v-menu>
               </v-col>
 
               <v-col cols="12">
-                <v-menu ref="end_menu" v-model="end_menu" :close-on-content-click="false"
-                  :return-value.sync="editedItem.end_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="end_menu"
+                  v-model="end_menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="editedItem.end_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <div class="mb-1">End Date</div>
-                    <v-text-field outlined dense v-model="editedItem.end_date" readonly v-bind="attrs" v-on="on"
-                      :error-messages="errors && errors.end_date ? errors.end_date[0] : ''
-                        "></v-text-field>
+                    <v-text-field
+                      outlined
+                      dense
+                      v-model="editedItem.end_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      :error-messages="
+                        errors && errors.end_date ? errors.end_date[0] : ''
+                      "
+                    ></v-text-field>
                   </template>
-                  <v-date-picker :min="editedItem.start_date" small v-model="editedItem.end_date"
-                    @change="update_EdititemEnd" no-title scrollable>
+                  <v-date-picker
+                    :min="editedItem.start_date"
+                    small
+                    v-model="editedItem.end_date"
+                    @change="update_EdititemEnd"
+                    no-title
+                    scrollable
+                  >
                   </v-date-picker>
                 </v-menu>
               </v-col>
               <v-col cols="12">
                 <label for="">Today Days : {{ editedItem.total_days }}</label>
               </v-col>
-
             </v-row>
           </v-container>
         </v-card-text>
@@ -93,36 +142,70 @@
 
     <v-row>
       <v-col md="12">
-
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> Dashboard / {{ Model }} List</span></v-toolbar-title>
+            <v-toolbar-title
+              ><span> Dashboard / {{ Model }} List</span></v-toolbar-title
+            >
 
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon
+                    color="white"
+                    class="ml-2"
+                    @click="getDataFromApi()"
+                    dark
+                    >mdi mdi-reload</v-icon
+                  >
                 </v-btn>
               </template>
               <span>Reload</span>
             </v-tooltip>
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="dialogFilter = true" dark>mdi
-                    mdi-calendar-blank-outline</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon
+                    color="white"
+                    class="ml-2"
+                    @click="dialogFilter = true"
+                    dark
+                    >mdi mdi-calendar-blank-outline</v-icon
+                  >
                 </v-btn>
               </template>
               <span>{{ filterYear }}</span>
             </v-tooltip>
-            <a style="padding-left:10px" @click="dialogFilter = true"><v-icon class="mx-1">mdi
-              </v-icon> </a>
+            <a style="padding-left: 10px" @click="dialogFilter = true"
+              ><v-icon class="mx-1">mdi </v-icon>
+            </a>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col class="toolbaritems-button-design1">
-                <v-btn v-if="can(`holiday_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
-                  Model }}
-                  +</v-btn>
+                <v-btn
+                  v-if="can(`holiday_create`)"
+                  small
+                  color="primary"
+                  @click="dialog = true"
+                  class="mb-2"
+                  >{{ Model }} +</v-btn
+                >
               </v-col>
             </v-toolbar-items>
           </v-toolbar>
@@ -131,29 +214,35 @@
             {{ snackText }}
 
             <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false">
-                Close
-              </v-btn>
+              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table v-if="can(`holiday_view`)" v-model="ids" item-key="id" :headers="headers" :items="data"
-            :loading="loading" :footer-props="{
+          <v-data-table
+            v-if="can(`holiday_view`)"
+            v-model="ids"
+            item-key="id"
+            :headers="headers"
+            :items="data"
+            :loading="loading"
+            :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1" :options.sync="options" :server-items-length="totalRowsCount">
+            }"
+            class="elevation-1"
+            :options.sync="options"
+            :server-items-length="totalRowsCount"
+          >
             <template v-slot:item.name="{ item }">
-              {{ (item.name) }}
+              {{ item.name }}
             </template>
             <template v-slot:item.start_date="{ item }">
-              {{ (item.start_date) }}
+              {{ item.start_date }}
             </template>
             <template v-slot:item.end_date="{ item }">
-              {{ (item.end_date) }}
+              {{ item.end_date }}
             </template>
             <template v-slot:item.total_days="{ item }">
-              {{ (item.total_days) }}
+              {{ item.total_days }}
             </template>
-
-
 
             <template v-slot:no-data>
               <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
@@ -168,7 +257,6 @@
 </template>
 <script>
 import {
-
   TiptapVuetify,
   Image,
   Heading,
@@ -196,15 +284,15 @@ export default {
     dialogFilter: false,
     options: {},
     totalRowsCount: 0,
-    formTitle: 'New Holiday Information',
+    formTitle: "New Holiday Information",
     dialogEmployees: false,
     idsEmployeeList: [],
     //editor
-    datatable_search_textbox: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     extensions: [
       History,
       Blockquote,
@@ -230,7 +318,6 @@ export default {
       HorizontalRule,
       Paragraph,
       HardBreak,
-
     ],
     // starting editor's content
     content: `
@@ -281,10 +368,15 @@ export default {
       //   sortable: true,
       //   value: "designation.name",
       // },
-
     ],
     headers: [
-      { text: "Name", align: "left", sortable: true, key: "name", value: "name" },
+      {
+        text: "Name",
+        align: "left",
+        sortable: true,
+        key: "name",
+        value: "name",
+      },
       {
         text: "Start Date",
         align: "left",
@@ -303,8 +395,6 @@ export default {
         sortable: false,
         value: "total_days",
       },
-
-
     ],
     editedIndex: -1,
     editedItem: {
@@ -330,15 +420,12 @@ export default {
     selectAllEmployee: false,
     DialogEmployeesData: {},
     dataYears: [],
-    filterYear: '',
+    filterYear: "",
   }),
 
-  computed: {
-
-  },
+  computed: {},
 
   watch: {
-
     options: {
       handler() {
         this.getDataFromApi();
@@ -353,32 +440,25 @@ export default {
 
     this.getDataFromApi();
     this.lastTenYears();
-
   },
 
   methods: {
-
     lastTenYears() {
       const year = new Date().getFullYear();
       this.dataYears = Array.from({ length: 10 }, (_, i) => year - i);
     },
     update_EdititemStart() {
-
-      this.$refs.from_menu.save(this.editedItem.start_date)
+      this.$refs.from_menu.save(this.editedItem.start_date);
       this.from_menu = false;
       this.getDayscount();
     },
     update_EdititemEnd() {
-
-      this.$refs.end_menu.save(this.editedItem.end_date)
+      this.$refs.end_menu.save(this.editedItem.end_date);
       this.end_menu = false;
 
       this.getDayscount();
-
     },
     getDayscount() {
-
-
       if (!this.editedItem.start_date || !this.editedItem.end_date) {
         return false;
       }
@@ -393,8 +473,6 @@ export default {
       // Convert the time difference to days
       let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-
-
       this.editedItem.total_days = diffDays + 1;
     },
     gotoDialogPage(item) {
@@ -402,13 +480,12 @@ export default {
       this.DialogEmployeesData = item.employees;
       this.dialogEmployees = true;
     },
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -465,19 +542,14 @@ export default {
       });
     },
 
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
-      if (url == '') url = this.endpoint;
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+      if (url == "") url = this.endpoint;
       this.loading = true;
-
-
-
-
 
       const { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
-
 
       let options = {
         params: {
@@ -489,18 +561,15 @@ export default {
           year: this.filterYear,
         },
       };
-      if (filter_column != '') {
-
+      if (filter_column != "") {
         options.params[filter_column] = filter_value;
-
       }
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-        if (filter_column != '' && data.data.length == 0) {
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }
@@ -525,7 +594,6 @@ export default {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
-
     },
 
     delteteSelectedRecords() {
@@ -593,8 +661,6 @@ export default {
     },
 
     save() {
-
-
       this.editedItem.company_id = this.$auth.user.company_id;
 
       if (this.editedIndex > -1) {
@@ -639,4 +705,3 @@ export default {
   },
 };
 </script>
-

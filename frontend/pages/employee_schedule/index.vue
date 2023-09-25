@@ -346,49 +346,45 @@
       </v-card>
     </v-dialog>
 
-    <Back class="primary white--text" />
-
     <v-card elevation="0" class="mt-2">
       <v-toolbar class="mb-2 white--text" color="white" dense flat>
         <v-toolbar-title class="black--text"
           ><span> Schedule List</span></v-toolbar-title
         >
-        <v-tooltip top dark>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon class="ml-2" @click="clearFilters" dark
-                >mdi mdi-reload</v-icon
-              >
-            </v-btn>
-          </template>
+        <!-- <v-tooltip top dark>
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          dense
+          class="ma-0 px-0"
+          x-small
+          :ripple="false"
+          text
+          title="Reload"
+        >
+          <v-icon class="ml-2" @click="clearFilters" dark
+            >mdi mdi-reload</v-icon
+          >
+        </v-btn>
+        <!-- </template>
           <span>Reload</span>
-        </v-tooltip>
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon class="ml-2" @click="toggleFilter" dark
-                >mdi mdi-filter</v-icon
-              >
-            </v-btn>
-          </template>
+        </v-tooltip> -->
+        <!-- <v-tooltip top color="primary">
+          <template v-slot:activator="{ on, attrs }"> -->
+        <v-btn
+          dense
+          class="ma-0 px-0"
+          x-small
+          :ripple="false"
+          text
+          title="Filter"
+        >
+          <v-icon class="ml-2" @click="toggleFilter" dark
+            >mdi mdi-filter</v-icon
+          >
+        </v-btn>
+        <!-- </template>
           <span>Filter</span>
-        </v-tooltip>
+        </v-tooltip> -->
 
         <v-spacer></v-spacer>
 
@@ -651,11 +647,7 @@
   <NoAccess v-else />
 </template>
 <script>
-import Back from "../../components/Snippets/Back.vue";
-
 export default {
-  components: { Back },
-
   data: () => ({
     shifts_for_filter: [],
     shiftsTypes_for_filter: [],

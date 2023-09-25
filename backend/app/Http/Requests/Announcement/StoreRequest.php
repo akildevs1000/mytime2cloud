@@ -33,6 +33,8 @@ class StoreRequest extends FormRequest
             'company_id' => 'required',
             'departments' => 'required|array',
             'employees' => 'required|array',
+            'category_id' => 'required',
+            'user_id' => 'required',
 
         ];
     }

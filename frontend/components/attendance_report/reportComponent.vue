@@ -19,7 +19,7 @@
       v-if="can(`attendance_report_view`)"
     >
       <v-toolbar class="backgrounds" dense flat>
-        <v-toolbar-title> {{ title }}</v-toolbar-title>
+        <v-toolbar-title> </v-toolbar-title>
         <!-- <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }"> -->
         <v-btn x-small text title="Reload" @click="clearFilters()">

@@ -12,13 +12,11 @@
           <div>Dashboard / Report Notification</div>
         </v-col>
       </v-row> -->
-      <Back class="primary white--text" />
+      <!-- <Back class="primary white--text" /> -->
 
       <v-card elevation="0" class="mt-2 pa-3">
-        <v-card-title>
-          <label class="col-form-label"
-            ><b>Create Report Notification </b></label
-          >
+        <v-card-title style="border-bottom: 1px solid #ddd">
+          <span class="popup_title"> Create Report Notification </span>
         </v-card-title>
         <v-container>
           <v-row>
@@ -430,10 +428,9 @@ import {
   Blockquote,
   History,
 } from "tiptap-vuetify";
-import Back from "../../components/Snippets/Back.vue";
 
 export default {
-  components: { TiptapVuetify, Back },
+  components: { TiptapVuetify },
 
   data: () => ({
     menu: false,

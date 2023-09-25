@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\AnnouncementsCategoriesController;
 use Illuminate\Support\Facades\Route;
 
 // announcement
@@ -9,3 +10,7 @@ Route::get('announcement_list', [AnnouncementController::class, 'annoucement_lis
 Route::get('announcement/search/{key}', [AnnouncementController::class, 'search']);
 Route::post('announcement/delete/selected', [AnnouncementController::class, 'deleteSelected']);
 Route::get('announcement/employee/{id}', [AnnouncementController::class, 'getAnnouncement']);
+
+
+//Announce
+Route::apiResource('announcements_category', AnnouncementsCategoriesController::class);

@@ -50,7 +50,7 @@
     "module": "dashboard"
   },
   {
-    "icon": "mdi-transit-transfer",
+    "icon": "mdi-chart-box-outline",
     "title": "Reports",
     "to": "/visitor-dashboard",
     "menu": "true",
@@ -96,13 +96,7 @@
     "menu": "role_access",
     "module": "settings"
   },
-  {
-    "icon": "mdi-security",
-    "title": "Permissions",
-    "to": "/assign_permission",
-    "menu": "assign_permission_access",
-    "module": "settings"
-  },
+
   {
     "icon": "mdi-star-box-multiple-outline",
     "title": "Departments",
@@ -125,14 +119,21 @@
     "menu": "holiday_access",
     "module": "settings"
   },
-
+  {
+    "icon": "mdi mdi-calendar",
+    "title": "Leaves",
+    "to": "/leaves/leave_types",
+    "menu": "leave_type_access",
+    "module": "settings"
+  },
   {
     "icon": "mdi-bell",
     "title": "Announcements",
     "open_menu": false,
-    "to": "/announcement",
+    "to": "/announcement_type",
     "module": "settings"
   },
+
   {
     "icon": "mdi-web-box",
     "title": "Web Logins",
@@ -145,6 +146,20 @@
     "title": "Employees",
     "to": "/employees",
     "menu": "employee_access",
+    "module": "employees"
+  },
+  {
+    "icon": "mdi mdi-calendar-account",
+    "title": "Leaves",
+    "to": "/leaves",
+    "menu": "leave_application_access",
+    "module": "employees"
+  },
+  {
+    "icon": "mdi-bell",
+    "title": "Announcements",
+    "open_menu": false,
+    "to": "/announcement",
     "module": "employees"
   },
   {
@@ -190,27 +205,7 @@
     "menu": "payroll_settings_access",
     "module": "payroll"
   },
-  {
-    "icon": "mdi mdi-calendar-account",
-    "title": "Leaves",
-    "to": "/leaves",
-    "menu": "leave_application_access",
-    "module": "payroll"
-  },
-  {
-    "icon": "mdi mdi-calendar",
-    "title": "Types",
-    "to": "/leavetype",
-    "menu": "leave_type_accessss",
-    "module": "payroll"
-  },
-  {
-    "icon": "mdi mdi-calendar-text",
-    "title": "Groups",
-    "to": "/leavegroups",
-    "menu": "leave_group_access",
-    "module": "payroll"
-  },
+
   {
     "icon": "mdi mdi-clock-time-four-outline",
     "title": "Timezones",
@@ -237,52 +232,52 @@
     "icon": "mdi-home",
     "title": "Dashboard",
     "to": "/visitor-dashboard",
-    "menu": true,
+    "menu": "visitors_access",
     "module": "visitors"
   },
-  {
-    "icon": "mdi-chart-box-outline",
-    "title": "Reports",
-    "to": "/visitors_report",
-    "menu": true,
-    "module": "visitors"
-  },
+
   {
     "icon": "mdi-account",
     "title": "Visitors",
     "to": "/visitor",
-    "menu": true,
+    "menu": "visitors_access",
     "module": "visitors"
   },
   {
     "icon": "mdi-account-tie",
     "title": "Host",
     "to": "/host",
-    "menu": true,
+    "menu": "visitors_access",
     "module": "visitors"
   },
   {
     "icon": "mdi-bullhorn",
     "title": "Purpose",
     "to": "/purpose",
-    "menu": true,
+    "menu": "visitors_access",
     "module": "visitors"
   },
   {
     "icon": "mdi-select-group",
     "title": "Zones",
     "to": "/zone",
-    "menu": true,
+    "menu": "visitors_access",
     "module": "visitors"
   },
   {
     "icon": "mdi-chart-box-outline",
     "title": "Logs",
     "to": "/visitor_logs",
-    "menu": true,
+    "menu": "visitors_access",
     "module": "visitors"
   },
-
+  {
+    "icon": "mdi-chart-box-outline",
+    "title": "Reports",
+    "to": "/visitors_report",
+    "menu": "visitors_access",
+    "module": "visitors"
+  },
   {
     "icon": "mdi-calendar-today",
     "title": "Attendance",
@@ -292,7 +287,7 @@
   },
   {
     "icon": "mdi-clipboard-text-clock",
-    "title": "Attendance Logs",
+    "title": "Logs",
     "to": "/devicelogs",
     "menu": "logs_access",
     "module": "reports"
@@ -301,21 +296,21 @@
     "icon": "mdi-cash",
     "title": "Salary",
     "to": "/payroll/salary",
-    "menu": true,
+    "menu": "reports",
     "module": "reports"
   },
   {
     "icon": "mdi mdi-calendar-account",
     "title": "Leaves",
     "to": "/leaves",
-    "menu": true,
+    "menu": "reports",
     "module": "reports"
   },
   {
     "icon": "mdi-account",
     "title": "Visitors",
     "to": "/visitors_report",
-    "menu": true,
+    "menu": "visitors_access",
     "module": "reports"
   },
 
@@ -323,7 +318,7 @@
     "icon": "mdi-chart-box-outline",
     "title": "Visitor Logs",
     "to": "/visitor_logs",
-    "menu": true,
+    "menu": "visitors_access",
     "module": "reports"
   }
 ]

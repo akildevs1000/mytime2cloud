@@ -20,6 +20,43 @@
         </div>
       </v-col>
     </v-row> -->
+    <v-dialog persistent v-model="dialogEdit" width="500px">
+      <v-card>
+        <v-card-title dense class="popup_background">
+          Update Group counts
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogEdit = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row v-for="item in items" :key="index">
+              <v-col cols="6">
+                {{ item.leave_type && item.leave_type.name }}
+              </v-col>
+
+              <v-col cols="6">
+                <v-text-field
+                  type="number"
+                  outlined
+                  dense
+                  v-model="item.leave_type_count"
+                  v-bind="attrs"
+                >
+                </v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
+          <v-btn class="primary" small @click="update">Update</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog persistent v-model="dialog" width="500px">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -131,6 +168,18 @@
                 >mdi mdi-plus-circle</v-icon
               >
             </v-btn>
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Add Count"
+            >
+              <v-icon class="ml-2" @click="dialogEdit = true" dark
+                >mdi mdi-plus-circle</v-icon
+              >
+            </v-btn>
             <!-- </template>
               <span>Add </span>
             </v-tooltip> -->
@@ -218,30 +267,7 @@
   <NoAccess v-else />
 </template>
 <script>
-import {
-  TiptapVuetify,
-  Image,
-  Heading,
-  Bold,
-  Italic,
-  Strike,
-  Underline,
-  Code,
-  Paragraph,
-  BulletList,
-  OrderedList,
-  ListItem,
-  Link,
-  Blockquote,
-  HardBreak,
-  HorizontalRule,
-  History,
-} from "tiptap-vuetify";
-
 export default {
-  components: {
-    TiptapVuetify,
-  },
   data: () => ({
     UpdatedLeaveTypes: [],
     attrs: {},
@@ -256,37 +282,6 @@ export default {
     snack: false,
     snackColor: "",
     snackText: "",
-    extensions: [
-      History,
-      Blockquote,
-      Link,
-      Image,
-      Underline,
-      Strike,
-      Italic,
-      ListItem,
-      BulletList,
-      OrderedList,
-      [
-        Heading,
-        {
-          options: {
-            levels: [1, 2, 3],
-          },
-        },
-      ],
-      Bold,
-      Link,
-      Code,
-      HorizontalRule,
-      Paragraph,
-      HardBreak,
-    ],
-    // starting editor's content
-    content: `
-      <h1>Yay Headlines!</h1>
-      <p>All these <strong>cool tags</strong> are working now.</p>
-        `,
 
     //end editor
     scrollInvoked: 0,
@@ -348,6 +343,7 @@ export default {
       group_id: "",
       leave_type_count: "",
     },
+    items: {},
     response: "",
     data: [],
     errors: [],
@@ -357,6 +353,7 @@ export default {
     selectAllEmployee: false,
     DialogEmployeesData: {},
     id: "",
+    dialogEdit: false,
   }),
 
   computed: {},
@@ -534,6 +531,7 @@ export default {
           return false;
         }
         this.data = data.data;
+        this.items = this.data;
         this.total = data.total;
         this.loading = false;
 
@@ -647,6 +645,54 @@ export default {
       if (this.editedIndex > -1) {
         this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, options.params)
+          .then(({ data }) => {
+            if (!data.status) {
+              this.errors = data.errors;
+            } else {
+              const index = this.data.findIndex(
+                (item) => item.id == this.editedItem.id
+              );
+              // this.data.splice(index, 1, {
+              //   id: this.editedItem.id,
+              //   name: this.editedItem.name,
+              // });
+              this.getDataFromApi();
+              this.snackbar = data.status;
+              this.response = data.message;
+              this.close();
+            }
+          })
+          .catch((err) => console.log(err));
+      } else {
+        this.$axios
+          .post(this.endpoint, options.params)
+          .then(({ data }) => {
+            if (!data.status) {
+              this.errors = data.errors;
+            } else {
+              this.getDataFromApi();
+              this.snackbar = data.status;
+              this.response = data.message;
+              this.close();
+              this.errors = [];
+              this.search = "";
+            }
+          })
+          .catch((res) => console.log(res));
+      }
+    },
+    update() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          group_id: this.$route.params.id,
+          items: this.items,
+        },
+      };
+
+      if (this.editedIndex > -1) {
+        this.$axios
+          .put(this.endpoint + "/" + this.items.group_id, options.params)
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;

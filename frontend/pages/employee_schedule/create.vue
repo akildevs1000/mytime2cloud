@@ -5,9 +5,12 @@
         {{ response }}
       </v-snackbar>
     </div>
-
-    <Back class="primary white--text" />
-    <v-container>
+    <v-toolbar class="white--text" color="white" dense flat>
+      <v-toolbar-title class="black--text"
+        ><span> Schedule Employees</span></v-toolbar-title
+      >
+    </v-toolbar>
+    <!-- <v-container>
       <v-card elevation="0" class="mt-2">
         <v-toolbar class="mt-2">
           <v-btn
@@ -46,9 +49,22 @@
           <v-spacer></v-spacer>
         </v-toolbar>
 
-        <component :is="currentComponent" :endpoint="create_endpoint" />
+        <component :is="UnScheduledEmployees" :endpoint="create_endpoint" />
       </v-card>
-    </v-container>
+    </v-container> -->
+
+    <v-tabs right>
+      <v-tab> UnScheduled</v-tab>
+      <v-tab> Scheduled </v-tab>
+      <v-tab-slider color="violet"></v-tab-slider>
+      <v-tab-item>
+        <UnScheduledEmployees endpoint="not_scheduled_employees" />
+      </v-tab-item>
+      <v-tab-item v-if="can('leave_group_access')">
+        <ScheduledEmployees endpoint="scheduled_employees" />
+      </v-tab-item>
+    </v-tabs>
+
     <v-dialog persistent v-model="dialog" width="900">
       <v-card>
         <v-card-title class="text-h5 popup_background" dark>
@@ -316,10 +332,9 @@
 <script>
 import ScheduledEmployees from "../../components/schedule_employee/ScheduledEmployees.vue";
 import UnScheduledEmployees from "../../components/schedule_employee/UnScheduledEmployees.vue";
-import Back from "../../components/Snippets/Back.vue";
 
 export default {
-  components: { ScheduledEmployees, UnScheduledEmployees, Back },
+  components: { ScheduledEmployees, UnScheduledEmployees },
   data: () => ({
     currentComponent: "UnScheduledEmployees",
     isActive: false,
