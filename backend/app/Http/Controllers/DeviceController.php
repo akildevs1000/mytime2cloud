@@ -99,6 +99,11 @@ class DeviceController extends Controller
         return $model->with(['status', 'company'])->find($id);
     }
 
+    public function getDeviceByUserId(Device $model, $id)
+    {
+        return $model->where("device_id", $id)->first();
+    }
+
     public function getDeviceCompany(Request $request)
     {
         $device = DB::table("devices")->where("company_id", $request->company_id)->where("device_id", $request->SN)->first(['name as device_name', 'short_name', 'device_id', 'location', "company_id"]);
