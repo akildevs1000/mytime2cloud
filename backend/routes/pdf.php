@@ -95,5 +95,4 @@ Route::get('/monthly_access_control_v1', [PDFController::class, 'monthlyAccessCo
 
 Route::get('/access_control_by_device', [PDFController::class, 'monthlyAccessControlByDevice']);
 
-
 Route::get('/monthly_access_control_count', [PDFController::class, 'monthlyAccessControlCount']);
