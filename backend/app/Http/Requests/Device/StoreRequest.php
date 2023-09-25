@@ -40,13 +40,13 @@ class StoreRequest extends FormRequest
             ],
 
             'name' => ['required', 'min:2', 'max:50'],
-            'short_name' => ['required', 'nullable', 'min:3', 'max:4'],
+            'short_name' => ['required', 'nullable', 'min:3', 'max:8'],
             // 'device_id' => ['required', 'min:3', 'max:100', 'unique:devices'],
             'location' => ['nullable', 'min:5', 'max:300'],
             'company_id' => ['required', 'min:1', 'integer'],
             'status_id' => ['required', 'min:1', 'integer'],
 
-            'model_number' => ['nullable', 'min:6', 'max:50'],
+            'model_number' => ['nullable', 'min:4', 'max:10'],
             'device_type' => ['required'],
 
             'ip' => 'required|ip',
