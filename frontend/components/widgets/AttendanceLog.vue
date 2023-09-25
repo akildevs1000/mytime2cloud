@@ -1,11 +1,23 @@
 <template>
   <v-card class="mb-5 rounded-md" elevation="0">
     <v-toolbar class="rounded-md" color="background" dense flat dark>
-      <v-toolbar-title><span> {{ Model }} List </span></v-toolbar-title>
+      <v-toolbar-title
+        ><span> {{ Model }} List </span></v-toolbar-title
+      >
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-            <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-icon color="white" class="ml-2" @click="getDataFromApi()" dark
+              >mdi mdi-reload</v-icon
+            >
           </v-btn>
         </template>
         <span>Reload</span>
@@ -13,30 +25,54 @@
       <v-spacer></v-spacer>
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn to="/devicelogs" dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+          <v-btn
+            to="/devicelogs"
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+          >
             <v-icon color="white" class="ml-2" dark>mdi mdi-eye-outline</v-icon>
           </v-btn>
         </template>
         <span>Announcement List</span>
       </v-tooltip>
     </v-toolbar>
-    <v-data-table item-key="id" :headers="headers" :items="data" :loading="loading" :options.sync="options" :footer-props="{
-      itemsPerPageOptions: [10, 50, 100, 500, 1000],
-    }" class="elevation-1" :server-items-length="total">
+    <v-data-table
+      item-key="id"
+      :headers="headers"
+      :items="data"
+      :loading="loading"
+      :options.sync="options"
+      :footer-props="{
+        itemsPerPageOptions: [10, 50, 100, 500, 1000],
+      }"
+      class="elevation-1"
+      :server-items-length="total"
+    >
       <template v-slot:item.UserID="{ item, index }">
         <v-row no-gutters>
-          <v-col style="
+          <v-col
+            style="
               padding: 5px;
               padding-left: 0px;
               width: 50px;
               max-width: 50px;
-            ">
-            <v-img style="
+            "
+          >
+            <v-img
+              style="
                 border-radius: 50%;
                 height: auto;
                 width: 30px;
                 max-width: 30px;
-              " :src="item.employee && item.employee.profile_picture" lazy-src="/no-profile-image.jpg">
+              "
+              :src="item.employee && item.employee.profile_picture"
+              lazy-src="/no-profile-image.jpg"
+            >
             </v-img>
           </v-col>
           <v-col style="padding: 10px">
