@@ -92,6 +92,25 @@ class MonthlyController extends Controller
     {
         $data = (new Attendance)->processAttendanceModel($request)->get();
 
+        foreach ($data as $value) {
+            $count = count($value->logs ?? []);
+            if ($count > 0) {
+                if ($count < 8) {
+                    $diff = 7 - $count;
+                    $count = $count + $diff;
+                }
+                $i = 1;
+                for ($a = 0; $a < $count; $a++) {
+
+                    $holder = $a;
+                    $holder_key = ++$holder;
+
+                    $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
+                    $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
+                }
+            }
+        }
+
         $fileName = 'report.csv';
 
         $headers = array(
@@ -198,7 +217,7 @@ class MonthlyController extends Controller
         // }
 
         // $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
-            
+
         $arr = ['data' => $data, 'company' => $company, 'info' => $info];
         return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
     }
