@@ -6,14 +6,7 @@
     "filterable": false,
     "value": "date"
   },
-  {
-    "text": "Pic",
-    "align": "left",
-    "sortable": true,
-    "filterable": true,
-    "value": "pic",
-    "width": "50px"
-  },
+
   {
     "text": "Employee",
     "align": "left",
@@ -22,13 +15,7 @@
     "value": "employee_name",
     "key": "employee_name"
   },
-  {
-    "text": "Department",
-    "align": "left",
-    "sortable": false,
-    "filterable": true,
-    "value": "employee.department.name"
-  },
+
   {
     "text": "Shift",
     "align": "left",

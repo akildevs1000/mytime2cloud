@@ -1042,4 +1042,8 @@ header i {
 .iconsize {
   width: 20px;
 }
+
+.secondary-value {
+  font-size: 12px;
+}
 </style>

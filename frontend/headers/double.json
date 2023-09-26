@@ -6,14 +6,7 @@
     "filterable": false,
     "value": "date"
   },
-  {
-    "text": "Pic",
-    "align": "left",
-    "sortable": true,
-    "filterable": true,
-    "value": "pic",
-    "width": "50px"
-  },
+
   {
     "text": "Employee",
     "align": "left",
@@ -22,13 +15,7 @@
     "value": "employee_name",
     "key": "employee_name"
   },
-  {
-    "text": "Department",
-    "align": "left",
-    "sortable": false,
-    "filterable": true,
-    "value": "employee.department.name"
-  },
+
   {
     "text": "Shift",
     "align": "left",
@@ -37,32 +24,47 @@
     "value": "shift"
   },
   {
-    "text": "In1",
+    "text": "In Time1",
     "align": "left",
     "sortable": true,
     "filterable": false,
     "value": "in1"
   },
   {
-    "text": "Out1",
+    "text": "Out Time1",
     "align": "left",
     "sortable": true,
     "filterable": false,
     "value": "out1"
   },
   {
-    "text": "In2",
+    "text": "In Time2",
     "align": "left",
     "sortable": true,
     "filterable": false,
     "value": "in2"
   },
   {
-    "text": "Out2",
+    "text": "Out Time2",
     "align": "left",
     "sortable": true,
     "filterable": false,
     "value": "out2"
+  },
+
+  {
+    "text": "Late In",
+    "align": "left",
+    "sortable": true,
+    "filterable": false,
+    "value": "late_coming"
+  },
+  {
+    "text": "Early Out",
+    "align": "left",
+    "sortable": true,
+    "filterable": false,
+    "value": "early_going"
   },
   {
     "text": "Total Hrs",

@@ -135,7 +135,7 @@
           <v-col md="2" sm="2">
             <div class="mb-2">&nbsp;</div>
             <v-btn @click="commonMethod()" color="primary" primary fill
-              >Show Report
+              >Gen Report
             </v-btn>
           </v-col>
           <!--<v-col md="1">
@@ -435,7 +435,7 @@ export default {
     total: 0,
 
     report_template: "Template1",
-    report_type: "Monthly",
+    report_type: "monthly",
     payload: {
       from_date: null,
       to_date: null,
@@ -550,7 +550,6 @@ export default {
       this.search = "";
     },
     selectAllDepartment(value) {
-      console.log(value);
       if (value) {
         this.payload.department_ids = this.departments.map((e) => e.id);
       } else {
@@ -587,21 +586,24 @@ export default {
 
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
+
+    setTimeout(() => {
+      this.commonMethod();
+    }, 1000);
   },
 
   methods: {
     toggleDepartmentSelection() {
-      console.log(this.selectAllDepartment);
       this.selectAllDepartment = !this.selectAllDepartment;
     },
     filterAttr(data) {
       this.from_date = data.from;
       this.to_date = data.to;
-      this.filterType = data.type;
+      this.filterType = "Monthly"; // data.type;
 
       console.log(this.from_date, this.to_date);
       //this.search = data.search;
-      if (this.from_date && this.to_date) this.commonMethod();
+      // if (this.from_date && this.to_date) this.commonMethod();
     },
 
     commonMethod() {
@@ -642,6 +644,9 @@ export default {
         else filterDay = filterDay[0].name;
       }
 
+      if (filterDay == "") {
+        filterDay = "monthly";
+      }
       this.payload = {
         ...this.payload,
         report_type: filterDay,
@@ -808,6 +813,7 @@ export default {
           const { data } = await this.$axios.get(url, options);
           this.departments = data.data;
           // this.payload.department_ids = [data.data[0].id];
+          this.toggleDepartmentSelection();
         }
       } catch (error) {
         console.error("Error fetching departments:", error);

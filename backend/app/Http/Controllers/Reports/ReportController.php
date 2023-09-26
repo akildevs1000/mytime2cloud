@@ -13,7 +13,7 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-    //    return $request->all();
+        //    return $request->all();
         $model = (new Attendance)->processAttendanceModel($request);
 
         if ($request->shift_type_id == 1) {
@@ -39,6 +39,8 @@ class ReportController extends Controller
                 $log = $logs[$a] ?? [];
                 $value["in" . ($a + 1)] = $log["in"] ?? "---";
                 $value["out" . ($a + 1)] = $log["out"] ?? "---";
+                $value["device_" . "in" . ($a + 1)]   = $log["device_in"] ?? "---";
+                $value["device_" . "out" . ($a + 1)]  = $log["device_out"] ?? "---";
             }
         }
 
