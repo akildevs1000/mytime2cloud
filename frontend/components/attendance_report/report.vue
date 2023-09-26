@@ -497,9 +497,13 @@
     <v-row justify="center">
       <v-dialog persistent v-model="dialog" max-width="700px">
         <v-card>
-          <v-card-title class="primary darken-2">
-            <span class="headline white--text"> Update Log </span>
+          <v-card-title class="popup_background">
+            <span class="headline"> Update Log </span>
           </v-card-title>
+          <v-spacer></v-spacer>
+          <v-icon @click="dialog = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
           <v-card-text>
             <v-container>
               <v-row>

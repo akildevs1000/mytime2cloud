@@ -7,11 +7,12 @@
     "value": "date"
   },
   {
-    "text": "Emp.ID",
+    "text": "Pic",
     "align": "left",
     "sortable": true,
     "filterable": true,
-    "value": "employee_id"
+    "value": "pic",
+    "width": "50px"
   },
   {
     "text": "Employee",
@@ -37,21 +38,21 @@
   },
 
   {
-    "text": "In",
+    "text": "In Time",
     "align": "left",
     "sortable": true,
     "filterable": true,
     "value": "in"
   },
   {
-    "text": "Out",
+    "text": "Out Time",
     "align": "left",
     "sortable": true,
     "filterable": true,
     "value": "out"
   },
   {
-    "text": "Late Coming",
+    "text": "Late In",
     "align": "left",
     "sortable": true,
     "filterable": false,

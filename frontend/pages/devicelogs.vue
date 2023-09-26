@@ -89,6 +89,7 @@
               <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
+
           <v-data-table
             dense
             :headers="headers_table"
@@ -101,6 +102,8 @@
             }"
             class="elevation-1"
             :server-items-length="totalRowsCount"
+            fixed-header
+            :height="tableHeight"
           >
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
@@ -307,6 +310,7 @@ export default {
     DateRangePicker,
   },
   data: () => ({
+    tableHeight: 750,
     id: "",
     from_menu_filter: "",
     from_date_filter: "",
@@ -450,6 +454,13 @@ export default {
       },
     ],
   }),
+
+  mounted() {
+    this.tableHeight = window.innerHeight - 270;
+    window.addEventListener("resize", () => {
+      this.tableHeight = window.innerHeight - 270;
+    });
+  },
   created() {
     this.firstLoad();
     this.getDepartments();

@@ -1,6 +1,6 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <div class="text-center ma-2">
+    <div class="text-center">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
       </v-snackbar>
@@ -13,96 +13,145 @@
       </v-snackbar>
     </div>
 
-    <v-card
-      class="mb-5 mt-5"
-      elevation="0"
-      v-if="can(`attendance_report_view`)"
-    >
+    <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
       <v-toolbar class="backgrounds" dense flat>
         <v-toolbar-title> </v-toolbar-title>
-        <!-- <v-tooltip top color="primary">
+
+        <div style="display: none">
+          <!-- <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn x-small text title="Reload" @click="clearFilters()">
-          <v-icon dark white>mdi-reload</v-icon>
-        </v-btn>
-        <!-- </template>
+          <v-btn x-small text title="Reload" @click="clearFilters()">
+            <v-icon dark white>mdi-reload</v-icon>
+          </v-btn>
+          <!-- </template>
           <span>Reload</span>
         </v-tooltip> -->
 
-        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
+          <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
           <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          class="ma-0"
-          x-small
-          :ripple="false"
-          text
-          title="PRINT"
-          @click="process_file(report_type)"
-        >
-          <v-icon dark white>mdi-printer-outline</v-icon>
-        </v-btn>
-        <!-- </template>
-          <span>PRINT</span>
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            title="Render Report"
+            @click="reportSync = true"
+          >
+            <v-icon dark white>mdi-cached</v-icon>
+          </v-btn>
+          <!-- </template>
+          <span>Render Report</span>
         </v-tooltip> -->
-
-        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          x-small
-          :ripple="false"
-          text
-          title="DOWNLOAD"
-          @click="process_file(report_type + '_download_pdf')"
-        >
-          <v-icon dark white>mdi-download-outline</v-icon>
-        </v-btn>
-        <!-- </template>
-          <span>DOWNLOAD</span>
-        </v-tooltip> -->
-        <!-- 
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          x-small
-          :ripple="false"
-          text
-          title="CSV"
-          @click="process_file(report_type + '_download_csv')"
-        >
-          <v-icon dark white>mdi-file-outline</v-icon>
-        </v-btn>
-        <!-- </template>
-          <span>CSV</span>
-        </v-tooltip> -->
-        <!-- 
+          <v-spacer></v-spacer>
+          <!-- 
         <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
           <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          x-small
-          text
-          title="Generate Log"
-          @click="generateLogsDialog = true"
-        >
-          <v-icon dark white>mdi-plus-circle-outline</v-icon>
-        </v-btn>
-        <!-- </template>
+          <v-btn
+            class="mr-5"
+            x-small
+            text
+            title="Generate Log"
+            @click="generateLogsDialog = true"
+          >
+            <v-icon dark white>mdi-plus-circle-outline</v-icon>
+          </v-btn>
+          <!-- </template>
           <span>Generate Log</span>
         </v-tooltip> -->
 
-        <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
+          <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
           <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          x-small
-          :ripple="false"
-          text
-          title="Render Report"
-          @click="reportSync = true"
-        >
-          <v-icon dark white>mdi-cached</v-icon>
-        </v-btn>
-        <!-- </template>
-          <span>Render Report</span>
+          <v-btn
+            class="ma-0"
+            x-small
+            :ripple="false"
+            text
+            title="PRINT"
+            @click="process_file(report_type)"
+          >
+            <img src="/icons/icon_print.png" class="iconsize" />
+            <!-- <v-icon dark white>mdi-printer-outline</v-icon> -->
+          </v-btn>
+          <!-- </template>
+          <span>PRINT</span>
         </v-tooltip> -->
+
+          <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
+          <template v-slot:activator="{ on, attrs }"> -->
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            title="DOWNLOAD"
+            @click="process_file(report_type + '_download_pdf')"
+          >
+            <!-- <v-icon dark white>mdi-download-outline</v-icon> -->
+
+            <!-- <span class="material-symbols-outlined"> picture_as_pdf </span> -->
+            <img src="/icons/icon_pdf.png" class="iconsize" />
+          </v-btn>
+          <!-- </template>
+          <span>DOWNLOAD</span>
+        </v-tooltip> -->
+          <!-- 
+        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
+          <template v-slot:activator="{ on, attrs }"> -->
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            title="CSV"
+            @click="process_file(report_type + '_download_csv')"
+          >
+            <img src="/icons/icon_excel.png" class="iconsize" />
+            <!-- <v-icon dark white>mdi-file-outline</v-icon> -->
+          </v-btn>
+          <!-- </template>
+          <span>CSV</span>
+        </v-tooltip> -->
+        </div>
+        <v-spacer></v-spacer>
+        <v-menu bottom right>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn dark-2 icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list width="200" dense>
+            <v-list-item @click="reportSync = true">
+              <v-list-item-title style="cursor: pointer">
+                <v-icon color="secondary" small> mdi-cached </v-icon>
+                Re-Generate Report
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="generateLogsDialog = true">
+              <v-list-item-title style="cursor: pointer">
+                <v-icon color="secondary" small>
+                  mdi-plus-circle-outline
+                </v-icon>
+                Manual Log
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="process_file(report_type)">
+              <v-list-item-title style="cursor: pointer">
+                <img src="/icons/icon_print.png" class="iconsize" />
+                Print
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="process_file(report_type + '_download_pdf')">
+              <v-list-item-title style="cursor: pointer">
+                <img src="/icons/icon_pdf.png" class="iconsize" />
+                PDF
+              </v-list-item-title>
+            </v-list-item>
+
+            <v-list-item @click="process_file(report_type + '_download_csv')">
+              <v-list-item-title style="cursor: pointer">
+                <img src="/icons/icon_excel.png" class="iconsize" />
+                EXCEL
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-toolbar>
 
       <v-data-table
@@ -117,9 +166,27 @@
         class="elevation-1"
         model-value="data.id"
         :server-items-length="totalRowsCount"
+        fixed-header
+        :height="tableHeight"
       >
+        <template v-slot:item.pic="{ item }" style="padding: 0px">
+          <v-img
+            style="
+              width: 50px;
+
+              border: 1px solid #5fafa3;
+              border-radius: 50%;
+              margin: 0 auto;
+              margin-left: -10px;
+            "
+            :src="item.employee.profile_picture || '/no-profile-image.jpg'"
+          ></v-img>
+        </template>
         <template v-slot:item.employee_name="{ item }">
           {{ item.employee.first_name }} {{ item.employee.last_name }}
+          <div>
+            {{ item.employee_id }}
+          </div>
         </template>
         <template v-slot:item.status="{ item }">
           <v-tooltip top color="primary">
@@ -142,9 +209,17 @@
         </template>
 
         <template v-slot:item.shift="{ item }">
-          <v-tooltip v-if="item && item.shift" top color="primary">
+          <div>
+            {{ item.shift && item.shift.on_duty_time }} -
+            {{ item.shift && item.shift.off_duty_time }}
+          </div>
+          {{ (item.shift && item.shift.name) || "---" }}
+          <!-- <v-tooltip v-if="item && item.shift" top color="primary">
             <template v-slot:activator="{ on, attrs }">
               <div class="primary--text" v-bind="attrs" v-on="on">
+                <div>
+                  {{ item.shift.on_duty_time }} - {{ item.shift.off_duty_time }}
+                </div>
                 {{ (item.shift && item.shift.name) || "---" }}
               </div>
             </template>
@@ -154,9 +229,75 @@
               >
             </div>
           </v-tooltip>
-          <span v-else>---</span>
+          <span v-else>---</span> -->
         </template>
-
+        <template v-slot:item.name="{ item }">
+          {{ item.employee.first_name }} {{ item.employee.last_name }}
+        </template>
+        <template v-slot:item.in="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in1="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out1="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in2="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out2="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in3="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out3="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in4="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out4="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in5="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out5="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in6="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out6="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in7="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out7="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
         <template v-slot:item.device_in="{ item }">
           <v-tooltip v-if="item && item.device_in" top color="primary">
             <template v-slot:activator="{ on, attrs }">
@@ -231,8 +372,12 @@
     <v-row justify="center">
       <v-dialog persistent v-model="dialog" max-width="700px">
         <v-card>
-          <v-card-title class="primary darken-2">
-            <span class="headline white--text"> Update Log </span>
+          <v-card-title class="popup_background">
+            <span class="headline"> Update Log </span>
+            <v-spacer></v-spacer>
+            <v-icon @click="dialog = false" outlined dark>
+              mdi mdi-close-circle
+            </v-icon>
           </v-card-title>
           <v-card-text>
             <v-container>
@@ -347,12 +492,10 @@
     <v-row justify="center">
       <v-dialog persistent v-model="reportSync" max-width="800px">
         <v-card>
-          <v-card-title class="background">
-            <span class="headline white--text"> Render Report </span>
+          <v-card-title class="popup_background">
+            <span class="headline"> Render Report </span>
             <v-spacer></v-spacer>
-            <v-icon class="gray" dark @click="reportSync = false"
-              >mdi-close-box</v-icon
-            >
+            <v-icon dark @click="reportSync = false">mdi-close-box</v-icon>
           </v-card-title>
           <RenderAttendance
             :shift_type_id="shift_type_id"
@@ -366,8 +509,8 @@
     <v-row justify="center">
       <v-dialog persistent v-model="generateLogsDialog" max-width="700px">
         <v-card>
-          <v-card-title class="background">
-            <span class="headline white--text"> Generate Log </span>
+          <v-card-title class="popup_background">
+            <span class="headline"> Generate Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false"
               >mdi-close-box</v-icon
@@ -389,7 +532,7 @@
 
     <v-dialog persistent v-model="add_manual_log" width="700">
       <v-card>
-        <v-card-title class="text-h5 primary white--text darken-2" dark>
+        <v-card-title class="popup_background text-h5 darken-2" dark>
           Manual Log
         </v-card-title>
 
@@ -535,7 +678,7 @@
     <v-row justify="center">
       <v-dialog persistent v-model="log_details" max-width="600px">
         <v-card class="darken-1">
-          <v-toolbar class="primary" dense dark flat>
+          <v-toolbar class="popup_background">
             <span class="text-h5 pa-2">Log Details</span>
             <v-spacer></v-spacer>
 
@@ -567,16 +710,26 @@ export default {
     "headers",
     "render_endpoint",
     "process_file_endpoint",
-    "report_type",
-    "status",
-    "department_ids",
-    "employee_id",
-    "daily_date",
-    "from_date",
-    "to_date",
+    // "report_type",
+    "payload1",
+    // "status",
+    // "department_ids",
+    // "employee_id",
+    // "daily_date",
+    // "from_date",
+    // "to_date",
   ],
 
   data: () => ({
+    tableHeight: 750,
+    status: "",
+    department_ids: "",
+    employee_id: "",
+    daily_date: "",
+    from_date: "",
+    to_date: "",
+    report_type: "",
+
     filters: {},
     attendancFilters: false,
     isFilter: false,
@@ -719,40 +872,60 @@ export default {
       this.errors = [];
       this.search = "";
     },
-    report_type(val) {
-      this.changeReportType(val);
-    },
-    department_ids(value) {
-      this.payload.department_ids = value;
-      this.getDataFromApi();
-    },
-    employee_id(value) {
-      this.payload.employee_id = value;
-      this.getDataFromApi();
-    },
-    status(value) {
-      this.payload.status = value;
-      this.getDataFromApi();
-    },
-    daily_date(value) {
-      this.payload.daily_date = value;
-      this.getDataFromApi();
-    },
-    from_date(value) {
-      this.payload.from_date = value;
-      this.getDataFromApi();
-    },
-    to_date(value) {
-      this.payload.to_date = value;
+    // report_type(val) {
+    //   this.changeReportType(val);
+    // },
+    // department_ids(value) {
+    //   this.payload.department_ids = value;
+    //   this.getDataFromApi();
+    // },
+    // employee_id(value) {
+    //   this.payload.employee_id = value;
+    //   this.getDataFromApi();
+    // },
+    // status(value) {
+    //   this.payload.status = value;
+    //   this.getDataFromApi();
+    // },
+    // daily_date(value) {
+    //   this.payload.daily_date = value;
+    //   this.getDataFromApi();
+    // },
+    // from_date(value) {
+    //   this.payload.from_date = value;
+    //   this.getDataFromApi();
+    // },
+    // to_date(value) {
+    //   this.payload.to_date = value;
+    //   this.getDataFromApi();
+    // },
+
+    payload1(value) {
+      this.payload = value;
+      // this.payload.status = value.status;
+      // this.payload.daily_date = value.daily_date;
+      // this.payload.from_date = value.from_date;
+      // this.payload.to_date = value.to_date;
+      this.report_type = value.report_type;
+      this.department_ids = value.department_ids;
+      this.employee_id = value.employee_id;
+      this.status = value.status;
+
       this.getDataFromApi();
     },
 
     options: {
       handler() {
-        // this.getDataFromApi();
+        this.getDataFromApi();
       },
       deep: true,
     },
+  },
+  mounted() {
+    this.tableHeight = window.innerHeight - 370;
+    window.addEventListener("resize", () => {
+      this.tableHeight = window.innerHeight - 370;
+    });
   },
   async created() {
     // this.loading = true;
@@ -780,6 +953,12 @@ export default {
 
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
+
+    this.from_date = this.payload.daily_date;
+    this.to_date = this.payload.daily_date;
+
+    this.payload.from_date = this.payload.daily_date;
+    this.payload.to_date = this.payload.daily_date;
   },
 
   methods: {
@@ -1187,3 +1366,8 @@ export default {
   },
 };
 </script>
+<!-- <style scoped>
+.v-slide-group__content {
+  height: 30px !important;
+}
+</style> -->

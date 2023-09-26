@@ -1038,4 +1038,8 @@ header i {
 .black {
   color: black;
 }
+
+.iconsize {
+  width: 20px;
+}
 </style>

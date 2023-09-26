@@ -8,7 +8,7 @@
 
       <v-card-text class="py-3">
         <v-row>
-          <v-col md="2">
+          <v-col md="1" sm="2">
             Type
             <v-select
               class="mt-2"
@@ -22,9 +22,23 @@
               :hide-details="true"
             ></v-select>
           </v-col>
-          <v-col md="2">
+          <v-col md="1" sm="2">
+            Branch
+            <v-select
+              class="mt-2"
+              outlined
+              dense
+              v-model="payload.branch_id"
+              x-small
+              :items="branches"
+              item-value="id"
+              item-text="branch_name"
+              :hide-details="true"
+            ></v-select>
+          </v-col>
+          <v-col md="2" sm="4">
             Departments
-            <v-autocomplete
+            <!-- <v-autocomplete
               @change="getScheduledEmployees"
               class="mt-2"
               outlined
@@ -36,9 +50,58 @@
               item-value="id"
               item-text="name"
               :hide-details="true"
-            ></v-autocomplete>
+            ></v-autocomplete> -->
+
+            <v-autocomplete
+              class="mt-2"
+              outlined
+              dense
+              @change="getScheduledEmployees"
+              v-model="payload.department_ids"
+              :items="departments"
+              multiple
+              item-text="name"
+              item-value="id"
+              placeholder="Departments"
+            >
+              <template v-if="departments.length" #prepend-item>
+                <v-list-item @click="toggleDepartmentSelection">
+                  <v-list-item-action>
+                    <v-checkbox
+                      @click="toggleDepartmentSelection"
+                      v-model="selectAllDepartment"
+                      :indeterminate="isIndeterminateDepartment"
+                      :true-value="true"
+                      :false-value="false"
+                    ></v-checkbox>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ selectAllDepartment ? "Unselect All" : "Select All" }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+              <template v-slot:selection="{ item, index }">
+                <span
+                  v-if="index === 0 && payload.department_ids.length == 1"
+                  >{{ item.name }}</span
+                >
+                <span
+                  v-else-if="
+                    index === 1 &&
+                    payload.department_ids.length == departments.length
+                  "
+                  class=" "
+                  >All Selected
+                </span>
+                <span v-else-if="index === 1" class=" ">
+                  {{ payload.department_ids.length }} Department(s)
+                </span>
+              </template>
+            </v-autocomplete>
           </v-col>
-          <v-col md="2">
+          <v-col md="2" sm="4">
             Employee ID
             <v-autocomplete
               class="mt-2"
@@ -52,7 +115,7 @@
               :hide-details="true"
             ></v-autocomplete>
           </v-col>
-          <v-col md="2">
+          <v-col md="2" sm="4">
             <div>Report Templates</div>
             <v-autocomplete
               class="mt-2"
@@ -65,7 +128,17 @@
               :hide-details="true"
             ></v-autocomplete>
           </v-col>
-          <v-col md="2">
+          <v-col md="2" sm="5">
+            <div class="mb-2">Date</div>
+            <CustomFilter @filter-attr="filterAttr" :defaultFilterType="1" />
+          </v-col>
+          <v-col md="2" sm="2">
+            <div class="mb-2">&nbsp;</div>
+            <v-btn @click="commonMethod()" color="primary" primary fill
+              >Show Report
+            </v-btn>
+          </v-col>
+          <!--<v-col md="1">
             <div>Frequency</div>
             <v-autocomplete
               class="mt-2"
@@ -117,7 +190,7 @@
                 </v-date-picker>
               </v-menu>
             </div>
-          </v-col>
+          </v-col>  
           <v-col md="1" v-if="report_type !== 'Daily'">
             <div class="text-left">
               <v-menu
@@ -201,19 +274,47 @@
                 </v-date-picker>
               </v-menu>
             </div>
-          </v-col>
+          </v-col>-->
         </v-row>
       </v-card-text>
     </v-card>
+
     <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
-      <v-tabs v-model="tab" background-color="popup_background" right dark>
-        <v-tabs-slider class="violet"></v-tabs-slider>
+      <v-tabs
+        class="slidegroup1"
+        v-model="tab"
+        background-color="popup_background"
+        right
+        dark
+      >
+        <v-tabs-slider
+          class="violet slidegroup1"
+          style="height: 3px"
+        ></v-tabs-slider>
 
-        <v-tab href="#tab-1" class="black--text"> Single </v-tab>
+        <v-tab
+          style="height: 30px"
+          href="#tab-1"
+          class="black--text slidegroup1"
+        >
+          Single
+        </v-tab>
 
-        <v-tab href="#tab-2" class="black--text"> Double </v-tab>
+        <v-tab
+          style="height: 30px"
+          href="#tab-2"
+          class="black--text slidegroup1"
+        >
+          Double
+        </v-tab>
 
-        <v-tab href="#tab-3" class="black--text"> Multi </v-tab>
+        <v-tab
+          style="height: 30px"
+          href="#tab-3"
+          class="black--text slidegroup1"
+        >
+          Multi
+        </v-tab>
       </v-tabs>
 
       <v-tabs-items v-model="tab">
@@ -223,13 +324,7 @@
             shift_type_id="1"
             :headers="generalHeaders"
             :report_template="report_template"
-            :report_type="report_type"
-            :status="payload.status"
-            :department_ids="payload.department_ids"
-            :employee_id="payload.employee_id"
-            :daily_date="payload.daily_date"
-            :from_date="payload.from_date"
-            :to_date="payload.to_date"
+            :payload1="payload"
             process_file_endpoint=""
             render_endpoint="render_general_report"
           />
@@ -240,13 +335,7 @@
             shift_type_id="5"
             :headers="doubleHeaders"
             :report_template="report_template"
-            :report_type="report_type"
-            :status="payload.status"
-            :department_ids="payload.department_ids"
-            :employee_id="payload.employee_id"
-            :daily_date="payload.daily_date"
-            :from_date="payload.from_date"
-            :to_date="payload.to_date"
+            :payload1="payload"
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
           />
@@ -257,13 +346,7 @@
             shift_type_id="2"
             :headers="multiHeaders"
             :report_template="report_template"
-            :report_type="report_type"
-            :status="payload.status"
-            :department_ids="payload.department_ids"
-            :employee_id="payload.employee_id"
-            :daily_date="payload.daily_date"
-            :from_date="payload.from_date"
-            :to_date="payload.to_date"
+            :payload1="payload"
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
           />
@@ -287,6 +370,8 @@ export default {
   props: ["title", "shift_type_id", "render_endpoint", "process_file_endpoint"],
 
   data: () => ({
+    selectAllDepartment: false,
+    branches: [],
     tab: null,
     generalHeaders,
     multiHeaders,
@@ -377,7 +462,7 @@ export default {
     custom_options: {},
     statuses: [
       {
-        name: `Select All`,
+        name: `All Status`,
         id: `-1`,
       },
       {
@@ -422,11 +507,39 @@ export default {
       },
     ],
     max_date: null,
+    filter_type_items: [
+      {
+        id: 1,
+        name: "Today",
+      },
+      {
+        id: 2,
+        name: "Yesterday",
+      },
+      {
+        id: 3,
+        name: "This Week",
+      },
+      {
+        id: 4,
+        name: "This Month",
+      },
+      {
+        id: 5,
+        name: "Custom",
+      },
+    ],
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
+    },
+    isIndeterminateDepartment() {
+      return (
+        this.payload.department_ids.length > 0 &&
+        this.payload.department_ids.length < this.departments.length
+      );
     },
   },
 
@@ -436,13 +549,22 @@ export default {
       this.errors = [];
       this.search = "";
     },
+    selectAllDepartment(value) {
+      console.log(value);
+      if (value) {
+        this.payload.department_ids = this.departments.map((e) => e.id);
+      } else {
+        this.payload.department_ids = [];
+      }
+    },
   },
   async created() {
     this.loading = true;
     // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
-
-    this.payload.department_ids = this.$auth.user.assignedDepartments;
+    this.payload.department_ids = [];
+    if (this.$auth.user.assignedDepartments)
+      this.payload.department_ids = this.$auth.user.assignedDepartments;
 
     let options = {
       params: {
@@ -454,6 +576,7 @@ export default {
     this.getDepartments(options);
     this.getDeviceList(options);
     this.getScheduledEmployees();
+    this.getBranches();
 
     let dt = new Date();
     let y = dt.getFullYear();
@@ -467,6 +590,104 @@ export default {
   },
 
   methods: {
+    toggleDepartmentSelection() {
+      console.log(this.selectAllDepartment);
+      this.selectAllDepartment = !this.selectAllDepartment;
+    },
+    filterAttr(data) {
+      this.from_date = data.from;
+      this.to_date = data.to;
+      this.filterType = data.type;
+
+      console.log(this.from_date, this.to_date);
+      //this.search = data.search;
+      if (this.from_date && this.to_date) this.commonMethod();
+    },
+
+    commonMethod() {
+      // const today = new Date();
+      // switch (this.filterType) {
+      //   case 1:
+      //     this.from_date = this.currentDate;
+      //     this.to_date = this.currentDate;
+      //     break;
+      //   case 2:
+      //     this.from_date = new Date(Date.now() - 86400000)
+      //       .toISOString()
+      //       .slice(0, 10);
+      //     this.to_date = new Date(Date.now() - 86400000)
+      //       .toISOString()
+      //       .slice(0, 10);
+      //     break;
+      //   case 3:
+      //     this.from_date = this.week[0];
+      //     this.to_date = this.week[1];
+      //     break;
+      //   case 4:
+      //     this.from_date = this.getFirstAndLastDay()[0];
+      //     this.to_date = this.getFirstAndLastDay()[1];
+      //     break;
+
+      //   // default:
+      //   //   this.from_date = new Date().toJSON().slice(0, 10);
+      //   //   this.to_date = new Date().toJSON().slice(0, 10);
+      //   //   break;
+      // }
+      //this.getDataFromApi();
+      let filterDay = this.filter_type_items.filter(
+        (e) => e.id == this.filterType
+      );
+      if (filterDay[0]) {
+        if (filterDay[0].name == "Today") this.report_type = "Daily";
+        else filterDay = filterDay[0].name;
+      }
+
+      this.payload = {
+        ...this.payload,
+        report_type: filterDay,
+        from_date: this.from_date,
+        to_date: this.to_date,
+        filterType: this.filterType,
+      };
+    },
+    getFirstAndLastDay() {
+      const currentDate = new Date();
+      const day = currentDate.getDate();
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const last = new Date(year, month, 0)
+        .getDate()
+        .toString()
+        .padStart(2, "0");
+
+      let firstDay = `${year}-${month}-0${1}`;
+
+      let lastDayFirst = last > 9 ? `${last}` : `0${last}`;
+
+      let lastDay = `${year}-${month}-${lastDayFirst}`;
+
+      return [firstDay, lastDay];
+    },
+    week() {
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+      const startOfWeek = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() - dayOfWeek
+      );
+      const endOfWeek = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        startOfWeek.getDate() + 6
+      );
+
+      return [
+        startOfWeek.toISOString().slice(0, 10),
+        endOfWeek.toISOString().slice(0, 10),
+      ];
+    },
+
     getScheduledEmployees() {
       let options = {
         params: {
@@ -483,7 +704,7 @@ export default {
           this.scheduled_employees = data;
           this.scheduled_employees.unshift({
             system_user_id: "",
-            name_with_user_id: "Select All",
+            name_with_user_id: "All Employees",
           });
         });
     },
@@ -548,7 +769,25 @@ export default {
         this.devices = data;
       });
     },
+    getBranches() {
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
+      let options = {
+        params: {
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage, //this.pagination.per_page,
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get("branch", options).then(({ data }) => {
+        this.branches = data.data;
+      });
+    },
     setDailyDate() {
       this.payload.daily_date = new Date().toJSON().slice(0, 10);
       delete this.payload.from_date;
@@ -603,3 +842,16 @@ export default {
   },
 };
 </script>
+
+<style>
+/* .v-slide-group__content {
+  height: 30px !important;
+}
+
+.v-slide-group__wrapper {
+  height: 34px !important;
+} */
+.slidegroup1 .v-slide-group {
+  height: 34px !important;
+}
+</style>

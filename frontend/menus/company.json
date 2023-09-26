@@ -179,7 +179,7 @@
   },
   {
     "icon": "mdi-clipboard-text-clock",
-    "title": "Attendances",
+    "title": "Logs",
     "to": "/devicelogs",
     "menu": "logs_access",
     "module": "attendance"
