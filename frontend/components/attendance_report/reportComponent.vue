@@ -108,7 +108,7 @@
           <span>CSV</span>
         </v-tooltip> -->
         </div>
-        {{ report_type }}
+
         <v-spacer></v-spacer>
         <v-menu bottom right>
           <template v-slot:activator="{ on, attrs }">
@@ -153,7 +153,7 @@
           </v-list>
         </v-menu>
       </v-toolbar>
-      {{ report_type }}
+
       <v-data-table
         dense
         :headers="headers"
