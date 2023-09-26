@@ -38,7 +38,7 @@
           </v-col>
           <v-col md="2" sm="4">
             Departments
-            <v-autocomplete
+            <!-- <v-autocomplete
               @change="getScheduledEmployees"
               class="mt-2"
               outlined
@@ -50,7 +50,56 @@
               item-value="id"
               item-text="name"
               :hide-details="true"
-            ></v-autocomplete>
+            ></v-autocomplete> -->
+
+            <v-autocomplete
+              class="mt-2"
+              outlined
+              dense
+              @change="getScheduledEmployees"
+              v-model="payload.department_ids"
+              :items="departments"
+              multiple
+              item-text="name"
+              item-value="id"
+              placeholder="Departments"
+            >
+              <template v-if="departments.length" #prepend-item>
+                <v-list-item @click="toggleDepartmentSelection">
+                  <v-list-item-action>
+                    <v-checkbox
+                      @click="toggleDepartmentSelection"
+                      v-model="selectAllDepartment"
+                      :indeterminate="isIndeterminateDepartment"
+                      :true-value="true"
+                      :false-value="false"
+                    ></v-checkbox>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ selectAllDepartment ? "Unselect All" : "Select All" }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+              <template v-slot:selection="{ item, index }">
+                <span
+                  v-if="index === 0 && payload.department_ids.length == 1"
+                  >{{ item.name }}</span
+                >
+                <span
+                  v-else-if="
+                    index === 1 &&
+                    payload.department_ids.length == departments.length
+                  "
+                  class=" "
+                  >All Selected
+                </span>
+                <span v-else-if="index === 1" class=" ">
+                  {{ payload.department_ids.length }} Department(s)
+                </span>
+              </template>
+            </v-autocomplete>
           </v-col>
           <v-col md="2" sm="4">
             Employee ID
@@ -232,23 +281,38 @@
 
     <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
       <v-tabs
+        class="slidegroup1"
         v-model="tab"
         background-color="popup_background"
         right
         dark
-        style="height: 30px"
       >
-        <v-tabs-slider class="violet"></v-tabs-slider>
+        <v-tabs-slider
+          class="violet slidegroup1"
+          style="height: 3px"
+        ></v-tabs-slider>
 
-        <v-tab style="height: 30px" href="#tab-1" class="black--text">
+        <v-tab
+          style="height: 30px"
+          href="#tab-1"
+          class="black--text slidegroup1"
+        >
           Single
         </v-tab>
 
-        <v-tab style="height: 30px" href="#tab-2" class="black--text">
+        <v-tab
+          style="height: 30px"
+          href="#tab-2"
+          class="black--text slidegroup1"
+        >
           Double
         </v-tab>
 
-        <v-tab style="height: 30px" href="#tab-3" class="black--text">
+        <v-tab
+          style="height: 30px"
+          href="#tab-3"
+          class="black--text slidegroup1"
+        >
           Multi
         </v-tab>
       </v-tabs>
@@ -306,6 +370,7 @@ export default {
   props: ["title", "shift_type_id", "render_endpoint", "process_file_endpoint"],
 
   data: () => ({
+    selectAllDepartment: false,
     branches: [],
     tab: null,
     generalHeaders,
@@ -397,7 +462,7 @@ export default {
     custom_options: {},
     statuses: [
       {
-        name: `Select All`,
+        name: `All Status`,
         id: `-1`,
       },
       {
@@ -470,6 +535,12 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
     },
+    isIndeterminateDepartment() {
+      return (
+        this.payload.department_ids.length > 0 &&
+        this.payload.department_ids.length < this.departments.length
+      );
+    },
   },
 
   watch: {
@@ -478,13 +549,22 @@ export default {
       this.errors = [];
       this.search = "";
     },
+    selectAllDepartment(value) {
+      console.log(value);
+      if (value) {
+        this.payload.department_ids = this.departments.map((e) => e.id);
+      } else {
+        this.payload.department_ids = [];
+      }
+    },
   },
   async created() {
     this.loading = true;
     // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
-
-    this.payload.department_ids = this.$auth.user.assignedDepartments;
+    this.payload.department_ids = [];
+    if (this.$auth.user.assignedDepartments)
+      this.payload.department_ids = this.$auth.user.assignedDepartments;
 
     let options = {
       params: {
@@ -510,6 +590,10 @@ export default {
   },
 
   methods: {
+    toggleDepartmentSelection() {
+      console.log(this.selectAllDepartment);
+      this.selectAllDepartment = !this.selectAllDepartment;
+    },
     filterAttr(data) {
       this.from_date = data.from;
       this.to_date = data.to;
@@ -620,7 +704,7 @@ export default {
           this.scheduled_employees = data;
           this.scheduled_employees.unshift({
             system_user_id: "",
-            name_with_user_id: "Select All",
+            name_with_user_id: "All Employees",
           });
         });
     },
@@ -759,8 +843,15 @@ export default {
 };
 </script>
 
-<style scoped>
-.v-slide-group__content {
-  height: 30px;
+<style>
+/* .v-slide-group__content {
+  height: 30px !important;
+}
+
+.v-slide-group__wrapper {
+  height: 34px !important;
+} */
+.slidegroup1 .v-slide-group {
+  height: 34px !important;
 }
 </style>

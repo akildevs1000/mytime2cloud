@@ -1,6 +1,6 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <div class="text-center ma-2">
+    <div class="text-center">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
       </v-snackbar>
@@ -13,11 +13,7 @@
       </v-snackbar>
     </div>
 
-    <v-card
-      class="mb-5 mt-5"
-      elevation="0"
-      v-if="can(`attendance_report_view`)"
-    >
+    <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
       <v-toolbar class="backgrounds" dense flat>
         <v-toolbar-title> </v-toolbar-title>
 
@@ -173,8 +169,24 @@
         fixed-header
         :height="tableHeight"
       >
+        <template v-slot:item.pic="{ item }" style="padding: 0px">
+          <v-img
+            style="
+              width: 50px;
+
+              border: 1px solid #5fafa3;
+              border-radius: 50%;
+              margin: 0 auto;
+              margin-left: -10px;
+            "
+            :src="item.employee.profile_picture || '/no-profile-image.jpg'"
+          ></v-img>
+        </template>
         <template v-slot:item.employee_name="{ item }">
           {{ item.employee.first_name }} {{ item.employee.last_name }}
+          <div>
+            {{ item.employee_id }}
+          </div>
         </template>
         <template v-slot:item.status="{ item }">
           <v-tooltip top color="primary">
@@ -197,9 +209,17 @@
         </template>
 
         <template v-slot:item.shift="{ item }">
-          <v-tooltip v-if="item && item.shift" top color="primary">
+          <div>
+            {{ item.shift && item.shift.on_duty_time }} -
+            {{ item.shift && item.shift.off_duty_time }}
+          </div>
+          {{ (item.shift && item.shift.name) || "---" }}
+          <!-- <v-tooltip v-if="item && item.shift" top color="primary">
             <template v-slot:activator="{ on, attrs }">
               <div class="primary--text" v-bind="attrs" v-on="on">
+                <div>
+                  {{ item.shift.on_duty_time }} - {{ item.shift.off_duty_time }}
+                </div>
                 {{ (item.shift && item.shift.name) || "---" }}
               </div>
             </template>
@@ -209,9 +229,75 @@
               >
             </div>
           </v-tooltip>
-          <span v-else>---</span>
+          <span v-else>---</span> -->
         </template>
-
+        <template v-slot:item.name="{ item }">
+          {{ item.employee.first_name }} {{ item.employee.last_name }}
+        </template>
+        <template v-slot:item.in="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in1="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out1="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in2="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out2="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in3="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out3="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in4="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out4="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in5="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out5="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in6="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out6="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
+        <template v-slot:item.in7="{ item }">
+          <div>{{ item.in }}</div>
+          {{ (item.device_in && item.device_in.name) || "---" }}
+        </template>
+        <template v-slot:item.out7="{ item }">
+          <div>{{ item.out }}</div>
+          {{ (item.device_out && item.device_out.name) || "---" }}
+        </template>
         <template v-slot:item.device_in="{ item }">
           <v-tooltip v-if="item && item.device_in" top color="primary">
             <template v-slot:activator="{ on, attrs }">
@@ -1280,3 +1366,8 @@ export default {
   },
 };
 </script>
+<!-- <style scoped>
+.v-slide-group__content {
+  height: 30px !important;
+}
+</style> -->

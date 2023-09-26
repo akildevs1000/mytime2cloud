@@ -4,19 +4,18 @@
     "align": "left",
     "sortable": true,
     "filterable": false,
-    "value": "date",
-    "key": "date"
+    "value": "date"
   },
   {
-    "text": "Emp.ID",
+    "text": "Pic",
     "align": "left",
     "sortable": true,
     "filterable": true,
-    "value": "employee_id",
-    "key": "employee_id"
+    "value": "pic",
+    "width": "50px"
   },
   {
-    "text": "Name",
+    "text": "Employee",
     "align": "left",
     "sortable": false,
     "filterable": true,
@@ -29,6 +28,13 @@
     "sortable": false,
     "filterable": true,
     "value": "employee.department.name"
+  },
+  {
+    "text": "Shift",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "shift"
   },
   {
     "text": "In1",
