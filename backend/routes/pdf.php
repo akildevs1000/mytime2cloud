@@ -9,6 +9,7 @@ use App\Http\Controllers\Reports\WeeklyController;
 use App\Http\Controllers\Reports\MonthlyController;
 use App\Http\Controllers\Reports\MonthlyMimoController;
 use App\Http\Controllers\Reports\PDFController;
+use App\Http\Controllers\Reports\PDFTestController;
 use App\Http\Controllers\Reports\WeeklyMimoController;
 
 
@@ -97,3 +98,5 @@ Route::get('/monthly_access_control_v1', [PDFController::class, 'monthlyAccessCo
 Route::get('/access_control_by_device', [PDFController::class, 'monthlyAccessControlByDevice']);
 
 Route::get('/monthly_access_control_count', [PDFController::class, 'monthlyAccessControlCount']);
+
+Route::get('/generatePresentReportTest/{id}', [PDFTestController::class, 'generatePresentReport']);

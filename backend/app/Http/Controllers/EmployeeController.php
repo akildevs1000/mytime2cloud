@@ -833,3 +833,4 @@ class EmployeeController extends Controller
     //     return response()->json(['status' => true, 'message' => 'Reporter successfully Deleted']);
     // }
 }
+

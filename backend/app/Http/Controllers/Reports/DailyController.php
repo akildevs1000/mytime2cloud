@@ -24,7 +24,7 @@ class DailyController extends Controller
         $totEmployees = '';
         if ($request->department_id && $request->department_id == -1) {
             $deptName = 'All';
-            $totEmployees = Employee::whereCompanyId($request->company_id)->whereDate("created_at", "<", date("Y-m-d"))->count();
+            $totEmployees = Employee::whereCompanyId($request->company_id)->count();
         } else {
             $deptName = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
             $totEmployees = Employee::where("department_id", $request->department_id)->count();
@@ -41,13 +41,16 @@ class DailyController extends Controller
             'total_vaccation' => $model->clone()->where('status', 'V')->count(),
             'total_early' => $model->clone()->where('status', 'EG')->count(),
             'total_late' => $model->clone()->where('status', 'LC')->count(),
-            'report_type' =>  $this->getStatusText($request->status),
-            "daily_date" => $request->daily_date,
+            'report_type' => $this->getStatusText($request->status) ?? "",
+            "daily_date" => $request->daily_date ?? date("Y-m-d"),
             'frequency' => "Daily",
         ];
+
+
         $data = $model->get();
         return Pdf::loadView('pdf.daily', compact("company", "info", "data"));
     }
+
     public function getStatusText($status)
     {
         $arr = [
@@ -75,6 +78,21 @@ class DailyController extends Controller
         return $this->processPDF($request)->download();
     }
 
+    public function daily_generate_pdf(Request $request)
+    {
+        $data = $this->processPDF($request)->output();
+
+        $id =  $request->company_id;
+
+        $file_name = $this->getFileNameByStatus($request->status);
+
+        $file_path = "pdf/$id/daily_$file_name.pdf";
+
+        Storage::disk('local')->put($file_path, $data);
+
+        return $file_name  . ' generated successfully';
+    }
+
     public function custom_request_general($id, $status, $shift_type_id)
     {
         $apiUrl = 'https://backend.eztime.online/api/daily_generate_pdf';
@@ -96,24 +114,6 @@ class DailyController extends Controller
         }
     }
 
-    public function daily_generate_pdf(Request $request)
-    {
-        $data = $this->processPDF($request)->output();
-
-        $id =  $request->company_id;
-
-        $status = $request->status;
-
-        $file_name = $this->getFileNameByStatus($status);
-
-        $file_path = "pdf/$id/daily_$file_name.pdf";
-
-        Storage::disk('local')->put($file_path, $data);
-
-        $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
-
-        return $this->getMeta("Daily Report Generate", $msg);
-    }
 
     public function getFileNameByStatus($status)
     {
@@ -132,7 +132,6 @@ class DailyController extends Controller
 
         return $arr[$status];
     }
-
 
     public function generateSummaryReport($id)
     {
