@@ -78,21 +78,6 @@ class DailyController extends Controller
         return $this->processPDF($request)->download();
     }
 
-    public function daily_generate_pdf(Request $request)
-    {
-        $data = $this->processPDF($request)->output();
-
-        $id =  $request->company_id;
-
-        $file_name = $this->getFileNameByStatus($request->status);
-
-        $file_path = "pdf/$id/daily_$file_name.pdf";
-
-        Storage::disk('local')->put($file_path, $data);
-
-        return $file_name  . ' generated successfully';
-    }
-
     public function custom_request_general($id, $status, $shift_type_id)
     {
         $apiUrl = 'https://backend.eztime.online/api/daily_generate_pdf';
@@ -114,6 +99,24 @@ class DailyController extends Controller
         }
     }
 
+public function daily_generate_pdf(Request $request)
+    {
+        $data = $this->processPDF($request)->output();
+
+        $id =  $request->company_id;
+
+        $status = $request->status;
+
+        $file_name = $this->getFileNameByStatus($status);
+
+        $file_path = "pdf/$id/daily_$file_name.pdf";
+
+        Storage::disk('local')->put($file_path, $data);
+
+        $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
+
+        return $this->getMeta("Daily Report Generate", $msg) . "\n";
+    }
 
     public function getFileNameByStatus($status)
     {
@@ -132,6 +135,7 @@ class DailyController extends Controller
 
         return $arr[$status];
     }
+
 
     public function generateSummaryReport($id)
     {
