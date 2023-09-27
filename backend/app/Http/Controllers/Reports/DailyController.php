@@ -80,10 +80,12 @@ class DailyController extends Controller
 
     public function custom_request_general($id, $status, $shift_type_id)
     {
-        $apiUrl = 'https://backend.eztime.online/api/daily_generate_pdf';
 
+        $apiUrl = 'https://backend.eztime.online/api/daily_generate_pdf';
         $queryParams = [
+            'report_template' => "Template1",
             'shift_type_id' => $shift_type_id,
+            'report_type' => 'Daily',
             'company_id' => $id,
             'status' => $status,
             'daily_date' => date("Y-m-d", strtotime("yesterday")),
@@ -99,7 +101,7 @@ class DailyController extends Controller
         }
     }
 
-public function daily_generate_pdf(Request $request)
+    public function daily_generate_pdf(Request $request)
     {
         $data = $this->processPDF($request)->output();
 
