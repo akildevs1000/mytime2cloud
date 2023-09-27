@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:generate_daily_report {$companyId} All")
                 // ->everyMinute()
-                ->dailyAt('00:57')
+                ->dailyAt('01:16')
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:generate_daily_report {$companyId} P")
                 // ->everyMinute()
-                ->dailyAt('00:57')
+                ->dailyAt('01:16')
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -60,7 +60,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:generate_daily_report {$companyId} A")
                 // ->everyMinute()
-                ->dailyAt('00:57')
+                ->dailyAt('01:16')
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -68,7 +68,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:generate_daily_report {$companyId} M")
                 // ->everyMinute()
-                ->dailyAt('00:57')
+                ->dailyAt('01:16')
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
