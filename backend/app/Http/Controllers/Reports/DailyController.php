@@ -39,21 +39,33 @@ class DailyController extends Controller
             'total_leave' => $model->clone()->where('status', 'L')->count(),
             'total_holiday' => $model->clone()->where('status', 'H')->count(),
             'total_vaccation' => $model->clone()->where('status', 'V')->count(),
-
-
-
-            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
-            'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
-            'report_type' => $request->report_type ?? "",
+            'total_early' => $model->clone()->where('status', 'EG')->count(),
+            'total_late' => $model->clone()->where('status', 'LC')->count(),
+            'report_type' =>  $this->getStatusText($request->status),
             "daily_date" => $request->daily_date,
-
             'frequency' => "Daily",
         ];
-
-
         $data = $model->get();
         return Pdf::loadView('pdf.daily', compact("company", "info", "data"));
     }
+    public function getStatusText($status)
+    {
+        $arr = [
+            "A" => "Absent",
+            "M" => "Missing",
+            "P" => "Present",
+            "O" => "Week Off",
+            "L" => "Leave",
+            "H" => "Holiday",
+            "V" => "Vaccation",
+            "LC" => "Late In",
+            "EG" => "Early Out",
+            "-1" => "Summary"
+        ];
+
+        return $arr[$status];
+    }
+
     public function daily(Request $request)
     {
         return $this->processPDF($request)->stream();
@@ -62,6 +74,65 @@ class DailyController extends Controller
     {
         return $this->processPDF($request)->download();
     }
+
+    public function custom_request_general($id, $status, $shift_type_id)
+    {
+        $apiUrl = 'https://backend.eztime.online/api/daily_generate_pdf';
+
+        $queryParams = [
+            'shift_type_id' => $shift_type_id,
+            'company_id' => $id,
+            'status' => $status,
+            'daily_date' => date("Y-m-d", strtotime("yesterday")),
+        ];
+
+        $response = Http::timeout(300)->withoutVerifying()->get($apiUrl, $queryParams);
+
+        if ($response->successful()) {
+            return $response->body();
+        } else {
+            return $response;
+            return $this->getMeta("Daily Report Generate", "Cannot genereate for Company id: $id");
+        }
+    }
+
+    public function daily_generate_pdf(Request $request)
+    {
+        $data = $this->processPDF($request)->output();
+
+        $id =  $request->company_id;
+
+        $status = $request->status;
+
+        $file_name = $this->getFileNameByStatus($status);
+
+        $file_path = "pdf/$id/daily_$file_name.pdf";
+
+        Storage::disk('local')->put($file_path, $data);
+
+        $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
+
+        return $this->getMeta("Daily Report Generate", $msg);
+    }
+
+    public function getFileNameByStatus($status)
+    {
+        $arr = [
+            "A" => "absent",
+            "M" => "missing",
+            "P" => "present",
+            "O" => "weekoff",
+            "L" => "leave",
+            "H" => "holiday",
+            "V" => "vaccation",
+            "LC" => "latein",
+            "EG" => "earlyout",
+            "-1" => "summary"
+        ];
+
+        return $arr[$status];
+    }
+
 
     public function generateSummaryReport($id)
     {
