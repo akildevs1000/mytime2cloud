@@ -4,31 +4,24 @@
     "align": "left",
     "sortable": true,
     "filterable": false,
-    "value": "date",
-    "key": "date"
+    "value": "date"
   },
+
   {
-    "text": "Emp.ID",
-    "align": "left",
-    "sortable": true,
-    "filterable": true,
-    "value": "employee_id",
-    "key": "employee_id"
-  },
-  {
-    "text": "Name",
+    "text": "Employee",
     "align": "left",
     "sortable": false,
     "filterable": true,
     "value": "employee_name",
     "key": "employee_name"
   },
+
   {
-    "text": "Department",
+    "text": "Shift",
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "employee.department.name"
+    "value": "shift"
   },
   {
     "text": "In1",

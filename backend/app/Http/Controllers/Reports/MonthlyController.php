@@ -25,7 +25,7 @@ class MonthlyController extends Controller
     public function monthly_download_pdf(Request $request)
     {
         $report = $this->processPDF($request);
-        return $report->stream();
+        return $report->download();
     }
 
     public function multi_in_out_monthly_download_pdf(Request $request)
@@ -216,10 +216,17 @@ class MonthlyController extends Controller
         //     return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
         // }
 
-        // $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
+        $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
 
         $arr = ['data' => $data, 'company' => $company, 'info' => $info];
-        return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+
+
+
+        if ($request->report_template == 'Template2')
+            return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+        if ($request->report_template == 'Template1') {
+            return Pdf::loadView('pdf.' . $fileName, $arr);
+        }
     }
 
     public function getHTML($data, $company)

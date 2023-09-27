@@ -43,12 +43,13 @@ class Attendance extends Model
 
     public function getDateAttribute($value)
     {
-        return date("d-M-y", strtotime($value));
+        return date("d M y", strtotime($value));
     }
 
     public function getDayAttribute()
     {
-        return date("D", strtotime($this->date));
+        // return date("D", strtotime($this->date));
+        return date("l", strtotime($this->date));
     }
     public function getHrsMins($difference)
     {
@@ -196,7 +197,7 @@ class Attendance extends Model
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
-            $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name");
+            $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id");
             $q->with('department');
         });
 

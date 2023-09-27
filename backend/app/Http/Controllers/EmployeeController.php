@@ -780,7 +780,7 @@ class EmployeeController extends Controller
 
         $users = User::where('id', $request->user_id);
 
-        $users->update(['web_login_access' => $request->web_login_access, 'mobile_app_login_access' => $request->mobile_app_login_access, 'enable_whatsapp_otp' => $request->enable_whatsapp_otp]);
+        $users->update(['web_login_access' => $request->web_login_access ?? 0, 'mobile_app_login_access' => $request->mobile_app_login_access ?? 0, 'enable_whatsapp_otp' => $request->enable_whatsapp_otp ?? 0]);
 
         return response()->json(['status' => true, 'message' => 'Setting successfully updated']);
     }

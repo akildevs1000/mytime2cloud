@@ -1,6 +1,6 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <div class="text-center ma-2">
+    <div class="text-center">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
       </v-snackbar>
@@ -12,12 +12,7 @@
         </template>
       </v-snackbar>
     </div>
-
-    <v-card
-      class="mb-5 mt-5"
-      elevation="0"
-      v-if="can(`attendance_report_view`)"
-    >
+    <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
       <v-toolbar class="backgrounds" dense flat>
         <v-toolbar-title> </v-toolbar-title>
 
@@ -113,6 +108,7 @@
           <span>CSV</span>
         </v-tooltip> -->
         </div>
+
         <v-spacer></v-spacer>
         <v-menu bottom right>
           <template v-slot:activator="{ on, attrs }">
@@ -173,8 +169,46 @@
         fixed-header
         :height="tableHeight"
       >
-        <template v-slot:item.employee_name="{ item }">
-          {{ item.employee.first_name }} {{ item.employee.last_name }}
+        <template v-slot:item.employee_name="{ item }" style="padding: 0px">
+          <v-row no-gutters :title="'Dep: ' + item.employee.department.name">
+            <v-col
+              md="2"
+              style="
+                padding: 5px;
+                padding-left: 0px;
+                width: 50px;
+                max-width: 50px;
+              "
+            >
+              <v-img
+                style="
+                  border-radius: 50%;
+                  height: auto;
+                  width: 50px;
+                  max-width: 50px;
+                "
+                :src="
+                  item.employee.profile_picture
+                    ? item.employee.profile_picture
+                    : '/no-profile-image.jpg'
+                "
+              >
+              </v-img>
+            </v-col>
+            <v-col style="padding: 10px" md="8">
+              <strong>
+                {{
+                  item.employee.first_name ? item.employee.first_name : "---"
+                }}
+                {{
+                  item.employee.last_name ? item.employee.last_name : "---"
+                }}</strong
+              >
+              <div class="secondary-value">
+                {{ item.employee.employee_id }}
+              </div>
+            </v-col>
+          </v-row>
         </template>
         <template v-slot:item.status="{ item }">
           <v-tooltip top color="primary">
@@ -197,9 +231,19 @@
         </template>
 
         <template v-slot:item.shift="{ item }">
-          <v-tooltip v-if="item && item.shift" top color="primary">
+          <div>
+            {{ item.shift && item.shift.on_duty_time }} -
+            {{ item.shift && item.shift.off_duty_time }}
+          </div>
+          <div class="secondary-value">
+            {{ (item.shift && item.shift.name) || "---" }}
+          </div>
+          <!-- <v-tooltip v-if="item && item.shift" top color="primary">
             <template v-slot:activator="{ on, attrs }">
               <div class="primary--text" v-bind="attrs" v-on="on">
+                <div>
+                  {{ item.shift.on_duty_time }} - {{ item.shift.off_duty_time }}
+                </div>
                 {{ (item.shift && item.shift.name) || "---" }}
               </div>
             </template>
@@ -209,9 +253,113 @@
               >
             </div>
           </v-tooltip>
-          <span v-else>---</span>
+          <span v-else>---</span> -->
         </template>
-
+        <!-- <template v-slot:item.name="{ item }">
+          {{ item.employee.first_name }} {{ item.employee.last_name }}
+        </template> -->
+        <template v-slot:item.date="{ item }">
+          <div>{{ item.date }}</div>
+          <div class="secondary-value">
+            {{ item.day }}
+          </div>
+        </template>
+        <template v-slot:item.in="{ item }">
+          <div>{{ item.in }}</div>
+          <div class="secondary-value">
+            {{ (item.device_in && item.device_in.name) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.out="{ item }">
+          <div>{{ item.out }}</div>
+          <div class="secondary-value">
+            {{ (item.device_out && item.device_out.name) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.in1="{ item }">
+          <div>{{ item.in1 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_in1 && item.device_in1) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.out1="{ item }">
+          <div>{{ item.out1 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_out1 && item.device_out1) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.in2="{ item }">
+          <div>{{ item.in2 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_in2 && item.device_in2) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.out2="{ item }">
+          <div>{{ item.out2 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_out2 && item.device_out2) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.in3="{ item }">
+          <div>{{ item.In3 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_in3 && item.device_in3) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.out3="{ item }">
+          <div>{{ item.out3 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_out3 && item.device_out3) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.in4="{ item }">
+          <div>{{ item.in4 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_in4 && item.device_in4) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.out4="{ item }">
+          <div>{{ item.out4 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_out4 && item.device_out4) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.in5="{ item }">
+          <div>{{ item.in5 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_in5 && item.device_in5) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.out5="{ item }">
+          <div>{{ item.out5 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_out5 && item.device_out5) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.in6="{ item }">
+          <div>{{ item.in6 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_in6 && item.device_in6) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.out6="{ item }">
+          <div>{{ item.out6 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_out6 && item.device_out6) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.in7="{ item }">
+          <div>{{ item.in7 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_in7 && item.device_in1) || "---" }}
+          </div>
+        </template>
+        <template v-slot:item.out7="{ item }">
+          <div>{{ item.out7 }}</div>
+          <div class="secondary-value">
+            {{ (item.device_out7 && item.device_out7) || "---" }}
+          </div>
+        </template>
         <template v-slot:item.device_in="{ item }">
           <v-tooltip v-if="item && item.device_in" top color="primary">
             <template v-slot:activator="{ on, attrs }">
@@ -642,7 +790,7 @@ export default {
     daily_date: "",
     from_date: "",
     to_date: "",
-    report_type: "",
+    report_type: "Monthly",
 
     filters: {},
     attendancFilters: false,
@@ -825,6 +973,11 @@ export default {
       this.employee_id = value.employee_id;
       this.status = value.status;
 
+      if (this.payload.from_date == null) {
+        this.payload.from_date = this.payload.daily_date;
+        this.payload.to_date = this.payload.daily_date;
+      }
+
       this.getDataFromApi();
     },
 
@@ -868,11 +1021,11 @@ export default {
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
 
-    this.from_date = this.payload.daily_date;
-    this.to_date = this.payload.daily_date;
+    // this.from_date = this.payload.daily_date;
+    // this.to_date = this.payload.daily_date;
 
-    this.payload.from_date = this.payload.daily_date;
-    this.payload.to_date = this.payload.daily_date;
+    // this.payload.from_date = this.payload.daily_date;
+    // this.payload.to_date = this.payload.daily_date;
   },
 
   methods: {
@@ -1224,7 +1377,8 @@ export default {
         alert("Department Must be selected");
         return;
       }
-      type = type.toLowerCase().replace("custom", "monthly");
+      //type = "monthly";
+      //type = type.toLowerCase().replace("custom", "monthly");
       let path =
         process.env.BACKEND_URL +
         "/" +
@@ -1280,3 +1434,8 @@ export default {
   },
 };
 </script>
+<!-- <style scoped>
+.v-slide-group__content {
+  height: 30px !important;
+}
+</style> -->
