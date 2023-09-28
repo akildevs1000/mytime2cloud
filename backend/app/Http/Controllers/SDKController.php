@@ -253,7 +253,7 @@ class SDKController extends Controller
         try {
             return Http::timeout(30)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://stagingsdk.ideahrms.com/$id/$command");
+            ])->post("https://sdk.ideahrms.com/$id/$command");
         } catch (\Exception $e) {
             return [
                 "status" => 102,
