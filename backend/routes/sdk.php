@@ -12,3 +12,5 @@ Route::post('/getDevicesCountForTimezone', [SDKController::class, 'getDevicesCou
 Route::post('/{id}/WriteTimeGroup', [SDKController::class, 'processTimeGroup']);
 Route::post('/Person/AddRange', [SDKController::class, 'PersonAddRange']);
 Route::post('/Person/AddRange/Photos', [SDKController::class, 'PersonAddRangePhotos']);
+
+Route::post('/{id}/{command}', [SDKController::class, 'handleCommand']);

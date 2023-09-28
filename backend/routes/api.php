@@ -29,3 +29,4 @@ include('assigned_department_employee.php');
 include('attendance.php');
 include('branch.php');
 include('whatsapp.php');
+include('access_control_time_slot.php');

@@ -247,4 +247,18 @@ class SDKController extends Controller
     {
         return Device::where('company_id', $request->company_id)->pluck('device_id');
     }
+
+    public function handleCommand($id, $command)
+    {
+        try {
+            return Http::timeout(30)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post("https://stagingsdk.ideahrms.com/$id/$command");
+        } catch (\Exception $e) {
+            return [
+                "status" => 102,
+                "message" => $e->getMessage(),
+            ];
+        }
+    }
 }

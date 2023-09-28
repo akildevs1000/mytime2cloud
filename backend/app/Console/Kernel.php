@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Models\AccessControlTimeSlot;
 use App\Models\Company;
 use App\Models\PayrollSetting;
 use App\Models\ReportNotification;
@@ -19,6 +20,32 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $date = date("M-Y");
+
+        $devices = AccessControlTimeSlot::get();
+
+        foreach ($devices as $device) {
+            foreach ($device->json as $slot) {
+
+                $schedule
+                    ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+                    // ->everyThirtyMinutes()
+                    ->everyMinute()
+                    ->dailyAt($slot["startTimeOpen"])
+                    ->withoutOverlapping()
+                    ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+                $schedule
+                    ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+                    // ->everyThirtyMinutes()
+                    ->everyMinute()
+                    ->dailyAt($slot["endTimeOpen"])
+                    ->withoutOverlapping()
+                    ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            }
+        }
+
 
         // $schedule
         //     ->command('task:sync_attendance_logs')
