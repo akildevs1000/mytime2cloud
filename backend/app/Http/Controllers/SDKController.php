@@ -250,10 +250,11 @@ class SDKController extends Controller
 
     public function handleCommand($id, $command)
     {
+        // http://139.59.69.241:5000/CheckDeviceHealth/$device_id"
         try {
             return Http::timeout(30)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://sdk.ideahrms.com/$id/$command");
+            ])->post("http://139.59.69.241:5000/$id/$command");
         } catch (\Exception $e) {
             return [
                 "status" => 102,
