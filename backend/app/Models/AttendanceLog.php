@@ -45,7 +45,7 @@ class AttendanceLog extends Model
 
     public function device()
     {
-        return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Mobile", "device_id" => "Mobile"]);
+        return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Manual", "device_id" => "Manual"]);
     }
 
     public function employee()
@@ -169,8 +169,9 @@ class AttendanceLog extends Model
 
     public function getEmployeeIdsForNewLogs($params)
     {
-        return self::where("checked", false)
-            ->when(count($params["company_ids"] ?? []) > 0, function ($q) use ($params) {
+        return self::
+        // where("checked", false)->
+        when(count($params["company_ids"] ?? []) > 0, function ($q) use ($params) {
                 $q->whereIn("company_id", $params["company_ids"]);
             })
             ->when(count($params["employee_ids"] ?? []) > 0, function ($q) use ($params) {
