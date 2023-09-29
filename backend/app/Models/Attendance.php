@@ -184,15 +184,18 @@ class Attendance extends Model
             $q->where('ot', "!=", "---");
         });
 
-        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
-            $q->whereDate('date', $request->daily_date);
-            //$q->orderBy("id", "desc");
-        });
+        // $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
+        //     $q->whereDate('date', $request->daily_date);
+        //     //$q->orderBy("id", "desc");
+        // });
 
-        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
-            $q->whereBetween("date", [$request->from_date, $request->to_date]);
-            // $q->orderBy("date", "asc");
-        });
+        // $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
+        //     $q->whereBetween("date", [$request->from_date, $request->to_date]);
+        //     // $q->orderBy("date", "asc");
+        // });
+
+        $model->whereBetween("date", [$request->from_date, $request->to_date]);
+
 
 
         $model->with('employee', function ($q) use ($request) {

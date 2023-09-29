@@ -46,7 +46,7 @@ class StoreRequest extends FormRequest
             'company_id' => ['required', 'min:1', 'integer'],
             'status_id' => ['required', 'min:1', 'integer'],
 
-            'model_number' => ['nullable', 'min:4', 'max:10'],
+            'model_number' => ['nullable', 'min:4', 'max:20'],
             'device_type' => ['required'],
 
             'ip' => 'required|ip',
