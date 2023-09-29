@@ -26,17 +26,18 @@ class RenderController extends Controller
 
     public function renderLogs(Request $request)
     {
-        $shift_type_id = $request->shift_type_id;
+        return (new ShiftRenderController)->renderData($request);
 
-        if ($shift_type_id == 5) {
-            return (new SplitShiftController)->renderData($request);
-        } else if ($shift_type_id == 2) {
-            return (new MultiInOutShiftController)->renderData($request);
-        }
-        return array_merge(
-            (new FiloShiftController)->renderData($request),
-            (new SingleShiftController)->renderData($request)
-        );
+
+        // if ($shift_type_id == 5) {
+        //     return (new SplitShiftController)->renderData($request);
+        // } else if ($shift_type_id == 2) {
+        //     return (new MultiInOutShiftController)->renderData($request);
+        // }
+        // return array_merge(
+        //     (new FiloShiftController)->renderData($request),
+        //     (new SingleShiftController)->renderData($request)
+        // );
     }
 
     public function renderMultiInOut(Request $request)
@@ -72,13 +73,16 @@ class RenderController extends Controller
             "company_id" => $company_id,
             "employee_id" => $UserID,
             "shift_id" => $schedule['shift_id'],
-            "roster_id" => $schedule['roster_id'],
-            "is_manual_entry" => true,
+            "is_manual_entry" => false,
         ];
 
         $logs = $this->processLogs($data, $schedule);
 
-        return $this->storeOrUpdate($AttendancePayload + $logs);
+        $items = $AttendancePayload + $logs;
+
+        $attendance = Attendance::whereDate("date", $items['date'])->where("employee_id", $items['employee_id'])->where("company_id", $items['company_id']);
+        $found = $attendance->first();
+        return $found ? $attendance->update($items) : Attendance::create($items);
     }
 
     public function renderGeneral(Request $request)
@@ -445,20 +449,19 @@ class RenderController extends Controller
     {
         $model = AttendanceLog::query();
 
+        $model->with("device");
         $model->where("company_id", $company_id);
         $model->where("UserID", $UserID);
         $model->whereDate("LogTime", $currentDate);
-
         $model->distinct("LogTime");
-
         $model->orderBy("LogTime");
 
-        return $model->get(["LogTime", "DeviceID", "UserID", "company_id"])->toArray();
+        return $model->get(["LogTime", "DeviceID", "UserID", "company_id", "gps_location"])->toArray();
     }
 
     public function getScheduleMultiInOut($currentDate, $companyId, $UserID, $shift_type_id)
     {
-        $schedule = ScheduleEmployee::where('company_id', $companyId)
+        return $schedule = ScheduleEmployee::where('company_id', $companyId)
             ->where("employee_id", $UserID)
             ->where("shift_type_id", $shift_type_id)
             ->first();
@@ -501,6 +504,8 @@ class RenderController extends Controller
             $logs[] = [
                 "in" => $currentLog['time'],
                 "out" => $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
+                "gps_location_in" => $currentLog && $currentLog['gps_location'] ? $currentLog['gps_location'] : $currentLog["device"]["name"],
+                "gps_location_out" => $nextLog && $nextLog['gps_location'] ? $nextLog['gps_location'] : $currentLog["device"]["name"],
             ];
 
             if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
@@ -543,7 +548,7 @@ class RenderController extends Controller
 
         return $this->response("$result Employee has been marked as OFF", null, true);
     }
-    
+
     public function renderLeaves($company_id = 0, Request $request)
     {
         $schedule = null;
