@@ -30,14 +30,14 @@ class StoreRequest extends FormRequest
         $companyId = $this->company_id;
         return [
 
-            // 'device_id' => [
-            //     'required',
-            //     Rule::unique('devices')->where(function ($query) use ($deviceId, $companyId) {
-            //         return $query->where('device_id', $deviceId)
-            //             ->where('company_id', $companyId);
-            //     }),
+            'device_id' => [
+                'required',
+                Rule::unique('devices')->where(function ($query) use ($deviceId, $companyId) {
+                    return $query->where('device_id', $deviceId)
+                        ->where('company_id', $companyId);
+                }),
 
-            // ],
+            ],
 
             'name' => ['required', 'min:2', 'max:50'],
             'short_name' => ['required', 'nullable', 'min:3', 'max:8'],

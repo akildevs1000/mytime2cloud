@@ -97,11 +97,11 @@
             >
               <option value="">Select Branch</option>
               <option
-                v-for="(timezone, idx) in timeZones"
-                :key="timezone"
+                v-for="(timezone, idx, index) in timeZones"
+                :key="index"
                 :value="idx"
               >
-                {{ idx }} {{ timezone }}
+                {{ timezone.offset }}- {{ idx }}
               </option>
             </select>
             <span
@@ -370,11 +370,45 @@
           {{ item.device_id }}
         </template>
         <template v-slot:item.function="{ item }">
-          <img :src="getFunctionIcon(item)" class="iconsize" />
+          <img
+            title="Auto (In and Out)"
+            v-if="item.function == 'auto'"
+            src="/icons/function_in_out.png"
+            style="width: 24px; margin-left: 7px; height: 35px"
+          />
+          <img
+            title="Only In"
+            v-else-if="item.function == 'In'"
+            src="/icons/function_in.png"
+            style="width: 25px; margin-left: 7px; height: 35px"
+          />
+          <img
+            title="Only Out"
+            v-else-if="item.function == 'Out'"
+            src="/icons/function_out.png"
+            style="width: 32px; margin-left: 0px; height: 36px"
+          />
         </template>
 
         <template v-slot:item.device_type="{ item }">
-          <img :src="getDeviceIcon(item)" class="iconsize" />
+          <img
+            title="All (Attendance and Access Control )"
+            v-if="item.device_type == 'all'"
+            src="/icons/device_type_all.png"
+            style="width: 33px"
+          />
+          <img
+            title="Only Access Control"
+            v-else-if="item.device_type == 'Access Control'"
+            src="/icons/device_type_access_control.png"
+            style="width: 33px"
+          />
+          <img
+            title="Only Attendance"
+            v-else-if="item.device_type == 'Attendance'"
+            src="/icons/device_type_attendance.png"
+            style="width: 32px"
+          />
         </template>
         <template v-slot:item.door_open="{ item }">
           <img
@@ -382,7 +416,7 @@
             title="Click to Open Door"
             @click="open_door(item.device_id)"
             src="/icons/door_open.png"
-            class="iconsize"
+            class="iconsize30"
           />
         </template>
         <template v-slot:item.door_close="{ item }">
@@ -391,7 +425,7 @@
             title="Click to Close Door"
             @click="close_door(item.device_id)"
             src="/icons/door_close.png"
-            class="iconsize"
+            class="iconsize30"
           />
         </template>
         <template v-slot:item.always_open="{ item }">
@@ -400,7 +434,7 @@
             title="Click to Always Open settings"
             @click="open_door_always(item.device_id)"
             src="/icons/always_open.png"
-            class="iconsize"
+            class="iconsize30"
           />
         </template>
 
@@ -410,17 +444,30 @@
             title="Click Sync UTC Time"
             @click="sync_date_time(item)"
             src="/icons/sync_date_time.png"
-            class="iconsize"
+            class="iconsize30"
           />
         </template>
 
         <template v-slot:item.open_always="{ item }"> </template>
         <template v-slot:item.status_id="{ item }">
           <img
+            title="Active"
+            v-if="item.status.name == 'active'"
+            src="/icons/device_status_open.png"
+            style="width: 33px"
+          />
+          <img
+            title="In-active"
+            v-else
+            src="/icons/device_status_close.png"
+            style="width: 33px"
+          />
+
+          <!-- <img
             @click="sync_date_time(item)"
             :src="getDeviceStatusIcon(item)"
-            class="iconsize"
-          />
+            class="iconsize30"
+          /> -->
           <!-- <v-chip
             small
             class="p-2 mx-1"
@@ -719,7 +766,53 @@ export default {
       this.loading = false;
     },
     sync_date_time(item) {
-      let dt = new Date();
+      console.log(item.sync_date_time);
+      let sync_able_date_time = this.getUTC_CurentTime(item.utc_time_zone);
+      console.log(item.sync_date_time);
+      console.log(sync_able_date_time);
+
+      let options = {
+        params: {
+          sync_able_date_time: sync_able_date_time,
+        },
+      };
+      confirm("Are you sure want to Sync UTC time to Device?") &&
+        this.$axios
+          .get(`sync_device_date_time/${item.device_id}`, options)
+          .then(({ data }) => {
+            // if (data.status) {
+            //   const index = this.data.findIndex((row) => row.id == item.id);
+            //   this.data.splice(index, 1, data.record);
+            // }
+
+            this.snackbar = true;
+            this.response = data.message;
+          });
+    },
+    getUTC_CurentTime(targetTimezone) {
+      // Define the target time zone
+      //const targetTimezone = "America/New_York";
+
+      // Create a Date object for the current local time
+      const localDate = new Date();
+
+      // Get the date and time components in the target time zone
+      const options = {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: targetTimezone,
+        hour12: false,
+      };
+      const formattedDateTime = localDate.toLocaleDateString("en-US", options);
+
+      // Display the formatted date and time
+      console.log(formattedDateTime);
+
+      let dt = new Date(formattedDateTime);
 
       let year = dt.getFullYear();
       let month = dt.getMonth() + 1;
@@ -735,39 +828,26 @@ export default {
       seconds = seconds < 10 ? "0" + seconds : seconds;
 
       let sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      console.log(sync_able_date_time);
 
-      let options = {
-        params: {
-          sync_able_date_time: sync_able_date_time,
-        },
-      };
-
-      this.$axios
-        .get(`sync_device_date_time/${item.device_id}`, options)
-        .then(({ data }) => {
-          if (data.status) {
-            const index = this.data.findIndex((row) => row.id == item.id);
-            this.data.splice(index, 1, data.record);
-          }
-
-          this.snackbar = true;
-          this.response = data.message;
-        });
+      return sync_able_date_time;
     },
     open_door(device_id) {
       let options = {
         params: { device_id },
       };
-      this.$axios.get(`open_door`, options).then(({ data }) => {
-        this.snackbar = true;
-        this.response = data;
-        // this.getDataFromApi();
-      });
+      confirm("Are you sure want to open the Door?") &&
+        this.$axios.get(`open_door`, options).then(({ data }) => {
+          this.snackbar = true;
+          this.response = data;
+          // this.getDataFromApi();
+        });
     },
     open_door_always(device_id) {
       let options = {
         params: { device_id },
       };
+
       this.$axios.get(`open_door_always`, options).then(({ data }) => {
         this.snackbar = true;
         this.response = data.message;
@@ -778,11 +858,12 @@ export default {
       let options = {
         params: { device_id },
       };
-      this.$axios.get(`close_door`, options).then(({ data }) => {
-        this.snackbar = true;
-        this.response = data.message;
-        this.getDataFromApi();
-      });
+      confirm("Are you sure want to close the Door?") &&
+        this.$axios.get(`close_door`, options).then(({ data }) => {
+          this.snackbar = true;
+          this.response = data.message;
+          this.getDataFromApi();
+        });
     },
     can(permission) {
       let user = this.$auth;
@@ -895,7 +976,7 @@ export default {
     },
     addItem() {
       this.payload = {};
-      this.editedIndex = 0;
+      this.editedIndex = -1;
       this.editDialog = true;
     },
     store_device() {
@@ -904,7 +985,7 @@ export default {
       let payload = this.payload;
 
       this.payload.company_id = this.$auth.user.company_id;
-      this.payload.status_id = 2;
+      if (this.editedIndex == -1) this.payload.status_id = 2;
       this.payload.ip = "0.0.0.0";
       this.payload.device_id = this.payload.serial_number;
       this.payload.port = "0000";
@@ -914,7 +995,7 @@ export default {
       delete this.payload.company_branch;
 
       this.loading = true;
-      if (this.editedIndex == 0) {
+      if (this.editedIndex == -1) {
         this.$axios
           .post(`/device`, payload)
           .then(({ data }) => {
@@ -957,7 +1038,7 @@ export default {
 
     getFunctionIcon(item) {
       if (item.function == "auto") {
-        return "/icons/function_in_out.png";
+        return "/icons/function_in_out.png?t=2";
       } else if (item.function == "In") {
         return "/icons/function_in.png";
       } else if (item.function == "Out") {
@@ -977,14 +1058,27 @@ export default {
       if (item.status.name == "active") {
         return "/icons/device_status_open.png";
       } else {
-        return "/icons/device_status_open.png";
+        return "/icons/device_status_close.png";
       }
+    },
+
+    deleteItem(item) {
+      confirm(
+        "Are you sure you wish to delete , to mitigate any inconvenience in future."
+      ) &&
+        this.$axios
+          .delete(this.endpoint + "/" + item.id)
+          .then(({ data }) => {
+            if (!data.status) {
+              this.errors = data.errors;
+            } else {
+              this.snackbar = data.status;
+              this.response = data.message;
+              this.getDataFromApi();
+            }
+          })
+          .catch((err) => console.log(err));
     },
   },
 };
 </script>
-<style>
-.iconsize {
-  width: 30px;
-}
-</style>

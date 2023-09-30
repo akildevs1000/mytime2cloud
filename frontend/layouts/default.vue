@@ -1052,4 +1052,9 @@ header i {
 
   /* height: 32px !important; */
 }
+
+.iconsize30 {
+  width: 30px;
+  height: auto;
+}
 </style>
