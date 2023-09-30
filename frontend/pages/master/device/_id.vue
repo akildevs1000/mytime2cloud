@@ -7,8 +7,7 @@
     </div>
     <v-row class="mt-5 mb-10">
       <v-col cols="10">
-        <h3>Device</h3>
-        <div>Dashboard / Device / Create</div>
+        <div>Device Create</div>
       </v-col>
     </v-row>
     <v-card>
@@ -206,7 +205,7 @@ export default {
   data: () => ({
     loading: false,
     upload: {
-      name: ""
+      name: "",
     },
 
     payload: {
@@ -219,7 +218,7 @@ export default {
       location: "",
       short_name: "",
       ip: "",
-      port: ""
+      port: "",
     },
 
     errors: [],
@@ -227,7 +226,7 @@ export default {
     companies: [],
     data: {},
     response: "",
-    snackbar: false
+    snackbar: false,
   }),
   async created() {
     this.getRecord();
@@ -279,15 +278,11 @@ export default {
           } else {
             this.snackbar = true;
             this.response = "Device updated successfully";
-            setTimeout(
-              () =>
-                this.$router.push(`/master/companies/details/${company_id}`),
-              2000
-            );
+            this.getDeviceStatus();
           }
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>

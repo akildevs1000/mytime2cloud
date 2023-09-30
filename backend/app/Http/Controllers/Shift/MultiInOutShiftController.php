@@ -107,7 +107,7 @@ class MultiInOutShiftController extends Controller
 
     public function getLogsWithInRange($companyId, $UserID, $range, $shift_type_id)
     {
-        $model = AttendanceLog::query();
+        $model = AttendanceLog::with(['device'])->query();
         $model->whereHas("schedule", function ($q) use ($shift_type_id) {
             $q->where('shift_type_id', $shift_type_id);
         });
@@ -161,6 +161,10 @@ class MultiInOutShiftController extends Controller
                     "in" => $currentLog['time'],
                     "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
                     "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
+                    "device_in" => $currentLog['device']['short_name'] ?? "---",
+                    "device_out" => $nextLog['device']['short_name'] ?? "---",
+                    // "test" => $currentLog ?? "---",
+
                     // $currentLog['LogTime'], $nextLog['time'] ?? "---"
                 ];
 

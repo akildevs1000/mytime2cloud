@@ -30,28 +30,31 @@ class StoreRequest extends FormRequest
         $companyId = $this->company_id;
         return [
 
-            'device_id' => [
-                'required',
-                Rule::unique('devices')->where(function ($query) use ($deviceId, $companyId) {
-                    return $query->where('device_id', $deviceId)
-                        ->where('company_id', $companyId);
-                }),
+            // 'device_id' => [
+            //     'required',
+            //     Rule::unique('devices')->where(function ($query) use ($deviceId, $companyId) {
+            //         return $query->where('device_id', $deviceId)
+            //             ->where('company_id', $companyId);
+            //     }),
 
-            ],
+            // ],
 
             'name' => ['required', 'min:2', 'max:50'],
             'short_name' => ['required', 'nullable', 'min:3', 'max:8'],
             // 'device_id' => ['required', 'min:3', 'max:100', 'unique:devices'],
-            'location' => ['nullable', 'min:5', 'max:300'],
+            'location' => ['nullable', 'min:2', 'max:300'],
             'company_id' => ['required', 'min:1', 'integer'],
             'status_id' => ['required', 'min:1', 'integer'],
+            'device_id' => ['required'],
 
             'model_number' => ['nullable', 'min:4', 'max:10'],
             'device_type' => ['required'],
 
             'ip' => 'required|ip',
-            'port' => 'required',
+            'function' => 'required',
+            'utc_time_zone' => 'required',
+            'branch_id' => 'required',
+
         ];
     }
-
 }

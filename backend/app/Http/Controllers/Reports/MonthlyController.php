@@ -107,6 +107,8 @@ class MonthlyController extends Controller
 
                     $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
                     $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
+                    $value["device_in" . $holder_key] = $value->logs[$a]["device_in"]["short_name"] ?? "---";
+                    $value["device_out" . $holder_key] = $value->logs[$a]["device_in"]["short_name"] ?? "---";
                 }
             }
         }

@@ -30,15 +30,19 @@ class UpdateRequest extends FormRequest
             'name' => ['required', 'min:2', 'max:50'],
             'short_name' => ['required', 'nullable', 'min:3', 'max:4'],
             'device_id' => ['required', 'min:3', 'max:100'],
-            'location' => ['nullable', 'min:5', 'max:300'],
+            'location' => ['nullable', 'min:2', 'max:300'],
             'company_id' => ['required', 'min:1', 'integer'],
             'status_id' => ['required', 'min:1', 'integer'],
 
             'model_number' => ['nullable', 'min:6', 'max:50'],
-            'device_type' => ['required'],
+            'device_type' =>  'required',
 
             'ip' => 'required|ip',
             'port' => 'required',
+            'function' => 'required',
+            'utc_time_zone' => 'required',
+            'branch_id' => 'required',
+            'serial_number' => 'required'
         ];
     }
 }

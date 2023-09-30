@@ -109,8 +109,7 @@ die();
             <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
 
 
-                <table class="summary-table"
-                    style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
+                <table class="summary-table" style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
                     <tr style="text-align: left; border :none;">
                         <td style="text-align: right; border :none;font-size:10px">
                             <b>
@@ -145,16 +144,16 @@ die();
         </tr>
     </table>
     @php
-        $names = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Helen', 'Ivy', 'Jack', 'Katie', 'Liam', 'Mia', 'Noah', 'Olivia', 'Parker', 'Quinn', 'Ryan', 'Sophia', 'Tyler', 'Uma', 'Victoria', 'William', 'Xander', 'Yara', 'Zoe'];
-        $devices = ['EGC Dubai', 'SPT Dubai', 'DMH Dubai', 'GSD Dubai', 'POH Dubai', 'MVT Dubai'];
-        $locations = ['Emirates Gateway Center, Dubai', 'Skyline Plaza Tower, Dubai', 'Desert Mirage Hub, Dubai', 'Golden Sands District, Dubai', 'PalmTech Oasis Hub, Dubai', 'MetroView Tower, Dubai'];
-        $LogTime = ['00:30', '00:45', '00:15', '00:17', '00:17', '01:30'];
-        $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
-        
+    $names = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Helen', 'Ivy', 'Jack', 'Katie', 'Liam', 'Mia', 'Noah', 'Olivia', 'Parker', 'Quinn', 'Ryan', 'Sophia', 'Tyler', 'Uma', 'Victoria', 'William', 'Xander', 'Yara', 'Zoe'];
+    $devices = ['EGC Dubai', 'SPT Dubai', 'DMH Dubai', 'GSD Dubai', 'POH Dubai', 'MVT Dubai'];
+    $locations = ['Emirates Gateway Center, Dubai', 'Skyline Plaza Tower, Dubai', 'Desert Mirage Hub, Dubai', 'Golden Sands District, Dubai', 'PalmTech Oasis Hub, Dubai', 'MetroView Tower, Dubai'];
+    $LogTime = ['00:30', '00:45', '00:15', '00:17', '00:17', '01:30'];
+    $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
+
     @endphp
 
     @php
-        $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
+    $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
     @endphp
     <table style="margin-top: 5px !important;">
         <tr style="text-align: left; border :1px solid black; width:120px;">
@@ -175,37 +174,30 @@ die();
             <td><b>Log</b></td>
         </tr>
 
-        @for ($i = 0; $i < 15; $i++)
-            @php
-                shuffle($names);
-                shuffle($LogTime);
-                
-            @endphp
-            <tr>
-                <td style="width:50px;">
-                    <div style="width: 50px;padding:5px; text-align:center;">
-                        <img style="
+        @for ($i = 0; $i < 15; $i++) @php shuffle($names); shuffle($LogTime); @endphp @php $emp_pic=getcwd() . '/upload/no-profile-image.jpg' ; if($employee.employee.profile_picture!='' ) { $pic=getcwd() . '/media/' +$employee.employee.profile_picture; } @endphp <tr>
+            <td style="width:50px;">
+                <div style="width: 50px;padding:5px; text-align:center;">
+                    <img style="
                     border-radius: 50%;
                     height: auto;
                     width: 30px;
-                  "
-                            src="{{ getcwd() . '/upload/no-profile-image.jpg' }}">
+                  " src="{{ $emp_pic }}">
 
-                    </div>
+                </div>
 
-                </td>
-                <td> {{ rand(1000, 9999) }}</td>
-                <td> {{ $names[0] }}</td>
+            </td>
+            <td> {{ rand(1000, 9999) }}</td>
+            <td> {{ $names[0] }}</td>
 
-                <td>Sales</td>
-                <td>
-                    {{ implode(', ', $LogTime) }}
-                </td>
+            <td>Sales</td>
+            <td>
+                {{ implode(', ', $LogTime) }}
+            </td>
             </tr>
-        @endfor
+            @endfor
 
 
-        {{-- <tr>
+            {{-- <tr>
                 @for ($j = 0; $j < 15; $j++)
                     @php
                         shuffle($devices);
@@ -213,8 +205,8 @@ die();
                         
                     @endphp
                     <td style="text-align: center;">{{ $LogTime[0] }}</td>
-                    <td style="text-align: center;">{{ $devices[0] }}</td>
-                @endfor
+            <td style="text-align: center;">{{ $devices[0] }}</td>
+            @endfor
             </tr> --}}
 
 

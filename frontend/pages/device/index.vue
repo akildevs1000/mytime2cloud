@@ -16,7 +16,214 @@
           @input="searchIt" v-model="search" hide-details></v-text-field>
       </v-col> -->
     </v-row>
-    <Back color="primary" />
+    <!-- <Back color="primary" /> -->
+    <v-navigation-drawer v-model="editDialog" bottom temporary right fixed>
+      <v-toolbar class="popup_background" dense>
+        {{ this.editedIndex == 0 ? "New " : "Edit " }} Device
+        <v-spacer></v-spacer>
+
+        <v-icon @click="editDialog = false" outlined dark>
+          mdi mdi-close-circle
+        </v-icon>
+      </v-toolbar>
+
+      <div class="row pa-3">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label">Device Name </label>
+            <span class="text-danger">*</span>
+            <input v-model="payload.name" class="form-control" type="text" />
+            <span v-if="errors && errors.name" class="text-danger mt-2">{{
+              errors.name[0]
+            }}</span>
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label">Device Short Name </label>
+            <span class="text-danger">*</span>
+            <input
+              v-model="payload.short_name"
+              class="form-control"
+              type="text"
+            />
+            <span v-if="errors && errors.short_name" class="text-danger mt-2">{{
+              errors.short_name[0]
+            }}</span>
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label">Branch</label>
+            <span class="text-danger">*</span>
+            <select
+              v-model="payload.branch_id"
+              class="form-select form-control"
+              aria-label="Branch"
+            >
+              <option value="">Select Branch</option>
+              <option
+                v-for="(branch, idx) in branches"
+                :key="idx"
+                :value="branch.id"
+              >
+                {{ branch.branch_name }}
+              </option>
+            </select>
+            <span v-if="errors && errors.branch_id" class="text-danger mt-2">{{
+              errors.branch_id[0]
+            }}</span>
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label">Device Location </label>
+            <span class="text-danger">*</span>
+            <input v-model="payload.location" class="form-control" />
+            <span v-if="errors && errors.location" class="text-danger mt-2">{{
+              errors.location[0]
+            }}</span>
+          </div>
+        </div>
+
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label">Time Zone</label>
+            <span class="text-danger">*</span>
+            <select
+              v-model="payload.utc_time_zone"
+              class="form-select form-control"
+              aria-label="Branch"
+            >
+              <option value="">Select Branch</option>
+              <option
+                v-for="(timezone, idx) in timeZones"
+                :key="timezone"
+                :value="idx"
+              >
+                {{ idx }} {{ timezone }}
+              </option>
+            </select>
+            <span
+              v-if="errors && errors.utc_time_zone"
+              class="text-danger mt-2"
+              >{{ errors.utc_time_zone[0] }}</span
+            >
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label"> Model Number</label>
+            <span class="text-danger">*</span>
+            <input
+              v-model="payload.model_number"
+              class="form-control"
+              type="text"
+            />
+            <span
+              v-if="errors && errors.model_number"
+              class="text-danger mt-2"
+              >{{ errors.model_number[0] }}</span
+            >
+          </div>
+        </div>
+
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label"> Device Serial Number</label>
+            <span class="text-danger">*</span>
+            <input
+              v-model="payload.serial_number"
+              class="form-control"
+              type="text"
+            />
+            <span
+              v-if="errors && errors.serial_number"
+              class="text-danger mt-2"
+              >{{ errors.serial_number[0] }}</span
+            >
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label"> Device Function</label>
+            <span class="text-danger">*</span>
+            <select
+              v-model="payload.function"
+              class="form-select pt-1 pb-1"
+              aria-label="Default select"
+            >
+              <option value="">Select Device Function</option>
+              <option value="auto">Auto</option>
+              <option value="In">In</option>
+              <option value="Out">Out</option>
+            </select>
+            <span v-if="errors && errors.function" class="text-danger mt-2">{{
+              errors.function[0]
+            }}</span>
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label">Device Type </label>
+            <span class="text-danger">*</span>
+            <select
+              v-model="payload.device_type"
+              class="form-select pt-1 pb-1"
+              aria-label="Default select"
+            >
+              <option value="">Select Device Type</option>
+              <option value="all">All(Attendance and Access)</option>
+              <option value="Attendance">Attendance</option>
+              <option value="Access Control">Access Control</option>
+            </select>
+            <span
+              v-if="errors && errors.device_type"
+              class="text-danger mt-2"
+              >{{ errors.device_type[0] }}</span
+            >
+          </div>
+        </div>
+
+        <!-- <div class="col-sm-12">
+          <div class="form-group">
+            <label class="col-form-label">Device Status </label>
+            <span class="text-danger">*</span>
+            <select
+              v-model="payload.status_id"
+              class="form-select"
+              aria-label="Default select"
+            >
+              <option value="">Select Device Status</option>
+              <option
+                v-for="(device_status, idx) in device_statusses"
+                :key="idx"
+                :value="device_status.id"
+              >
+                {{ device_status.name }}
+              </option>
+            </select>
+            <span v-if="errors && errors.status_id" class="text-danger mt-2">{{
+              errors.status_id[0]
+            }}</span>
+          </div>
+        </div> -->
+      </div>
+      <v-row>
+        <v-col cols="12">
+          <div class="text-right">
+            <v-btn
+              small
+              :loading="loading"
+              color="primary"
+              @click="store_device"
+            >
+              Submit
+            </v-btn>
+          </div>
+        </v-col>
+      </v-row>
+    </v-navigation-drawer>
 
     <v-card class="mb-5 mt-2" elevation="0">
       <v-toolbar class="rounded-md" dense flat>
@@ -42,7 +249,7 @@
 
         <!-- <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
+        <!-- <v-btn
           x-small
           :ripple="false"
           text
@@ -50,7 +257,7 @@
           @click="toggleFilter()"
         >
           <v-icon dark>mdi-filter</v-icon>
-        </v-btn>
+        </v-btn> -->
         <!-- </template>
           <span>Filter</span>
         </v-tooltip> -->
@@ -71,6 +278,15 @@
         <!-- </template>
           <span>Sync Devices</span>
         </v-tooltip> -->
+        <v-btn
+          x-small
+          :ripple="false"
+          text
+          title="Add Device"
+          @click="addItem()"
+        >
+          <v-icon dark white>mdi-plus-circle</v-icon>
+        </v-btn>
       </v-toolbar>
 
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -93,7 +309,7 @@
         :options.sync="options"
         :server-items-length="totalRowsCount"
       >
-        <template v-slot:header="{ props: { headers } }">
+        <!-- <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
             <td
               style="width: 50px"
@@ -133,10 +349,17 @@
               </v-container>
             </td>
           </tr>
+        </template> -->
+        <template v-slot:item.sno="{ item, index }">
+          {{ ++index }}
         </template>
         <template v-slot:item.name="{ item }">
           {{ caps(item.name) }}
         </template>
+        <template v-slot:item.branch="{ item }">
+          {{ item.company_branch ? item.company_branch.branch_name : "---" }}
+        </template>
+
         <template v-slot:item.short_name="{ item }">
           {{ caps(item.short_name) }}
         </template>
@@ -146,20 +369,68 @@
         <template v-slot:item.device_id="{ item }">
           {{ item.device_id }}
         </template>
-        <template v-slot:item.device_type="{ item }">
-          {{ caps(item.device_type) }}
+        <template v-slot:item.function="{ item }">
+          <img :src="getFunctionIcon(item)" class="iconsize" />
         </template>
+
+        <template v-slot:item.device_type="{ item }">
+          <img :src="getDeviceIcon(item)" class="iconsize" />
+        </template>
+        <template v-slot:item.door_open="{ item }">
+          <img
+            style="cursor: pointer"
+            title="Click to Open Door"
+            @click="open_door(item.device_id)"
+            src="/icons/door_open.png"
+            class="iconsize"
+          />
+        </template>
+        <template v-slot:item.door_close="{ item }">
+          <img
+            style="cursor: pointer"
+            title="Click to Close Door"
+            @click="close_door(item.device_id)"
+            src="/icons/door_close.png"
+            class="iconsize"
+          />
+        </template>
+        <template v-slot:item.always_open="{ item }">
+          <img
+            style="cursor: pointer"
+            title="Click to Always Open settings"
+            @click="open_door_always(item.device_id)"
+            src="/icons/always_open.png"
+            class="iconsize"
+          />
+        </template>
+
+        <template v-slot:item.sync_date_time="{ item }">
+          <img
+            style="cursor: pointer"
+            title="Click Sync UTC Time"
+            @click="sync_date_time(item)"
+            src="/icons/sync_date_time.png"
+            class="iconsize"
+          />
+        </template>
+
+        <template v-slot:item.open_always="{ item }"> </template>
         <template v-slot:item.status_id="{ item }">
-          <v-chip
+          <img
+            @click="sync_date_time(item)"
+            :src="getDeviceStatusIcon(item)"
+            class="iconsize"
+          />
+          <!-- <v-chip
             small
             class="p-2 mx-1"
             :color="item.status.name == 'active' ? 'primary' : 'error'"
           >
             {{ item.status.name == "active" ? "online" : "offline" }}
-          </v-chip>
+          </v-chip> -->
         </template>
         <template v-slot:item.status="{ item }">
-          <v-chip
+          <!-- <v-chip
             small
             class="p-2"
             color="primary"
@@ -183,9 +454,9 @@
             @click="open_door_always(item.device_id)"
           >
             Close
-          </v-chip>
+          </v-chip> -->
         </template>
-        <template v-slot:item.sync_date_time="{ item }">
+        <!-- <template v-slot:item.sync_date_time="{ item }">
           <v-chip
             small
             class="p-2 mx-1"
@@ -198,6 +469,31 @@
                 : item.sync_date_time
             }}
           </v-chip>
+        </template> -->
+        <template v-slot:item.options="{ item }">
+          <v-menu bottom left>
+            <template v-slot:activator="{ on, attrs }">
+              <div class="text-right">
+                <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </div>
+            </template>
+            <v-list width="120" dense>
+              <v-list-item @click="editItem(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-pencil </v-icon>
+                  Edit
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="deleteItem(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="error" small> mdi-delete </v-icon>
+                  Delete
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </template>
       </v-data-table>
     </v-card>
@@ -205,11 +501,12 @@
 </template>
 <script>
 import Back from "../../components/Snippets/Back.vue";
-
+import timeZones from "../../defaults/utc_time_zones.json";
 export default {
   components: { Back },
 
   data: () => ({
+    editDialog: false,
     showFilters: false,
     filters: {},
     isFilter: false,
@@ -219,7 +516,19 @@ export default {
     snack: false,
     snackColor: "",
     snackText: "",
-
+    timeZones: timeZones,
+    payload: {
+      name: "",
+      device_type: "",
+      device_id: "",
+      model_number: "",
+      status_id: "",
+      company_id: "",
+      location: "",
+      short_name: "",
+      ip: "",
+      port: "",
+    },
     Model: "Device",
     pagination: {
       current: 1,
@@ -236,66 +545,128 @@ export default {
     total: 0,
     headers_table: [
       {
+        text: "Sno",
+        align: "left",
+        sortable: false,
+        value: "sno",
+        filterable: false,
+      },
+      {
         text: "Name",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "name",
-        filterable: true,
+        filterable: false,
       },
       {
         text: "Short Name",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "short_name",
-        filterable: true,
+        filterable: false,
       },
+      {
+        text: "Branch",
+        align: "left",
+        sortable: false,
+        value: "branch",
+        filterable: false,
+      },
+
       {
         text: "Location",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "location",
-        filterable: true,
+        filterable: false,
       },
       {
-        text: "Device Id",
+        text: "Time zone",
         align: "left",
-        sortable: true,
-        value: "device_id",
-        filterable: true,
+        sortable: false,
+        value: "utc_time_zone",
+        filterable: false,
+      },
+      {
+        text: "Model Number",
+        align: "left",
+        sortable: false,
+        value: "model_number",
+        filterable: false,
+      },
+
+      {
+        text: "Device Serial Number",
+        align: "left",
+        sortable: false,
+        value: "serial_number",
+        filterable: false,
+      },
+      {
+        text: "Function",
+        align: "left",
+        sortable: false,
+        value: "function",
+        filterable: false,
       },
       {
         text: "Type",
         align: "left",
-        sortable: true,
-        value: "device_type",
-        filterable: true,
-      },
-      {
-        text: "Status",
-        align: "center",
-        sortable: true,
-        value: "status_id",
-        filterable: true,
-        filterSpecial: true,
-      },
-      {
-        text: "Door",
-        align: "center",
         sortable: false,
-        value: "status",
+        value: "device_type",
+        filterable: false,
+      },
+      {
+        text: "Door Open",
+        align: "left",
+        sortable: false,
+        value: "door_open",
+        filterable: false,
+      },
+      {
+        text: "Door Close",
+        align: "left",
+        sortable: false,
+        value: "door_close",
+        filterable: false,
+      },
+      {
+        text: "Always Open",
+        align: "left",
+        sortable: false,
+        value: "always_open",
         filterable: false,
       },
       {
         text: "Time Sync",
         align: "left",
-        sortable: true,
+        sortable: false,
         value: "sync_date_time",
         filterable: false,
+      },
+      {
+        text: "Status",
+        align: "center",
+        sortable: false,
+        value: "status_id",
+        filterable: false,
+        filterSpecial: false,
+      },
+      {
+        text: "Options",
+        align: "center",
+        sortable: false,
+        value: "options",
+        filterable: false,
+        filterSpecial: false,
       },
     ],
     editedIndex: -1,
     response: "",
     errors: [],
+
+    device_statusses: [],
+    branches: [],
   }),
 
   computed: {
@@ -320,9 +691,23 @@ export default {
   created() {
     this.loading = true;
     this.getDataFromApi();
+    this.getBranches();
+    this.getDeviceStatus();
   },
 
   methods: {
+    getBranches() {
+      this.$axios
+        .get(`branch`, { company_id: this.$auth.user.company_id })
+        .then(({ data }) => {
+          this.branches = data.data;
+        });
+    },
+    getDeviceStatus() {
+      this.$axios.get(`device_status`).then(({ data }) => {
+        this.device_statusses = data.data;
+      });
+    },
     datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
@@ -500,6 +885,106 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
+
+    editItem(item) {
+      this.payload = {};
+      this.editedIndex = item.id;
+      this.payload = Object.assign({}, item);
+
+      this.editDialog = true;
+    },
+    addItem() {
+      this.payload = {};
+      this.editedIndex = 0;
+      this.editDialog = true;
+    },
+    store_device() {
+      let id = this.editedIndex;
+      let company_id = console.log(this.payload);
+      let payload = this.payload;
+
+      this.payload.company_id = this.$auth.user.company_id;
+      this.payload.status_id = 2;
+      this.payload.ip = "0.0.0.0";
+      this.payload.device_id = this.payload.serial_number;
+      this.payload.port = "0000";
+
+      delete this.payload.status;
+      delete this.payload.company;
+      delete this.payload.company_branch;
+
+      this.loading = true;
+      if (this.editedIndex == 0) {
+        this.$axios
+          .post(`/device`, payload)
+          .then(({ data }) => {
+            this.loading = false;
+            if (!data.status) {
+              this.errors = data.errors;
+            } else if (data.status == "device_api_error") {
+              this.errors = [];
+              this.snackbar = true;
+              this.response = "Check the Device information. There are errors.";
+            } else {
+              this.snackbar = true;
+              this.response = "Device details are  Created successfully";
+              this.getDataFromApi();
+              this.editDialog = false;
+            }
+          })
+          .catch((e) => console.log(e));
+      } else {
+        this.$axios
+          .put(`/device/${id}`, payload)
+          .then(({ data }) => {
+            this.loading = false;
+            if (!data.status) {
+              this.errors = data.errors;
+            } else if (data.status == "device_api_error") {
+              this.errors = [];
+              this.snackbar = true;
+              this.response = "Check the Device information. There are errors.";
+            } else {
+              this.snackbar = true;
+              this.response = "Device details are  updated successfully";
+              this.getDataFromApi();
+              this.editDialog = false;
+            }
+          })
+          .catch((e) => console.log(e));
+      }
+    },
+
+    getFunctionIcon(item) {
+      if (item.function == "auto") {
+        return "/icons/function_in_out.png";
+      } else if (item.function == "In") {
+        return "/icons/function_in.png";
+      } else if (item.function == "Out") {
+        return "/icons/function_out.png";
+      }
+    },
+    getDeviceIcon(item) {
+      if (item.device_type == "all") {
+        return "/icons/device_type_all.png";
+      } else if (item.device_type == "Access Control") {
+        return "/icons/device_type_attendance.png";
+      } else if (item.device_type == "Attendance") {
+        return "/icons/device_type_access_control.png";
+      }
+    },
+    getDeviceStatusIcon(item) {
+      if (item.status.name == "active") {
+        return "/icons/device_status_open.png";
+      } else {
+        return "/icons/device_status_open.png";
+      }
+    },
   },
 };
 </script>
+<style>
+.iconsize {
+  width: 30px;
+}
+</style>

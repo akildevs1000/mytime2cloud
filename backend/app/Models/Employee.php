@@ -24,7 +24,7 @@ class Employee extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
-    protected $appends = ['show_joining_date', 'edit_joining_date', 'full_name', 'name', 'name_with_user_id'];
+    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'full_name', 'name', 'name_with_user_id'];
 
     public function schedule()
     {
@@ -147,7 +147,13 @@ class Employee extends Model
         // return asset(env('BUCKET_URL') . '/' . $value);
 
     }
+    public function getProfilePictureRawAttribute()
+    {
+        $arr = explode('media/employee/profile_picture/', $this->profile_picture);
+        return    $arr[1] ?? '';
+        // return asset(env('BUCKET_URL') . '/' . $value);
 
+    }
     public function getCreatedAtAttribute($value): string
     {
         return date('d M Y', strtotime($value));

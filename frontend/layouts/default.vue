@@ -1046,4 +1046,10 @@ header i {
 .secondary-value {
   font-size: 12px;
 }
+
+.form-control:focus {
+  box-shadow: none !important;
+
+  /* height: 32px !important; */
+}
 </style>
