@@ -135,7 +135,7 @@
           <v-col md="2" sm="2">
             <div class="mb-2">&nbsp;</div>
             <v-btn @click="commonMethod()" color="primary" primary fill
-              >Gen Report
+              >Generate
             </v-btn>
           </v-col>
           <!--<v-col md="1">

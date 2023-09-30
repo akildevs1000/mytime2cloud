@@ -234,14 +234,14 @@
         $statusColor = '#f34100ed';
         }
 
-        $pic=$employee->employee->profile_picture;
+        $pic=getcwd() . '/no-profile-image.jpg';
 
-        if (env('APP_ENV') == 'local')
+        if( $employee->employee->profile_picture )
         {
-        $pic=getcwd() . '/no-profile-image.png';
-
+        $pic=getcwd() . '/media/employee/profile_picture/'.$employee->employee->profile_picture_raw;
 
         }
+
 
 
         @endphp
@@ -253,13 +253,15 @@
                     <div class="secondary-value">{{ $employee->day ?? '---' }}</div>
                 </td>
                 <td colspan="3">
-                    <div style="width:20px;float:left">
+
+                    <div style="width:20px;float:left; margin-right:5px">
                         <img style="
                   border-radius: 50%;
                   height: auto;
                   width: 20px;
+                 
                   
-                " src="{{ getcwd() . '/no-profile-image.jpg' }}" />
+                " src="{{  $pic }}" />
                     </div>
                     <div style="width:100px;float:left">
                         {{ $employee->employee->first_name   }} {{ $employee->employee->last_name   }}
@@ -300,7 +302,7 @@
                     <div style="float:left">
                         {{ $employee->late_coming  ?? '---' }}
                     </div>
-                </td colspan="2">
+                </td>
                 <td colspan="1">
                     <div style="float:left">
                         {{ $employee->early_going  ?? '---' }}
@@ -311,7 +313,7 @@
                 <td colspan="1" style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
                 <td colspan="1" style="text-align:  center; color:{{ $statusColor }}">
                     {{ $employee->status ?? '---' }}
-                </td> -->
+                </td>
 
             </tr>
         </tbody>
@@ -668,7 +670,7 @@
     }
 
     .secondary-value {
-        font-size: 8px;
+        font-size: 7px;
         padding-top: 5px;
     }
 </style>

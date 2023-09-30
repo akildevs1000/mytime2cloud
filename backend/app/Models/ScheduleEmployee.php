@@ -83,6 +83,6 @@ class ScheduleEmployee extends Model
 
     public function getEmployeesByType($shift_type_id)
     {
-        return self::where("shift_type_id", $shift_type_id)->with("shift")->get()->groupBy(["company_id", "employee_id"]);
+        return self::with("shift")->get()->groupBy(["company_id", "employee_id"]);
     }
 }

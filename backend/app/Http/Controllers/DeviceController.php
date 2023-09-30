@@ -17,7 +17,7 @@ class DeviceController extends Controller
     {
         $model = Device::query();
         $cols = $request->cols;
-        $model->with(['status', 'company']);
+        $model->with(['status', 'company', 'companyBranch']);
         $model->where('company_id', $request->company_id);
         $model->when($request->filled('name'), function ($q) use ($request) {
             $q->where('name', 'ILIKE', "$request->name%");
@@ -57,6 +57,9 @@ class DeviceController extends Controller
                 }
             }
         });
+
+        if (!$request->sortBy)
+            $model->orderBy("name", "ASC");
         return $model->paginate($request->per_page ?? 1000);
 
         //return $model->with(['status', 'company'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 1000);
@@ -212,6 +215,8 @@ class DeviceController extends Controller
 
     public function update(Device $Device, UpdateRequest $request)
     {
+
+
         try {
             $record = $Device->update($request->validated());
 

@@ -68,37 +68,37 @@ class Kernel extends ConsoleKernel
 
         foreach ($companyIds as $companyId) {
 
-            $schedule
-                ->command("task:generate_daily_report {$companyId} All")
-                // ->everyMinute()
-                ->dailyAt('03:45')
-                ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command("task:generate_daily_report {$companyId} All")
+            //     // ->everyMinute()
+            //     ->dailyAt('03:45')
+            //     ->runInBackground()
+            //     ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-            $schedule
-                ->command("task:generate_daily_report {$companyId} P")
-                // ->everyMinute()
-                ->dailyAt('03:45')
-                ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command("task:generate_daily_report {$companyId} P")
+            //     // ->everyMinute()
+            //     ->dailyAt('03:45')
+            //     ->runInBackground()
+            //     ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-            $schedule
-                ->command("task:generate_daily_report {$companyId} A")
-                // ->everyMinute()
-                ->dailyAt('03:45')
-                ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command("task:generate_daily_report {$companyId} A")
+            //     // ->everyMinute()
+            //     ->dailyAt('03:45')
+            //     ->runInBackground()
+            //     ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-            $schedule
-                ->command("task:generate_daily_report {$companyId} M")
-                // ->everyMinute()
-                ->dailyAt('03:45')
-                ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command("task:generate_daily_report {$companyId} M")
+            //     // ->everyMinute()
+            //     ->dailyAt('03:45')
+            //     ->runInBackground()
+            //     ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:send_whatsapp_notification {$companyId}")
