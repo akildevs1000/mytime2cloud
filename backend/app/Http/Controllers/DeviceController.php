@@ -57,6 +57,9 @@ class DeviceController extends Controller
                 }
             }
         });
+
+        if (!$request->sortBy)
+            $model->orderBy("name", "ASC");
         return $model->paginate($request->per_page ?? 1000);
 
         //return $model->with(['status', 'company'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 1000);

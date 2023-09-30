@@ -133,15 +133,13 @@
             <label class="col-form-label"> Device Serial Number</label>
             <span class="text-danger">*</span>
             <input
-              v-model="payload.serial_number"
+              v-model="payload.device_id"
               class="form-control"
               type="text"
             />
-            <span
-              v-if="errors && errors.serial_number"
-              class="text-danger mt-2"
-              >{{ errors.serial_number[0] }}</span
-            >
+            <span v-if="errors && errors.device_id" class="text-danger mt-2">{{
+              errors.device_id[0]
+            }}</span>
           </div>
         </div>
         <div class="col-sm-12">
@@ -646,7 +644,7 @@ export default {
         text: "Device Serial Number",
         align: "left",
         sortable: false,
-        value: "serial_number",
+        value: "device_id",
         filterable: false,
       },
       {
@@ -970,6 +968,7 @@ export default {
     editItem(item) {
       this.payload = {};
       this.editedIndex = item.id;
+
       this.payload = Object.assign({}, item);
 
       this.editDialog = true;
@@ -987,7 +986,7 @@ export default {
       this.payload.company_id = this.$auth.user.company_id;
       if (this.editedIndex == -1) this.payload.status_id = 2;
       this.payload.ip = "0.0.0.0";
-      this.payload.device_id = this.payload.serial_number;
+      this.payload.serial_number = this.payload.device_id;
       this.payload.port = "0000";
 
       delete this.payload.status;
