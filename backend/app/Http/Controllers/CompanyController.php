@@ -387,7 +387,7 @@ class CompanyController extends Controller
         $model->distinct('DeviceID');
         $model->where("company_id", 0);
         $model->take(1000);
-        $model->with("device:device_id,company_id");
+        $model->with("device:device_id,company_id,location");
         $rows = $model->get(["DeviceID"]);
 
         if (count($rows) == 0) {
@@ -401,7 +401,10 @@ class CompanyController extends Controller
             if ($arr["device"]) {
                 try {
                     $i++;
-                    AttendanceLog::where("DeviceID", $arr["DeviceID"])->update(["company_id" => $arr["device"]["company_id"] ?? 0]);
+                    AttendanceLog::where("DeviceID", $arr["DeviceID"])->update([
+                        "company_id" => $arr["device"]["company_id"] ?? 0,
+                        "gps_location" => $arr["device"]["location"]
+                    ]);
                 } catch (\Throwable $th) {
                     Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
 
