@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('[devices]', function (Blueprint $table) {
+        Schema::table('devices', function (Blueprint $table) {
             $table->dropForeign('devices_device_type_check');
         });
     }
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('[devices]', function (Blueprint $table) {
+        Schema::table('devices', function (Blueprint $table) {
             //
         });
     }
