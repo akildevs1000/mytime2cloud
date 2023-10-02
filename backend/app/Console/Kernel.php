@@ -4,10 +4,12 @@ namespace App\Console;
 
 use App\Models\AccessControlTimeSlot;
 use App\Models\Company;
+use App\Models\DeviceActivesettings;
 use App\Models\PayrollSetting;
 use App\Models\ReportNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Carbon;
 
 class Kernel extends ConsoleKernel
 {
@@ -21,31 +23,78 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
-        $devices = AccessControlTimeSlot::get();
+        // $devices = AccessControlTimeSlot::get();
 
-        foreach ($devices as $device) {
-            foreach ($device->json as $slot) {
+        // foreach ($devices as $device) {
+        //     foreach ($device->json as $slot) {
+
+        //         $schedule
+        //             ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+        //             // ->everyThirtyMinutes()
+        //             ->everyMinute()
+        //             ->dailyAt($slot["startTimeOpen"])
+        //             ->withoutOverlapping()
+        //             ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        //         $schedule
+        //             ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+        //             // ->everyThirtyMinutes()
+        //             ->everyMinute()
+        //             ->dailyAt($slot["endTimeOpen"])
+        //             ->withoutOverlapping()
+        //             ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //     }
+        // }
+
+        $devices = DeviceActivesettings::with('devices')->get();
+
+        $date = date('Y-m-d');
+
+        foreach ($devices as $key => $device) {
+            # code...
+
+            // Define the date range from January 1, 2023, to February 28, 2023
+            $startDate = Carbon::createFromFormat('Y-m-d', $device->date_from);
+            $endDate = Carbon::createFromFormat('Y-m-d', $device->date_to);
+
+            // Define an array of times
+
+
+
+            $open_json = $device->open_json;
+            $open_settings_array = json_decode($open_json);
+
+
+            foreach ($open_settings_array as $key => $value) {
 
                 $schedule
-                    ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
-                    // ->everyThirtyMinutes()
-                    ->everyMinute()
-                    ->dailyAt($slot["startTimeOpen"])
+                    ->command("task:AccessControlTimeSlots {$device->devices->device_id} HoldDoor")
+                    ->days([$key])
+                    ->between($startDate, $endDate)
+                    ->times([$value])
                     ->withoutOverlapping()
-                    ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                    ->appendOutputTo(storage_path("logs/$date-device_access-control-time-slot-logs.log"))
                     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            }
+
+            $close_json = $device->close_json;
+            $close_settings_array = json_decode($close_json);
+
+
+            foreach ($close_settings_array as $key => $value) {
 
                 $schedule
-                    ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
-                    // ->everyThirtyMinutes()
-                    ->everyMinute()
-                    ->dailyAt($slot["endTimeOpen"])
+                    ->command("task:AccessControlTimeSlots {$device->device->device_id} CloseDoor")
+                    ->days([$key])
+                    ->between($startDate, $endDate)
+                    ->times([$value])
                     ->withoutOverlapping()
-                    ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                    ->appendOutputTo(storage_path("logs/$date-device_access-control-time-slot-logs.log"))
                     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
         }
-
 
         // $schedule
         //     ->command('task:sync_attendance_logs')

@@ -6,8 +6,12 @@ use App\Http\Requests\Device\StoreRequest;
 use App\Http\Requests\Device\UpdateRequest;
 use App\Models\AttendanceLog;
 use App\Models\Device;
+use App\Models\DeviceActivesettings;
+use App\Models\DevicesActiveWeeklySettings;
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -347,5 +351,81 @@ class DeviceController extends Controller
             "labels" => ["Online", "Offline"],
             "series" => [$onlineDevices, $offlineDevices],
         ];
+    }
+    public function getActiveTimeSettings(Request $request, $key_id)
+    {
+        $model =  DeviceActivesettings::where('company_id', $request->company_id)
+            ->where('device_id', $key_id)
+            ->where('date_from', $request->date_from)
+            ->where('date_to', $request->date_to)
+            ->get();
+        $input_time_slots = $request->input_time_slots;
+
+        $open_array = [];
+        if (isset($model[0])) {
+
+            $open_json = $model[0]->open_json;
+            $open_array = json_decode($open_json, true);
+        }
+        $return_araay = [];
+
+        foreach ($open_array as $values) {
+
+            foreach ($values as $key => $val) {
+
+                $return_araay[] = $key . '-' . $key = array_search($val, $input_time_slots);
+            }
+        }
+
+
+        return $return_araay;
+    }
+    public function updateActiveTimeSettings(Request $request, $key_id)
+    {
+
+
+        $input_days = $request->input_days;
+        $input_time_slots = $request->input_time_slots;
+        $span_time_minutes = $request->span_time_minutes;
+
+        $selected_matrix = json_decode($request->selected_matrix);
+
+
+        $days_array = [];
+        $open_time_array = [];
+        $closing_time_array = [];
+
+        $input_strings = $selected_matrix; //["0-0", "1-1", "2-2", "3-3", "4-4", "5-5", "6-6", "0-2", "1-3", "2-4", "3-5", "4-6", "5-7", "6-8"];
+
+        $open_time_array = [];
+        $closing_time_array = [];
+
+        foreach ($input_strings as $string) {
+            list($key, $value) = explode('-', $string);
+            if (isset($input_time_slots[$value])) {
+                $newtimestamp = strtotime(date('Y-m-d ' . $input_time_slots[$value] . ':00 ') . '+ ' . $span_time_minutes . ' minute');
+                $close_time = date('H:i', $newtimestamp);
+
+                $open_time_array[] = ['' .  $key . '' => $input_time_slots[$value]]; //$key . '-' . $input_time_slots[$value];
+                $closing_time_array[] = ['' .  $key . '' => $close_time]; //$key . '-' . $input_time_slots[$value];
+
+            }
+        }
+
+
+
+        $devices_active_settings_array = [
+            'device_id' => $key_id, 'company_id' =>  $request->company_id, 'date_from' => $request->date_from, 'date_to' => $request->date_to,   'open_json' => json_encode($open_time_array), 'close_json' => json_encode($closing_time_array)
+        ];
+
+
+
+        $device_settings_id =  DeviceActivesettings::create($devices_active_settings_array)->id;
+
+        return Response::json([
+            'record' => $device_settings_id,
+            'message' => 'Successfully Updated.',
+            'status' => true
+        ], 200);
     }
 }

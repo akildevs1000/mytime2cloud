@@ -1,6 +1,30 @@
 <template>
   <div>
-    <div class="text-center ma-2">
+    <v-dialog
+      v-model="dialogAccessSettings"
+      width="90%"
+      style="background-color: #fff !important"
+    >
+      <v-card>
+        <v-card-title dense class="popup_background">
+          <span>Time selecction</span>
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogAccessSettings = false" outlined>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <DeviceAccessSettings
+              :key="popup_device_id"
+              :device_id="popup_device_id"
+              @closepopup="closepopup"
+            />
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <div class="text-center ma-5">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
       </v-snackbar>
@@ -372,19 +396,19 @@
             title="Auto (In and Out)"
             v-if="item.function == 'auto'"
             src="/icons/function_in_out.png"
-            style="width: 24px; margin-left: 7px; height: 35px"
+            style="width: 30px"
           />
           <img
             title="Only In"
             v-else-if="item.function == 'In'"
             src="/icons/function_in.png"
-            style="width: 25px; margin-left: 7px; height: 35px"
+            style="width: 30px"
           />
           <img
             title="Only Out"
             v-else-if="item.function == 'Out'"
             src="/icons/function_out.png"
-            style="width: 32px; margin-left: 0px; height: 36px"
+            style="width: 30px"
           />
         </template>
 
@@ -430,7 +454,7 @@
           <img
             style="cursor: pointer"
             title="Click to Always Open settings"
-            @click="open_door_always(item.device_id)"
+            @click="open_door_always(item.id)"
             src="/icons/always_open.png"
             class="iconsize30"
           />
@@ -545,12 +569,15 @@
   </div>
 </template>
 <script>
-import Back from "../../components/Snippets/Back.vue";
+// import Back from "../../components/Snippets/Back.vue";
 import timeZones from "../../defaults/utc_time_zones.json";
+import DeviceAccessSettings from "../../components/DeviceAccessSettings.vue";
 export default {
-  components: { Back },
+  components: { DeviceAccessSettings },
 
   data: () => ({
+    dialogAccessSettings: false,
+    popup_device_id: "",
     editDialog: false,
     showFilters: false,
     filters: {},
@@ -787,6 +814,11 @@ export default {
             this.response = data.message;
           });
     },
+    closepopup() {
+      this.snackbar = true;
+      this.response = "Device Time details are updated successfully";
+      this.dialogAccessSettings = false;
+    },
     getUTC_CurentTime(targetTimezone) {
       // Define the target time zone
       //const targetTimezone = "America/New_York";
@@ -842,15 +874,18 @@ export default {
         });
     },
     open_door_always(device_id) {
-      let options = {
-        params: { device_id },
-      };
+      this.popup_device_id = device_id;
+      this.dialogAccessSettings = true;
 
-      this.$axios.get(`open_door_always`, options).then(({ data }) => {
-        this.snackbar = true;
-        this.response = data.message;
-        this.getDataFromApi();
-      });
+      /////////// this.$router.push(`/device/time_settings/${device_id}`);
+      // let options = {
+      //   params: { device_id },
+      // };
+      // this.$axios.get(`open_door_always`, options).then(({ data }) => {
+      //   this.snackbar = true;
+      //   this.response = data.message;
+      //   this.getDataFromApi();
+      // });
     },
     close_door(device_id) {
       let options = {
@@ -1081,3 +1116,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.v-dialog {
+  background-color: #fff;
+}
+</style>
