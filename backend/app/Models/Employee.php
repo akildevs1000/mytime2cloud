@@ -207,6 +207,11 @@ class Employee extends Model
         return $this->hasMany(Attendance::class, "employee_id", "employee_id");
     }
 
+    public function attendance_logs()
+    {
+        return $this->hasMany(AttendanceLog::class, "UserID", "system_user_id");
+    }
+
     public function announcement()
     {
         return $this->belongsToMany(Announcement::class)->withTimestamps();
@@ -378,5 +383,26 @@ class Employee extends Model
         }
 
         return $model;
+    }
+    public function attendanceEmployee($params)
+    {
+        $employees = Employee::query();
+        $employees->where("company_id", $params["company_id"]);
+        $employees->withOut(["department", "sub_department", "designation"]);
+        $employees->whereHas("attendance_logs", function ($q) use ($params) {
+            $q->where("company_id", $params["company_id"]);
+            $q->whereDate("LogTime", $params["date"]);
+            $q->where("checked", false);
+        });
+
+        $employees->with(["schedule" => function ($q) use ($params) {
+            $q->where("company_id", $params["company_id"]);
+            $q->where("to_date", ">=", $params["date"]);
+            $q->orderBy("to_date", "asc");
+            $q->withOut("shift_type");
+            $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
+        }]);
+
+        return $employees->get(["system_user_id"]);
     }
 }
