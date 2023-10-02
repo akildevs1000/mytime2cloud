@@ -238,7 +238,7 @@ export default {
 
 <style>
 .mx-input {
-  height: 45px !important;
+  height: 35px !important;
   border: 1px solid #9e9e9e !important;
   color: black !important;
 }
