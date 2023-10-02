@@ -251,7 +251,7 @@ class Attendance extends Model
             $model->delete();
             $model->insert($payload);
             AttendanceLog::whereIn("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
-            return "($script Shift) " . $date->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($employee_ids);
+            return "($script Shift) " . $date->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($employee_ids) . " Affected Company_id Ids: " . json_encode($company_ids);
         } catch (\Throwable $e) {
             return $e->getMessage();
         }

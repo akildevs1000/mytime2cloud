@@ -398,6 +398,8 @@ class Employee extends Model
         $employees->with(["schedule" => function ($q) use ($params) {
             $q->where("company_id", $params["company_id"]);
             $q->where("to_date", ">=", $params["date"]);
+            $q->where("shift_type_id", $params["shift_type_id"]);
+
             $q->orderBy("to_date", "asc");
             $q->withOut("shift_type");
             $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
