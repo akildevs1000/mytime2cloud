@@ -33,7 +33,7 @@ class SyncFiloShift extends Command
     public function handle()
     {
         try {
-            echo (new FiloShiftController)->render();
+            echo (new FiloShiftController)->render() . "\n";
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncFiloShift. Error Details: ' . $th);
             $date = date("Y-m-d H:i:s");
