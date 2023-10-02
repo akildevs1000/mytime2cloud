@@ -243,7 +243,7 @@ class Kernel extends ConsoleKernel
             // ->hourly()
             ->everyMinute()
             ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-logs.log"))
+            ->appendOutputTo(storage_path("logs/$date-filo-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule

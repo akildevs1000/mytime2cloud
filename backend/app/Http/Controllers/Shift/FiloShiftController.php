@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
+use App\Models\Employee;
 use App\Models\ScheduleEmployee;
 
 class FiloShiftController extends Controller
@@ -18,10 +19,13 @@ class FiloShiftController extends Controller
             "date" => new \DateTime($this->getCurrentDate()),
             "company_ids" => [],
             "employee_ids" => [],
-            "employeesByType" => (new ScheduleEmployee)->getEmployeesByType(self::SHIFTYPE),
+            "employeesByType" => (new ScheduleEmployee)->getEmployeesByType(self::SHIFTYPE, $this->getCurrentDate()),
         ];
 
         $payload = $this->prepareAttendanceRecords($params);
+
+        // return json_encode($payload);
+
 
         $arr[] =  (new Attendance)->startDBOperation($params["date"], "Filo", $payload);
 
@@ -46,24 +50,39 @@ class FiloShiftController extends Controller
         $params = [
             "company_ids" => $company_ids,
             "employee_ids" => $employee_ids,
-            "employeesByType" => (new ScheduleEmployee)->getEmployeesByType(self::SHIFTYPE),
         ];
 
-
-        while ($startDate <= $currentDate && $startDate <= $endDate) {
+        while ($startDate <= $endDate) {
 
             $params["date"] = $startDate;
 
-            $payload = $this->prepareAttendanceRecords($params);
+            $employees = (new Employee)->getEmployees($params);
+            $params["logs"] = (new AttendanceLog)->getLogsByUser($params);
 
-            $arr[] =  (new Attendance)->startDBOperation($params["date"], "Filo", $payload);
+            $items = [];
+
+            foreach ($employees as $row) {
+                if ($row->schedule->shift_type_id == 6) {
+                    $items[] = $this->processSingle($row, $params);
+                }
+                if ($row->schedule->shift_type_id == 1) {
+                    $items[] = $this->processFilo($row, $params);
+                }
+            }
+
+            // return array_values($items);
+
+            // return $payload = $this->prepareAttendanceRecords($params);
+
+            $arr[] = $items;
+
+            // $arr[] =  (new Attendance)->startDBOperation($params["date"], "Filo", $payload);
 
             $startDate->modify('+1 day');
         }
 
         return $arr;
     }
-
 
     public function prepareAttendanceRecords($params)
     {
@@ -86,6 +105,10 @@ class FiloShiftController extends Controller
             $firstLog = $filteredLogs->first();
             $lastLog = $filteredLogs->last();
 
+            if (count($filteredLogs) == 1 && $lastLog["log_type"] == "out") {
+                continue;
+            }
+
             $arr = [];
 
             $schedule = $params["employeesByType"][$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0] ?? false;
@@ -103,19 +126,24 @@ class FiloShiftController extends Controller
             $arr = [
                 "total_hrs" => "---",
                 "out" => "---",
+                "in" => "---",
                 "ot" => "---",
+                "device_id_in" => "---",
+                "device_id_out" => "---",
                 "date" => $params["date"]->format('Y-m-d'),
                 "company_id" => $companyIdWithUserId->company_id,
                 "employee_id" => $companyIdWithUserId->UserID,
                 "shift_id" => $schedule["shift_id"],
                 "shift_type_id" => self::SHIFTYPE,
-                "device_id_in" => $firstLog["DeviceID"],
-                "device_id_out" => $firstLog["DeviceID"],
-                "in" => $firstLog["time"],
                 "status" => "M",
             ];
 
-            if (count($filteredLogs) > 1) {
+            if ($firstLog && $firstLog["log_type"] == "in") {
+                $arr["in"] = $firstLog["time"];
+                $arr["device_id_in"] = $firstLog["DeviceID"];
+            }
+
+            if ($lastLog && $lastLog["log_type"] == "out" && count($filteredLogs) > 1) {
                 $arr["status"] = "P";
                 $arr["device_id_out"] = $lastLog["DeviceID"];
                 $arr["out"] = $lastLog["time"];
