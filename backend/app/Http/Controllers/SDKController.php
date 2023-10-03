@@ -20,6 +20,8 @@ class SDKController extends Controller
             ->get();
 
         $timezoneIDArray = $timezones->pluck('timezone_id');
+
+        return  $timezoneIDArray;
         $jsonArray = $timezones->pluck('json')->toArray();
 
         $TimezoneDefaultJson = TimezoneDefaultJson::query();
@@ -245,6 +247,8 @@ class SDKController extends Controller
     }
     public function getDevicesCountForTimezone(Request $request)
     {
+
+
         return Device::where('company_id', $request->company_id)->pluck('device_id');
     }
 

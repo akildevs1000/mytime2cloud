@@ -36,10 +36,12 @@ class UpdateRequest extends FormRequest
 
         return [
             'timezone_name' => ['required', 'min:4', 'max:20'],
-            'timezone_id' => ['required'],
+            // 'timezone_id' => ['required'],
             'interval' => ['required', 'array'],
             'scheduled_days' => ['required', 'array'],
             'company_id' => 'required',
+            "intervals_raw_data" => 'nullable',
+            "description" => 'nullable'
         ];
     }
 }

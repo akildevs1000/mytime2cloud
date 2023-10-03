@@ -5,47 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="dialogManualInput" width="300px">
-      <v-card>
-        <v-card-title dense class="popup_background">
-          <span>Select Hour Range</span>
-          <v-spacer></v-spacer>
-          <v-icon @click="dialogManualInput = false" outlined>
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
-
-        <v-card-text>
-          <v-container style="min-height: 100px">
-            <v-row>
-              <v-col md="6">
-                <v-select
-                  height="20px"
-                  outlined
-                  v-model="dialog_time_start"
-                  dense
-                  :items="seasons"
-                ></v-select>
-              </v-col>
-              <v-col md="6">
-                <v-select
-                  outlined
-                  v-model="dialog_time_end"
-                  dense
-                  :items="seasons"
-                ></v-select>
-              </v-col>
-
-              <v-spacer></v-spacer>
-              <v-btn dark color="violet" fill @click="selectTimeRange()"
-                >Update</v-btn
-              >
-            </v-row>
-          </v-container>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <v-dialog persistent v-model="dialog" width="80%" :key="editedIndex">
+    <v-dialog persistent v-model="dialog" max-width="1100">
       <v-card>
         <v-card-title dense class="popup_background">
           <span> {{ Module }}</span>
@@ -57,32 +17,24 @@
         <v-card-text class="mt-2">
           <v-row>
             <v-col>
-              <v-text-field
-                dense
-                small
-                placeholder="Timezone Name"
-                label="Timezone Name"
-                width="80px"
+              <input
                 style="padding-top: 8px"
+                class="form-control"
                 v-model="editedItem.timezone_name"
-                outlined
-              ></v-text-field>
+              />
               <span
                 class="error--text"
-                v-if="errors && errors.timezone_name && errors.timezone_name[0]"
+                v-if="errors.timezone_name && errors.timezone_name[0]"
               >
                 {{ errors.timezone_name[0] }}
               </span>
             </v-col>
-            <!-- <v-col>
+            <v-col>
               <select
-                width="100px"
                 @change="setDefault(editedItem.timezone_id)"
                 class="form-select"
                 v-model="editedItem.timezone_id"
-                :error-messages="
-                  errors && errors.timezone_id && errors.timezone_id[0]
-                "
+                :error-messages="errors.timezone_id && errors.timezone_id[0]"
               >
                 <option disabled selected>Timezone Id</option>
                 <option v-for="n in 64" :key="n" :value="n">
@@ -93,83 +45,15 @@
               </select>
               <span
                 class="error--text"
-                v-if="errors && errors.timezone_id && errors.timezone_id[0]"
+                v-if="errors.timezone_id && errors.timezone_id[0]"
               >
                 {{ errors.timezone_id[0] }}
               </span>
-            </v-col> -->
-            <v-col>
-              <v-text-field
-                dense
-                small
-                outlined
-                label="Description"
-                placeholder="Description"
-                width="150px"
-                style="padding-top: 8px"
-                v-model="editedItem.description"
-              ></v-text-field>
-              <span
-                class="error--text"
-                v-if="errors && errors.description && errors.description[0]"
-              >
-                {{ errors.description[0] }}
-              </span>
-            </v-col>
-            <v-col md="4" style="float: right; text-align: right">
-              <v-btn
-                small
-                dense
-                dark
-                color="violet"
-                fill
-                @click="clearSelection()"
-              >
-                Cancel
-              </v-btn>
-              <v-btn small dense dark color="violet" fill @click="submit"
-                >Submit</v-btn
-              >
             </v-col>
           </v-row>
         </v-card-text>
+
         <v-card-text>
-          <table style="width: 100%">
-            <thead>
-              <tr>
-                <th></th>
-                <th v-for="slot in timeSlots" :key="slot" class="settings-time">
-                  {{ slot }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(day, index) in days" :key="index">
-                <td>{{ day.name }}</td>
-                <td
-                  v-for="(slot, slotIndex) in timeSlots"
-                  :key="slot"
-                  @click="toggleCellBackground(index, slotIndex)"
-                  :class="
-                    selectedCells.has(index + '-' + slotIndex)
-                      ? 'tdcell selected'
-                      : 'tdcell un-selected'
-                  "
-                  :id="`cell_${index}_${slotIndex}`"
-                ></td>
-                <td>
-                  <img
-                    @click="manualINputSettings(index)"
-                    title="Manual Input"
-                    src="/../../icons/always_open.png"
-                    style="width: 33px; pointer: cursor"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </v-card-text>
-        <!-- <v-card-text>
           <table style="width: 100%">
             <thead>
               <tr class="popup_background popup_title" dark>
@@ -256,17 +140,14 @@
               </tr>
             </tbody>
           </table>
-        </v-card-text> -->
+        </v-card-text>
 
         <v-card-actions v-if="!readOnly">
-          <!-- <v-btn small color="background white--text" @click="reset"
+          <v-btn small color="background white--text" @click="reset"
             >Reset</v-btn
-          > 
+          >
           <v-spacer></v-spacer>
-          <v-btn dense dark color="violet" fill @click="clearSelection()">
-            Cancel
-          </v-btn>
-          <v-btn small color="violet" @click="submit">Submit</v-btn>-->
+          <v-btn small color="primary" @click="submit">Submit</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -407,46 +288,13 @@
         }"
         class="elevation-1"
       >
-        <template v-slot:item.sno="{ item, index }">
-          {{ ++index }}
-        </template>
         <template v-slot:item.timezone_id="{ item }">
           {{ item.timezone_id }}
         </template>
         <template v-slot:item.timezone_name="{ item }">
-          {{ item && item.timezone_name }}
+          {{ item.timezone_name }}
         </template>
-        <template v-slot:item.member="{ item }">
-          <v-avatar
-            v-if="
-              item.employee_device &&
-              item.employee_device.employee_ids.length > 0
-            "
-            size="40"
-            style="color: #fff"
-            color="violet"
-          >
-            {{
-              item.employee_device && item.employee_device.employee_ids.length
-            }}
-          </v-avatar>
-        </template>
-        <template v-slot:item.device="{ item }">
-          <v-avatar
-            v-if="
-              item.employee_device && item.employee_device.device_ids.length > 0
-            "
-            size="40"
-            style="color: #fff"
-            color="violet"
-          >
-            {{ item.employee_device && item.employee_device.device_ids.length }}
-          </v-avatar>
-        </template>
-        <template v-slot:item.description="{ item }">
-          {{ item && item.description }}
-        </template>
-        <!-- <template v-slot:item.days="{ item }">
+        <template v-slot:item.days="{ item }">
           <v-btn
             style="cursor: text"
             v-for="({ day, isScheduled }, idx) in item.scheduled_days"
@@ -460,7 +308,7 @@
               day
             }}</span>
           </v-btn>
-        </template> -->
+        </template>
         <template v-slot:item.menu="{ item }">
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
@@ -511,22 +359,6 @@ let days = [
 export default {
   components: { Back },
   data: () => ({
-    snackbar: false,
-    response: "",
-    dialog_time_start: "",
-
-    dialog_time_end: "",
-    dialogManualInput: false,
-    seasons: [
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      21, 22, 23, 24,
-    ],
-    span_time_minutes: 30,
-
-    timeSlots: {}, // Generate time slots for 24 hours with 30-minute intervals
-    selectedCells: new Set(),
-    array: [],
-
     snack: false,
     snackColor: "",
     snackText: "",
@@ -553,12 +385,12 @@ export default {
     response: "",
     data: [],
     dayBoxes: [],
-    errors: {},
+    errors: [],
 
     days,
     editedItem: {
       timezone_id: "",
-      timezone_name: "Timezone Name",
+      timezone_name: "Timzone Name",
       interval: [
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
@@ -571,7 +403,7 @@ export default {
     },
     defaultItem: {
       timezone_id: "",
-      timezone_name: "Timezone Name",
+      timezone_name: "Timzone Name",
       interval: [
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
@@ -584,47 +416,25 @@ export default {
     },
     headers_table: [
       {
-        text: "#",
+        text: "Timezone ID",
         align: "left",
-        sortable: false,
-        key: "sno",
-        value: "sno",
+        sortable: true,
+        key: "timezone_id",
+        value: "timezone_id",
       },
-
       {
-        text: "Zone",
+        text: "Timezone Name",
         align: "left",
         sortable: true,
         key: "timezone_name",
         value: "timezone_name",
       },
       {
-        text: "Member",
-        align: "left",
-        sortable: true,
-        key: "member",
-        value: "member",
-      },
-      {
-        text: "Device",
-        align: "left",
-        sortable: true,
-        key: "device",
-        value: "device",
-      },
-      {
-        text: "Description",
-        align: "left",
-        sortable: true,
-        key: "description",
-        value: "description",
-      },
-      {
-        text: "Created",
+        text: "Days",
         align: "left",
         sortable: false,
-        key: "updated_at",
-        value: "updated_at",
+        key: "days",
+        value: "days",
       },
       {
         text: "Actions",
@@ -644,7 +454,7 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
-      this.errors = {};
+      this.errors = [];
       this.search = "";
     },
     options: {
@@ -665,7 +475,6 @@ export default {
     },
   },
   created() {
-    this.timeSlots = this.generateTimeSlots(24);
     this.loading = true;
     this.loading_dialog = true;
 
@@ -678,87 +487,6 @@ export default {
   },
 
   methods: {
-    manualINputSettings(day_index) {
-      this.day_index = day_index;
-      this.dialogManualInput = true;
-    },
-    generateTimeSlots(hours) {
-      let interval = 30; // this.span_time_minutes;
-      this.span_time_minutes = 30;
-      const timeSlots = [];
-      for (let hour = 0; hour < hours; hour++) {
-        for (let minute = 0; minute < 60; minute += interval) {
-          const formattedHour = `${hour.toString().padStart(2, "0")}:${minute
-            .toString()
-            .padStart(2, "0")}`;
-          timeSlots.push(formattedHour);
-        }
-      }
-      return timeSlots;
-    },
-    generateTimeSlotsRange(start, end) {
-      let interval = 30; // this.span_time_minutes;
-      this.span_time_minutes = 30;
-      const timeSlots = [];
-      for (let hour = start; hour < end; hour++) {
-        for (let minute = 0; minute < 60; minute += interval) {
-          const formattedHour = `${hour.toString().padStart(2, "0")}:${minute
-            .toString()
-            .padStart(2, "0")}`;
-          timeSlots.push(formattedHour);
-        }
-      }
-      return timeSlots;
-    },
-    selectTimeRange() {
-      let timeArray = this.generateTimeSlotsRange(
-        this.dialog_time_start,
-        this.dialog_time_end
-      );
-      timeArray.forEach((element) => {
-        let columnIndex = this.timeSlots.findIndex((item) => item == element);
-
-        this.toggleCellBackground(this.day_index, columnIndex, true);
-      });
-      this.dialogManualInput = false;
-    },
-    toggleCellBackground(rowIndex, columnIndex, isPopup = false) {
-      const refName = `cell_${rowIndex}_${columnIndex}`;
-      const printableContent = document.getElementById(refName);
-
-      const key = `${rowIndex}-${columnIndex}`;
-
-      if (this.selectedCells.has(key)) {
-        if (!isPopup) {
-          this.selectedCells.delete(key);
-          if (printableContent) {
-            printableContent.classList.add("un-selected");
-            printableContent.classList.remove("selected");
-          }
-
-          // printableContent.style.backgroundColor = "#DDD";
-        }
-      } else {
-        this.selectedCells.add(key);
-
-        if (printableContent) {
-          printableContent.classList.add("selected");
-          printableContent.classList.remove("un-selected");
-        }
-      }
-    },
-    isSelected(rowIndex, columnIndex) {
-      return this.selectedCells.has(`${rowIndex}-${columnIndex}`);
-    },
-    clearSelection() {
-      const elementsArray = document.getElementsByClassName("tdcell");
-
-      elementsArray.forEach((element, index, array) => {
-        element.classList.remove("selected");
-        element.classList.add("un-selected");
-      });
-      this.selectedCells = new Set();
-    },
     datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
@@ -777,14 +505,12 @@ export default {
       this.getDataFromApi();
     },
     addItem() {
-      this.clearSelection();
       this.dialog = true;
       this.readOnly = false;
       this.editedIndex = -1;
       this.editedItem = this.defaultItem;
     },
     viewItem(item) {
-      this.clearSelection();
       this.dialog = true;
       this.readOnly = true;
       this.editedIndex = this.data.indexOf(item);
@@ -794,17 +520,6 @@ export default {
       this.dialog = true;
       this.readOnly = false;
       this.editedIndex = this.data.indexOf(item);
-      console.log(item);
-
-      this.clearSelection();
-
-      let intervals_raw_data = JSON.parse(item.intervals_raw_data);
-
-      intervals_raw_data.forEach((element) => {
-        console.log(element);
-        const myArray = element.split("-");
-        this.toggleCellBackground(myArray[0], myArray[1]);
-      });
       // let json = item.interval;
       // for (let day in json) {
       //   for (let interval in json[day]) {
@@ -820,15 +535,6 @@ export default {
       // }
 
       this.editedItem = Object.assign({}, item);
-    },
-    clearSelection() {
-      const elementsArray = document.getElementsByClassName("tdcell");
-
-      elementsArray.forEach((element, index, array) => {
-        element.classList.remove("selected");
-        element.classList.add("un-selected");
-      });
-      this.selectedCells = new Set();
     },
     showShortDays(days) {
       let arr = [];
@@ -871,8 +577,6 @@ export default {
         return;
       }
       this.syncDeviceDialog = true;
-
-      this.editedItem.company_id = this.$auth.user.company_id;
 
       try {
         let endpoint = "getDevicesCountForTimezone";
@@ -994,18 +698,8 @@ export default {
     },
     submit() {
       let sortedDays = this.showShortDays(this.editedItem.interval);
-
-      console.log(sortedDays);
       this.editedItem["scheduled_days"] = sortedDays;
-
       this.editedItem.company_id = this.$auth.user.company_id;
-
-      const myArray = Array.from(this.selectedCells);
-      const jsonString = JSON.stringify(myArray);
-
-      this.editedItem.intervals_raw_data = jsonString;
-
-      this.editedItem.input_time_slots = this.timeSlots;
 
       return this.editedIndex === -1 ? this.store() : this.update();
     },
@@ -1061,7 +755,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .circle-btn-grey {
   border-radius: 50%;
@@ -1073,7 +766,7 @@ export default {
   border: 1px solid #5fafa3;
 }
 
-/* table {
+table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
@@ -1084,60 +777,13 @@ th {
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
-} */
+}
 
-/* tr:nth-child(even) {
+tr:nth-child(even) {
   background-color: #dddddd;
-} */
+}
 
 /* input[type="time"]::-webkit-datetime-edit-ampm-field {
   display: none;
 } */
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  overflow: auto;
-}
-th {
-  font-size: 13px;
-  font-weight: 300;
-}
-th:nth-child(even) {
-  font-weight: bold;
-}
-th,
-td {
-  border: 1px solid #dddddd;
-  text-align: center;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
-.un-selected {
-  background-color: #ddd;
-  border: 1px solid #fff;
-}
-.selected {
-  background-color: #60ad60;
-  border: 1px solid #fff;
-}
-.selected-cell {
-  background-color: green; /* Change this color to the desired highlight color */
-}
-
-/*#60ad60 */
-
-.settings-time {
-  font-size: 10px;
-}
-.v-input__control .v-input__slot,
-.v-input__slot,
-input {
-  min-height: auto !important;
-  display: flex !important;
-  align-items: center !important;
-}
 </style>

@@ -17,18 +17,56 @@ class TimezoneController extends Controller
     }
     public function index(Request $request)
     {
-        return Timezone::where('company_id', $request->company_id)->where("is_default", false)->paginate($request->per_page ?? 100);
+        return Timezone::with(["employee_device"])->where('company_id', $request->company_id)->where("is_default", false)->orderby("timezone_id", "asc")->paginate($request->per_page ?? 100);
     }
 
     public function getTimezoneJson(Request $request)
     {
         return Timezone::where('company_id', $request->company_id)->pluck("json");
     }
+    public function getNextAvaialbleTimezoneid($request)
+    {
 
+        $existingTimezoneIdsArray = Timezone::where("company_id", $request->company_id)->pluck("timezone_id");
+
+        $allTimezoneIds = [];
+        $aleadyExist = [];
+
+        $nextAvaialbe_id = '';
+        for ($i = 2; $i < 64; $i++) {
+            $allTimezoneIds[] = $i;
+        }
+        foreach ($existingTimezoneIdsArray as  $value) {
+            $aleadyExist[] = $value;
+        }
+
+
+        $elements_not_in_array = array_diff($allTimezoneIds, $aleadyExist);
+
+
+
+        return $elements_not_in_array;
+    }
     public function store(StoreRequest $request)
     {
 
         $data = $request->validated();
+        $availalbeTimezoneIds = $this->getNextAvaialbleTimezoneid($request);
+
+
+        $firstValue = reset($availalbeTimezoneIds);
+
+
+        if (count($availalbeTimezoneIds)) {
+            $data["timezone_id"] = $firstValue;
+        } else {
+            return $this->response('Timezone limit reached', null, false);
+        }
+
+
+
+
+
         $data["scheduled_days"] = $this->processSchedule($data["scheduled_days"], false);
         $data["json"] = $this->processJson($request->timezone_id, $data["interval"], false);
 
@@ -44,8 +82,69 @@ class TimezoneController extends Controller
     {
         return $timezone->find();
     }
+    public function getNewJsonIntervaldata(Request $request)
+    {
 
+
+        $intervals_raw_data = $request->intervals_raw_data;
+        $input_time_slots = $request->input_time_slots;
+        $inerval_array = [];
+        $intervals_raw_data = json_decode($intervals_raw_data);
+        $counter = 1;
+        foreach ($intervals_raw_data as $value) {
+            list($day, $hour) = explode('-', $value);
+
+
+            $open_time = $input_time_slots[$hour];
+            $newtimestamp = strtotime(date('Y-m-d ' . $open_time . ':00 ') . '+ 30 minute');
+
+            $close_time = date('H:i', $newtimestamp);
+            // $test['interval'] = ["begin" => $open_time, "end" => $close_time];
+            $inerval_array[$day]['interval' . $counter] =   ["begin" => $open_time, "end" => $close_time];
+            $counter++;
+        }
+        $final_array = [];
+
+
+        for ($i = 0; $i <= 6; $i++) {
+            if (isset($inerval_array[$i]))
+                $final_array[] = $inerval_array[$i];
+            else
+                $final_array[] = [];
+        }
+
+        return $final_array;
+    }
     public function update(UpdateRequest $request, Timezone $timezone)
+    {
+        $data = $request->validated();
+
+        $final_array = $this->getNewJsonIntervaldata($request);
+
+        ///---------------------------overiding interval
+        $data["interval"] = $final_array;
+
+
+        $data["scheduled_days"] = $this->processSchedule($data["scheduled_days"], false);
+        $data["json"] = $this->processJson($request->timezone_id, $data["interval"], false);
+
+
+
+
+        try {
+
+            $record = $timezone->update($data);
+
+            if ($record) {
+                return $this->response('Timezone Successfully updated.', $record, true);
+            } else {
+                return $this->response('Timezone cannot create.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function update_old(UpdateRequest $request, Timezone $timezone)
     {
         $data = $request->validated();
         $data["scheduled_days"] = $this->processSchedule($data["scheduled_days"], false);
@@ -94,6 +193,19 @@ class TimezoneController extends Controller
         return $arr;
     }
     public function processTimeFrames($interval, $isDefault = false)
+    {
+        $arr = [];
+
+        for ($i = 1; $i <= 48; $i++) {
+            if (isset($interval['interval' . $i]) && count($interval['interval' . $i]) > 0 && !$isDefault) {
+                $arr[] = $interval['interval' . $i];
+            } else {
+                $arr[] = ["begin" => "00:00", "end" => "00:00"];
+            }
+        }
+        return $arr;
+    }
+    public function processTimeFrames_old($interval, $isDefault = false)
     {
         $arr = [];
 

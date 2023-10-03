@@ -15,10 +15,14 @@ class Timezone extends Model
     {
         return $this->belongsTo(Company::class);
     }
-
+    public function employee_device()
+    {
+        return $this->belongsTo(EmployeeTimezoneMapping::class, 'timezone_id', 'timezone_id');
+    }
     protected $casts = [
         "interval" => "array",
         "scheduled_days" => "array",
         "json" => "array",
+        'updated_at' => 'datetime:d-M-y',
     ];
 }

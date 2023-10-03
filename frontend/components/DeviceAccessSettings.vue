@@ -26,10 +26,6 @@
                   dense
                   :items="seasons"
                 ></v-select>
-                <!-- <TimePickerCommon
-                    label="Start Time"
-                    @getTime="(value) => (dialog_time_start = value)"
-                  />-->
               </v-col>
               <v-col md="6">
                 <v-select
@@ -38,23 +34,8 @@
                   dense
                   :items="seasons"
                 ></v-select>
-                <!-- <TimePickerCommon
-                    label="End Time"
-                    @getTime="(value) => (dialog_time_end = value)"
-                  /> -->
               </v-col>
-              <!-- <v-range-slider
-                    :tick-labels="seasons"
-                    :value="[0, 1]"
-                    min="0"
-                    max="24"
-                    ticks="always"
-                    tick-size="4"
-                  >
-                    <template v-slot:thumb-label="props">
-                      <v-icon dark> props.value </v-icon>
-                    </template>
-                  </v-range-slider> -->
+
               <v-spacer></v-spacer>
               <v-btn dark color="violet" fill @click="selectTimeRange()"
                 >Update</v-btn
@@ -272,17 +253,13 @@ export default {
             console.log(element);
             const myArray = element.split("-");
             this.toggleCellBackground(myArray[0], myArray[1]);
-
-            // this.selectedCells.add(element);
           });
-
-          console.log(this.selectedCells);
         });
     },
     selectTimeRange() {
       let timeArray = this.generateTimeSlotsRange(
         this.dialog_time_start,
-        this.dialog_time_end + 1
+        this.dialog_time_end
       );
       timeArray.forEach((element) => {
         let columnIndex = this.timeSlots.findIndex((item) => item == element);
