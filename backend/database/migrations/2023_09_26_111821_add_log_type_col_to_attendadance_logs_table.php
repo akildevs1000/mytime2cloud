@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('attendance_logs', function (Blueprint $table) {
-            $table->string("log_type")->default("Auto");
+            $table->string("log_type")->nullable();
         });
     }
 
