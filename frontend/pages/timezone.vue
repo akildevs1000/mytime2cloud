@@ -789,11 +789,12 @@ export default {
       this.editedItem = Object.assign({}, item);
     },
     editItem(item) {
+      this.editedItem = Object.assign({}, item);
       this.dialog = true;
       this.readOnly = false;
       this.editedIndex = this.data.indexOf(item);
       console.log(item);
-
+      this.editedItem = Object.assign({}, item);
       this.clearSelection();
 
       let intervals_raw_data = JSON.parse(item.intervals_raw_data);
@@ -816,8 +817,6 @@ export default {
       //     }
       //   }
       // }
-
-      this.editedItem = Object.assign({}, item);
     },
     clearSelection() {
       const elementsArray = document.getElementsByClassName("tdcell");
