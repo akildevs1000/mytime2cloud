@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('attendance_logs', function (Blueprint $table) {
-            $table->integer('log_type')->nullable()->change();
+            $table->string('log_type')->nullable()->change();
         });
     }
 
