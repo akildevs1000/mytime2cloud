@@ -24,5 +24,5 @@ Route::get('device_status/search/{key}', [DeviceStatusController::class, 'search
 Route::post('device_status/delete/selected', [DeviceStatusController::class, 'deleteSelected']);
 
 
-Route::post('devices_active_settings/{key}', [DeviceController::class, 'updateActiveTimeSettings']);
+Route::post('update_devices_active_settings/{key}', [DeviceController::class, 'updateActiveTimeSettings']);
 Route::get('get_device_active_settings/{key}', [DeviceController::class, 'getActiveTimeSettings']);

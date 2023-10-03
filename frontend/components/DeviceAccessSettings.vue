@@ -20,6 +20,7 @@
             <v-row>
               <v-col md="6">
                 <v-select
+                  height="20px"
                   outlined
                   v-model="dialog_time_start"
                   dense
@@ -54,9 +55,8 @@
                       <v-icon dark> props.value </v-icon>
                     </template>
                   </v-range-slider> -->
-
               <v-spacer></v-spacer>
-              <v-btn dark color="violet" fill @click="updateTimeRange()"
+              <v-btn dark color="violet" fill @click="selectTimeRange()"
                 >Update</v-btn
               >
             </v-row>
@@ -67,8 +67,27 @@
     <v-row no-gutters>
       <v-col md="6"></v-col>
 
-      <v-col md="6" align-self="end" style="float: right" class="mb-3">
+      <v-col
+        md="6"
+        align-self="end"
+        style="float: right; text-align: right"
+        class="mb-3"
+      >
+        <v-btn dense dark color="violet" fill @click="clearSelection()">
+          Cancel
+        </v-btn>
+        <v-btn
+          class="ml-3 mr-3"
+          dense
+          dark
+          color="violet"
+          fill
+          @click="updateSettings()"
+          >Update</v-btn
+        >
+
         <CustomFilter
+          class="mt-2"
           @filter-attr="filterAttr"
           :defaultFilterType="1"
           style="float: right"
@@ -76,11 +95,13 @@
         />
       </v-col>
     </v-row>
-    <table style="width: 50%">
+    <table style="width: 100%">
       <thead>
         <tr>
           <th></th>
-          <th v-for="slot in timeSlots" :key="slot">{{ slot }}</th>
+          <th v-for="slot in timeSlots" :key="slot" class="settings-time">
+            {{ slot }}
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -90,11 +111,11 @@
             v-for="(slot, slotIndex) in timeSlots"
             :key="slot"
             @click="toggleCellBackground(index, slotIndex)"
-            :style="{
-              backgroundColor: selectedCells.has(index + '-' + slotIndex)
-                ? 'green'
-                : 'red',
-            }"
+            :class="
+              selectedCells.has(index + '-' + slotIndex)
+                ? 'tdcell selected'
+                : 'tdcell un-selected'
+            "
             :id="`cell_${index}_${slotIndex}`"
           ></td>
           <td>
@@ -108,14 +129,6 @@
         </tr>
       </tbody>
     </table>
-
-    <v-row>
-      <v-col md="12" class="text-end"
-        ><v-btn class="ma-3" @click="updateSettings()" dark fill color="violet"
-          >Update</v-btn
-        ></v-col
-      >
-    </v-row>
   </div>
 </template>
 
@@ -128,6 +141,8 @@ export default {
   //   },
   data() {
     return {
+      snackbar: false,
+      response: "",
       dialog_time_start: "",
 
       dialog_time_end: "",
@@ -176,49 +191,16 @@ export default {
       this.getDataFromApi();
       //this.filterType = "Monthly";
     },
-    // mergeTimeSlots(schedule) {
-    //   console.log(schedule.length);
-    //   if (schedule.length <= 1) {
-    //     return schedule; // Nothing to merge if there's only one or zero items
-    //   }
 
-    //   const mergedSchedule = [];
-    //   let currentSlot = schedule[0];
-
-    //   for (let i = 1; i < schedule.length; i++) {
-    //     const nextSlot = schedule[i];
-
-    //     const currentClose = new Date(`2023-10-02T${currentSlot.time_close}`);
-    //     const nextOpen = new Date(`2023-10-02T${nextSlot.time_open}`);
-    //     console.log(currentClose, nextOpen);
-    //     if (currentClose == nextOpen) {
-    //       // Merge the current slot with the next slot
-    //       currentSlot.time_close = nextSlot.time_close;
-    //     } else {
-    //       // They are not overlapping, so add the current slot to the merged schedule
-    //       mergedSchedule.push(currentSlot);
-    //       currentSlot = nextSlot;
-    //     }
-
-    //     currentSlot = nextSlot;
-    //   }
-
-    //   // Add the last slot to the merged schedule
-    //   mergedSchedule.push(currentSlot);
-
-    //   return mergedSchedule;
-    // },
     updateSettings() {
-      // Convert the Set to an array
+      console.log(this.selectedCells);
+
       const myArray = Array.from(this.selectedCells);
 
-      // Convert the array to a JSON string
       const jsonString = JSON.stringify(myArray);
 
-      //let device_id = this.$route.params.id;
       let options = {
         params: {
-          per_page: 1000,
           company_id: this.$auth.user.company_id,
           selected_matrix: jsonString,
           input_days: this.days,
@@ -229,7 +211,10 @@ export default {
         },
       };
       this.$axios
-        .post(`/devices_active_settings/${this.device_id}`, options.params)
+        .post(
+          `/update_devices_active_settings/${this.device_id}`,
+          options.params
+        )
         .then(({ data }) => {
           if (data.status) {
             this.$emit("closepopup");
@@ -239,50 +224,7 @@ export default {
           }
         });
     },
-    updateSettings1() {
-      let timeTable = [];
 
-      let mondaySchedule = [
-        {
-          time_open: "10:00",
-          time_close: "10:30",
-        },
-        {
-          time_open: "10:30",
-          time_close: "11:30",
-        },
-        {
-          time_open: "11:20",
-          time_close: "12:30",
-        },
-      ];
-
-      timeTable.push({ day: "Monday", schedule: mondaySchedule });
-
-      // You can continue this pattern for the remaining days...
-
-      // Display the class timetable
-      console.log(timeTable);
-
-      //let mergeTimeSlotsFinal = this.mergeTimeSlots(timeTable[0].schedule);
-      //console.log(mergeTimeSlotsFinal);
-
-      let options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company_id,
-        },
-      };
-      // this.$axios
-      //   .get(`/scheduled_employees_with_type`, options)
-      //   .then(({ data }) => {
-      //     this.scheduled_employees = data;
-      //     this.scheduled_employees.unshift({
-      //       system_user_id: "",
-      //       name_with_user_id: "All Employees",
-      //     });
-      //   });
-    },
     generateTimeSlots(hours) {
       let interval = 30; // this.span_time_minutes;
       this.span_time_minutes = 30;
@@ -337,7 +279,7 @@ export default {
           console.log(this.selectedCells);
         });
     },
-    updateTimeRange() {
+    selectTimeRange() {
       let timeArray = this.generateTimeSlotsRange(
         this.dialog_time_start,
         this.dialog_time_end + 1
@@ -349,6 +291,18 @@ export default {
       });
       this.dialogManualInput = false;
     },
+    // updateTimeRange() {
+    //   let timeArray = this.generateTimeSlotsRange(
+    //     this.dialog_time_start,
+    //     this.dialog_time_end + 1
+    //   );
+    //   timeArray.forEach((element) => {
+    //     let columnIndex = this.timeSlots.findIndex((item) => item == element);
+
+    //     this.toggleCellBackground(this.day_index, columnIndex, true);
+    //   });
+    //   this.dialogManualInput = false;
+    // },
     toggleCellBackground(rowIndex, columnIndex, isPopup = false) {
       const refName = `cell_${rowIndex}_${columnIndex}`;
       const printableContent = document.getElementById(refName);
@@ -358,20 +312,33 @@ export default {
       if (this.selectedCells.has(key)) {
         if (!isPopup) {
           this.selectedCells.delete(key);
-          if (printableContent) printableContent.style.backgroundColor = "red";
+          if (printableContent) {
+            printableContent.classList.add("un-selected");
+            printableContent.classList.remove("selected");
+          }
+
+          // printableContent.style.backgroundColor = "#DDD";
         }
       } else {
         this.selectedCells.add(key);
-        const randomColor =
-          "#" + Math.floor(Math.random() * 16777215).toString(16);
 
-        if (printableContent) printableContent.style.backgroundColor = "green";
+        if (printableContent) {
+          printableContent.classList.add("selected");
+          printableContent.classList.remove("un-selected");
+        }
       }
-
-      console.log(this.selectedCells);
     },
     isSelected(rowIndex, columnIndex) {
       return this.selectedCells.has(`${rowIndex}-${columnIndex}`);
+    },
+    clearSelection() {
+      const elementsArray = document.getElementsByClassName("tdcell");
+
+      elementsArray.forEach((element, index, array) => {
+        element.classList.remove("selected");
+        element.classList.add("un-selected");
+      });
+      this.selectedCells = new Set();
     },
   },
 };
@@ -401,14 +368,27 @@ th {
 }
 
 .un-selected {
-  background-color: red;
-  border-right: 1px solid #ec6060;
+  background-color: #ddd;
+  border: 1px solid #fff;
 }
 .selected {
-  background-color: green;
-  border-right: 1px solid green;
+  background-color: #60ad60;
+  border: 1px solid #fff;
 }
 .selected-cell {
   background-color: green; /* Change this color to the desired highlight color */
+}
+
+/*#60ad60 */
+
+.settings-time {
+  font-size: 10px;
+}
+.v-input__control .v-input__slot,
+.v-input__slot,
+input {
+  min-height: auto !important;
+  display: flex !important;
+  align-items: center !important;
 }
 </style>

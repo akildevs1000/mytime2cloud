@@ -7,7 +7,7 @@
     >
       <v-card>
         <v-card-title dense class="popup_background">
-          <span>Time selecction</span>
+          <span>Time Selection</span>
           <v-spacer></v-spacer>
           <v-icon @click="dialogAccessSettings = false" outlined>
             mdi mdi-close-circle
@@ -417,19 +417,19 @@
             title="All (Attendance and Access Control )"
             v-if="item.device_type == 'all'"
             src="/icons/device_type_all.png"
-            style="width: 33px"
+            style="width: 30px"
           />
           <img
             title="Only Access Control"
             v-else-if="item.device_type == 'Access Control'"
             src="/icons/device_type_access_control.png"
-            style="width: 33px"
+            style="width: 30px"
           />
           <img
             title="Only Attendance"
             v-else-if="item.device_type == 'Attendance'"
             src="/icons/device_type_attendance.png"
-            style="width: 32px"
+            style="width: 30px"
           />
         </template>
         <template v-slot:item.door_open="{ item }">
@@ -476,13 +476,13 @@
             title="Active"
             v-if="item.status.name == 'active'"
             src="/icons/device_status_open.png"
-            style="width: 33px"
+            style="width: 30px"
           />
           <img
             title="In-active"
             v-else
             src="/icons/device_status_close.png"
-            style="width: 33px"
+            style="width: 30px"
           />
 
           <!-- <img

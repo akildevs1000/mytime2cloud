@@ -380,8 +380,10 @@ class DeviceController extends Controller
 
         return $return_araay;
     }
-    public function updateActiveTimeSettings(Request $request, $key_id)
+    public function updateActiveTimeSettings(Request $request, $device_id)
     {
+
+
 
 
         $input_days = $request->input_days;
@@ -412,20 +414,27 @@ class DeviceController extends Controller
             }
         }
 
-
+        $device_settings_id = '';
 
         $devices_active_settings_array = [
-            'device_id' => $key_id, 'company_id' =>  $request->company_id, 'date_from' => $request->date_from, 'date_to' => $request->date_to,   'open_json' => json_encode($open_time_array), 'close_json' => json_encode($closing_time_array)
+            'device_id' => $device_id, 'company_id' =>  $request->company_id, 'date_from' => $request->date_from, 'date_to' => $request->date_to,   'open_json' => json_encode($open_time_array), 'close_json' => json_encode($closing_time_array)
         ];
 
+        $record = DeviceActivesettings::where("device_id", $device_id)->where("company_id", $request->company_id);
+        if ($record->count()) {
 
 
-        $device_settings_id =  DeviceActivesettings::create($devices_active_settings_array)->id;
+            $device_settings_id = $record->get()[0]->id;
+            $record->update($devices_active_settings_array);
+        } else {
+            $device_settings_id =  DeviceActivesettings::create($devices_active_settings_array)->id;
+        }
 
-        return Response::json([
+
+        return   [
             'record' => $device_settings_id,
             'message' => 'Successfully Updated.',
             'status' => true
-        ], 200);
+        ];
     }
 }

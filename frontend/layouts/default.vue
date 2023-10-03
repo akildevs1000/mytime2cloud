@@ -918,6 +918,9 @@ export default {
 </style>
 <!-- Extra overriting classes-->
 <style scoped>
+.violet {
+  background-color: #6946dd;
+}
 .v-list-item--active i {
   color: #6946dd;
 }
