@@ -38,7 +38,7 @@ class UpdateRequest extends FormRequest
             'timezone_name' => ['required', 'min:4', 'max:20'],
             // 'timezone_id' => ['required'],
             'interval' => ['required', 'array'],
-            'scheduled_days' => ['required', 'array'],
+            'scheduled_days' => ['nullalbe', 'array'],
             'company_id' => 'required',
             "intervals_raw_data" => 'nullable',
             "description" => 'nullable'
