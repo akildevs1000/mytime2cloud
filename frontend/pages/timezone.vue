@@ -61,7 +61,6 @@
                 dense
                 small
                 placeholder="Timezone Name"
-                label="Timezone Name"
                 width="80px"
                 style="padding-top: 8px"
                 v-model="editedItem.timezone_name"
@@ -103,7 +102,6 @@
                 dense
                 small
                 outlined
-                label="Description"
                 placeholder="Description"
                 width="150px"
                 style="padding-top: 8px"
@@ -368,7 +366,7 @@
           title="Sync To Devices"
           @click="openDeviceDialog"
         >
-          <v-icon dark>mdi-laptop</v-icon>
+          <v-icon dark fill color="violet"> mdi-sync-circle</v-icon>
         </v-btn>
         <!-- </template>
           <span>Sync To Devices</span>
