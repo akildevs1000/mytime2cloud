@@ -183,6 +183,8 @@ class ThemeController extends Controller
             ->select('date', 'status')
             ->get();
 
+
+        return  $attendanceData;
         // Initialize status counts for each day
         foreach ($dateStrings as $date) {
             foreach ($statusCounts as $status => &$countArray) {
