@@ -7,6 +7,7 @@ use App\Models\AttendanceLog;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Theme;
+use DateTime;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -145,34 +146,116 @@ class ThemeController extends Controller
     }
     public function dashboardGetCountslast7Days(Request $request)
     {
-
         $finalarray = [];
 
-        for ($i = 6; $i >= 0; $i--) {
+        // Create an array to hold the status counts for each day
+        $statusCounts = [
+            'P' => [],
+            'A' => [],
+            'M' => [],
+            'O' => [],
+            'H' => [],
+            'L' => [],
+            'V' => [],
+        ];
 
+        // Build an array of date strings for the last 7 days
+        $dateStrings = [];
+        if ($request->has("date_from") && $request->has("date_to")) {
+            // Usage example:
+            $startDate = new DateTime($request->date_from); // Replace with your start date
+            $endDate = new DateTime($request->date_to);   // Replace with your end date
 
-            $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
-            $model = Attendance::where('company_id', $request->company_id)
-                ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
-                ->whereDate('date', $date)
-                ->select('status')
-                ->get();
-
-            $finalarray[] = [
-                "date" => $date,
-                "presentCount" => $model->where('status', 'P')->count(),
-                "absentCount" => $model->where('status', 'A')->count(),
-                "missingCount" => $model->where('status', 'M')->count(),
-                "offCount" => $model->where('status', 'O')->count(),
-                "holidayCount" => $model->where('status', 'H')->count(),
-                "leaveCount" => $model->where('status', 'L')->count(),
-                "vaccationCount" => $model->where('status', 'V')->count(),
-            ];
+            $dateStrings = $this->createDateRangeArray($startDate, $endDate);
+        } else {
+            for ($i = 6; $i >= 0; $i--) {
+                $dateStrings[] = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
+            }
         }
 
 
-        return  $finalarray;
+
+
+        // Fetch attendance data for all 7 days in a single query
+        $attendanceData = Attendance::where('company_id', $request->company_id)
+            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
+            ->whereIn('date', $dateStrings)
+            ->select('date', 'status')
+            ->get();
+
+        // Initialize status counts for each day
+        foreach ($dateStrings as $date) {
+            foreach ($statusCounts as $status => &$countArray) {
+                $countArray[$date] = 0;
+            }
+        }
+
+        // Process the fetched data and update the status counts
+        foreach ($attendanceData as $attendance) {
+            $date = $attendance->date;
+            $status = $attendance->status;
+            $statusCounts[$status][$date]++;
+        }
+
+        // Create the final array with date and status counts
+        foreach ($dateStrings as $date) {
+            $finalarray[] = [
+                "date" => $date,
+                "presentCount" => $statusCounts['P'][$date],
+                "absentCount" => $statusCounts['A'][$date],
+                "missingCount" => $statusCounts['M'][$date],
+                "offCount" => $statusCounts['O'][$date],
+                "holidayCount" => $statusCounts['H'][$date],
+                "leaveCount" => $statusCounts['L'][$date],
+                "vaccationCount" => $statusCounts['V'][$date],
+            ];
+        }
+
+        return $finalarray;
+
+        // $finalarray = [];
+
+        // for ($i = 6; $i >= 0; $i--) {
+
+
+        //     $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
+        //     $model = Attendance::where('company_id', $request->company_id)
+        //         ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
+        //         ->whereDate('date', $date)
+        //         ->select('status')
+        //         ->get();
+
+        //     $finalarray[] = [
+        //         "date" => $date,
+        //         "presentCount" => $model->where('status', 'P')->count(),
+        //         "absentCount" => $model->where('status', 'A')->count(),
+        //         "missingCount" => $model->where('status', 'M')->count(),
+        //         "offCount" => $model->where('status', 'O')->count(),
+        //         "holidayCount" => $model->where('status', 'H')->count(),
+        //         "leaveCount" => $model->where('status', 'L')->count(),
+        //         "vaccationCount" => $model->where('status', 'V')->count(),
+        //     ];
+        // }
+
+
+        // return  $finalarray;
     }
+    function createDateRangeArray($startDate, $endDate)
+    {
+        $dateStrings = [];
+        $currentDate = $startDate;
+
+        while ($currentDate <= $endDate) {
+            $dateStrings[] = $currentDate->format('Y-m-d'); // Change the format as needed
+            $currentDate->modify('+1 day');
+        }
+
+        return $dateStrings;
+    }
+
+
+
+
     public function dashboardGetCountsTodayHourInOut(Request $request)
     {
 

@@ -57,6 +57,10 @@
         <v-card-text class="mt-2">
           <v-row>
             <v-col>
+              <div v-if="viewmode">
+                <strong class="">Zone</strong>:
+                {{ editedItem && editedItem.timezone_name }}
+              </div>
               <v-text-field
                 dense
                 small
@@ -65,10 +69,16 @@
                 style="padding-top: 8px"
                 v-model="editedItem.timezone_name"
                 outlined
+                v-else
               ></v-text-field>
               <span
                 class="error--text"
-                v-if="errors && errors.timezone_name && errors.timezone_name[0]"
+                v-if="
+                  !viewmode &&
+                  errors &&
+                  errors.timezone_name &&
+                  errors.timezone_name[0]
+                "
               >
                 {{ errors.timezone_name[0] }}
               </span>
@@ -98,7 +108,13 @@
               </span>
             </v-col> -->
             <v-col>
+              <div v-if="viewmode">
+                <strong class="">Description</strong>:{{
+                  editedItem.description
+                }}
+              </div>
               <v-text-field
+                v-else
                 dense
                 small
                 outlined
@@ -109,12 +125,21 @@
               ></v-text-field>
               <span
                 class="error--text"
-                v-if="errors && errors.description && errors.description[0]"
+                v-if="
+                  !viewmode &&
+                  errors &&
+                  errors.description &&
+                  errors.description[0]
+                "
               >
                 {{ errors.description[0] }}
               </span>
             </v-col>
-            <v-col md="4" style="float: right; text-align: right">
+            <v-col
+              v-if="!viewmode"
+              md="4"
+              style="float: right; text-align: right"
+            >
               <v-btn
                 small
                 dense
@@ -136,8 +161,14 @@
             <thead>
               <tr>
                 <th></th>
-                <th v-for="slot in timeSlots" :key="slot" class="settings-time">
-                  {{ slot }}
+                <th
+                  v-for="(slot, slotIndex) in timeSlots"
+                  :key="slot"
+                  class="settings-time"
+                >
+                  <div :title="getSlotTitle(slot, timeSlots[slotIndex + 1])">
+                    {{ slot }}
+                  </div>
                 </th>
               </tr>
             </thead>
@@ -147,7 +178,8 @@
                 <td
                   v-for="(slot, slotIndex) in timeSlots"
                   :key="slot"
-                  @click="toggleCellBackground(index, slotIndex)"
+                  :title="getSlotTitle(slot, timeSlots[slotIndex + 1])"
+                  @click="!viewmode && toggleCellBackground(index, slotIndex)"
                   :class="
                     selectedCells.has(index + '-' + slotIndex)
                       ? 'tdcell selected'
@@ -157,6 +189,7 @@
                 ></td>
                 <td>
                   <img
+                    v-if="!viewmode"
                     @click="manualINputSettings(index)"
                     title="Manual Input"
                     src="/../../icons/always_open.png"
@@ -401,12 +434,17 @@
         :loading="loading"
         :options.sync="options"
         :footer-props="{
-          itemsPerPageOptions: [100, 500, 1000],
+          itemsPerPageOptions: [10, 50, 100, 500, 1000],
         }"
         class="elevation-1"
       >
         <template v-slot:item.sno="{ item, index }">
-          {{ ++index }}
+          {{
+            currentPage
+              ? (currentPage - 1) * perPage +
+                (cumulativeIndex + data.indexOf(item))
+              : ""
+          }}
         </template>
         <template v-slot:item.timezone_id="{ item }">
           {{ item.timezone_id }}
@@ -415,32 +453,9 @@
           {{ item && item.timezone_name }}
         </template>
         <template v-slot:item.member="{ item }">
-          <v-avatar
-            v-if="
-              item.employee_device &&
-              item.employee_device.employee_ids.length > 0
-            "
-            size="40"
-            style="color: #fff"
-            color="violet"
-          >
-            {{
-              item.employee_device && item.employee_device.employee_ids.length
-            }}
-          </v-avatar>
+          {{ item.employee_device && item.employee_device.employee_ids.length }}
         </template>
-        <template v-slot:item.device="{ item }">
-          <v-avatar
-            v-if="
-              item.employee_device && item.employee_device.device_ids.length > 0
-            "
-            size="40"
-            style="color: #fff"
-            color="violet"
-          >
-            {{ item.employee_device && item.employee_device.device_ids.length }}
-          </v-avatar>
-        </template>
+
         <template v-slot:item.description="{ item }">
           {{ item && item.description }}
         </template>
@@ -509,6 +524,11 @@ let days = [
 export default {
   components: { Back },
   data: () => ({
+    viewmode: false,
+    cumulativeIndex: 1,
+    perPage: 10,
+    currentPage: 1,
+
     snackbar: false,
     response: "",
     dialog_time_start: "",
@@ -596,26 +616,20 @@ export default {
         key: "timezone_name",
         value: "timezone_name",
       },
-      {
-        text: "Member",
-        align: "left",
-        sortable: true,
-        key: "member",
-        value: "member",
-      },
-      {
-        text: "Device",
-        align: "left",
-        sortable: true,
-        key: "device",
-        value: "device",
-      },
+
       {
         text: "Description",
         align: "left",
         sortable: true,
         key: "description",
         value: "description",
+      },
+      {
+        text: "Member",
+        align: "left",
+        sortable: true,
+        key: "member",
+        value: "member",
       },
       {
         text: "Created",
@@ -676,6 +690,14 @@ export default {
   },
 
   methods: {
+    getSlotTitle(slot, slot2) {
+      slot2 = slot2 != undefined ? slot2 : "24:00";
+      return slot + " to " + slot2;
+    },
+    updateIndex(page) {
+      this.currentPage = page;
+      this.cumulativeIndex = (page - 1) * this.perPage;
+    },
     manualINputSettings(day_index) {
       this.day_index = day_index;
       this.dialogManualInput = true;
@@ -775,6 +797,7 @@ export default {
       this.getDataFromApi();
     },
     addItem() {
+      this.viewmode = false;
       this.clearSelection();
       this.dialog = true;
       this.readOnly = false;
@@ -782,18 +805,30 @@ export default {
       this.editedItem = this.defaultItem;
     },
     viewItem(item) {
-      this.clearSelection();
-      this.dialog = true;
-      this.readOnly = true;
-      this.editedIndex = this.data.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-    },
-    editItem(item) {
+      this.viewmode = true;
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
       this.readOnly = false;
       this.editedIndex = this.data.indexOf(item);
-      console.log(item);
+
+      this.editedItem = Object.assign({}, item);
+      this.clearSelection();
+
+      let intervals_raw_data = JSON.parse(item.intervals_raw_data);
+
+      intervals_raw_data.forEach((element) => {
+        console.log(element);
+        const myArray = element.split("-");
+        this.toggleCellBackground(myArray[0], myArray[1]);
+      });
+    },
+    editItem(item) {
+      this.viewmode = false;
+      this.editedItem = Object.assign({}, item);
+      this.dialog = true;
+      this.readOnly = false;
+      this.editedIndex = this.data.indexOf(item);
+
       this.editedItem = Object.assign({}, item);
       this.clearSelection();
 

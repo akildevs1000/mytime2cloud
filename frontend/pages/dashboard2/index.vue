@@ -49,21 +49,20 @@
             class="d-xs-flex"
             style="flex: auto"
           >
-            <v-card class="py-2 mt-2" style="min-height: 500px">
-              <DashboardAttednaceDepartmentWise
-                name="AttendanceDepartmentWise"
+            <v-card class="py-2 mt-2" style="min-height: 300px">
+              <DashboardAttendanceHourChart
+                :name="'AttendanceChart2'"
+                :height="'300'"
               />
             </v-card>
           </v-col>
           <v-col lg="6" md="6" sm="12" xs="12">
-            <DashboardlastMultiStatistics />
+            <!-- <DashboardlastMultiStatistics /> -->
 
-            <v-card class="mt-2" style="height: 370px">
-              <DashboardAttendanceHourChart
-                :name="'AttendanceChart2'"
-                :height="'200'"
-              />
+            <v-card class="py-2 mt-2" style="height: 370px">
+              <DashboardLoginActivities />
             </v-card>
+            <!-- <v-card class="mt-2" style="height: 350px"> </v-card> -->
           </v-col>
         </v-row>
       </v-col>
@@ -81,7 +80,9 @@
         <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
             <v-card class="py-2 mt-2">
-              <DashboardLoginActivities />
+              <DashboardAttednaceDepartmentWise
+                name="AttendanceDepartmentWise"
+              />
             </v-card>
           </v-col>
         </v-row>

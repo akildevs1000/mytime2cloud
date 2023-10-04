@@ -162,6 +162,15 @@
     "to": "/announcement",
     "module": "employees"
   },
+
+  {
+    "icon": "mdi mdi-camera-account",
+    "title": "Photo Upload",
+    "to": "/employee_photo_upload",
+    "menu": "employee_photo_upload",
+    "module": "employees"
+  },
+
   {
     "icon": "mdi-clock-outline",
     "title": "Shifts",

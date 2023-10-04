@@ -223,6 +223,42 @@
                     ></v-text-field>
                   </v-col>
 
+                  <v-col md="6" cols="6" sm="6" dense>
+                    <label class="col-form-label"
+                      >Mobile Number <span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="number"
+                      v-model="employee.phone_number"
+                      :hide-details="!errors.phone_number"
+                      :error="errors.phone_number"
+                      :error-messages="
+                        errors && errors.phone_number
+                          ? errors.phone_number[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col md="6" cols="6" sm="6" dense>
+                    <label class="col-form-label"
+                      >Whatsapp Number<span class="text-danger">*</span></label
+                    >
+                    <v-text-field
+                      dense
+                      outlined
+                      type="number"
+                      v-model="employee.whatsapp_number"
+                      :hide-details="!errors.whatsapp_number"
+                      :error="errors.whatsapp_number"
+                      :error-messages="
+                        errors && errors.whatsapp_number
+                          ? errors.whatsapp_number[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
                   <v-col cols="12">
                     <label class="col-form-label">Department </label>
                     <v-autocomplete
@@ -241,21 +277,6 @@
                       dense
                       outlined
                     ></v-autocomplete>
-                  </v-col>
-
-                  <v-col md="12" cols="12" sm="12" dense>
-                    <label class="col-form-label">Email (optional)</label>
-                    <v-text-field
-                      dense
-                      outlined
-                      type="text"
-                      v-model="employee.email"
-                      :hide-details="!errors.email"
-                      :error="errors.email"
-                      :error-messages="
-                        errors && errors.email ? errors.email[0] : ''
-                      "
-                    ></v-text-field>
                   </v-col>
                 </v-row>
               </v-col>
