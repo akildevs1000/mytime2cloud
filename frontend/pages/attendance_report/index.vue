@@ -104,6 +104,7 @@
           <v-col md="2" sm="4">
             Employee ID
             <v-autocomplete
+              density="comfortable"
               class="mt-2"
               outlined
               dense
@@ -118,6 +119,7 @@
           <v-col md="2" sm="4">
             <div>Report Templates</div>
             <v-autocomplete
+              density="compact"
               class="mt-2"
               outlined
               dense
@@ -130,7 +132,11 @@
           </v-col>
           <v-col md="2" sm="5">
             <div class="mb-2">Date</div>
-            <CustomFilter @filter-attr="filterAttr" :defaultFilterType="1" />
+            <CustomFilter
+              @filter-attr="filterAttr"
+              :defaultFilterType="1"
+              :height="'45px '"
+            />
           </v-col>
           <v-col md="2" sm="2">
             <div class="mb-2">&nbsp;</div>

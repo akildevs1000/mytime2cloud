@@ -37,18 +37,20 @@
           item-text="name"
           item-value="id"
         ></v-select>
-      </v-col> -->
-      <v-col md="4" sm="6" class="box" style="padding-top: 7px">
-        <date-picker
-          value-type="format"
-          format="YYYY-MM-DD"
-          type="date"
-          v-model="time3"
-          @change="CustomFilter()"
-          range
-        ></date-picker>
-      </v-col>
-      <!-- <v-col md="3" v-if="filterType == 5">
+      </v-col> 
+      <v-col md="4" sm="6" class="box" style="padding-top: 7px;">-->
+
+      <date-picker
+        style="padding-top: 7px; width: 230px"
+        value-type="format"
+        format="YYYY-MM-DD"
+        type="date"
+        v-model="time3"
+        @change="CustomFilter()"
+        range
+      ></date-picker>
+      <!--</v-col>
+       <v-col md="3" v-if="filterType == 5">
           <v-menu v-model="from_menu" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
             offset-y min-width="auto">
             <template v-slot:activator="{ on, attrs }">
@@ -79,7 +81,13 @@ export default {
   components: {
     DatePicker,
   },
-  props: ["defaultFilterType"],
+  props: [
+    "defaultFilterType",
+    "height",
+    "width",
+    "default_date_from",
+    "default_date_to",
+  ],
   data() {
     return {
       // -------------------end chart ----------------
@@ -127,6 +135,24 @@ export default {
 
   mounted() {
     if (this.filterType == 5) document.querySelector(".mx-input").focus();
+
+    const elementsArray = document.getElementsByClassName("mx-input");
+
+    if (this.height && this.height != "") {
+      elementsArray[0].style.height = this.height;
+    }
+    if (this.width && this.width != "") {
+      elementsArray[0].style.width = this.width;
+    }
+
+    if (this.default_date_from && this.default_date_to) {
+      this.from_date = this.default_date_from;
+
+      this.to_date = this.default_date_to;
+    }
+
+    this.time3 = [this.from_date, this.to_date];
+    console.log(this.time3);
   },
   created() {
     if (this.defaultFilterType) {
@@ -238,7 +264,7 @@ export default {
 
 <style>
 .mx-input {
-  height: 35px !important;
+  /*height: 45px !important;*/
   border: 1px solid #9e9e9e !important;
   color: black !important;
 }

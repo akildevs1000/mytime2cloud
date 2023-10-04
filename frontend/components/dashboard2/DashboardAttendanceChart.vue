@@ -1,7 +1,22 @@
 <template>
   <div style="width: 100%">
-    <h5>Recent 7 days Attendance</h5>
-    <div :id="name" style="width: 100%"></div>
+    <v-row>
+      <v-col md="6">
+        <h5>{{ display_title }}</h5></v-col
+      >
+
+      <v-col md="6">
+        <CustomFilter
+          style="float: right"
+          @filter-attr="filterAttr"
+          :default_date_from="date_from"
+          :default_date_to="date_to"
+          :defaultFilterType="1"
+          :height="'35px '"
+      /></v-col>
+    </v-row>
+
+    <div :id="name" style="width: 100%" :key="display_title"></div>
   </div>
 </template>
 
@@ -11,6 +26,9 @@ export default {
   props: ["name", "height"],
   data() {
     return {
+      display_title: "Recent 7 days Attendance",
+      date_from: "",
+      date_to: "",
       series: [
         {
           name: "Present",
@@ -67,10 +85,23 @@ export default {
       },
     };
   },
-  watch: {},
+  watch: {
+    display_title() {
+      this.getDataFromApi();
+    },
+  },
   mounted() {},
   created() {
-    //  this.loading = true;
+    // Get today's date
+    let today = new Date();
+
+    // Subtract 7 days from today
+    let sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 6);
+
+    // Format the dates (optional)
+    this.date_to = today.toISOString().split("T")[0];
+    this.date_from = sevenDaysAgo.toISOString().split("T")[0];
     setTimeout(() => {
       this.getDataFromApi();
     }, 1000 * 3);
@@ -85,10 +116,20 @@ export default {
   },
 
   methods: {
+    filterAttr(data) {
+      this.date_from = data.from;
+      this.date_to = data.to;
+      this.filterType = "Monthly"; // data.type;
+
+      this.display_title =
+        "Attendance : " + this.date_from + " to " + this.date_to;
+    },
     getDataFromApi() {
       let options = {
         params: {
           company_id: this.$auth.user.company_id,
+          date_from: this.date_from,
+          date_to: this.date_to,
         },
       };
 
@@ -96,6 +137,25 @@ export default {
         .get("dashboard_counts_last_7_days", options)
         .then(({ data }) => {
           let counter = 0;
+
+          this.chartOptions.series = [
+            {
+              name: "Present",
+              data: [],
+            },
+            {
+              name: "Absent",
+              data: [],
+            },
+            {
+              name: "Missing",
+              data: [],
+            },
+          ];
+
+          this.chartOptions.xaxis = {
+            categories: [],
+          };
           data.forEach((item) => {
             this.chartOptions.series[0]["data"][counter] = parseInt(
               item.presentCount

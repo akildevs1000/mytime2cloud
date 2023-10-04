@@ -6,11 +6,16 @@
       </v-snackbar>
     </div>
 
-    <v-dialog persistent v-model="dialogFilter" width="300px">
+    <v-dialog v-model="dialogFilter" width="300px">
       <v-card elevation="0">
         <v-toolbar class="popup_background" dense flat dark>
           <span> Select year</span>
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogFilter = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
         </v-toolbar>
+
         <v-divider class="py-0 my-0"></v-divider>
         <v-card-text>
           <v-container>
@@ -34,10 +39,10 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog persistent v-model="dialog" width="500px">
+    <v-dialog v-model="dialog" width="300px">
       <v-card>
         <v-card-title dense class="popup_background">
-          <span class="headline">{{ formTitle }} </span>
+          <h5>{{ formTitle }}</h5>
           <v-spacer></v-spacer>
           <v-icon @click="dialog = false" outlined dark>
             mdi mdi-close-circle
@@ -52,12 +57,30 @@
                   dense
                   outlined
                   v-model="editedItem.name"
-                  placeholder="Name"
+                  placeholder="Title"
                   :error-messages="errors && errors.name ? errors.name[0] : ''"
                 ></v-text-field>
               </v-col>
-
               <v-col cols="12">
+                <label for="" style="padding-bottom: 5px">Date</label>
+                <CustomFilter
+                  style="float: right; width: 100%"
+                  @filter-attr="filterAttr"
+                  :default_date_from="editedItem.start_date"
+                  :default_date_to="editedItem.end_date"
+                  :defaultFilterType="1"
+                  :height="'45px '"
+                  :width="'228px'"
+                  :key="editedItem.start_date + editedItem.end_date"
+                />
+              </v-col>
+              <!-- <v-col cols="12">
+                <CustomFilter
+                  style="float: right"
+                  @filter-attr="filterAttr"
+                  :defaultFilterType="1"
+                  :height="'35px '"
+                />
                 <v-menu
                   ref="from_menu"
                   v-model="start_menu"
@@ -90,10 +113,10 @@
                     @change="update_EdititemStart"
                   >
                   </v-date-picker>
-                </v-menu>
-              </v-col>
+                </v-menu> 
+              </v-col>-->
 
-              <v-col cols="12">
+              <!-- <v-col cols="12">
                 <v-menu
                   ref="end_menu"
                   v-model="end_menu"
@@ -127,7 +150,7 @@
                   >
                   </v-date-picker>
                 </v-menu>
-              </v-col>
+              </v-col> -->
               <v-col cols="12">
                 <label for="">Today Days : {{ editedItem.total_days }}</label>
               </v-col>
@@ -182,6 +205,7 @@
               <v-icon class="ml-2" @click="dialogFilter = true" dark
                 >mdi mdi-filter</v-icon
               >
+              <!-- {{ filterYear }} -->
             </v-btn>
             <!-- </template>
               <span>Select Year</span>
@@ -195,7 +219,7 @@
               :ripple="false"
               text
               title="Add Holiday"
-              @click="dialog = true"
+              @click="addItem()"
             >
               <v-icon dark>mdi-plus-circle</v-icon>
             </v-btn>
@@ -326,7 +350,7 @@ export default {
     dialogFilter: false,
     options: {},
     totalRowsCount: 0,
-    formTitle: "New Holiday Information",
+    formTitle: "New Holiday  ",
     dialogEmployees: false,
     idsEmployeeList: [],
     //editor
@@ -488,6 +512,12 @@ export default {
   },
 
   methods: {
+    filterAttr(data) {
+      this.editedItem.start_date = data.from;
+      this.editedItem.end_date = data.to;
+      this.filterType = "Monthly"; // data.type;
+      this.getDayscount();
+    },
     lastTenYears() {
       const year = new Date().getFullYear();
       this.dataYears = Array.from({ length: 10 }, (_, i) => year - i);
@@ -633,9 +663,18 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
-
+    addItem() {
+      this.editedItem = {
+        name: "",
+        total_days: "0",
+        start_date: null,
+        end_date: null,
+        year: null,
+      };
+      this.dialog = true;
+    },
     editItem(item) {
-      this.formTitle = "Edit Holidays Information";
+      this.formTitle = "Edit Holidays  ";
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;

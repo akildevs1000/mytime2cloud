@@ -137,7 +137,9 @@
         <v-icon>mdi-application</v-icon>
       </v-btn> -->
       <!-- <span class="text-overflow">{{ title }}</span> -->
-      <span class="text-overflow"> <img :src="logo_src" /> </span>
+      <span class="text-overflow">
+        <img title="My Time Cloud " :src="logo_src" />
+      </span>
       <v-spacer></v-spacer>
       <span style="100%" v-if="getLoginType == 'company'">
         <template>

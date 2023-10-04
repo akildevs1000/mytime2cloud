@@ -134,7 +134,7 @@ export default {
         },
 
         {
-          text: "Page",
+          text: "Email",
           align: "left",
           sortable: false,
           filterable: true,
