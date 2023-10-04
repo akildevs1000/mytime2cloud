@@ -1069,4 +1069,8 @@ header i {
     border-bottom: 1px solid #ddd;
   }
 }
+.v-application .primary--text {
+  color: #cecbd8 !important;
+  caret-color: #6946dd !important;
+}
 </style>
