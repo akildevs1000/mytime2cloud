@@ -117,6 +117,16 @@ class Kernel extends ConsoleKernel
 
         foreach ($companyIds as $companyId) {
 
+            if ($companyId != 1) {
+                $schedule
+                    ->command("task:sync_all_shifts {$companyId} " . date("Y-m-d"))
+                    ->everyMinute()
+                    // ->dailyAt('09:00')
+                    ->runInBackground()
+                    ->appendOutputTo(storage_path("logs/$date-sync-all-shifts-{$companyId}.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            }
+
             // $schedule
             //     ->command("task:generate_daily_report {$companyId} All")
             //     // ->everyMinute()
@@ -237,14 +247,6 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/$date-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        $schedule
-            ->command('task:sync_filo_shift')
-            // ->dailyAt('4:00')
-            // ->hourly()
-            ->everyMinute()
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-filo-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
             ->command('task:sync_multiinout')
@@ -285,28 +287,11 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        $schedule
-            ->command('task:render_missing')
-            ->dailyAt('00:15')
-            // ->everyMinute()
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-render-missing-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        
 
-        // $schedule
-        //     ->command('task:attendance_seeder')
-        //     ->monthly(1, '00:00')
-        //     ->withoutOverlapping()
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+       
 
 
-
-        // $schedule
-        //     ->command('task:sync_auto')
-        //     ->everyMinute()
-        //     ->withoutOverlapping()
-        //     ->appendOutputTo(storage_path("logs/$date-auto-logs.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
         $payroll_settings = PayrollSetting::get(["id", "date", "company_id"]);
