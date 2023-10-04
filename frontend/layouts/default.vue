@@ -1069,8 +1069,4 @@ header i {
     border-bottom: 1px solid #ddd;
   }
 }
-
-.theme--light.v-sheet {
-  background-color: transparent !important;
-}
 </style>
