@@ -180,11 +180,11 @@ class ThemeController extends Controller
         $attendanceData = Attendance::where('company_id', $request->company_id)
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
             ->whereIn('date', $dateStrings)
-            ->select('date', 'status')
+            ->select('edit_date', 'status')
             ->get();
 
 
-        return  $attendanceData;
+
         // Initialize status counts for each day
         foreach ($dateStrings as $date) {
             foreach ($statusCounts as $status => &$countArray) {
@@ -194,7 +194,7 @@ class ThemeController extends Controller
 
         // Process the fetched data and update the status counts
         foreach ($attendanceData as $attendance) {
-            $date = $attendance->date;
+            $date = $attendance->edit_date;
             $status = $attendance->status;
             $statusCounts[$status][$date]++;
         }
