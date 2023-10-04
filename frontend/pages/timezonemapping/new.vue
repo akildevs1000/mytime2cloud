@@ -268,19 +268,57 @@
           </v-toolbar>
           <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
             <v-card class="timezone-displaylist">
-              <v-card-text
-                class="timezone-displaylistview"
-                v-for="(user, index) in leftDevices"
-                :id="user.id"
-                v-model="leftSelectedDevices"
-                :key="user.id"
-              >
-                <div class="row">
-                  <v-col class="col-1" style="padding: 0px">
+              <!-- <v-card-text>
+                <table class="basic-table-design">
+                  <tr
+                    v-for="(user, index) in leftDevices"
+                    :id="user.id"
+                    :key="user.id"
+                  >
+                    <td style="width: 50px">
+                      <v-checkbox
+                        dense
+                        small
+                        hideDetails
+                        v-model="leftSelectedDevices"
+                        :value="user.id"
+                        primary
+                        hide-details
+                      ></v-checkbox>
+                    </td>
+                    <td style="width: 25%">{{ user.name }}</td>
+                    <td>{{ user.model_number }}</td>
+                    <td>
+                      <img
+                        title="Online"
+                        v-if="user.status.name == 'active'"
+                        src="/icons/device_status_open.png"
+                        style="width: 30px"
+                      />
+                      <img
+                        title="Offline"
+                        v-else
+                        src="/icons/device_status_close.png"
+                        style="width: 30px"
+                      />
+                    </td>
+                  </tr>
+                </table>
+              </v-card-text> -->
+              <v-card-text>
+                <v-row
+                  class="timezone-displaylistview"
+                  v-for="(user, index) in leftDevices"
+                  :id="user.id"
+                  v-model="leftSelectedDevices"
+                  :key="user.id"
+                >
+                  <v-col md="1">
                     <v-checkbox
                       v-if="user.status.name == 'active'"
+                      dense
+                      small
                       hideDetails
-                      class="col-1 d-flex flex-column justify-center"
                       v-model="leftSelectedDevices"
                       :value="user.id"
                       primary
@@ -288,26 +326,36 @@
                     ></v-checkbox>
                     <v-checkbox
                       v-else
+                      dense
+                      small
                       hideDetails
-                      class="col-1 d-flex flex-column justify-center"
                       v-model="leftSelectedDevices"
                       :value="user.id"
                       primary
                       hide-details
                     ></v-checkbox>
                   </v-col>
-                  <div class="col-sm" style="padding-top: 21px; color: #000000">
-                    {{ user.name }} : {{ user.device_id }}
-
-                    <span
-                      style="color: green"
+                  <v-col md="3">
+                    {{ user.name }}
+                  </v-col>
+                  <v-col md="3">
+                    {{ user.model_number }}
+                  </v-col>
+                  <v-col md="3">
+                    <img
+                      title="Online"
                       v-if="user.status.name == 'active'"
-                    >
-                      Online</span
-                    >
-                    <span style="color: red" v-else>Offline </span>
-                  </div>
-                </div>
+                      src="/icons/device_status_open.png"
+                      style="width: 30px"
+                    />
+                    <img
+                      title="Offline"
+                      v-else
+                      src="/icons/device_status_close.png"
+                      style="width: 30px"
+                    />
+                  </v-col>
+                </v-row>
               </v-card-text>
             </v-card>
           </div>
@@ -396,7 +444,7 @@
                     ></v-checkbox>
                   </v-col>
                   <div class="col-sm" style="padding-top: 21px; color: #000000">
-                    {{ user.name }} : {{ user.device_id }}
+                    {{ user.name }} : {{ user.model_number }}
                   </div>
                   <div class="col-sm" style="padding-top: 21px">
                     <span
@@ -1018,7 +1066,7 @@ export default {
 };
 </script>
 <style scoped>
-table {
+/* table {
   font-family: Roboto !important;
 }
 
@@ -1030,10 +1078,7 @@ table {
   right: -15px !important;
 }
 
-/* .v-btn__content {
-  margin: 0 12px 0 0px !important;
-  padding: 0 !important;
-} */
+
 
 .setting-drawer-open {
   right: 250px !important;
@@ -1095,7 +1140,7 @@ table.employee-table {
 
 td,
 th {
-  /* border: 1px solid #dddddd; */
+
   text-align: left;
   padding: 8px;
 }
@@ -1112,7 +1157,7 @@ table.employee-table {
 
 td,
 th {
-  /* border: 1px solid #dddddd; */
+   
   text-align: left;
   padding: 8px;
 }
@@ -1124,8 +1169,7 @@ table.employee-table tr:nth-child(even) {
 .toolbaritems-button-design {
   padding-top: 8px !important;
   padding-right: 0px !important;
-  /* margin: auto;
-  border-radius: 5px; */
+
 }
 
 .toolbaritems-button-design .v-btn {
@@ -1241,13 +1285,6 @@ table.employee-table tr:nth-child(even) {
   width: 100%;
 }
 
-/* .center-parent {
-  background: gray;
-  height: 300px;
-  width: 300px;
-  position: relative;
-} */
-
 .center-child {
   position: absolute;
   top: 50%;
@@ -1355,5 +1392,5 @@ tbody tr:nth-of-type(odd) {
     border: 1px solid #ededed;
     display: block;
   }
-}
+} */
 </style>

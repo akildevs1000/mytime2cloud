@@ -118,14 +118,19 @@
               {{ item.timezone.timezone_name }}
             </template>
             <template v-slot:item.devices="{ item }">
-              <v-chip
-                small
-                class="primary ma-1"
+              <div
+                class="d-flex flex-row bg-surface-variant"
                 v-for="(subitem, index) in item.device_id.slice(0, 3)"
-                :key="index"
               >
-                {{ caps(subitem.location + " : " + subitem.name) }}
-              </v-chip>
+                <v-sheet class="ma-2" cols="2"> {{ ++index }}: </v-sheet>
+                <v-sheet class="ma-2" cols="4">
+                  {{ caps(subitem.name) }}</v-sheet
+                >
+                <v-sheet class="ma-2" cols="4">{{
+                  caps(subitem.location)
+                }}</v-sheet>
+              </div>
+
               <v-btn
                 small
                 warning
@@ -136,22 +141,32 @@
               </v-btn>
             </template>
             <template v-slot:item.employees="{ item }">
-              <v-chip
-                small
-                class="primary ma-1"
+              <div
+                class="d-flex flex-row bg-surface-variant"
                 v-for="(subitem, index) in item.employee_id.slice(0, 3)"
-                :key="index"
               >
-                {{
-                  caps(
-                    subitem.first_name +
-                      " " +
-                      subitem.last_name +
-                      " : " +
-                      subitem.employee_id
-                  )
-                }}
-              </v-chip>
+                <v-sheet class="ma-2"> {{ ++index }}: </v-sheet>
+                <v-sheet class="ma-2">
+                  <v-img
+                    style="
+                      border-radius: 50%;
+                      height: auto;
+                      width: 30px;
+                      max-width: 30px;
+                    "
+                    :src="
+                      subitem.profile_picture
+                        ? subitem.profile_picture
+                        : '/no-profile-image.jpg'
+                    "
+                  >
+                  </v-img
+                ></v-sheet>
+                <v-sheet class="ma-2">{{
+                  caps(subitem.first_name + " " + subitem.last_name)
+                }}</v-sheet>
+              </div>
+
               <v-btn
                 small
                 warning

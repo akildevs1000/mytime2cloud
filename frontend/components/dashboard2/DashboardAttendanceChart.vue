@@ -168,7 +168,8 @@ export default {
             this.chartOptions.series[2]["data"][counter] = parseInt(
               item.missingCount
             );
-            this.chartOptions.xaxis.categories[counter] = item.date;
+            this.chartOptions.xaxis.categories[counter] =
+              this.$dateFormat.format2(item.date);
 
             counter++;
           });

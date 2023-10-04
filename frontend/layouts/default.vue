@@ -1062,4 +1062,15 @@ header i {
   width: 30px;
   height: auto;
 }
+
+.basic-table-design {
+  tr {
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+  }
+}
+
+.theme--light.v-sheet {
+  background-color: transparent !important;
+}
 </style>

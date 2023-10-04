@@ -260,10 +260,10 @@
               {{ item.name }}
             </template>
             <template v-slot:item.start_date="{ item }">
-              {{ item.start_date }}
+              {{ $dateFormat.format1(item.start_date) }}
             </template>
             <template v-slot:item.end_date="{ item }">
-              {{ item.end_date }}
+              {{ $dateFormat.format1(item.end_date) }}
             </template>
             <template v-slot:item.total_days="{ item }">
               {{ item.total_days }}
@@ -512,6 +512,9 @@ export default {
   },
 
   methods: {
+    getDateForamt(date) {
+      return this.$dateFormat.foramt1(date);
+    },
     filterAttr(data) {
       this.editedItem.start_date = data.from;
       this.editedItem.end_date = data.to;

@@ -185,14 +185,6 @@ export default {
 
           value: "employee.employee_id",
         },
-        {
-          text: "Online/Offline",
-          align: "left",
-          sortable: true,
-          filterable: true,
-
-          value: "online",
-        },
 
         {
           text: "Employee Name",
@@ -226,6 +218,14 @@ export default {
           filterable: true,
 
           value: "device.device_name",
+        },
+        {
+          text: "Online/Offline",
+          align: "left",
+          sortable: true,
+          filterable: true,
+
+          value: "online",
         },
         // {
         //   text: "Log",
