@@ -1,3 +1,9 @@
+Queries
+-------
+
+SELECT * FROM attendance_logs where date("LogTime") = '2023-09-28' LIMIT 100
+
+
 // run this command to seed the data => php artisan db:seed --class=StatusSeeder
 
 php artisan serve --host 192.168.2.174
