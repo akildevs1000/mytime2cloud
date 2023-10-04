@@ -926,6 +926,7 @@
                               <td class="text-left">
                                 :
                                 {{
+                                  employeeObject.payroll &&
                                   employeeObject.payroll
                                     .effective_date_formatted
                                     ? employeeObject.payroll
@@ -939,6 +940,7 @@
                               <td class="text-left">
                                 :
                                 {{
+                                  employeeObject.payroll &&
                                   employeeObject.payroll.basic_salary
                                     ? employeeObject.payroll.basic_salary
                                     : "---"
