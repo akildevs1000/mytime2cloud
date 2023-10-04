@@ -15,7 +15,7 @@
           :height="'35px '"
       /></v-col>
     </v-row>
-
+    <ComonPreloader icon="face-scan" v-if="loading" />
     <div :id="name" style="width: 100%" :key="display_title"></div>
   </div>
 </template>
@@ -26,6 +26,7 @@ export default {
   props: ["name", "height"],
   data() {
     return {
+      loading: false,
       display_title: "Recent 7 days Attendance",
       date_from: "",
       date_to: "",
@@ -125,6 +126,7 @@ export default {
         "Attendance : " + this.date_from + " to " + this.date_to;
     },
     getDataFromApi() {
+      this.loading = true;
       let options = {
         params: {
           company_id: this.$auth.user.company_id,
@@ -170,7 +172,7 @@ export default {
 
             counter++;
           });
-
+          this.loading = false;
           new ApexCharts(
             document.querySelector("#" + this.name),
             this.chartOptions
