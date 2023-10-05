@@ -161,7 +161,7 @@
         :loading="loading"
         :options.sync="options"
         :footer-props="{
-          itemsPerPageOptions: [100, 500, 1000],
+          itemsPerPageOptions: [10, 50, 100, 500, 1000],
         }"
         class="elevation-1"
         model-value="data.id"
