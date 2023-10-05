@@ -61,6 +61,15 @@
       class="elevation-0"
       :server-items-length="totalRowsCount"
     >
+      <template v-slot:item.sno="{ item, index }">
+        {{
+          currentPage
+            ? (currentPage - 1) * perPage +
+              (cumulativeIndex + logs.indexOf(item))
+            : ""
+        }}
+      </template>
+
       <template v-slot:item.employee.first_name="{ item, index }">
         <v-row no-gutters>
           <v-col
@@ -89,7 +98,7 @@
           <v-col style="padding: 10px">
             {{ item.employee ? item.employee.first_name : "---" }}
             {{ item.employee ? item.employee.last_name : "---" }}
-            <div>
+            <div class="secondary-value">
               {{
                 item.employee && item.employee.designation
                   ? caps(item.employee.designation.name)
@@ -105,7 +114,7 @@
             ? caps(item.employee.department.name)
             : "---"
         }}
-        <div>
+        <div class="secondary-value">
           {{
             item.employee && item.employee.sub_department
               ? caps(item.employee.sub_department.name)
@@ -129,16 +138,13 @@
         <v-icon v-else color="red" fill>mdi-map-marker-radius</v-icon>
       </template>
       <template v-slot:item.device.device_name="{ item }">
-        <div
-          :style="
-            item.device && item.device.location ? 'color:green' : 'color: red;'
-          "
-        >
+        <div>
           {{ item.device ? caps(item.device.name) : "---" }} <br />
-
-          {{
-            item.device && item.device.location ? item.device.location : "---"
-          }}
+          <div class="secondary-value">
+            {{
+              item.device && item.device.location ? item.device.location : "---"
+            }}
+          </div>
         </div>
       </template>
       <!-- <template v-slot:item.log="{ item }">
@@ -153,6 +159,10 @@ export default {
   props: ["system_user_id"],
   data() {
     return {
+      perPage: 10,
+      cumulativeIndex: 1,
+      currentPage: 1,
+
       componentKey: 1,
 
       dialogEmployeeAttendance: false,
@@ -177,6 +187,14 @@ export default {
 
         //   value: "UserID",
         // },
+        {
+          text: "#",
+          align: "left",
+          sortable: true,
+          filterable: true,
+
+          value: "sno",
+        },
         {
           text: "Employee   Id",
           align: "left",

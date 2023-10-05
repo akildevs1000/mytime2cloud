@@ -67,7 +67,7 @@
         {{ item.user.employee ? item.user.employee.first_name : "Admin" }}
         {{ item.user.employee ? item.user.employee.last_name : " " }}
 
-        <div>
+        <div class="secondary-value">
           {{
             item.user.employee && item.user.employee.department
               ? caps(item.user.employee.department.name)
@@ -81,8 +81,8 @@
         {{ item.employee && item.employee.employee_id }}
       </template>
       <template v-slot:item.LogTime="{ item }" style="color: green">
-        <v-icon color="green" fill>mdi-clock-outline</v-icon
-        >{{ item.date_time }}
+        <v-icon color="green" fill>mdi-clock-outline</v-icon>
+        {{ item.date_time }}
       </template>
 
       <template v-slot:item.online="{ item }">

@@ -21,9 +21,7 @@
 
     <v-row>
       <v-col md="10">
-        <center>
-          <h6>Announcements</h6>
-        </center>
+        <h6 class="pl-2">Announcements</h6>
       </v-col>
       <v-col md="2" class="menu-icon-right">
         <v-menu bottom left>
@@ -107,9 +105,10 @@
           </v-col>
         </v-row>
       </v-col>
-
-      <v-col md="12" v-if="announcement.length == 0"> No Announcements</v-col>
     </v-row>
+    <v-col md="12" v-if="data.length == 0">
+      <center>0 Announcements</center></v-col
+    >
   </div>
 </template>
 <script>

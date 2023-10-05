@@ -403,6 +403,10 @@ export default {
               name = data.user?.name;
             }
 
+            if (data.user && data.user.user_type == "employee") {
+              this.$router.push(`/dashboard/employee`);
+            }
+
             // this.$axios.post(`activity`, {
             //   user_id: id,
             //   action: "Logged In",

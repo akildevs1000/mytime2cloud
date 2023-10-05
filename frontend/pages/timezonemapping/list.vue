@@ -141,49 +141,43 @@
               </v-btn>
             </template>
             <template v-slot:item.employees="{ item }">
-              <div
-                class="d-flex flex-row bg-surface-variant"
-                v-for="(subitem, index) in item.employee_id.slice(0, 3)"
+              <v-img
+                v-for="(subitem, index) in item.employee_id.slice(0, 10)"
+                class="employee-pic"
+                :title="caps(subitem.first_name + ' ' + subitem.last_name)"
+                style="float: left; border-radius: 50%; height: auto"
+                :src="
+                  subitem.profile_picture
+                    ? subitem.profile_picture
+                    : '/no-profile-image.jpg'
+                "
               >
-                <v-sheet class="ma-2"> {{ ++index }}: </v-sheet>
-                <v-sheet class="ma-2">
-                  <v-img
-                    style="
-                      border-radius: 50%;
-                      height: auto;
-                      width: 30px;
-                      max-width: 30px;
-                    "
-                    :src="
-                      subitem.profile_picture
-                        ? subitem.profile_picture
-                        : '/no-profile-image.jpg'
-                    "
-                  >
-                  </v-img
-                ></v-sheet>
-                <v-sheet class="ma-2">{{
-                  caps(subitem.first_name + " " + subitem.last_name)
-                }}</v-sheet>
-              </div>
+              </v-img>
 
               <v-btn
                 small
                 warning
                 @click="displayView(item.id)"
-                v-if="item.employee_id.length > 3"
+                v-if="item.employee_id.length > 10"
               >
                 All Employees
               </v-btn>
             </template>
-            <template v-slot:item.actions="{ item }">
-              <v-menu bottom left>
+            <template
+              v-slot:item.actions="{ item }"
+              style="background-color: #fff !important"
+            >
+              <v-menu bottom left style="background-color: #fff !important">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn dark-2 icon v-bind="attrs" v-on="on">
                     <v-icon>mdi-dots-vertical</v-icon>
                   </v-btn>
                 </template>
-                <v-list width="120" dense>
+                <v-list
+                  width="120"
+                  dense
+                  style="background-color: #fff !important"
+                >
                   <v-list-item @click="displayView(item.id)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="primary" small> mdi-view-list </v-icon>
@@ -487,5 +481,22 @@ export default {
 <style scoped>
 .theme--light.v-sheet {
   background-color: transparent !important;
+}
+.employee-pic {
+  border: 1px solid #ddd;
+  position: relative;
+  top: 0;
+  transition: top ease 1s;
+  z-index: 7;
+  margin-left: -3px;
+  width: 30px;
+}
+.employee-pic:hover {
+  transition: top ease 1s;
+  top: -6px;
+  z-index: 9999;
+  width: 32px;
+  border: 2px solid black;
+  border-radius: 50%;
 }
 </style>
