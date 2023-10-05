@@ -4,7 +4,7 @@
       <v-col lg="9" md="9" sm="12" xs="12">
         <v-row>
           <v-col md="12">
-            <v-card class="pa-2">
+            <v-card class="pa-2" style="height: 354px; overflow: hidden">
               <v-row background fill>
                 <v-col
                   lg="8"
@@ -16,7 +16,7 @@
                 >
                   <DashboardAttendanceChart
                     :name="'AttendanceChart1'"
-                    :height="'250'"
+                    :height="'300'"
                   />
                 </v-col>
                 <v-col
@@ -35,7 +35,7 @@
         </v-row>
         <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
-            <v-card class="py-2" style="min-height: 300px">
+            <v-card class="py-2" style="height: 772px; overflow: hidden">
               <DashboardRealTimeLogTableview />
             </v-card>
           </v-col>
@@ -49,17 +49,17 @@
             class="d-xs-flex"
             style="flex: auto"
           >
-            <v-card class="py-2 mt-2" style="min-height: 300px">
+            <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
               <DashboardAttendanceHourChart
                 :name="'AttendanceChart2'"
-                :height="'300'"
+                :height="'260'"
               />
             </v-card>
           </v-col>
           <v-col lg="6" md="6" sm="12" xs="12">
             <!-- <DashboardlastMultiStatistics /> -->
 
-            <v-card class="py-2 mt-2" style="height: 370px">
+            <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
               <DashboardLoginActivities />
             </v-card>
             <!-- <v-card class="mt-2" style="height: 350px"> </v-card> -->
@@ -72,14 +72,14 @@
 
         <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
-            <v-card class="py-2 mt-2">
+            <v-card class="py-2 mt-2" style="height: 510px; overflow: hidden">
               <DashboardAnnouncment />
             </v-card>
           </v-col>
         </v-row>
         <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
-            <v-card class="py-2 mt-2">
+            <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
               <DashboardAttednaceDepartmentWise
                 name="AttendanceDepartmentWise"
               />

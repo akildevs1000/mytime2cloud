@@ -657,6 +657,13 @@ export default {
   },
 
   mounted() {
+    window.addEventListener("resize", () => {
+      if (window.innerWidth <= 500) {
+        //this.miniVariant = true;
+        // const elementsArray = document.getElementsByClassName("main_bg");
+        // elementsArray[0].style.paddingRight = 0;
+      }
+    });
     // this.verifyLeaveNotificationsApi();
     // setInterval(() => {
     //   if (this.socketConnectionStatus != 1) {
@@ -1069,8 +1076,8 @@ header i {
     border-bottom: 1px solid #ddd;
   }
 }
-.v-application .primary--text {
-  color: #cecbd8 !important;
+/* .v-application .primary--text {
+  color: #6946dd !important;
   caret-color: #6946dd !important;
-}
+} */
 </style>

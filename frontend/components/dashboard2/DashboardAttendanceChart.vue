@@ -2,7 +2,7 @@
   <div style="width: 100%">
     <v-row>
       <v-col md="6">
-        <h5>{{ display_title }}</h5></v-col
+        <h6>{{ display_title }}</h6></v-col
       >
 
       <v-col md="6">
@@ -103,9 +103,8 @@ export default {
     // Format the dates (optional)
     this.date_to = today.toISOString().split("T")[0];
     this.date_from = sevenDaysAgo.toISOString().split("T")[0];
-    setTimeout(() => {
-      this.getDataFromApi();
-    }, 1000 * 3);
+    this.getDataFromApi();
+    setTimeout(() => {}, 1000 * 3);
   },
   mounted() {
     this.chartOptions.chart.height = this.height;

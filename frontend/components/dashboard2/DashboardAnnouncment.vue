@@ -1,5 +1,5 @@
 <template>
-  <div style="min-height: 300px">
+  <div>
     <v-dialog persistent v-model="announcementDialog" max-width="60%">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -22,7 +22,7 @@
     <v-row>
       <v-col md="10">
         <center>
-          <h5>Announcements</h5>
+          <h6>Announcements</h6>
         </center>
       </v-col>
       <v-col md="2" class="menu-icon-right">
@@ -152,7 +152,7 @@ export default {
   mounted() {
     setTimeout(() => {
       this.getDataFromApi();
-    }, 1000 * 6);
+    }, 1000 * 5);
   },
   created() {
     this.loading = true;

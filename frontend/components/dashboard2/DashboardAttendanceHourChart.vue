@@ -2,7 +2,7 @@
   <div style="width: 100%">
     <v-row>
       <v-col md="10"
-        ><h5 class="pl-2">Today Logs - Every Hour (in/out)</h5></v-col
+        ><h6 class="pl-2">Today Logs - Every Hour (in/out)</h6></v-col
       >
       <v-col md="2" class="menu-icon-right">
         <v-menu bottom left>
@@ -84,7 +84,7 @@ export default {
   created() {
     setTimeout(() => {
       this.getDataFromApi();
-    }, 1000 * 8);
+    }, 1000 * 6);
   },
   mounted() {
     this.chartOptions.chart.height = this.height;

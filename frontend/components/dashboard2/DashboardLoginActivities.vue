@@ -2,9 +2,7 @@
   <div>
     <v-row>
       <v-col md="10">
-        <center>
-          <h5>Web Login Activities</h5>
-        </center>
+        <h6 class="pl-2">Web Login Activities</h6>
       </v-col>
       <v-col md="2" class="text-end">
         <v-menu bottom left>
