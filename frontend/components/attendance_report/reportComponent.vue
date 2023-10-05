@@ -161,7 +161,7 @@
         :loading="loading"
         :options.sync="options"
         :footer-props="{
-          itemsPerPageOptions: [10, 50, 100, 500, 1000],
+          itemsPerPageOptions: [100, 500, 1000],
         }"
         class="elevation-1"
         model-value="data.id"
@@ -301,7 +301,7 @@
           </div>
         </template>
         <template v-slot:item.in3="{ item }">
-          <div>{{ item.In3 }}</div>
+          <div>{{ item.in3 }}</div>
           <div class="secondary-value">
             {{ (item.device_in3 && item.device_in3) || "---" }}
           </div>
@@ -351,7 +351,7 @@
         <template v-slot:item.in7="{ item }">
           <div>{{ item.in7 }}</div>
           <div class="secondary-value">
-            {{ (item.device_in7 && item.device_in1) || "---" }}
+            {{ (item.device_in7 && item.device_in7) || "---" }}
           </div>
         </template>
         <template v-slot:item.out7="{ item }">

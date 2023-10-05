@@ -1056,7 +1056,7 @@ header i {
 }
 
 .secondary-value {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .form-control:focus {

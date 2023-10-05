@@ -854,16 +854,3 @@ export default {
   },
 };
 </script>
-
-<style>
-/* .v-slide-group__content {
-  height: 30px !important;
-}
-
-.v-slide-group__wrapper {
-  height: 34px !important;
-} */
-.slidegroup1 .v-slide-group {
-  height: 34px !important;
-}
-</style>

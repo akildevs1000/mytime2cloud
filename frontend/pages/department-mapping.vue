@@ -244,7 +244,7 @@
               </span>
               <v-chip
                 small
-                class="primary ma-1"
+                class="ma-1"
                 style="color: black; margin-left: 10px !important"
                 @click="gotoDialogPage(item)"
                 v-if="item.employees.length > 4"
