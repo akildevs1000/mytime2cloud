@@ -360,24 +360,24 @@ export default {
       max_employee: "",
       max_devices: "",
       lat: "",
-      lon: ""
+      lon: "",
     },
     contact_payload: {
       contact_name: "",
       contact_no: "",
       contact_position: "",
-      contact_whatsapp: ""
+      contact_whatsapp: "",
     },
     login_payload: {
       user_name: "",
       email: "",
       password: "",
-      password_confirmation: ""
+      password_confirmation: "",
     },
     e1: 1,
     errors: [],
     data: [],
-    devices: []
+    devices: [],
   }),
   async created() {
     this.getDataFromApi();
@@ -386,6 +386,9 @@ export default {
   },
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return u && u.user_type == per;
     },
@@ -426,7 +429,7 @@ export default {
           name: contact_name,
           number: contact_no,
           position: contact_position,
-          whatsapp: contact_whatsapp
+          whatsapp: contact_whatsapp,
         } = contact;
         let { name: user_name, email } = user;
 
@@ -434,7 +437,7 @@ export default {
           contact_name,
           contact_no,
           contact_position,
-          contact_whatsapp
+          contact_whatsapp,
         };
         this.login_payload = { user_name, email };
 
@@ -463,11 +466,11 @@ export default {
     },
     deleteDeviceItem(item) {
       confirm("Are you sure you want to delete this item?") &&
-        this.$axios.delete("device/" + item.id).then(res => {
+        this.$axios.delete("device/" + item.id).then((res) => {
           const index = this.devices.indexOf(item);
           this.devices.splice(index, 1);
         });
-    }
-  }
+    },
+  },
 };
 </script>

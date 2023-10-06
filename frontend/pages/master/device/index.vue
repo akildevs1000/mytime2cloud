@@ -12,22 +12,46 @@
       </v-col>
       <v-col cols="6">
         <div class="text-right">
-          <v-btn small color="error" class="mr-2 mb-2" @click="delteteSelectedRecords">Delete Selected Records</v-btn>
+          <v-btn
+            small
+            color="error"
+            class="mr-2 mb-2"
+            @click="delteteSelectedRecords"
+            >Delete Selected Records</v-btn
+          >
 
-          <v-btn small color="primary" to="/device/create" class="mb-2">device +</v-btn>
+          <v-btn small color="primary" to="/device/create" class="mb-2"
+            >device +</v-btn
+          >
         </div>
       </v-col>
     </v-row>
-    <v-data-table v-model="ids" show-select item-key="id" :headers="headers" :items="devices" :server-items-length="total"
-      :loading="loading" :options.sync="options" :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000]
-      }" class="elevation-1">
+    <v-data-table
+      v-model="ids"
+      show-select
+      item-key="id"
+      :headers="headers"
+      :items="devices"
+      :server-items-length="total"
+      :loading="loading"
+      :options.sync="options"
+      :footer-props="{
+        itemsPerPageOptions: [50, 100, 500, 1000],
+      }"
+      class="elevation-1"
+    >
       <template v-slot:top>
         <v-toolbar flat color="">
           <v-toolbar-title>List</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
 
-          <v-text-field @input="searchIt" v-model="search" label="Search" single-line hide-details></v-text-field>
+          <v-text-field
+            @input="searchIt"
+            v-model="search"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
         </v-toolbar>
       </template>
       <template v-slot:item.action="{ item }">
@@ -74,24 +98,24 @@ export default {
         text: "Company",
         align: "left",
         value: "company.name",
-        sortable: false
+        sortable: false,
       },
       { text: "Location", align: "left", value: "location", sortable: false },
 
-      { text: "Actions", align: "center", value: "action", sortable: false }
+      { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     editedIndex: -1,
     editedItem: { name: "" },
     defaultItem: { name: "" },
     response: "",
     devices: [],
-    errors: []
+    errors: [],
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New device" : "Edit device";
-    }
+    },
   },
 
   watch: {
@@ -104,8 +128,8 @@ export default {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     this.loading = true;
@@ -113,6 +137,9 @@ export default {
 
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return u && u.user_type == per;
     },
@@ -125,8 +152,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user?.company?.id
-        }
+          company_id: this.$auth.user?.company?.id,
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -171,13 +198,13 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.id);
+      let just_ids = this.ids.map((e) => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids
+            ids: just_ids,
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -189,7 +216,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -204,7 +231,7 @@ export default {
             this.snackbar = data.status;
             this.response = data.message;
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     close() {
@@ -217,32 +244,32 @@ export default {
 
     save() {
       let payload = {
-        name: this.editedItem.name.toLowerCase()
+        name: this.editedItem.name.toLowerCase(),
       };
       if (this.editedIndex > -1) {
         this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, payload)
-          .then(res => {
+          .then((res) => {
             if (!res.data.status) {
               this.errors = res.data.errors;
             } else {
               const index = this.devices.findIndex(
-                item => item.id == this.editedItem.id
+                (item) => item.id == this.editedItem.id
               );
               this.devices.splice(index, 1, {
                 id: this.editedItem.id,
-                name: this.editedItem.name
+                name: this.editedItem.name,
               });
               this.snackbar = res.data.status;
               this.response = res.data.message;
               this.close();
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       } else {
         this.$axios
           .post(this.endpoint, payload)
-          .then(res => {
+          .then((res) => {
             if (!res.data.status) {
               this.errors = res.data.errors;
             } else {
@@ -254,9 +281,9 @@ export default {
               this.search = "";
             }
           })
-          .catch(res => console.log(res));
+          .catch((res) => console.log(res));
       }
-    }
-  }
+    },
+  },
 };
 </script>

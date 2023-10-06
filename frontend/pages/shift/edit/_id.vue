@@ -61,7 +61,11 @@
               <v-card-text>
                 <v-row>
                   <v-col cols="12">
-                    <component :shift_id="shift_id" :shift_type_id="shift_type_id" :is="comp" />
+                    <component
+                      :shift_id="shift_id"
+                      :shift_type_id="shift_type_id"
+                      :is="comp"
+                    />
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -172,6 +176,9 @@ export default {
       }
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master

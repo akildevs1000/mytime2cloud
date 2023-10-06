@@ -6,21 +6,17 @@
       </v-snackbar>
     </div>
     <div v-if="!preloader">
-      <v-row class=" ">
-        <v-col cols="10">
-          <h4>Report Notification</h4>
-          <!-- <div>Dashboard / Report Notification</div> -->
-        </v-col>
-      </v-row>
-      <v-card elevation="0" class="pa-3">
-        <v-card-title>
-          <label class="col-form-label"
-            ><b>Update Report Notification </b></label
-          >
-          <v-spacer></v-spacer>
-          <v-btn small fab color="background" dark to="/report_notifications">
-            <v-icon>mdi-arrow-left</v-icon>
-          </v-btn>
+      <!-- <v-row class="mt-5 mb-5">
+          <v-col cols="10">
+            <h3>Report Notification</h3>
+            <div>Dashboard / Report Notification</div>
+          </v-col>
+        </v-row> -->
+      <!-- <Back class="primary white--text" /> -->
+
+      <v-card elevation="0" class="mt-2 pa-3">
+        <v-card-title style="border-bottom: 1px solid #ddd">
+          <span class="popup_title"> Create Report Notification </span>
         </v-card-title>
         <v-container>
           <v-row>
@@ -43,7 +39,7 @@
             </v-col>
             <v-col cols="3">
               <v-autocomplete
-                @change="processDay"
+                @change="setDay"
                 :hide-details="!payload.frequency"
                 v-model="payload.frequency"
                 outlined
@@ -117,11 +113,11 @@
 
             <v-col cols="3">
               <v-menu
-                ref="menu2"
+                ref="menu"
                 v-model="menu2"
                 :close-on-content-click="false"
                 :nudge-right="40"
-                :return-value.sync="time"
+                :return-value.sync="payload.time"
                 transition="scale-transition"
                 offset-y
                 max-width="290px"
@@ -143,7 +139,7 @@
                   v-if="menu2"
                   v-model="payload.time"
                   full-width
-                  @click:minute="$refs.menu2.save(time)"
+                  @click:minute="$refs.menu.save(payload.time)"
                 ></v-time-picker>
               </v-menu>
               <span v-if="errors && errors.time" class="text-danger mt-2">{{
@@ -404,8 +400,8 @@
                 <template #placeholder> Loading... </template>
               </ClientOnly>
             </v-col>
-
-            <v-col cols="12">
+            <v-spacer></v-spacer>
+            <v-col col="2" class="text-end">
               <v-btn small color="primary" @click="store"> Submit </v-btn>
             </v-col>
           </v-row>
@@ -420,7 +416,6 @@
 <script>
 import {
   TiptapVuetify,
-  Image,
   Heading,
   Bold,
   Italic,
@@ -433,13 +428,12 @@ import {
   Blockquote,
   History,
 } from "tiptap-vuetify";
+
 export default {
   components: { TiptapVuetify },
 
   data: () => ({
-    time: null,
     menu: false,
-    menu2: false,
     days: [
       { id: 1, name: "Monday" },
       { id: 2, name: "Tuesday" },
@@ -452,7 +446,6 @@ export default {
     extensions: [
       History,
       Blockquote,
-      Image,
       Underline,
       Strike,
       Italic,
@@ -472,9 +465,9 @@ export default {
     ],
     // starting editor's content
     content: `
-      <h1>Yay Headlines!</h1>
-      <p>All these <strong>cool tags</strong> are working now.</p>
-        `,
+        <h1>Yay Headlines!</h1>
+        <p>All these <strong>cool tags</strong> are working now.</p>
+          `,
     color: "primary",
     e1: 1,
     menu2: false,
@@ -484,6 +477,8 @@ export default {
     id: "",
     snackbar: false,
     to: "",
+
+    number: "",
     cc: "",
     bcc: "",
     payload: {
@@ -498,43 +493,25 @@ export default {
       date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
         .toISOString()
         .substr(0, 10),
+      company_id: 0,
     },
-
-    route_id: 0,
 
     errors: [],
   }),
 
-  mounted() {},
-
   created() {
     this.preloader = false;
-    this.id = this.$auth?.user?.company?.id;
-    this.getRecord();
+    this.payload.company_id = this.$auth?.user?.company?.id;
   },
   methods: {
-    processDay() {
-      let { frequency, date } = this.payload;
+    setDay() {
+      let { frequency, day, date } = this.payload;
 
-      this.payload.day =
-        frequency == "Monthly" ? new Date(date).getDate() : null;
-    },
-    setDefaultDate() {
-      return new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10);
-    },
-    set_date_save(from_menu, field) {
-      from_menu.save(field);
-    },
-    getRecord() {
-      this.$axios
-        .get("/report_notification/" + this.$route.params.id)
-        .then(({ data }) => {
-          this.payload = data;
+      if (frequency == "Monthly") {
+        day = new Date(date).getDate();
+      }
 
-          this.payload.day = parseInt(data.day);
-        });
+      this.payload.day = day;
     },
     onScroll() {
       this.scrollInvoked++;
@@ -545,33 +522,35 @@ export default {
     can_old(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
+        u.is_master
       );
     },
 
-    add_to() {
-      if (!this.payload.tos) {
-        this.payload.tos = [];
+    add_number() {
+      if (this.number && this.number.length > 10) {
+        this.payload.numbers.push(this.number);
+        this.number = "";
       }
+    },
+    add_to() {
       this.payload.tos.push(this.to);
       this.to = "";
     },
     add_cc() {
-      if (!this.payload.ccs) {
-        this.payload.ccs = [];
-      }
       this.payload.ccs.push(this.cc);
       this.cc = "";
     },
     add_bcc() {
-      if (!this.payload.bccs) {
-        this.payload.bccs = [];
-      }
       this.payload.bccs.push(this.bcc);
       this.bcc = "";
     },
     deleteTO(i) {
       this.payload.tos.splice(i, 1);
+    },
+
+    deleteNumber(i) {
+      this.payload.numbers.splice(i, 1);
     },
 
     deleteCC(i) {
@@ -583,10 +562,8 @@ export default {
     },
 
     store() {
-      this.errors = [];
-
       this.$axios
-        .put("/report_notification/" + this.$route.params.id, this.payload)
+        .post("/report_notification", this.payload)
         .then(({ data }) => {
           this.loading = false;
 
@@ -597,35 +574,69 @@ export default {
 
           this.snackbar = data.status;
           this.response = data.message;
+
+          setTimeout(() => {
+            this.$router.push("/report_notifications");
+          }, 1000);
         })
         .catch((e) => console.log(e));
+    },
+    test_endpoint() {
+      // /test/whatsapp
+      this.$axios.get("/test/whatsapp").then((res) => {});
+    },
+    test() {
+      var axios = require("axios");
+      // var data = JSON.stringify({
+      //   messaging_product: "whatsapp",
+      //   recipient_type: "individual",
+      //   to: "923108559858",
+      //   type: "text",
+      //   text: {
+      //     preview_url: false,
+      //     body: "contect"
+      //   }
+      //   // type: "text",
+      //   // text: {
+      //   //   // the text object
+      //   //   preview_url: false,
+      //   //   body: "sdfsdf"
+      //   // }
+      // });
+
+      var data = JSON.stringify({
+        messaging_product: "whatsapp",
+        to: "923108559858",
+        type: "template",
+        template: {
+          name: "automated_reports",
+          language: {
+            code: "en",
+          },
+        },
+      });
+
+      var config = {
+        method: "post",
+        url: "https://graph.facebook.com/v14.0/102482416002121/messages",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer EAAP9IfKKSo0BAGDS96w2XuYjjpXIqxZBAOcwzlFWecCxODjNO3ruEcbnZCkmHSWNAGNf1Q9wC2uwe5XnyxteTOYAO3l9wgy4iu9L6wwYgtZBZAygXV3Tc4euoYANOZCFlvMAsnNz7vNQEYUYdL56l9poliM3eS6ZCZBV4dMzJhKEQKDbUTZB2ZBvEVl2mlHvSj8dCWgITF8e9GFkTXO8isMsx",
+        },
+        data: data,
+      };
+
+      axios(config)
+        .then(function (response) {})
+        .catch(function (error) {
+          console.log(error);
+        });
     },
   },
 };
 </script>
-<style scoped>
-div.v-date-picker-header {
-  display: none !important;
-}
-
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
-</style>
-<style scoped>
+<style>
 .tiptap-vuetify-editor__content {
   min-height: 400px !important;
 }

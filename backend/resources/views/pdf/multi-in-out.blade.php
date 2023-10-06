@@ -290,7 +290,7 @@
             <tr style="text-align:  center">
                 <td>{{ ++$i }}</td>
                 <td style="text-align:  center;">{{ $employee->date ?? '---' }}
-                    <div class="secondary-value">{{ $employee->day ?? '---' }}</div>
+                    <div class="secondary-value" style="font-size:6px">{{ $employee->day ?? '---' }}</div>
                 </td>
                 <td>
                     <div style="width:20px;float:left; margin-right:5px">
@@ -304,7 +304,7 @@
                     </div>
                     <div style="width:auto;float:left">
                         {{ $employee->employee->first_name   }} {{ $employee->employee->last_name   }}
-                        <div class="secondary-value">
+                        <div class="secondary-value" style="font-size:6px">
                             {{ $employee->employee->employee_id   }}
                         </div>
                     </div>
@@ -314,79 +314,79 @@
                 <td style="text-align:  center;">
                     <div style="float:left">
                         {{ $employee->schedule->shift->on_duty_time   }} - {{ $employee->schedule->shift->off_duty_time   }}
-                        <div class="secondary-value">
+                        <div class="secondary-value" style="font-size:6px">
                             {{ $employee->schedule->shift->name   }}
                         </div>
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[0]['in'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[0]['device_in']   ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[0]['out'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[0]['device_out']   ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[1]['in'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[1]['device_in']   ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[1]['out'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[1]['device_out']   ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[2]['in'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[2]['device_in']   ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[2]['out'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[2]['device_out']   ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[3]['in'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[3]['device_in']   ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[3]['out'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[3]['device_out']   ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[4]['in'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[4]['device_in']  ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[4]['out'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[4]['device_out']   ?? '---' }}
                     </div>
                 </td>
 
                 <td style="text-align:  center;"> {{ $employee->logs[5]['in'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[5]['device_in']  ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[5]['out'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[5]['device_out']   ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[6]['in'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[6]['device_in']  ?? '---' }}
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[6]['out'] ?? '---' }}
-                    <div class="secondary-value">
+                    <div class="secondary-value" style="font-size:6px">
                         {{ $employee->logs[6]['device_out']   ?? '---' }}
                     </div>
                 </td>
@@ -751,8 +751,8 @@
         outline: 0;
     }
 
-    .secondary-value {
-        font-size: 7px !important;
+    .secondary-value1 {
+        font-size: 6px !important;
         padding-top: 5px;
         vertical-align: top !important;
     }

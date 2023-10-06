@@ -86,9 +86,9 @@ export default {
     msg: "",
     snackbar: false,
     loading: false,
-    Rules: [v => !!v || "This field is required"],
+    Rules: [(v) => !!v || "This field is required"],
     errors: [],
-    companies: []
+    companies: [],
   }),
   created() {
     this.getCompanies();
@@ -96,6 +96,9 @@ export default {
   },
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return u && u.user_type == per;
     },
@@ -106,7 +109,7 @@ export default {
           this.loading = false;
           this.companies = data;
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
     getModules() {
       this.$axios
@@ -114,12 +117,15 @@ export default {
         .then(({ data }) => {
           this.modules = data.data;
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
     save() {
@@ -128,7 +134,7 @@ export default {
         this.errors = [];
         let payload = {
           company_id: this.company_id,
-          module_ids: this.module_ids
+          module_ids: this.module_ids,
         };
         this.$axios.post("assign-module", payload).then(({ data }) => {
           if (!data.status) {
@@ -142,7 +148,7 @@ export default {
           setTimeout(() => this.$router.push("/master/assign_module"), 2000);
         });
       }
-    }
-  }
+    },
+  },
 };
 </script>

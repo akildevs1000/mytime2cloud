@@ -44,12 +44,25 @@
         </v-dialog>
       </div>
       <!-- <Back class="primary white--text" /> -->
-
+      <v-dialog v-model="dialogNew" width="600">
+        <v-card>
+          <v-card-title dense class="popup_background">
+            <h5>{{ formTitle }}</h5>
+            <v-spacer></v-spacer>
+            <v-icon @click="dialogNew = false" outlined dark>
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
+          <v-card-text>
+            <Automation></Automation>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
       <v-card class="mb-5 mt-2" elevation="0">
         <v-toolbar class="rounded-md" dense flat>
-          <v-toolbar-title><span> Notifications List</span></v-toolbar-title>
+          <v-toolbar-title><span> Automation List</span></v-toolbar-title>
           <!-- <v-tooltip top color="primary">
-            <template v-slot:activator="{ on, attrs }"> -->
+              <template v-slot:activator="{ on, attrs }"> -->
           <v-btn
             dense
             class="ma-0 px-0"
@@ -63,11 +76,11 @@
             >
           </v-btn>
           <!-- </template>
-            <span>Reload</span>
-          </v-tooltip> -->
+              <span>Reload</span>
+            </v-tooltip> -->
 
           <!-- <v-tooltip top color="primary">
-            <template v-slot:activator="{ on, attrs }"> -->
+              <template v-slot:activator="{ on, attrs }"> -->
           <v-btn
             x-small
             :ripple="false"
@@ -78,44 +91,30 @@
             <v-icon dark>mdi-filter</v-icon>
           </v-btn>
           <!-- </template>
-            <span>Filter</span>
-          </v-tooltip> -->
+              <span>Filter</span>
+            </v-tooltip> -->
 
           <v-spacer></v-spacer>
 
           <!-- <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
-                      <v-icon dark white>mdi mdi-whatsapp</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Whatsapp Test</span>
-                </v-tooltip> -->
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
+                        <v-icon dark white>mdi mdi-whatsapp</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Whatsapp Test</span>
+                  </v-tooltip> -->
           <!-- <v-tooltip top color="primary">
-            <template v-slot:activator="{ on, attrs }"> -->
+              <template v-slot:activator="{ on, attrs }"> -->
           <v-btn
             x-small
             :ripple="false"
             text
             title="Add   Notification"
-            to="/report_notifications/create"
+            @click="openNewForm()"
           >
             <v-icon dark>mdi-plus-circle-outline</v-icon>
           </v-btn>
-          <!--</template>
-            <span> Add Email Notification</span>
-          </v-tooltip> -->
-          <!-- <v-toolbar-items>
-                  <v-col class="toolbaritems-button-design1">
-                    <v-btn @click="dialog = true" small color="primary" class="primary mr-2 mb-2 toolbar-button-design1">
-                      <v-icon small>mdi mdi-whatsapp</v-icon>
-                    </v-btn>
-                    <v-btn color="primary" small class="primary mr-2 mb-2 toolbar-button-design1"
-                      to="/report_notifications/create">
-                      <v-icon small>mdi mdi-email</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-toolbar-items> -->
         </v-toolbar>
 
         <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -210,33 +209,6 @@
               >{{ bcc }} (Bcc)</v-chip
             >
           </template>
-          <!-- <template v-slot:item.actions="{ item }">
-                  <v-menu bottom left>
-                    <template v-slot:activator="{ on, attrs }">
-                      <div class="text-center">
-                        <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                          <v-icon>mdi-dots-vertical</v-icon>
-                        </v-btn>
-                      </div>
-                    </template>
-                    <v-list width="120" dense>
-                      <v-list-item @click="editItem(item)">
-                        <v-list-item-title style="cursor: pointer">
-                          <v-icon color="secondary" small>
-                            mdi-pencil
-                          </v-icon>
-                          Edit
-                        </v-list-item-title>
-                      </v-list-item>
-                      <v-list-item @click="deleteItem(item)">
-                        <v-list-item-title style="cursor: pointer">
-                          <v-icon color="error" small> mdi-delete </v-icon>
-                          Delete
-                        </v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </template> -->
         </v-data-table>
       </v-card>
     </div>
@@ -247,11 +219,13 @@
 
 <script>
 import Back from "../../components/Snippets/Back.vue";
+import Automation from "../../components/automation.vue";
 
 export default {
-  components: { Back },
+  components: { Back, Automation },
 
   data: () => ({
+    dialogNew: false,
     showFilters: false,
     filters: {},
     isFilter: false,
@@ -291,7 +265,16 @@ export default {
     errors: [],
     headers_table: [
       {
-        text: "Subject",
+        text: "#",
+        align: "left",
+        sortable: true,
+        key: "title",
+        value: "sno",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Type",
         align: "left",
         sortable: true,
         key: "title",
@@ -300,7 +283,16 @@ export default {
         filterSpecial: false,
       },
       {
-        text: "Frequency",
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "title",
+        value: "subject",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Manager1",
         align: "left",
         sortable: true,
         key: "frequency",
@@ -309,7 +301,43 @@ export default {
         filterSpecial: false,
       },
       {
-        text: "Time",
+        text: "Manager2",
+        align: "left",
+        sortable: true,
+        key: "frequency",
+        value: "frequency",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Manager3",
+        align: "left",
+        sortable: true,
+        key: "frequency",
+        value: "frequency",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Media",
+        align: "left",
+        sortable: true,
+        key: "frequency",
+        value: "frequency",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Last Sent",
+        align: "left",
+        sortable: true,
+        key: "time",
+        value: "time",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Options",
         align: "left",
         sortable: true,
         key: "time",
@@ -333,6 +361,9 @@ export default {
     this.getDataFromApi();
   },
   methods: {
+    openNewForm() {
+      this.dialogNew = true;
+    },
     datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";

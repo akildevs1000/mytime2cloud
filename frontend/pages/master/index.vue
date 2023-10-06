@@ -62,11 +62,11 @@ export default {
         { text: "Contact Name", value: "contact.name" },
         { text: "Max Devices", value: "max_devices" },
         { text: "Max Employees", value: "max_employee" },
-        { text: "Location", value: "location" }
+        { text: "Location", value: "location" },
       ],
       data: [],
       title: `Lattest Companies`,
-      endpoint: "company"
+      endpoint: "company",
     };
   },
   created() {
@@ -74,6 +74,9 @@ export default {
   },
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return u && u.user_type == per;
     },
@@ -88,25 +91,25 @@ export default {
         {
           title: "TOTAL COMPANIES",
           value: "254",
-          icon: "mdi-apps"
+          icon: "mdi-apps",
         },
         {
           title: "TOTAL EMPLOYEES",
           value: "267",
-          icon: "mdi-account"
+          icon: "mdi-account",
         },
         {
           title: "TOTAL UNPAID",
           value: "4000",
-          icon: "mdi-bank"
+          icon: "mdi-bank",
         },
         {
           title: "TOTAL PAID",
           value: "8000",
-          icon: "mdi-bank"
-        }
+          icon: "mdi-bank",
+        },
       ];
-    }
-  }
+    },
+  },
 };
 </script>

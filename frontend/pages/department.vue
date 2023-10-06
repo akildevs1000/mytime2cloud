@@ -146,7 +146,7 @@
           persistent
           v-model="dialogForm"
           :fullscreen="false"
-          width="500px"
+          width="350px"
         >
           <v-card>
             <v-card-title dense class="popup_background">
@@ -159,11 +159,26 @@
             <v-card-text>
               <v-container>
                 <v-row class="">
-                  <v-col md="12" sm="12" cols="12" dense>
-                    <label class="col-form-label"
-                      >Department Name<span class="text-danger">*</span></label
+                  <v-col md="12" sm="12" cols="12" small dense class="pb-0">
+                    <v-select
+                      label="Branch "
+                      v-model="editedItem.branch_id"
+                      :items="branchesList"
+                      dense
+                      placeholder="Branch"
+                      outlined
+                      item-value="id"
+                      item-text="branch_name"
+                      :error="errors.branch_id"
+                      :error-messages="
+                        errors && errors.branch_id ? errors.branch_id[0] : ''
+                      "
                     >
+                    </v-select>
+                  </v-col>
+                  <v-col md="12" sm="12" cols="12" small dense class="pt-0">
                     <v-text-field
+                      label="Department Name"
                       dense
                       outlined
                       :hide-details="!errors.name"
@@ -294,35 +309,38 @@
               <template v-slot:item.name="{ item }">
                 {{ caps(item.name) }}
               </template>
+              <template v-slot:item.branch_name="{ item }">
+                {{ (item.branch && item.branch.branch_name) || "---" }}
+              </template>
               <template v-slot:item.sub_dep.name="{ item }">
                 <span
                   v-for="(sub_dep, index) in item.children.slice(0, 3)"
                   :key="index"
                 >
-                  <v-chip small class="primary ma-1">
+                  <div small class="ma-1">
                     {{ caps(sub_dep.name) }}
-                  </v-chip>
+                  </div>
                   <br />
                 </span>
 
-                <v-chip
+                <div
                   small
-                  class="primary ma-1"
+                  class="ma-1"
                   style="color: black"
                   @click="gotoSubdepartments(item)"
                   v-if="item.children.length > 3"
                 >
                   View all..
-                </v-chip>
+                </div>
               </template>
               <template v-slot:item.designations="{ item }">
                 <span
                   v-for="(designation, index) in item.designations.slice(0, 3)"
                   :key="index"
                 >
-                  <v-chip small class="primary ma-1">
+                  <div class="ma-1">
                     {{ caps(designation.name) }}
-                  </v-chip>
+                  </div>
                   <br />
                 </span>
               </template>
@@ -442,6 +460,16 @@ export default {
         value: "name",
         filterable: true,
       },
+
+      {
+        key: "branch_name",
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        value: "branch_name",
+        filterable: true,
+      },
+
       {
         text: "Sub Department",
         align: "left",
@@ -457,6 +485,7 @@ export default {
 
       { text: "Options", align: "left", sortable: false, value: "options" },
     ],
+    branchesList: [],
   }),
 
   computed: {
@@ -483,6 +512,7 @@ export default {
   created() {
     this.loading = true;
     this.getDataFromApi();
+    this.getbranchesList();
   },
 
   methods: {
@@ -496,6 +526,9 @@ export default {
       this.loading = false;
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       return true;
       let u = this.$auth.user;
       return (
@@ -537,6 +570,20 @@ export default {
       this.isFilter = false;
       this.getDataFromApi();
     },
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          company_branch_manager_branch_id:
+            this.$auth.user.company_branch_manager_branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       if (url == "") url = this.endpoint;
       this.loading = true;
@@ -555,6 +602,8 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
           department_ids: this.$auth.user.assignedDepartments,
+          company_branch_manager_branch_id:
+            this.$auth.user.company_branch_manager_branch_id,
           ...this.filters,
         },
       };
@@ -699,6 +748,7 @@ export default {
       let payload = {
         name: this.editedItem.name,
         company_id: this.$auth.user.company_id,
+        branch_id: this.editedItem.branch_id,
       };
       if (this.editedIndex > -1) {
         this.$axios

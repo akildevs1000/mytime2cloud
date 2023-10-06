@@ -8,6 +8,9 @@ const data = ({ $auth, redirect }) => {
     case "employee":
       redirect("/dashboard/employee");
       break;
+    case "manager":
+      redirect("/dashboard2");
+      break;
     default:
       redirect("/dashboard2");
       break;

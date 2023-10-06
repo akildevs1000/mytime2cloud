@@ -140,6 +140,9 @@ export default {
       this.iframeDisplay = true;
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let { is_master, permissions: p } =
         this.$auth.user || this.$auth.user.permissions;
 

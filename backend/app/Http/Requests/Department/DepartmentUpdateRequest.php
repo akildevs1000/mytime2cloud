@@ -26,7 +26,8 @@ class DepartmentUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:4|max:5'
+            'name' => 'required|min:4|max:50',
+            'branch_id' => "required"
         ];
     }
 }

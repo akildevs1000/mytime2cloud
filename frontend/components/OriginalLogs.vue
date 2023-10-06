@@ -16,7 +16,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000]
+        itemsPerPageOptions: [50, 100, 500, 1000],
       }"
       class="elevation-1"
     >
@@ -40,22 +40,22 @@ export default {
     headers: [
       { text: "UserID", align: "left", sortable: false, value: "UserID" },
       { text: "LogTime", align: "left", sortable: false, value: "LogTime" },
-      { text: "DeviceID", align: "left", sortable: false, value: "DeviceID" }
+      { text: "DeviceID", align: "left", sortable: false, value: "DeviceID" },
     ],
     editedIndex: -1,
     editedItem: { name: "" },
     defaultItem: { name: "" },
     response: "",
     data: [],
-    errors: []
+    errors: [],
   }),
   watch: {
     options: {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     this.loading = true;
@@ -63,9 +63,12 @@ export default {
 
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -77,8 +80,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id
-        }
+          company_id: this.$auth.user.company_id,
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -93,7 +96,7 @@ export default {
       } else if (e.length > 2) {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
-    }
-  }
+    },
+  },
 };
 </script>

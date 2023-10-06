@@ -1202,6 +1202,9 @@ export default {
     },
 
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
@@ -1434,8 +1437,8 @@ export default {
   },
 };
 </script>
-<!-- <style scoped>
+<style scoped>
 .v-slide-group__content {
   height: 30px !important;
 }
-</style> -->
+</style>

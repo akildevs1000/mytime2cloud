@@ -259,8 +259,28 @@
                       "
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12">
-                    <label class="col-form-label">Department </label>
+                  <v-col cols="6">
+                    <label class="col-form-label"
+                      >Branch <span class="text-danger">*</span></label
+                    >
+
+                    <v-select
+                      @change="filterDepartmentsByBranch($event)"
+                      v-model="employee.branch_id"
+                      :items="branchesList"
+                      dense
+                      placeholder="Branch"
+                      outlined
+                      item-value="id"
+                      item-text="branch_name"
+                    >
+                    </v-select>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <label class="col-form-label"
+                      >Department <span class="text-danger">*</span></label
+                    >
                     <v-autocomplete
                       :items="departments"
                       item-text="name"
@@ -547,7 +567,7 @@
 
               <v-icon
                 title="New Employee"
-                @click="employeeDialog = true"
+                @click="openNewPage()"
                 right
                 dark
                 color="black"
@@ -680,6 +700,35 @@
                         flat
                         @change="applyFilters(header.key, id)"
                       ></v-select>
+
+                      <v-select
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :id="header.key"
+                        :hide-details="true"
+                        v-if="
+                          header.filterSpecial &&
+                          header.value == 'department.branch.id'
+                        "
+                        outlined
+                        dense
+                        small
+                        v-model="filters[header.key]"
+                        item-text="branch_name"
+                        item-value="id"
+                        :items="[
+                          { branch_name: `All Branches`, id: `` },
+                          ...branchesList,
+                        ]"
+                        placeholder="Branch"
+                        solo
+                        flat
+                        @change="applyFilters(header.key, id)"
+                      ></v-select>
+
                       <v-select
                         clearable
                         @click:clear="
@@ -789,6 +838,15 @@
                 </v-row>
               </template>
 
+              <template v-slot:item.department.branch.id="{ item }">
+                {{
+                  caps(
+                    item.department &&
+                      item.department.branch &&
+                      item.department.branch.branch_name
+                  )
+                }}
+              </template>
               <template v-slot:item.department.name.id="{ item }">
                 <strong>{{ caps(item.department.name) }}</strong>
                 <div>{{ caps(item.sub_department.name) }}</div>
@@ -1022,6 +1080,17 @@ export default {
         filterSpecial: false,
       },
       {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "department_branch_id",
+        value: "department.branch.id", //template name should be match for sorting sub table should be the same
+        width: "200px",
+        filterable: true,
+        filterSpecial: true,
+      },
+
+      {
         text: "Department",
         align: "left",
         sortable: true,
@@ -1077,6 +1146,7 @@ export default {
         value: "options",
       },
     ],
+    branchesList: [],
   }),
 
   async created() {
@@ -1091,9 +1161,10 @@ export default {
     };
 
     this.getDataFromApi();
-    this.getDepartments();
-    this.getShifts();
-    this.getTimezone();
+    // this.getDepartments();
+    //this.getShifts();
+    //this.getTimezone();
+    this.getbranchesList();
   },
   mounted() {
     //this.getDataFromApi();
@@ -1179,6 +1250,30 @@ export default {
     },
   },
   methods: {
+    openNewPage() {
+      this.employee = {};
+      this.departments = [];
+      this.employeeDialog = true;
+    },
+    filterDepartmentsByBranch(filterBranchId) {
+      this.getDepartments(filterBranchId);
+      this.getShifts(filterBranchId);
+      this.getTimezone(filterBranchId);
+    },
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          company_branch_manager_branch_id:
+            this.$auth.user.company_branch_manager_branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     getCurrentShift(item) {
       // Define an array of day names
       const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -1308,6 +1403,9 @@ export default {
         });
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       return true;
     },
     onPageChange() {
@@ -1389,6 +1487,8 @@ export default {
           department_id: this.department_filter_id,
           department_ids: this.$auth.user.assignedDepartments,
           ...this.filters,
+          company_branch_manager_branch_id:
+            this.$auth.user.company_branch_manager_branch_id,
         },
       };
 
@@ -1408,12 +1508,16 @@ export default {
       });
     },
 
-    getDepartments() {
+    getDepartments(filterBranchId) {
       let options = {
         params: {
           per_page: 1000,
           company_id: this.$auth.user.company_id,
           department_ids: this.$auth.user.assignedDepartments,
+          company_branch_manager_branch_id: this.$auth.user
+            .company_branch_manager_branch_id
+            ? this.$auth.user.company_branch_manager_branch_id
+            : filterBranchId,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
@@ -1421,20 +1525,28 @@ export default {
         // this.departments.unshift({ name: "All Departments", id: "" });
       });
     },
-    getShifts() {
+    getShifts(filterBranchId) {
       let options = {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
+        company_branch_manager_branch_id: this.$auth.user
+          .company_branch_manager_branch_id
+          ? this.$auth.user.company_branch_manager_branch_id
+          : filterBranchId,
       };
       this.$axios.get("shift", { params: options }).then(({ data }) => {
         this.shifts = data.data;
         //this.shifts.unshift({ name: "All Shifts", id: "" });
       });
     },
-    getTimezone() {
+    getTimezone(filterBranchId) {
       let options = {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
+        company_branch_manager_branch_id: this.$auth.user
+          .company_branch_manager_branch_id
+          ? this.$auth.user.company_branch_manager_branch_id
+          : filterBranchId,
       };
       this.$axios.get("timezone", { params: options }).then(({ data }) => {
         this.timezones = data.data;

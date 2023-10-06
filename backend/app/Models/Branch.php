@@ -10,7 +10,7 @@ class Branch extends Model
 {
     use HasFactory;
 
-    protected $guarded =[];
+    protected $guarded = [];
 
     protected $casts = [
         'member_from' => 'date:Y/m/d',
@@ -18,41 +18,44 @@ class Branch extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
-    protected $appends = ['show_member_from','show_expiry'];
+    protected $appends = ['show_member_from', 'show_expiry'];
 
-    public function company(){
+    public function company()
+    {
         return $this->belongsTo(Company::class);
     }
 
-    public function contact(){
+    public function contact()
+    {
         return $this->hasOne(BranchContact::class);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
     public function getLogoAttribute($value)
     {
-        if(!$value){
+        if (!$value) {
             return null;
         }
-        return asset('media/company/'.$this->company_id.'/branch/logo/' . $value);
+        return asset('media/company/' . $this->company_id . '/branch/logo/' . $value);
     }
 
     public function getCreatedAtAttribute($value): string
     {
-        return date('d M Y',strtotime($value));
+        return date('d M Y', strtotime($value));
     }
 
     public function getShowMemberFromAttribute(): string
     {
-        return date('d M Y',strtotime($this->member_from));
+        return date('d M Y', strtotime($this->member_from));
     }
 
     public function getShowExpiryAttribute(): string
     {
-        return date('d M Y',strtotime($this->expiry));
+        return date('d M Y', strtotime($this->expiry));
     }
 
     protected static function boot()

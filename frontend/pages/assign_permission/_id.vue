@@ -37,8 +37,8 @@
               </v-col>
 
               <table>
-                <tr style="text-align:center; ">
-                  <th style="width:600px; padding: 5px 0 !important">
+                <tr style="text-align: center">
+                  <th style="width: 600px; padding: 5px 0 !important">
                     Module
                   </th>
                   <th>Create</th>
@@ -52,14 +52,14 @@
                   <th
                     v-for="(pa, idx) in items"
                     :key="idx"
-                    style="text-align:center !important;"
+                    style="text-align: center !important"
                     class=""
                   >
                     <v-checkbox
                       :value="pa.id"
                       v-model="permission_ids"
                       :hide-details="true"
-                      class="pt-0  py-1 chk-align"
+                      class="pt-0 py-1 chk-align"
                     >
                     </v-checkbox>
                   </th>
@@ -103,9 +103,9 @@ export default {
     permissions: [],
     msg: "",
     snackbar: false,
-    Rules: [v => !!v || "This field is required"],
+    Rules: [(v) => !!v || "This field is required"],
     errors: [],
-    roles: []
+    roles: [],
   }),
   created() {
     this.$axios
@@ -114,17 +114,17 @@ export default {
         this.role_id = data.role_id;
         this.permission_ids = data.permission_ids;
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
 
     this.$axios
       .get("dropDownList")
       .then(({ data }) => {
         this.permissions = data.data;
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
 
     let options = {
-      company_id: this.$auth.user.company_id
+      company_id: this.$auth.user.company_id,
     };
 
     this.$axios
@@ -132,19 +132,22 @@ export default {
       .then(({ data }) => {
         this.roles = data.data;
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   },
   methods: {
     capsTitle(val) {
       let res = val;
       let r = res.replace(/[^a-z]/g, " ");
-      let title = r.replace(/\b\w/g, c => c.toUpperCase());
+      let title = r.replace(/\b\w/g, (c) => c.toUpperCase());
       return title;
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -152,7 +155,7 @@ export default {
       this.errors = [];
       let payload = {
         role_id: this.role_id,
-        permission_ids: this.permission_ids
+        permission_ids: this.permission_ids,
       };
       this.$axios
         .put("assign-permission/" + this.$route.params.id, payload)
@@ -161,8 +164,8 @@ export default {
           this.snackbar = true;
           setTimeout(() => this.$router.push("/assign_permission"), 2000);
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

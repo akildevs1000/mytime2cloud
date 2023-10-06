@@ -963,6 +963,9 @@ export default {
       }
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let { permissions, is_master } = this.$auth.user;
 
       return permissions.includes(per) || is_master;

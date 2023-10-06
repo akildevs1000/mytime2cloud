@@ -174,13 +174,13 @@ export default {
       order_count: "",
       admins: [
         ["Management", "mdi-account-multiple-outline"],
-        ["Settings", "mdi-cog-outline"]
+        ["Settings", "mdi-cog-outline"],
       ],
       cruds: [
         ["Create", "mdi-plus-outline"],
         ["Read", "mdi-file-outline"],
         ["Update", "mdi-update"],
-        ["Delete", "mdi-delete"]
+        ["Delete", "mdi-delete"],
       ],
 
       items: [
@@ -188,13 +188,13 @@ export default {
           icon: "mdi-home",
           title: "Home",
           to: "/master",
-          permission: this.can("/")
+          permission: this.can("/"),
         },
         {
           icon: "mdi-domain",
           title: "Companies",
           to: "/master/companies",
-          permission: this.can("company_access")
+          permission: this.can("company_access"),
         },
         {
           icon: "mdi-apps",
@@ -206,16 +206,16 @@ export default {
               icon: "mdi-chart-bubble",
               title: "Module",
               to: "/master/module",
-              permission: this.can("module_access")
+              permission: this.can("module_access"),
             },
             {
               icon: "mdi-chart-bubble",
               title: "Assign Modules",
               to: "/master/assign_module",
-              permission: this.can("assign_module_access")
-            }
-          ]
-        }
+              permission: this.can("assign_module_access"),
+            },
+          ],
+        },
 
         // {
         //   icon: "mdi-account",
@@ -256,23 +256,26 @@ export default {
       title: "Attendance System",
       logout_btn: {
         icon: "mdi-logout",
-        label: "Logout"
-      }
+        label: "Logout",
+      },
     };
   },
   created() {
-    this.items = this.items.filter(e => e.permission == true);
+    this.items = this.items.filter((e) => e.permission == true);
   },
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
     async logout() {
       await this.$auth.logout();
-    }
+    },
   },
   computed: {
     getUser() {
@@ -283,8 +286,8 @@ export default {
       return Array.from(
         this.$auth.user && this.$auth.user.name
       )[0].toUpperCase();
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>

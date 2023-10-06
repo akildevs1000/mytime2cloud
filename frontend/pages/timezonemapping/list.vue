@@ -115,7 +115,7 @@
               <b>{{ ++index }}</b>
             </template>
             <template v-slot:item.timezone.timezone_name="{ item }">
-              {{ item.timezone.timezone_name }}
+              {{ item.timezone && item.timezone.timezone_name }}
             </template>
             <template v-slot:item.devices="{ item }">
               <div
@@ -140,8 +140,9 @@
                 All Devices
               </v-btn>
             </template>
-            <template v-slot:item.employees="{ item }">
+            <template v-slot:item.employees="{ item, index }">
               <v-img
+                :key="'employeeimg' + index"
                 v-for="(subitem, index) in item.employee_id.slice(0, 10)"
                 class="employee-pic"
                 :title="caps(subitem.first_name + ' ' + subitem.last_name)"
@@ -459,6 +460,10 @@ export default {
       //window.alert("check out the console to see the logs");
     },
     can(per) {
+      
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e.name == per || per == "/")) ||

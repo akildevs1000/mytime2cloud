@@ -559,6 +559,9 @@ export default {
       });
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let user = this.$auth.user;
       return (
         (user && user.permissions.some((e) => e == per || per == "/")) ||

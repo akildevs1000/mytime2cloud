@@ -250,7 +250,7 @@
             <tr style="text-align:  center">
                 <td colspan="1">{{ ++$i }}</td>
                 <td colspan="1" style="text-align:  center;">{{ $employee->date ?? '---' }}
-                    <div class="secondary-value">{{ $employee->day ?? '---' }}</div>
+                    <div class="secondary-value" style="font-size:6px">{{ $employee->day ?? '---' }}</div>
                 </td>
                 <td colspan="3">
 
@@ -265,7 +265,7 @@
                     </div>
                     <div style="width:100px;float:left">
                         {{ $employee->employee->first_name   }} {{ $employee->employee->last_name   }}
-                        <div class="secondary-value" style="height:20px">
+                        <div class="secondary-value" style="font-size:6px" style="height:20px">
                             {{ $employee->employee->employee_id   }}
                         </div>
                     </div>
@@ -277,7 +277,7 @@
                 <td colspan="2" style="text-align:  center;">
                     <div style="float:left">
                         {{ $employee->schedule->shift->on_duty_time   }} - {{ $employee->schedule->shift->off_duty_time   }}
-                        <div class="secondary-value">
+                        <div class="secondary-value" style="font-size:6px">
                             {{ $employee->schedule->shift->name   }}
                         </div>
                     </div>
@@ -285,7 +285,7 @@
                 <td colspan="2">
                     <div style="float:left">
                         {{ $employee->in ?? '---' }}
-                        <div class="secondary-value">
+                        <div class="secondary-value" style="font-size:6px">
                             {{ $employee->device_in->name  ?? '---' }}
                         </div>
                     </div>
@@ -293,7 +293,7 @@
                 <td colspan="2">
                     <div style="float:left">
                         {{ $employee->out ?? '---' }}
-                        <div class="secondary-value">
+                        <div class="secondary-value" style="font-size:6px">
                             {{ $employee->device_out->name  ?? '---' }}
                         </div>
                     </div>

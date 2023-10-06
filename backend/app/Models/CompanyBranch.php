@@ -15,7 +15,7 @@ class CompanyBranch extends Model
 
     protected $casts = [
         'expiry' => 'date:Y/m/d',
-       'created_date' => 'datetime:d-M-Y',
+        'created_date' => 'datetime:d-M-Y',
 
     ];
 
