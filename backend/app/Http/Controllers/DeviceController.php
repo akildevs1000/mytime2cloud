@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Device\StoreRequest;
 use App\Http\Requests\Device\UpdateRequest;
+use App\Mail\EmailNotificationForOfflineDevices;
+use App\Mail\SendEmailNotificationForOfflineDevices;
 use App\Models\AttendanceLog;
+use App\Models\Company;
 use App\Models\Device;
 use App\Models\DeviceActivesettings;
 use App\Models\DevicesActiveWeeklySettings;
@@ -14,9 +17,15 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class DeviceController extends Controller
 {
+    const ONLINE_STATUS_ID = 1;
+    const OFFLINE_STATUS_ID = 2;
+
+
     public function index(Request $request)
     {
         $model = Device::query();
@@ -436,5 +445,41 @@ class DeviceController extends Controller
             'message' => 'Successfully Updated.',
             'status' => true
         ];
+    }
+
+    public function handleNotifictiaon($id)
+    {
+
+        $company = Company::where("id", $id)->where("is_offline_device_notificaiton_sent", false)->with(["devices" => fn ($q) => $q->where("status_id", self::OFFLINE_STATUS_ID)])->first();
+
+        if (!$company) {
+            return $this->getMeta("SendNotificatinForOfflineDevices", "No record found");
+        }
+
+
+        $offlineDevicesCount = count($company->devices);
+
+        if (!$offlineDevicesCount) {
+            return $this->getMeta("SendNotificatinForOfflineDevices", "All Devices Online");
+        }
+
+        $devicesLocation = json_encode(array_column($company->devices->toArray(), "location"));
+
+
+        $message = "🔔 *Notification for offline devices* 🔔\n\n";
+        $message .= "*Hello, {$company->name}*\n\n";
+        $message .= "Total *({$offlineDevicesCount})* of your devices are currently offline. Please take a look and address the issue as needed to avoid any errors in report.\n\n";
+        $message .= "Devices location: *{$devicesLocation}*.\n\n";
+        $message .= "If you have any questions or need assistance, feel free to reach out.\n\n";
+        $message .= "Best regards\n";
+        $message .= "*MyTime*";
+        // $this->sendWhatsappNotification($message, '971554501483');
+        // $this->sendWhatsappNotification($message, '971553303991');
+
+        Mail::to($company->user->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devicesLocation));
+
+        $company->update(["is_offline_device_notificaiton_sent" => true]);
+
+        return "Notification sent to WhatsApp and email.";
     }
 }
