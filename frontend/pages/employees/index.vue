@@ -1082,7 +1082,7 @@ export default {
         text: "Branch",
         align: "left",
         sortable: true,
-        key: "department_branch_id",
+        key: "branch_id",
         value: "department.branch.id", //template name should be match for sorting sub table should be the same
         width: "200px",
         filterable: true,
