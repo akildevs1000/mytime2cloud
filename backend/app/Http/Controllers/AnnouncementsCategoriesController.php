@@ -23,6 +23,10 @@ class AnnouncementsCategoriesController extends Controller
             $key = $request->search_description;
             $q->where('description', 'ILIKE', "$key%");
         });
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+
+            $q->where('branch_id',  $request->branch_id);
+        });
 
         return $model;
     }

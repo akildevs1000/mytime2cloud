@@ -400,7 +400,7 @@
                 class="ma-0 px-0"
                 :ripple="false"
                 text
-                title="Add Employee"
+                title="Add Branch"
                 @click="OpenDialog('Create')"
               >
                 <v-icon right size="x-large" dark v-if="can('employee_create')"
@@ -870,8 +870,7 @@ export default {
           company_id: this.$auth.user.company_id,
           department_id: this.department_filter_id,
           department_ids: this.$auth.user.assignedDepartments,
-          company_branch_manager_branch_id:
-            this.$auth.user.company_branch_manager_branch_id,
+
           ...this.filters,
         },
       };

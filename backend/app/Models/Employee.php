@@ -348,6 +348,14 @@ class Employee extends Model
             ->when($request->filled("department_branch_id"), function ($q) use ($request) {
                 $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->department_branch_id));
             })
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->branch_id));
+            })
+            ->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+                $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->filter_branch_id));
+            })
+
+
 
             // ->when($request->filled('sortBy'), function ($q) use ($request) {
             //     $sortDesc = $request->input('sortDesc');

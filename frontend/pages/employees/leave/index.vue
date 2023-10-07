@@ -1068,7 +1068,7 @@ export default {
         value: "reason",
       },
       {
-        text: "Reporting Manager Name",
+        text: "Reporting  ",
         align: "left",
         sortable: true,
         filterable: true,

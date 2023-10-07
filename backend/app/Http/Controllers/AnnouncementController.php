@@ -24,7 +24,7 @@ class AnnouncementController extends Controller
 
     public function annoucement_list(Request $request)
     {
-        return (new Announcement)->filters($request)->with(['category', 'user'])->withOut("employees")
+        return (new Announcement)->filters($request)->with(['category', 'user', 'branch'])->withOut("employees")
             ->where('start_date', '<=', date("Y-m-d"))
             ->where('end_date', '>=', date("Y-m-d"))
             ->paginate($request->per_page ?? 100);
@@ -43,6 +43,9 @@ class AnnouncementController extends Controller
                 'company_id' => $request->company_id,
                 'dateTime' => date("d-M-y h:i:sa"),
                 'user_id' => $request->user_id,
+                'branch_id' => $request->branch_id,
+                'category_id' => $request->category_id,
+
 
             ]);
 
@@ -68,7 +71,7 @@ class AnnouncementController extends Controller
     public function update(UpdateRequest $request, Announcement $Announcement)
     {
         try {
-            $record = $Announcement->update($request->except('departments', 'employees', 'category', 'user'));
+            $record = $Announcement->update($request->except('departments', 'employees', 'category', 'user', 'branch'));
             if ($record) {
                 if (!empty($request->departments)) {
                     $Announcement->departments()->sync($request->departments);

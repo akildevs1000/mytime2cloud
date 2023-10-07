@@ -307,7 +307,7 @@
         </v-bottom-navigation> -->
       </span>
       <v-spacer></v-spacer>
-      Hi
+      Hi {{ getLoginType }}
       {{
         getLoginType == "manager"
           ? "Department Manager"
@@ -659,6 +659,7 @@ export default {
     };
   },
   created() {
+    //console.log("this.$auth.user", this.$auth.user);
     this.$store.commit("loginType", this.$auth.user.user_type);
     this.getCompanyDetails();
     this.setMenus();

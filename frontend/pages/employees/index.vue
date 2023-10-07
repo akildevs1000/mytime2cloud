@@ -508,24 +508,23 @@
                 </template>
                 <span>Reload</span>
               </v-tooltip> -->
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon @click="toggleFilter" class="mx-1 ml-2"
-                      >mdi mdi-filter</v-icon
-                    >
-                  </v-btn>
-                </template>
+              <!-- <v-tooltip top color="primary">
+                <template v-slot:activator="{ on, attrs }"> -->
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
+              >
+                <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                  >mdi mdi-filter</v-icon
+                >
+              </v-btn>
+              <!-- </template>
                 <span>Filter</span>
-              </v-tooltip>
+              </v-tooltip> -->
 
               <v-spacer></v-spacer>
               <!-- <v-btn rounded color="grey" dark flat> Rounded Button </v-btn>
@@ -1264,9 +1263,6 @@ export default {
       this.payloadOptions = {
         params: {
           company_id: this.$auth.user.company_id,
-
-          company_branch_manager_branch_id:
-            this.$auth.user.company_branch_manager_branch_id,
         },
       };
 
@@ -1330,7 +1326,7 @@ export default {
       let data = json.map((e) => ({
         first_name: e.first_name,
         last_name: e.last_name,
-        display_name: e.display_name,
+        branch_name: e.department.branch && e.department.branch.branch_name,
         email: e.user.email,
         phone_number: e.phone_number,
         whatsapp_number: e.whatsapp_number,
@@ -1341,6 +1337,7 @@ export default {
         department_code: e.department_id,
         designation_code: e.designation_id,
         department: e.department.name,
+        sub_department: e.sub_department.name,
         designation: e.designation.name,
       }));
       let header = Object.keys(data[0]).join(",") + "\n";
@@ -1487,8 +1484,6 @@ export default {
           department_id: this.department_filter_id,
           department_ids: this.$auth.user.assignedDepartments,
           ...this.filters,
-          company_branch_manager_branch_id:
-            this.$auth.user.company_branch_manager_branch_id,
         },
       };
 
@@ -1514,10 +1509,7 @@ export default {
           per_page: 1000,
           company_id: this.$auth.user.company_id,
           department_ids: this.$auth.user.assignedDepartments,
-          company_branch_manager_branch_id: this.$auth.user
-            .company_branch_manager_branch_id
-            ? this.$auth.user.company_branch_manager_branch_id
-            : filterBranchId,
+          filter_branch_id: filterBranchId,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
@@ -1529,10 +1521,7 @@ export default {
       let options = {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
-        company_branch_manager_branch_id: this.$auth.user
-          .company_branch_manager_branch_id
-          ? this.$auth.user.company_branch_manager_branch_id
-          : filterBranchId,
+        filter_branch_id: filterBranchId,
       };
       this.$axios.get("shift", { params: options }).then(({ data }) => {
         this.shifts = data.data;
@@ -1543,10 +1532,7 @@ export default {
       let options = {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
-        company_branch_manager_branch_id: this.$auth.user
-          .company_branch_manager_branch_id
-          ? this.$auth.user.company_branch_manager_branch_id
-          : filterBranchId,
+        filter_branch_id: filterBranchId,
       };
       this.$axios.get("timezone", { params: options }).then(({ data }) => {
         this.timezones = data.data;

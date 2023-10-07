@@ -14,6 +14,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SdkLogcsvfileController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Http\Controllers\TradeLicenseController;
@@ -124,3 +125,6 @@ Route::get('processByManualForSingleShift', [SingleShiftController::class, 'proc
 // Route::get('SyncAbsentForMultipleDays', [AttendanceController::class, 'SyncAbsentForMultipleDays']);
 
 Route::get('reset_file/{token}/{file}', [CommonController::class, 'destroy']);
+
+Route::get('downloadfiles', [SdkLogcsvfileController::class, 'list']);
+Route::get('download/{key}', [SdkLogcsvfileController::class, 'download']);

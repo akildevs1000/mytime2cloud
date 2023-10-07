@@ -40,7 +40,7 @@ class UpdateRequest extends FormRequest
             'employee_id' => ['required'],
             'leave_group_id' => ['nullable'],
             'reporting_manager_id' => ['nullable'],
-
+            'branch_id' => ['nullable'],
             'profile_picture' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
             // 'phone_number' =>  ['required', 'min:10', 'max:12'],
             // 'whatsapp_number' => ['required', 'min:10', 'max:12'],

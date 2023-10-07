@@ -31,6 +31,10 @@ class Announcement extends Model
     {
         return $this->belongsToMany(Employee::class)->withTimestamps();
     }
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, 'branch_id');
+    }
     public function category()
     {
         return $this->belongsTo(AnnouncementsCategories::class);
@@ -53,7 +57,7 @@ class Announcement extends Model
     {
         $model = self::query();
 
-        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'departments', 'category', 'user.company', 'user.employee']);
+        $model->with(['employees:id,first_name,last_name,display_name,employee_id,system_user_id', 'branch', 'departments', 'category', 'user.company', 'user.employee']);
 
 
         $model->where('company_id', $request->company_id);

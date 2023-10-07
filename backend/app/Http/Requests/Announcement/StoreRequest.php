@@ -35,6 +35,7 @@ class StoreRequest extends FormRequest
             'employees' => 'required|array',
             'category_id' => 'required',
             'user_id' => 'required',
+            'branch_id' => 'nullable',
 
         ];
     }

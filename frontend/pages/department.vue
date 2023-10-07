@@ -574,9 +574,6 @@ export default {
       this.payloadOptions = {
         params: {
           company_id: this.$auth.user.company_id,
-
-          company_branch_manager_branch_id:
-            this.$auth.user.company_branch_manager_branch_id,
         },
       };
 
@@ -602,8 +599,7 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
           department_ids: this.$auth.user.assignedDepartments,
-          company_branch_manager_branch_id:
-            this.$auth.user.company_branch_manager_branch_id,
+
           ...this.filters,
         },
       };

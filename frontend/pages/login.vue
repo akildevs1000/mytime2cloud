@@ -399,12 +399,23 @@ export default {
 
             if (data.user && data.user.user_type == "master") {
               this.$router.push(`/master`);
+
+              return;
               id = data.user?.id;
               name = data.user?.name;
             }
 
+            if (
+              (data.user && data.user.user_type == "company") ||
+              data.user.user_type == "branch"
+            ) {
+              this.$router.push(`/dashboard2`);
+            }
+
             if (data.user && data.user.user_type == "employee") {
               this.$router.push(`/dashboard/employee`);
+
+              return;
             }
 
             // this.$axios.post(`activity`, {

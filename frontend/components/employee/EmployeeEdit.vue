@@ -406,14 +406,9 @@ export default {
       //this.getSubDepartments(filterBranchId);
     },
     getbranchesList() {
-      this.employee.department_id = "";
-      this.employee.sub_department_id = "0";
       this.payloadOptions = {
         params: {
           company_id: this.$auth.user.company_id,
-
-          company_branch_manager_branch_id:
-            this.$auth.user.company_branch_manager_branch_id,
         },
       };
 
@@ -422,18 +417,13 @@ export default {
       });
     },
     getDepartments(filterBranchId) {
-      this.employee.department_id = "";
-      this.employee.sub_department_id = "0";
       this.filterBranchId = filterBranchId;
       this.payloadOptions = {
         params: {
           per_page: 1000,
           company_id: this.$auth.user.company_id,
           department_ids: this.$auth.user.assignedDepartments,
-          company_branch_manager_branch_id: this.$auth.user
-            .company_branch_manager_branch_id
-            ? this.$auth.user.company_branch_manager_branch_id
-            : filterBranchId,
+          filter_branch_id: filterBranchId,
         },
       };
       this.$axios.get(`departments`, this.payloadOptions).then(({ data }) => {
@@ -447,8 +437,6 @@ export default {
           per_page: 1000,
           company_id: this.$auth.user.company_id,
           department_ids: [filterDepartmentId],
-          company_branch_manager_branch_id:
-            this.$auth.user.company_branch_manager_branch_id,
         },
       };
       this.$axios
@@ -504,12 +492,20 @@ export default {
             //employee_role_id: data.user.employee_role_id,
             leave_group_id: data.leave_group_id,
             reporting_manager_id: data.reporting_manager_id,
+            branch_id: data.branch_id,
           };
+          console.log("Employee ", this.employee);
+          if (this.employee.department_id)
+            this.filterDepartmentsByBranch(this.employee.branch_id);
 
+          if (this.employee.sub_department_id)
+            this.filterSubDepartmentsByDepartment(this.employee.department_id);
           // this.employee.id = data.id;
           this.previewImage = data.profile_picture;
         })
         .catch((err) => console.log(err));
+
+      console.log("Employee ", this.employee);
     },
     saveCroppedImageStep2() {
       this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();

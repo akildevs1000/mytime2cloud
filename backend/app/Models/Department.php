@@ -94,16 +94,18 @@ class Department extends Model
                 }
             }
         });
-        if (!$request->company_branch_manager_branch_id) {
+        if (!$request->branch_id) {
             $model->when($request->filled('department_ids') && count($request->department_ids) > 0, function ($q) use ($request) {
                 $q->whereIn('id', $request->department_ids);
             });
         } else {
-            $model =  $model->when($request->filled("company_branch_manager_branch_id"), function ($q) use ($request) {
-                return $q->where("branch_id", $request->company_branch_manager_branch_id);
+            $model =  $model->when($request->filled("branch_id"), function ($q) use ($request) {
+                return $q->where("branch_id", $request->branch_id);
             });
         }
-
+        $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+            return $q->where("branch_id", $request->filter_branch_id);
+        });
         if (!$request->sortBy) {
             $model->orderBy('name', 'asc');
         }

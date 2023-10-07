@@ -38,8 +38,12 @@ class CompanyBranchController extends Controller
     {
         $model = CompanyBranch::where('company_id', $request->company_id);
 
-        $model =  $model->when($request->filled("company_branch_manager_branch_id"), function ($q) use ($request) {
-            return $q->where("id", $request->company_branch_manager_branch_id);
+        $model =  $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            return $q->where("id", $request->branch_id);
+        });
+
+        $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+            return $q->where("id", $request->filter_branch_id);
         });
         return $model->get();
     }
@@ -99,8 +103,12 @@ class CompanyBranchController extends Controller
     {
         // return $CompanyBranch->filter($request)->paginate($request->per_page ?? 100);
         $model = $CompanyBranch->with("user.employee")->withCount(["employees", "devices", "departments"]);
-        $model->when($request->filled("company_branch_manager_branch_id"), function ($q) use ($request) {
-            return $q->where("id", $request->company_branch_manager_branch_id);
+        $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            return $q->where("id", $request->branch_id);
+        });
+
+        $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+            return $q->where("id", $request->filter_branch_id);
         });
         return $model->orderBy("id", "desc")->paginate($request->per_page ?? 100);
     }

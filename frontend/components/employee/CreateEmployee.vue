@@ -355,9 +355,6 @@ export default {
       this.payloadOptions = {
         params: {
           company_id: this.$auth.user.company_id,
-
-          company_branch_manager_branch_id:
-            this.$auth.user.company_branch_manager_branch_id,
         },
       };
 
