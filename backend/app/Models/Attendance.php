@@ -219,7 +219,7 @@ class Attendance extends Model
 
 
 
-        $model->with('employee.branch', function ($q) use ($request) {
+        $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
             $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
             $q->with(['department', 'branch']);
