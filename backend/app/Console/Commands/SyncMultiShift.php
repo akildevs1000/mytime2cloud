@@ -2,24 +2,24 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\Shift\SingleShiftController;
+use App\Http\Controllers\Shift\MultiShiftController;
 use Illuminate\Console\Command;
 
-class SyncSingleShift extends Command
+class SyncMultiShift extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'task:sync_single_shift {company_id} {date}';
+    protected $signature = 'task:sync_multi_shift {company_id} {date}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sync Single Shift';
+    protected $description = 'Sync Filo Shift';
 
     /**
      * Execute the console command.
@@ -30,8 +30,8 @@ class SyncSingleShift extends Command
     {
         $id = $this->argument("company_id");
         $date = $this->argument("date");
-        $shift_type_id = 6;
+        $shift_type_id = 2;
 
-        echo (new SingleShiftController)->render($id, $date, $shift_type_id, [], false) . "\n";
+        echo (new MultiShiftController)->render($id, $date, $shift_type_id, [], false) . "\n";
     }
 }
