@@ -526,7 +526,7 @@ export default {
       this.loading = false;
     },
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       return true;
@@ -579,6 +579,16 @@ export default {
 
       this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
         this.branchesList = data;
+        if (this.$auth.user.branch_id) {
+          this.branch_id = this.$auth.user.branch_id;
+        } else {
+          // this.branchesList = [
+          //   { branch_name: `All Branches`, id: `` },
+          //   ,
+          //   ...this.branchesList,
+          // ];
+          this.branch_id = "";
+        }
       });
     },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {

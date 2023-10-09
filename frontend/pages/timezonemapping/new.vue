@@ -91,9 +91,7 @@
             <v-toolbar dense flat style="border-bottom: 1px solid #ddd">
               <span> Employees </span>
             </v-toolbar>
-            <div
-              style="max-height: 300px; overflow-y: auto; overflow-x: hidden"
-            >
+            <div style="height: 245px; overflow-y: auto; overflow-x: hidden">
               <v-card-text>
                 <v-row
                   class="timezone-displaylistview1"
@@ -291,7 +289,7 @@
               <span>Selected Employees List</span>
             </v-toolbar>
             <div
-              style="max-height: 300px; overflow-y: auto; overflow-x: hidden"
+              style="max-height: 245px; overflow-y: auto; overflow-x: hidden"
             >
               <v-card-text>
                 <v-row
@@ -447,6 +445,9 @@
                     <v-checkbox
                       style="padding: 0px;margin-top-3"
                       v-else
+                      indeterminate
+                      value
+                      disabled
                       dense
                       small
                       hideDetails

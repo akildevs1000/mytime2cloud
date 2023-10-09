@@ -18,6 +18,19 @@
       </v-col>
       <v-col cols="3">
         <v-select
+          @change="filterDepartmentsByBranch($event)"
+          v-model="branch_id"
+          :items="[{ branch_name: `All Branches`, id: `` }, ...branchesList]"
+          dense
+          placeholder="All Branches"
+          outlined
+          item-value="id"
+          item-text="branch_name"
+        >
+        </v-select>
+      </v-col>
+      <v-col cols="3">
+        <v-select
           @change="loadDepartmentemployees"
           v-model="departmentselected"
           :items="departments"
@@ -33,12 +46,70 @@
     </v-row>
     <v-row>
       <v-col cols="5">
-        <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
-          <span> Employees </span>
-        </v-toolbar>
-        <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
-          <v-card class="photo-displaylist">
-            <v-card-text
+        <v-card class="photo-displaylist" style="height: 250px">
+          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+            <span> Employees </span>
+          </v-toolbar>
+          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
+            <v-card-text>
+              <v-row
+                class="timezone-displaylistview1"
+                v-for="(user, index) in leftEmployees"
+                :id="user.id"
+                v-model="leftEmployees"
+                :key="user.id"
+                style="border-bottom: 1px solid #ddd"
+              >
+                <v-col md="1" style="padding: 0px; margin-top: -7px">
+                  <v-checkbox
+                    v-if="user.profile_picture"
+                    dense
+                    small
+                    hideDetails
+                    v-model="leftSelectedEmp"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                  <v-checkbox
+                    style="padding: 0px"
+                    v-else
+                    dense
+                    small
+                    disabled
+                    hideDetails
+                    indeterminate
+                    v-model="leftSelectedEmp"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                </v-col>
+
+                <v-col md="1" style="padding: 0px">
+                  <v-img
+                    class="employee-pic"
+                    :title="user.first_name + ' ' + user.last_name"
+                    style="float: left; border-radius: 50%; height: auto"
+                    :src="
+                      user.profile_picture
+                        ? user.profile_picture
+                        : '/no-profile-image.jpg'
+                    "
+                  >
+                  </v-img>
+                </v-col>
+                <v-col md="3" style="padding: 0px; padding-top: 5px">
+                  {{ user.first_name }}
+                  {{ user.last_name }}
+                </v-col>
+                <v-col md="3" style="padding: 0px; padding-top: 5px">
+                  {{ user.employee_id }}
+                </v-col>
+              </v-row>
+            </v-card-text>
+
+            <!-- <v-card-text
               class="photo-displaylistview"
               v-for="(user, index) in leftEmployees"
               :id="user.id"
@@ -78,9 +149,9 @@
                   </v-img>
                 </v-col>
               </v-row>
-            </v-card-text>
-          </v-card>
-        </div>
+            </v-card-text> -->
+          </div>
+        </v-card>
       </v-col>
 
       <v-col cols="2">
@@ -142,12 +213,67 @@
       </v-col>
 
       <v-col cols="5">
-        <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
-          <span>Selected Employees </span>
-        </v-toolbar>
-        <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
-          <v-card class="photo-displaylist">
-            <v-card-text
+        <v-card class="photo-displaylist" style="height: 250px">
+          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+            <span>Selected Employees </span>
+          </v-toolbar>
+          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
+            <v-card-text>
+              <v-row
+                class="timezone-displaylistview1"
+                v-for="(user, index) in rightEmployees"
+                :id="user.id"
+                v-model="rightSelectedEmp"
+                :key="user.id"
+                style="border-bottom: 1px solid #ddd"
+              >
+                <v-col md="1" style="padding: 0px">
+                  <v-checkbox
+                    v-if="user.profile_picture"
+                    dense
+                    small
+                    hideDetails
+                    v-model="rightSelectedEmp"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                  <v-checkbox
+                    style="padding: 0px"
+                    v-else
+                    dense
+                    small
+                    hideDetails
+                    v-model="rightSelectedEmp"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                </v-col>
+
+                <v-col md="1" style="padding: 0px">
+                  <v-img
+                    class="employee-pic"
+                    :title="user.first_name + ' ' + user.last_name"
+                    style="float: left; border-radius: 50%; height: auto"
+                    :src="
+                      user.profile_picture
+                        ? user.profile_picture
+                        : '/no-profile-image.jpg'
+                    "
+                  >
+                  </v-img>
+                </v-col>
+                <v-col md="3" style="padding: 0px; padding-top: 5px">
+                  {{ user.first_name }}
+                  {{ user.last_name }}
+                </v-col>
+                <v-col md="3" style="padding: 0px; padding-top: 5px">
+                  {{ user.employee_id }}
+                </v-col>
+              </v-row>
+            </v-card-text>
+            <!-- <v-card-text
               class="photo-displaylistview"
               v-for="(user, index) in rightEmployees"
               :id="user.id"
@@ -189,9 +315,9 @@
                   }}</span>
                 </v-col>
               </div>
-            </v-card-text>
-          </v-card>
-          <!-- <select
+            </v-card-text> -->
+
+            <!-- <select
               multiple
               v-model="rightSelectedEmp"
               @dblclick="moveToLeftemp"
@@ -206,17 +332,75 @@
                 Eid: {{ user.employee_id }} : {{ user.display_name }} :
               </option>
             </select> -->
-        </div>
+          </div>
+        </v-card>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="5">
-        <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
-          <span> Devices</span>
-        </v-toolbar>
-        <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
-          <v-card class="photo-displaylist">
-            <v-card-text
+        <v-card class="photo-displaylist" style="height: 300px">
+          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+            <span> Devices</span>
+          </v-toolbar>
+          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
+            <v-card-text>
+              <v-row
+                class="timezone-displaylistview1"
+                v-for="(user, index) in leftDevices"
+                :id="user.id"
+                v-model="leftSelectedDevices"
+                :key="user.id"
+                style="border-bottom: 1px solid #ddd"
+              >
+                <v-col md="1" style="padding: 0px;margin-top-3">
+                  <v-checkbox
+                    v-if="user.status.name == 'active'"
+                    dense
+                    small
+                    hideDetails
+                    v-model="leftSelectedDevices"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                  <v-checkbox
+                    style="padding: 0px;margin-top-3"
+                    v-else
+                    indeterminate
+                    value
+                    disabled
+                    dense
+                    small
+                    hideDetails
+                    v-model="leftSelectedDevices"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                </v-col>
+                <v-col md="3" style="padding: 0px; padding-top: 5px">
+                  {{ user.name }}
+                </v-col>
+                <v-col md="3" style="padding: 0px; padding-top: 5px">
+                  {{ user.model_number }}
+                </v-col>
+                <v-col md="3" style="padding: 0px">
+                  <img
+                    title="Online"
+                    v-if="user.status.name == 'active'"
+                    src="/icons/device_status_open.png"
+                    style="width: 30px"
+                  />
+                  <img
+                    title="Offline"
+                    v-else
+                    src="/icons/device_status_close.png"
+                    style="width: 30px"
+                  />
+                </v-col>
+              </v-row>
+            </v-card-text>
+            <!-- <v-card-text
               class="photo-displaylistview"
               v-for="(user, index) in leftDevices"
               :id="user.id"
@@ -254,9 +438,9 @@
                   <span style="color: red" v-else>Offline </span>
                 </div>
               </div>
-            </v-card-text>
-          </v-card>
-        </div>
+            </v-card-text> -->
+          </div>
+        </v-card>
       </v-col>
 
       <v-col cols="2">
@@ -318,12 +502,65 @@
       </v-col>
 
       <v-col cols="5">
-        <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
-          <span>Selected Devices</span>
-        </v-toolbar>
-        <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
-          <v-card class="photo-displaylist">
-            <v-card-text
+        <v-card class="photo-displaylist" style="height: 300px">
+          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
+            <span>Selected Devices</span>
+          </v-toolbar>
+          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
+            <v-card-text>
+              <v-row
+                class="timezone-displaylistview1"
+                v-for="(user, index) in rightDevices"
+                :id="user.id"
+                v-model="rightSelectedDevices"
+                :key="user.id"
+                style="border-bottom: 1px solid #ddd"
+              >
+                <v-col md="1" style="padding: 0px;margin-top-3">
+                  <v-checkbox
+                    v-if="user.status.name == 'active'"
+                    dense
+                    small
+                    hideDetails
+                    v-model="rightSelectedDevices"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                  <v-checkbox
+                    style="padding: 0px;margin-top-3"
+                    v-else
+                    indeterminate
+                    value
+                    disabled
+                    dense
+                    small
+                    hideDetails
+                    v-model="leftSelectedDevices"
+                    :value="user.id"
+                    primary
+                    hide-details
+                  ></v-checkbox>
+                </v-col>
+                <v-col md="3" style="padding: 0px; padding-top: 5px">
+                  {{ user.name }}
+                </v-col>
+                <v-col md="3" style="padding: 0px; padding-top: 5px">
+                  {{ user.model_number }}
+                </v-col>
+                <v-col md="3" style="padding: 0px">
+                  <span
+                    v-if="user.sdkDeviceResponse == 'Success'"
+                    style="color: green"
+                    >{{ user.sdkDeviceResponse }}</span
+                  >
+                  <span v-else style="color: red">{{
+                    user.sdkDeviceResponse
+                  }}</span>
+                </v-col>
+              </v-row>
+            </v-card-text>
+            <!-- <v-card-text
               class="photo-displaylistview"
               v-for="(user, index) in rightDevices"
               :id="user.id"
@@ -355,9 +592,9 @@
                   }}</span>
                 </div>
               </div>
-            </v-card-text>
-          </v-card>
-        </div>
+            </v-card-text> -->
+          </div>
+        </v-card>
       </v-col>
     </v-row>
     <v-row>
@@ -404,14 +641,14 @@
 </template>
 
 <script>
-import Back from "../components/Snippets/Back.vue";
+// import Back from "../components/Snippets/Back.vue";
 
 export default {
-  components: {
-    Back,
-  },
+  components: {},
   data() {
     return {
+      branch_id: null,
+      branchesList: [],
       loading: false,
       counter: 0,
       devices_dialog: [],
@@ -470,12 +707,23 @@ export default {
     }, 2000);
   },
   created() {
-    this.getDepartmentsApi(this.options);
-    this.getDevisesDataFromApi();
-    this.getEmployeesDataFromApi();
-    this.getTimezonesFromApi();
+    this.getbranchesList();
+    this.getDepartmentsApi(this.options, null);
+    this.getDevisesDataFromApi(null);
+    this.getEmployeesDataFromApi(null);
+    this.getTimezonesFromApi(null);
+
+    // if (this.$auth.user.branch_id) {
+    this.branch_id = this.$auth.user.branch_id;
+    // }
   },
   methods: {
+    filterDepartmentsByBranch(branch_id) {
+      this.getDepartmentsApi(this.options, branch_id);
+      this.getDevisesDataFromApi(branch_id);
+      this.getEmployeesDataFromApi(branch_id);
+      this.getTimezonesFromApi(branch_id);
+    },
     fetch_logs() {},
     loadDepartmentemployees() {
       //this.loading = true;
@@ -486,6 +734,7 @@ export default {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
           department_id: this.departmentselected,
+          branch_id: this.branch_id,
           cols: ["id", "employee_id", "display_name"],
         },
       };
@@ -500,7 +749,9 @@ export default {
         this.rightSelectedEmp = [];
       });
     },
-    getDepartmentsApi(options) {
+    getDepartmentsApi(options, branch_id) {
+      options.params.branch_id = branch_id;
+      console.log(options);
       this.$axios
         .get("departments", options)
         .then(({ data }) => {
@@ -509,11 +760,12 @@ export default {
         })
         .catch((err) => console.log(err));
     },
-    getTimezonesFromApi() {
+    getTimezonesFromApi(branch_id) {
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
+          branch_id: branch_id,
         },
       };
       this.$axios
@@ -717,13 +969,38 @@ export default {
     goback() {
       this.$router.push("/timezonemapping/list");
     },
-    getDevisesDataFromApi(url = this.endpointDevise) {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+
+        if (!this.$auth.user.branch_id) {
+          // this.branchesList = [
+          //   { branch_name: `All Branches`, id: `` },
+          //   ,
+          //   ...this.branchesList,
+          // ];
+
+          if (this.$auth.user.branch_id)
+            this.branch_id = this.$auth.user.branch_id;
+          else this.branch_id = "";
+        }
+      });
+    },
+    getDevisesDataFromApi(branch_id, url = this.endpointDevise) {
       //this.loading = true;
       // let page = this.pagination.current;
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
+          sortBy: "status_id",
+          branch_id: branch_id,
           //cols: ["id", "location", "name", "device_id", "status:id"],
         },
       };
@@ -732,7 +1009,7 @@ export default {
         this.leftDevices = data.data;
       });
     },
-    getEmployeesDataFromApi(url = this.endpointEmployee) {
+    getEmployeesDataFromApi(branch_id, url = this.endpointEmployee) {
       //this.loading = true;
       // let page = this.pagination.current;
       let options = {
@@ -740,6 +1017,7 @@ export default {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
           cols: ["id", "employee_id", "display_name", "first_name"],
+          branch_id: branch_id,
         },
       };
       let page = 1;
@@ -1226,6 +1504,7 @@ export default {
       this.rightEmployees.forEach((item) => {
         let person = {
           name: item.display_name,
+
           userCode: parseInt(item.system_user_id),
 
           //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
@@ -1237,6 +1516,7 @@ export default {
       let payload = {
         personList: personListArray,
         snList: this.rightDevices.map((e) => e.device_id),
+        branch_id: this.branch_id,
       };
 
       if (payload.snList && payload.snList.length === 0) {
@@ -1306,323 +1586,15 @@ export default {
 };
 </script>
 <style scoped>
-table {
-  font-family: Roboto !important;
-}
-
-.fixed-setting {
-  position: fixed !important;
-  top: 500px;
-  z-index: 100000;
-  transition: right 1000ms !important;
-  right: -15px !important;
-}
-
-/* .v-btn__content {
-  margin: 0 12px 0 0px !important;
-  padding: 0 !important;
-} */
-
-.setting-drawer-open {
-  right: 250px !important;
-}
-
-.setting-drawer-close {
-  right: -15px !important;
-}
-
-.spin {
-  -webkit-animation: spin 4s linear infinite;
-  -moz-animation: spin 4s linear infinite;
-  animation: spin 4s linear infinite;
-
-  margin: 0 12px 0 0px !important;
-  padding: 0 !important;
-}
-
-@-moz-keyframes spin {
-  100% {
-    -moz-transform: rotate(360deg);
-  }
-}
-
-@-webkit-keyframes spin {
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-
-@keyframes spin {
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-.stg-color-icon {
-  width: 30px !important;
-  height: 30px !important;
-}
-
-@media (min-width: 1264px) {
-  .container {
-    max-width: 100%;
-  }
-}
-
-.submenutitle {
-  padding-left: 5px;
-  margin-left: -15px;
-}
-
-table.employee-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  /* border: 1px solid #dddddd; */
-  text-align: left;
-  padding: 8px;
-}
-
-table.employee-table tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-
-table.employee-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  /* border: 1px solid #dddddd; */
-  text-align: left;
-  padding: 8px;
-}
-
-table.employee-table tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-
-.toolbaritems-button-design {
-  padding-top: 8px !important;
-  padding-right: 0px !important;
-  /* margin: auto;
-  border-radius: 5px; */
-}
-
-.toolbaritems-button-design .v-btn {
-  height: 32px !important;
-}
-
-.timezone-displaylist {
-  height: 225px !important;
-  background: #fff;
-  border-bottom-left-radius: 6px !important;
-  border-bottom-right-radius: 6px !important;
-  overflow: auto;
-}
-
-.timezone-displaylistview {
-  padding-left: 10px !important;
-  padding-bottom: 5px !important;
-  padding-top: 0px !important;
-  cursor: pointer !important;
-
-  border-bottom: 1px solid #ddd;
-}
-
-.photo-displaylist {
-  height: 225px !important;
-  background: #fff !important;
-  border-bottom-left-radius: 6px !important;
-  border-bottom-right-radius: 6px !important;
-  overflow: auto;
-}
-
-.photo-displaylistview {
-  padding-left: 10px !important;
-  padding-bottom: 5px !important;
-  padding-top: 0px !important;
-  cursor: pointer;
-
-  border-bottom: 1px solid #ddd;
-}
-
-.timezoneedit-displaylist {
-  height: 225px !important;
-  background: #fff;
-  border-bottom-left-radius: 6px !important;
-  border-bottom-right-radius: 6px !important;
-  overflow: auto;
-}
-
-.timezoneedit-displaylistview {
-  padding-left: 10px !important;
-  padding-bottom: 5px !important;
-  padding-top: 0px !important;
-
-  border-bottom: 1px solid #ddd;
-}
-
-.v-small-dialog__menu-content {
-  margin-left: 3%;
-  margin-top: 3%;
-}
-
-.employeepage-seach-textfield:focus {
-  border: 0px !important;
-  box-shadow: none !important;
-}
-
-.sortable {
-  font-weight: bold;
-  color: black !important;
-}
-
-.v-data-table-header .desc i {
-  color: red !important;
-}
-
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
-
-.container {
-  max-width: 100% !important;
-}
-
-.text-overflow {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.text-overflow-parent {
-  max-width: 100px;
-}
-
-.text-overflow-child {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 100px;
-}
-
-.vertical-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 10px;
-  width: 100%;
-}
-
-/* .center-parent {
-  background: gray;
-  height: 300px;
-  width: 300px;
-  position: relative;
-} */
-
-.center-child {
-  position: absolute;
-  top: 50%;
-  left: 30%;
-  margin: -50px 0 0 -50px;
-}
-
-tbody tr:nth-of-type(odd) {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.v-picker--date {
-  height: 420px !important;
-}
-
-.table-search-header {
+.employee-pic {
   padding: 0px;
-  font-size: 10px;
-  padding-top: 10px;
-}
+  position: relative;
+  top: 0;
+  transition: top ease 1s;
 
-.table-search-header .theme--light.v-input input {
-  display: inline;
-  padding-top: 0px;
-}
-
-.table-search-header .v-text-field--outlined fieldset,
-.table-search-header .v-text-field--outlined .v-text-field__slot {
-  height: 32px !important;
-  width: 100% !important;
-}
-
-.table-search-header .v-input__icon--clear {
-  margin-right: 0px !important;
-}
-
-.table-search-header
-  .v-text-field--outlined
-  > .v-input__control
-  > .v-input__slot {
-  min-height: 32px !important;
-}
-
-.filter-select-hidden-text .v-input__append-inner {
-  width: 100%important;
-}
-
-.table-search-header td {
-  border: 0px !important;
-  padding-top: 10px;
-}
-
-.table-search-header .v-text-field__details {
-  display: none !important;
-}
-
-.table-search-header .v-input__icon--clear {
-  margin-top: -17px;
-  margin-right: 31px;
-}
-
-.filter-select-hidden-text input {
-  display: none !important;
-}
-
-.filter-select-hidden-text .v-input__append-inner {
-  margin: 0px !important;
-  margin-left: -54px !important;
-}
-
-.filter-select-hidden-text .mdi-close {
-  font-size: 8px !important;
-}
-
-.filter-select-hidden-text .v-select__selection {
-  font-size: 13px !important;
-}
-
-.announcement-dropdown .v-select__selections {
-  height: 33px;
-  overflow: hidden;
-}
-
-.dialog-close-button {
-  margin-top: -35px px;
-
-  margin-right: -26px;
+  margin-left: -3px;
+  width: 25px;
+  border: 1px solid #ddd;
 }
 
 @media (max-width: 500px) {

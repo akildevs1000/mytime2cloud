@@ -7,6 +7,25 @@
       <v-icon color="primary" class="mx-2" @click="dialogVisible = true"
         >mdi-filter</v-icon
       >
+      <div>
+        <br />
+
+        <v-select
+          style="margin-top: 9px; width: 200px"
+          clearable
+          small
+          cols="2"
+          v-model="branch_id"
+          :items="[{ branch_name: `All Branches`, id: `` }, ...branchesList]"
+          dense
+          placeholder="All Branches "
+          outlined
+          item-value="id"
+          item-text="branch_name"
+          @change="filterBranchdata($event)"
+        >
+        </v-select>
+      </div>
     </v-toolbar>
 
     <v-data-table
@@ -268,6 +287,8 @@
 <script>
 export default {
   data: () => ({
+    branch_id: null,
+    branchesList: [],
     isActive: false,
     filterLoader: false,
     dialogVisible: false,
@@ -325,6 +346,11 @@ export default {
         value: "name",
       },
       {
+        text: "Branch",
+        sortable: false,
+        value: "branch.branch_name",
+      },
+      {
         text: "Department",
         sortable: false,
         value: "department.name",
@@ -372,15 +398,51 @@ export default {
       params: {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
+        branch_id: this.branch_id,
       },
     };
     this.getShifts(this.options);
 
     this.getDepartments(this.options);
     // this.getDataFromApi();
+
+    this.getbranchesList();
   },
 
   methods: {
+    filterBranchdata(branch_id) {
+      this.branch_id = branch_id;
+
+      if (branch_id == "") {
+        this.branch_id = null;
+        branch_id = null;
+      }
+      this.loading = true;
+      // this.loading = true;
+      this.options = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+          branch_id: branch_id,
+        },
+      };
+      this.getShifts(this.options);
+
+      this.getDepartments(this.options);
+      this.getDataFromApi();
+    },
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     getUpdateSchedule(item) {
       let { from_date, to_date, shift_type_id } = this.shifts.find(
         (e) => e.shift_id == item.shift_id
@@ -390,6 +452,10 @@ export default {
       item.to_date = to_date;
     },
     arrangeShift() {
+      if (!this.branch_id) {
+        alert("Please select Branch  ");
+        return;
+      }
       if (!this.shifts.length) {
         alert("No shift found. Please create shift and come back.");
         return;
@@ -588,7 +654,7 @@ export default {
       this.subDepartmentsByDepartment();
     },
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       let u = this.$auth.user;
@@ -607,6 +673,7 @@ export default {
           per_page: itemsPerPage,
           page: page,
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
         },
       };
 
@@ -674,6 +741,7 @@ export default {
         employee_ids: this.employee_ids.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company_id,
+        branch_id: this.branch_id,
       };
 
       console.log(payload);

@@ -360,6 +360,16 @@ export default {
 
       this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
         this.branchesList = data;
+        if (this.$auth.user.branch_id) {
+          this.branch_id = this.$auth.user.branch_id;
+        } else {
+          // this.branchesList = [
+          //   { branch_name: `All Branches`, id: `` },
+          //   ,
+          //   ...this.branchesList,
+          // ];
+          this.branch_id = "";
+        }
       });
     },
     handleImage() {},

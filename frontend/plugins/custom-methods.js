@@ -33,4 +33,16 @@ export default ({ app }, inject) => {
       );
     },
   });
+
+  inject("pagePermission", {
+    can(per, thisobj) {
+      let u = thisobj.$auth.user;
+
+      return (
+        (u && u.permissions.some((e) => e == per || per == "/")) ||
+        u.is_master ||
+        u.user_type == "branch"
+      );
+    },
+  });
 };

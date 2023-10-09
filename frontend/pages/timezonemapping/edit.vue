@@ -74,9 +74,7 @@
             <v-toolbar dense flat style="border-bottom: 1px solid #ddd">
               <span>All Employees List</span>
             </v-toolbar>
-            <div
-              style="max-height: 250px; overflow-y: auto; overflow-x: hidden"
-            >
+            <div style="height: 240px; overflow-y: auto; overflow-x: hidden">
               <v-card-text>
                 <v-row
                   class="timezone-displaylistview1"
@@ -262,7 +260,7 @@
             >
               <span>Selected Employees List</span>
             </v-toolbar>
-            <div style="height: 250px; overflow-y: auto; overflow-x: hidden">
+            <div style="height: 245px; overflow-y: auto; overflow-x: hidden">
               <v-card-text>
                 <v-row
                   class="timezone-displaylistview1"

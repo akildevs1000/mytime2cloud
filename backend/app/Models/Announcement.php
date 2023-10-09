@@ -75,7 +75,9 @@ class Announcement extends Model
                     ->where('end_date', '<=', $request->dates[1]);
             });
         });
-
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->where('branch_id', $request->branch_id);
+        });
         $model->when($request->filled('categories'), function ($q) use ($request) {
             $key = $request->categories;
             $q->where('category_id',   $key);

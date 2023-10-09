@@ -198,7 +198,7 @@ class RosterController extends Controller
                 ->withOut(["shift", "shift_type"])
                 // ->with('roster')
                 ->orderBy("from_date", "ASC")
-                ->get(['id', 'employee_id', 'isOverTime as is_over_time', 'roster_id as schedule_id', 'from_date', 'to_date'])
+                ->get(['id', 'employee_id', 'isOverTime as is_over_time', 'roster_id as schedule_id', 'shift_id', 'from_date', 'to_date'])
                 ->makeHidden(['employee_id', 'show_from_date', 'show_to_date'])
                 ->groupBy('employee_id');
             return $data[$id];

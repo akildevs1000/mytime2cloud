@@ -32,7 +32,7 @@
           <v-row v-for="(item, i) in schedules_temp_list" :key="i">
             <v-col md="3">
               <div class="">Schedule List</div>
-              <v-autocomplete
+              <!-- <v-autocomplete
                 outlined
                 :readonly="!isEdit"
                 dense
@@ -40,6 +40,21 @@
                 x-small
                 :items="rosters"
                 item-value="schedule_id"
+                item-text="name"
+              ></v-autocomplete> -->
+
+              <v-autocomplete
+                :error="errors && errors.shift_id"
+                :error-messages="
+                  errors && errors.shift_id ? errors.shift_id[0] : ''
+                "
+                @change="runShiftFunction"
+                outlined
+                dense
+                v-model="item.shift_id"
+                x-small
+                :items="shifts"
+                item-value="shift_id"
                 item-text="name"
               ></v-autocomplete>
             </v-col>
@@ -649,6 +664,7 @@
 <script>
 export default {
   data: () => ({
+    branch_id: null,
     shifts_for_filter: [],
     shiftsTypes_for_filter: [],
 
@@ -859,6 +875,7 @@ export default {
     this.loading = true;
     this.loading_dialog = true;
     this.get_rosters();
+    this.getShifts();
     this.getDataFromApi();
     this.options = {
       params: {
@@ -993,24 +1010,40 @@ export default {
     },
 
     getShifts(shift_type_id) {
-      if (this.shift_type_id == 3) {
-        this.shift_id = 0;
-        this.shifts = [];
-        return;
-      }
-
       let options = {
         params: {
-          shift_type_id: shift_type_id,
+          per_page: 1000,
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
         },
       };
-      this.$axios
-        .get("shift_by_type", options)
-        .then(({ data }) => {
-          this.shifts = data;
-        })
-        .catch((err) => console.log(err));
+      this.$axios.get("shift", options).then(({ data }) => {
+        this.shifts = data.data.map((e) => ({
+          shift_id: e.id,
+          name: e.name,
+          shift_type_id: e.shift_type_id,
+          from_date: e.from_date,
+          to_date: e.to_date,
+        }));
+      });
+      // if (this.shift_type_id == 3) {
+      //   this.shift_id = 0;
+      //   this.shifts = [];
+      //   return;
+      // }
+
+      // let options = {
+      //   params: {
+      //     shift_type_id: shift_type_id,
+      //     company_id: this.$auth.user.company_id,
+      //   },
+      // };
+      // this.$axios
+      //   .get("shift_by_type", options)
+      //   .then(({ data }) => {
+      //     this.shifts = data;
+      //   })
+      //   .catch((err) => console.log(err));
     },
     getShiftsForFilter() {
       let options = {
@@ -1137,7 +1170,7 @@ export default {
     },
 
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       let { permissions, is_master } = this.$auth.user;

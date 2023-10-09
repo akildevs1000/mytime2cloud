@@ -18,7 +18,27 @@
         </v-card-title>
         <v-card-text>
           <v-row class="pa-1">
-            <v-col md="6" sm="12" cols="12">
+            <v-col md="3" sm="12" cols="12">
+              <label>Branch <span class="error--text">*</span></label>
+              <v-select
+                clearable
+                :hide-details="true"
+                outlined
+                dense
+                small
+                v-model="payload.branch_id"
+                item-text="branch_name"
+                item-value="id"
+                :items="branchesList"
+                placeholder="Branch"
+                solo
+                flat
+              ></v-select>
+              <span v-if="errors && errors.branch_id" class="text-danger">{{
+                errors.branch_id[0]
+              }}</span>
+            </v-col>
+            <v-col md="3" sm="12" cols="12">
               <label>Name of Schedule <span class="error--text">*</span></label>
               <v-text-field
                 v-model="payload.name"
@@ -30,7 +50,7 @@
                 errors.name[0]
               }}</span>
             </v-col>
-            <v-col md="6" sm="12" cols="12">
+            <v-col md="3" sm="12" cols="12">
               <label>Type of Schedule <span class="error--text">*</span></label>
               <v-select
                 @change="getRelatedShiftComponent"
@@ -92,7 +112,8 @@
                 errors.to_date[0]
               }}</span>
             </v-col>
-            <v-col cols="12">
+            <v-col cols="12" style="float: right">
+              <v-spacer></v-spacer>
               <v-btn
                 v-if="payload && payload.id > 0"
                 small
@@ -101,6 +122,7 @@
               >
                 Update
               </v-btn>
+
               <v-btn v-else small color="primary" @click="submit">
                 Submit
               </v-btn>
@@ -179,6 +201,33 @@
                   dense
                   autocomplete="off"
                 ></v-text-field>
+
+                <v-select
+                  clearable
+                  @click:clear="
+                    filters[header.value] = '';
+                    applyFilters();
+                  "
+                  :id="header.key"
+                  :hide-details="true"
+                  v-if="
+                    header.filterSpecial && header.value == 'branch.branch_name'
+                  "
+                  outlined
+                  dense
+                  small
+                  v-model="filters[header.key]"
+                  item-text="branch_name"
+                  item-value="id"
+                  :items="[
+                    { branch_name: `All Branches`, id: `` },
+                    ...branchesList,
+                  ]"
+                  placeholder="All Branches"
+                  solo
+                  flat
+                  @change="applyFilters(header.key, $event)"
+                ></v-select>
               </v-container>
             </td>
           </tr>
@@ -244,7 +293,8 @@ export default {
 
   data: () => ({
     showDialog: false,
-
+    branchesList1: [],
+    branchesList: [],
     isFilter: false,
     filters: {},
     shifts: [],
@@ -277,6 +327,7 @@ export default {
     data: [],
     errors: [],
     renderComponent: 0,
+    branch_id: null,
   }),
 
   watch: {
@@ -292,13 +343,38 @@ export default {
     this.getDataFromApi();
     // this.getShifts();
     this.getComponent();
+    this.getbranchesList();
   },
 
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+        this.branchesList1 = data;
+
+        if (this.$auth.user.branch_id) {
+          this.branch_id = this.$auth.user.branch_id;
+        } else {
+          // this.branchesList = [
+          //   { branch_name: `All Branches`, id: `` },
+          //   ,
+          //   ...this.branchesList,
+          // ];
+          this.branch_id = "";
+        }
+      });
+    },
     getRelatedShiftComponent() {
       this.payload = {
         shift_type_id: this.payload.shift_type_id,
         ...this.defaults[this.payload.shift_type_id],
+        branch_id: this.branch_id,
       };
       this.renderComponent = Math.random() * (1000 - 1) + 1;
       this.getComponent();
@@ -327,6 +403,7 @@ export default {
       let options = {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
+        branch_id: this.branch_id,
       };
       this.$axios.get("shift", { params: options }).then(({ data }) => {
         this.shifts = data.data;
@@ -341,6 +418,7 @@ export default {
       this.isNew = true;
       this.payload = {
         shift_type_id: 1,
+        branch_id: this.branch_id,
         ...this.defaults[this.payload.shift_type_id],
       };
 
@@ -384,7 +462,7 @@ export default {
       return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     },
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
 
     can_old(per) {
@@ -444,6 +522,7 @@ export default {
       this.isNew = false;
       this.renderComponent = Math.random() * (1000 - 1) + 1;
       this.payload = item;
+
       this.payload.from_date = new Date(item.from_date);
       this.payload.to_date = new Date(item.to_date);
       this.showDialog = true;

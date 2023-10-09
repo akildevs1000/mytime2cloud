@@ -311,8 +311,8 @@
       {{
         getLoginType == "manager"
           ? "Department Manager"
-          : getLoginType == "branch"
-          ? " Branch Manager"
+          : getLoginType == "branch:"
+          ? getBranchName()
           : ""
       }}
       <v-menu
@@ -723,11 +723,15 @@ export default {
     getLoginType() {
       return this.$store.state.loginType;
     },
+
     hasDepartments() {
       return this.$auth.user && this.$auth.user.assignedDepartments.length > 0;
     },
   },
   methods: {
+    getBranchName() {
+      return this.$auth.user.branch_name;
+    },
     getTopMenuItems(i) {
       console.log(i.module);
       if (i.module == "dashboard") {
@@ -912,7 +916,7 @@ export default {
         });
     },
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       let { permissions, is_master } = this.$auth.user;

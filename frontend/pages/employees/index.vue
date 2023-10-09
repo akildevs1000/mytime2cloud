@@ -269,10 +269,14 @@
                       v-model="employee.branch_id"
                       :items="branchesList"
                       dense
-                      placeholder="Branch"
+                      placeholder="Select Branch"
                       outlined
                       item-value="id"
                       item-text="branch_name"
+                      :error="errors.branch_id"
+                      :error-messages="
+                        errors && errors.branch_id ? errors.branch_id[0] : ''
+                      "
                     >
                     </v-select>
                   </v-col>
@@ -722,7 +726,7 @@
                           { branch_name: `All Branches`, id: `` },
                           ...branchesList,
                         ]"
-                        placeholder="Branch"
+                        placeholder="All Branches"
                         solo
                         flat
                         @change="applyFilters(header.key, id)"
@@ -1268,6 +1272,16 @@ export default {
 
       this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
         this.branchesList = data;
+        if (this.$auth.user.branch_id) {
+          this.branch_id = this.$auth.user.branch_id;
+        } else {
+          // this.branchesList = [
+          //   { branch_name: `All Branches`, id: `` },
+          //   ,
+          //   ...this.branchesList,
+          // ];
+          this.branch_id = "";
+        }
       });
     },
     getCurrentShift(item) {
@@ -1400,7 +1414,7 @@ export default {
         });
     },
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       return true;

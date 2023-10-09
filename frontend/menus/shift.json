@@ -7,6 +7,16 @@
     "filterable": false,
     "filterSpecial": false
   },
+
+  {
+    "text": "Branch",
+    "align": "left",
+    "sortable": true,
+    "key": "branch_id",
+    "value": "branch.branch_name",
+    "filterable": true,
+    "filterSpecial": true
+  },
   {
     "text": "Name of Schedule",
     "align": "left",
@@ -16,6 +26,7 @@
     "filterable": true,
     "filterSpecial": false
   },
+
   {
     "text": "Type Schedule",
     "align": "left",

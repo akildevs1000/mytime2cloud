@@ -34,6 +34,7 @@ class StoreRequest extends FormRequest
             'from_date' => ["required"],
             'to_date' => ["required"],
             'company_id' => ["required"],
+            'branch_id' => ["required"],
         ];
     }
 }
