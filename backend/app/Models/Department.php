@@ -30,6 +30,9 @@ class Department extends Model
     }
     public function children()
     {
+
+
+
         return $this->hasMany(SubDepartment::class);
     }
     public function designations()
