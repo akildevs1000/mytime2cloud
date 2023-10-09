@@ -92,7 +92,7 @@
             </v-col>
           </v-row>
           <v-row v-if="can(`shift_create`) && payload.shift_type_id != 5">
-            <v-col cols="12" md="6">
+            <v-col cols="4" md="6">
               <DatePickerCommon
                 label="From Date"
                 :default_value="currentDate"
@@ -102,7 +102,7 @@
                 errors.from_date[0]
               }}</span>
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="4" md="6">
               <DatePickerCommon
                 label="To Date"
                 :default_value="nextYearDate"
@@ -112,8 +112,7 @@
                 errors.to_date[0]
               }}</span>
             </v-col>
-            <v-col cols="12" style="float: right">
-              <v-spacer></v-spacer>
+            <v-col cols="12" style="float: right; text-align: right">
               <v-btn
                 v-if="payload && payload.id > 0"
                 small

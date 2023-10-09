@@ -30,7 +30,7 @@
               dense
               v-model="payload.branch_id"
               x-small
-              :items="branches"
+              :items="[{ branch_name: 'All Branches', id: '' }, ...branches]"
               item-value="id"
               item-text="branch_name"
               :hide-details="true"

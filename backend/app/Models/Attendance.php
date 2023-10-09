@@ -193,6 +193,11 @@ class Attendance extends Model
             $q->where('ot', "!=", "---");
         });
 
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $key = strtolower($request->branch_id);
+            $q->whereHas('employee', fn (Builder $query) => $query->where('branch_id',   $key));
+        });
+
         // $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
         //     $q->whereDate('date', $request->daily_date);
         //     //$q->orderBy("id", "desc");

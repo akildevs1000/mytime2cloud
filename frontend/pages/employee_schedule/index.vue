@@ -452,152 +452,173 @@
         <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
             <td v-for="header in headers_table" :key="header.text">
-              <v-text-field
-                clearable
-                :hide-details="true"
-                v-if="header.filterable && !header.filterSpecial"
-                v-model="filters[header.value]"
-                :id="header.value"
-                @input="applyFilters(header.key, $event)"
-                outlined
-                dense
-                autocomplete="off"
-              ></v-text-field>
-              <v-select
-                v-if="header.filterSpecial && header.value == 'isOverTime'"
-                :hide-details="true"
-                @change="applyFilter()"
-                item-value="value"
-                item-text="title"
-                v-model="filters[header.value]"
-                outlined
-                dense
-                :items="[
-                  { value: '', title: 'All' },
-                  { value: '1', title: 'Yes' },
-                  { value: '0', title: 'No' },
-                ]"
-              ></v-select>
-
-              <v-select
-                :id="header.key"
-                :hide-details="true"
-                v-if="header.filterSpecial && header.value == 'shift.name'"
-                outlined
-                dense
-                small
-                v-model="filters[header.filterName]"
-                item-text="name"
-                item-value="id"
-                :items="shifts_for_filter"
-                placeholder="Shift"
-                solo
-                flat
-                @change="applyFilters()"
-              ></v-select>
-              <v-select
-                :id="header.key"
-                :hide-details="true"
-                v-if="header.filterSpecial && header.value == 'shift_type.name'"
-                outlined
-                dense
-                small
-                v-model="filters[header.filterName]"
-                item-text="name"
-                item-value="id"
-                :items="shiftsTypes_for_filter"
-                placeholder="Shift"
-                solo
-                flat
-                @change="applyFilters()"
-              ></v-select>
-
-              <v-menu
-                v-if="header.filterSpecial && header.value == 'from_date'"
-                ref="from_menu_filter"
-                v-model="from_menu_filter"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    :hide-details="!from_date_filter"
-                    outlined
-                    dense
-                    v-model="filters[header.value]"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                    placeholder="Schedule Start Date"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  style="height: 350px"
+              <v-container>
+                <v-text-field
+                  clearable
+                  :hide-details="true"
+                  v-if="header.filterable && !header.filterSpecial"
                   v-model="filters[header.value]"
-                  no-title
-                  scrollable
-                  @input="applyFilter()"
-                >
-                  <v-spacer></v-spacer>
+                  :id="header.value"
+                  @input="applyFilters(header.key, $event)"
+                  outlined
+                  dense
+                  autocomplete="off"
+                ></v-text-field>
 
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="
-                      filters[header.value] = '';
-                      from_menu_filter = false;
-                      applyFilter();
-                    "
-                  >
-                    Clear
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-              <v-menu
-                v-if="header.filterSpecial && header.value == 'to_date'"
-                ref="to_menu_filter"
-                v-model="to_menu_filter"
-                :close-on-content-click="false"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    :hide-details="!to_date_filter"
-                    outlined
-                    dense
-                    v-model="filters[header.value]"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                    placeholder="Schedule To Date"
-                  ></v-text-field>
-                </template>
-
-                <v-date-picker
-                  style="height: 350px"
+                <v-select
+                  v-if="
+                    header.filterSpecial && header.value == 'branch.branch_name'
+                  "
+                  :hide-details="true"
+                  @change="applyFilter()"
+                  item-value="id"
+                  item-text="branch_name"
                   v-model="filters[header.value]"
-                  no-title
-                  scrollable
-                  @input="applyFilter()"
+                  outlined
+                  dense
+                  :items="[
+                    { branch_name: `All Branches`, id: `` },
+                    ...branchesList,
+                  ]"
+                ></v-select>
+                <v-select
+                  v-if="header.filterSpecial && header.value == 'isOverTime'"
+                  :hide-details="true"
+                  @change="applyFilter()"
+                  item-value="value"
+                  item-text="title"
+                  v-model="filters[header.value]"
+                  outlined
+                  dense
+                  :items="[
+                    { value: '', title: 'All' },
+                    { value: '1', title: 'Yes' },
+                    { value: '0', title: 'No' },
+                  ]"
+                ></v-select>
+
+                <v-select
+                  :id="header.key"
+                  :hide-details="true"
+                  v-if="header.filterSpecial && header.value == 'shift.name'"
+                  outlined
+                  dense
+                  small
+                  v-model="filters[header.filterName]"
+                  item-text="name"
+                  item-value="id"
+                  :items="shifts_for_filter"
+                  placeholder="Shift"
+                  solo
+                  flat
+                  @change="applyFilters()"
+                ></v-select>
+                <v-select
+                  :id="header.key"
+                  :hide-details="true"
+                  v-if="
+                    header.filterSpecial && header.value == 'shift_type.name'
+                  "
+                  outlined
+                  dense
+                  small
+                  v-model="filters[header.filterName]"
+                  item-text="name"
+                  item-value="id"
+                  :items="shiftsTypes_for_filter"
+                  placeholder="Shift"
+                  solo
+                  flat
+                  @change="applyFilters()"
+                ></v-select>
+
+                <v-menu
+                  v-if="header.filterSpecial && header.value == 'from_date'"
+                  ref="from_menu_filter"
+                  v-model="from_menu_filter"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
                 >
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="
-                      filters[header.value] = '';
-                      to_menu_filter = false;
-                      applyFilter();
-                    "
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      :hide-details="!from_date_filter"
+                      outlined
+                      dense
+                      v-model="filters[header.value]"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      placeholder="Schedule Start Date"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    style="height: 350px"
+                    v-model="filters[header.value]"
+                    no-title
+                    scrollable
+                    @input="applyFilter()"
                   >
-                    Clear
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        filters[header.value] = '';
+                        from_menu_filter = false;
+                        applyFilter();
+                      "
+                    >
+                      Clear
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
+                <v-menu
+                  v-if="header.filterSpecial && header.value == 'to_date'"
+                  ref="to_menu_filter"
+                  v-model="to_menu_filter"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      :hide-details="!to_date_filter"
+                      outlined
+                      dense
+                      v-model="filters[header.value]"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      placeholder="Schedule To Date"
+                    ></v-text-field>
+                  </template>
+
+                  <v-date-picker
+                    style="height: 350px"
+                    v-model="filters[header.value]"
+                    no-title
+                    scrollable
+                    @input="applyFilter()"
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        filters[header.value] = '';
+                        to_menu_filter = false;
+                        applyFilter();
+                      "
+                    >
+                      Clear
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
+              </v-container>
             </td>
           </tr>
         </template>
@@ -664,6 +685,7 @@
 <script>
 export default {
   data: () => ({
+    branchesList: [],
     branch_id: null,
     shifts_for_filter: [],
     shiftsTypes_for_filter: [],
@@ -737,6 +759,15 @@ export default {
         value: "employee.first_name",
         filterable: true,
         filterName: "employee_first_name",
+      },
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        value: "branch.branch_name",
+        filterable: true,
+        filterName: "branch_id",
+        filterSpecial: true,
       },
       {
         text: "Current Schedule Name",
@@ -885,9 +916,23 @@ export default {
     };
 
     this.getShiftsForFilter();
+    this.getbranchesList();
   },
 
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     applyFilter() {
       this.getDataFromApi();
       this.from_menu_filter = false;
@@ -966,6 +1011,7 @@ export default {
         schedules: this.schedules_temp_list,
         deleteIds: this.deleteIds,
         company_id: this.$auth.user.company_id,
+        branch_id: this.branch_id,
       };
       this.process(this.$axios.put(`schedule_update/${this.empId}`, payload));
     },

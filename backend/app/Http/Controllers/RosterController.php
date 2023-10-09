@@ -198,7 +198,7 @@ class RosterController extends Controller
                 ->withOut(["shift", "shift_type"])
                 // ->with('roster')
                 ->orderBy("from_date", "ASC")
-                ->get(['id', 'employee_id', 'isOverTime as is_over_time', 'roster_id as schedule_id', 'shift_id', 'from_date', 'to_date'])
+                ->get(['id', 'employee_id', 'isOverTime as is_over_time', 'roster_id as schedule_id', 'shift_id', 'branch_id', 'from_date', 'to_date'])
                 ->makeHidden(['employee_id', 'show_from_date', 'show_to_date'])
                 ->groupBy('employee_id');
             return $data[$id];
@@ -220,6 +220,7 @@ class RosterController extends Controller
                 "from_date" => $schedule['from_date'],
                 "to_date" => $schedule['to_date'],
                 "company_id" => $request->company_id,
+                "branch_id" => $request->branch_id,
                 "created_at" => now(),
                 "updated_at" => now(),
             ];
@@ -227,7 +228,7 @@ class RosterController extends Controller
 
         try {
             ScheduleEmployee::insert($arr);
-            (new ScheduleEmployeeController)->assignSchedule($request);
+            //(new ScheduleEmployeeController)->assignSchedule($request);
 
             return $this->response('Schedule successfully Updated.', null, true);
         } catch (\Throwable $th) {

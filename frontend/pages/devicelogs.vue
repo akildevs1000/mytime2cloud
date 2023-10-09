@@ -120,7 +120,29 @@
                       dense
                       autocomplete="off"
                     ></v-text-field>
-
+                    <v-select
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial &&
+                        header.value == 'employee.branch.branch_name'
+                      "
+                      clearable
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="branch_name"
+                      item-value="id"
+                      :items="[
+                        { branch_name: `All Branches`, id: `` },
+                        ...branchesList,
+                      ]"
+                      placeholder="Department"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
                     <v-select
                       :id="header.key"
                       :hide-details="true"
@@ -128,6 +150,7 @@
                         header.filterSpecial &&
                         header.value == 'department.name.id'
                       "
+                      clearable
                       outlined
                       dense
                       small
@@ -310,6 +333,7 @@ export default {
     DateRangePicker,
   },
   data: () => ({
+    branchesList: [],
     tableHeight: 750,
     id: "",
     from_menu_filter: "",
@@ -409,6 +433,16 @@ export default {
         filterSpecial: false,
       },
       {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch_id", //sorting
+        value: "employee.branch.branch_name", //edit purpose
+        width: "300px",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
         text: "Department",
         align: "left",
         sortable: false,
@@ -464,6 +498,7 @@ export default {
   created() {
     this.firstLoad();
     this.getDepartments();
+    this.getbranchesList();
   },
   watch: {
     options: {
@@ -474,6 +509,19 @@ export default {
     },
   },
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     handleDatesFilter(dates) {
       if (dates.length > 1) {
         this.getDataFromApi(this.endpoint, "dates", dates);
