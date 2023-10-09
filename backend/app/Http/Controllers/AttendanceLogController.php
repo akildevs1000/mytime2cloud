@@ -455,4 +455,21 @@ class AttendanceLogController extends Controller
             ->orderBy('LogTime', 'desc')
             ->paginate($request->per_page ?? 100);
     }
+
+
+    public function bulkStore(Request $request)
+    {
+        try {
+            $data = $request->all();
+            AttendanceLog::insert($data);
+            return $this->getMeta("Sync Attenance Logs", count($data) . " new logs has been inserted." . "\n");
+        } catch (\Throwable $th) {
+            return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
+        }
+        // return $data = [
+        //     'title' => 'Quick action required',
+        //     'body' => $th,
+        // ];
+        // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+    }
 }

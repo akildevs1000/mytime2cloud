@@ -4,7 +4,10 @@ use App\Http\Controllers\AbsentController;
 use App\Http\Controllers\FlexibleOffController;
 use App\Http\Controllers\MonthlyFlexibleHolidaysController;
 use App\Http\Controllers\OffByDayController;
+use App\Http\Controllers\Shift\FiloShiftController;
+use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\RenderController;
+use App\Http\Controllers\Shift\SingleShiftController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/render_logs', [RenderController::class, 'renderLogs']);
@@ -31,3 +34,10 @@ Route::get('renderLeavesCron/{company_id}', [RenderController::class, 'renderLea
 Route::get('renderHolidaysCron/{company_id}', [RenderController::class, 'renderHolidaysCron']);
 
 Route::post('render_employee_report', [RenderController::class, 'renderEmployeeReport']);
+
+Route::post('renderFiloRequest', [FiloShiftController::class, 'renderRequest']);
+Route::post('renderSingleRequest', [SingleShiftController::class, 'renderRequest']);
+Route::post('renderMultiRequest', [MultiInOutShiftController::class, 'renderMultiRequest']);
+
+
+

@@ -61,10 +61,16 @@ class Company extends Model
         return $this->hasOne(Shift::class);
     }
 
+    public function shifts()
+    {
+        return $this->hasMany(Shift::class);
+    }
+
     public function attendancd_logs()
     {
         return $this->hasMany(AttendanceLog::class);
     }
+
 
     public function attendances()
     {

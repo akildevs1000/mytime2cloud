@@ -6,38 +6,15 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
-use App\Models\ScheduleEmployee;
 
 class FiloShiftController extends Controller
 {
-    const SHIFTYPE = 1;
-
-    public function render()
-    {
-        $params = [
-            "date" => new \DateTime($this->getCurrentDate()),
-            "company_ids" => [],
-            "employee_ids" => [],
-            "employeesByType" => (new ScheduleEmployee)->getEmployeesByType(self::SHIFTYPE, $this->getCurrentDate()),
-        ];
-
-        $payload = $this->prepareAttendanceRecords($params);
-
-        // return json_encode($payload);
-
-
-        $arr[] =  (new Attendance)->startDBOperation($params["date"], "Filo", $payload);
-
-        return json_encode($arr);
-    }
-
     public function renderData(Request $request)
     {
         // Extract start and end dates from the JSON data
         $startDateString = $request->dates[0];
         $endDateString = $request->dates[1];
-        $company_ids = $request->company_ids;
+        $company_id = $request->company_ids[0];
         $employee_ids = $request->employee_ids;
 
         // Convert start and end dates to DateTime objects
@@ -45,119 +22,130 @@ class FiloShiftController extends Controller
         $endDate = new \DateTime($endDateString);
         $currentDate = new \DateTime();
 
-        $arr = [];
+        $response = [];
 
-        $params = [
-            "company_ids" => $company_ids,
-            "employee_ids" => $employee_ids,
-        ];
-
-        while ($startDate <= $endDate) {
-
-            $params["date"] = $startDate;
-
-            $employees = (new Employee)->getEmployees($params);
-            $params["logs"] = (new AttendanceLog)->getLogsByUser($params);
-
-            $items = [];
-
-            foreach ($employees as $row) {
-                if ($row->schedule->shift_type_id == 6) {
-                    $items[] = $this->processSingle($row, $params);
-                }
-                if ($row->schedule->shift_type_id == 1) {
-                    $items[] = $this->processFilo($row, $params);
-                }
-            }
-
-            // return array_values($items);
-
-            // return $payload = $this->prepareAttendanceRecords($params);
-
-            $arr[] = $items;
-
-            // $arr[] =  (new Attendance)->startDBOperation($params["date"], "Filo", $payload);
-
+        while ($startDate <= $currentDate && $startDate <= $endDate) {
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 1, $employee_ids, true);
             $startDate->modify('+1 day');
         }
 
-        return $arr;
+        return $response;
     }
 
-    public function prepareAttendanceRecords($params)
+    public function renderRequest(Request $request)
     {
+        return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true);
+    }
 
-        $companyIdWithUserIds = (new AttendanceLog)->getEmployeeIdsForNewLogs($params);
+    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false)
+    {
+        $params = [
+            "company_id" => $id,
+            "date" => $date,
+            "shift_type_id" => $shift_type_id,
+            "custom_render" => $custom_render,
+            "UserIds" => $UserIds,
+        ];
 
-        $logs = (new AttendanceLog)->getLogsByUser($params);
+        if (!$custom_render) {
+            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
+        }
+
+        // return json_encode($params);
+
+
+        $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
 
         $items = [];
 
-        foreach ($companyIdWithUserIds as $companyIdWithUserId) {
+        foreach ($logsEmployees as $key => $logs) {
 
-            $filteredLogs = $logs[$companyIdWithUserId->company_id][$companyIdWithUserId->UserID] ?? false;
+            $logs = $logs->toArray() ?? [];
 
+            $firstLog = $logs[0];
+            $lastLog = $logs[count($logs) - 1];
 
-            if (!$filteredLogs || $filteredLogs->isEmpty()) {
-                continue;
-            }
+            $schedule = $firstLog["schedule"] ?? false;
+            $shift = $schedule["shift"] ?? false;
 
-            $firstLog = $filteredLogs->first();
-            $lastLog = $filteredLogs->last();
+            if (!$schedule) continue;
 
-            if (count($filteredLogs) == 1 && $lastLog["log_type"] == "out") {
-                continue;
-            }
-
-            $arr = [];
-
-            $schedule = $params["employeesByType"][$companyIdWithUserId->company_id][$companyIdWithUserId->UserID][0] ?? false;
-
-            if (!$schedule) {
-                continue;
-            }
-
-
-            $shift = $schedule["shift"];
-
-            $firstLog = $filteredLogs->first();
-            $lastLog = $filteredLogs->last();
-
-            $arr = [
+            $item = [
                 "total_hrs" => "---",
-                "out" => "---",
-                "in" => "---",
+                "in" => $firstLog["time"] ?? "---",
+                "out" =>  "---",
                 "ot" => "---",
-                "device_id_in" => "---",
+                "device_id_in" =>  $firstLog["DeviceID"] ?? "---",
                 "device_id_out" => "---",
-                "date" => $params["date"]->format('Y-m-d'),
-                "company_id" => $companyIdWithUserId->company_id,
-                "employee_id" => $companyIdWithUserId->UserID,
-                "shift_id" => $schedule["shift_id"],
-                "shift_type_id" => self::SHIFTYPE,
+                "date" => $params["date"],
+                "company_id" => $params["company_id"],
+                "employee_id" => $key,
+                "shift_id" => $firstLog["schedule"]["shift_id"] ?? 0,
+                "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
                 "status" => "M",
             ];
 
-            if ($firstLog && $firstLog["log_type"] == "in") {
-                $arr["in"] = $firstLog["time"];
-                $arr["device_id_in"] = $firstLog["DeviceID"];
+            if ($firstLog["log_type"] == "in") {
+                $item["in"] = $firstLog["log_type"] == "in" ? $firstLog["time"] : "---";
+                $item["device_id_in"] = $firstLog["log_type"] == "in" ? $firstLog["DeviceID"] : "---";
             }
 
-            if ($lastLog && $lastLog["log_type"] == "out" && count($filteredLogs) > 1) {
-                $arr["status"] = "P";
-                $arr["device_id_out"] = $lastLog["DeviceID"];
-                $arr["out"] = $lastLog["time"];
-                $arr["total_hrs"] = $this->getTotalHrsMins($firstLog["time"], $lastLog["time"]);
+            if ($shift && $item["shift_type_id"] == 6) {
+                $item["late_coming"] =  $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
 
-                if ($schedule["isOverTime"]) {
-                    $arr["ot"] = $this->calculatedOT($arr["total_hrs"], $shift->working_hours, $shift->overtime_interval);
+                if ($item["late_coming"] != "---") {
+                    $item["status"] = "LC";
                 }
             }
 
+            if ($shift && $lastLog && count($logs) > 1) {
+                $item["status"] = "P";
+                $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
+                $item["out"] = $lastLog["time"] ?? "---";
 
-            $items[$companyIdWithUserId->company_id] = $arr;
+                if (in_array($lastLog["log_type"], ["in", "out"])) {
+                    $item["device_id_out"] = $lastLog["log_type"] == "out" ? $lastLog["DeviceID"] : "---";
+                    $item["out"] = $lastLog["log_type"] == "out" ? $lastLog["time"] : "---";
+                }
+                $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
+
+                if ($schedule["isOverTime"] ?? false) {
+                    $item["ot"] = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
+                }
+
+                if ($item["shift_type_id"] == 6) {
+                    $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $shift["off_duty_time"], $shift["early_time"]);
+
+                    if ($item["early_going"] != "---") {
+                        $item["status"] = "EG";
+                    }
+                }
+            }
+            $items[] = $item;
         }
 
-        return array_values($items);
+        if (!count($items)) {
+            return '[' . $date . " " . date("H:i:s") . '] Filo Shift: No data found';
+        }
+
+        try {
+            $UserIds = array_column($items, "employee_id");
+            $model = Attendance::query();
+            $model->where("company_id", $id);
+            $model->whereIn("employee_id", $UserIds);
+            $model->where("date", $date);
+            $model->delete();
+            $model->insert($items);
+
+            if (!$custom_render) {
+                AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
+            }
+
+            return "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
+        } catch (\Throwable $e) {
+            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
+            info($message);
+            return "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Server Error";
+        }
     }
 }

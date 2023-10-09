@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Company;
 use App\Models\Device;
 use Illuminate\Console\Command;
 
@@ -32,7 +33,9 @@ class CheckDeviceHealth extends Command
      */
     public function handle()
     {
-        $devices = Device::pluck("device_id");
+        $devices = Device::get(["company_id", "device_id"]);
+
+
 
         $total_iterations = 0;
         $online_devices_count = 0;
@@ -53,10 +56,13 @@ class CheckDeviceHealth extends Command
             return;
         }
 
+        $companiesIds = [];
+
         foreach ($devices as $device_id) {
+
             $curl = curl_init();
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "$sdk_url/CheckDeviceHealth/$device_id",
+                CURLOPT_URL => "$sdk_url/CheckDeviceHealth/" . $device_id->device_id,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -76,15 +82,20 @@ class CheckDeviceHealth extends Command
                     $online_devices_count++;
                 } else {
                     $offline_devices_count++;
+
+                    $companiesIds[$device_id->company_id] =  $device_id->company_id;
                 }
 
-                Device::where("device_id", $device_id)->update(["status_id" => $status->status == 200 ? 1 : 2]);
+                Device::where("device_id", $device_id->device_id)->update(["status_id" => $status->status == 200 ? 1 : 2]);
 
                 $total_iterations++;
             } else {
                 echo "Error\n";
             }
         }
+
+        $count = Company::whereIn("id", array_values($companiesIds))->where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false]);
+        info($count . "companies has been updated");
 
         $date = date("Y-m-d H:i:s");
         $script_name = "CheckDeviceHealth";

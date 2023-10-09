@@ -15,57 +15,79 @@ use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
 {
-    public function seedDefaultData($company_id, $employee_id, $day_count)
+    public function seedDefaultData($company_id)
     {
-        // $model = Employee::query();
-        // $model->withOut(["department", "designation", "sub_department"]);
-        // $model->where("company_id", $company_id);
-        // $model->where("employee_id", $employee_id);
-        // $model->with(["schedule" => function ($q) {
-        //     $q->whereHas("shift");
-        //     $q->withOut(["shift", "shift_type"]);
-        //     $q->select("shift_id", "shift_type_id", "employee_id");
-        // }]);
-        // $first = $model->first("system_user_id", "company_id", "employee_id");
+        $params = ["company_id" => $company_id, "date" => date("Y-m-d")];
 
-        // $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
+        $employees = Employee::query();
 
-        // if (!$first) {
-        //     info("No employee found");
-        //     return;
-        // }
+        $employees->where("company_id", $params["company_id"]);
+
+        $employees->withOut(["department", "sub_department", "designation"]);
+
+        $employees->with(["schedule" => function ($q) use ($params) {
+            $q->where("company_id", $params["company_id"]);
+            $q->where("to_date", ">=", $params["date"]);
+            // $q->where("shift_type_id", $params["shift_type_id"]);
+            $q->withOut("shift_type");
+            $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id");
+            $q->orderBy("to_date", "asc");
+        }]);
+
+        $employees->when(count($params["UserIds"] ?? []) > 0, function ($q) use ($params) {
+            $q->where("company_id", $params["company_id"]);
+            $q->whereIn("system_user_id", $params["UserIds"]);
+        });
+
+
+        if (!$employees->count()) {
+            info("No record found");
+            return;
+        }
+
+        $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
+
+        $employees = $employees->get(["system_user_id"]);
 
         $data = [];
 
-        foreach (range(1, 1) as $day) {
-            $data[] = [
-                "date" => date("Y-m-") . sprintf("%02d", date("d")),
-                "employee_id" => $employee_id,
-                // "shift_id" => $first->schedule->shift_id,
-                // "shift_type_id" => $first->schedule->shift_type_id,
-                "status" => Arr::random(["P", "A", "M"]),
-                "in" => "---",
-                "out" => "---",
-                "total_hrs" => "---",
-                "ot" => "---",
-                "late_coming" => "---",
-                "early_going" => "---",
-                "device_id_in" => "---",
-                "device_id_out" => "---",
-                "company_id" => $company_id,
-            ];
+        foreach ($employees as $employee) {
+
+            foreach (range(1, $daysInMonth) as $day) {
+                $data[] = [
+                    "date" => date("Y-m-") . sprintf("%02d", date($day)),
+                    "employee_id" => $employee->system_user_id,
+                    "shift_id" => $employee->schedule->shift_id,
+                    "shift_type_id" => $employee->schedule->shift_type_id,
+                    "status" => "A",
+                    "in" => "---",
+                    "out" => "---",
+                    "total_hrs" => "---",
+                    "ot" => "---",
+                    "late_coming" => "---",
+                    "early_going" => "---",
+                    "device_id_in" => "---",
+                    "device_id_out" => "---",
+                    "company_id" => $company_id,
+                ];
+            }
         }
 
+        $chunks = array_chunk($data, 100);
+
+        $insertedCount = 0;
+
         $attendance = Attendance::query();
-        $attendance->whereIn("date", array_column($data, "date"));
-        $attendance->where("employee_id", $employee_id);
         $attendance->where("company_id", $company_id);
+        $attendance->whereMonth("date", date("m"));
         $attendance->delete();
-        $attendance->insert($data);
-        $message = "Cron AttendanceSeeder: " . count($data) . " record has been inserted.";
+        
+        foreach ($chunks as $chunk) {
+            $attendance->insert($chunk);
+            $insertedCount += count($chunk);
+        }
 
-        info($message);
-
+        $message = "Cron AttendanceSeeder: " . $insertedCount . " record has been inserted.";
         return $message;
     }
 

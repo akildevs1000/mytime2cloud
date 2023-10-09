@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Shift;
 
 use App\Models\Attendance;
 
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Models\ScheduleEmployee;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
-use App\Models\Schedule;
+use App\Models\Employee;
+
 
 class MultiInOutShiftController extends Controller
 {
@@ -113,14 +112,10 @@ class MultiInOutShiftController extends Controller
         });
         $model->where("company_id", $companyId);
         $model->where("UserID", $UserID);
+        // $model->where("log_type", "auto");
         $model->whereBetween("LogTime", $range);
 
-
-        $model->with("device");
-
-
         $model->orderBy("LogTime");
-
         return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
     }
 
@@ -165,10 +160,6 @@ class MultiInOutShiftController extends Controller
                     "in" => $currentLog['time'],
                     "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
                     "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
-                    "device_in" => $currentLog['device']['short_name'] ?? "---",
-                    "device_out" => $nextLog['device']['short_name'] ?? "---",
-                    // "test" => $currentLog ?? "---",
-
                     // $currentLog['LogTime'], $nextLog['time'] ?? "---"
                 ];
 
@@ -327,8 +318,6 @@ class MultiInOutShiftController extends Controller
                     "in" => $currentLog['time'],
                     "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
                     "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
-                    "device_in" => $currentLog['device']['short_name'] ?? "---",
-                    "device_out" => $nextLog['device']['short_name'] ?? "---",
                     // $currentLog['LogTime'], $nextLog['time'] ?? "---"
                 ];
 
@@ -360,5 +349,245 @@ class MultiInOutShiftController extends Controller
         return "(Multi Shift) " . $params['date']->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($params["employee_ids"]);
 
         return array_values($items);
+    }
+
+    public function renderByLogType($id, $date)
+    {
+        $params = ["company_id" => $id, "date" => $date];
+
+        $employees = (new Employee)->attendanceEmployee($params);
+
+
+        $logs = AttendanceLog::whereDate("LogTime", $params["date"])
+            ->where("company_id", $params["company_id"])
+            ->where("checked", false)
+            ->whereIn("log_type", ["in", "out"])
+            ->distinct("LogTime", "UserID", "company_id")
+            ->whereHas("schedule", function ($q) {
+                $q->where("shift_type_id", 2);
+            })
+            ->get()
+            ->groupBy(['UserID']);
+
+        $items = [];
+
+
+        if (!count($logs)) {
+            return $this->getMeta("Multi Shift", "No record found");
+        };
+
+        foreach ($employees as $row) {
+
+            $params["isOverTime"] = $row->schedule->isOverTime;
+            $params["shift"] = $row->schedule->shift ?? false;
+            if ($row->schedule->shift_type_id == 2 ?? false) {
+
+                $data = $logs[$row->system_user_id] ?? [];
+
+                if (!count($data)) {
+                    $items[] = $this->getMeta("All Shift", "No record found" . $row->system_user_id);
+                };
+
+                $item = [
+                    "total_hrs" => 0,
+                    "in" => "---",
+                    "out" => "---",
+                    "ot" => "---",
+                    "device_id_in" => "---",
+                    "device_id_out" => "---",
+                    "date" => $params["date"],
+                    "company_id" => $params["company_id"],
+                    "employee_id" => $row->system_user_id,
+                    "shift_id" => $params["shift"]["id"] ?? 0,
+                    "shift_type_id" => $params["shift"]["shift_type_id"]  ?? 0,
+                    "status" => "A",
+                    "logs" =>  []
+                ];
+
+                $item["status"] = count($data) % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT;
+                $totalMinutes = 0;
+
+                for ($i = 0; $i < count($data); $i++) {
+                    $currentLog = $data[$i];
+                    $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
+
+                    $item["logs"][] =  [
+
+                        "in" => $currentLog['log_type'] != "out" ?  $currentLog['time'] : "---",
+                        "out" =>  $nextLog && $nextLog['log_type'] != "in" ?  $nextLog['time'] : "---",
+                        // "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
+                        "device_in" => $currentLog['device']['short_name'] ?? "---",
+                        "device_out" => $nextLog['device']['short_name'] ?? "---",
+                    ];
+
+                    if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
+
+                        $parsed_out = strtotime($nextLog['time'] ?? 0);
+                        $parsed_in = strtotime($currentLog['time'] ?? 0);
+
+                        if ($parsed_in > $parsed_out) {
+                            $parsed_out += 86400;
+                        }
+
+                        $diff = $parsed_out - $parsed_in;
+
+                        $minutes = floor($diff / 60);
+
+                        $totalMinutes += $minutes > 0 ? $minutes : 0;
+                    }
+
+                    $item["total_hrs"] = $this->minutesToHours($totalMinutes);
+
+                    if ($params["isOverTime"]) {
+                        $item["ot"] = $this->calculatedOT($item["total_hrs"], $params["shift"]->working_hours, $params["shift"]->overtime_interval);
+                    }
+
+                    try {
+                        $attendance = Attendance::whereDate("date", $item['date'])->where("employee_id", $item['employee_id'])->where("company_id", $item['company_id']);
+                        $found = $attendance->first();
+                        $found ? $attendance->update($item) : Attendance::create($item);
+                        $items[$item['employee_id']] = $item['employee_id'];
+                        $i++;
+                    } catch (\Throwable $e) {
+                        return $this->getMeta("All Shift", $e->getMessage());
+                    }
+                }
+            }
+        }
+        $UserIds = array_keys($logs->toArray());
+        AttendanceLog::whereIn("UserID", $UserIds)->where("company_id", $id)->update(["checked" => true]);
+        $message =  "Log(s) has been render. Affected Ids: " . json_encode($UserIds);
+        return $this->getMeta("All Shift", $message);
+    }
+
+    public function renderMultiRequest(Request $request)
+    {
+        // return $departmentIds = Department::where("company_id",$request->company_id)->pluck("id");
+        // $employee_ids = Employee::where("department_id", 31)->pluck("system_user_id");
+
+        return $this->renderMulti($request->company_id, $request->date, $request->shift_type_id, $request->UserIds);
+    }
+
+    public function renderMulti($id, $date, $shift_type_id, $UserIDs = [])
+    {
+        $params = ["company_id" => $id, "date" => $date, "UserIds" => $UserIDs, "shift_type_id" => $shift_type_id];
+
+        $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
+
+        $items = [];
+
+
+        foreach ($employees as $row) {
+
+            $params["isOverTime"] = $row->schedule->isOverTime;
+            $params["shift"] = $row->schedule->shift ?? false;
+
+            $logs = $this->getLogsWithInRangeNew($params);
+
+            $data = $logs[$row->system_user_id] ?? [];
+
+            if (!count($data)) continue;
+
+
+            $item = [
+                "total_hrs" => 0,
+                "in" => "---",
+                "out" => "---",
+                "ot" => "---",
+                "device_id_in" => "---",
+                "device_id_out" => "---",
+                "date" => $params["date"],
+                "company_id" => $params["company_id"],
+                "shift_id" => $params["shift"]["id"] ?? 0,
+                "shift_type_id" => $params["shift"]["shift_type_id"]  ?? 0,
+                "status" => count($data) % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+            ];
+
+            $logsJson = [];
+
+            $totalMinutes = 0;
+
+            for ($i = 0; $i < count($data); $i++) {
+                $currentLog = $data[$i];
+                $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
+                $item["employee_id"] = $row->system_user_id;
+
+                $logsJson[] =  [
+
+                    "in" => $currentLog['log_type'] != "out" ?  $currentLog['time'] : "---",
+                    "out" =>  $nextLog && $nextLog['log_type'] != "in" ?  $nextLog['time'] : "---",
+                    // "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
+                    "device_in" => $currentLog['device']['short_name'] ?? "---",
+                    "device_out" => $nextLog['device']['short_name'] ?? "---",
+                ];
+
+                if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
+
+                    $parsed_out = strtotime($nextLog['time'] ?? 0);
+                    $parsed_in = strtotime($currentLog['time'] ?? 0);
+
+                    if ($parsed_in > $parsed_out) {
+                        $parsed_out += 86400;
+                    }
+
+                    $diff = $parsed_out - $parsed_in;
+
+                    $minutes = floor($diff / 60);
+
+                    $totalMinutes += $minutes > 0 ? $minutes : 0;
+                }
+
+                $item["total_hrs"] = $this->minutesToHours($totalMinutes);
+
+                if ($params["isOverTime"]) {
+                    $item["ot"] = $this->calculatedOT($item["total_hrs"], $params["shift"]->working_hours, $params["shift"]->overtime_interval);
+                }
+
+                $i++;
+            }
+
+            $item["logs"] = json_encode($logsJson);
+
+            $items[] = $item;
+        }
+
+        $UserIds = array_column($items, "employee_id");
+
+        try {
+
+            $model = Attendance::query();
+            $model->whereIn("employee_id", $UserIds);
+            $model->where("date", $date);
+            $model->where("company_id", $id);
+            $model->delete();
+
+            $chunks = array_chunk($items, 100);
+
+            foreach ($chunks as $chunk) {
+                $model->insert($chunk);
+            }
+
+            // AttendanceLog::whereIn("UserID", $UserIds)->where("company_id", $id)->update(["checked" => true]);
+
+            return $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
+            return $this->getMeta("Multi Shift", $message);
+        } catch (\Throwable $e) {
+            return $this->getMeta("Multi Shift", $e->getMessage());
+        }
+    }
+
+    public function getLogsWithInRangeNew($params)
+    {
+        $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
+        $params["end"] = date("Y-m-d", strtotime($params["date"] . " +1 day")) . " " . $params["shift"]->off_duty_time;
+
+        return AttendanceLog::where("company_id", $params["company_id"])
+            ->whereBetween("LogTime", [$params["start"], $params["end"]])
+            ->distinct("LogTime", "UserID", "company_id")
+            ->whereHas("schedule", function ($q) {
+                $q->where("shift_type_id", 2);
+            })
+            ->get()
+            ->groupBy(['UserID']);
     }
 }

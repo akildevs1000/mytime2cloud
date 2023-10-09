@@ -23,14 +23,6 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
-
-        $schedule
-            ->command('task:sync_attendance_logs')
-            ->everyMinute()
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
         // $devices = AccessControlTimeSlot::get();
 
         // foreach ($devices as $device) {
@@ -104,7 +96,12 @@ class Kernel extends ConsoleKernel
             }
         }
 
-
+        // $schedule
+        //     ->command('task:sync_attendance_logs')
+        //     ->everyMinute()
+        //     ->withoutOverlapping()
+        //     ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
             ->command('task:update_company_ids')
@@ -120,13 +117,50 @@ class Kernel extends ConsoleKernel
 
         foreach ($companyIds as $companyId) {
 
-            if ($companyId != 1) {
+            // $schedule
+            //     ->command("task:sync_absent $companyId")
+            //     // ->everyMinute()
+            //     ->dailyAt('00:30')
+            //     ->runInBackground()
+            //     ->appendOutputTo(storage_path("logs/$date-absents-$companyId.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+            if ($companyId == 1) {
                 $schedule
-                    ->command("task:sync_flexible_and_single_shift {$companyId} " . date("Y-m-d"))
-                    ->everyMinute()
-                    // ->dailyAt('09:00')
+                    ->command("send_notificatin_for_offline_devices {$companyId}")
+                    //  ->dailyAt('09:00')
+                    ->everySixHours()
+                    // ->everyThirtyMinutes()
+                    // ->everyMinute()
                     ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/$date-sync-flexible-and-single-logs-{$companyId}.log"))
+                    ->appendOutputTo(storage_path("logs/$date-send-notification-for-offline-devices-{$companyId}.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            }
+
+            if ($companyId != 1) {
+
+                // $schedule
+                //     ->command("task:sync_flexible_and_single_shift {$companyId} " . date("Y-m-d"))
+                //     ->everyMinute()
+                //     // ->dailyAt('09:00')
+                //     ->runInBackground()
+                //     ->appendOutputTo(storage_path("logs/$date-sync-flexible-and-single-logs-{$companyId}.log"))
+                //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+                $schedule
+                    ->command("task:sync_filo_shift {$companyId} " . date("Y-m-d"))
+                    // ->hourly()
+                    ->everyMinute()
+                    ->runInBackground()
+                    ->appendOutputTo(storage_path("logs/shifts/filo/$date-{$companyId}.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+                $schedule
+                    ->command("task:sync_single_shift {$companyId} " . date("Y-m-d"))
+                    // ->hourly()
+                    ->everyMinute()
+                    ->runInBackground()
+                    ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log"))
                     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
                 $schedule
@@ -184,14 +218,6 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('09:00')
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-            $schedule
-                ->command("task:sync_absent $companyId")
-                // ->everyMinute()
-                ->dailyAt('00:30')
-                ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-absents-$companyId.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
@@ -256,31 +282,13 @@ class Kernel extends ConsoleKernel
             info("Log listener restart");
         })->dailyAt('00:00');
 
-
-
-        // $schedule
-        //     ->command('task:sync_single_shift')
-        //     // ->dailyAt('4:00')
-        //     // ->hourly()
-        //     ->everyMinute()
-        //     ->between('7:00', '23:59')
-        //     ->withoutOverlapping()
-        //     ->appendOutputTo(storage_path("logs/$date-logs.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-        // $schedule
-        //     ->command('task:sync_filo_shift')
-        //     // ->dailyAt('4:00')
-        //     // ->hourly()
-        //     ->everyMinute()
-        //     ->withoutOverlapping()
-        //     ->appendOutputTo(storage_path("logs/$date-filo-logs.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        $schedule->call(function () {
+            $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false]);
+            info($count . "companies has been updated");
+        })->dailyAt('00:00');
 
         $schedule
             ->command('task:sync_multiinout')
-            // ->dailyAt('4:00')
-            // ->hourly()
             ->everyMinute()
             ->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/$date-logs.log"))

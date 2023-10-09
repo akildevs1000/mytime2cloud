@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class Controller extends BaseController
@@ -384,5 +385,24 @@ class Controller extends BaseController
         $h = floor($diff / 3600);
         $m = floor(($diff % 3600) / 60);
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+    }
+
+    public function sendWhatsappNotification($message, $number)
+    {
+        $response = Http::withoutVerifying()->get('https://ezwhat.com/api/send.php', [
+            'number' => $number,
+            'type' => 'text',
+            'message' => $message,
+            'instance_id' => '64DB354A9EBCC',
+            'access_token' => 'a27e1f9ca2347bb766f332b8863ebe9f',
+        ]);
+
+        // You can check the response status and get the response content as needed
+        if ($response->successful()) {
+            Log::channel('whatsapp_logs')->info($response->json());
+        } else {
+            Log::channel('whatsapp_logs')->info($response->body());
+        }
+        return $message;
     }
 }

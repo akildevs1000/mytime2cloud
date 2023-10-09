@@ -176,8 +176,17 @@ class Attendance extends Model
             $q->where('status', $request->status);
         });
 
+
         $model->when($request->status == "ME", function ($q) {
             $q->where('is_manual_entry', true);
+        });
+
+        $model->when($request->late_early == "LC", function ($q) {
+            $q->where('late_coming', "!=", "---");
+        });
+
+        $model->when($request->late_early == "EG", function ($q) {
+            $q->where('early_going', "!=", "---");
         });
 
         $model->when($request->overtime == 1, function ($q) {
