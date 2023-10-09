@@ -15,7 +15,7 @@ class Employee extends Model
 
     // protected $with = [];
 
-    protected $with = ["schedule", "department", "designation", "department", "sub_department"];
+    protected $with = ["schedule", "department", "designation", "department", "sub_department", 'branch'];
 
     protected $guarded = [];
 
@@ -399,7 +399,7 @@ class Employee extends Model
 
         return $model;
     }
-    
+
 
     public function attendanceEmployeeForMulti($params)
     {

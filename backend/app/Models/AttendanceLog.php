@@ -52,6 +52,10 @@ class AttendanceLog extends Model
     {
         return $this->belongsTo(Employee::class, "UserID", "system_user_id");
     }
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
 
     public function schedule()
     {

@@ -109,7 +109,10 @@ class Attendance extends Model
     {
         return date("Y-m-d", strtotime($this->date));
     }
-
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
     public function AttendanceLogs()
     {
         return $this->hasMany(AttendanceLog::class, "UserID", "employee_id");
@@ -144,7 +147,7 @@ class Attendance extends Model
         $model = self::query();
 
         $model->where('company_id', $request->company_id);
-        $model->with(['shift_type', 'last_reason']);
+        $model->with(['shift_type', 'last_reason', 'branch']);
 
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where('employee_id', $request->employee_id);
@@ -197,6 +200,10 @@ class Attendance extends Model
             $key = strtolower($request->branch_id);
             $q->whereHas('employee', fn (Builder $query) => $query->where('branch_id',   $key));
         });
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->where('branch_id',   $request->branch_id);
+        });
+
 
         // $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
         //     $q->whereDate('date', $request->daily_date);
@@ -212,10 +219,10 @@ class Attendance extends Model
 
 
 
-        $model->with('employee', function ($q) use ($request) {
+        $model->with('employee.branch', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
-            $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id");
-            $q->with('department');
+            $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
+            $q->with(['department', 'branch']);
         });
 
         $model->with('device_in', function ($q) use ($request) {

@@ -46,7 +46,7 @@
     </v-row>
     <v-row>
       <v-col cols="5">
-        <v-card class="photo-displaylist" style="height: 250px">
+        <v-card class="photo-displaylist" style="height: 300px">
           <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
             <span> Employees </span>
           </v-toolbar>
@@ -213,7 +213,7 @@
       </v-col>
 
       <v-col cols="5">
-        <v-card class="photo-displaylist" style="height: 250px">
+        <v-card class="photo-displaylist" style="height: 300px">
           <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
             <span>Selected Employees </span>
           </v-toolbar>
