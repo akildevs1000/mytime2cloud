@@ -6,6 +6,7 @@ use App\Http\Controllers\MonthlyFlexibleHolidaysController;
 use App\Http\Controllers\OffByDayController;
 use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
+use App\Http\Controllers\Shift\MultiShiftController;
 use App\Http\Controllers\Shift\RenderController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use Illuminate\Support\Facades\Route;
@@ -37,7 +38,7 @@ Route::post('render_employee_report', [RenderController::class, 'renderEmployeeR
 
 Route::post('renderFiloRequest', [FiloShiftController::class, 'renderRequest']);
 Route::post('renderSingleRequest', [SingleShiftController::class, 'renderRequest']);
-Route::post('renderMultiRequest', [MultiInOutShiftController::class, 'renderMultiRequest']);
+Route::post('renderMultiRequest', [MultiShiftController::class, 'renderRequest']);
 
 
 
