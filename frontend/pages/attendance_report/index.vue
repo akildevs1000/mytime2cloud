@@ -25,12 +25,13 @@
           <v-col md="1" sm="2">
             Branch
             <v-select
+              placeholder="Branch"
               class="mt-2"
               outlined
               dense
               v-model="payload.branch_id"
               x-small
-              :items="branches"
+              :items="[{ branch_name: 'All Branches', id: '' }, ...branches]"
               item-value="id"
               item-text="branch_name"
               :hide-details="true"
@@ -831,7 +832,7 @@ export default {
     },
 
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       let u = this.$auth.user;

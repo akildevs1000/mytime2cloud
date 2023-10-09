@@ -63,6 +63,8 @@ class UpdateRequest extends FormRequest
             'weekend1' => 'nullable',
             'weekend2' => 'nullable',
             'monthly_flexi_holidays' => 'nullable',
+
+            'branch_id' => 'required',
         ];
     }
 }

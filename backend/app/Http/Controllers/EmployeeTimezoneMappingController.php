@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EmployeeTimezoneMapping\StoreRequest;
 use App\Http\Requests\EmployeeTimezoneMapping\UpdateRequest;
+use App\Models\CompanyBranch;
 use App\Models\Employee;
 use App\Models\EmployeeTimezoneMapping;
 use App\Models\Timezone;
@@ -17,7 +18,15 @@ class EmployeeTimezoneMappingController extends Controller
     public function index(EmployeeTimezoneMapping $model, Request $request)
     {
 
-        return $model::with(["timezone"])->where('company_id', $request->company_id)->paginate($request->per_page);
+        return $model::with(["timezone"])->where('company_id', $request->company_id)
+
+
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+                $q->where('branch_id', $request->branch_id);
+            })
+
+
+            ->paginate($request->per_page);
     }
 
     public function gettimezonesinfo_search(Request $request, $text)
@@ -197,6 +206,9 @@ class EmployeeTimezoneMappingController extends Controller
                     $q->where('department_id', $request->department_id);
                 }
             })
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+                $q->where('branch_id', $request->branch_id);
+            })
             ->get();
         return $employees;
     }
@@ -206,7 +218,9 @@ class EmployeeTimezoneMappingController extends Controller
         $employees['data'] = $employee
             ->with(["timezone"])
             ->where('company_id', $request->company_id)
-
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+                $q->where('branch_id', $request->branch_id);
+            })
             ->whereIn('timezone_id', Timezone::where('timezone_id', $id)->where('company_id', $request->company_id)->select('timezone_id')->get())
             ->get();
         return $employees;

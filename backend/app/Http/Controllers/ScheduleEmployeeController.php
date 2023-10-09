@@ -48,6 +48,7 @@ class ScheduleEmployeeController extends Controller
                 "from_date" => $data["from_date"],
                 "to_date" => $data["to_date"],
                 "company_id" => $data["company_id"],
+                "branch_id" => $request->branch_id,
             ];
             $found = ScheduleEmployee::where("employee_id", $item)->where("from_date", $data["from_date"])->where("company_id", $data["company_id"])->first();
 
@@ -269,17 +270,25 @@ class ScheduleEmployeeController extends Controller
 
     public function scheduled_employees(Employee $employee, Request $request)
     {
-        return $employee->where("company_id", $request->company_id)
+        return $employee->with("branch")->where("company_id", $request->company_id)
             ->whereHas('schedule', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
-            })->paginate($request->per_page);
+            })->when($request->filled('branch_id'), function ($q) use ($request) {
+
+                $q->where('branch_id', $request->branch_id);
+            })
+            ->paginate($request->per_page);
     }
 
     public function not_scheduled_employees(Employee $employee, Request $request)
     {
-        return $employee->where("company_id", $request->company_id)
+        return $employee->with("branch")->where("company_id", $request->company_id)
             ->whereDoesntHave('schedule', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
+            })
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+
+                $q->where('branch_id', $request->branch_id);
             })
             ->paginate($request->per_page);
     }
@@ -287,7 +296,7 @@ class ScheduleEmployeeController extends Controller
     public function scheduled_employees_index(Request $request)
     {
         $date = $request->date ?? date('Y-m-d');
-        $employee = ScheduleEmployee::query();
+        $employee = ScheduleEmployee::query()->with("branch");
         $model = $employee->where('company_id', $request->company_id);
         $model->whereHas('roster');
 

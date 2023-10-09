@@ -52,6 +52,10 @@ class AttendanceLog extends Model
     {
         return $this->belongsTo(Employee::class, "UserID", "system_user_id");
     }
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
 
     public function schedule()
     {
@@ -71,15 +75,15 @@ class AttendanceLog extends Model
     {
         $model = self::query();
 
-        $model->where("company_id", $request->company_id)
-            ->with('employee', function ($q) use ($request) {
+        $model->with("device.branch")->where("company_id", $request->company_id)
+            ->with('employee.branch', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
             ->when($request->filled('department_ids'), function ($q) use ($request) {
                 $q->whereHas('employee', fn (Builder $query) => $query->where('department_id', $request->department_ids));
             })
 
-            ->with('device', function ($q) use ($request) {
+            ->with('device.branch', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
             // ->when($request->from_date, function ($query) use ($request) {
@@ -99,6 +103,7 @@ class AttendanceLog extends Model
             ->when($request->UserID, function ($query) use ($request) {
                 return $query->where('UserID', $request->UserID);
             })
+
 
             ->when($request->DeviceID, function ($query) use ($request) {
                 return $query->where('DeviceID', $request->DeviceID);
@@ -126,6 +131,11 @@ class AttendanceLog extends Model
                 $key = strtolower($request->employee_first_name);
                 $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
             })
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+                $key = strtolower($request->branch_id);
+                $q->whereHas('employee', fn (Builder $query) => $query->where('branch_id',   $key));
+            })
+
 
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');

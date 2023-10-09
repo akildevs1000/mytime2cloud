@@ -192,11 +192,17 @@ class AuthController extends Controller
         $user = $request->user();
         $user->load("company");
         $user->user_type = $this->getUserType($user);
-        $assigned_branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
-        $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
-        if ($assigned_branch_id > 0) {
+        // $assigned_branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id', 'branch_name')->first();
+
+        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
+        if (isset($branchesArray[0])) {
+            $assigned_branch_id = $branchesArray[0]['id'];
+
             $user->user_type = "branch";
+            $user->branch_name = $branchesArray[0]['branch_name'];
         }
+        $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
+
         $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
         return ['user' => $user];
     }

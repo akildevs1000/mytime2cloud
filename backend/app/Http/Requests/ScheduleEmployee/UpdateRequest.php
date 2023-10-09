@@ -32,6 +32,7 @@ class UpdateRequest extends FormRequest
             'from_date' => ["required"],
             'to_date' => ["required"],
             'isOverTime' => ["nullable"],
+            'branch_id' => ["required"],
         ];
     }
 }

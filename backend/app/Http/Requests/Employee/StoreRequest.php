@@ -51,7 +51,7 @@ class StoreRequest extends FormRequest
             'phone_number' =>  ['required', 'min:10', 'max:13'],
             'whatsapp_number' => ['required', 'min:10', 'max:13'],
             'status' => ['nullable'],
-            'branch_id' => ['nullable'],
+            'branch_id' => ['required'],
             'email' => 'nullable|min:3|max:191|unique:users',
             'profile_picture' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
         ];

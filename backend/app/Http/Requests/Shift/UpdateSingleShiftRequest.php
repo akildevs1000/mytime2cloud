@@ -48,6 +48,7 @@ class UpdateSingleShiftRequest extends FormRequest
             'absent_min_out' => 'nullable',
             'gap_in' => 'nullable',
             'gap_out' => 'nullable',
+            'branch_id' => 'required',
         ];
     }
 }

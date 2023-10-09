@@ -54,6 +54,10 @@ class ScheduleEmployee extends Model
     {
         return $this->belongsTo(Employee::class, "employee_id", "system_user_id",);
     }
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id",);
+    }
 
     /**
      * Get all of the attendances for the ScheduleEmployee

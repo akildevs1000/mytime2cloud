@@ -559,7 +559,7 @@ export default {
       });
     },
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       let user = this.$auth.user;

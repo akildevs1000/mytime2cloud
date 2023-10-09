@@ -15,7 +15,7 @@ class Employee extends Model
 
     // protected $with = [];
 
-    protected $with = ["schedule", "department", "designation", "department", "sub_department"];
+    protected $with = ["schedule", "department", "designation", "department", "sub_department", 'branch'];
 
     protected $guarded = [];
 
@@ -216,7 +216,10 @@ class Employee extends Model
     {
         return $this->belongsToMany(Announcement::class)->withTimestamps();
     }
-
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
     /**
      * The roles that belong to the Employee
      *
@@ -279,7 +282,7 @@ class Employee extends Model
             },
         ])
             ->with([
-                "reportTo", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
+                "reportTo", "branch", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
                 "emirate", "qualification", "bank", "leave_group",  "Visa", "reporting_manager",
             ])
             ->with(["schedule" => function ($q) {
@@ -396,7 +399,7 @@ class Employee extends Model
 
         return $model;
     }
-    
+
 
     public function attendanceEmployeeForMulti($params)
     {

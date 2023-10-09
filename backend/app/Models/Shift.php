@@ -34,7 +34,10 @@ class Shift extends Model
     {
         return $this->belongsTo(ShiftType::class);
     }
-
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
     protected static function boot()
     {
         parent::boot();

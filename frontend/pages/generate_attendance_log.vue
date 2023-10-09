@@ -169,7 +169,7 @@ export default {
   async created() {},
   methods: {
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       let u = this.$auth.user;

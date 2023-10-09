@@ -479,7 +479,7 @@
                         { branch_name: `All Branches`, id: `` },
                         ...branchesList,
                       ]"
-                      placeholder="Branch"
+                      placeholder="All Branches"
                       solo
                       flat
                       @change="applyFilters(header.key, id)"
@@ -1141,6 +1141,16 @@ export default {
 
       this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
         this.branchesList = data;
+        if (this.$auth.user.branch_id) {
+          this.branch_id = this.$auth.user.branch_id;
+        } else {
+          // this.branchesList = [
+          //   { branch_name: `All Branches`, id: `` },
+          //   ,
+          //   ...this.branchesList,
+          // ];
+          this.branch_id = "";
+        }
       });
     },
     applyFilters(filter_column = "", filter_value = "") {
@@ -1260,7 +1270,7 @@ export default {
       this.selectAllEmployee = !this.selectAllEmployee;
     },
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       let u = this.$auth.user;

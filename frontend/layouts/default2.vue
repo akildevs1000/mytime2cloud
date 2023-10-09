@@ -791,7 +791,7 @@ export default {
         });
     },
     can(per) {
-      return this.$dateFormat.can(per, this);
+      return this.$pagePermission.can(per, this);
     },
     can_old(per) {
       let { permissions, is_master } = this.$auth.user;

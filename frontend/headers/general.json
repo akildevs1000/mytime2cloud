@@ -15,7 +15,14 @@
     "value": "employee_name",
     "key": "employee_name"
   },
-
+  {
+    "text": "Branch",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "branch_name",
+    "key": "branch.branch_name"
+  },
   {
     "text": "Shift",
     "align": "left",

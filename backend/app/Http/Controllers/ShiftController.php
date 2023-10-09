@@ -20,7 +20,7 @@ class ShiftController extends Controller
     public function index(Request $request)
     {
         $model = Shift::query();
-        $model->with("shift_type");
+        $model->with(["shift_type", "branch"]);
         $model->where('company_id', $request->company_id);
         $model->withCount(["autoshift" => function ($q) use ($request) {
             return $q->where("company_id", $request->company_id);
@@ -33,7 +33,10 @@ class ShiftController extends Controller
             //$key = strtolower($request->search_shift_type);
             $q->whereHas('shift_type', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
         });
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
 
+            $q->where('branch_id', 'ILIKE',  $request->branch_id);
+        });
         return $model->paginate($request->per_page);
     }
 

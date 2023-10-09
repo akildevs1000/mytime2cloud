@@ -50,6 +50,11 @@ class DeviceController extends Controller
         $model->when($request->filled('Status'), function ($q) use ($request) {
             $q->where('status_id', $request->Status);
         });
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->where('branch_id', $request->branch_id);
+        });
+
+
 
         // array_push($cols, 'status.id');
 
