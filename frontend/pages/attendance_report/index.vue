@@ -25,6 +25,7 @@
           <v-col md="1" sm="2">
             Branch
             <v-select
+              placeholder="Branch"
               class="mt-2"
               outlined
               dense
