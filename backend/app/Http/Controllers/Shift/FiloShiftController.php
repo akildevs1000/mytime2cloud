@@ -71,6 +71,7 @@ class FiloShiftController extends Controller
             if (!$schedule) continue;
 
             $item = [
+                "render_id" => 0,
                 "total_hrs" => "---",
                 "in" => $firstLog["time"] ?? "---",
                 "out" =>  "---",

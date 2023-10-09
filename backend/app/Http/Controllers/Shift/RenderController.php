@@ -68,6 +68,7 @@ class RenderController extends Controller
         }
 
         $AttendancePayload = [
+            "render_id" => 0,
             "status" => count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT,
             "shift_type_id" => $shift_type_id,
             "date" => $currentDate,
