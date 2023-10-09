@@ -29,6 +29,6 @@ class SendNotificationForOfflineDevices extends Command
      */
     public function handle()
     {
-        echo (new DeviceController)->handleNotifictiaon($this->argument("id")) . "\n";
+        echo (new DeviceController)->handleNotification($this->argument("id")) . "\n";
     }
 }
