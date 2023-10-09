@@ -318,8 +318,6 @@ class MultiInOutShiftController extends Controller
                     "in" => $currentLog['time'],
                     "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
                     "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
-                    "device_in" => $currentLog['device']['short_name'] ?? "---",
-                    "device_out" => $nextLog['device']['short_name'] ?? "---",
                     // $currentLog['LogTime'], $nextLog['time'] ?? "---"
                 ];
 

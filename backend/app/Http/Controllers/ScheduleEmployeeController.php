@@ -33,31 +33,31 @@ class ScheduleEmployeeController extends Controller
             ->get();
     }
 
-    public function store(Request $request, ScheduleEmployee $model)
+    public function store(StoreRequest $request, ScheduleEmployee $model)
     {
-        $data = $request->all();
-        $schedules = $data["schedules"];
-        $employeeIds = $data["employee_ids"];
-        $generatedSchedules = [];
+        $data = $request->validated();
 
-        foreach ($schedules as $schedule) {
-            foreach ($employeeIds as $employeeId) {
-                $generatedSchedule = [
-                    "shift_id" => $schedule["shift_id"] ?? 0,
-                    "shift_type_id" => $schedule["shift_type_id"] ?? 0,
-                    "isOverTime" => $schedule["is_over_time"],
-                    "from_date" => $schedule["from_date"],
-                    "to_date" => $schedule["to_date"],
-                    "employee_id" => $employeeId,
-                    "company_id" => $request->company_id,
-                ];
+        $arr = [];
 
-                $generatedSchedules[] = $generatedSchedule;
+        foreach ($data["employee_ids"] as $item) {
+            $value = [
+                "shift_id" => $data["shift_id"] ?? 0,
+                "isOverTime" => $data["isOverTime"],
+                "employee_id" => $item,
+                "shift_type_id" => $data["shift_type_id"],
+                "from_date" => $data["from_date"],
+                "to_date" => $data["to_date"],
+                "company_id" => $data["company_id"],
+            ];
+            $found = ScheduleEmployee::where("employee_id", $item)->where("from_date", $data["from_date"])->where("company_id", $data["company_id"])->first();
+
+            if (!$found) {
+                $arr[] = $value;
             }
         }
 
         try {
-            $record = $model->insert($generatedSchedules);
+            $record = $model->insert($arr);
 
             if ($record) {
                 return $this->response('Schedule Employee successfully added.', $record, true);
@@ -90,7 +90,7 @@ class ScheduleEmployeeController extends Controller
 
     public function destroy($id)
     {
-        $record = ScheduleEmployee::where("id", $id)->delete();
+        $record = ScheduleEmployee::where("employee_id", $id)->delete();
 
         try {
             if ($record) {
@@ -289,68 +289,72 @@ class ScheduleEmployeeController extends Controller
         $date = $request->date ?? date('Y-m-d');
         $employee = ScheduleEmployee::query();
         $model = $employee->where('company_id', $request->company_id);
+        $model->whereHas('roster');
+
         // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
         $model->whereDate('from_date', '<=', $date);
         $model->whereDate('to_date', '>=', $date);
+        $model->when($request->filled('employee_first_name'), function ($q) use ($request) {
+
+            $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
+        });
+
+
+
+
+        $model->when($request->filled('department_ids') && count($request->department_ids) > 0, function ($q) use ($request) {
+
+            $q->whereHas('employee', fn (Builder $query) => $query->whereIn('department_id', $request->department_ids));
+        });
+        $model->when($request->filled('roster_name'), function ($q) use ($request) {
+
+            $q->whereHas('roster', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->roster_name%"));
+        });
+        $model->when($request->filled('shift_name'), function ($q) use ($request) {
+
+            $q->whereHas('shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->shift_name%"));
+        });
+        $model->when($request->filled('shift_type_name'), function ($q) use ($request) {
+
+            $q->whereHas('shift_type', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
+        });
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+
+            //$q->where('employee_id', 'ILIKE', "$request->employee_id%");
+            $q->whereHas('employee', fn (Builder $query) => $query->where('employee_id', 'ILIKE', "$request->employee_id%"));
+        });
+        $model->when($request->filled('show_from_date'), function ($q) use ($request) {
+
+            $q->where('from_date', 'LIKE', "$request->show_from_date%");
+        });
+        $model->when($request->filled('show_to_date'), function ($q) use ($request) {
+
+            $q->where('to_date', 'LIKE', "$request->show_to_date%");
+        });
+        $model->when($request->filled('from_date'), function ($q) use ($request) {
+
+            $q->where('from_date', $request->from_date);
+        });
+        $model->when($request->filled('to_date'), function ($q) use ($request) {
+
+            $q->where('to_date', $request->to_date);
+        });
+        $model->when($request->filled('isOverTime'), function ($q) use ($request) {
+
+            $q->where('isOverTime', $request->isOverTime);
+        });
+        $model->when($request->filled('shift_id'), function ($q) use ($request) {
+
+            $q->where('shift_id', $request->shift_id);
+        });
+        $model->when($request->filled('shift_type_id'), function ($q) use ($request) {
+
+            $q->where('shift_type_id', $request->shift_type_id);
+        });
+
         $model = $this->custom_with($model, "shift", $request->company_id);
+        $model = $this->custom_with($model, "roster", $request->company_id);
         $model = $this->custom_with($model, "employee", $request->company_id);
-        return $model->paginate(100);
-
-        // $model->when($request->filled('employee_first_name'), function ($q) use ($request) {
-        //     $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
-        // });
-
-        // $model->when($request->filled('department_ids') && count($request->department_ids) > 0, function ($q) use ($request) {
-
-        //     $q->whereHas('employee', fn (Builder $query) => $query->whereIn('department_id', $request->department_ids));
-        // });
-        // $model->when($request->filled('roster_name'), function ($q) use ($request) {
-
-        //     $q->whereHas('roster', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->roster_name%"));
-        // });
-        // $model->when($request->filled('shift_name'), function ($q) use ($request) {
-
-        //     $q->whereHas('shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->shift_name%"));
-        // });
-        // $model->when($request->filled('shift_type_name'), function ($q) use ($request) {
-
-        //     $q->whereHas('shift_type', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
-        // });
-        // $model->when($request->filled('employee_id'), function ($q) use ($request) {
-
-        //     //$q->where('employee_id', 'ILIKE', "$request->employee_id%");
-        //     $q->whereHas('employee', fn (Builder $query) => $query->where('employee_id', 'ILIKE', "$request->employee_id%"));
-        // });
-        // $model->when($request->filled('show_from_date'), function ($q) use ($request) {
-
-        //     $q->where('from_date', 'LIKE', "$request->show_from_date%");
-        // });
-        // $model->when($request->filled('show_to_date'), function ($q) use ($request) {
-
-        //     $q->where('to_date', 'LIKE', "$request->show_to_date%");
-        // });
-        // $model->when($request->filled('from_date'), function ($q) use ($request) {
-
-        //     $q->where('from_date', $request->from_date);
-        // });
-        // $model->when($request->filled('to_date'), function ($q) use ($request) {
-
-        //     $q->where('to_date', $request->to_date);
-        // });
-        // $model->when($request->filled('isOverTime'), function ($q) use ($request) {
-
-        //     $q->where('isOverTime', $request->isOverTime);
-        // });
-        // $model->when($request->filled('shift_id'), function ($q) use ($request) {
-
-        //     $q->where('shift_id', $request->shift_id);
-        // });
-        // $model->when($request->filled('shift_type_id'), function ($q) use ($request) {
-
-        //     $q->where('shift_type_id', $request->shift_type_id);
-        // });
-
-
 
         // $model->when($request->filled('sortBy'), function ($q) use ($request) {
         //     $sortDesc = $request->input('sortDesc');

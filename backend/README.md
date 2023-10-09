@@ -4,6 +4,10 @@ Queries
 SELECT * FROM attendance_logs where date("LogTime") = '2023-09-28' LIMIT 100
 
 
+SELECT * FROM attendance_logs where date("LogTime") 
+BETWEEN '2023-10-01' and '2023-10-05' and "UserID" = '53' and company_id = '8' ORDER BY "LogTime" desc LIMIT 100
+
+
 // run this command to seed the data => php artisan db:seed --class=StatusSeeder
 
 php artisan serve --host 192.168.2.174
