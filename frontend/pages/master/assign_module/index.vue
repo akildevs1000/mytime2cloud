@@ -31,7 +31,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000]
+        itemsPerPageOptions: [50, 100, 500, 1000],
       }"
       class="elevation-1"
     >
@@ -104,33 +104,33 @@ export default {
         text: "Company Id",
         align: "left",
         sortable: false,
-        value: "company.id"
+        value: "company.id",
       },
       {
         text: "Company",
         align: "left",
         sortable: false,
-        value: "company.name"
+        value: "company.name",
       },
       {
         text: "Modules",
         align: "left",
         sortable: false,
-        value: "module_names"
+        value: "module_names",
       },
-      { text: "Actions", align: "center", value: "action", sortable: false }
+      { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     response: "",
     data: [],
-    errors: []
+    errors: [],
   }),
   watch: {
     options: {
       handler() {
         this.getDataFromApi();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   created() {
@@ -139,6 +139,9 @@ export default {
 
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return u && u.user_type == per;
     },
@@ -148,8 +151,8 @@ export default {
 
       let options = {
         params: {
-          per_page: itemsPerPage
-        }
+          per_page: itemsPerPage,
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -168,7 +171,7 @@ export default {
 
     editItem(item) {
       this.$router.push(`/master/assign_module/${item.id}`);
-    }
-  }
+    },
+  },
 };
 </script>

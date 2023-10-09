@@ -370,6 +370,7 @@
               <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
+
           <v-data-table
             v-if="can(`leave_application_view`)"
             v-model="ids"
@@ -452,6 +453,33 @@
                         ...leaveTypes,
                       ]"
                       placeholder="Leave Types"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+
+                    <v-select
+                      clearable
+                      @click:clear="
+                        filters[header.value] = '';
+                        applyFilters();
+                      "
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial && header.value == 'branch.name'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="branch_name"
+                      item-value="id"
+                      :items="[
+                        { branch_name: `All Branches`, id: `` },
+                        ...branchesList,
+                      ]"
+                      placeholder="Branch"
                       solo
                       flat
                       @change="applyFilters(header.key, id)"
@@ -695,6 +723,15 @@
                 </v-col>
               </v-row>
             </template>
+
+            <template v-slot:item.branch.name="{ item }">
+              {{
+                item.employee.department &&
+                item.employee.department.branch &&
+                item.employee.department.branch.branch_name
+              }}
+            </template>
+
             <template v-slot:item.group.name="{ item }">
               {{
                 item.employee.leave_group &&
@@ -950,12 +987,21 @@ export default {
     ],
     headers: [
       {
-        text: "Employee Name",
+        text: "Employee  ",
         align: "left",
         sortable: true,
         filterable: true,
         key: "employee_name",
         value: "employee.name",
+      },
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        filterable: true,
+        key: "branch_id",
+        value: "branch.name",
+        filterSpecial: true,
       },
       {
         text: "Group Type",
@@ -1002,7 +1048,7 @@ export default {
         key: "leave_note",
       },
       {
-        text: "Reporting Manager Name",
+        text: "Reporting ",
         align: "left",
         sortable: false,
         filterable: true,
@@ -1052,6 +1098,7 @@ export default {
     selectAllEmployee: false,
     DialogEmployeesData: {},
     todayDate: "",
+    branchesList: [],
     //login_user_employee_id: "",
   }),
 
@@ -1081,9 +1128,21 @@ export default {
     this.todayDate = formattedDateTime;
 
     this.getLeaveGroups();
+    this.getbranchesList();
   },
 
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     applyFilters(filter_column = "", filter_value = "") {
       this.from_menu_filter = false;
       this.to_menu_filter = false;
@@ -1201,6 +1260,9 @@ export default {
       this.selectAllEmployee = !this.selectAllEmployee;
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
@@ -1252,7 +1314,7 @@ export default {
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
-
+      console.log(this.filters);
       if (this.filters) {
         page = 1;
       }
@@ -1263,9 +1325,9 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
+          ...this.filters,
           company_id: this.$auth.user.company_id,
           year: endDate.getFullYear(),
-          ...this.filters,
         },
       };
       // if (filter_column != '') {

@@ -5,7 +5,12 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog persistent v-model="dialogPayslipsResults" :fullscreen="false" width="700px">
+    <v-dialog
+      persistent
+      v-model="dialogPayslipsResults"
+      :fullscreen="false"
+      width="700px"
+    >
       <v-card>
         <v-card-title dense class="primary white--text background">
           Payslip Results
@@ -149,7 +154,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="generatePayslipDialog" :fullscreen="false" width="600px">
+    <v-dialog
+      persistent
+      v-model="generatePayslipDialog"
+      :fullscreen="false"
+      width="600px"
+    >
       <v-card>
         <v-card-title dense class="primary white--text background">
           Generate Payslips
@@ -671,6 +681,9 @@ export default {
       }
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let { permissions } = this.$auth.user;
 
       return permissions.includes(per);

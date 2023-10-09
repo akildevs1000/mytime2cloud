@@ -72,6 +72,11 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Company::class, 'company_id');
     }
+    public function branchLogin()
+    {
+        return $this->belongsTo(CompanyBranch::class, 'user_id', 'id');
+    }
+
     public function employeeData()
     {
         return $this->belongsTo(Employee::class, 'user_id', 'id');

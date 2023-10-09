@@ -8,14 +8,33 @@
 
     <v-row class="pt-2 mt-5">
       <v-col cols="12" sm="8" md="2">
-        <v-menu ref="from_menu" v-model="from_menu" :close-on-content-click="false" transition="scale-transition" offset-y
-          min-width="auto">
+        <v-menu
+          ref="from_menu"
+          v-model="from_menu"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
           <template v-slot:activator="{ on, attrs }">
             <div class="mb-1">From Date</div>
-            <v-text-field :hide-details="!payload.from_date" outlined dense v-model="payload.from_date_txt" readonly
-              v-bind="attrs" v-on="on" placeholder="Date"></v-text-field>
+            <v-text-field
+              :hide-details="!payload.from_date"
+              outlined
+              dense
+              v-model="payload.from_date_txt"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+              placeholder="Date"
+            ></v-text-field>
           </template>
-          <v-date-picker v-model="payload.from_date" no-title scrollable @change="searchIt">
+          <v-date-picker
+            v-model="payload.from_date"
+            no-title
+            scrollable
+            @change="searchIt"
+          >
             <!-- <v-spacer></v-spacer>
             <v-btn class="blue-grey" small dark @click="from_menu = false">
               Cancel
@@ -28,13 +47,32 @@
       </v-col>
       <v-col cols="12" sm="8" md="2">
         <div class="mb-1">To Date</div>
-        <v-menu ref="to_menu" v-model="to_menu" :close-on-content-click="false" transition="scale-transition" offset-y
-          min-width="auto">
+        <v-menu
+          ref="to_menu"
+          v-model="to_menu"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
           <template v-slot:activator="{ on, attrs }">
-            <v-text-field :hide-details="!payload.to_date" outlined dense v-model="payload.to_date_txt" readonly
-              v-bind="attrs" v-on="on" placeholder="Date"></v-text-field>
+            <v-text-field
+              :hide-details="!payload.to_date"
+              outlined
+              dense
+              v-model="payload.to_date_txt"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+              placeholder="Date"
+            ></v-text-field>
           </template>
-          <v-date-picker v-model="payload.to_date" no-title scrollable @change="searchIt">
+          <v-date-picker
+            v-model="payload.to_date"
+            no-title
+            scrollable
+            @change="searchIt"
+          >
             <!-- <v-spacer></v-spacer>
             <v-btn class="blue-grey" small dark @click="to_menu = false">
               Cancel
@@ -54,8 +92,18 @@
 
             <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-                  <v-icon color="white" class="ml-2" @click="firstLoad()" dark>mdi mdi-reload</v-icon>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon color="white" class="ml-2" @click="firstLoad()" dark
+                    >mdi mdi-reload</v-icon
+                  >
                 </v-btn>
               </template>
               <span>Reload</span>
@@ -68,10 +116,19 @@
               <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
-            :options.sync="options" :footer-props="{
+          <v-data-table
+            dense
+            :headers="headers_table"
+            :items="data"
+            model-value="data.id"
+            :loading="loading"
+            :options.sync="options"
+            :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }" class="elevation-1" :server-items-length="totalRowsCount">
+            }"
+            class="elevation-1"
+            :server-items-length="totalRowsCount"
+          >
             <template v-slot:item.UserID="{ item }">
               {{ item.UserID }}
             </template>
@@ -104,7 +161,6 @@
 <script>
 export default {
   data: () => ({
-
     totalRowsCount: 0,
     showFilters: false,
     filters: {},
@@ -123,7 +179,8 @@ export default {
     to_menu: false,
     payload: {},
     loading: true,
-    date: null, menu: false,
+    date: null,
+    menu: false,
     loading: false,
     time_menu: false,
     log_payload: {
@@ -142,7 +199,6 @@ export default {
     response: "",
     snackbar: false,
     headers_table: [
-
       {
         text: "Log Time",
         align: "left",
@@ -202,6 +258,9 @@ export default {
       return `${year}-${month}-${day}`;
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
@@ -231,13 +290,10 @@ export default {
       this.getDataFromApi();
     },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
-
-
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
-
 
       this.payloadOptions = {
         params: {

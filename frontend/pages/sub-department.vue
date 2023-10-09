@@ -20,8 +20,12 @@
     </v-row>
 
     <v-row>
-      <v-dialog persistent v-model="dialogForm" :fullscreen="false" width="500px">
-
+      <v-dialog
+        persistent
+        v-model="dialogForm"
+        :fullscreen="false"
+        width="500px"
+      >
         <v-card elevation="0">
           <v-toolbar color="background" dense flat dark>
             <span>{{ formTitle }} {{ Model }}</span>
@@ -31,23 +35,38 @@
             <v-container>
               <v-row class="mt-2">
                 <v-col cols="12">
-                  <v-text-field v-model="editedItem.name" placeholder="Sub Department" outlined dense></v-text-field>
+                  <v-text-field
+                    v-model="editedItem.name"
+                    placeholder="Sub Department"
+                    outlined
+                    dense
+                  ></v-text-field>
                   <span v-if="errors && errors.name" class="error--text">{{
                     errors.name[0]
                   }}</span>
                 </v-col>
                 <v-col cols="12">
-                  <v-autocomplete v-model="editedItem.department_id" :items="departments" item-text="name" item-value="id"
-                    placeholder="Select Departments" outlined dense>
+                  <v-autocomplete
+                    v-model="editedItem.department_id"
+                    :items="departments"
+                    item-text="name"
+                    item-value="id"
+                    placeholder="Select Departments"
+                    outlined
+                    dense
+                  >
                   </v-autocomplete>
-                  <span v-if="errors && errors.department_id" class="error--text">{{ errors.department_id[0] }}</span>
+                  <span
+                    v-if="errors && errors.department_id"
+                    class="error--text"
+                    >{{ errors.department_id[0] }}</span
+                  >
                 </v-col>
 
                 <v-card-actions>
                   <v-col md="6" lg="6" style="padding: 0px">
-                    <v-btn class="error" @click="close">
-                      Cancel
-                    </v-btn></v-col>
+                    <v-btn class="error" @click="close"> Cancel </v-btn></v-col
+                  >
                   <v-col md="6" lg="6" class="text-right" style="padding: 0px">
                     <v-btn class="primary" @click="save">Save</v-btn>
                   </v-col>
@@ -56,19 +75,23 @@
             </v-container>
           </v-card-text>
         </v-card>
-
       </v-dialog>
 
       <v-col md="12" lg="12">
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> {{ Model }} List</span></v-toolbar-title>
+            <v-toolbar-title
+              ><span> {{ Model }} List</span></v-toolbar-title
+            >
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col>
-                <v-btn @click="newItem" small class="primary mr-2 mb-2 toolbar-button-design1" color="primary">Add {{
-                  Model
-                }} +
+                <v-btn
+                  @click="newItem"
+                  small
+                  class="primary mr-2 mb-2 toolbar-button-design1"
+                  color="primary"
+                  >Add {{ Model }} +
                 </v-btn>
               </v-col>
             </v-toolbar-items>
@@ -80,26 +103,42 @@
             {{ snackText }}
 
             <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false">
-                Close
-              </v-btn>
+              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-data-table dense :headers="headers_table" :items="data" model-value="data.id" :loading="loading"
+          <v-data-table
+            dense
+            :headers="headers_table"
+            :items="data"
+            model-value="data.id"
+            :loading="loading"
             :footer-props="{
               itemsPerPageOptions: [50, 100, 500, 1000],
-            }" class="elevation-1">
+            }"
+            class="elevation-1"
+          >
             <template v-slot:item.sno="{ item, index }">
               {{ ++index }}
             </template>
 
             <template v-slot:item.name="{ item }">
-              <v-edit-dialog large save-text="Reset" cancel-text="Ok" style="margin-left: 4%;" @save="getDataFromApi()"
-                @open="datatable_open">
+              <v-edit-dialog
+                large
+                save-text="Reset"
+                cancel-text="Ok"
+                style="margin-left: 4%"
+                @save="getDataFromApi()"
+                @open="datatable_open"
+              >
                 {{ caps(item.name) }}
                 <template v-slot:input>
-                  <v-text-field @input="getDataFromApi('', 'serach_sub_department_name', $event)"
-                    v-model="datatable_search_textbox" label="Search Sub Department name"></v-text-field>
+                  <v-text-field
+                    @input="
+                      getDataFromApi('', 'serach_sub_department_name', $event)
+                    "
+                    v-model="datatable_search_textbox"
+                    label="Search Sub Department name"
+                  ></v-text-field>
                 </template>
               </v-edit-dialog>
             </template>
@@ -127,7 +166,6 @@
               </v-menu>
             </template>
           </v-data-table>
-
 
           <!-- <table>
             <tr>
@@ -176,8 +214,12 @@
       <v-row>
         <v-col md="12" class="float-right">
           <div class="float-right">
-            <v-pagination v-model="pagination.current" :length="pagination.total" @input="onPageChange"
-              :total-visible="12"></v-pagination>
+            <v-pagination
+              v-model="pagination.current"
+              :length="pagination.total"
+              @input="onPageChange"
+              :total-visible="12"
+            ></v-pagination>
           </div>
         </v-col>
       </v-row>
@@ -189,11 +231,11 @@
 <script>
 export default {
   data: () => ({
-    datatable_search_textbox: '',
-    filter_employeeid: '',
+    datatable_search_textbox: "",
+    filter_employeeid: "",
     snack: false,
-    snackColor: '',
-    snackText: '',
+    snackColor: "",
+    snackText: "",
     dialogForm: false,
     requestDepartmentid: "",
     pagination: {
@@ -276,13 +318,12 @@ export default {
   },
 
   methods: {
-    datatable_save() {
-    },
+    datatable_save() {},
     datatable_cancel() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_open() {
-      this.datatable_search_textbox = '';
+      this.datatable_search_textbox = "";
     },
     datatable_close() {
       this.loading = false;
@@ -316,15 +357,17 @@ export default {
       });
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
-    getDataFromApi(url = this.endpoint, filter_column = '', filter_value = '') {
-
-      if (url == '') url = this.endpoint;
+    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+      if (url == "") url = this.endpoint;
       this.loading = true;
 
       let page = this.pagination.current;
@@ -336,17 +379,14 @@ export default {
           department_id: this.$route.query.id,
         },
       };
-      if (filter_column != '') {
-
+      if (filter_column != "") {
         options.params[filter_column] = filter_value;
-
       }
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-
-        if (filter_column != '' && data.data.length == 0) {
+        if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
-          this.snackColor = 'error';
-          this.snackText = 'No Results Found';
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
           return false;
         }

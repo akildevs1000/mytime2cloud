@@ -15,7 +15,7 @@ class SubDepartmentController extends Controller
         return $model->with('department')
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
+                $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
             })
             ->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
                 $q->where('name', 'ILIKE', "$request->serach_sub_department_name%");
@@ -23,6 +23,10 @@ class SubDepartmentController extends Controller
             ->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
                 $q->where('name', 'ILIKE', "$request->serach_sub_department_name%");
             })
+            ->when($request->filled('department_ids'), function ($q) use ($request) {
+                $q->whereIn('department_id', $request->department_ids ?? []);
+            })
+
             ->paginate($request->per_page);
     }
 
@@ -109,6 +113,8 @@ class SubDepartmentController extends Controller
 
     public function sub_departments_by_departments(SubDepartment $model, Request $request)
     {
+
+
         return $model->whereIn('department_id', $request->department_ids ?? [])->get();
     }
 }

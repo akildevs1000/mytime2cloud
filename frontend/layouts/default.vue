@@ -141,7 +141,10 @@
         <img title="My Time Cloud " :src="logo_src" />
       </span>
       <v-spacer></v-spacer>
-      <span style="100%" v-if="getLoginType == 'company'">
+      <span
+        style="100%"
+        v-if="getLoginType == 'company' || getLoginType == 'branch'"
+      >
         <template>
           <v-row align="center" justify="space-around" class="">
             <v-col>
@@ -304,6 +307,14 @@
         </v-bottom-navigation> -->
       </span>
       <v-spacer></v-spacer>
+      Hi {{ getLoginType }}
+      {{
+        getLoginType == "manager"
+          ? "Department Manager"
+          : getLoginType == "branch"
+          ? " Branch Manager"
+          : ""
+      }}
       <v-menu
         nudge-bottom="50"
         transition="scale-transition"
@@ -346,15 +357,15 @@
             </v-list-item>
 
             <v-list-item
-              v-else-if="getLoginType == 'manager' || hasDepartments"
+              v-if="getLoginType == 'manager' || getLoginType == 'branch'"
               @click="setLoginType"
             >
               <v-list-item-icon>
                 <v-icon>mdi-account-multiple-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title class="black--text"
-                  >Login As
+                <v-list-item-title class="black--text">
+                  Login Into
                   {{
                     caps(getLoginType == "manager" ? "employee" : "manager")
                   }}</v-list-item-title
@@ -567,6 +578,7 @@
 <script>
 import company_menus from "../menus/company.json";
 import employee_menus from "../menus/employee.json";
+import branch_menus from "../menus/branch.json";
 
 export default {
   data() {
@@ -609,6 +621,7 @@ export default {
       topMenu_Selected: "dashboard",
       company_menus,
       employee_menus,
+      branch_menus,
       pendingLeavesCount: 0,
       snackNotificationText: "",
       snackNotification: false,
@@ -646,6 +659,7 @@ export default {
     };
   },
   created() {
+    //console.log("this.$auth.user", this.$auth.user);
     this.$store.commit("loginType", this.$auth.user.user_type);
     this.getCompanyDetails();
     this.setMenus();
@@ -657,6 +671,13 @@ export default {
   },
 
   mounted() {
+    window.addEventListener("resize", () => {
+      if (window.innerWidth <= 500) {
+        //this.miniVariant = true;
+        // const elementsArray = document.getElementsByClassName("main_bg");
+        // elementsArray[0].style.paddingRight = 0;
+      }
+    });
     // this.verifyLeaveNotificationsApi();
     // setInterval(() => {
     //   if (this.socketConnectionStatus != 1) {
@@ -753,7 +774,7 @@ export default {
         });
     },
     setMenus() {
-      if (this.getLoginType === "company") {
+      if (this.getLoginType === "company" || this.getLoginType === "branch") {
         // this.items = this.company_menus;
         this.items = this.company_menus.filter(
           (item) => item.module === this.topMenu_Selected
@@ -767,6 +788,7 @@ export default {
       let menus = {
         manager: this.company_menus,
         employee: this.employee_menus,
+        brnach: this.branch_menus,
       };
 
       this.items = menus[this.getLoginType].filter(({ menu }) =>
@@ -890,6 +912,9 @@ export default {
         });
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let { permissions, is_master } = this.$auth.user;
 
       return permissions.includes(per) || is_master;
@@ -1049,7 +1074,7 @@ header i {
 }
 
 .secondary-value {
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .form-control:focus {
@@ -1062,4 +1087,15 @@ header i {
   width: 30px;
   height: auto;
 }
+
+.basic-table-design {
+  tr {
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+  }
+}
+/* .v-application .primary--text {
+  color: #6946dd !important;
+  caret-color: #6946dd !important;
+} */
 </style>

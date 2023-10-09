@@ -134,6 +134,11 @@ class EmployeeController extends Controller
             $data['profile_picture'] = $fileName;
         }
 
+
+        // if ($data['sub_department_id']=='---')
+        // {
+
+        // }
         try {
             $updated = $employee->update($data);
             if (!$updated) {
@@ -833,4 +838,3 @@ class EmployeeController extends Controller
     //     return response()->json(['status' => true, 'message' => 'Reporter successfully Deleted']);
     // }
 }
-

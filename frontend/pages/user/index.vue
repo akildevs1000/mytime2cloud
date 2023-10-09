@@ -43,7 +43,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [50, 100, 500, 1000]
+        itemsPerPageOptions: [50, 100, 500, 1000],
       }"
       class="elevation-1"
     >
@@ -108,7 +108,7 @@ export default {
     defaultItem: { name: "" },
     response: "",
     data: [],
-    errors: []
+    errors: [],
   }),
 
   computed: {
@@ -116,7 +116,7 @@ export default {
       return this.editedIndex === -1
         ? `New ${this.Module}`
         : `Edit ${this.Module}`;
-    }
+    },
   },
 
   watch: {
@@ -125,8 +125,8 @@ export default {
         this.getDataFromApi();
         this.getHeaders();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     this.loading = true;
@@ -138,14 +138,17 @@ export default {
         { text: this.Module, align: "left", sortable: false, value: "name" },
         { text: "Email", align: "left", sortable: false, value: "email" },
         { text: "Role", align: "left", sortable: false, value: "role.name" },
-        { text: "Actions", align: "center", value: "action", sortable: false }
+        { text: "Actions", align: "center", value: "action", sortable: false },
       ];
     },
 
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e == per || per == "/")) || u.is_master
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
 
@@ -157,8 +160,8 @@ export default {
       let options = {
         params: {
           per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id
-        }
+          company_id: this.$auth.user.company_id,
+        },
       };
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
@@ -202,13 +205,13 @@ export default {
     },
 
     delteteSelectedRecords() {
-      let just_ids = this.ids.map(e => e.id);
+      let just_ids = this.ids.map((e) => e.id);
       confirm(
         "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
       ) &&
         this.$axios
           .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids
+            ids: just_ids,
           })
           .then(({ data }) => {
             if (!data.status) {
@@ -220,7 +223,7 @@ export default {
               this.response = "Selected records has been deleted";
             }
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
     },
 
     deleteItem(item) {
@@ -240,8 +243,8 @@ export default {
               this.response = data.message;
             }
           })
-          .catch(err => console.log(err));
-    }
-  }
+          .catch((err) => console.log(err));
+    },
+  },
 };
 </script>

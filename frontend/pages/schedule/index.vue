@@ -212,7 +212,7 @@
     </v-dialog>
 
     <div v-if="!preloader">
-    <Back class="primary white--text" />
+      <Back class="primary white--text" />
 
       <v-card elevation="0" class="mt-2" v-if="can(`shift_view`)">
         <v-toolbar class="rounded-md" color="background" dense flat dark>
@@ -447,6 +447,9 @@ export default {
     getUpdateData(index, shift_id, day) {},
 
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master

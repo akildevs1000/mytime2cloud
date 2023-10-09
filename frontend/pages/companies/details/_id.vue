@@ -281,23 +281,23 @@ export default {
       member_from: "",
       expiry: "",
       max_employee: "",
-      max_devices: ""
+      max_devices: "",
     },
     contact_payload: {
       contact_name: "",
       contact_no: "",
       contact_position: "",
-      contact_whatsapp: ""
+      contact_whatsapp: "",
     },
     login_payload: {
       user_name: "",
       email: "",
       password: "",
-      password_confirmation: ""
+      password_confirmation: "",
     },
     errors: [],
     data: [],
-    devices: []
+    devices: [],
   }),
   async created() {
     this.getDataFromApi();
@@ -306,9 +306,12 @@ export default {
   },
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -334,17 +337,17 @@ export default {
           contact_name: contact.name,
           contact_no: contact.number,
           contact_position: contact.position,
-          contact_whatsapp: contact.whatsapp
+          contact_whatsapp: contact.whatsapp,
         };
         this.login_payload = {
           user_name: data.record.name,
-          email: data.record.email
+          email: data.record.email,
         };
 
         this.company_payload = {
           ...data.record,
           member_from: this.formatted_date(member_from),
-          expiry: this.formatted_date(expiry)
+          expiry: this.formatted_date(expiry),
         };
 
         this.loading = false;
@@ -368,11 +371,11 @@ export default {
     },
     deleteItem(item) {
       confirm("Are you sure you want to delete this item?") &&
-        this.$axios.delete("branch/" + item.id).then(res => {
+        this.$axios.delete("branch/" + item.id).then((res) => {
           const index = this.data.indexOf(item);
           this.data.splice(index, 1);
         });
-    }
-  }
+    },
+  },
 };
 </script>

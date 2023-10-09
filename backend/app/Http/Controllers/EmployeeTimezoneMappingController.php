@@ -26,7 +26,7 @@ class EmployeeTimezoneMappingController extends Controller
             ->where('company_id', $request->company_id)
 
             ->when($request->filled('searchByTimezoneName'), function ($q) use ($request, $text) {
-                $q->whereHas('timezone', fn(Builder $query) => $query->where(DB::raw('lower(timezone_name)'), 'LIKE', "$text%"));
+                $q->whereHas('timezone', fn (Builder $query) => $query->where(DB::raw('lower(timezone_name)'), 'LIKE', "$text%"));
             })
             ->paginate($request->per_page);
     }
@@ -196,7 +196,6 @@ class EmployeeTimezoneMappingController extends Controller
                 if ($request->department_id != '---') {
                     $q->where('department_id', $request->department_id);
                 }
-
             })
             ->get();
         return $employees;
@@ -218,7 +217,7 @@ class EmployeeTimezoneMappingController extends Controller
         return $model->with(["timezone"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('timezoneName'), function ($q) use ($request) {
-                $q->whereHas('timezone', fn(Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezoneName%"));
+                $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezoneName%"));
             })
             ->when($request->filled('device'), function ($q) use ($request) {
                 $q->whereJsonContains('device_id', [['name' => "$request->device"]]);

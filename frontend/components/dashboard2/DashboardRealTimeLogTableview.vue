@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col md="10" sm="10" xs="10" class="pl-5">
-        <h5>Recent Employee Logs on Devices</h5>
+        <h6>Recent Employee Logs on Devices</h6>
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">
@@ -61,22 +61,31 @@
       class="elevation-0"
       :server-items-length="totalRowsCount"
     >
+      <template v-slot:item.sno="{ item, index }">
+        {{
+          currentPage
+            ? (currentPage - 1) * perPage +
+              (cumulativeIndex + logs.indexOf(item))
+            : ""
+        }}
+      </template>
+
       <template v-slot:item.employee.first_name="{ item, index }">
         <v-row no-gutters>
           <v-col
             style="
               padding: 5px;
               padding-left: 0px;
-              width: 50px;
-              max-width: 50px;
+              width: 40px;
+              max-width: 40px;
             "
           >
             <v-img
               style="
                 border-radius: 50%;
                 height: auto;
-                width: 50px;
-                max-width: 50px;
+                width: 40px;
+                max-width: 40px;
               "
               :src="
                 item.employee && item.employee.profile_picture
@@ -89,7 +98,7 @@
           <v-col style="padding: 10px">
             {{ item.employee ? item.employee.first_name : "---" }}
             {{ item.employee ? item.employee.last_name : "---" }}
-            <div>
+            <div class="secondary-value">
               {{
                 item.employee && item.employee.designation
                   ? caps(item.employee.designation.name)
@@ -105,7 +114,7 @@
             ? caps(item.employee.department.name)
             : "---"
         }}
-        <div>
+        <div class="secondary-value">
           {{
             item.employee && item.employee.sub_department
               ? caps(item.employee.sub_department.name)
@@ -129,16 +138,13 @@
         <v-icon v-else color="red" fill>mdi-map-marker-radius</v-icon>
       </template>
       <template v-slot:item.device.device_name="{ item }">
-        <div
-          :style="
-            item.device && item.device.location ? 'color:green' : 'color: red;'
-          "
-        >
+        <div>
           {{ item.device ? caps(item.device.name) : "---" }} <br />
-
-          {{
-            item.device && item.device.location ? item.device.location : "---"
-          }}
+          <div class="secondary-value">
+            {{
+              item.device && item.device.location ? item.device.location : "---"
+            }}
+          </div>
         </div>
       </template>
       <!-- <template v-slot:item.log="{ item }">
@@ -153,6 +159,10 @@ export default {
   props: ["system_user_id"],
   data() {
     return {
+      perPage: 10,
+      cumulativeIndex: 1,
+      currentPage: 1,
+
       componentKey: 1,
 
       dialogEmployeeAttendance: false,
@@ -178,20 +188,20 @@ export default {
         //   value: "UserID",
         // },
         {
+          text: "#",
+          align: "left",
+          sortable: true,
+          filterable: true,
+
+          value: "sno",
+        },
+        {
           text: "Employee   Id",
           align: "left",
           sortable: true,
           filterable: true,
 
           value: "employee.employee_id",
-        },
-        {
-          text: "Online/Offline",
-          align: "left",
-          sortable: true,
-          filterable: true,
-
-          value: "online",
         },
 
         {
@@ -226,6 +236,14 @@ export default {
           filterable: true,
 
           value: "device.device_name",
+        },
+        {
+          text: "Online/Offline",
+          align: "left",
+          sortable: true,
+          filterable: true,
+
+          value: "online",
         },
         // {
         //   text: "Log",

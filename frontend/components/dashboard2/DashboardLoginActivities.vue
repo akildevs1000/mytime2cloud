@@ -2,9 +2,7 @@
   <div>
     <v-row>
       <v-col md="10">
-        <center>
-          <h5>Web Login Activities</h5>
-        </center>
+        <h6 class="pl-2">Web Login Activities</h6>
       </v-col>
       <v-col md="2" class="text-end">
         <v-menu bottom left>
@@ -69,7 +67,7 @@
         {{ item.user.employee ? item.user.employee.first_name : "Admin" }}
         {{ item.user.employee ? item.user.employee.last_name : " " }}
 
-        <div>
+        <div class="secondary-value">
           {{
             item.user.employee && item.user.employee.department
               ? caps(item.user.employee.department.name)
@@ -83,8 +81,8 @@
         {{ item.employee && item.employee.employee_id }}
       </template>
       <template v-slot:item.LogTime="{ item }" style="color: green">
-        <v-icon color="green" fill>mdi-clock-outline</v-icon
-        >{{ item.date_time }}
+        <v-icon color="green" fill>mdi-clock-outline</v-icon>
+        {{ item.date_time }}
       </template>
 
       <template v-slot:item.online="{ item }">

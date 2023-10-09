@@ -97,8 +97,9 @@
                     v-for="(item, idx) in roles"
                     :key="idx"
                     :value="item.id"
-                    >{{ item.name }}</option
                   >
+                    {{ item.name }}
+                  </option>
                 </select>
                 <span
                   v-if="errors && errors.role_id"
@@ -139,7 +140,7 @@ export default {
     payload: {
       name: "",
       email: "",
-      role_id: ""
+      role_id: "",
     },
 
     id: "",
@@ -147,7 +148,7 @@ export default {
     errors: [],
     roles: [],
     response: "",
-    snackbar: false
+    snackbar: false,
   }),
   async created() {
     this.id = await this.$route.params.id;
@@ -156,9 +157,12 @@ export default {
   },
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -170,8 +174,8 @@ export default {
     getRoles() {
       let options = {
         params: {
-          company_id: this.$auth.user.company_id
-        }
+          company_id: this.$auth.user.company_id,
+        },
       };
       this.$axios.get(`role`, options).then(({ data }) => {
         this.roles = data.data;
@@ -200,8 +204,8 @@ export default {
             setTimeout(() => this.$router.push(`/user`), 2000);
           }
         })
-        .catch(e => console.log(e));
-    }
-  }
+        .catch((e) => console.log(e));
+    },
+  },
 };
 </script>

@@ -14,6 +14,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SdkLogcsvfileController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Http\Controllers\TradeLicenseController;
@@ -88,15 +89,15 @@ Route::get('role/{id}/permissions', [RoleController::class, 'getPermission']);
 Route::post('role/{id}/permissions', [RoleController::class, 'assignPermission']);
 Route::post('role/delete/selected', [RoleController::class, 'deleteSelected']);
 // Branch
-Route::apiResource('branch', BranchController::class)->except('update');
-Route::post('branch/{id}/update', [BranchController::class, 'update']);
-Route::post('branch/{id}/update/contact', [BranchController::class, 'updateContact']);
-Route::post('branch/{id}/update/user', [BranchController::class, 'updateBranchUserUpdate']);
-Route::post('branch/validate', [BranchController::class, 'validateBranch']);
-Route::post('branch/contact/validate', [BranchController::class, 'validateContact']);
-Route::post('branch/user/validate', [BranchController::class, 'validateBranchUser']);
-Route::post('branch/update/user/validate', [BranchController::class, 'validateBranchUserUpdate']);
-Route::get('branch/search/{key}', [BranchController::class, 'search']);
+// Route::apiResource('branch', BranchController::class)->except('update');
+// Route::post('branch/{id}/update', [BranchController::class, 'update']);
+// Route::post('branch/{id}/update/contact', [BranchController::class, 'updateContact']);
+// Route::post('branch/{id}/update/user', [BranchController::class, 'updateBranchUserUpdate']);
+// Route::post('branch/validate', [BranchController::class, 'validateBranch']);
+// Route::post('branch/contact/validate', [BranchController::class, 'validateContact']);
+// Route::post('branch/user/validate', [BranchController::class, 'validateBranchUser']);
+// Route::post('branch/update/user/validate', [BranchController::class, 'validateBranchUserUpdate']);
+// Route::get('branch/search/{key}', [BranchController::class, 'search']);
 
 
 
@@ -124,3 +125,6 @@ Route::get('processByManualForSingleShift', [SingleShiftController::class, 'proc
 // Route::get('SyncAbsentForMultipleDays', [AttendanceController::class, 'SyncAbsentForMultipleDays']);
 
 Route::get('reset_file/{token}/{file}', [CommonController::class, 'destroy']);
+
+Route::get('downloadfiles', [SdkLogcsvfileController::class, 'list']);
+Route::get('download/{key}', [SdkLogcsvfileController::class, 'download']);

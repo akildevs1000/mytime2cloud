@@ -279,7 +279,7 @@ class Employee extends Model
             },
         ])
             ->with([
-                "reportTo", "department", "sub_department", "designation", "payroll", "timezone", "passport",
+                "reportTo", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
                 "emirate", "qualification", "bank", "leave_group",  "Visa", "reporting_manager",
             ])
             ->with(["schedule" => function ($q) {
@@ -344,6 +344,18 @@ class Employee extends Model
             ->when($request->filled('payroll_net_salary'), function ($q) use ($request) {
                 $q->whereHas('payroll', fn (Builder $query) => $query->where('net_salary', '=', $request->payroll_net_salary));
             })
+
+            ->when($request->filled("department_branch_id"), function ($q) use ($request) {
+                $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->department_branch_id));
+            })
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->branch_id));
+            })
+            ->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+                $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->filter_branch_id));
+            })
+
+
 
             // ->when($request->filled('sortBy'), function ($q) use ($request) {
             //     $sortDesc = $request->input('sortDesc');

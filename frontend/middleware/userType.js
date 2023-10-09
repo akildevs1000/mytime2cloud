@@ -1,6 +1,6 @@
 const data = ({ $auth, redirect }) => {
   const { user_type } = $auth.user;
-
+  console.log("user_type", user_type);
   switch (user_type) {
     case "master":
       redirect("/master");
@@ -8,8 +8,14 @@ const data = ({ $auth, redirect }) => {
     case "employee":
       redirect("/dashboard/employee");
       break;
-    default:
+    case "manager":
       redirect("/dashboard2");
+      break;
+    case "branch":
+      redirect("/dashboard2");
+      break;
+    default:
+      redirect("/dashboard/employee");
       break;
   }
 };

@@ -89,7 +89,7 @@
             @change="getDataFromApi(`employee`)"
             outlined
             v-model="per_page"
-            :items="[50, 100, 500,1000]"
+            :items="[50, 100, 500, 1000]"
             dense
             placeholder="Per Page Records"
           ></v-select>
@@ -312,6 +312,9 @@ export default {
       }
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e.name == per || per == "/")) ||

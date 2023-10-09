@@ -473,13 +473,13 @@
         <template v-slot:item.open_always="{ item }"> </template>
         <template v-slot:item.status_id="{ item }">
           <img
-            title="Active"
+            title="Online"
             v-if="item.status.name == 'active'"
             src="/icons/device_status_open.png"
             style="width: 30px"
           />
           <img
-            title="In-active"
+            title="Offline"
             v-else
             src="/icons/device_status_close.png"
             style="width: 30px"

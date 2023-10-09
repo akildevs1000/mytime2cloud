@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Department\DepartmentRequest;
 use App\Http\Requests\Department\DepartmentUpdateRequest;
+use App\Models\CompanyBranch;
 use App\Models\Department;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ class DepartmentController extends Controller
 {
     public function index(Department $department, Request $request)
     {
+
+
         return $department->filter($request)->paginate($request->per_page);
     }
 
@@ -19,7 +22,8 @@ class DepartmentController extends Controller
     {
         $model = Department::query();
         $model->where('company_id', $request->company_id);
-        $model->with('employees:id,employee_id,system_user_id,first_name,last_name,display_name,department_id');
+        $model->with(['branch', 'employees:id,employee_id,system_user_id,first_name,last_name,display_name,department_id']);
+
         $model->select("id", "name");
         return $model->paginate($request->per_page);
     }

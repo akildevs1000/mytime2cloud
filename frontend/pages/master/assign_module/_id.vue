@@ -126,6 +126,9 @@ export default {
       this.module_ids = this.just_ids ? this.modules.map((e) => e.id) : [];
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return u && u.user_type == per;
     },

@@ -30,9 +30,10 @@ class StoreRequest extends FormRequest
         return [
 
             'name' => 'required',
-
-
+            'priority' => 'nullable',
+            'description' => 'nullable',
             'company_id' => 'required',
+            'branch_id' => 'nullable',
 
         ];
     }

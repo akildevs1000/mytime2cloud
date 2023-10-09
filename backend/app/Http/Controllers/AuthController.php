@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\AssignedDepartmentEmployee;
+use App\Models\CompanyBranch;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -191,6 +192,11 @@ class AuthController extends Controller
         $user = $request->user();
         $user->load("company");
         $user->user_type = $this->getUserType($user);
+        $assigned_branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
+        $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
+        if ($assigned_branch_id > 0) {
+            $user->user_type = "branch";
+        }
         $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
         return ['user' => $user];
     }
@@ -212,7 +218,7 @@ class AuthController extends Controller
             }
 
             $user->assignedDepartments = $this->getAssignedDepartments($user);
-
+            //return "branch";
             return "manager";
         } else {
             return $user->role_id > 0 ? "user" : "master";

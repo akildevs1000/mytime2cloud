@@ -18,16 +18,30 @@
         </v-card-title>
 
         <v-card-text>
-          <v-col col="3" text-right class="text-right"><v-btn class="primary" v-if="isEdit" small
-              @click="addRow(rosterFirstValue)">
+          <v-col col="3" text-right class="text-right"
+            ><v-btn
+              class="primary"
+              v-if="isEdit"
+              small
+              @click="addRow(rosterFirstValue)"
+            >
               <b>Add +</b>
-            </v-btn></v-col>
+            </v-btn></v-col
+          >
 
           <v-row v-for="(item, i) in schedules_temp_list" :key="i">
             <v-col md="3">
               <div class="">Schedule List</div>
-              <v-autocomplete outlined :readonly="!isEdit" dense v-model="item.schedule_id" x-small :items="rosters"
-                item-value="schedule_id" item-text="name"></v-autocomplete>
+              <v-autocomplete
+                outlined
+                :readonly="!isEdit"
+                dense
+                v-model="item.schedule_id"
+                x-small
+                :items="rosters"
+                item-value="schedule_id"
+                item-text="name"
+              ></v-autocomplete>
             </v-col>
             <v-col md="3">
               <div class="mb-6">
@@ -56,22 +70,45 @@
                     @input="from_menu[i] = false"
                   ></v-date-picker>
                 </v-menu> -->
-                <v-menu ref="from_menu" v-model="from_menu[i]" :close-on-content-click="false"
-                  :return-value.sync="item.from_date" transition="scale-transition" offset-y min-width="auto">
+                <v-menu
+                  ref="from_menu"
+                  v-model="from_menu[i]"
+                  :close-on-content-click="false"
+                  :return-value.sync="item.from_date"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
                   <template v-slot:activator="{ on, attrs }">
-                    <v-text-field :hide-details="true" outlined dense v-model="item.from_date" readonly
-                      v-bind="!isEdit || attrs" v-on="!isEdit || on"></v-text-field>
+                    <v-text-field
+                      :hide-details="true"
+                      outlined
+                      dense
+                      v-model="item.from_date"
+                      readonly
+                      v-bind="!isEdit || attrs"
+                      v-on="!isEdit || on"
+                    ></v-text-field>
                   </template>
-                  <v-date-picker :readonly="!isEdit" v-model="item.from_date" no-title scrollable>
+                  <v-date-picker
+                    :readonly="!isEdit"
+                    v-model="item.from_date"
+                    no-title
+                    scrollable
+                  >
                     <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="from_menu[i] = false">
                       Cancel
                     </v-btn>
-                    <v-btn text color="primary" @click="
-                      isEdit
-                        ? set_date_save($refs.from_menu[i], item.from_date, i)
-                        : ''
-                      ">
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        isEdit
+                          ? set_date_save($refs.from_menu[i], item.from_date, i)
+                          : ''
+                      "
+                    >
                       OK
                     </v-btn>
                   </v-date-picker>
@@ -81,25 +118,49 @@
             <v-col md="3">
               <div class="mb-6">
                 <div>To</div>
-                <v-menu v-model="to_menu[i]" :close-on-content-click="false" :nudge-right="40"
-                  transition="scale-transition" offset-y min-width="auto" :readonly="!isEdit">
+                <v-menu
+                  v-model="to_menu[i]"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                  :readonly="!isEdit"
+                >
                   <template v-slot:activator="{ on, attrs }">
-                    <v-text-field v-model="item.to_date" readonly v-bind="!isEdit || attrs" v-on="!isEdit || on" outlined
-                      dense :hide-details="true"></v-text-field>
+                    <v-text-field
+                      v-model="item.to_date"
+                      readonly
+                      v-bind="!isEdit || attrs"
+                      v-on="!isEdit || on"
+                      outlined
+                      dense
+                      :hide-details="true"
+                    ></v-text-field>
                   </template>
-                  <v-date-picker :readonly="!isEdit" v-model="item.to_date" @input="to_menu[i] = false"></v-date-picker>
+                  <v-date-picker
+                    :readonly="!isEdit"
+                    v-model="item.to_date"
+                    @input="to_menu[i] = false"
+                  ></v-date-picker>
                 </v-menu>
               </div>
             </v-col>
             <v-col md="2">
               <div>
                 Overtime Allowed
-                <v-checkbox :readonly="!isEdit" style="margin-top: -8px" v-model="item.is_over_time"></v-checkbox>
+                <v-checkbox
+                  :readonly="!isEdit"
+                  style="margin-top: -8px"
+                  v-model="item.is_over_time"
+                ></v-checkbox>
               </div>
             </v-col>
             <v-col md="1" v-if="isEdit">
               <div></div>
-              <v-icon @click="removeItem(i, item)" color="error">mdi-delete</v-icon>
+              <v-icon @click="removeItem(i, item)" color="error"
+                >mdi-delete</v-icon
+              >
             </v-col>
           </v-row>
         </v-card-text>
@@ -135,49 +196,125 @@
                   </div>
                   <div class="mb-1">Department</div>
 
-                  <v-autocomplete outlined dense @change="runMultipleFunctions" v-model="department_ids" multiple x-small
-                    :items="departments" item-value="id" item-text="name"
-                    :disabled="is_edit == true ? true : false"></v-autocomplete>
+                  <v-autocomplete
+                    outlined
+                    dense
+                    @change="runMultipleFunctions"
+                    v-model="department_ids"
+                    multiple
+                    x-small
+                    :items="departments"
+                    item-value="id"
+                    item-text="name"
+                    :disabled="is_edit == true ? true : false"
+                  ></v-autocomplete>
                   <div class="mb-1">Sub Department</div>
-                  <v-autocomplete outlined dense @change="getEmployeesBySubDepartment" v-model="sub_department_ids"
-                    multiple x-small :items="sub_departments" item-value="id" item-text="name"
-                    :disabled="is_edit == true ? true : false"></v-autocomplete>
+                  <v-autocomplete
+                    outlined
+                    dense
+                    @change="getEmployeesBySubDepartment"
+                    v-model="sub_department_ids"
+                    multiple
+                    x-small
+                    :items="sub_departments"
+                    item-value="id"
+                    item-text="name"
+                    :disabled="is_edit == true ? true : false"
+                  ></v-autocomplete>
 
                   <div class="mb-1">Shift Types</div>
 
-                  <v-autocomplete :error="errors && errors.shift_type_id" :error-messages="errors && errors.shift_type_id
-                      ? errors.shift_type_id[0]
-                      : ''
-                    " @change="runShiftTypeFunction" outlined dense v-model="shift_type_id" x-small
-                    :items="shift_types" item-value="id" item-text="name"></v-autocomplete>
+                  <v-autocomplete
+                    :error="errors && errors.shift_type_id"
+                    :error-messages="
+                      errors && errors.shift_type_id
+                        ? errors.shift_type_id[0]
+                        : ''
+                    "
+                    @change="runShiftTypeFunction"
+                    outlined
+                    dense
+                    v-model="shift_type_id"
+                    x-small
+                    :items="shift_types"
+                    item-value="id"
+                    item-text="name"
+                  ></v-autocomplete>
 
                   <div class="mb-1">Shifts</div>
-                  <v-autocomplete :error="errors && errors.shift_id" :error-messages="errors && errors.shift_id ? errors.shift_id[0] : ''
-                    " @change="runShiftFunction" outlined dense v-model="shift_id" x-small :items="shifts"
-                    item-value="id" item-text="name"></v-autocomplete>
+                  <v-autocomplete
+                    :error="errors && errors.shift_id"
+                    :error-messages="
+                      errors && errors.shift_id ? errors.shift_id[0] : ''
+                    "
+                    @change="runShiftFunction"
+                    outlined
+                    dense
+                    v-model="shift_id"
+                    x-small
+                    :items="shifts"
+                    item-value="id"
+                    item-text="name"
+                  ></v-autocomplete>
                   <div class="mb-6">
                     <div>From</div>
-                    <v-menu v-model="from_menu" :close-on-content-click="false" :nudge-right="40"
-                      transition="scale-transition" offset-y min-width="auto">
+                    <v-menu
+                      v-model="from_menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field v-model="from_date" readonly v-bind="attrs" v-on="on" outlined dense
-                          :hide-details="true"></v-text-field>
+                        <v-text-field
+                          v-model="from_date"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          outlined
+                          dense
+                          :hide-details="true"
+                        ></v-text-field>
                       </template>
-                      <v-date-picker v-model="from_date" @input="from_menu = false"></v-date-picker>
+                      <v-date-picker
+                        v-model="from_date"
+                        @input="from_menu = false"
+                      ></v-date-picker>
                     </v-menu>
                   </div>
                   <div class="mb-6">
                     <div>To</div>
-                    <v-menu v-model="to_menu" :close-on-content-click="false" :nudge-right="40"
-                      transition="scale-transition" offset-y min-width="auto">
+                    <v-menu
+                      v-model="to_menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field v-model="to_date" readonly v-bind="attrs" v-on="on" outlined dense
-                          :hide-details="true"></v-text-field>
+                        <v-text-field
+                          v-model="to_date"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          outlined
+                          dense
+                          :hide-details="true"
+                        ></v-text-field>
                       </template>
-                      <v-date-picker v-model="to_date" @input="to_menu = false"></v-date-picker>
+                      <v-date-picker
+                        v-model="to_date"
+                        @input="to_menu = false"
+                      ></v-date-picker>
                     </v-menu>
                   </div>
-                  <v-checkbox dense v-model="isOverTime" label="Overtime Allowed"></v-checkbox>
+                  <v-checkbox
+                    dense
+                    v-model="isOverTime"
+                    label="Overtime Allowed"
+                  ></v-checkbox>
                 </v-col>
               </v-row>
             </v-col>
@@ -191,17 +328,31 @@
                 </v-col>
                 <v-col md="6">
                   <div class="text-right">
-                    <v-text-field @input="dialogSearchIt" dense v-model="dialog_search" append-icon="mdi-magnify"
-                      single-line hide-details></v-text-field>
+                    <v-text-field
+                      @input="dialogSearchIt"
+                      dense
+                      v-model="dialog_search"
+                      append-icon="mdi-magnify"
+                      single-line
+                      hide-details
+                    ></v-text-field>
                   </div>
                 </v-col>
               </v-row>
 
-              <v-data-table v-model="employee_ids" show-select item-key="id" :headers="headers_dialog"
-                :items="employees_dialog" :server-items-length="total_dialog" :loading="loading_dialog"
-                :options.sync="options_dialog" :footer-props="{
+              <v-data-table
+                v-model="employee_ids"
+                show-select
+                item-key="id"
+                :headers="headers_dialog"
+                :items="employees_dialog"
+                :server-items-length="total_dialog"
+                :loading="loading_dialog"
+                :options.sync="options_dialog"
+                :footer-props="{
                   itemsPerPageOptions: [10, 50, 100, 500, 1000],
-                }">
+                }"
+              >
               </v-data-table>
             </v-col>
           </v-row>
@@ -223,8 +374,18 @@
         <v-toolbar-title><span> Schedule List</span></v-toolbar-title>
         <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
-              <v-icon color="white" class="ml-2" @click="clearFilters" dark>mdi mdi-reload</v-icon>
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon color="white" class="ml-2" @click="clearFilters" dark
+                >mdi mdi-reload</v-icon
+              >
             </v-btn>
           </template>
           <span>Reload</span>
@@ -246,10 +407,19 @@
           <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
         </template>
       </v-snackbar>
-      <v-data-table dense :headers="headers_table" :items="employees" model-value="data.id" :loading="loading"
-        :options.sync="options" :footer-props="{
+      <v-data-table
+        dense
+        :headers="headers_table"
+        :items="employees"
+        model-value="data.id"
+        :loading="loading"
+        :options.sync="options"
+        :footer-props="{
           itemsPerPageOptions: [10, 50, 100, 500, 1000],
-        }" class="elevation-1" :server-items-length="totalRowsCount">
+        }"
+        class="elevation-1"
+        :server-items-length="totalRowsCount"
+      >
         <!-- <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
             <td
@@ -292,7 +462,9 @@
           {{ item && item.to_date }}
         </template>
         <template v-slot:item.isOverTime="{ item }">
-          <v-icon v-if="item && item.isOverTime" color="success darken-1">mdi-check</v-icon>
+          <v-icon v-if="item && item.isOverTime" color="success darken-1"
+            >mdi-check</v-icon
+          >
           <v-icon v-else color="error">mdi-close</v-icon>
         </template>
         <template v-slot:item.shift.name="{ item }">
@@ -609,7 +781,7 @@ export default {
     gotoCreateSchedule() {
       this.$router.push(`/employee_schedule/create`);
     },
-    datatable_save() { },
+    datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -840,6 +1012,9 @@ export default {
     },
 
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let { permissions } = this.$auth.user;
       return permissions.includes(per);
     },
@@ -883,8 +1058,6 @@ export default {
           employee_id: this.$auth.user.employee.employee_id,
         },
       };
-
-
 
       //if (filter_value != "") options.params[filter_column] = filter_value;
 

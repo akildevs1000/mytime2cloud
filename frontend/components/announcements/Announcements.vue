@@ -5,7 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog persistent v-model="dialog" max-width="60%">
+    <v-dialog persistent v-model="dialog" max-width="60%" :key="editedIndex">
       <v-card>
         <v-card-title dense class="popup_background">
           {{ formTitle }} {{ Model }}
@@ -30,7 +30,24 @@
                 ></v-text-field>
               </v-col>
               <!-- {{ employees_dialog }} -->
-
+              <v-col cols="4">
+                <label for="">Branch</label>
+                <v-select
+                  v-model="editedItem.branch_id"
+                  :items="branchesList"
+                  dense
+                  placeholder="Branch"
+                  outlined
+                  item-value="id"
+                  item-text="branch_name"
+                  :error="errors.branch_id"
+                  :error-messages="
+                    errors && errors.branch_id ? errors.branch_id[0] : ''
+                  "
+                  @change="getDepartments()"
+                >
+                </v-select>
+              </v-col>
               <v-col cols="4">
                 <label for="">Department</label>
                 <v-autocomplete
@@ -243,6 +260,7 @@
               </v-col>
               <v-col>
                 <label for="">Category</label>
+                {{ editedItem.category_id }}
                 <v-select
                   dense
                   outlined
@@ -737,6 +755,7 @@ export default {
       Bold,
       Paragraph,
     ],
+    branchesList: [],
     categories: [],
     totalRowsCount: 0,
     from_menu_filter: "",
@@ -790,7 +809,6 @@ export default {
     ],
     headers: [
       {
-        width: "150px",
         text: "Title",
         align: "left",
         sortable: true,
@@ -799,7 +817,14 @@ export default {
         fieldType: "text",
       },
       {
-        width: "200px",
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "department",
+        value: "branch.branch_name",
+        fieldType: "dropdown",
+      },
+      {
         text: "Departments",
         align: "left",
         sortable: true,
@@ -808,7 +833,6 @@ export default {
         fieldType: "dropdown",
       },
       {
-        width: "250px",
         text: "Employees",
         align: "left",
         sortable: true,
@@ -817,7 +841,6 @@ export default {
         fieldType: "dropdown",
       },
       {
-        width: "350px",
         text: "Description",
         align: "left",
         sortable: true,
@@ -868,6 +891,7 @@ export default {
       start_date: null,
       end_date: null,
       category_id: null,
+      branch_id: "",
     },
     defaultItem: {
       title: "",
@@ -877,6 +901,7 @@ export default {
       start_date: null,
       end_date: null,
       category_id: null,
+      branch_id: "",
     },
     response: "",
     headerText: "",
@@ -956,12 +981,23 @@ export default {
     this.loading = true;
 
     this.getDataFromApi();
-    this.getDepartments();
-    this.getEmployees();
-    this.getCategories();
+
+    this.getbranchesList();
   },
 
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
+
     handleFilter({ key, search_value }) {
       this.getDataFromApi(this.endpoint, key, search_value);
     },
@@ -992,6 +1028,9 @@ export default {
       this.selectAllEmployee = !this.selectAllEmployee;
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
@@ -1002,19 +1041,29 @@ export default {
     },
 
     getDepartments() {
+      this.getCategories();
+
+      console.log(this.editedItem.branch_id);
       let options = {
         params: {
           per_page: 1000,
           company_id: this.$auth.user.company_id,
+          branch_id: this.editedItem.branch_id,
           department_ids: this.$auth.user.assignedDepartments,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
         this.departments = data.data;
+
+        if (this.editItemId > -1) {
+        } else {
+          this.toggleDepartmentSelection();
+        }
       });
     },
 
     employeesByDepartment() {
+      //this.getEmployees();
       this.loading_dialog = true;
       const { page, itemsPerPage } = this.options_dialog;
 
@@ -1037,6 +1086,8 @@ export default {
         .then(({ data }) => {
           this.employees_dialog = data.data;
           this.loading_dialog = false;
+
+          this.toggleEmployeeSelection();
         });
     },
 
@@ -1098,9 +1149,11 @@ export default {
     editItem(item) {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
+
       this.dialog = true;
       this.editedItem.departments = item.departments.map((e) => e.id);
       this.editedItem.employees = item.employees.map((e) => e.id);
+      this.getbranchesList();
     },
 
     delteteSelectedRecords() {
@@ -1150,6 +1203,7 @@ export default {
       }, 300);
     },
     getCategories(url = "announcements_category") {
+      this.categories = [];
       this.loading = true;
 
       const { page, itemsPerPage } = this.options;
@@ -1159,6 +1213,7 @@ export default {
           page,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
+          branch_id: this.editedItem.branch_id,
         },
       };
 

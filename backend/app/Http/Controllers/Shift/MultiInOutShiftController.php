@@ -114,6 +114,7 @@ class MultiInOutShiftController extends Controller
         $model->where("UserID", $UserID);
         // $model->where("log_type", "auto");
         $model->whereBetween("LogTime", $range);
+
         $model->orderBy("LogTime");
         return $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"]);
     }
@@ -317,6 +318,8 @@ class MultiInOutShiftController extends Controller
                     "in" => $currentLog['time'],
                     "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
                     "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
+                    "device_in" => $currentLog['device']['short_name'] ?? "---",
+                    "device_out" => $nextLog['device']['short_name'] ?? "---",
                     // $currentLog['LogTime'], $nextLog['time'] ?? "---"
                 ];
 

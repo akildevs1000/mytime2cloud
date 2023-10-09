@@ -2,7 +2,7 @@
   <div class="mt-2 pl-2">
     <v-row>
       <v-col cols="10" md="10" sm="10" xs="10" style="flex: auto">
-        <h5>Today Presents By Department wise</h5>
+        <h6>Today Presents By Department wise</h6>
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">
@@ -23,20 +23,20 @@
       </v-col>
     </v-row>
     <ComonPreloader icon="face-scan" v-if="loading" />
-    <v-row v-else style="font-weight: bold">
+    <v-row v-else style="margin: 0px">
       <v-col md="2" class="text-center"># </v-col>
       <v-col md="5">&nbsp; </v-col>
-      <v-col md="1" title="presentCount" style="text-align: center">P</v-col>
-      <v-col md="1" title="absentCount" style="text-align: center">A </v-col>
-      <v-col md="1" title="missingCount" style="text-align: center">M </v-col>
+      <v-col md="1" title="Present Count" style="text-align: center">P</v-col>
+      <v-col md="1" title="Absent Count" style="text-align: center">A </v-col>
+      <v-col md="1" title="Missing Count" style="text-align: center">M </v-col>
       <!-- <v-col md="1" title="absentCount" style="text-align: center">V </v-col> -->
-      <v-col md="1" title="missingCount" style="text-align: center">L </v-col>
+      <v-col md="1" title="Missing Count" style="text-align: center">L </v-col>
     </v-row>
-    <div style="height: 300px; overflow-y: auto; overflow-x: hidden">
+    <div style="height: 250px; overflow-y: auto; overflow-x: hidden">
       <v-row v-for="(item, index, i) in departments" :key="'department' + i">
         <v-col md="2" class="text-center">
           <v-avatar
-            size="40"
+            size="30"
             style="color: #fff"
             :color="(i + 1) % 2 == 0 ? 'green' : 'red'"
           >
@@ -79,7 +79,7 @@ export default {
     this.loading = true;
     setTimeout(() => {
       this.getDataFromApi();
-    }, 1000 * 2);
+    }, 1000 * 4);
   },
 
   methods: {

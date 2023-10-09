@@ -395,7 +395,12 @@
         </v-card>
       </v-dialog>
       <div class="text-center">
-        <v-dialog persistent v-model="viewDialog" width="1200" :key="employeeId">
+        <v-dialog
+          persistent
+          v-model="viewDialog"
+          width="1200"
+          :key="employeeId"
+        >
           <EmployeeDetails
             @close-parent-dialog="closeViewDialog"
             :employeeObject="employeeObject"
@@ -1298,6 +1303,9 @@ export default {
         });
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master

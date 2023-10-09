@@ -24,6 +24,10 @@ class Department extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, 'branch_id');
+    }
     public function children()
     {
         return $this->hasMany(SubDepartment::class);
@@ -60,11 +64,10 @@ class Department extends Model
         $model = self::query();
         $model->where('company_id', $request->company_id);
         $model->with('children');
+        $model->with('branch');
         $model->with('designations');
         $model->where('company_id', $request->company_id);
-        $model->when($request->filled('department_ids') && count($request->department_ids) > 0, function ($q) use ($request) {
-            $q->whereIn('id', $request->department_ids);
-        });
+
         $model->when($request->filled('id'), function ($q) use ($request) {
             $q->where('id', 'LIKE', "$request->id%");
         });
@@ -90,6 +93,18 @@ class Department extends Model
                 $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
                 }
             }
+        });
+        if (!$request->branch_id) {
+            $model->when($request->filled('department_ids') && count($request->department_ids) > 0, function ($q) use ($request) {
+                $q->whereIn('id', $request->department_ids);
+            });
+        } else {
+            $model =  $model->when($request->filled("branch_id"), function ($q) use ($request) {
+                return $q->where("branch_id", $request->branch_id);
+            });
+        }
+        $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+            return $q->where("branch_id", $request->filter_branch_id);
         });
         if (!$request->sortBy) {
             $model->orderBy('name', 'asc');

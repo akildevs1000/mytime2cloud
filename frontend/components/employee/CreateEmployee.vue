@@ -190,7 +190,25 @@
                   "
                 ></v-text-field>
               </v-col>
+              <v-col cols="12">
+                <label class="col-form-label">Branch </label>
 
+                <v-select
+                  label="Branch "
+                  v-model="employee.branch_id"
+                  :items="branchesList"
+                  dense
+                  placeholder="Branch"
+                  outlined
+                  item-value="id"
+                  item-text="branch_name"
+                  :error="errors.branch_id"
+                  :error-messages="
+                    errors && errors.branch_id ? errors.branch_id[0] : ''
+                  "
+                >
+                </v-select>
+              </v-col>
               <v-col cols="12">
                 <label class="col-form-label">Department </label>
                 <v-autocomplete
@@ -326,11 +344,24 @@ export default {
       status: false,
       message: "",
     },
+    branchesList: [],
   }),
   created() {
     this.getDepartments();
+    this.getbranchesList();
   },
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     handleImage() {},
     saveCroppedImageStep2() {
       this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();

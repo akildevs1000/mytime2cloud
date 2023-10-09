@@ -2,7 +2,7 @@
   <div class="bordertop">
     <v-row>
       <v-col md="10" sm="10" xs="10">
-        <h5>Previous Week Attendance</h5>
+        <h6>Previous Week Attendance</h6>
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">
@@ -109,7 +109,7 @@ export default {
   mounted() {
     setTimeout(() => {
       this.getDataFromApi();
-    }, 1000 * 3);
+    }, 1000 * 6);
   },
   created() {},
 

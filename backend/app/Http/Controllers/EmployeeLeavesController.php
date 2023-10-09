@@ -16,7 +16,7 @@ class EmployeeLeavesController extends Controller
     public function getDefaultModelSettings($request)
     {
         $model = EmployeeLeaves::query();
-        $model->with(["leave_type", "employee.leave_group", "reporting"]);
+        $model->with(["leave_type", "employee.department.branch", "employee.leave_group", "reporting"]);
         $model->where('company_id', $request->company_id);
         // $model->where('year', $request->year);
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
@@ -49,6 +49,11 @@ class EmployeeLeavesController extends Controller
         $model->when($request->filled('created_at'), function ($q) use ($request) {
             $q->where('created_at', 'ILIKE', "$request->created_at%");
         });
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->where('branch_id',  $request->branch_id);
+        });
+
+
         $model->when($request->filled('status'), function ($q) use ($request) {
             if (strtolower($request->status) == 'approved') {
                 $q->where('status', 1);

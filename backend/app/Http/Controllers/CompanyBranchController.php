@@ -34,7 +34,19 @@ class CompanyBranchController extends Controller
         CompanyBranch::insert($arr);
         return CompanyBranch::count();
     }
+    public function branchesList(Request $request)
+    {
+        $model = CompanyBranch::where('company_id', $request->company_id);
 
+        $model =  $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            return $q->where("id", $request->branch_id);
+        });
+
+        $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+            return $q->where("id", $request->filter_branch_id);
+        });
+        return $model->get();
+    }
     public function store(CompanyBranch $model, StoreRequest $request)
     {
         $data = $request->validated();
@@ -90,7 +102,15 @@ class CompanyBranchController extends Controller
     public function index(CompanyBranch $CompanyBranch, Request $request)
     {
         // return $CompanyBranch->filter($request)->paginate($request->per_page ?? 100);
-        return $CompanyBranch->with("user")->withCount(["employees", "devices", "departments"])->orderBy("id", "desc")->paginate($request->per_page ?? 100);
+        $model = $CompanyBranch->with("user.employee")->withCount(["employees", "devices", "departments"]);
+        $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            return $q->where("id", $request->branch_id);
+        });
+
+        $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+            return $q->where("id", $request->filter_branch_id);
+        });
+        return $model->orderBy("id", "desc")->paginate($request->per_page ?? 100);
     }
 
     public function destroy($id)

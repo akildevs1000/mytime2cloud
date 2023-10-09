@@ -30,6 +30,8 @@ class UpdateRequest extends FormRequest
             'priority' => 'nullable',
             'description' => 'nullable',
             'company_id' => 'required',
+            'branch_id' => 'nullable',
+
         ];
     }
 }

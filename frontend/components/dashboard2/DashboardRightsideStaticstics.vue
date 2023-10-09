@@ -27,7 +27,7 @@
     </v-card>
 
     <v-row>
-      <v-col md="6">
+      <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
           <v-row class="p-2">
             <v-row class="p-0 m-0">
@@ -69,7 +69,7 @@
         </v-card>
       </v-col>
 
-      <v-col md="6">
+      <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
           <v-row class="p-2">
             <v-row class="p-0 m-0">
@@ -111,7 +111,7 @@
     </v-row>
 
     <v-row>
-      <v-col md="6">
+      <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
           <v-row class="p-2">
             <v-row class="p-0 m-0">
@@ -153,7 +153,7 @@
           </v-row>
         </v-card>
       </v-col>
-      <v-col md="6">
+      <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
           <v-row class="p-2">
             <v-row class="p-0 m-0">
@@ -197,10 +197,10 @@
     </v-row>
 
     <v-row>
-      <v-col md="6">
+      <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
           <v-row class="p-2">
-            <v-row>
+            <v-row class="p-0 m-0">
               <v-col md="6">
                 <v-avatar color="#E65100">
                   <v-icon size="30" style="color: #fff"
@@ -237,10 +237,10 @@
         </v-card>
       </v-col>
 
-      <v-col md="6">
+      <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
           <v-row class="p-2">
-            <v-row>
+            <v-row class="p-0 m-0">
               <v-col md="6">
                 <v-avatar color="black">
                   <v-icon size="30" style="color: #fff"
@@ -306,7 +306,7 @@ export default {
   mounted() {
     setTimeout(() => {
       this.getDataFromApi();
-    }, 1000 * 2);
+    }, 1000 * 4);
   },
 
   methods: {

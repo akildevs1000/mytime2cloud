@@ -158,20 +158,23 @@ export default {
       user_id: null,
       device_id: null,
       date: null,
-      time: null
+      time: null,
     },
 
     errors: [],
     data: [],
     response: "",
-    snackbar: false
+    snackbar: false,
   }),
   async created() {},
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
-        (u && u.permissions.some(e => e.name == per || per == "/")) ||
+        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
         u.is_master
       );
     },
@@ -182,7 +185,7 @@ export default {
         UserID: user_id,
         LogTime: date + " " + time,
         DeviceID: device_id,
-        company_id: this.$auth.user.company_id
+        company_id: this.$auth.user.company_id,
       };
       this.loading = true;
 
@@ -202,7 +205,7 @@ export default {
           this.snackbar = true;
           this.response = message;
         });
-    }
-  }
+    },
+  },
 };
 </script>

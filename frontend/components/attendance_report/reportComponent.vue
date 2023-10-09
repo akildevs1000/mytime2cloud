@@ -301,7 +301,7 @@
           </div>
         </template>
         <template v-slot:item.in3="{ item }">
-          <div>{{ item.In3 }}</div>
+          <div>{{ item.in3 }}</div>
           <div class="secondary-value">
             {{ (item.device_in3 && item.device_in3) || "---" }}
           </div>
@@ -351,7 +351,7 @@
         <template v-slot:item.in7="{ item }">
           <div>{{ item.in7 }}</div>
           <div class="secondary-value">
-            {{ (item.device_in7 && item.device_in1) || "---" }}
+            {{ (item.device_in7 && item.device_in7) || "---" }}
           </div>
         </template>
         <template v-slot:item.out7="{ item }">
@@ -1202,6 +1202,9 @@ export default {
     },
 
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
@@ -1434,8 +1437,8 @@ export default {
   },
 };
 </script>
-<!-- <style scoped>
+<style scoped>
 .v-slide-group__content {
   height: 30px !important;
 }
-</style> -->
+</style>

@@ -138,13 +138,16 @@ export default {
     next_page_url: "",
     prev_page_url: "",
     current_page: 1,
-    per_page: 10
+    per_page: 10,
   }),
   async created() {
     this.getDataFromApi();
   },
   methods: {
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return u && u.user_type == per;
     },
@@ -163,8 +166,8 @@ export default {
     getDataFromApi(url = this.endpoint) {
       let options = {
         params: {
-          per_page: this.per_page
-        }
+          per_page: this.per_page,
+        },
       };
 
       this.$axios.get(`${url}`, options).then(({ data }) => {
@@ -183,11 +186,11 @@ export default {
     },
     deleteItem(item) {
       confirm("Are you sure you want to delete this item?") &&
-        this.$axios.delete(this.endpoint + "/" + item.id).then(res => {
+        this.$axios.delete(this.endpoint + "/" + item.id).then((res) => {
           const index = this.data.indexOf(item);
           this.data.splice(index, 1);
         });
-    }
-  }
+    },
+  },
 };
 </script>

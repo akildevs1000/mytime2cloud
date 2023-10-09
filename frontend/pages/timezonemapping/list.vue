@@ -115,17 +115,22 @@
               <b>{{ ++index }}</b>
             </template>
             <template v-slot:item.timezone.timezone_name="{ item }">
-              {{ item.timezone.timezone_name }}
+              {{ item.timezone && item.timezone.timezone_name }}
             </template>
             <template v-slot:item.devices="{ item }">
-              <v-chip
-                small
-                class="primary ma-1"
+              <div
+                class="d-flex flex-row bg-surface-variant"
                 v-for="(subitem, index) in item.device_id.slice(0, 3)"
-                :key="index"
               >
-                {{ caps(subitem.location + " : " + subitem.name) }}
-              </v-chip>
+                <v-sheet class="ma-2" cols="2"> {{ ++index }}: </v-sheet>
+                <v-sheet class="ma-2" cols="4">
+                  {{ caps(subitem.name) }}</v-sheet
+                >
+                <v-sheet class="ma-2" cols="4">{{
+                  caps(subitem.location)
+                }}</v-sheet>
+              </div>
+
               <v-btn
                 small
                 warning
@@ -135,40 +140,45 @@
                 All Devices
               </v-btn>
             </template>
-            <template v-slot:item.employees="{ item }">
-              <v-chip
-                small
-                class="primary ma-1"
-                v-for="(subitem, index) in item.employee_id.slice(0, 3)"
-                :key="index"
+            <template v-slot:item.employees="{ item, index }">
+              <v-img
+                :key="'employeeimg' + index"
+                v-for="(subitem, index) in item.employee_id.slice(0, 10)"
+                class="employee-pic"
+                :title="caps(subitem.first_name + ' ' + subitem.last_name)"
+                style="float: left; border-radius: 50%; height: auto"
+                :src="
+                  subitem.profile_picture
+                    ? subitem.profile_picture
+                    : '/no-profile-image.jpg'
+                "
               >
-                {{
-                  caps(
-                    subitem.first_name +
-                      " " +
-                      subitem.last_name +
-                      " : " +
-                      subitem.employee_id
-                  )
-                }}
-              </v-chip>
+              </v-img>
+
               <v-btn
                 small
                 warning
                 @click="displayView(item.id)"
-                v-if="item.employee_id.length > 3"
+                v-if="item.employee_id.length > 10"
               >
                 All Employees
               </v-btn>
             </template>
-            <template v-slot:item.actions="{ item }">
-              <v-menu bottom left>
+            <template
+              v-slot:item.actions="{ item }"
+              style="background-color: #fff !important"
+            >
+              <v-menu bottom left style="background-color: #fff !important">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn dark-2 icon v-bind="attrs" v-on="on">
                     <v-icon>mdi-dots-vertical</v-icon>
                   </v-btn>
                 </template>
-                <v-list width="120" dense>
+                <v-list
+                  width="120"
+                  dense
+                  style="background-color: #fff !important"
+                >
                   <v-list-item @click="displayView(item.id)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="primary" small> mdi-view-list </v-icon>
@@ -450,6 +460,10 @@ export default {
       //window.alert("check out the console to see the logs");
     },
     can(per) {
+      
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e.name == per || per == "/")) ||
@@ -469,3 +483,25 @@ export default {
   },
 };
 </script>
+<style scoped>
+.theme--light.v-sheet {
+  background-color: transparent !important;
+}
+.employee-pic {
+  border: 1px solid #ddd;
+  position: relative;
+  top: 0;
+  transition: top ease 1s;
+  z-index: 7;
+  margin-left: -3px;
+  width: 30px;
+}
+.employee-pic:hover {
+  transition: top ease 1s;
+  top: -6px;
+  z-index: 9999;
+  width: 32px;
+  border: 2px solid black;
+  border-radius: 50%;
+}
+</style>

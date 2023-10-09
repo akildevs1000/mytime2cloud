@@ -394,12 +394,13 @@
               <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }"> -->
               <v-btn
+                v-if="$auth.user.user_type == 'company'"
                 dense
                 x-small
                 class="ma-0 px-0"
                 :ripple="false"
                 text
-                title="Add Employee"
+                title="Add Branch"
                 @click="OpenDialog('Create')"
               >
                 <v-icon right size="x-large" dark v-if="can('employee_create')"
@@ -463,13 +464,49 @@
               </template>
 
               <template v-slot:item.manager_mobile="{ item }">
-                {{ (item.user && item.user.name) || "---" }}
+                <v-row no-gutters>
+                  <v-col
+                    style="
+                      padding: 5px;
+                      padding-left: 0px;
+                      width: 40px;
+                      max-width: 40px;
+                    "
+                  >
+                    <v-img
+                      style="
+                        border-radius: 50%;
+                        height: auto;
+                        width: 40px;
+                        max-width: 40px;
+                      "
+                      :src="
+                        item.user.employee.profile_picture
+                          ? item.user.employee.profile_picture
+                          : '/no-profile-image.jpg'
+                      "
+                    >
+                    </v-img>
+                  </v-col>
+                  <v-col style="padding: 10px">
+                    {{
+                      (item.user &&
+                        item.user.employee &&
+                        item.user.employee.first_name +
+                          " " +
+                          item.user.employee.last_name) ||
+                      "---"
+                    }}
+                    <br />
+
+                    {{ (item.phone_number && item.phone_number) || "---" }}
+                  </v-col>
+                </v-row>
                 <br />
-                {{ item.telephone }}
               </template>
 
               <template v-slot:item.options="{ item }">
-                <v-menu bottom left>
+                <v-menu bottom left v-if="$auth.user.user_type == 'company'">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn dark-2 icon v-bind="attrs" v-on="on">
                       <v-icon>mdi-dots-vertical</v-icon>
@@ -795,6 +832,9 @@ export default {
         });
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       return true;
     },
     onPageChange() {
@@ -830,6 +870,7 @@ export default {
           company_id: this.$auth.user.company_id,
           department_id: this.department_filter_id,
           department_ids: this.$auth.user.assignedDepartments,
+
           ...this.filters,
         },
       };

@@ -19,7 +19,9 @@
             <v-list-item>
               <v-list-item-avatar tile size="120">
                 <v-avatar size="100">
-                  <img :src="payload.employee.profile_picture || '/no-image.PNG'" />
+                  <img
+                    :src="payload.employee.profile_picture || '/no-image.PNG'"
+                  />
                 </v-avatar>
               </v-list-item-avatar>
               <v-list-item-content>
@@ -204,6 +206,9 @@ export default {
       return str.replace(/\b\w/g, (c) => c.toUpperCase());
     },
     can(per) {
+      return this.$dateFormat.can(per, this);
+    },
+    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e.name == per || per == "/")) ||

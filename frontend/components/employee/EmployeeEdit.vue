@@ -147,8 +147,23 @@
                 ></v-text-field>
               </v-col>
               <v-col md="6" sm="12" cols="12">
+                <label class="col-form-label">Branch </label>
+                <v-select
+                  @change="filterDepartmentsByBranch($event)"
+                  v-model="employee.branch_id"
+                  :items="branchesList"
+                  dense
+                  placeholder="Branch"
+                  outlined
+                  item-value="id"
+                  item-text="branch_name"
+                >
+                </v-select>
+              </v-col>
+              <v-col md="6" sm="12" cols="12">
                 <label class="col-form-label">Department </label>
-                <v-autocomplete
+                <v-select
+                  @change="filterSubDepartmentsByDepartment($event)"
                   :items="departments"
                   item-text="name"
                   item-value="id"
@@ -163,11 +178,11 @@
                   "
                   dense
                   outlined
-                ></v-autocomplete>
+                ></v-select>
               </v-col>
               <v-col md="6" sm="12" cols="12">
                 <label class="col-form-label">Sub Department </label>
-                <v-autocomplete
+                <v-select
                   :items="sub_departments"
                   item-text="name"
                   item-value="id"
@@ -182,7 +197,7 @@
                   "
                   dense
                   outlined
-                ></v-autocomplete>
+                ></v-select>
               </v-col>
               <v-col md="6" sm="12" cols="12">
                 <label class="col-form-label">Designation </label>
@@ -342,6 +357,8 @@ export default {
     departments: [],
     department_id: "",
     payloadOptions: {},
+    filterBranchId: null,
+    branchesList: [],
   }),
 
   created() {
@@ -354,9 +371,9 @@ export default {
         department_ids: this.$auth.user.assignedDepartments,
       },
     };
-
-    this.getDepartments();
-    this.getSubDepartments();
+    this.getbranchesList();
+    // this.getDepartments();
+    // this.getSubDepartments();
     this.getDesignations();
     this.getRoles();
     this.getLeaveGroups();
@@ -384,12 +401,44 @@ export default {
     },
   },
   methods: {
-    getDepartments() {
+    filterDepartmentsByBranch(filterBranchId) {
+      this.getDepartments(filterBranchId);
+      //this.getSubDepartments(filterBranchId);
+    },
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
+    getDepartments(filterBranchId) {
+      this.filterBranchId = filterBranchId;
+      this.payloadOptions = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+          department_ids: this.$auth.user.assignedDepartments,
+          filter_branch_id: filterBranchId,
+        },
+      };
       this.$axios.get(`departments`, this.payloadOptions).then(({ data }) => {
         this.departments = data.data;
       });
     },
-    getSubDepartments() {
+    filterSubDepartmentsByDepartment(filterDepartmentId) {
+      this.employee.sub_department_id = "0";
+      this.payloadOptions = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+          department_ids: [filterDepartmentId],
+        },
+      };
       this.$axios
         .get(`sub-departments`, this.payloadOptions)
         .then(({ data }) => {
@@ -443,12 +492,20 @@ export default {
             //employee_role_id: data.user.employee_role_id,
             leave_group_id: data.leave_group_id,
             reporting_manager_id: data.reporting_manager_id,
+            branch_id: data.branch_id,
           };
+          console.log("Employee ", this.employee);
+          if (this.employee.department_id)
+            this.filterDepartmentsByBranch(this.employee.branch_id);
 
+          if (this.employee.sub_department_id)
+            this.filterSubDepartmentsByDepartment(this.employee.department_id);
           // this.employee.id = data.id;
           this.previewImage = data.profile_picture;
         })
         .catch((err) => console.log(err));
+
+      console.log("Employee ", this.employee);
     },
     saveCroppedImageStep2() {
       this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
@@ -513,6 +570,7 @@ export default {
     },
 
     store_data() {
+      console.log(this.employee);
       let final = Object.assign(this.employee);
       let employee = this.mapper(final);
 
