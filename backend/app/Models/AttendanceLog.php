@@ -198,4 +198,31 @@ class AttendanceLog extends Model
             ->get()
             ->groupBy(['UserID']);
     }
+
+    public function getEmployeeIdsForNewLogsToRender($params)
+    {
+        return self::whereDate("LogTime", $params["date"])
+            ->when(!$params["custom_render"], fn ($q) => $q->where("checked", false))
+            ->where("company_id", $params["company_id"])
+            ->distinct("LogTime", "UserID", "company_id")
+            ->pluck('UserID');
+    }
+
+    public function getLogsForRender($params)
+    {
+        return self::whereDate("LogTime", $params["date"])
+            ->whereIn("UserID", $params["UserIds"])
+            ->where("company_id", $params["company_id"])
+            ->distinct("LogTime", "UserID", "company_id")
+            ->get()
+            ->load(["schedule" => function ($q) use ($params) {
+                $q->where("company_id", $params["company_id"]);
+                $q->where("to_date", ">=", $params["date"]);
+                $q->where("shift_type_id", $params["shift_type_id"]);
+                $q->withOut("shift_type");
+                // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
+                $q->orderBy("to_date", "asc");
+            }])
+            ->groupBy(['UserID']);
+    }
 }
