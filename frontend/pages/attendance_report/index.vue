@@ -602,6 +602,7 @@ export default {
     }, 2000);
 
     setTimeout(() => {
+      this.getScheduledEmployees();
       this.getDeviceList(options);
     }, 3000);
 
