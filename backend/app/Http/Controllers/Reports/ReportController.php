@@ -16,6 +16,8 @@ class ReportController extends Controller
         //    return $request->all();
         $model = (new Attendance)->processAttendanceModel($request);
 
+
+
         if ($request->shift_type_id == 1) {
             return $this->general($model, $request->per_page ?? 1000);
         }

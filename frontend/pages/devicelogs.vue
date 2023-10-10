@@ -9,7 +9,7 @@
       <v-dialog v-model="generateLogsDialog" max-width="700px">
         <v-card>
           <v-card-title dark class="popup_background">
-            <span dense> Generate Log </span>
+            <span dense> Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false" outlined>
               mdi mdi-close-circle
