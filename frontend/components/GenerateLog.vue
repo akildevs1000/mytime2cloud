@@ -129,7 +129,7 @@
 export default {
   props: ["endpoint"],
   data: () => ({
-    Model: "Generate Log",
+    Model: "Manual Log",
 
     date: null,
     menu: false,
@@ -144,6 +144,7 @@ export default {
       device_id: "",
       date: null,
       time: null,
+      shift_type_id: null,
     },
     headers: [
       {
@@ -172,6 +173,7 @@ export default {
         last_name: e.last_name,
         display_name: e.display_name,
         name_with_id: `${e.first_name} - ${e.system_user_id}`,
+        shift_type_id: e.schedule.shift_type_id,
       }));
     },
   },
@@ -186,7 +188,12 @@ export default {
   },
   methods: {
     store_schedule() {
+      let emp = this.employees.find(
+        (e) => e.system_user_id == this.log_payload.user_id
+      );
+
       let { user_id, date, time } = this.log_payload;
+      let shift_type_id = emp.shift_type_id;
       let log_payload = {
         UserID: user_id,
         LogTime: date + " " + time,
@@ -208,10 +215,8 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
+            this.render_report(date, shift_type_id);
             this.$emit("close-popup");
-
-            // this.render_report();
-
             this.snackbar = true;
             this.response = data.message;
           }
@@ -221,15 +226,17 @@ export default {
           this.response = message;
         });
     },
-    render_report() {
+    render_report(date, shift_type_id) {
       let payload = {
         params: {
-          date: this.log_payload.date,
-          UserID: this.log_payload.user_id,
-          company_id: this.$auth.user.company_id,
+          dates: [date, date],
+          UserIds: [this.log_payload.user_id],
+          company_ids: [this.$auth.user.company_id],
           user_id: this.$auth.user.id,
           updated_by: this.$auth.user.id,
           reason: this.reason,
+          employee_ids: [this.log_payload.user_id],
+          shift_type_id: shift_type_id,
         },
       };
       this.$axios
@@ -237,7 +244,6 @@ export default {
         .then(({ data }) => {
           this.loading = false;
           this.$emit("update-data-table");
-
         })
         .catch((e) => console.log(e));
     },

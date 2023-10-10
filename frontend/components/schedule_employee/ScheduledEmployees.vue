@@ -7,25 +7,6 @@
       <v-icon color="primary" class="mx-2" @click="dialogVisible = true"
         >mdi-filter</v-icon
       >
-      <div>
-        <br />
-
-        <v-select
-          style="margin-top: 9px; width: 200px"
-          clearable
-          small
-          cols="2"
-          v-model="branch_id"
-          :items="[{ branch_name: `All Branches`, id: `` }, ...branchesList]"
-          dense
-          placeholder="All Branches "
-          outlined
-          item-value="id"
-          item-text="branch_name"
-          @change="filterBranchdata($event)"
-        >
-        </v-select>
-      </div>
     </v-toolbar>
 
     <v-data-table
@@ -46,41 +27,73 @@
         {{ item.last_name ? item.last_name : "---" }}
       </template>
     </v-data-table>
-    <v-dialog v-model="dialog" width="900">
-      <v-card dense>
-        <v-card-title dark class="popup_background mb-1">
+    <v-dialog persistent v-model="dialog" width="900">
+      <v-card>
+        <v-card-title class="text-h5">
           Arrange Shift(s)
           <v-spacer></v-spacer>
-          <v-icon
-            title="Close "
-            @click="close"
-            right
-            dark
-            color="black"
-            size="x-large"
-            >mdi mdi-close-circle</v-icon
-          >
+          <v-btn class="primary" small fab @click="addRow(rosterFirstValue)">
+            <b>+</b>
+          </v-btn>
         </v-card-title>
 
+        <v-divider></v-divider>
         <!-- {{ schedules_temp_list }} <br /> -->
+        <!-- {{ rosters }} -->
         <v-card-text v-for="(item, i) in schedules_temp_list" :key="i">
           <v-row>
             <v-col md="3">
               <div class="">Schedule List</div>
               <v-autocomplete
-                @change="getUpdateSchedule(item)"
                 outlined
                 dense
                 x-small
-                v-model="item.shift_id"
-                :items="shifts"
-                item-value="shift_id"
+                v-model="item.schedule_id"
+                :items="rosters"
+                item-value="schedule_id"
                 item-text="name"
               ></v-autocomplete>
             </v-col>
             <v-col md="3">
               <div class="mb-6">
                 <div>From</div>
+                <!-- <v-menu
+                  v-model="from_menu[i]"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="item.from_date"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                      :hide-details="true"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="item.from_date"
+                    @input="from_menu[i] = false"
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="from_menu[i] = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="set_date_save($refs.from_menu[i], item.from_date)"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu> -->
+
                 <v-menu
                   ref="from_menu"
                   v-model="from_menu[i]"
@@ -200,15 +213,6 @@
               <v-icon v-if="i" @click="removeItem(i)" color="error"
                 >mdi-delete</v-icon
               >
-              <v-icon
-                v-else
-                title="Add   Schedule "
-                @click="addRow"
-                dark
-                color="black"
-                size="x-large"
-                >mdi-plus-circle</v-icon
-              >
             </v-col>
           </v-row>
         </v-card-text>
@@ -224,13 +228,14 @@
     </v-dialog>
     <v-dialog persistent v-model="dialogVisible" max-width="500px">
       <v-card>
-        <v-card-title dense dark class="popup_background">
+        <v-card-title dense class="primary white--text background">
           Filter
           <v-spacer></v-spacer>
-          <v-icon @click="dialogVisible = false" outlined dark>
+          <v-icon @click="dialogVisible = false" outlined dark color="white">
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
+
         <v-progress-linear
           v-if="filterLoader"
           indeterminate
@@ -279,6 +284,11 @@
             ></v-text-field>
           </div>
         </v-card-text>
+
+        <!-- <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn dark color="background" @click="dialogVisible = false">Close</v-btn>
+        </v-card-actions> -->
       </v-card>
     </v-dialog>
   </div>
@@ -287,8 +297,6 @@
 <script>
 export default {
   data: () => ({
-    branch_id: null,
-    branchesList: [],
     isActive: false,
     filterLoader: false,
     dialogVisible: false,
@@ -299,7 +307,14 @@ export default {
     to_menu: [],
 
     Module: "Employee Schedule",
-    schedules_temp_list: [],
+    schedules_temp_list: [
+      // {
+      //   schedule_id: 1,
+      //   from_date: new Date().toJSON().slice(0, 10),
+      //   to_date: new Date().toJSON().slice(0, 10),
+      //   is_over_time: false,
+      // },
+    ],
     options: {},
     endpoint: "scheduled_employees",
     snackbar: false,
@@ -314,7 +329,7 @@ export default {
     sub_department_ids: ["---"],
     employee_ids: [],
     payload: {
-      shift_id: [1],
+      schedule_id: [1],
       from_date: [new Date().toJSON().slice(0, 10)],
       to_date: [new Date().toJSON().slice(0, 10)],
       is_over_time: [false],
@@ -324,10 +339,20 @@ export default {
     employees: [],
     departments: [],
     sub_departments: [],
+    shifts: [
+      {
+        id: 1,
+        name: "Week 1",
+      },
+      {
+        id: 2,
+        name: "Week 2",
+      },
+    ],
     ids: [],
     response: "",
     data: [],
-    shifts: [],
+    rosters: [],
     rosterFirstValue: "",
     max_date: [],
     min_date: [],
@@ -344,11 +369,6 @@ export default {
         text: "Name",
         sortable: false,
         value: "name",
-      },
-      {
-        text: "Branch",
-        sortable: false,
-        value: "branch.branch_name",
       },
       {
         text: "Department",
@@ -394,83 +414,29 @@ export default {
   created() {
     this.loading = true;
     // this.loading = true;
+    this.get_rosters();
     this.options = {
       params: {
         per_page: 1000,
         company_id: this.$auth.user.company_id,
-        branch_id: this.branch_id,
       },
     };
-    this.getShifts(this.options);
 
     this.getDepartments(this.options);
     // this.getDataFromApi();
-
-    this.getbranchesList();
   },
 
   methods: {
-    filterBranchdata(branch_id) {
-      this.branch_id = branch_id;
-
-      if (branch_id == "") {
-        this.branch_id = null;
-        branch_id = null;
-      }
-      this.loading = true;
-      // this.loading = true;
-      this.options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company_id,
-          branch_id: branch_id,
-        },
-      };
-      this.getShifts(this.options);
-
-      this.getDepartments(this.options);
-      this.getDataFromApi();
-    },
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-          branch_id: this.$auth.user.branch_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-      });
-    },
-    getUpdateSchedule(item) {
-      let { from_date, to_date, shift_type_id } = this.shifts.find(
-        (e) => e.shift_id == item.shift_id
-      );
-      item.shift_type_id = shift_type_id;
-      item.from_date = from_date;
-      item.to_date = to_date;
-    },
     arrangeShift() {
-      if (!this.branch_id) {
-        alert("Please select Branch  ");
-        return;
-      }
-      if (!this.shifts.length) {
-        alert("No shift found. Please create shift and come back.");
-        return;
-      }
-      this.addRow();
       if (!this.employee_ids.length) {
         alert("Atleast one employee must be selected.");
         return;
       }
       this.dialog = true;
     },
-    addRow() {
+    addRow(id) {
       let item = {
-        shift_id: this.shifts[0].shift_id,
-        shift_type_id: this.shifts[0].shift_type_id,
+        schedule_id: id,
         from_date: new Date().toJSON().slice(0, 10),
         to_date: new Date().toJSON().slice(0, 10),
         is_over_time: false,
@@ -523,15 +489,14 @@ export default {
       return `${y}-${m}-${d}`;
     },
 
-    getShifts(options) {
-      this.$axios.get("shift", options).then(({ data }) => {
-        this.shifts = data.data.map((e) => ({
-          shift_id: e.id,
-          name: e.name,
-          shift_type_id: e.shift_type_id,
-          from_date: e.from_date,
-          to_date: e.to_date,
-        }));
+    get_rosters() {
+      let options = {
+        company_id: this.$auth.user.company_id,
+      };
+      this.$axios.get("roster_list", { params: options }).then(({ data }) => {
+        this.rosters = data;
+        this.addRow(data[0].schedule_id);
+        this.rosterFirstValue = data[0].schedule_id;
       });
     },
 
@@ -654,9 +619,6 @@ export default {
       this.subDepartmentsByDepartment();
     },
     can(per) {
-      return this.$pagePermission.can(per, this);
-    },
-    can_old(per) {
       let u = this.$auth.user;
       return (
         (u && u.permissions.some((e) => e.name == per || per == "/")) ||
@@ -673,7 +635,6 @@ export default {
           per_page: itemsPerPage,
           page: page,
           company_id: this.$auth.user.company_id,
-          branch_id: this.branch_id,
         },
       };
 
@@ -741,48 +702,19 @@ export default {
         employee_ids: this.employee_ids.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company_id,
-        branch_id: this.branch_id,
       };
 
-      console.log(payload);
-
-      this.$axios
-        .post(`schedule_employees`, payload)
-        .then(({ data }) => {
-          if (!data.status) {
-            if (data?.custom_errors) {
-              this.custom_errors = data.custom_errors;
-              this.errors = [];
-            }
-            if (data?.errors) {
-              this.errors = data.errors;
-              this.custom_errors = [];
-            }
-            this.loading = false;
-            return;
-          }
-          this.dialog = false;
-          this.response = data.message;
-          this.snackbar = true;
-          this.loading = false;
-          setTimeout(() => {
-            this.$router.push("/employee_schedule");
-          }, 1000);
-          // this.getDataFromApi();
-        })
-        .catch((err) => console.log(err));
-
-      // // return;
-      // if (this.is_edit) {
-      //   this.process(
-      //     this.$axios.post(
-      //       `schedule_employees/${payload.employee_ids}`,
-      //       payload
-      //     )
-      //   );
-      // } else {
-      //   this.process(this.$axios.post(`store_schedule_arrange`, payload));
-      // }
+      // return;
+      if (this.is_edit) {
+        this.process(
+          this.$axios.post(
+            `schedule_employees/${payload.employee_ids}`,
+            payload
+          )
+        );
+      } else {
+        this.process(this.$axios.post(`store_schedule_arrange`, payload));
+      }
     },
 
     process(method) {

@@ -71,7 +71,7 @@ class FiloShiftController extends Controller
             if (!$schedule) continue;
 
             $item = [
-                "render_id" => 0,
+                "roster_id" => 0,
                 "total_hrs" => "---",
                 "in" => $firstLog["time"] ?? "---",
                 "out" =>  "---",
@@ -146,6 +146,7 @@ class FiloShiftController extends Controller
         } catch (\Throwable $e) {
             $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
             info($message);
+
             return "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Server Error";
         }
     }

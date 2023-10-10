@@ -69,7 +69,7 @@ class SingleShiftController extends Controller
             if (!$schedule) continue;
 
             $item = [
-                "render_id" => 0,
+                "roster_id" => 0,
                 "total_hrs" => "---",
                 "in" => $firstLog["log_type"] == "auto" ? $firstLog["time"] : "---",
                 "out" =>  "---",
