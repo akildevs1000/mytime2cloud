@@ -300,6 +300,7 @@
         ></v-tabs-slider>
 
         <v-tab
+          :key="1"
           style="height: 30px"
           href="#tab-1"
           class="black--text slidegroup1"
@@ -308,6 +309,8 @@
         </v-tab>
 
         <v-tab
+          :key="2"
+          @click="commonMethod"
           style="height: 30px"
           href="#tab-2"
           class="black--text slidegroup1"
@@ -316,6 +319,8 @@
         </v-tab>
 
         <v-tab
+          :key="3"
+          @click="commonMethod"
           style="height: 30px"
           href="#tab-3"
           class="black--text slidegroup1"
@@ -331,7 +336,7 @@
             shift_type_id="1"
             :headers="generalHeaders"
             :report_template="report_template"
-            :payload1="payload"
+            :payload1="payload11"
             process_file_endpoint=""
             render_endpoint="render_general_report"
           />
@@ -342,7 +347,7 @@
             shift_type_id="5"
             :headers="doubleHeaders"
             :report_template="report_template"
-            :payload1="payload"
+            :payload1="payload11"
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
           />
@@ -353,7 +358,7 @@
             shift_type_id="2"
             :headers="multiHeaders"
             :report_template="report_template"
-            :payload1="payload"
+            :payload1="payload11"
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
           />
@@ -377,6 +382,7 @@ export default {
   props: ["title", "shift_type_id", "render_endpoint", "process_file_endpoint"],
 
   data: () => ({
+    payload11: {},
     selectAllDepartment: false,
     branches: [],
     tab: null,
@@ -442,7 +448,7 @@ export default {
     total: 0,
 
     report_template: "Template1",
-    report_type: "monthly",
+    report_type: "monthly11111111",
     payload: {
       from_date: null,
       to_date: null,
@@ -563,6 +569,14 @@ export default {
         this.payload.department_ids = [];
       }
     },
+
+    // tab(value) {
+    //   this.payload11 = {
+    //     ...this.payload,
+    //     tabid: value,
+    //   };
+    //   this.commonMethod();
+    // },
   },
   async created() {
     this.loading = true;
@@ -579,10 +593,14 @@ export default {
         department_ids: this.$auth.user.assignedDepartments,
       },
     };
-    this.getDepartments(options);
-    this.getDeviceList(options);
-    this.getScheduledEmployees();
-    this.getBranches();
+
+    setTimeout(() => {
+      this.getBranches();
+    }, 2000);
+
+    setTimeout(() => {
+      this.getDeviceList(options);
+    }, 3000);
 
     let dt = new Date();
     let y = dt.getFullYear();
@@ -592,11 +610,12 @@ export default {
     m = m < 10 ? "0" + m : m;
 
     this.payload.from_date = `${y}-${m}-01`;
+    this.payload.from_date = `${y}-${m}-${dd.getDate()}`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
-
     setTimeout(() => {
+      this.getDepartments(options);
       this.commonMethod();
-    }, 1000);
+    }, 3000);
   },
 
   methods: {
@@ -652,11 +671,12 @@ export default {
       }
 
       if (filterDay == "") {
-        filterDay = "monthly";
+        filterDay = "Daily";
       }
-      this.payload = {
+      this.payload11 = {
         ...this.payload,
-        report_type: filterDay,
+        report_type: "Monthly", //filterDay,
+        tabselected: this.tab,
         from_date: this.from_date,
         to_date: this.to_date,
         filterType: this.filterType,
