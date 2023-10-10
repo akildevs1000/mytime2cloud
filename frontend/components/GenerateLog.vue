@@ -210,7 +210,7 @@ export default {
           } else {
             this.$emit("close-popup");
 
-            // this.render_report();
+            this.render_report(date);
 
             this.snackbar = true;
             this.response = data.message;
@@ -221,15 +221,16 @@ export default {
           this.response = message;
         });
     },
-    render_report() {
+    render_report(date) {
       let payload = {
         params: {
-          date: this.log_payload.date,
-          UserID: this.log_payload.user_id,
-          company_id: this.$auth.user.company_id,
+          dates: [date, date],
+          UserIds: [this.log_payload.user_id],
+          company_ids: [this.$auth.user.company_id],
           user_id: this.$auth.user.id,
           updated_by: this.$auth.user.id,
           reason: this.reason,
+          employee_ids: [this.log_payload.user_id],
         },
       };
       this.$axios
@@ -237,7 +238,6 @@ export default {
         .then(({ data }) => {
           this.loading = false;
           this.$emit("update-data-table");
-
         })
         .catch((e) => console.log(e));
     },

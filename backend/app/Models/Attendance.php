@@ -144,6 +144,7 @@ class Attendance extends Model
 
     public function processAttendanceModel($request)
     {
+
         $model = self::query();
 
         $model->where('company_id', $request->company_id);

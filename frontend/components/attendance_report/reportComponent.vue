@@ -267,13 +267,27 @@
         <template v-slot:item.in="{ item }">
           <div>{{ item.in }}</div>
           <div class="secondary-value">
-            {{ (item.device_in && item.device_in.name) || "---" }}
+            {{
+              (item.device_in && item.device_in.name) ||
+              item.device_id_in == "Manual"
+                ? "Manual"
+                : "---"
+            }}
+
+            <!-- {{ item.device_id_in == "Manual" ? "Manual" : "---" }} -->
           </div>
         </template>
         <template v-slot:item.out="{ item }">
           <div>{{ item.out }}</div>
           <div class="secondary-value">
-            {{ (item.device_out && item.device_out.name) || "---" }}
+            {{
+              (item.device_out && item.device_out.name) ||
+              item.device_id_out == "Manual"
+                ? "Manual"
+                : "---"
+            }}
+
+            <!-- {{ item.device_id_out == "Manual" ? "Manual" : "---" }} -->
           </div>
         </template>
         <template v-slot:item.in1="{ item }">
@@ -572,7 +586,7 @@
       <v-dialog persistent v-model="generateLogsDialog" max-width="700px">
         <v-card>
           <v-card-title class="popup_background">
-            <span class="headline"> Generate Log </span>
+            <span class="headline">Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false"
               >mdi-close-box</v-icon
@@ -582,6 +596,7 @@
             <v-container>
               <v-row>
                 <GenerateLog
+                  @close-popup="generateLogsDialog = false"
                   :endpoint="render_endpoint"
                   @update-data-table="getDataFromApi()"
                 />
@@ -595,7 +610,7 @@
     <v-dialog persistent v-model="add_manual_log" width="700">
       <v-card>
         <v-card-title class="popup_background text-h5 darken-2" dark>
-          Manual Log
+          Manual Log_old
         </v-card-title>
 
         <v-card-text class="pa-3">

@@ -33,7 +33,7 @@ class RenderController extends Controller
         if ($shift_type_id == 5) {
             return (new SplitShiftController)->renderData($request);
         } else if ($shift_type_id == 2) {
-            return (new MultiInOutShiftController)->renderData($request);
+            return (new MultiShiftController)->renderData($request);
         }
         return array_merge(
             (new FiloShiftController)->renderData($request),

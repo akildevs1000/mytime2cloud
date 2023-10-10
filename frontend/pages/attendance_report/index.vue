@@ -22,7 +22,7 @@
               :hide-details="true"
             ></v-select>
           </v-col>
-          <v-col md="1" sm="2">
+          <v-col md="2" sm="2">
             Branch
             <v-select
               placeholder="Branch"
@@ -117,7 +117,7 @@
               :hide-details="true"
             ></v-autocomplete>
           </v-col>
-          <v-col md="2" sm="4">
+          <v-col md="1" sm="4">
             <div>Report Templates</div>
             <v-autocomplete
               density="compact"

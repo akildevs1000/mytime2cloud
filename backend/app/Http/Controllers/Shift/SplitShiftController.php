@@ -196,6 +196,7 @@ class SplitShiftController extends Controller
             $shift = $schedule["shift"];
 
             $temp = [
+
                 "logs" => [],
                 "total_hrs" => 0,
                 "out" => "---",
@@ -205,7 +206,7 @@ class SplitShiftController extends Controller
                 "employee_id" => $companyIdWithUserId->UserID,
                 "shift_type_id" => self::SHIFTYPE,
                 "shift_id" => $schedule["shift_id"],
-                "roster_id" => $schedule["roster_id"],
+
                 "status" => count($filteredLogs)  % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
             ];
 
@@ -217,13 +218,13 @@ class SplitShiftController extends Controller
                 $currentLog = $data[$i];
                 $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
 
-                $temp["logs"][] =  [
+                $temp["logs"][] = [
                     "in" => $currentLog['time'],
                     "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
                     "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
                     // $currentLog['LogTime'], $nextLog['time'] ?? "---"
                 ];
-
+                //$temp["logs"] = json_encode($temp["logs"]);
                 if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
 
                     $parsed_out = strtotime($nextLog['time'] ?? 0);
@@ -325,7 +326,7 @@ class SplitShiftController extends Controller
                     $currentLog = $data[$i];
                     $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
 
-                  
+
 
                     $item["logs"][] =  [
 
