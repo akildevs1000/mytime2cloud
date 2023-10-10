@@ -332,6 +332,7 @@
       <v-tabs-items v-model="tab">
         <v-tab-item value="tab-1">
           <AttendanceReport
+            :key="1"
             title="General Reports"
             shift_type_id="1"
             :headers="generalHeaders"
@@ -350,10 +351,12 @@
             :payload1="payload11"
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
+            :key="2"
           />
         </v-tab-item>
         <v-tab-item value="tab-3">
           <AttendanceReport
+            :key="3"
             title="Multi In/Out Reports"
             shift_type_id="2"
             :headers="multiHeaders"

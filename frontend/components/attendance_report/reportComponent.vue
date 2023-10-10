@@ -174,7 +174,7 @@
             <v-col
               md="2"
               style="
-                padding: 5px;
+                padding: 3px;
                 padding-left: 0px;
                 width: 30px;
                 max-width: 30px;
@@ -195,7 +195,7 @@
               >
               </v-img>
             </v-col>
-            <v-col style="padding: 10px" md="8">
+            <v-col style="padding: 3px" md="8">
               <strong>
                 {{
                   item.employee.first_name ? item.employee.first_name : "---"
