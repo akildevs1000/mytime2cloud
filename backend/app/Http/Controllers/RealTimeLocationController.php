@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\RealTimeLocation;
+use Illuminate\Http\Request;
+use App\Http\Requests\RealTimeLocation\StoreRequest;
+
+class RealTimeLocationController extends Controller
+{
+    public function index(Request $request)
+    {
+        return RealTimeLocation::where("company_id", $request->company_id)->paginate($request->per_page ?? 100);
+    }
+
+    public function store(StoreRequest $request)
+    {
+        try {
+            $data = $request->validated();
+            $data["date"] = date("Y-m-d");
+            RealTimeLocation::insert($data);
+            return $this->response('Realtime location added.', null, true);
+        } catch (\Throwable $th) {
+            return $this->response('Realtime location cannot add.', null, false);
+        }
+    }
+}
