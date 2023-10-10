@@ -599,12 +599,9 @@ export default {
 
     setTimeout(() => {
       this.getBranches();
-    }, 2000);
-
-    setTimeout(() => {
       this.getScheduledEmployees();
       this.getDeviceList(options);
-    }, 3000);
+    }, 5000);
 
     let dt = new Date();
     let y = dt.getFullYear();

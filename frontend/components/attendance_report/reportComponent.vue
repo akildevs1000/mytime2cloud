@@ -267,25 +267,37 @@
         <template v-slot:item.in="{ item }">
           <div>{{ item.in }}</div>
           <div class="secondary-value">
-            {{
-              (item.device_in && item.device_in.name) ||
-              item.device_id_in == "Manual"
-                ? "Manual"
-                : "---"
-            }}
-
-            <!-- {{ item.device_id_in == "Manual" ? "Manual" : "---" }} -->
+            <div
+              v-if="
+                item.device_in &&
+                item.device_in.name &&
+                item.device_in.name != '---'
+              "
+            >
+              {{ item.device_in.name }}
+            </div>
+            <div v-else-if="item.device_id_in != '---'">
+              {{ item.device_id_in }}
+            </div>
+            <div v-else>---</div>
           </div>
         </template>
         <template v-slot:item.out="{ item }">
           <div>{{ item.out }}</div>
           <div class="secondary-value">
-            {{
-              (item.device_out && item.device_out.name) ||
-              item.device_id_out == "Manual"
-                ? "Manual"
-                : "---"
-            }}
+            <div
+              v-if="
+                item.device_out &&
+                item.device_out.name &&
+                item.device_out.name != '---'
+              "
+            >
+              {{ item.device_out.name }}
+            </div>
+            <div v-else-if="item.device_id_out != '---'">
+              {{ item.device_id_out }}
+            </div>
+            <div v-else>---</div>
 
             <!-- {{ item.device_id_out == "Manual" ? "Manual" : "---" }} -->
           </div>
