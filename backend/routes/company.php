@@ -249,7 +249,6 @@ Route::post('/auto_shift', [AutoShiftController::class, 'store']);
 Route::apiResource('roster', RosterController::class);
 Route::get('/roster_list', [RosterController::class, 'getRosterList']);
 Route::post('/store_schedule_arrange', [RosterController::class, 'storeScheduleArrange']);
-Route::get('/get_roster_by_employee/{id}', [RosterController::class, 'getRosterByEmployee']);
 Route::put('/schedule_update/{id}', [RosterController::class, 'scheduleUpdateByEmployee']);
 
 // Holidays

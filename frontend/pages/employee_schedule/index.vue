@@ -19,36 +19,19 @@
 
         <v-card-text>
           <v-col col="3" text-right class="text-right"
-            ><v-btn
-              class="primary"
-              v-if="isEdit"
-              small
-              @click="addRow(rosterFirstValue)"
-            >
+            ><v-btn class="primary" v-if="isEdit" small @click="addRow(1)">
               <b>Add +</b>
             </v-btn></v-col
           >
-
           <v-row v-for="(item, i) in schedules_temp_list" :key="i">
             <v-col md="3">
               <div class="">Schedule List</div>
-              <!-- <v-autocomplete
-                outlined
-                :readonly="!isEdit"
-                dense
-                v-model="item.schedule_id"
-                x-small
-                :items="rosters"
-                item-value="schedule_id"
-                item-text="name"
-              ></v-autocomplete> -->
-
               <v-autocomplete
                 :error="errors && errors.shift_id"
                 :error-messages="
                   errors && errors.shift_id ? errors.shift_id[0] : ''
                 "
-                @change="runShiftFunction"
+                @change="runShiftFunction(item.shift_type_id)"
                 outlined
                 dense
                 v-model="item.shift_id"
@@ -239,7 +222,7 @@
                     :error-messages="
                       errors && errors.shift_id ? errors.shift_id[0] : ''
                     "
-                    @change="runShiftFunction"
+                    @change="runShiftFunction(item.shift_type_id)"
                     outlined
                     dense
                     v-model="shift_id"
@@ -630,24 +613,14 @@
           {{ caps(item.employee && item.employee.first_name) }}
           {{ caps(item.employee && item.employee.last_name) }}
         </template>
-        <template v-slot:item.roster.name="{ item }">
-          {{ caps(item.roster && item.roster.name) }}
-        </template>
-        <template v-slot:item.show_from_date="{ item }">
-          {{ item && item.from_date }}
-        </template>
-        <template v-slot:item.show.to_date="{ item }">
-          {{ item && item.to_date }}
-        </template>
+      
         <template v-slot:item.isOverTime="{ item }">
           <v-icon v-if="item && item.isOverTime" color="success darken-1"
             >mdi-check</v-icon
           >
           <v-icon v-else color="error">mdi-close</v-icon>
         </template>
-        <template v-slot:item.shift_type.name="{ item }">
-          {{ item.shift_type && item.shift_type.name }}
-        </template>
+      
         <template v-slot:item.action="{ item }">
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
@@ -844,8 +817,6 @@ export default {
 
     errors: [],
     headers_ids: [],
-    rosters: [],
-    rosterFirstValue: "",
     headers_dialog: [
       {
         text: "E.ID",
@@ -905,7 +876,6 @@ export default {
   created() {
     this.loading = true;
     this.loading_dialog = true;
-    this.get_rosters();
     this.getShifts();
     this.getDataFromApi();
     this.options = {
@@ -937,14 +907,6 @@ export default {
       this.getDataFromApi();
       this.from_menu_filter = false;
       this.to_menu_filter = false;
-    },
-    getCurrentShift(item) {
-      // Define an array of day names
-      const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const dayName = daysOfWeek[new Date().getDay()];
-      const { shift_name } = item.roster.json.find((e) => e.day == dayName);
-
-      return shift_name;
     },
     gotoCreateSchedule() {
       this.$router.push(`/employee_schedule/create`);
@@ -980,7 +942,7 @@ export default {
         company_id: this.$auth.user.company_id,
       };
       this.$axios
-        .get(`get_roster_by_employee/${id}`, { params: options })
+        .get(`get_shifts_by_employee/${id}`, { params: options })
         .then(({ data }) => {
           type == "edit" ? (this.isEdit = true) : (this.isEdit = false);
           this.schedules_temp_list = data;
@@ -1008,12 +970,13 @@ export default {
 
     update() {
       let payload = {
+        employee_ids: [this.empId],
         schedules: this.schedules_temp_list,
-        deleteIds: this.deleteIds,
         company_id: this.$auth.user.company_id,
-        branch_id: this.branch_id,
+        branch_id: this.schedules_temp_list[0].branch_id || 0,
       };
-      this.process(this.$axios.put(`schedule_update/${this.empId}`, payload));
+
+      this.process(this.$axios.post(`schedule_employees`, payload));
     },
 
     removeItem(i, item) {
@@ -1023,20 +986,10 @@ export default {
       this.schedules_temp_list.splice(i, 1);
     },
 
-    get_rosters() {
-      let options = {
-        company_id: this.$auth.user.company_id,
-      };
-      this.$axios.get("roster_list", { params: options }).then(({ data }) => {
-        this.rosters = data;
-        this.addRow(data[0].schedule_id);
-        this.rosterFirstValue = data[0].schedule_id;
-      });
-    },
-
     addRow(id) {
       let item = {
-        schedule_id: id,
+        shift_id: id,
+        shift_type_id: 1,
         from_date: new Date().toJSON().slice(0, 10),
         to_date: new Date().toJSON().slice(0, 10),
         is_over_time: false,
@@ -1102,6 +1055,7 @@ export default {
         .then(({ data }) => {
           this.shifts_for_filter = data.data;
           this.shifts_for_filter.unshift({ id: "", name: "All" });
+          this.addRow(data[0].id);
         })
         .catch((err) => console.log(err));
 
@@ -1123,7 +1077,7 @@ export default {
         .catch((err) => console.log(err));
     },
 
-    runShiftFunction() {
+    runShiftFunction(shift_type_id) {
       this.shifts = this.shifts.filter((e) => e.id !== "---");
     },
 

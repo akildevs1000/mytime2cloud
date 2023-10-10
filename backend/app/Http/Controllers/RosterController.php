@@ -188,25 +188,6 @@ class RosterController extends Controller
         }
     }
 
-    public function getRosterByEmployee(Request $request, $id)
-    {
-        try {
-            $model = ScheduleEmployee::query();
-            $data = $model
-                ->whereCompanyId($request->company_id)
-                ->whereEmployeeId($id)
-                ->withOut(["shift", "shift_type"])
-                // ->with('roster')
-                ->orderBy("from_date", "ASC")
-                ->get(['id', 'employee_id', 'isOverTime as is_over_time', 'roster_id as schedule_id', 'shift_id', 'branch_id', 'from_date', 'to_date'])
-                ->makeHidden(['employee_id', 'show_from_date', 'show_to_date'])
-                ->groupBy('employee_id');
-            return $data[$id];
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
-
     public function scheduleUpdateByEmployee(Request $request, $id)
     {
         ScheduleEmployee::where("company_id", $request->company_id)->where('employee_id', $id)->delete();

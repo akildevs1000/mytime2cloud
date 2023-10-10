@@ -313,8 +313,8 @@ class ScheduleEmployeeController extends Controller
         // $model->whereHas('roster');
 
         // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-        $model->whereDate('from_date', '<=', $date);
-        $model->whereDate('to_date', '>=', $date);
+        // $model->whereDate('from_date', '<=', $date);
+        // $model->whereDate('to_date', '>=', $date);
         $model->when($request->filled('employee_first_name'), function ($q) use ($request) {
 
             $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_first_name%"));
@@ -412,5 +412,24 @@ class ScheduleEmployeeController extends Controller
                 $q->whereIn('department_id', $request->department_ids);
             })
             ->get(["first_name", "system_user_id", "employee_id", "display_name"]);
+    }
+
+    public function getShiftsByEmployee(Request $request, $id)
+    {
+        try {
+            $model = ScheduleEmployee::query();
+            $data = $model
+                ->whereCompanyId($request->company_id)
+                ->whereEmployeeId($id)
+                ->withOut(["shift", "shift_type"])
+                // ->with('roster')
+                ->orderBy("from_date", "ASC")
+                ->get(['id', 'employee_id', 'isOverTime as is_over_time', 'shift_type_id', 'shift_id', 'branch_id', 'from_date', 'to_date'])
+                ->makeHidden(['employee_id', 'show_from_date', 'show_to_date'])
+                ->groupBy('employee_id');
+            return $data[$id];
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }
