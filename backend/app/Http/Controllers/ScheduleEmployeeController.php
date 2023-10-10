@@ -40,28 +40,40 @@ class ScheduleEmployeeController extends Controller
         $arr = [];
 
         foreach ($data["employee_ids"] as $item) {
-            $value = [
-                "shift_id" => $data["shift_id"] ?? 0,
-                "isOverTime" => $data["isOverTime"],
-                "employee_id" => $item,
-                "shift_type_id" => $data["shift_type_id"],
-                "from_date" => $data["from_date"],
-                "to_date" => $data["to_date"],
-                "company_id" => $data["company_id"],
-                "branch_id" => $request->branch_id,
-            ];
-            $found = ScheduleEmployee::where("employee_id", $item)->where("from_date", $data["from_date"])->where("company_id", $data["company_id"])->first();
 
-            if (!$found) {
+
+            foreach ($data["schedules"] as $shift) {
+                $value = [
+                    "shift_id" => $shift["shift_id"] ?? 0,
+                    "isOverTime" => $shift["is_over_time"],
+                    "employee_id" => $item,
+                    "shift_type_id" => $shift["shift_type_id"],
+                    "from_date" => $shift["from_date"],
+                    "to_date" => $shift["to_date"],
+                    "company_id" => $data["company_id"],
+                    "branch_id" => $data["branch_id"],
+                ];
                 $arr[] = $value;
             }
+
+
+
+            // if (!$found) {
+            //     $arr[] = $value;
+            // }
         }
 
         try {
-            $record = $model->insert($arr);
+            $model = ScheduleEmployee::query();
+            $model->where("company_id", $data["company_id"]);
+            $model->whereIn("employee_id", array_column($arr, "employee_id"));
+            $model->whereIn("shift_type_id", array_column($arr, "shift_type_id"));
+            $model->whereIn("shift_id", array_column($arr, "shift_id"));
+            $model->delete();
+            $result = $model->insert($arr);
 
-            if ($record) {
-                return $this->response('Schedule Employee successfully added.', $record, true);
+            if ($result) {
+                return $this->response('Schedule Employee successfully added.', null, true);
             } else {
                 return $this->response('Schedule Employee cannot add.', null, false);
             }
@@ -298,7 +310,7 @@ class ScheduleEmployeeController extends Controller
         $date = $request->date ?? date('Y-m-d');
         $employee = ScheduleEmployee::query()->with("branch");
         $model = $employee->where('company_id', $request->company_id);
-        $model->whereHas('roster');
+        // $model->whereHas('roster');
 
         // $model =  $model->whereBetween('from_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
         $model->whereDate('from_date', '<=', $date);

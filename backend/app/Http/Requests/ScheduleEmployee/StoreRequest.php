@@ -27,12 +27,8 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'shift_id' => ["required"],
-            'isOverTime' => ["nullable"],
-            'shift_type_id' => ["required"],
+            'schedules' => ["required", "array", "min:1"],
             'employee_ids' => ["required", "array", "min:1"],
-            'from_date' => ["required"],
-            'to_date' => ["required"],
             'company_id' => ["required"],
             'branch_id' => ["required"],
         ];

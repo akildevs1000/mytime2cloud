@@ -747,9 +747,10 @@ export default {
         employee_ids: this.employee_ids.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company_id,
+        branch_id : this.branch_id
       };
 
-      console.log(payload);
+      // console.log(payload);
 
       this.$axios
         .post(`schedule_employees`, payload)
