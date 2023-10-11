@@ -18,6 +18,7 @@ class RealTimeLocationController extends Controller
         try {
             $data = $request->validated();
             $data["date"] = date("Y-m-d");
+            $data["datetime"] = date("Y-m-d H:i:s");
             RealTimeLocation::insert($data);
             return $this->response('Realtime location added.', null, true);
         } catch (\Throwable $th) {

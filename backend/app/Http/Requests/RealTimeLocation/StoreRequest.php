@@ -30,6 +30,8 @@ class StoreRequest extends FormRequest
             'date' => 'nullable',
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
+            'short_name' => 'nullable',
+            'full_name' => 'nullable',
         ];
     }
 }
