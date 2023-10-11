@@ -10,7 +10,11 @@ class RealTimeLocationController extends Controller
 {
     public function index(Request $request)
     {
-        return RealTimeLocation::where("company_id", $request->company_id)->paginate($request->per_page ?? 100);
+        $model = RealTimeLocation::query();
+        $model->where("company_id", $request->company_id);
+        $model->where("UserID", $request->UserID);
+        $model->where("date", $request->date ?? date("Y-m-d"));
+        return $model->paginate($request->per_page ?? 100);
     }
 
     public function store(StoreRequest $request)
