@@ -612,7 +612,7 @@
         </template>
         <template v-slot:item.employee_id="{ item }">
           <strong>{{ item.employee_id }} </strong><br /><span
-            style="font-size: 12px"
+            class="secondary-value"
             >{{ item.system_user_id }}</span
           >
         </template>
@@ -647,7 +647,7 @@
                 {{ item.first_name ? item.first_name : "---" }}
                 {{ item.last_name ? item.last_name : "---" }}</strong
               >
-              <div>
+              <div class="secondary-value">
                 {{ item.designation ? caps(item.designation.name) : "---" }}
               </div>
             </v-col>
@@ -659,7 +659,9 @@
         </template>
         <template v-slot:item.department.name.id="{ item }">
           <strong>{{ caps(item.department.name) }}</strong>
-          <div>{{ caps(item.sub_department.name) }}</div>
+          <div class="secondary-value">
+            {{ caps(item.sub_department.name) }}
+          </div>
         </template>
         <!-- <template v-slot:item.employee_id="{ item }">
           {{ caps(item?.employee_id || "") }}
@@ -801,6 +803,14 @@ export default {
         filterName: "employee_id",
       },
       {
+        text: "Name",
+        align: "left",
+        sortable: true,
+        value: "first_name",
+        filterable: true,
+        filterName: "employee_first_name",
+      },
+      {
         text: "Branch",
         align: "left",
         sortable: true,
@@ -809,14 +819,7 @@ export default {
         filterName: "branch_id",
         filterSpecial: true,
       },
-      {
-        text: "Name",
-        align: "left",
-        sortable: true,
-        value: "first_name",
-        filterable: true,
-        filterName: "employee_first_name",
-      },
+
       {
         text: "Department",
         align: "left",
