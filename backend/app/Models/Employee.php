@@ -40,6 +40,11 @@ class Employee extends Model
             ]);
     }
 
+    public function schedule_all()
+    {
+        return $this->hasMany(ScheduleEmployee::class, "employee_id", "system_user_id");
+    }
+
     public function announcements()
     {
         return $this->belongsToMany(Announcement::class)->withTimestamps();

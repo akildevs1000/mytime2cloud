@@ -214,15 +214,16 @@ class AttendanceLog extends Model
         return self::where("company_id", $params["company_id"])
             ->when(!$params["custom_render"], fn ($q) => $q->where("checked", false))
             ->where("company_id", $params["company_id"])
-            ->whereDate("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
-            ->whereDate("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
-            ->distinct("LogTime", "UserID", "company_id")
+            ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
+            ->distinct("UserID", "company_id")
             ->pluck('UserID');
     }
 
     public function getLogsForRender($params)
     {
-        return self::whereDate("LogTime", $params["date"])
+        return self::where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day")))
             ->whereIn("UserID", $params["UserIds"])
             ->where("company_id", $params["company_id"])
             ->distinct("LogTime", "UserID", "company_id")
@@ -240,14 +241,16 @@ class AttendanceLog extends Model
 
     public function getLogsWithInRangeNew($params)
     {
+
+
         $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
         $params["end"] = date("Y-m-d", strtotime($params["date"] . " +1 day")) . " " . $params["shift"]->off_duty_time;
 
         return AttendanceLog::where("company_id", $params["company_id"])
             ->whereBetween("LogTime", [$params["start"], $params["end"]])
             ->distinct("LogTime", "UserID", "company_id")
-            ->whereHas("schedule", function ($q) {
-                $q->where("shift_type_id", 2);
+            ->whereHas("schedule", function ($q) use ($params) {
+                $q->where("shift_type_id", $params["shift_type_id"]);
             })
             ->get()
             ->groupBy(['UserID']);

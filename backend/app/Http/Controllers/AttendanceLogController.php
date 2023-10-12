@@ -224,6 +224,8 @@ class AttendanceLogController extends Controller
         try {
             $log = AttendanceLog::create($request->all());
 
+            Logger::channel("render_manual_logs")->info(json_encode($log));
+
             if ($log) {
                 // $Attendance = new AttendanceController;
                 // $Attendance->SyncAttendance();

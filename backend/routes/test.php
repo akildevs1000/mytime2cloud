@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
+use App\Http\Controllers\CameraController;
 use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
@@ -24,22 +25,22 @@ use Illuminate\Support\Facades\Log as Logger;
 
 Route::get('/syncLogsScript', function (Request $request) {
 
-    return [
-        (new FiloShiftController)->render(),
-        (new SingleShiftController)->render()
-    ];
+    // return [
+    //     (new FiloShiftController)->render(),
+    //     (new SingleShiftController)->render()
+    // ];
 
 
-    return (new RenderController)->renderAuto($request);
+    // return (new RenderController)->renderAuto($request);
 
 
 
 
-    return [
-        "MultiInOut" => (new MultiInOutShiftController)->processByManual($request),
-        // "Single" => (new SingleShiftController)->processByManual($request),
-        // "Auto" => (new AutoShiftController)->processByManual($request)
-    ];
+    // return [
+    //     "MultiInOut" => (new MultiInOutShiftController)->processByManual($request),
+    //     // "Single" => (new SingleShiftController)->processByManual($request),
+    //     // "Auto" => (new AutoShiftController)->processByManual($request)
+    // ];
 });
 
 Route::get('/test', function (Request $request) {
@@ -391,7 +392,12 @@ Route::get('/close_door', function (Request $request) {
     // return "Awesome APIs";
 });
 
-Route::post('/generate_log', [AttendanceLogController::class, 'GenerateLog']);
+// Route::post('/generate_log', [AttendanceLogController::class, 'GenerateLog']);
+Route::get('/cameraevents', [CameraController::class, 'readLog']);
+Route::post('/cameraevents', [CameraController::class, 'readLog']);
+
+Route::get('/cameraevents-xml', [CameraController::class, 'readXml']);
+
 
 Route::get('/generate_attendance_log', function (Request $request) {
 

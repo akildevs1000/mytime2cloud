@@ -22,6 +22,19 @@ class ScheduleEmployeeController extends Controller
             ->with("shift_type", "shift", "employee")
             ->paginate($request->per_page);
     }
+    public function employeesWithScheduleCount(Request $request)
+    {
+        return Employee::with(["schedule_all", "branch"])
+            ->where('company_id', $request->company_id)
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+                $q->where('branch_id', $request->branch_id);
+            })
+
+
+            ->paginate($request->per_page);
+    }
+
+
 
     public function employees_by_departments(Request $request)
     {
@@ -64,11 +77,15 @@ class ScheduleEmployeeController extends Controller
         }
 
         try {
+
             $model = ScheduleEmployee::query();
             $model->where("company_id", $data["company_id"]);
+            $model->where("branch_id", $data["branch_id"]);
             $model->whereIn("employee_id", array_column($arr, "employee_id"));
-            $model->whereIn("shift_type_id", array_column($arr, "shift_type_id"));
-            $model->whereIn("shift_id", array_column($arr, "shift_id"));
+            // $model->whereIn("shift_type_id", array_column($arr, "shift_type_id"));
+            // $model->whereIn("shift_id", array_column($arr, "shift_id"));
+            // $model->where("from_date", array_column($arr, "from_date"));
+            // $model->where("to_date", array_column($arr, "to_date"));
             $model->delete();
             $result = $model->insert($arr);
 
@@ -421,13 +438,21 @@ class ScheduleEmployeeController extends Controller
             $data = $model
                 ->whereCompanyId($request->company_id)
                 ->whereEmployeeId($id)
-                ->withOut(["shift", "shift_type"])
-                // ->with('roster')
-                ->orderBy("from_date", "ASC")
+                ->withOut(["shift", "shift_type"]);
+            $data->when($request->filled('edit_id'), function ($q) use ($request) {
+
+                $q->where('id', $request->edit_id);
+            });
+
+            // ->with('roster')
+            $data =   $data->orderBy("from_date", "ASC")
                 ->get(['id', 'employee_id', 'isOverTime as is_over_time', 'shift_type_id', 'shift_id', 'branch_id', 'from_date', 'to_date'])
-                ->makeHidden(['employee_id', 'show_from_date', 'show_to_date'])
-                ->groupBy('employee_id');
-            return $data[$id];
+                ->makeHidden(['employee_id', 'show_from_date', 'show_to_date']);
+
+
+            $data = $data->groupBy('employee_id');
+
+            return isset($data[$id]) ? $data[$id] : [];
         } catch (\Throwable $th) {
             throw $th;
         }

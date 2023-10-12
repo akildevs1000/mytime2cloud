@@ -160,6 +160,9 @@ class MultiInOutShiftController extends Controller
                     "in" => $currentLog['time'],
                     "out" =>  $nextLog && $nextLog['time'] ? $nextLog['time'] : "---",
                     "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
+
+                    "device_in" => $currentLog['device']['short_name'] ?? $currentLog['device']['name'] ??  "---",
+                    "device_out" => $nextLog['device']['short_name'] ?? $nextLog['device']['name'] ?? "---",
                     // $currentLog['LogTime'], $nextLog['time'] ?? "---"
                 ];
 
@@ -416,8 +419,8 @@ class MultiInOutShiftController extends Controller
                         "in" => $currentLog['log_type'] != "out" ?  $currentLog['time'] : "---",
                         "out" =>  $nextLog && $nextLog['log_type'] != "in" ?  $nextLog['time'] : "---",
                         // "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
-                        "device_in" => $currentLog['device']['short_name'] ?? "---",
-                        "device_out" => $nextLog['device']['short_name'] ?? "---",
+                        "device_in" => $currentLog['device']['short_name'] ?? $currentLog['device']['name'] ??  "---",
+                        "device_out" => $nextLog['device']['short_name'] ?? $nextLog['device']['name'] ?? "---",
                     ];
 
                     if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {

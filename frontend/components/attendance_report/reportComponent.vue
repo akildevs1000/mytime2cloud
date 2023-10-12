@@ -113,7 +113,7 @@
         <v-menu bottom right>
           <template v-slot:activator="{ on, attrs }">
             <v-btn dark-2 icon v-bind="attrs" v-on="on">
-              <v-icon>mdi-dots-vertical</v-icon>
+              <v-icon color="violet">mdi-dots-vertical</v-icon>
             </v-btn>
           </template>
           <v-list width="200" dense>

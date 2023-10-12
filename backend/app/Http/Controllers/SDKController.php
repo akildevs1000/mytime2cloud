@@ -21,7 +21,7 @@ class SDKController extends Controller
 
         $timezoneIDArray = $timezones->pluck('timezone_id');
 
-        return  $timezoneIDArray;
+
         $jsonArray = $timezones->pluck('json')->toArray();
 
         $TimezoneDefaultJson = TimezoneDefaultJson::query();

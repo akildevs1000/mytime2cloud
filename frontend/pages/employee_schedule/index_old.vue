@@ -9,7 +9,7 @@
     <v-dialog persistent v-model="editDialog" width="900">
       <v-card>
         <v-card-title dense dark class="popup_background">
-          {{ !isEdit ? "View Shift(s)" : "Manage Shift(s)" }}
+          {{ !isEdit ? "View Shift(s)" : "Edit Shift(s)" }}
           <v-spacer></v-spacer>
 
           <v-icon @click="editDialog = false" outlined dark>
@@ -23,7 +23,6 @@
               <b>Add +</b>
             </v-btn></v-col
           >
-
           <v-row v-for="(item, i) in schedules_temp_list" :key="i">
             <v-col md="3">
               <div class="">Schedule List</div>
@@ -389,17 +388,19 @@
 
         <!-- <v-tooltip top color="primary" v-if="can(`employee_schedule_create`)">
           <template v-slot:activator="{ on, attrs }"> -->
-        <!-- <v-btn
+        <v-btn
           title="Add Schedule"
           dense
           class="ma-0 px-0"
           x-small
           :ripple="false"
           text
+          v-bind="attrs"
+          v-on="on"
           @click="gotoCreateSchedule"
         >
           <v-icon class="ml-2" dark>mdi mdi-plus-circle</v-icon>
-        </v-btn> -->
+        </v-btn>
         <!-- </template>  
        <span>Add Schedule</span>  
         </v-tooltip> -->
@@ -448,7 +449,9 @@
                 ></v-text-field>
 
                 <v-select
-                  v-if="header.filterSpecial && header.value == 'branch_id'"
+                  v-if="
+                    header.filterSpecial && header.value == 'branch.branch_name'
+                  "
                   :hide-details="true"
                   @change="applyFilter()"
                   item-value="id"
@@ -602,77 +605,13 @@
             </td>
           </tr>
         </template>
-        <template v-slot:item.sno="{ item, index }">
-          {{
-            currentPage
-              ? (currentPage - 1) * perPage +
-                (cumulativeIndex + employees.indexOf(item))
-              : "-"
-          }}
-        </template>
+
         <template v-slot:item.employee_id="{ item }">
-          <strong>{{ item.employee_id }} </strong><br /><span
-            class="secondary-value"
-            >{{ item.system_user_id }}</span
-          >
-        </template>
-
-        <template v-slot:item.first_name="{ item, index }" style="width: 300px">
-          <v-row no-gutters>
-            <v-col
-              style="
-                padding: 5px;
-                padding-left: 0px;
-                width: 50px;
-                max-width: 50px;
-              "
-            >
-              <v-img
-                style="
-                  border-radius: 50%;
-                  height: auto;
-                  width: 50px;
-                  max-width: 50px;
-                "
-                :src="
-                  item.profile_picture
-                    ? item.profile_picture
-                    : '/no-profile-image.jpg'
-                "
-              >
-              </v-img>
-            </v-col>
-            <v-col style="padding: 10px">
-              <strong>
-                {{ item.first_name ? item.first_name : "---" }}
-                {{ item.last_name ? item.last_name : "---" }}</strong
-              >
-              <div class="secondary-value">
-                {{ item.designation ? caps(item.designation.name) : "---" }}
-              </div>
-            </v-col>
-          </v-row>
-        </template>
-
-        <template v-slot:item.branch_id="{ item }">
-          {{ item.branch.branch_name }}
-        </template>
-        <template v-slot:item.department.name.id="{ item }">
-          <strong>{{ caps(item.department.name) }}</strong>
-          <div class="secondary-value">
-            {{ caps(item.sub_department.name) }}
-          </div>
-        </template>
-        <!-- <template v-slot:item.employee_id="{ item }">
-          {{ caps(item?.employee_id || "") }}
+          {{ caps(item?.employee?.employee_id || "") }}
         </template>
         <template v-slot:item.employee.first_name="{ item }">
-          {{ caps(item.first_name && item.first_name) }}
-          {{ caps(item.last_name && item.last_name) }}
-        </template> -->
-
-        <template v-slot:item.schedules="{ item }">
-          {{ item.schedule_all.length }}
+          {{ caps(item.employee && item.employee.first_name) }}
+          {{ caps(item.employee && item.employee.last_name) }}
         </template>
 
         <template v-slot:item.isOverTime="{ item }">
@@ -696,24 +635,18 @@
                   View
                 </v-list-item-title>
               </v-list-item>
-              <!-- <v-list-item @click="ScheduleItem(item, 'edit')">
-                <v-list-item-title style="cursor: pointer">
-                  <v-icon color="secondary" small> mdi-plus-circle </v-icon>
-                  Add
-                </v-list-item-title>
-              </v-list-item> -->
               <v-list-item @click="ScheduleItem(item, 'edit')">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
-                  Manage
+                  Edit
                 </v-list-item-title>
               </v-list-item>
-              <!-- <v-list-item @click="deleteItem(item, 'edit')">
+              <v-list-item @click="deleteItem(item, 'edit')">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
                   Delete
                 </v-list-item-title>
-              </v-list-item> -->
+              </v-list-item>
             </v-list>
           </v-menu>
         </template>
@@ -725,9 +658,6 @@
 <script>
 export default {
   data: () => ({
-    cumulativeIndex: 1,
-    perPage: 10,
-    currentPage: 1,
     branchesList: [],
     branch_id: null,
     shifts_for_filter: [],
@@ -769,7 +699,7 @@ export default {
     Module: "Employee Schedule",
     shift_types: [],
     manual_shift: {},
-    options: { perPage: 10 },
+    options: {},
     options_dialog: {},
     endpoint: "scheduled_employees_index",
     endpoint_dialog: "scheduled_employees_list",
@@ -788,13 +718,6 @@ export default {
 
     headers_table: [
       {
-        text: "#",
-        align: "left",
-        sortable: false,
-        value: "sno",
-        filterable: false,
-      },
-      {
         text: "Emp Id",
         align: "left",
         sortable: true,
@@ -806,7 +729,7 @@ export default {
         text: "Name",
         align: "left",
         sortable: true,
-        value: "first_name",
+        value: "employee.first_name",
         filterable: true,
         filterName: "employee_first_name",
       },
@@ -814,66 +737,47 @@ export default {
         text: "Branch",
         align: "left",
         sortable: true,
-        value: "branch_id",
+        value: "branch.branch_name",
         filterable: true,
         filterName: "branch_id",
         filterSpecial: true,
       },
-
       {
-        text: "Department",
+        text: "Current Schedule Name",
         align: "left",
         sortable: true,
-        value: "department.name",
+        value: "shift.name",
         filterable: true,
-        filterName: "employee_first_name",
-      },
-
-      {
-        text: "Schedules",
-        align: "left",
-        sortable: true,
-        value: "schedules",
-        filterable: true,
-        filterName: "schedules",
+        filterName: "shift_id",
         filterSpecial: true,
       },
-      // {
-      //   text: "Current Schedule Name",
-      //   align: "left",
-      //   sortable: true,
-      //   value: "shift.name",
-      //   filterable: true,
-      //   filterName: "shift_id",
-      //   filterSpecial: true,
-      // },
-      // {
-      //   text: "Schedule Start",
-      //   align: "left",
-      //   sortable: true,
-      //   value: "from_date",
-      //   filterable: true,
-      //   filterName: "from_date",
-      //   filterSpecial: true,
-      // },
-      // {
-      //   text: "Schedule To Date",
-      //   align: "left",
-      //   sortable: true,
-      //   value: "to_date",
-      //   filterable: true,
-      //   filterName: "to_date",
-      //   filterSpecial: true,
-      // },
-      // {
-      //   text: "OT",
-      //   align: "left",
-      //   sortable: true,
-      //   value: "isOverTime",
-      //   filterable: false,
-      //   filterName: "isOverTime",
-      //   filterSpecial: true,
-      // },
+      {
+        text: "Schedule Start",
+        align: "left",
+        sortable: true,
+        value: "from_date",
+        filterable: true,
+        filterName: "from_date",
+        filterSpecial: true,
+      },
+      {
+        text: "Schedule To Date",
+        align: "left",
+        sortable: true,
+        value: "to_date",
+        filterable: true,
+        filterName: "to_date",
+        filterSpecial: true,
+      },
+      {
+        text: "OT",
+        align: "left",
+        sortable: true,
+        value: "isOverTime",
+        filterable: false,
+        filterName: "isOverTime",
+        filterSpecial: true,
+      },
 
       // {
       //   text: "Shift Type",
@@ -976,7 +880,7 @@ export default {
     this.getDataFromApi();
     this.options = {
       params: {
-        per_page: 10,
+        per_page: 1000,
         company_id: this.$auth.user.company_id,
       },
     };
@@ -986,10 +890,6 @@ export default {
   },
 
   methods: {
-    updateIndex(page) {
-      this.currentPage = page;
-      this.cumulativeIndex = (page - 1) * this.perPage;
-    },
     getbranchesList() {
       this.payloadOptions = {
         params: {
@@ -1036,27 +936,21 @@ export default {
     },
 
     ScheduleItem(item, type) {
-      this.empId = item.system_user_id;
-      let id = item.system_user_id;
+      console.log(item);
+
+      this.empId = item.employee_id;
+      let id = item.employee_id;
       let options = {
         company_id: this.$auth.user.company_id,
       };
 
-      this.empId = item.system_user_id;
+      this.empId = item.employee_id;
 
       this.$axios
         .get(`get_shifts_by_employee/${id}`, { params: options })
         .then(({ data }) => {
           type == "edit" ? (this.isEdit = true) : (this.isEdit = false);
           this.schedules_temp_list = data;
-
-          if (data.length == 0) {
-            this.addRow(1);
-          }
-
-          this.schedules_temp_list.forEach((object) => {
-            object.branch_id = item.branch_id;
-          });
           this.editDialog = true;
         });
     },
@@ -1206,7 +1100,7 @@ export default {
       this.loading_dialog = true;
 
       const { page, itemsPerPage } = this.options_dialog;
-      this.perPage = itemsPerPage;
+
       let options = {
         params: {
           department_ids: this.department_ids,
@@ -1326,27 +1220,25 @@ export default {
 
       //if (filter_value != "") options.params[filter_column] = filter_value;
 
-      this.$axios
-        .get("employees_with_schedule_count", options)
-        .then(({ data }) => {
-          // if (filter_column != "" && data.data.length == 0) {
-          //   this.snack = true;
-          //   this.snackColor = "error";
-          //   this.snackText = "No Results Found";
-          //   this.loading = false;
-          //   return false;
-          // }
-          this.employees = data.data;
-          this.pagination.current = data.current_page;
-          this.pagination.total = data.last_page;
-          this.loading = false;
+      this.$axios.get(url, options).then(({ data }) => {
+        // if (filter_column != "" && data.data.length == 0) {
+        //   this.snack = true;
+        //   this.snackColor = "error";
+        //   this.snackText = "No Results Found";
+        //   this.loading = false;
+        //   return false;
+        // }
+        this.employees = data.data;
+        this.pagination.current = data.current_page;
+        this.pagination.total = data.last_page;
+        this.loading = false;
 
-          if (this.employees.length == 0) {
-            this.displayNoRecords = true;
-          }
+        if (this.employees.length == 0) {
+          this.displayNoRecords = true;
+        }
 
-          this.totalRowsCount = data.total;
-        });
+        this.totalRowsCount = data.total;
+      });
 
       //this.loading = false;
     },
@@ -1483,7 +1375,7 @@ export default {
           this.loading_dialog = false;
           this.editDialog = false;
           this.getDataFromApi();
-          // this.getDataFromApiForDialog();
+          this.getDataFromApiForDialog();
         })
         .catch((err) => console.log(err));
     },

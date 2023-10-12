@@ -172,11 +172,12 @@ export default {
         first_name: e.first_name,
         last_name: e.last_name,
         display_name: e.display_name,
-        name_with_id: `${e.first_name} ${e.last_name} - ${
-          e.schedule.shift && e.schedule.shift.name
-            ? e.schedule.shift.name
-            : "---"
-        }`,
+        name_with_id: `${e.first_name} ${e.last_name}`,
+        // name_with_id: `${e.first_name} ${e.last_name} - ${
+        //   e.schedule.shift && e.schedule.shift.name
+        //     ? e.schedule.shift.name
+        //     : "---"
+        // }`,
         shift_type_id: e.schedule.shift_type_id,
       }));
     },
@@ -192,6 +193,7 @@ export default {
   },
   methods: {
     store_schedule() {
+      console.log(this.employees);
       let emp = this.employees.find(
         (e) => e.system_user_id == this.log_payload.user_id
       );
@@ -231,6 +233,7 @@ export default {
         });
     },
     render_report(date, shift_type_id) {
+      return;
       let payload = {
         params: {
           dates: [date, date],
