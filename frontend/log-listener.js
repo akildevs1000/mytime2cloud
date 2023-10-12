@@ -19,7 +19,7 @@ const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
 const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
 
 console.log(`Current Date: ${formattedDate}`);
-console.log(`Current Time: ${newTime}`);
+console.log(`Current Time: ${newTime.trim()}`);
 console.log(`logFilePath: ${logFilePath}`);
 
 
@@ -35,6 +35,10 @@ socket.onopen = () => {
 
 socket.onerror = (error) => {
     console.error("WebSocket error:", error.message);
+};
+// Handle WebSocket close event
+socket.onclose = (event) => {
+    console.error(`WebSocket connection closed with code ${event.code} at ${formattedDate} ${newTime.trim()}`);
 };
 
 socket.onmessage = ({ data }) => {
@@ -52,3 +56,14 @@ socket.onmessage = ({ data }) => {
         console.error("Error processing message:", error.message);
     }
 };
+
+process.on('SIGTERM', () => {
+    console.log(`Prcess killed at ${formattedDate} ${newTime.trim()}`);
+    process.exit(0); // Exit the process gracefully
+});
+
+process.on('SIGINT', () => {
+    console.log(`Prcess killed at ${formattedDate} ${newTime.trim()}`);
+    process.exit(0); // Exit the process gracefully
+});
+
