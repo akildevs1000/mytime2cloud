@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use Illuminate\Support\Facades\Log as Logger;
 
 class MultiShiftController extends Controller
 {
@@ -61,7 +62,7 @@ class MultiShiftController extends Controller
 
         $items = [];
 
-
+        $message = '';
         foreach ($employees as $row) {
 
             $params["isOverTime"] = $row->schedule->isOverTime;
@@ -71,9 +72,14 @@ class MultiShiftController extends Controller
 
 
             $data = $logs[$row->system_user_id] ?? [];
-
-            if (!count($data)) continue;
-
+            if (!count($data)) {
+                $message = '<br/> ' . $message . $row->system_user_id . ' has No Logs to render';
+                continue;
+            }
+            if (!$params["shift"]["id"]) {
+                $message = '<br/> ' . $message . $row->system_user_id . ' : No shift configured on  date:' . $date;
+                continue;
+            }
 
             $item = [
                 "total_hrs" => 0,
@@ -156,9 +162,10 @@ class MultiShiftController extends Controller
             if (!$custom_render) {
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
+            $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . $message;
+            Logger::channel("render_manual_logs")->info($message);
 
-
-            return $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
+            return  $message;
             return $this->getMeta("Multi Shift", $message);
         } catch (\Throwable $e) {
             return $this->getMeta("Multi Shift", $e->getMessage());

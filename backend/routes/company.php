@@ -116,7 +116,8 @@ Route::get('attendance_logs/search/{company_id}', [AttendanceLogController::clas
 Route::get('attendance_logs/{id}/search/{key}', [AttendanceLogController::class, 'AttendanceLogsSearch']);
 Route::get('attendance_log_paginate/{page?}', [AttendanceLogController::class, 'AttendanceLogPaginate']);
 
-Route::post('generate_logs', [AttendanceLogController::class, 'generate_logs']);
+//Route::post('generate_logs111111', [AttendanceLogController::class, 'generate_logs']);
+Route::post('generate_log', [AttendanceLogController::class, 'GenerateLog']);
 Route::get('logs', [AttendanceLogController::class, 'getAttendanceLogs']);
 
 Route::get('attendance_single_list', [AttendanceLogController::class, 'singleView']);

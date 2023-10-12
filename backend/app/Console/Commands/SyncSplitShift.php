@@ -2,12 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\SplitShiftController;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log as Logger;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\NotifyIfLogsDoesNotGenerate;
 
 
 class SyncSplitShift extends Command
@@ -17,7 +13,7 @@ class SyncSplitShift extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_split_shift';
+    protected $signature = 'task:sync_split_shift {company_id} {date}';
 
     /**
      * The console command description.
@@ -33,12 +29,9 @@ class SyncSplitShift extends Command
      */
     public function handle()
     {
-        try {
-            echo (new SplitShiftController)->render();
-        } catch (\Throwable $th) {
-            Logger::channel("custom")->error('Cron: SyncSplitShift. Error Details: ' . $th);
-            $date = date("Y-m-d H:i:s");
-            echo "[$date] Cron: SyncSplitShift. Error occured while inserting logs.\n";
-        }
+        $id = $this->argument("company_id");
+        $date = $this->argument("date");
+        $shift_type_id = 5;
+        echo (new SplitShiftController)->render($id, $date, $shift_type_id, [], false) . "\n";
     }
 }

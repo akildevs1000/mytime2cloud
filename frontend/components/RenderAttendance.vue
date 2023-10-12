@@ -128,12 +128,12 @@
         @click="renderByType(endpoint)"
         >Log</v-btn
       >
-      <v-btn class="background" dark small @click="renderByType(`render_off`)">
+      <!-- <v-btn class="background" dark small @click="renderByType(`render_off`)">
         Week Off</v-btn
       >
       <v-btn class="error" small @click="renderByType(`render_absent`)"
         >Absent</v-btn
-      >
+      > -->
     </v-card-actions>
   </div>
 </template>

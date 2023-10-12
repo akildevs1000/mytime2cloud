@@ -23,6 +23,44 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
+        // $companyId = 8;
+
+        // $schedule
+        //     ->command("task:sync_filo_shift {$companyId} " . date("Y-m-d"))
+        //     // ->hourly()
+        //     ->everyMinute()
+        //     ->runInBackground()
+        //     ->appendOutputTo(storage_path("logs/shifts/filo/$date-{$companyId}.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        // $schedule
+        //     ->command("task:sync_single_shift {$companyId} " . date("Y-m-d"))
+        //     // ->hourly()
+        //     ->everyMinute()
+        //     ->runInBackground()
+        //     ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+
+        // $schedule
+        //     ->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
+        //     ->everyMinute()
+        //     // ->dailyAt('09:00')
+        //     ->runInBackground()
+        //     ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        // $schedule
+        //     ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
+        //     ->everyMinute()
+        //     // ->dailyAt('09:00')
+        //     ->runInBackground()
+        //     ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        // return;
+
         // $devices = AccessControlTimeSlot::get();
 
         // foreach ($devices as $device) {
@@ -139,6 +177,41 @@ class Kernel extends ConsoleKernel
 
             if ($companyId != 1) {
 
+                $schedule
+                    ->command("task:sync_filo_shift {$companyId} " . date("Y-m-d"))
+                    // ->hourly()
+                    ->everyMinute()
+                    ->runInBackground()
+                    ->appendOutputTo(storage_path("logs/shifts/filo/$date-{$companyId}.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+                $schedule
+                    ->command("task:sync_single_shift {$companyId} " . date("Y-m-d"))
+                    // ->hourly()
+                    ->everyMinute()
+                    ->runInBackground()
+                    ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+
+                $schedule
+                    ->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
+                    ->everyMinute()
+                    // ->dailyAt('09:00')
+                    ->runInBackground()
+                    ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+                $schedule
+                    ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
+                    ->everyMinute()
+                    // ->dailyAt('09:00')
+                    ->runInBackground()
+                    ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
                 // $schedule
                 //     ->command("task:sync_flexible_and_single_shift {$companyId} " . date("Y-m-d"))
                 //     ->everyMinute()
@@ -147,7 +220,7 @@ class Kernel extends ConsoleKernel
                 //     ->appendOutputTo(storage_path("logs/$date-sync-flexible-and-single-logs-{$companyId}.log"))
                 //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-                $schedule
+                /* $schedule
                     ->command("task:sync_filo_shift {$companyId} " . date("Y-m-d"))
                     // ->hourly()
                     ->everyMinute()
@@ -178,6 +251,29 @@ class Kernel extends ConsoleKernel
                     ->runInBackground()
                     ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
                     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+                $schedule
+                    ->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
+                    ->everyMinute()
+                    // ->dailyAt('09:00')
+                    ->runInBackground()
+                    ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+                $schedule
+                    ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
+                    ->everyMinute()
+                    // ->dailyAt('09:00')
+                    ->runInBackground()
+                    ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
+                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+*/
+                // $schedule
+                //     ->command('task:sync_split_shift') //dual 
+                //     ->everyMinute()
+                //     ->withoutOverlapping()
+                //     ->appendOutputTo(storage_path("logs/$date-logs.log"))
+                //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
 
             // $schedule
@@ -287,19 +383,14 @@ class Kernel extends ConsoleKernel
             info($count . "companies has been updated");
         })->dailyAt('00:00');
 
-        $schedule
-            ->command('task:sync_multiinout')
-            ->everyMinute()
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        // $schedule
+        //     ->command('task:sync_multiinout')
+        //     ->everyMinute()
+        //     ->withoutOverlapping()
+        //     ->appendOutputTo(storage_path("logs/$date-logs.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        $schedule
-            ->command('task:sync_split_shift')
-            ->everyMinute()
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
 
         $schedule
             ->command('task:update_visitor_company_ids')

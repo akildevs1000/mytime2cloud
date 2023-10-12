@@ -19,7 +19,7 @@ class SyncMultiShift extends Command
      *
      * @var string
      */
-    protected $description = 'Sync Filo Shift';
+    protected $description = 'Sync Multi Shift';
 
     /**
      * Execute the console command.

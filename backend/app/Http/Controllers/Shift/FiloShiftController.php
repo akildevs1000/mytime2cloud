@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log as Logger;
 
 class FiloShiftController extends Controller
 {
@@ -51,13 +52,10 @@ class FiloShiftController extends Controller
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
         }
 
-        // return json_encode($params);
-
-
         $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
 
         $items = [];
-
+        $message = "";
         foreach ($logsEmployees as $key => $logs) {
 
             $logs = $logs->toArray() ?? [];
@@ -68,7 +66,17 @@ class FiloShiftController extends Controller
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;
 
-            if (!$schedule) continue;
+            if (!$schedule) {
+                $message .= '<br/> ' . $key . " : No schedule is mapped with user.";
+                continue;
+            }
+            if (!$firstLog["schedule"]["shift_type_id"]) {
+                $message .= '<br/> ' . $key . " : No shift configured on  date:" . $params["date"];
+                continue;
+            }
+
+
+
 
             $item = [
                 "roster_id" => 0,
@@ -125,8 +133,13 @@ class FiloShiftController extends Controller
             $items[] = $item;
         }
 
+        // info($items);
+
         if (!count($items)) {
-            return '[' . $date . " " . date("H:i:s") . '] Filo Shift: No data found';
+            $message = '[' . $date . " " . date("H:i:s") . '] Filo Shift: No data found' . $message;
+
+            Logger::channel("render_manual_logs")->info($message);
+            return   $message;
         }
 
         try {
@@ -142,7 +155,13 @@ class FiloShiftController extends Controller
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
 
-            return "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
+
+
+            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . $message;
+            Logger::channel("render_manual_logs")->info($message);
+
+
+            return $message;
         } catch (\Throwable $e) {
             $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
             info($message);
