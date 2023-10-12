@@ -170,7 +170,7 @@ class AttendanceLogController extends Controller
             $records[] = [
                 "UserID" => $columns[0],
                 "DeviceID" => $columns[1],
-                "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, -3),
+                "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, 16),
                 "SerialNumber" => $columns[3]
             ];
         }
