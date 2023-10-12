@@ -9,7 +9,7 @@
     <v-dialog persistent v-model="editDialog" width="900">
       <v-card>
         <v-card-title dense dark class="popup_background">
-          {{ !isEdit ? "View Shift(s)" : "Edit Shift(s)" }}
+          {{ !isEdit ? "View Shift(s)" : "Manage Shift(s)" }}
           <v-spacer></v-spacer>
 
           <v-icon @click="editDialog = false" outlined dark>
@@ -703,7 +703,7 @@
               <v-list-item @click="ScheduleItem(item, 'edit')">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
-                  Edit
+                  Manage
                 </v-list-item-title>
               </v-list-item>
               <!-- <v-list-item @click="deleteItem(item, 'edit')">
