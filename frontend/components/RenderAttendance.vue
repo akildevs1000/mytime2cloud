@@ -108,7 +108,7 @@
               <v-card outlined>
                 <ul style="height: 150px; overflow-y: scroll">
                   <li v-for="(item, index) in result" :key="index">
-                    {{ item }}
+                    <div v-html="item" />
                   </li>
                 </ul>
               </v-card>
