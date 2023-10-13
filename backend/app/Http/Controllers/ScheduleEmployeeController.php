@@ -143,9 +143,30 @@ class ScheduleEmployeeController extends Controller
         }
     }
 
+    public function schedule_employees_delete(Request $request)
+    {
+
+        $record = ScheduleEmployee::where("company_id", $request->company_id)
+            ->where("employee_id", $request->employee_id)
+            ->where("branch_id", $request->branch_id)
+            ->delete();
+
+        try {
+            if ($record) {
+                return $this->response('Employee Schedule deleted.', null, true);
+            } else {
+                return $this->response('Employee Schedule cannot delete.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     public function destroy($id, Request $request)
     {
-        // $record = ScheduleEmployee::where("employee_id", $id)->delete();
+
+
+        $record = ScheduleEmployee::where("employee_id", $id)->delete();
 
         $record = ScheduleEmployee::where("company_id", $request->company_id)
             ->where("employee_id", $request->employee_id)

@@ -726,13 +726,13 @@
               <v-list-item @click="ScheduleItem(item, 'edit')">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
-                  Manage
+                  Manage Schedules
                 </v-list-item-title>
               </v-list-item>
               <v-list-item @click="deleteItem(item, 'edit')">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
-                  Delete
+                  Clear All Schedules
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -1467,13 +1467,14 @@ export default {
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
       ) &&
         this.$axios
-          .delete("schedule_employees/" + item.id, payload)
+          .post("schedule_employees_delete", payload)
           .then(({ data }) => {
             const index = this.employees.indexOf(item);
-            this.employees.splice(index, 1);
+            // this.employees.splice(index, 1);
             this.snackbar = data.status;
             this.response = data.message;
-            this.getDataFromApiForDialog();
+            // this.getDataFromApiForDialog();
+            this.getDataFromApi();
           })
           .catch((err) => console.log(err));
     },
