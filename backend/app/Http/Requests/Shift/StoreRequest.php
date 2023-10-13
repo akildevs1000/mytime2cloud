@@ -32,7 +32,11 @@ class StoreRequest extends FormRequest
         }
 
         return [
-            'name' => ['required', Rule::unique('shifts')],
+            //'name' => ['required', Rule::unique('shifts')],
+            // 'name' => ['required|unique:shifts,name,' . $this->name . '|unique:shifts,branch_id,' . $this->branch_id],
+            'name' => ['required', Rule::unique('shifts')->where(function ($query) {
+                return $query->where('branch_id', $this->input('branch_id'));
+            })],
             'overtime_interval' => ["required"],
             'shift_type_id' => ["required"],
             'company_id' => ["required"],

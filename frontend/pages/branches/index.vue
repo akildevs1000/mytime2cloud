@@ -80,7 +80,7 @@
                       >
                     </v-col>
                     <v-col md="6" cols="12" sm="12" dense>
-                      <label>Department Mapping Managers list</label>
+                      <label>Role Managers </label>
                       <v-autocomplete
                         :disabled="disabled"
                         v-model="branch.user_id"
