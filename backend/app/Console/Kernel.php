@@ -23,130 +23,11 @@ class Kernel extends ConsoleKernel
     {
         $date = date("M-Y");
 
-        // $companyId = 8;
-
-        // $schedule
-        //     ->command("task:sync_filo_shift {$companyId} " . date("Y-m-d"))
-        //     // ->hourly()
-        //     ->everyMinute()
-        //     ->runInBackground()
-        //     ->appendOutputTo(storage_path("logs/shifts/filo/$date-{$companyId}.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-        // $schedule
-        //     ->command("task:sync_single_shift {$companyId} " . date("Y-m-d"))
-        //     // ->hourly()
-        //     ->everyMinute()
-        //     ->runInBackground()
-        //     ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-
-
-        // $schedule
-        //     ->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
-        //     ->everyMinute()
-        //     // ->dailyAt('09:00')
-        //     ->runInBackground()
-        //     ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-        // $schedule
-        //     ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
-        //     ->everyMinute()
-        //     // ->dailyAt('09:00')
-        //     ->runInBackground()
-        //     ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-        // return;
-
-        // $devices = AccessControlTimeSlot::get();
-
-        // foreach ($devices as $device) {
-        //     foreach ($device->json as $slot) {
-
-        //         $schedule
-        //             ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
-        //             // ->everyThirtyMinutes()
-        //             ->everyMinute()
-        //             ->dailyAt($slot["startTimeOpen"])
-        //             ->withoutOverlapping()
-        //             ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
-        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-        //         $schedule
-        //             ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
-        //             // ->everyThirtyMinutes()
-        //             ->everyMinute()
-        //             ->dailyAt($slot["endTimeOpen"])
-        //             ->withoutOverlapping()
-        //             ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
-        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        //     }
-        // }
-
-        $devices = DeviceActivesettings::with('devices')->get();
-
-        $date = date('Y-m-d');
-
-        foreach ($devices as $key => $device) {
-            # code...
-
-            // Define the date range from January 1, 2023, to February 28, 2023
-            $startDate = Carbon::createFromFormat('Y-m-d', $device->date_from);
-            $endDate = Carbon::createFromFormat('Y-m-d', $device->date_to);
-
-            // Define an array of times
-
-
-
-            $open_json = $device->open_json;
-            $open_settings_array = json_decode($open_json);
-
-
-            foreach ($open_settings_array as $key => $value) {
-
-                $schedule
-                    ->command("task:AccessControlTimeSlots {$device->devices->device_id} HoldDoor")
-                    ->days([$key])
-                    ->between($startDate, $endDate)
-                    ->times([$value])
-                    ->withoutOverlapping()
-                    ->appendOutputTo(storage_path("logs/$date-device_access-control-time-slot-logs.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            }
-
-            $close_json = $device->close_json;
-            $close_settings_array = json_decode($close_json);
-
-
-            foreach ($close_settings_array as $key => $value) {
-
-                $schedule
-                    ->command("task:AccessControlTimeSlots {$device->device->device_id} CloseDoor")
-                    ->days([$key])
-                    ->between($startDate, $endDate)
-                    ->times([$value])
-                    ->withoutOverlapping()
-                    ->appendOutputTo(storage_path("logs/$date-device_access-control-time-slot-logs.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            }
-        }
-
-        // $schedule
-        //     ->command('task:sync_attendance_logs')
-        //     ->everyMinute()
-        //     ->withoutOverlapping()
-        //     ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
         $schedule
             ->command('task:update_company_ids')
             // ->everyThirtyMinutes()
             ->everyMinute()
             ->withoutOverlapping()
-            // ->between('7:00', '23:59')
             ->appendOutputTo(storage_path("logs/$date-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
@@ -154,14 +35,6 @@ class Kernel extends ConsoleKernel
         $companyIds = Company::pluck("id");
 
         foreach ($companyIds as $companyId) {
-
-            // $schedule
-            //     ->command("task:sync_absent $companyId")
-            //     // ->everyMinute()
-            //     ->dailyAt('00:30')
-            //     ->runInBackground()
-            //     ->appendOutputTo(storage_path("logs/$date-absents-$companyId.log"))
-            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             if ($companyId == 1) {
                 $schedule
@@ -175,106 +48,38 @@ class Kernel extends ConsoleKernel
                     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
 
-            if ($companyId != 1) {
+            $schedule
+                ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
+                ->everyMinute()
+                ->between('06:00', '23:59')
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-                $schedule
-                    ->command("task:sync_filo_shift {$companyId} " . date("Y-m-d"))
-                    // ->hourly()
-                    ->everyMinute()
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/shifts/filo/$date-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            $schedule
+                ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
+                ->hourly()
+                ->between('00:00', '05:59')
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-                $schedule
-                    ->command("task:sync_single_shift {$companyId} " . date("Y-m-d"))
-                    // ->hourly()
-                    ->everyMinute()
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            $schedule
+                ->command("task:sync_filo_shift {$companyId} " . date("Y-m-d"))
+                // ->hourly()
+                ->everyMinute()
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/shifts/filo/$date-{$companyId}.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+            $schedule
+                ->command("task:sync_single_shift {$companyId} " . date("Y-m-d"))
+                // ->hourly()
+                ->everyMinute()
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-
-                $schedule
-                    ->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
-                    ->everyMinute()
-                    // ->dailyAt('09:00')
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-                $schedule
-                    ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
-                    ->everyMinute()
-                    // ->dailyAt('09:00')
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-
-                // $schedule
-                //     ->command("task:sync_flexible_and_single_shift {$companyId} " . date("Y-m-d"))
-                //     ->everyMinute()
-                //     // ->dailyAt('09:00')
-                //     ->runInBackground()
-                //     ->appendOutputTo(storage_path("logs/$date-sync-flexible-and-single-logs-{$companyId}.log"))
-                //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-                /* $schedule
-                    ->command("task:sync_filo_shift {$companyId} " . date("Y-m-d"))
-                    // ->hourly()
-                    ->everyMinute()
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/shifts/filo/$date-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-                $schedule
-                    ->command("task:sync_single_shift {$companyId} " . date("Y-m-d"))
-                    // ->hourly()
-                    ->everyMinute()
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-                $schedule
-                    ->command("task:sync_multi_logs_by_log_type {$companyId} " . date("Y-m-d"))
-                    ->everyMinute()
-                    // ->dailyAt('09:00')
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/$date-sync-multi-logs-by-log-type-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-                $schedule
-                    ->command("task:sync_split_logs_by_log_type {$companyId} " . date("Y-m-d"))
-                    ->everyMinute()
-                    // ->dailyAt('09:00')
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-                $schedule
-                    ->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
-                    ->everyMinute()
-                    // ->dailyAt('09:00')
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-                $schedule
-                    ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
-                    ->everyMinute()
-                    // ->dailyAt('09:00')
-                    ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-*/
-                // $schedule
-                //     ->command('task:sync_split_shift') //dual 
-                //     ->everyMinute()
-                //     ->withoutOverlapping()
-                //     ->appendOutputTo(storage_path("logs/$date-logs.log"))
-                //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-            }
 
             // $schedule
             //     ->command("task:generate_daily_report {$companyId} All")
@@ -390,22 +195,27 @@ class Kernel extends ConsoleKernel
         //     ->appendOutputTo(storage_path("logs/$date-logs.log"))
         //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+        // $schedule
+        //     ->command('task:sync_split_shift')
+        //     ->everyMinute()
+        //     ->withoutOverlapping()
+        //     ->appendOutputTo(storage_path("logs/$date-logs.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+        // $schedule
+        //     ->command('task:update_visitor_company_ids')
+        //     // ->everyThirtyMinutes()
+        //     ->everyMinute()
+        //     ->withoutOverlapping()
+        //     ->appendOutputTo(storage_path("logs/$date-logs.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        $schedule
-            ->command('task:update_visitor_company_ids')
-            // ->everyThirtyMinutes()
-            ->everyMinute()
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-        $schedule
-            ->command('task:sync_visitors')
-            ->everyMinute()
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-visitor-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        // $schedule
+        //     ->command('task:sync_visitors')
+        //     ->everyMinute()
+        //     ->withoutOverlapping()
+        //     ->appendOutputTo(storage_path("logs/$date-visitor-logs.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
             ->command('task:check_device_health')
@@ -422,22 +232,6 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/$date-render-missing-logs.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-        // $schedule
-        //     ->command('task:attendance_seeder')
-        //     ->monthly(1, '00:00')
-        //     ->withoutOverlapping()
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-
-
-        // $schedule
-        //     ->command('task:sync_auto')
-        //     ->everyMinute()
-        //     ->withoutOverlapping()
-        //     ->appendOutputTo(storage_path("logs/$date-auto-logs.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
 
         $payroll_settings = PayrollSetting::get(["id", "date", "company_id"]);
 
@@ -485,6 +279,87 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("logs/restart_sdk.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
+
+        // $devices = DeviceActivesettings::with('devices')->get();
+
+        // $date = date('Y-m-d');
+
+        // foreach ($devices as $key => $device) {
+        //     # code...
+
+        //     // Define the date range from January 1, 2023, to February 28, 2023
+        //     $startDate = Carbon::createFromFormat('Y-m-d', $device->date_from);
+        //     $endDate = Carbon::createFromFormat('Y-m-d', $device->date_to);
+
+        //     // Define an array of times
+
+
+
+        //     $open_json = $device->open_json;
+        //     $open_settings_array = json_decode($open_json);
+
+
+        //     foreach ($open_settings_array as $key => $value) {
+
+        //         $schedule
+        //             ->command("task:AccessControlTimeSlots {$device->devices->device_id} HoldDoor")
+        //             ->days([$key])
+        //             ->between($startDate, $endDate)
+        //             ->times([$value])
+        //             ->withoutOverlapping()
+        //             ->appendOutputTo(storage_path("logs/$date-device_access-control-time-slot-logs.log"))
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //     }
+
+        //     $close_json = $device->close_json;
+        //     $close_settings_array = json_decode($close_json);
+
+
+        //     foreach ($close_settings_array as $key => $value) {
+
+        //         $schedule
+        //             ->command("task:AccessControlTimeSlots {$device->device->device_id} CloseDoor")
+        //             ->days([$key])
+        //             ->between($startDate, $endDate)
+        //             ->times([$value])
+        //             ->withoutOverlapping()
+        //             ->appendOutputTo(storage_path("logs/$date-device_access-control-time-slot-logs.log"))
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //     }
+        // }
+
+        // $schedule
+        //     ->command('task:sync_attendance_logs')
+        //     ->everyMinute()
+        //     ->withoutOverlapping()
+        //     ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log"))
+        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+        // $devices = AccessControlTimeSlot::get();
+
+        // foreach ($devices as $device) {
+        //     foreach ($device->json as $slot) {
+
+        //         $schedule
+        //             ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+        //             // ->everyThirtyMinutes()
+        //             ->everyMinute()
+        //             ->dailyAt($slot["startTimeOpen"])
+        //             ->withoutOverlapping()
+        //             ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        //         $schedule
+        //             ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+        //             // ->everyThirtyMinutes()
+        //             ->everyMinute()
+        //             ->dailyAt($slot["endTimeOpen"])
+        //             ->withoutOverlapping()
+        //             ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //     }
+        // }
     }
 
     /**
