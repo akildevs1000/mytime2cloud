@@ -447,7 +447,28 @@
                         dense
                         autocomplete="off"
                       ></v-text-field>
-
+                      <v-select
+                        v-if="
+                          header.filterSpecial &&
+                          header.value == 'branch.branch_name'
+                        "
+                        clearable
+                        :id="header.key"
+                        :hide-details="true"
+                        outlined
+                        dense
+                        small
+                        v-model="branch_id"
+                        item-text="branch_name"
+                        item-value="id"
+                        :items="[
+                          { branch_name: `All Branches`, id: `` },
+                          ...branchesList,
+                        ]"
+                        placeholder="Branch"
+                        solo
+                        flat
+                      ></v-select>
                       <v-select
                         :id="header.key"
                         :hide-details="true"
@@ -648,6 +669,7 @@ import Back from "../../../components/Snippets/Back.vue";
 export default {
   components: { Back },
   data: () => ({
+    branchesList: [],
     filterLoader: false,
     filters: {},
     isFilter: false,
@@ -878,15 +900,44 @@ export default {
     },
   },
   created() {
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers_table.splice(1, 0, ...branch_header);
+    }
     this.loading = true;
     this.getDepartments();
     this.lastTenYears();
+    this.getbranchesList();
   },
   mounted() {
     this.getDataFromApi();
   },
 
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     toggleFilter() {
       this.isFilter = !this.isFilter;
     },

@@ -206,6 +206,7 @@ export default {
         LogTime: date + " " + time,
         DeviceID: "Manual",
         company_id: this.$auth.user.company_id,
+        log_type: "auto",
       };
       this.loading = true;
 
