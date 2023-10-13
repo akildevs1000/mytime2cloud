@@ -75,7 +75,7 @@ class AttendanceLog extends Model
     {
         $model = self::query();
 
-        $model->with("device.branch")->where("company_id", $request->company_id)
+        $model->with("device")->where("company_id", $request->company_id)
             ->with('employee', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
