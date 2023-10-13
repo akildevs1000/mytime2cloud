@@ -233,7 +233,6 @@ export default {
         });
     },
     render_report(date, shift_type_id) {
-      return;
       let payload = {
         params: {
           dates: [date, date],
