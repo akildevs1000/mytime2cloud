@@ -178,7 +178,7 @@ export default {
         //     ? e.schedule.shift.name
         //     : "---"
         // }`,
-        shift_type_id: e.schedule.shift_type_id,
+        shift_type_id: e.schedule_all[0] && e.schedule_all[0].shift_type_id,
       }));
     },
   },
@@ -193,12 +193,13 @@ export default {
   },
   methods: {
     store_schedule() {
-      console.log(this.employees);
       let emp = this.employees.find(
         (e) => e.system_user_id == this.log_payload.user_id
       );
 
       let { user_id, date, time } = this.log_payload;
+
+      console.log(emp);
       let shift_type_id = emp.shift_type_id;
       let log_payload = {
         UserID: user_id,

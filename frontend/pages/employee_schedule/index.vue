@@ -26,8 +26,9 @@
 
           <v-row v-for="(item, i) in schedules_temp_list" :key="i">
             <v-col md="3">
-              <div class="">Schedule List</div>
+              <div class="">Shift Name</div>
               <v-autocomplete
+                placeholder="Shift Name"
                 :error="errors && errors.shift_id"
                 :error-messages="
                   errors && errors.shift_id ? errors.shift_id[0] : ''

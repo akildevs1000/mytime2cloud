@@ -287,7 +287,7 @@ class Employee extends Model
             },
         ])
             ->with([
-                "reportTo", "branch", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
+                "reportTo", "schedule_all", "branch", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
                 "emirate", "qualification", "bank", "leave_group",  "Visa", "reporting_manager",
             ])
             ->with(["schedule" => function ($q) {
