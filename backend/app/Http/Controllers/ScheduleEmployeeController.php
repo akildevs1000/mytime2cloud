@@ -24,14 +24,39 @@ class ScheduleEmployeeController extends Controller
     }
     public function employeesWithScheduleCount(Request $request)
     {
-        return Employee::with(["schedule_all", "branch"])
+        $model = Employee::with(["schedule_all", "branch"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('branch_id'), function ($q) use ($request) {
                 $q->where('branch_id', $request->branch_id);
-            })
+            });
 
 
-            ->paginate($request->per_page);
+        $model->when($request->filled('first_name'), function ($q) use ($request) {
+
+            $q->where('first_name', 'ILIKE', "$request->first_name%");
+            $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
+        });
+
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+
+            $q->where('employee_id', 'ILIKE', "$request->employee_id%");
+            $q->orWhere('system_user_id', 'ILIKE', "$request->employee_id%");
+        });
+        $model->when($request->filled('schedules_count'), function ($q) use ($request) {
+
+            if ($request->schedules_count == 0) {
+                $q->has('schedule_all', '=', 0);
+            }
+
+            if ($request->schedules_count == 1) {
+                $q->has('schedule_all', '>', 0);
+            }
+        });
+
+
+
+
+        return   $model->paginate($request->per_page);
     }
 
 

@@ -9,7 +9,7 @@
     <v-dialog persistent v-model="editDialog" width="900">
       <v-card>
         <v-card-title dense dark class="popup_background">
-          {{ !isEdit ? "View Shift(s)" : "Manage Shift(s)" }}
+          {{ !isEdit ? "View Schedule(s)" : "Manage Schedule(s)" }}
           <v-spacer></v-spacer>
 
           <v-icon @click="editDialog = false" outlined dark>
@@ -446,10 +446,28 @@
                   dense
                   autocomplete="off"
                 ></v-text-field>
-
+                <v-select
+                  v-if="
+                    header.filterSpecial && header.value == 'schedules_count'
+                  "
+                  :hide-details="true"
+                  @change="applyFilter()"
+                  item-value="id"
+                  item-text="name"
+                  v-model="filters[header.value]"
+                  outlined
+                  dense
+                  clearable
+                  :items="[
+                    { name: `All`, id: `` },
+                    { name: `Scheduled`, id: `1` },
+                    { name: `Un-Scheduled`, id: `0` },
+                  ]"
+                ></v-select>
                 <v-select
                   v-if="header.filterSpecial && header.value == 'branch_id'"
                   :hide-details="true"
+                  clearable
                   @change="applyFilter()"
                   item-value="id"
                   item-text="branch_name"
@@ -464,6 +482,7 @@
                 <v-select
                   v-if="header.filterSpecial && header.value == 'isOverTime'"
                   :hide-details="true"
+                  clearable
                   @change="applyFilter()"
                   item-value="value"
                   item-text="title"
@@ -491,6 +510,7 @@
                   placeholder="Shift"
                   solo
                   flat
+                  clearable
                   @change="applyFilters()"
                 ></v-select>
                 <v-select
@@ -499,6 +519,7 @@
                   v-if="
                     header.filterSpecial && header.value == 'shift_type.name'
                   "
+                  clearable
                   outlined
                   dense
                   small
@@ -655,7 +676,7 @@
         </template>
 
         <template v-slot:item.branch_id="{ item }">
-          {{ item.branch.branch_name }}
+          {{ item.branch && item.branch.branch_name }}
         </template>
         <template v-slot:item.department.name.id="{ item }">
           <strong>{{ caps(item.department.name) }}</strong>
@@ -671,7 +692,7 @@
           {{ caps(item.last_name && item.last_name) }}
         </template> -->
 
-        <template v-slot:item.schedules="{ item }">
+        <template v-slot:item.schedules_count="{ item }">
           {{ item.schedule_all.length }}
         </template>
 
@@ -810,32 +831,23 @@ export default {
         filterable: true,
         filterName: "employee_first_name",
       },
-      {
-        text: "Branch",
-        align: "left",
-        sortable: true,
-        value: "branch_id",
-        filterable: true,
-        filterName: "branch_id",
-        filterSpecial: true,
-      },
 
-      {
-        text: "Department",
-        align: "left",
-        sortable: true,
-        value: "department.name",
-        filterable: true,
-        filterName: "employee_first_name",
-      },
+      // {
+      //   text: "Department",
+      //   align: "left",
+      //   sortable: true,
+      //   value: "department.name",
+      //   filterable: true,
+      //   filterName: "employee_first_name",
+      // },
 
       {
         text: "Schedules",
         align: "left",
         sortable: true,
-        value: "schedules",
+        value: "schedules_count",
         filterable: true,
-        filterName: "schedules",
+        filterName: "schedules_count",
         filterSpecial: true,
       },
       // {
@@ -970,6 +982,20 @@ export default {
     },
   },
   created() {
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          value: "branch_id",
+          filterable: true,
+          filterName: "branch_id",
+          filterSpecial: true,
+        },
+      ];
+      this.headers_table.splice(1, 0, ...branch_header);
+    }
     this.loading = true;
     this.loading_dialog = true;
     this.getShifts();

@@ -307,11 +307,11 @@
         </v-bottom-navigation> -->
       </span>
       <v-spacer></v-spacer>
-      Hi {{ getLoginType }}
+      Hi
       {{
         getLoginType == "manager"
           ? "Department Manager"
-          : getLoginType == "branch:"
+          : getLoginType == "branch"
           ? getBranchName()
           : ""
       }}

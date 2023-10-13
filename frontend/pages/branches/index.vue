@@ -707,9 +707,15 @@ export default {
   methods: {
     getManagers(options) {
       //
-      this.$axios.get(`assigned-employee-list`, options).then(({ data }) => {
-        this.managers = data;
-      });
+      // this.$axios.get(`assigned-employee-list`, options).then(({ data }) => {
+      //   this.managers = data;
+      // });
+
+      this.$axios
+        .get(`employee_managers_list_all`, options)
+        .then(({ data }) => {
+          this.managers = data;
+        });
     },
     OpenDialog(action) {
       this.formTitle = action;

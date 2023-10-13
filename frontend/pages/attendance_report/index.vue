@@ -22,7 +22,7 @@
               :hide-details="true"
             ></v-select>
           </v-col>
-          <v-col md="2" sm="2">
+          <v-col md="2" sm="2" v-if="$auth.user.branch_id == null">
             Branch
             <v-select
               placeholder="Branch"
@@ -145,143 +145,6 @@
               >Generate
             </v-btn>
           </v-col>
-          <!--<v-col md="1">
-            <div>Frequency</div>
-            <v-autocomplete
-              class="mt-2"
-              outlined
-              dense
-              v-model="report_type"
-              x-small
-              :items="['Daily', 'Weekly', 'Monthly', 'Custom']"
-              item-text="['Daily']"
-              :hide-details="true"
-            ></v-autocomplete>
-          </v-col>
-          <v-col md="1" v-if="report_type == 'Daily'">
-            <div>Date</div>
-            <div class="text-left mt-2">
-              <v-menu
-                class="mt-2"
-                ref="daily_menu"
-                v-model="daily_menu"
-                :close-on-content-click="false"
-                :return-value.sync="daily_date"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    :hide-details="payload.daily_date"
-                    outlined
-                    dense
-                    v-model="payload.daily_date"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker v-model="payload.daily_date" no-title scrollable>
-                  <v-spacer></v-spacer>
-                  <v-btn text color="primary" @click="daily_menu = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="set_date_save($refs.daily_menu, payload.daily_date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </div>
-          </v-col>  
-          <v-col md="1" v-if="report_type !== 'Daily'">
-            <div class="text-left">
-              <v-menu
-                ref="from_menu"
-                v-model="from_menu"
-                :close-on-content-click="false"
-                :return-value.sync="from_date"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <div class="mb-2">From Date</div>
-                  <v-text-field
-                    :hide-details="payload.from_date"
-                    outlined
-                    dense
-                    v-model="payload.from_date"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker v-model="payload.from_date" no-title scrollable>
-                  <v-spacer></v-spacer>
-                  <v-btn text color="primary" @click="from_menu = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="set_date_save($refs.from_menu, payload.from_date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </div>
-          </v-col>
-          <v-col md="1" v-if="report_type !== 'Daily'">
-            <div class="mb-2">To Date</div>
-
-            <div class="text-left">
-              <v-menu
-                ref="to_menu"
-                v-model="to_menu"
-                :close-on-content-click="false"
-                :return-value.sync="to_date"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    :hide-details="payload.to_date"
-                    outlined
-                    dense
-                    v-model="payload.to_date"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="payload.to_date"
-                  :max="max_date"
-                  no-title
-                  scrollable
-                >
-                  <v-spacer></v-spacer>
-                  <v-btn text color="primary" @click="to_menu = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="set_date_save($refs.to_menu, payload.to_date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </div>
-          </v-col>-->
         </v-row>
       </v-card-text>
     </v-card>
@@ -310,7 +173,7 @@
 
         <v-tab
           :key="2"
-          @click="commonMethod"
+          @click="commonMethod()"
           style="height: 30px"
           href="#tab-2"
           class="black--text slidegroup1"
@@ -352,6 +215,7 @@
             process_file_endpoint="multi_in_out_"
             render_endpoint="render_multi_inout_report"
             :key="2"
+            ref="profile"
           />
         </v-tab-item>
         <v-tab-item value="tab-3">
@@ -373,18 +237,20 @@
 </template>
 <script>
 import AttendanceReport from "../../components/attendance_report/reportComponent.vue";
-import Back from "../../components/Snippets/Back.vue";
+import AttendanceReportMulti from "../../components/attendance_report/reportComponent_multi.vue";
+import AttendanceReportDual from "../../components/attendance_report/reportComponent_dual.vue";
 
 import generalHeaders from "../../headers/general.json";
 import multiHeaders from "../../headers/multi.json";
 import doubleHeaders from "../../headers/double.json";
 
 export default {
-  components: { AttendanceReport, Back },
+  components: { AttendanceReport, AttendanceReportMulti, AttendanceReportDual },
 
   props: ["title", "shift_type_id", "render_endpoint", "process_file_endpoint"],
 
   data: () => ({
+    key: 1,
     payload11: {},
     selectAllDepartment: false,
     branches: [],
@@ -633,7 +499,7 @@ export default {
       // if (this.from_date && this.to_date) this.commonMethod();
     },
 
-    commonMethod() {
+    commonMethod(id = 0) {
       // const today = new Date();
       // switch (this.filterType) {
       //   case 1:
@@ -674,6 +540,7 @@ export default {
       if (filterDay == "") {
         filterDay = "Daily";
       }
+
       this.payload11 = {
         ...this.payload,
         report_type: "Monthly", //filterDay,
@@ -681,6 +548,7 @@ export default {
         from_date: this.from_date,
         to_date: this.to_date,
         filterType: this.filterType,
+        key: this.key++,
       };
     },
     getFirstAndLastDay() {

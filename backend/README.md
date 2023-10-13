@@ -70,3 +70,7 @@ SDK Live port : 9001
 
 laravel Commands
 php artisan task:attendance_seeder --company_id=8 --employee_id=5656 --day_count=10
+
+php artisan serve --host=192.168.2.216
+
+php artisan schedule:work

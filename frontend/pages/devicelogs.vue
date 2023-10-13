@@ -138,7 +138,7 @@
                         { branch_name: `All Branches`, id: `` },
                         ...branchesList,
                       ]"
-                      placeholder="Department"
+                      placeholder="Branch"
                       solo
                       flat
                       @change="applyFilters(header.key, id)"
@@ -432,16 +432,7 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-      {
-        text: "Branch",
-        align: "left",
-        sortable: true,
-        key: "branch_id", //sorting
-        value: "employee.branch.branch_name", //edit purpose
-        width: "300px",
-        filterable: true,
-        filterSpecial: true,
-      },
+
       {
         text: "Department",
         align: "left",
@@ -496,6 +487,21 @@ export default {
     });
   },
   created() {
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "employee.branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers_table.splice(1, 0, ...branch_header);
+    }
     this.firstLoad();
     this.getDepartments();
     this.getbranchesList();
@@ -640,7 +646,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
-          department_ids: this.$auth.user.assignedDepartments,
+          //department_ids: this.$auth.user.assignedDepartments,
           ...this.payload,
           ...this.filters,
         },

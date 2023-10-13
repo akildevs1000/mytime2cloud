@@ -338,6 +338,20 @@ export default {
     },
   },
   created() {
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id",
+          value: "branch.branch_name",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers_table.splice(1, 0, ...branch_header);
+    }
     this.loading = true;
     this.getDataFromApi();
     // this.getShifts();

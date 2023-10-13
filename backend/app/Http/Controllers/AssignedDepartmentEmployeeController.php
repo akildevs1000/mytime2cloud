@@ -7,6 +7,7 @@ use App\Http\Requests\AssignedDepartmentEmployee\UpdateRequest;
 use App\Models\AssignDepartment;
 use App\Models\AssignedDepartmentEmployee;
 use App\Models\AssignEmployee;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -34,7 +35,23 @@ class AssignedDepartmentEmployeeController extends Controller
 
         return $data->pluck('employees')->flatten()->map(fn ($e) => $e->only(['id', 'first_name', "user_id"]));
     }
+    public function employee_managers_list_all(Request $request)
+    {
 
+        $model = Employee::query();
+        $model->with([
+            "user" => function ($q) {
+                return $q->with("role");
+            },
+        ]);
+        $model->whereHas("user.role", function ($q) {
+            return $q->where('name', "ILIKE", "manager");
+        });
+        $model->where("company_id", $request->company_id);
+
+
+        return $model->select(['id', 'first_name', "user_id"])->get();
+    }
     public function show($id)
     {
         return (new AssignedDepartmentEmployee)->assginedDepartment($id)->get();

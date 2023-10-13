@@ -96,7 +96,7 @@ class AttendanceLog extends Model
             ->when($request->filled('dates') && count($request->dates) > 1, function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
                     $query->where('LogTime', '>=', $request->dates[0])
-                        ->where('LogTime', '<=', $request->dates[1]);
+                        ->where('LogTime', '<=',   date("Y-m-d", strtotime($request->dates[1] . " +1 day")));
                 });
             })
 
