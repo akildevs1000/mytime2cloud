@@ -729,12 +729,12 @@
                   Manage
                 </v-list-item-title>
               </v-list-item>
-              <!-- <v-list-item @click="deleteItem(item, 'edit')">
+              <v-list-item @click="deleteItem(item, 'edit')">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
                   Delete
                 </v-list-item-title>
-              </v-list-item> -->
+              </v-list-item>
             </v-list>
           </v-menu>
         </template>
@@ -1106,6 +1106,10 @@ export default {
     },
 
     update() {
+      if (this.schedules_temp_list.length == 0) {
+        alert("Atleast one Shift is required");
+        return false;
+      }
       this.schedules_temp_list.forEach((element) => {
         let shiftsSelected = this.shifts.filter(
           (e) => e.shift_id == element.shift_id
@@ -1119,7 +1123,10 @@ export default {
         employee_ids: [this.empId],
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company_id,
-        branch_id: this.schedules_temp_list[0].branch_id || 0,
+        branch_id:
+          (this.schedules_temp_list[0] &&
+            this.schedules_temp_list[0].branch_id) ||
+          0,
       };
 
       this.process(this.$axios.post(`schedule_employees`, payload));
@@ -1451,11 +1458,16 @@ export default {
     },
 
     deleteItem(item) {
+      let payload = {
+        company_id: this.$auth.user.company_id,
+        branch_id: item.branch_id,
+        employee_id: item.employee_id,
+      };
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
       ) &&
         this.$axios
-          .delete("schedule_employees/" + item.id)
+          .delete("schedule_employees/" + item.id, payload)
           .then(({ data }) => {
             const index = this.employees.indexOf(item);
             this.employees.splice(index, 1);

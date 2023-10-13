@@ -143,9 +143,14 @@ class ScheduleEmployeeController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
-        $record = ScheduleEmployee::where("employee_id", $id)->delete();
+        // $record = ScheduleEmployee::where("employee_id", $id)->delete();
+
+        $record = ScheduleEmployee::where("company_id", $request->company_id)
+            ->where("employee_id", $request->employee_id)
+            ->where("branch_id", $request->branch_id)
+            ->delete();
 
         try {
             if ($record) {
