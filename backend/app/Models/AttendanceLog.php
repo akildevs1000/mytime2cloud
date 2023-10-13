@@ -83,7 +83,7 @@ class AttendanceLog extends Model
                 $q->whereHas('employee', fn (Builder $query) => $query->where('department_id', $request->department_ids));
             })
 
-            ->with('device.branch', function ($q) use ($request) {
+            ->with('device', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
             // ->when($request->from_date, function ($query) use ($request) {

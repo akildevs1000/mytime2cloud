@@ -1106,6 +1106,15 @@ export default {
     },
 
     update() {
+      this.schedules_temp_list.forEach((element) => {
+        let shiftsSelected = this.shifts.filter(
+          (e) => e.shift_id == element.shift_id
+        );
+
+        if (shiftsSelected[0])
+          element.shift_type_id = shiftsSelected[0].shift_type_id;
+      });
+
       let payload = {
         employee_ids: [this.empId],
         schedules: this.schedules_temp_list,

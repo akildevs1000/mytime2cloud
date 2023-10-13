@@ -467,7 +467,7 @@ export default {
       this.getBranches();
       this.getScheduledEmployees();
       this.getDeviceList(options);
-    }, 5000);
+    }, 3000);
 
     let dt = new Date();
     let y = dt.getFullYear();
@@ -482,7 +482,7 @@ export default {
     setTimeout(() => {
       this.getDepartments(options);
       this.commonMethod();
-    }, 3000);
+    }, 1000);
   },
 
   methods: {
