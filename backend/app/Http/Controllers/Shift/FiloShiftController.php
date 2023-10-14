@@ -55,7 +55,7 @@ class FiloShiftController extends Controller
         $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
 
         $items = [];
-        $message = "";
+        $message = [];
         foreach ($logsEmployees as $key => $logs) {
 
             $logs = $logs->toArray() ?? [];
@@ -67,11 +67,11 @@ class FiloShiftController extends Controller
             $shift = $schedule["shift"] ?? false;
 
             if (!$schedule) {
-                $message .= '<br/> ' . $key . " : No schedule is mapped with user.";
+                $message[] = $key . " : No schedule is mapped with user.";
                 continue;
             }
             if (!$firstLog["schedule"]["shift_type_id"]) {
-                $message .= '<br/> ' . $key . " : No shift configured on  date:" . $params["date"];
+                $message[] = $key . " : No shift configured on  date:" . $params["date"];
                 continue;
             }
 
@@ -157,14 +157,14 @@ class FiloShiftController extends Controller
 
 
 
-            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . $message;
-            Logger::channel("render_manual_logs")->info($message);
+            $message[] = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
+            Logger::channel("render_manual_logs")->info(json_encode($message));
 
 
-            return $message;
+            return ($message);
         } catch (\Throwable $e) {
-            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
-            info($message);
+            $message[] = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
+            info(json_encode($message));
 
             return "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Server Error";
         }
