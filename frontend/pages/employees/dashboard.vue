@@ -36,5 +36,9 @@ export default {
       return DashboardComponent;
     },
   },
+
+  created() {
+    this.$router.push("/employees/profile");
+  },
 };
 </script>

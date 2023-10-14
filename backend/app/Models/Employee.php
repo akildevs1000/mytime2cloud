@@ -311,6 +311,10 @@ class Employee extends Model
                     $q->orWhere('system_user_id', 'ILIKE', "$request->employee_id%");
                 });
             })
+            ->when($request->filled('id'), function ($q) use ($request) {
+
+                $q->where('id',   $request->id);
+            })
             ->when($request->filled('phone_number'), function ($q) use ($request) {
 
                 $q->where('phone_number', 'ILIKE', "$request->phone_number%");

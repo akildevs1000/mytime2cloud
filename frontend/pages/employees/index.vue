@@ -1153,6 +1153,7 @@ export default {
   }),
 
   async created() {
+    console.log("user", this.$auth.user);
     this.loading = false;
     this.boilerplate = true;
 
@@ -1167,7 +1168,10 @@ export default {
     // this.getDepartments();
     //this.getShifts();
     //this.getTimezone();
-    this.getbranchesList();
+
+    setTimeout(() => {
+      this.getbranchesList();
+    }, 1000 * 5);
   },
   mounted() {
     //this.getDataFromApi();

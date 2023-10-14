@@ -22,6 +22,31 @@ export default ({ app }, inject) => {
 
       return `${year}-${month}-${day}`;
     },
+    format_month_name_year: (inputdate) => {
+      // Create a Date object with the date "2023-09-13"  Output: "23-09-13"
+      const date = new Date(inputdate);
+
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+
+      const currentDate = date;
+      const currentMonth = months[currentDate.getMonth()];
+      const currentYear = currentDate.getFullYear();
+
+      return `${currentMonth} ${currentYear}`;
+    },
 
     can(per, thisobj) {
       let u = thisobj.$auth.user;
