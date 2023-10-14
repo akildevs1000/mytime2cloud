@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Http\Controllers\Shift\SingleShiftController;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class SyncSingleShift extends Command
 {
@@ -32,6 +33,14 @@ class SyncSingleShift extends Command
         $date = $this->argument("date");
         $shift_type_id = 6;
 
-        echo (new SingleShiftController)->render($id, $date, $shift_type_id, [], false) . "\n";
+
+        try {
+            echo (new SingleShiftController)->render($id, $date, $shift_type_id, [], false) . "\n";
+        } catch (\Throwable $th) {
+            //throw $th;
+            $error_message = 'Cron: ' . env('APP_NAME') . ', Exception in task:sync_single_shift : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;
+            Log::channel("custom")->error($error_message);
+            echo $error_message;
+        }
     }
 }
