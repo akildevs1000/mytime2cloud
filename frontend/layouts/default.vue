@@ -1,6 +1,38 @@
 <template>
   <v-app>
-    <v-navigation-drawer
+    <!-- <v-navigation-drawer expand-on-hover rail>
+      <v-list>
+        <v-list-item
+          prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
+          title="Sandra Adams"
+          subtitle="sandra_a88@gmailcom"
+        ></v-list-item>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list density="compact" nav>
+        <v-list-item
+          prepend-icon="mdi-folder"
+          title="My Files"
+          value="myfiles"
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-account-multiple"
+          title="Shared with me"
+          value="shared"
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-star"
+          title="Starred"
+          value="starred"
+        ></v-list-item>
+      </v-list>
+    </v-navigation-drawer> 
+  
+  <v-navigation-drawer
+      expand-on-hover
+      rail
       v-model="drawer"
       dark
       :mini-variant="miniVariant"
@@ -11,6 +43,17 @@
       :style="miniVariant ? 'width: 60px' : ''"
       @transitionend="collapseSubItems"
       :class="!miniVariant ? 'leftMenuWidth' : ''"
+    >-->
+    <v-navigation-drawer
+      expand-on-hover
+      rail
+      v-model="drawer"
+      dark
+      :clipped="clipped"
+      fixed
+      app
+      :color="sideBarcolor"
+      :width="150"
     >
       <br />
       <v-list
@@ -98,20 +141,7 @@
               <v-list-item-title v-if="can(j.menu)" class="my-2">
                 {{ j.title }}
               </v-list-item-title>
-
-              <!-- <v-list-item-icon
-                :style="miniVariant ? 'margin-left: -54px;' : ''"
-              >
-                <v-icon
-                  :to="j.to"
-                  :style="miniVariant ? 'margin-left: 12px;' : ''"
-                >
-                  {{ j.icon }}
-                </v-icon>
-              </v-list-item-icon> -->
             </v-list-item>
-
-            <!-- v-show="!miniVariant" -->
           </div>
         </div>
       </v-list>
@@ -130,9 +160,9 @@
       :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''"
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
+      <!-- <v-btn icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
-      </v-btn>
+      </v-btn> -->
       <!-- <v-btn icon @click.stop="clipped = !clipped">
         <v-icon>mdi-application</v-icon>
       </v-btn> -->
@@ -228,83 +258,6 @@
             </v-col>
           </v-row>
         </template>
-        <!-- <v-bottom-navigation
-          :elevation="0"
-          plain
-          dense
-          :value="0"
-          :background-color="changeColor"
-        >
-          <v-btn
-            text
-            class="btn-text-size"
-            :elevation="0"
-            :color="menuProperties['dashboard'].selected"
-            @click="setTopMenuItems('dashboard', '/dashboard2')"
-          >
-            <span>Dashboard</span>
-
-            
-          </v-btn>
-           
-
-          <v-btn
-            text
-            class="btn-text-size"
-            :elevation="0"
-            :color="menuProperties['employees'].selected"
-            @click="setTopMenuItems('employees', '/employees')"
-          >
-            <span>Employees</span>
-
-            
-          </v-btn>
-
-          <v-btn
-            text
-            class="btn-text-size"
-            :elevation="menuProperties['attendance'].elevation"
-            :color="menuProperties['attendance'].selected"
-            @click="setTopMenuItems('attendance', '/dashboard/1')"
-          >
-            <span>Attendance</span>
-
-             
-          </v-btn>
-          <v-btn
-            text
-            class="btn-text-size"
-            :elevation="menuProperties['payroll'].elevation"
-            :color="menuProperties['payroll'].selected"
-            @click="setTopMenuItems('payroll', '/payroll/salary')"
-          >
-            <span>Payroll</span>
-
-             
-          </v-btn>
-          <v-btn
-            text
-            class="btn-text-size"
-            :elevation="menuProperties['access_control'].elevation"
-            :color="menuProperties['access_control'].selected"
-            @click="setTopMenuItems('access_control', '/timezone')"
-          >
-            <span>Access Control </span>
-
-             
-          </v-btn>
-          <v-btn
-            text
-            class="btn-text-size"
-            :elevation="menuProperties['visitors'].elevation"
-            :color="menuProperties['visitors'].selected"
-            @click="setTopMenuItems('visitors', '/visitor-dashboard')"
-          >
-            <span>Visitor App</span>
-
-            
-          </v-btn>
-        </v-bottom-navigation> -->
       </span>
       <v-spacer></v-spacer>
       Hi
@@ -426,7 +379,7 @@
         </template>
       </v-snackbar>
     </v-app-bar>
-
+    {{ miniVariant }}
     <v-main
       class="main_bg"
       :style="miniVariant ? 'padding-left: 60px;' : 'padding-left: 140px;'"
@@ -627,7 +580,7 @@ export default {
       snackNotification: false,
       snackNotificationColor: "black",
       socketConnectionStatus: 0,
-      miniVariant: false,
+
       right: true,
       rightDrawer: false,
       color: "",
@@ -649,8 +602,8 @@ export default {
       },
       clipped: true,
 
-      miniVariant: false,
-      title: "EZTIME",
+      miniVariant: true,
+      title: "MyTime2Cloud",
       socket: null,
       logout_btn: {
         icon: "mdi-logout",
