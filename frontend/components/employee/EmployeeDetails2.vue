@@ -918,6 +918,7 @@
                       <v-row>
                         <v-col md="6" style="border-right: 1px solid #ddd">
                           <table
+                            v-if="employeeObject.payroll"
                             class="employee-table view-profile-table-lineheight"
                             style="width: 100%"
                           >
