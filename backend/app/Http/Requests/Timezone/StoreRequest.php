@@ -36,9 +36,9 @@ class StoreRequest extends FormRequest
             // 'timezone_id' => ['required', $contoller->uniqueRecord("timezones", ["timezone_id" => $this->timezone_id] + $companrArr)],
             'interval' => ['required', 'array'],
             'scheduled_days' => 'nullable',
+            'branch_id' => 'required',
             'company_id' => 'required',
             "intervals_raw_data" => 'nullable',
-
             "description" => 'nullable'
         ];
     }
