@@ -938,6 +938,7 @@
                             </tr>
                             <tr style="border: 0px solid #ddd">
                               <th>Basic Salary</th>
+
                               <td class="text-left">
                                 :
                                 {{
