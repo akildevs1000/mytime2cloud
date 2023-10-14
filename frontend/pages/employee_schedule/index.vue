@@ -1361,7 +1361,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          department_ids: this.$auth.user.assignedDepartments,
+          //department_ids: this.$auth.user.assignedDepartments,
           company_id: this.$auth.user.company_id,
           ...this.filters,
         },

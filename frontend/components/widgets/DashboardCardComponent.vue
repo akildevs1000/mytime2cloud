@@ -42,7 +42,7 @@ export default {
       let payload = {
         page: this.page,
         type: "card",
-        department_ids: this.$auth.user.assignedDepartments,
+        //department_ids: this.$auth.user.assignedDepartments,
         company_id: this.$auth.user.company_id,
       };
 

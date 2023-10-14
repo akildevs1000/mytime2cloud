@@ -538,7 +538,7 @@ export default {
         params: {
           per_page: 10,
           company_id: this.$auth.user.company_id,
-          department_ids: this.$auth.user.assignedDepartments,
+          //department_ids: this.$auth.user.assignedDepartments,
         },
       };
       this.$axios.get(`departments`, options).then(({ data }) => {
@@ -646,7 +646,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
-          //department_ids: this.$auth.user.assignedDepartments,
+          ////department_ids: this.$auth.user.assignedDepartments,
           ...this.payload,
           ...this.filters,
         },

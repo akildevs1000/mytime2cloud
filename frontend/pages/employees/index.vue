@@ -1496,7 +1496,7 @@ export default {
           per_page: itemsPerPage, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
           department_id: this.department_filter_id,
-          // department_ids: this.$auth.user.assignedDepartments,
+          // //department_ids: this.$auth.user.assignedDepartments,
           ...this.filters,
         },
       };
@@ -1522,7 +1522,7 @@ export default {
         params: {
           per_page: 1000,
           company_id: this.$auth.user.company_id,
-          department_ids: this.$auth.user.assignedDepartments,
+          //department_ids: this.$auth.user.assignedDepartments,
           filter_branch_id: filterBranchId,
         },
       };

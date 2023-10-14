@@ -1032,7 +1032,7 @@ export default {
     //   params: {
     //     per_page: 1000,
     //     company_id: this.$auth.user.company_id,
-    //     department_ids: this.$auth.user.assignedDepartments,
+    //     //department_ids: this.$auth.user.assignedDepartments,
     //   },
     // };
     // this.getDepartments(options);

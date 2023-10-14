@@ -458,7 +458,7 @@
                         outlined
                         dense
                         small
-                        v-model="branch_id"
+                        v-model="filters[header.key]"
                         item-text="branch_name"
                         item-value="id"
                         :items="[
@@ -468,6 +468,7 @@
                         placeholder="Branch"
                         solo
                         flat
+                        @change="applyFilters(header.key, id)"
                       ></v-select>
                       <v-select
                         :id="header.key"
@@ -1039,7 +1040,7 @@ export default {
       let options = {
         params: {
           per_page: 100,
-          department_ids: this.$auth.user.assignedDepartments,
+          //department_ids: this.$auth.user.assignedDepartments,
           company_id: this.$auth.user.company_id,
         },
       };
@@ -1131,7 +1132,7 @@ export default {
           department_id: department_id,
           year: this.payslip_year,
           month: this.payslip_month,
-          department_ids: this.$auth.user.assignedDepartments,
+          ////department_ids: this.$auth.user.assignedDepartments,
           ...this.filters,
         },
       };
