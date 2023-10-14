@@ -38,7 +38,7 @@
                 dense
                 v-model="item.shift_id"
                 x-small
-                :items="shifts"
+                :items="shifts_branch_wise"
                 item-value="shift_id"
                 item-text="name"
               ></v-autocomplete>
@@ -747,6 +747,7 @@
 <script>
 export default {
   data: () => ({
+    shifts_branch_wise: [],
     cumulativeIndex: 1,
     perPage: 10,
     currentPage: 1,
@@ -1069,6 +1070,10 @@ export default {
         company_id: this.$auth.user.company_id,
       };
 
+      this.shifts_branch_wise = this.shifts.filter(
+        (e) => e.branch_id == item.branch_id
+      );
+
       this.empId = item.system_user_id;
 
       this.$axios
@@ -1177,6 +1182,7 @@ export default {
           shift_type_id: e.shift_type_id,
           from_date: e.from_date,
           to_date: e.to_date,
+          branch_id: e.branch_id,
         }));
       });
       // if (this.shift_type_id == 3) {
