@@ -17,10 +17,7 @@ class EmployeeTimezoneMappingController extends Controller
 {
     public function index(EmployeeTimezoneMapping $model, Request $request)
     {
-
-        return $model::with(["timezone"])->where('company_id', $request->company_id)
-
-
+        return $model::with(["timezone", "branch"])->where('company_id', $request->company_id)
             ->when($request->filled('branch_id'), function ($q) use ($request) {
                 $q->where('branch_id', $request->branch_id);
             })
@@ -226,9 +223,8 @@ class EmployeeTimezoneMappingController extends Controller
         return $employees;
     }
     public function gettimezonesinfo(EmployeeTimezoneMapping $model, Request $request)
-    {
-
-        return $model->with(["timezone"])
+    {   
+        return $model->with(["timezone","branch"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('timezoneName'), function ($q) use ($request) {
                 $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezoneName%"));

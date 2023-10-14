@@ -28,9 +28,11 @@
           <template v-slot:item.sno="{ item, index }">
             <b>{{ ++index }}</b>
           </template>
+         
           <template v-slot:item.name="{ item }">
             {{ item.name }}
           </template>
+
           <template v-slot:item.device_id="{ item }">
             {{ item.device_id }}
           </template>
@@ -156,6 +158,34 @@ export default {
 
   created() {
     //this.getData();
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+
+      let company_branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          value: "company_branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.devices_headers.splice(1, 0, ...company_branch_header);
+      this.employee_headers.splice(1, 0, ...branch_header);
+    }
   },
   mounted: function () {
     this.Timezone = this.$route.params.id;

@@ -186,12 +186,12 @@
                     </v-list-item-title>
                   </v-list-item>
 
-                  <v-list-item @click="displayEdit(item.id)">
+                  <!-- <v-list-item @click="displayEdit(item.id)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="secondary" small> mdi-pencil </v-icon>
                       Edit
                     </v-list-item-title>
-                  </v-list-item>
+                  </v-list-item> -->
                   <v-list-item @click="deleteItem(item.id, item.timezone_id)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="error" small> mdi-delete </v-icon>
@@ -313,6 +313,22 @@ export default {
   created() {
     //this.getData();
     this.loading = true;
+
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(1, 0, ...branch_header);
+    }
   },
   mounted: function () {
     this.getDataFromApi();
