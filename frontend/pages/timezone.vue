@@ -58,6 +58,33 @@
           <v-row>
             <v-col>
               <div v-if="viewmode">
+                <strong class="">Branch</strong>:
+                {{ editedItem && editedItem.branch && editedItem.branch.branch_name }}
+              </div>
+              <v-select
+                v-else
+                class="pt-2"
+                v-model="editedItem.branch_id"
+                :items="branchesList"
+                dense
+                placeholder="Select Branch"
+                outlined
+                item-value="id"
+                item-text="branch_name"
+              >
+              </v-select>
+              <span
+                class="error--text"
+                v-if="
+                  !viewmode && errors && errors.branch_id && errors.branch_id[0]
+                "
+              >
+                {{ errors.branch_id[0] }}
+              </span>
+            </v-col>
+
+            <v-col>
+              <div v-if="viewmode">
                 <strong class="">Zone</strong>:
                 {{ editedItem && editedItem.timezone_name }}
               </div>
@@ -83,30 +110,6 @@
                 {{ errors.timezone_name[0] }}
               </span>
             </v-col>
-            <!-- <v-col>
-              <select
-                width="100px"
-                @change="setDefault(editedItem.timezone_id)"
-                class="form-select"
-                v-model="editedItem.timezone_id"
-                :error-messages="
-                  errors && errors.timezone_id && errors.timezone_id[0]
-                "
-              >
-                <option disabled selected>Timezone Id</option>
-                <option v-for="n in 64" :key="n" :value="n">
-                  Tz{{ n }}
-                  <span v-if="n == 1">(24 Hrs)</span>
-                  <span v-if="n == 64">Lock Timezone</span>
-                </option>
-              </select>
-              <span
-                class="error--text"
-                v-if="errors && errors.timezone_id && errors.timezone_id[0]"
-              >
-                {{ errors.timezone_id[0] }}
-              </span>
-            </v-col> -->
             <v-col>
               <div v-if="viewmode">
                 <strong class="">Description</strong>:{{
@@ -200,105 +203,6 @@
             </tbody>
           </table>
         </v-card-text>
-        <!-- <v-card-text>
-          <table style="width: 100%">
-            <thead>
-              <tr class="popup_background popup_title" dark>
-                <th
-                  class="text-center popup_title"
-                  style="font-size: 17px !important"
-                >
-                  Time
-                </th>
-                <th
-                  class="text-center popup_title"
-                  colspan="2"
-                  v-for="n in 4"
-                  :key="n"
-                  :value="n"
-                  style="font-size: 17px !important"
-                >
-                  Interval {{ n }}
-                </th>
-              </tr>
-              <tr>
-                <th class="text-center">Weekday</th>
-                <th class="text-center">begin Time</th>
-                <th class="text-center">End Time</th>
-                <th class="text-center">begin Time</th>
-                <th class="text-center">End Time</th>
-                <th class="text-center">begin Time</th>
-                <th class="text-center">End Time</th>
-                <th class="text-center">begin Time</th>
-                <th class="text-center">End Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(d, index) in days" :key="index">
-                <td>{{ d.name }}</td>
-                <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval1']['begin']"
-                    type="time"
-                  />
-                </td>
-                <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval1']['end']"
-                    type="time"
-                  />
-                </td>
-                <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval2']['begin']"
-                    type="time"
-                  />
-                </td>
-                <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval2']['end']"
-                    type="time"
-                  />
-                </td>
-                <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval3']['begin']"
-                    type="time"
-                  />
-                </td>
-                <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval3']['end']"
-                    type="time"
-                  />
-                </td>
-                <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval4']['begin']"
-                    type="time"
-                  />
-                </td>
-                <td>
-                  <input
-                    v-model="editedItem.interval[d.index]['interval4']['end']"
-                    type="time"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </v-card-text> -->
-
-        <v-card-actions v-if="!readOnly">
-          <!-- <v-btn small color="background white--text" @click="reset"
-            >Reset</v-btn
-          > 
-          <v-spacer></v-spacer>
-          <v-btn dense dark color="violet" fill @click="clearSelection()">
-            Cancel
-          </v-btn>
-          <v-btn small color="violet" @click="submit">Submit</v-btn>-->
-        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -350,23 +254,6 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <!-- <v-row class="mt-5 mb-5">
-      <v-col cols="6">
-        <h3>{{ Module }}</h3>
-        <div>Dashboard / {{ Module }}</div>
-      </v-col>
-      <v-col cols="6">
-        <div class="text-right">
-          <v-btn @click="openDeviceDialog" small color="primary" class="mb-2">
-            Sync Device <v-icon class="mx-1">mdi-laptop</v-icon>
-          </v-btn>
-          <v-btn @click="dialog = true" small color="primary" class="mb-2">
-            {{ Module }} <v-icon class="mx-1">mdi-plus</v-icon></v-btn>
-        </div>
-      </v-col>
-    </v-row> -->
-    <!-- <Back class="primary white--text" /> -->
-
     <v-card class="mt-2">
       <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title><span> Timezones List</span></v-toolbar-title>
@@ -401,11 +288,6 @@
         >
           <v-icon dark fill color="violet"> mdi-sync-circle</v-icon>
         </v-btn>
-        <!-- </template>
-          <span>Sync To Devices</span>
-        </v-tooltip> -->
-        <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
         <v-btn
           x-small
           :ripple="false"
@@ -415,9 +297,6 @@
         >
           <v-icon dark white>mdi-plus-circle</v-icon>
         </v-btn>
-        <!-- </template>
-          <span>Add New Timezone</span>
-        </v-tooltip> -->
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -428,7 +307,7 @@
       </v-snackbar>
       <v-data-table
         dense
-        :headers="headers_table"
+        :headers="headers"
         :items="data"
         model-value="data.id"
         :loading="loading"
@@ -446,34 +325,11 @@
               : ""
           }}
         </template>
-        <template v-slot:item.timezone_id="{ item }">
-          {{ item.timezone_id }}
-        </template>
-        <template v-slot:item.timezone_name="{ item }">
-          {{ item && item.timezone_name }}
-        </template>
+
         <template v-slot:item.member="{ item }">
           {{ item.employee_device && item.employee_device.employee_ids.length }}
         </template>
 
-        <template v-slot:item.description="{ item }">
-          {{ item && item.description }}
-        </template>
-        <!-- <template v-slot:item.days="{ item }">
-          <v-btn
-            style="cursor: text"
-            v-for="({ day, isScheduled }, idx) in item.scheduled_days"
-            :key="idx"
-            :class="isScheduled ? `circle-btn-green` : `circle-btn-grey`"
-            class="mx-1"
-            fab
-            small
-          >
-            <span :class="isScheduled ? `primary--text` : `grey--text`">{{
-              day
-            }}</span>
-          </v-btn>
-        </template> -->
         <template v-slot:item.menu="{ item }">
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
@@ -600,7 +456,7 @@ export default {
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
       ],
     },
-    headers_table: [
+    headers: [
       {
         text: "#",
         align: "left",
@@ -649,6 +505,8 @@ export default {
     deviceResults: [],
     readOnly: false,
     editedIndex: -1,
+
+    branchesList: [],
   }),
 
   computed: {},
@@ -687,9 +545,48 @@ export default {
         company_id: this.$auth.user.company_id,
       },
     };
+
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(1, 0, ...branch_header);
+    }
+
+    this.getbranchesList();
   },
 
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+        if (this.$auth.user.branch_id) {
+          this.branch_id = this.$auth.user.branch_id;
+        } else {
+          // this.branchesList = [
+          //   { branch_name: `All Branches`, id: `` },
+          //   ,
+          //   ...this.branchesList,
+          // ];
+          this.branch_id = "";
+        }
+      });
+    },
     getSlotTitle(slot, slot2) {
       slot2 = slot2 != undefined ? slot2 : "24:00";
       return slot + " to " + slot2;
@@ -834,24 +731,13 @@ export default {
 
       let intervals_raw_data = JSON.parse(item.intervals_raw_data);
 
+      if (!intervals_raw_data) return;
+
       intervals_raw_data.forEach((element) => {
         console.log(element);
         const myArray = element.split("-");
         this.toggleCellBackground(myArray[0], myArray[1]);
       });
-      // let json = item.interval;
-      // for (let day in json) {
-      //   for (let interval in json[day]) {
-      //     if (
-      //       json[day][interval].hasOwnProperty("begin") &&
-      //       json[day][interval].hasOwnProperty("end")
-      //     ) {
-      //       this.editedItem.interval[day] = json[day];
-      //     } else {
-      //       this.editedItem.interval[day] = json[day];
-      //     }
-      //   }
-      // }
     },
     clearSelection() {
       const elementsArray = document.getElementsByClassName("tdcell");

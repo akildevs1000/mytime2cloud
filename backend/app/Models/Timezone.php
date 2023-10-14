@@ -19,6 +19,11 @@ class Timezone extends Model
     {
         return $this->belongsTo(EmployeeTimezoneMapping::class, 'timezone_id', 'timezone_id');
     }
+
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
     protected $casts = [
         "interval" => "array",
         "scheduled_days" => "array",

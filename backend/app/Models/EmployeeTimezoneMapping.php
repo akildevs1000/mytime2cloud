@@ -24,6 +24,11 @@ class EmployeeTimezoneMapping extends Model
         return $this->belongsTo(Company::class);
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
+
     public function timezone()
     {
         return $this->belongsTo(Timezone::class, 'timezone_id', 'timezone_id');

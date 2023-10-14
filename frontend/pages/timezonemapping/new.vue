@@ -27,7 +27,20 @@
         </div>
       </v-row>
       <v-row>
-        <v-col cols="4">
+        <v-col cols="3">
+          <v-select
+            @change="filterDepartmentsByBranch($event)"
+            v-model="branch_id"
+            :items="branchesList"
+            dense
+            placeholder="All Branches"
+            outlined
+            item-value="id"
+            item-text="branch_name"
+          >
+          </v-select>
+        </v-col>
+        <v-col cols="3">
           <v-select
             @change="loadDepartmentemployees"
             v-model="departmentselected"
@@ -41,7 +54,7 @@
             :search-input.sync="searchInput"
           ></v-select>
         </v-col>
-        <v-col cols="4">
+        <v-col cols="3">
           <v-select
             v-model="timezonesselected"
             :items="timezones"
@@ -63,7 +76,7 @@
           </v-btn>
         </v-col> -->
 
-        <v-col cols="4">
+        <v-col cols="3">
           <div class="text-right">
             <v-btn
               small
@@ -700,6 +713,8 @@
 export default {
   data() {
     return {
+      branch_id: null,
+      branchesList: [],
       displaybutton: false,
       progressloading: false,
       searchInput: "",
@@ -755,51 +770,43 @@ export default {
     }, 2000);
   },
   created() {
-    this.getDepartmentsApi(this.options);
-    this.getDevisesDataFromApi();
-    this.getEmployeesDataFromApi();
-    this.getTimezonesFromApi();
+    this.getbranchesList();
+    this.branch_id = this.$auth.user.branch_id;
+    // }
   },
   methods: {
-    verifySubmitButton() {
-      if (this.rightEmployees.length > 0 && this.rightDevices.length > 0) {
-        this.displaybutton = true;
-      } else {
-        this.displaybutton = false;
-      }
+    filterDepartmentsByBranch(branch_id) {
+      this.getDepartmentsApi(this.options, branch_id);
+      this.getDevisesDataFromApi(branch_id);
+      this.getEmployeesDataFromApi(branch_id);
+      this.getTimezonesFromApi(branch_id);
     },
-    fetch_logs() {},
-    loadDepartmentemployees() {
-      //this.loading = true;
-      // let page = this.pagination.current;
-      let url = this.endpointEmployee;
-
-      let options = {
+    getbranchesList() {
+      this.payloadOptions = {
         params: {
-          per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
-          department_id: this.departmentselected,
-          cols: [
-            "id",
-            "employee_id",
-            "display_name",
-            "first_name",
-            "last_name",
-          ],
         },
       };
-      let page = 1;
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        this.leftEmployees = [];
-        this.leftEmployees = data.data;
-        this.leftSelectedEmp = [];
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
 
-        this.rightEmployees = [];
-        this.rightSelectedEmp = [];
+        if (!this.$auth.user.branch_id) {
+          // this.branchesList = [
+          //   { branch_name: `All Branches`, id: `` },
+          //   ,
+          //   ...this.branchesList,
+          // ];
+
+          if (this.$auth.user.branch_id)
+            this.branch_id = this.$auth.user.branch_id;
+          else this.branch_id = "";
+        }
       });
     },
-    getDepartmentsApi(options) {
+    getDepartmentsApi(options, branch_id) {
+      options.params.branch_id = branch_id;
+      console.log(options);
       this.$axios
         .get("departments", options)
         .then(({ data }) => {
@@ -808,11 +815,51 @@ export default {
         })
         .catch((err) => console.log(err));
     },
-    getTimezonesFromApi() {
+    getDevisesDataFromApi(branch_id, url = this.endpointDevise) {
+      //this.loading = true;
+      // let page = this.pagination.current;
       let options = {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
+          sortBy: "status_id",
+          branch_id: branch_id,
+          //cols: ["id", "location", "name", "device_id", "status:id"],
+        },
+      };
+      let page = 1;
+      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+        this.leftDevices = data.data;
+      });
+    },
+    getEmployeesDataFromApi(branch_id, url = this.endpointEmployee) {
+      //this.loading = true;
+      // let page = this.pagination.current;
+      let options = {
+        params: {
+          per_page: 1000, //this.pagination.per_page,
+          company_id: this.$auth.user.company_id,
+          cols: [
+            "id",
+            "employee_id",
+            "display_name",
+            "first_name",
+            "last_name",
+          ],
+          branch_id: branch_id,
+        },
+      };
+      let page = 1;
+      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+        this.leftEmployees = data.data;
+      }, 1000);
+    },
+    getTimezonesFromApi(branch_id) {
+      let options = {
+        params: {
+          per_page: 1000, //this.pagination.per_page,
+          company_id: this.$auth.user.company_id,
+          branch_id: branch_id,
         },
       };
       this.$axios
@@ -833,6 +880,46 @@ export default {
             });
         })
         .catch((err) => console.log(err));
+    },
+
+    verifySubmitButton() {
+      if (this.rightEmployees.length > 0 && this.rightDevices.length > 0) {
+        this.displaybutton = true;
+      } else {
+        this.displaybutton = false;
+      }
+    },
+    fetch_logs() {},
+    loadDepartmentemployees() {
+      //this.loading = true;
+      // let page = this.pagination.current;
+      let url = this.endpointEmployee;
+
+      let options = {
+        params: {
+          per_page: 1000, //this.pagination.per_page,
+          company_id: this.$auth.user.company_id,
+          department_id: this.departmentselected,
+          branch_id: this.branch_id,
+          cols: [
+            "id",
+            "employee_id",
+            "display_name",
+            "first_name",
+            "last_name",
+          ],
+        },
+      };
+      let page = 1;
+
+      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+        this.leftEmployees = [];
+        this.leftEmployees = data.data;
+        this.leftSelectedEmp = [];
+
+        this.rightEmployees = [];
+        this.rightSelectedEmp = [];
+      });
     },
     resetErrorMessages() {
       this.errors = [];
@@ -910,6 +997,7 @@ export default {
         company_id: this.$auth.user.company_id,
         employee_ids: filteredDataEmp,
         device_ids: filteredDataDevices,
+        branch_id: this.branch_id,
       };
 
       this.progressloading = true;
@@ -919,6 +1007,11 @@ export default {
       this.$axios
         .post(`${this.endpointUpdatetimezoneStore}`, options)
         .then(({ data }) => {
+          if (data.status) {
+            // this.snackbar.show = true;
+            // this.snackbar.message = "Employee(s) has been mapped";
+            this.$router.push("/timezonemapping/list");
+          }
           if (data.record.SDKResponse) {
             this.loading = false;
 
@@ -1007,42 +1100,6 @@ export default {
     },
     goback() {
       this.$router.push("/timezonemapping/list");
-    },
-    getDevisesDataFromApi(url = this.endpointDevise) {
-      //this.loading = true;
-      // let page = this.pagination.current;
-      let options = {
-        params: {
-          per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company_id,
-          //cols: ["id", "location", "name", "device_id"],
-        },
-      };
-      let page = 1;
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        this.leftDevices = data.data;
-      });
-    },
-    getEmployeesDataFromApi(url = this.endpointEmployee) {
-      //this.loading = true;
-      // let page = this.pagination.current;
-      let options = {
-        params: {
-          per_page: 1000, //this.pagination.per_page,
-          company_id: this.$auth.user.company_id,
-          cols: [
-            "id",
-            "employee_id",
-            "display_name",
-            "first_name",
-            "last_name",
-          ],
-        },
-      };
-      let page = 1;
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        this.leftEmployees = data.data;
-      }, 1000);
     },
     sortObject: (o) =>
       o.sort(function compareByName(a, b) {
