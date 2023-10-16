@@ -23,6 +23,12 @@ class PayrollSetting extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);

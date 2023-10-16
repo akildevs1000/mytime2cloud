@@ -30,6 +30,7 @@ class StoreRequest extends FormRequest
             'ot_value' => 'required|numeric',
             'deduction_value' => 'required|numeric',
             'company_id' => 'required|numeric',
+            'branch_id' => 'required|numeric',
         ];
     }
 }

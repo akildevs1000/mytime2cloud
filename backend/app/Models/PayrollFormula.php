@@ -15,6 +15,11 @@ class PayrollFormula extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);
