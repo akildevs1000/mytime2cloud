@@ -20,7 +20,19 @@
         </v-card-title>
         <v-container>
           <v-row>
-            <v-col cols="3">
+            <v-col cols="6">
+              <v-select
+                v-model="payload.branch_id"
+                :items="branchesList"
+                dense
+                placeholder="Select Branch"
+                outlined
+                item-value="id"
+                item-text="branch_name"
+              >
+              </v-select>
+            </v-col>
+            <v-col cols="6">
               <v-text-field
                 :hide-details="!payload.subject"
                 v-model="payload.subject"
@@ -37,7 +49,7 @@
                 errors.subject[0]
               }}</span>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <v-autocomplete
                 @change="setDay"
                 :hide-details="!payload.frequency"
@@ -52,7 +64,7 @@
                 errors.frequency[0]
               }}</span>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <v-autocomplete
                 v-if="
                   payload.frequency == 'Daily' || payload.frequency == 'Weekly'
@@ -111,7 +123,7 @@
               }}</span>
             </v-col>
 
-            <v-col cols="3">
+            <v-col cols="4">
               <v-menu
                 ref="menu"
                 v-model="menu2"
@@ -497,10 +509,23 @@ export default {
     },
 
     errors: [],
+    branchesList: [],
+    branch_id: "",
   }),
 
   created() {
     this.preloader = false;
+    this.$axios
+      .get(`branches_list`, {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.branchesList = data;
+        this.branch_id = this.$auth.user.branch_id || "";
+      });
     this.payload.company_id = this.$auth?.user?.company?.id;
   },
   methods: {

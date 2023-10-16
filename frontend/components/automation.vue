@@ -1,26 +1,30 @@
 <template>
-  <div v-if="can('setting_company_access')">
-    <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
-        {{ response }}
-      </v-snackbar>
-    </div>
-    <div v-if="!preloader">
-      <!-- <v-row class="mt-5 mb-5">
-          <v-col cols="10">
-            <h3>Report Notification</h3>
-            <div>Dashboard / Report Notification</div>
-          </v-col>
-        </v-row> -->
-      <!-- <Back class="primary white--text" /> -->
-
-      <v-card elevation="0" class="mt-2 pa-3">
-        <v-card-title style="border-bottom: 1px solid #ddd">
-          <span class="popup_title"> Create Report Notification </span>
-        </v-card-title>
+  <v-dialog v-model="dialogNew" width="800">
+    <v-card>
+      <v-card-title dense class="popup_background">
+        <h5>Create Report Notification</h5>
+        <v-spacer></v-spacer>
+        <v-icon @click="close" outlined dark> mdi mdi-close-circle </v-icon>
+      </v-card-title>
+      <v-card-text>
         <v-container>
           <v-row>
-            <v-col cols="3">
+            <v-col cols="6">
+              <v-select
+                v-model="payload.branch_id"
+                :items="[
+                  { id: ``, branch_name: `Select All` },
+                  ...branchesList,
+                ]"
+                dense
+                placeholder="Select Branch"
+                outlined
+                item-value="id"
+                item-text="branch_name"
+              >
+              </v-select>
+            </v-col>
+            <v-col cols="6">
               <v-text-field
                 :hide-details="!payload.subject"
                 v-model="payload.subject"
@@ -37,7 +41,7 @@
                 errors.subject[0]
               }}</span>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <v-autocomplete
                 @change="setDay"
                 :hide-details="!payload.frequency"
@@ -52,7 +56,7 @@
                 errors.frequency[0]
               }}</span>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <v-autocomplete
                 v-if="
                   payload.frequency == 'Daily' || payload.frequency == 'Weekly'
@@ -111,7 +115,7 @@
               }}</span>
             </v-col>
 
-            <v-col cols="3">
+            <v-col cols="4">
               <v-menu
                 ref="menu"
                 v-model="menu2"
@@ -150,7 +154,7 @@
           <v-divider></v-divider>
           <v-row dense>
             <label class="col-form-label pt-5"><b>Reports</b></label>
-            <v-col cols="2" class="pa-0 ma-0">
+            <v-col cols="4" class="pa-0 ma-0">
               <v-checkbox
                 dense
                 v-model="payload.reports"
@@ -185,7 +189,7 @@
                 errors.reports[0]
               }}</span>
             </v-col>
-            <v-col cols="2" class="pa-0 ma-0">
+            <v-col cols="4" class="pa-0 ma-0">
               <v-checkbox
                 dense
                 v-model="payload.reports"
@@ -218,7 +222,7 @@
                 value="weekly_manual.pdf"
               ></v-checkbox>
             </v-col>
-            <v-col cols="2" class="pa-0 ma-0">
+            <v-col cols="4" class="pa-0 ma-0">
               <v-checkbox
                 dense
                 v-model="payload.reports"
@@ -255,7 +259,7 @@
           <v-row dense>
             <label class="col-form-label pt-5"><b>Medium </b></label>
 
-            <v-col cols="1" class="pa-0 ma-0">
+            <v-col cols="3" class="pa-0 ma-0">
               <v-checkbox
                 dense
                 v-model="payload.mediums"
@@ -263,7 +267,7 @@
                 value="Email"
               ></v-checkbox>
             </v-col>
-            <v-col cols="2" class="pa-0 mr-7">
+            <v-col cols="3" class="pa-0 mr-7">
               <v-checkbox
                 dense
                 v-model="payload.mediums"
@@ -285,7 +289,7 @@
             </v-col>
           </v-row>
           <v-row style="margin-top: -30px">
-            <v-col cols="3">
+            <v-col cols="6">
               <label class="col-form-label"><b>Subject </b></label>
 
               <v-text-field
@@ -306,7 +310,7 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="3">
+            <v-col cols="4">
               <label class="col-form-label pt-5"
                 ><b>To </b>(Press enter to add email address/es)</label
               >
@@ -335,7 +339,7 @@
                 errors.tos[0]
               }}</span>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <label class="col-form-label pt-5"
                 ><b>Cc </b>(Press enter to add email address/es)</label
               >
@@ -359,7 +363,7 @@
                 >
               </v-chip>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <label class="col-form-label pt-5"
                 ><b>Bcc </b>(Press enter to add email address/es)</label
               >
@@ -392,7 +396,7 @@
                   v-model="payload.body"
                   :extensions="extensions"
                   v-scroll.self="onScroll"
-                  max-height="400"
+                  max-height="300"
                   :toolbar-attributes="{
                     color: 'background red--text',
                   }"
@@ -406,11 +410,9 @@
             </v-col>
           </v-row>
         </v-container>
-      </v-card>
-    </div>
-    <Preloader v-else />
-  </div>
-  <NoAccess v-else />
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -430,6 +432,7 @@ import {
 } from "tiptap-vuetify";
 
 export default {
+  props: ["dialogNew"],
   components: { TiptapVuetify },
 
   data: () => ({
@@ -497,13 +500,30 @@ export default {
     },
 
     errors: [],
+    branchesList: [],
+    branch_id: "",
   }),
 
   created() {
     this.preloader = false;
+
+    this.$axios
+      .get(`branches_list`, {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.branchesList = data;
+        this.branch_id = this.$auth.user.branch_id || "";
+      });
     this.payload.company_id = this.$auth?.user?.company?.id;
   },
   methods: {
+    close() {
+      this.$emit("close-dialog");
+    },
     setDay() {
       let { frequency, day, date } = this.payload;
 
@@ -576,7 +596,7 @@ export default {
           this.response = data.message;
 
           setTimeout(() => {
-            this.$router.push("/report_notifications");
+            this.$router.push("/automation");
           }, 1000);
         })
         .catch((e) => console.log(e));

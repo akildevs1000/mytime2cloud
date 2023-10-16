@@ -68,7 +68,7 @@
   {
     "icon": "mdi-email",
     "title": "Automation",
-    "to": "/automation",
+    "to": "/report_notifications",
     "menu": "notifications_access",
     "module": "settings"
   },

@@ -19,4 +19,14 @@ class ReportNotification extends Model
         'ccs' => 'array',
         'bccs' => 'array',
     ];
+
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

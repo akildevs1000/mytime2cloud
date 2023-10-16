@@ -17,6 +17,9 @@ class ReportNotificationController extends Controller
             ->when($request->filled('subject'), function ($q) use ($request) {
                 $q->where('subject', 'ILIKE', "$request->subject%");
             })
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+                $q->where('branch_id', $request->branch_id);
+            })
             ->when($request->filled('frequency'), function ($q) use ($request) {
                 $q->where('frequency', 'ILIKE', "$request->frequency%");
             })
@@ -48,7 +51,7 @@ class ReportNotificationController extends Controller
                 }
 
             })
-
+            ->with("branch")
             ->paginate($request->per_page);
     }
 
@@ -69,7 +72,7 @@ class ReportNotificationController extends Controller
 
     public function show(ReportNotification $ReportNotification)
     {
-        return $ReportNotification;
+        return $ReportNotification->load("branch");
     }
 
     public function update(UpdateRequest $request, ReportNotification $ReportNotification)
