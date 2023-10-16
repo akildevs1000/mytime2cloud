@@ -265,6 +265,20 @@
             >mdi mdi-reload</v-icon
           >
         </v-btn>
+        <div style="width:250px;">
+          <v-select
+          @change="getDataFromApi()"
+          class="pt-10 px-2"
+          v-model="branch_id"
+          :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
+          dense
+          placeholder="Select Branch"
+          outlined
+          item-value="id"
+          item-text="branch_name"
+        >
+        </v-select>
+        </div>
         <!-- </template>
           <span>Reload</span>
         </v-tooltip> -->
@@ -320,14 +334,14 @@
       </v-snackbar>
       <v-data-table
         dense
-        :headers="headers_table"
+        :headers="headers"
         :items="data"
         model-value="data.id"
         :loading="loading"
         :footer-props="{
           itemsPerPageOptions: [50, 100, 500, 1000],
         }"
-        class="elevation-1"
+        class="elevation-1 pt-5"
         :options.sync="options"
         :server-items-length="totalRowsCount"
       >
@@ -615,7 +629,7 @@ export default {
     data: [],
     loading: false,
     total: 0,
-    headers_table: [
+    headers: [
       {
         text: "Sno",
         align: "left",
@@ -637,13 +651,13 @@ export default {
         value: "short_name",
         filterable: false,
       },
-      {
-        text: "Branch",
-        align: "left",
-        sortable: false,
-        value: "branch",
-        filterable: false,
-      },
+      // {
+      //   text: "Branch",
+      //   align: "left",
+      //   sortable: false,
+      //   value: "branch",
+      //   filterable: false,
+      // },
 
       {
         text: "Location",
@@ -739,6 +753,8 @@ export default {
 
     device_statusses: [],
     branches: [],
+    branchesList: [],
+    branch_id: "",
   }),
 
   computed: {
@@ -762,6 +778,33 @@ export default {
   },
   created() {
     this.loading = true;
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(0, 0, ...branch_header);
+    }
+
+    this.$axios
+      .get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.branchesList = data;
+        this.branch_id = this.$auth.user.branch_id || "";
+      });
     this.getDataFromApi();
     this.getBranches();
     this.getDeviceStatus();
@@ -947,6 +990,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
+          branch_id: this.branch_id,
           company_id: this.$auth.user.company_id,
           ...this.filters,
         },
