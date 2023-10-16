@@ -560,7 +560,7 @@ export default {
 
     this.options = {
       params: {
-        per_page: 100,
+        per_page: 1000,
         company_id: this.$auth.user.company_id,
       },
     };
@@ -581,31 +581,13 @@ export default {
       this.headers.splice(1, 0, ...branch_header);
     }
 
-    this.getbranchesList();
+    this.$axios.get(`branches_list`, this.options).then(({ data }) => {
+      this.branchesList = data;
+      this.branch_id = this.$auth.user.branch_id || "";
+    });
   },
 
   methods: {
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-        if (this.$auth.user.branch_id) {
-          this.branch_id = this.$auth.user.branch_id;
-        } else {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-          this.branch_id = "";
-        }
-      });
-    },
     getSlotTitle(slot, slot2) {
       slot2 = slot2 != undefined ? slot2 : "24:00";
       return slot + " to " + slot2;

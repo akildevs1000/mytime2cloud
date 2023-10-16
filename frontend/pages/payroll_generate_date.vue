@@ -172,22 +172,13 @@ export default {
       this.headers.splice(1, 0, ...branch_header);
     }
 
-    this.getbranchesList();
+    this.$axios.get(`branches_list`, this.options).then(({ data }) => {
+      this.branchesList = data;
+      this.branch_id = this.$auth.user.branch_id || "";
+    });
   },
 
   methods: {
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-        this.branch_id = this.$auth.user.branch_id || "";
-      });
-    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";
