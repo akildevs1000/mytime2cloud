@@ -2,37 +2,95 @@
   {
     "icon": "mdi-home",
     "title": "Dashboard",
-    "to": "/dashboard/employee",
-    "menu": "dashboard_access"
+    "to": "/employees/dashboard",
+    "menu": "dashboard_access",
+    "module": "dashboard"
   },
   {
     "icon": "mdi-clipboard-text-clock",
-    "title": "Attendances Logs",
-    "to": "/employees/logs",
-    "menu": "attendance_report_access"
+    "title": "Profile",
+    "to": "/employees/profile",
+    "menu": "profile_access",
+    "module": "dashboard"
   },
   {
     "icon": "mdi-clock-outline",
-    "title": "Schedule",
-    "to": "/employees/schedule",
-    "menu": "employee_schedule_access"
+    "title": "Attendance",
+    "to": "/employees/attendance_report/general",
+    "menu": "attendance_access",
+    "module": "dashboard"
   },
   {
     "icon": "mdi mdi-calendar-account",
-    "title": "Leave Applications",
+    "title": "Request",
     "to": "/employees/leave",
-    "menu": "leave_application_access"
+    "menu": "leaves_access",
+    "module": "dashboard"
   },
   {
     "icon": "mdi mdi-calendar-star-four-points",
-    "title": "Holidays",
-    "to": "/employees/holidays",
-    "menu": "holiday_access"
+    "title": "Announcments",
+    "to": "/employees/announcements",
+    "menu": "announcements_access",
+    "module": "dashboard"
   },
+
   {
     "icon": "mdi-bell",
-    "title": "Announcements",
+    "title": "Payslips",
+    "to": "/employees/payroll/salary",
+    "menu": "reports_access",
+    "module": "dashboard"
+  },
+
+  {
+    "icon": "mdi-account-tie",
+    "title": "Profile",
+    "to": "/employees",
+    "menu": "employee_access",
+    "module": "profile_topmenu"
+  },
+  {
+    "icon": "mdi-account-tie",
+    "title": "Reports",
+    "to": "/attendance_report/general",
+    "menu": "attendance_access",
+    "module": "attendance_topmenu"
+  },
+  {
+    "icon": "mdi-account-tie",
+    "title": "Schedule",
+    "to": "/employees/schedule",
+    "menu": "employee_schedule_access",
+    "module": "attendance_topmenu"
+  },
+
+  {
+    "icon": "mdi-account-tie",
+    "title": "Requests",
+    "to": "/employees/leave",
+    "menu": "leave_application_access",
+    "module": "requests_topmenu"
+  },
+  {
+    "icon": "mdi-account-tie",
+    "title": "Announcments",
     "to": "/employees/announcements",
-    "menu": "announcement_access"
+    "menu": "announcement_access",
+    "module": "announcements_topmenu"
+  },
+  {
+    "icon": "mdi-account-tie",
+    "title": "Payslips",
+    "to": "/employees/payroll/salary",
+    "menu": "payroll_access",
+    "module": "payslips_topmenu"
+  },
+  {
+    "icon": "mdi-account-tie",
+    "title": "Access Control",
+    "to": "/employees/schedule",
+    "menu": "employee_schedule_access",
+    "module": "schedule_topmenu"
   }
 ]

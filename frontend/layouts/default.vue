@@ -1,34 +1,6 @@
 <template>
   <v-app>
-    <!-- <v-navigation-drawer expand-on-hover rail>
-      <v-list>
-        <v-list-item
-          prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
-          title="Sandra Adams"
-          subtitle="sandra_a88@gmailcom"
-        ></v-list-item>
-      </v-list>
-
-      <v-divider></v-divider>
-
-      <v-list density="compact" nav>
-        <v-list-item
-          prepend-icon="mdi-folder"
-          title="My Files"
-          value="myfiles"
-        ></v-list-item>
-        <v-list-item
-          prepend-icon="mdi-account-multiple"
-          title="Shared with me"
-          value="shared"
-        ></v-list-item>
-        <v-list-item
-          prepend-icon="mdi-star"
-          title="Starred"
-          value="starred"
-        ></v-list-item>
-      </v-list>
-    </v-navigation-drawer> 
+    <!--  
   
   <v-navigation-drawer
       expand-on-hover
@@ -171,94 +143,50 @@
         <img title="My Time Cloud " :src="logo_src" />
       </span>
       <v-spacer></v-spacer>
-      <span
-        style="100%"
-        v-if="getLoginType == 'company' || getLoginType == 'branch'"
-      >
-        <template>
+      <span style="100%">
+        <template v-if="getLoginType == 'company' || getLoginType == 'branch'">
           <v-row align="center" justify="space-around" class="">
-            <v-col>
+            <v-col v-for="items in company_top_menu">
               <v-btn
                 small
                 text
                 class="btn-text-size"
                 :elevation="0"
-                :color="menuProperties['dashboard'].selected"
+                :color="
+                  menuProperties[items.menu] &&
+                  menuProperties[items.menu].selected
+                "
                 fill
-                @click="setTopMenuItems('dashboard', '/dashboard2')"
+                @click="setTopMenuItems(items.menu, items.to)"
               >
-                <span>Dashboard</span>
+                <span>{{ items.title }}</span>
               </v-btn>
             </v-col>
-            <v-col>
+          </v-row>
+        </template>
+
+        <template v-if="getLoginType == 'employee'">
+          <v-row>
+            <v-col v-for="items in employee_top_menu">
               <v-btn
+                small
                 text
-                class="btn-text-size d-none d-lg-block"
+                class="btn-text-size"
                 :elevation="0"
-                :color="menuProperties['employees'].selected"
-                @click="setTopMenuItems('employees', '/employees')"
+                :color="
+                  menuProperties[items.menu] &&
+                  menuProperties[items.menu].selected
+                "
+                fill
+                @click="setTopMenuItems(items.menu, items.to)"
               >
-                <span>Employees</span>
-              </v-btn>
-            </v-col>
-            <v-col>
-              <v-btn
-                text
-                class="btn-text-size d-none d-lg-block"
-                :elevation="menuProperties['attendance'].elevation"
-                :color="menuProperties['attendance'].selected"
-                @click="setTopMenuItems('attendance', '/shift')"
-              >
-                <span>Attendance</span>
-              </v-btn>
-            </v-col>
-            <v-col>
-              <v-btn
-                text
-                class="btn-text-size d-none d-lg-block"
-                :elevation="menuProperties['payroll'].elevation"
-                :color="menuProperties['payroll'].selected"
-                @click="setTopMenuItems('payroll', '/payroll/salary')"
-              >
-                <span>Payroll</span>
-              </v-btn>
-            </v-col>
-            <v-col>
-              <v-btn
-                text
-                class="btn-text-size d-none d-lg-block"
-                :elevation="menuProperties['access_control'].elevation"
-                :color="menuProperties['access_control'].selected"
-                @click="setTopMenuItems('access_control', '/timezone')"
-              >
-                <span>Access Control </span>
-              </v-btn>
-            </v-col>
-            <v-col>
-              <v-btn
-                text
-                class="btn-text-size d-none d-lg-block"
-                :elevation="menuProperties['visitors'].elevation"
-                :color="menuProperties['visitors'].selected"
-                @click="setTopMenuItems('visitors', '/visitor-dashboard')"
-              >
-                <span>Visitors</span>
-              </v-btn>
-            </v-col>
-            <v-col>
-              <v-btn
-                text
-                class="btn-text-size d-none d-lg-block"
-                :elevation="menuProperties['reports'].elevation"
-                :color="menuProperties['reports'].selected"
-                @click="setTopMenuItems('reports', '/attendance_report')"
-              >
-                <span>Reports</span>
+                <span>{{ items.title }}</span>
               </v-btn>
             </v-col>
           </v-row>
         </template>
       </span>
+
       <v-spacer></v-spacer>
       Hi
       {{
@@ -339,7 +267,12 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
-      <v-btn icon plan @click="goToSettings()" class="mr-3"
+      <v-btn
+        v-if="getLoginType == 'company' || getLoginType == 'branch'"
+        icon
+        plan
+        @click="goToSettings()"
+        class="mr-3"
         ><v-icon class="black--text" style="color: black; text-align: center"
           >mdi-settings</v-icon
         ></v-btn
@@ -379,7 +312,7 @@
         </template>
       </v-snackbar>
     </v-app-bar>
-    {{ miniVariant }}
+
     <v-main
       class="main_bg"
       :style="miniVariant ? 'padding-left: 60px;' : 'padding-left: 140px;'"
@@ -533,6 +466,9 @@ import company_menus from "../menus/company.json";
 import employee_menus from "../menus/employee.json";
 import branch_menus from "../menus/branch.json";
 
+import company_top_menu from "../menus/company_modules_top.json";
+import employee_top_menu from "../menus/employee_modules_top.json";
+
 export default {
   data() {
     return {
@@ -575,6 +511,8 @@ export default {
       company_menus,
       employee_menus,
       branch_menus,
+      company_top_menu,
+      employee_top_menu,
       pendingLeavesCount: 0,
       snackNotificationText: "",
       snackNotification: false,
@@ -734,6 +672,14 @@ export default {
       if (this.getLoginType === "company" || this.getLoginType === "branch") {
         // this.items = this.company_menus;
         this.items = this.company_menus.filter(
+          (item) => item.module === this.topMenu_Selected
+        );
+
+        return;
+      }
+      if (this.getLoginType === "employee") {
+        // this.items = this.company_menus;
+        this.items = this.employee_menus.filter(
           (item) => item.module === this.topMenu_Selected
         );
 
@@ -905,6 +851,12 @@ export default {
 .violet {
   background-color: #6946dd;
 }
+.bold {
+  color: bold;
+}
+.text--violet {
+  color: #6946dd;
+}
 .v-list-item--active i {
   color: #6946dd;
 }
@@ -934,12 +886,24 @@ header i {
 </style>
 
 <style>
+.violet {
+  background-color: #6946dd;
+}
+.bold {
+  font-weight: bold;
+}
+.text--violet {
+  color: #6946dd;
+}
 .view-profile-table-lineheight {
   line-height: 40px;
   width: 100%;
 }
 .view-profile-table-lineheight tr {
   border-bottom: 1px solid #ddd;
+}
+.view-profile-table-lineheight td {
+  padding-right: 5px;
 }
 
 .whitebackground--text {

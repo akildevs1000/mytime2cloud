@@ -918,6 +918,7 @@
                       <v-row>
                         <v-col md="6" style="border-right: 1px solid #ddd">
                           <table
+                            v-if="employeeObject.payroll"
                             class="employee-table view-profile-table-lineheight"
                             style="width: 100%"
                           >
@@ -937,6 +938,7 @@
                             </tr>
                             <tr style="border: 0px solid #ddd">
                               <th>Basic Salary</th>
+
                               <td class="text-left">
                                 :
                                 {{

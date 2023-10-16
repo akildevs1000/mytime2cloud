@@ -80,6 +80,13 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+            $schedule
+                ->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
+                ->everyMinute()
+                // ->dailyAt('09:00')
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             // $schedule
             //     ->command("task:generate_daily_report {$companyId} All")
