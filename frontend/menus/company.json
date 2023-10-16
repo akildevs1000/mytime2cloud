@@ -214,7 +214,20 @@
     "menu": "payroll_settings_access",
     "module": "payroll"
   },
-
+  {
+    "icon": "mdi-format-list-bulleted",
+    "title": "Payroll Formulla List",
+    "to": "/payroll_formula",
+    "menu": "payroll_settings_access",
+    "module": "payroll"
+  },
+  {
+    "icon": "mdi-format-list-bulleted",
+    "title": "Payroll Generation Date List",
+    "to": "/payroll_generate_date",
+    "menu": "payroll_settings_access",
+    "module": "payroll"
+  },
   {
     "icon": "mdi mdi-clock-time-four-outline",
     "title": "Timezones",

@@ -59,7 +59,11 @@
             <v-col>
               <div v-if="viewmode">
                 <strong class="">Branch</strong>:
-                {{ editedItem && editedItem.branch && editedItem.branch.branch_name }}
+                {{
+                  editedItem &&
+                  editedItem.branch &&
+                  editedItem.branch.branch_name
+                }}
               </div>
               <v-select
                 v-else
@@ -271,6 +275,20 @@
             >mdi mdi-reload</v-icon
           >
         </v-btn>
+        <div style="width: 250px">
+          <v-select
+            @change="getDataFromApi()"
+            class="pt-10 px-2"
+            v-model="branch_id"
+            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
+            dense
+            placeholder="Select Branch"
+            outlined
+            item-value="id"
+            item-text="branch_name"
+          >
+          </v-select>
+        </div>
         <!-- </template>
           <span>Reload</span>
         </v-tooltip> -->
@@ -507,6 +525,7 @@ export default {
     editedIndex: -1,
 
     branchesList: [],
+    branch_id: "",
   }),
 
   computed: {},
@@ -860,6 +879,7 @@ export default {
           per_page: this.pagination.per_page,
           page: page,
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
         },
       };
       if (filter_column != "") {

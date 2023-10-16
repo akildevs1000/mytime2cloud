@@ -17,7 +17,13 @@ class TimezoneController extends Controller
     }
     public function index(Request $request)
     {
-        return Timezone::with(["employee_device", "branch"])->where('company_id', $request->company_id)->where("is_default", false)->orderby("timezone_id", "asc")->paginate($request->per_page ?? 100);
+        $model = Timezone::query();
+        $model->where('company_id', $request->company_id);
+        $model->where("is_default", false);
+        $model->when($request->branch_id, fn ($q) => $q->where("branch_id", $request->branch_id));
+        $model->with(["employee_device", "branch"]);
+        $model->orderBy("timezone_id", "asc");
+        return $model->paginate($request->per_page ?? 100);
     }
 
     public function getTimezoneJson(Request $request)
