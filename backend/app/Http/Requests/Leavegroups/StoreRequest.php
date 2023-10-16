@@ -29,6 +29,7 @@ class StoreRequest extends FormRequest
 
             //'leave_type_id' => 'required',
             'company_id' => 'required',
+            'branch_id' => 'required',
             'group_name' => 'required',
             //'leave_type_count' => 'required',
 

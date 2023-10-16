@@ -15,21 +15,13 @@ class LeaveGroupsController extends Controller
     public function getDefaultModelSettings($request, $id = '')
     {
         $model = LeaveGroups::query();
-        $model->with(["leave_count.leave_type"]);
         $model->where('company_id', $request->company_id);
+        $model->when($request->filled('branch_id'), fn ($q) => $q->where('branch_id',  $request->branch_id));
         if ($id > 0) {
             $model->where('id', $id);
         }
-
-        // $model->when($request->filled('employee_id'), function ($q) use ($request) {
-        //     $key = $request->serach_name;
-        //     $q->where('name', 'ILIKE', "$key%");
-        // });
-        // $model->when($request->filled('search_short_name'), function ($q) use ($request) {
-        //     $key = $request->search_short_name;
-        //     $q->where('short_name', 'ILIKE', "$key%");
-        // });
-
+        $model->with(["leave_count.leave_type", "branch"]);
+        $model->orderByDesc("id");
         return $model;
     }
 
@@ -85,7 +77,7 @@ class LeaveGroupsController extends Controller
             $isExist = LeaveGroups::where('company_id', '=', $request->company_id)->where('group_name', '=', $request->group_name)->first();
             if ($isExist == null) {
 
-                $record = LeaveGroups::create($request->only(['group_name', 'company_id']));
+                $record = LeaveGroups::create($request->only(['group_name', 'company_id', 'branch_id']));
                 $leaveCountArray = $request->leave_counts;
 
                 foreach ($leaveCountArray as $key => $value) {
@@ -133,7 +125,7 @@ class LeaveGroupsController extends Controller
                 ->first();
             if ($isExist == null) {
 
-                $record = LeaveGroups::find($id)->update($request->only(['group_name', 'company_id']));
+                $record = LeaveGroups::find($id)->update($request->only(['group_name', 'company_id', 'branch_id']));
 
                 $leaveCountArray = $request->leave_counts;
 

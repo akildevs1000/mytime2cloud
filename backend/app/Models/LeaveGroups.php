@@ -30,13 +30,14 @@ class LeaveGroups extends Model
     {
         return $this->hasMany(LeaveCount::class, "group_id", "id");
     }
-    protected static function boot()
+    
+    public function branch()
     {
-        parent::boot();
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
 
-        // Order by name ASC
-        static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('id', 'desc');
-        });
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }

@@ -24,6 +24,23 @@
           <v-container>
             <v-row>
               <v-col cols="12">
+                <label for="" style="margin-bottom: 5px">Branches</label>
+                <v-select
+                  v-model="editedItem.branch_id"
+                  :items="branchesList"
+                  dense
+                  placeholder="Select Branch"
+                  outlined
+                  item-value="id"
+                  item-text="branch_name"
+                  :error-messages="
+                    errors && errors.branch_id ? errors.branch_id[0] : ''
+                  "
+                >
+                </v-select>
+              </v-col>
+
+              <v-col cols="12">
                 <label for="" style="margin-bottom: 5px">Group Name</label>
                 <v-text-field
                   outlined
@@ -86,6 +103,23 @@
                 >mdi mdi-reload</v-icon
               >
             </v-btn>
+            <div style="width: 250px">
+              <v-select
+                @change="getDataFromApi()"
+                class="pt-10 px-2"
+                v-model="branch_id"
+                :items="[
+                  { id: ``, branch_name: `Select All` },
+                  ...branchesList,
+                ]"
+                dense
+                placeholder="Select Branch"
+                outlined
+                item-value="id"
+                item-text="branch_name"
+              >
+              </v-select>
+            </div>
             <!-- </template>
               <span>Reload</span>
             </v-tooltip> -->
@@ -347,6 +381,8 @@ export default {
     selectAllDepartment: false,
     selectAllEmployee: false,
     DialogEmployeesData: {},
+    branchesList: [],
+    branch_id: "",
   }),
 
   computed: {},
@@ -354,6 +390,34 @@ export default {
   watch: {},
   created() {
     this.loading = true;
+
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(0, 0, ...branch_header);
+    }
+
+    this.$axios
+      .get(`branches_list`, {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.branchesList = data;
+        this.branch_id = this.$auth.user.branch_id || "";
+      });
 
     this.getDataFromApi();
     //this.getDesignations();
@@ -482,6 +546,7 @@ export default {
         params: {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
           year: endDate.getFullYear(),
         },
       };
@@ -604,10 +669,9 @@ export default {
     save() {
       let options = {
         params: {
-          // leave_type_id: this.editedItem.leave_type_id,
+          branch_id: this.editedItem.branch_id,
           company_id: this.$auth.user.company_id,
           group_name: this.editedItem.group_name,
-          //leave_type_count: this.editedItem.leave_type_count,
           leave_counts: this.leaveTypes,
         },
       };
@@ -642,6 +706,7 @@ export default {
         let options = {
           params: {
             // leave_type_id: this.editedItem.leave_type_id,
+            branch_id: this.editedItem.branch_id,
             company_id: this.$auth.user.company_id,
             group_name: this.editedItem.group_name,
             //leave_type_count: this.editedItem.leave_type_count,
