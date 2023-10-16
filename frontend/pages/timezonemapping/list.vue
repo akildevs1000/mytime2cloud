@@ -263,7 +263,6 @@ export default {
       options: {},
       data: [],
       name: "",
-      endpointUpdatetimezonelist: "employee_timezone_mapping",
       endpoint: "gettimezonesinfo",
       Model: "Timezone Mapping List ",
       response: "",
@@ -465,17 +464,6 @@ export default {
             this.response = data.message;
           }
         });
-    },
-
-    datatable_searchByTimezonename(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length >= 1) {
-        this.getDataFromApi(
-          `${this.endpoint}/search/${e}`,
-          "searchByTimezoneName"
-        );
-      }
     },
     getDataFromApi(url = this.endpoint, additional_params) {
       this.data = [];
