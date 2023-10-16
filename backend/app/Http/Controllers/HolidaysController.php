@@ -14,25 +14,13 @@ class HolidaysController extends Controller
     {
         $model = Holidays::query();
         $model->where('company_id', $request->company_id);
+        $model->when($request->filled('branch_id'), fn ($q) => $q->where('branch_id',  $request->branch_id));
         $model->where('year', $request->year);
-
-        $model->when($request->filled('serach_name'), function ($q) use ($request) {
-            $key = $request->serach_name;
-            $q->where('name', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('search_start_date'), function ($q) use ($request) {
-            $key = $request->search_start_date;
-            $q->where('start_date', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('search_end_date'), function ($q) use ($request) {
-            $key = $request->search_end_date;
-            $q->where('end_date', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('serach_total_days'), function ($q) use ($request) {
-            $key = $request->serach_total_days;
-            $q->where('total_days', 'ILIKE', "$key%");
-        });
-
+        $model->when($request->filled('search_start_date'), fn ($q) => $q->where('start_date', 'ILIKE', "{$request->search_start_date}%"));
+        $model->when($request->filled('search_end_date'), fn ($q) => $q->where('end_date', 'ILIKE', "{$request->search_end_date}%"));
+        $model->when($request->filled('serach_total_days'), fn ($q) => $q->where('total_days',  $request->serach_total_days));
+        $model->with("branch");
+        $model->orderByDesc("id");
         return $model;
     }
 
@@ -42,7 +30,8 @@ class HolidaysController extends Controller
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
-    function list(Request $request) {
+    function list(Request $request)
+    {
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
@@ -70,7 +59,7 @@ class HolidaysController extends Controller
     {
 
         try {
-            $record = $Holidays::find($id)->update($request->all());
+            $record = $Holidays::find($id)->update($request->validated());
 
             if ($record) {
 
@@ -106,5 +95,4 @@ class HolidaysController extends Controller
             return $this->response('Holidays cannot delete.', null, false);
         }
     }
-
 }

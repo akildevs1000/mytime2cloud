@@ -29,9 +29,10 @@ class StoreRequest extends FormRequest
             'name' => 'required|min:4|max:100',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
+            'year' => 'required',
             'total_days' => 'required',
             'company_id' => 'required',
-
+            'branch_id' => 'required',
         ];
     }
 }
