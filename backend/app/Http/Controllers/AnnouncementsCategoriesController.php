@@ -14,26 +14,16 @@ class AnnouncementsCategoriesController extends Controller
     {
         $model = AnnouncementsCategories::query();
         $model->where('company_id', $request->company_id);
-
-        $model->when($request->filled('serach_name'), function ($q) use ($request) {
-            $key = $request->serach_name;
-            $q->where('name', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('search_description'), function ($q) use ($request) {
-            $key = $request->search_description;
-            $q->where('description', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('branch_id'), function ($q) use ($request) {
-
-            $q->where('branch_id',  $request->branch_id);
-        });
-
+        $model->when($request->filled('branch_id'), fn ($q) => $q->where('branch_id',  $request->branch_id));
+        $model->when($request->filled('serach_name'), fn ($q) => $q->where('name', 'ILIKE', "{$request->serach_name}%"));
+        $model->when($request->filled('search_description'), fn ($q) => $q->where('description', 'ILIKE', "{$request->search_description}%"));
+        $model->with("branch");
+        $model->orderByDesc("id");
         return $model;
     }
 
     public function index(Request $request)
     {
-
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 

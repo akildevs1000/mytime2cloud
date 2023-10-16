@@ -84,9 +84,7 @@
               ><span> {{ Model }}</span></v-toolbar-title
             >
 
-            <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-            <!-- <v-btn
+            <v-btn
               dense
               class="ma-0 px-0"
               x-small
@@ -95,12 +93,27 @@
               title="Reload"
             >
               <v-icon class="ml-2" @click="getDataFromApi()" dark
-                >mdi mdi-reload</v-icon
+                >mdi-reload</v-icon
               >
-            </v-btn> -->
-            <!-- </template>
-                <span>Reload</span>
-              </v-tooltip> -->
+            </v-btn>
+
+            <!-- <div style="width: 250px">
+              <v-select
+                @change="getDataFromApi()"
+                class="pt-10 px-2"
+                v-model="branch_id"
+                :items="[
+                  { id: ``, branch_name: `Select All` },
+                  ...branchesList,
+                ]"
+                dense
+                placeholder="Select Branch"
+                outlined
+                item-value="id"
+                item-text="branch_name"
+              >
+              </v-select>
+            </div> -->
             <v-spacer></v-spacer>
             <!-- <v-tooltip v-if="can(`leave_type_create`)" top color="primary">
                 <template v-slot:activator="{ on, attrs }"> -->
@@ -192,25 +205,7 @@
   <NoAccess v-else />
 </template>
 <script>
-import {
-  TiptapVuetify,
-  Image,
-  Heading,
-  Bold,
-  Italic,
-  Strike,
-  Underline,
-  Code,
-  Paragraph,
-  BulletList,
-  OrderedList,
-  ListItem,
-  Link,
-  Blockquote,
-  HardBreak,
-  HorizontalRule,
-  History,
-} from "tiptap-vuetify";
+import { TiptapVuetify } from "tiptap-vuetify";
 
 export default {
   components: {
@@ -274,6 +269,8 @@ export default {
     response: "",
     data: [],
     errors: [],
+    branch_id: null,
+    branchesList: [],
   }),
 
   computed: {},
@@ -281,6 +278,34 @@ export default {
   watch: {},
   created() {
     this.loading = true;
+
+    this.options = {
+      params: {
+        per_page: 100,
+        company_id: this.$auth.user.company_id,
+      },
+    };
+
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(1, 0, ...branch_header);
+    }
+
+    this.$axios.get(`branches_list`, this.options).then(({ data }) => {
+      this.branchesList = data;
+      this.branch_id = this.$auth.user.branch_id || "";
+    });
 
     this.getDataFromApi();
   },
@@ -325,6 +350,7 @@ export default {
         params: {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
         },
       };
       if (filter_column != "") {

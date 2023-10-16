@@ -14,22 +14,16 @@ class LeaveTypesController extends Controller
     {
         $model = LeaveType::query();
         $model->where('company_id', $request->company_id);
-
-        $model->when($request->filled('serach_name'), function ($q) use ($request) {
-            $key = $request->serach_name;
-            $q->where('name', 'ILIKE', "$key%");
-        });
-        $model->when($request->filled('search_short_name'), function ($q) use ($request) {
-            $key = $request->search_short_name;
-            $q->where('short_name', 'ILIKE', "$key%");
-        });
-
+        $model->when($request->filled('branch_id'), fn ($q) => $q->where('branch_id',  $request->branch_id));
+        $model->when($request->filled('serach_name'), fn ($q) => $q->where('name', 'ILIKE', "{$request->serach_name}%"));
+        $model->when($request->filled('search_short_name'), fn ($q) => $q->where('short_name', 'ILIKE', "{$request->search_short_name}%"));
+        $model->with("branch");
+        $model->orderByDesc("id");
         return $model;
     }
 
     public function index(Request $request)
     {
-
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
@@ -46,7 +40,7 @@ class LeaveTypesController extends Controller
             $isExist = LeaveType::where('company_id', '=', $request->company_id)->where('name', '=', $request->name)->first();
             if ($isExist == null) {
 
-                $record = LeaveType::create($request->all());
+                $record = LeaveType::create($request->validated());
                 DB::commit();
 
                 if ($record) {
@@ -72,7 +66,7 @@ class LeaveTypesController extends Controller
                 ->where('name', '=', $request->name)->first();
             if ($isExist == null) {
 
-                $record = LeaveType::find($id)->update($request->all());
+                $record = LeaveType::find($id)->update($request->validated());
 
                 if ($record) {
 

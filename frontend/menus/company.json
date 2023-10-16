@@ -96,14 +96,6 @@
     "menu": "role_access",
     "module": "settings"
   },
-
-  {
-    "icon": "mdi-star-box-multiple-outline",
-    "title": "Dep Mapping",
-    "to": "/department-mapping/",
-    "menu": "assign_permission_access",
-    "module": "settings"
-  },
   {
     "icon": "mdi-cellphone-text",
     "title": "Devices",
