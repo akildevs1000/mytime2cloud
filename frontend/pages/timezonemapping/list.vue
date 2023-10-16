@@ -98,7 +98,7 @@
                     <v-text-field
                       clearable
                       :hide-details="true"
-                      v-if="header.filterable"
+                      v-if="header.filterable && !header.filterSpecial"
                       v-model="filters[header.key]"
                       :id="header.key"
                       @input="applyFilters(header.key, $event)"
@@ -107,6 +107,33 @@
                       autocomplete="off"
                       :placeholder="header.placeHolder"
                     ></v-text-field>
+                    <v-select
+                      clearable
+                      @click:clear="
+                        filters[header.value] = '';
+                        applyFilters();
+                      "
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="
+                        header.filterSpecial &&
+                        header.value == 'branch.branch_name'
+                      "
+                      outlined
+                      dense
+                      small
+                      v-model="branch_id"
+                      item-text="branch_name"
+                      item-value="id"
+                      :items="[
+                        { branch_name: `All Branches`, id: `` },
+                        ...branchesList,
+                      ]"
+                      placeholder="All Branches"
+                      solo
+                      flat
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
                   </v-container>
                 </td>
               </tr>
@@ -121,6 +148,7 @@
               <div
                 class="d-flex flex-row bg-surface-variant"
                 v-for="(subitem, index) in item.device_id.slice(0, 3)"
+                :key="index"
               >
                 <v-sheet class="ma-2" cols="2"> {{ ++index }}: </v-sheet>
                 <v-sheet class="ma-2" cols="4">
@@ -266,6 +294,7 @@ export default {
           align: "start",
           key: "timezoneName",
           filterable: true,
+          filterSpecial: false,
           value: "timezone.timezone_name",
         },
 
@@ -275,6 +304,7 @@ export default {
           sortable: false,
           value: "devices",
           filterable: false,
+          filterSpecial: false,
           key: "device",
           placeHolder: "Type Device Name",
         },
@@ -290,6 +320,8 @@ export default {
 
         { text: "Actions", value: "actions", sortable: false },
       ],
+      branchesList: [],
+      branch_id: "",
     };
   },
   watch: {
@@ -328,6 +360,18 @@ export default {
         },
       ];
       this.headers.splice(1, 0, ...branch_header);
+
+      this.$axios
+        .get(`branches_list`, {
+          params: {
+            per_page: 100,
+            company_id: this.$auth.user.company_id,
+          },
+        })
+        .then(({ data }) => {
+          this.branchesList = data;
+          this.branch_id = this.$auth.user.branch_id || "";
+        });
     }
   },
   mounted: function () {
@@ -446,6 +490,8 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
+
           cols: ["id", "employee_id", "display_name"],
           ...this.filters,
         },
@@ -499,9 +545,6 @@ export default {
 };
 </script>
 <style scoped>
-.theme--light.v-sheet {
-  background-color: transparent !important;
-}
 .employee-pic {
   border: 1px solid #ddd;
   position: relative;
