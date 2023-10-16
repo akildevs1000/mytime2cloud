@@ -41,7 +41,7 @@ class HolidaysController extends Controller
 
         try {
             // Database operations
-            $record = Holidays::create($request->all());
+            $record = Holidays::create($request->validated());
 
             DB::commit();
             if ($record) {
