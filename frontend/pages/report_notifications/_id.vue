@@ -24,7 +24,19 @@
         </v-card-title>
         <v-container>
           <v-row>
-            <v-col cols="3">
+            <v-col cols="6">
+              <v-select
+                v-model="payload.branch_id"
+                :items="branchesList"
+                dense
+                placeholder="Select Branch"
+                outlined
+                item-value="id"
+                item-text="branch_name"
+              >
+              </v-select>
+            </v-col>
+            <v-col cols="6">
               <v-text-field
                 :hide-details="!payload.subject"
                 v-model="payload.subject"
@@ -56,7 +68,7 @@
                 errors.frequency[0]
               }}</span>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <v-autocomplete
                 v-if="
                   payload.frequency == 'Daily' || payload.frequency == 'Weekly'
@@ -115,7 +127,7 @@
               }}</span>
             </v-col>
 
-            <v-col cols="3">
+            <v-col cols="4">
               <v-menu
                 ref="menu2"
                 v-model="menu2"
@@ -289,7 +301,7 @@
             </v-col>
           </v-row>
           <v-row style="margin-top: -30px">
-            <v-col cols="3">
+            <v-col cols="4">
               <label class="col-form-label"><b>Subject </b></label>
 
               <v-text-field
@@ -503,6 +515,8 @@ export default {
     route_id: 0,
 
     errors: [],
+    branchesList: [],
+    branch_id: "",
   }),
 
   mounted() {},
@@ -510,6 +524,17 @@ export default {
   created() {
     this.preloader = false;
     this.id = this.$auth?.user?.company?.id;
+    this.$axios
+      .get(`branches_list`, {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.branchesList = data;
+        this.branch_id = this.$auth.user.branch_id || "";
+      });
     this.getRecord();
   },
   methods: {

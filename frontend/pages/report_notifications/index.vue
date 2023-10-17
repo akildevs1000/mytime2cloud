@@ -224,7 +224,7 @@
               >{{ bcc }} (Bcc)</v-chip
             >
           </template>
-          <!-- <template v-slot:item.actions="{ item }">
+          <template v-slot:item.actions="{ item }">
                   <v-menu bottom left>
                     <template v-slot:activator="{ on, attrs }">
                       <div class="text-center">
@@ -250,7 +250,7 @@
                       </v-list-item>
                     </v-list>
                   </v-menu>
-                </template> -->
+                </template>
         </v-data-table>
       </v-card>
     </div>
@@ -329,6 +329,15 @@ export default {
         key: "time",
         value: "time",
         filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Time",
+        align: "left",
+        sortable: false,
+        key: "actions",
+        value: "actions",
+        filterable: false,
         filterSpecial: false,
       },
     ],
@@ -499,7 +508,7 @@ export default {
 
       if (filter_column != "") options.params[filter_column] = filter_value;
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+      this.$axios.get(url, options).then(({ data }) => {
         if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";
