@@ -76,7 +76,7 @@
             }}</span>
           </div>
         </div>
-        <div class="col-sm-12">
+        <div v-if="isCompany" class="col-sm-12">
           <div class="form-group">
             <label class="col-form-label">Branch</label>
             <span class="text-danger">*</span>
@@ -265,19 +265,19 @@
             >mdi mdi-reload</v-icon
           >
         </v-btn>
-        <div style="width:250px;">
+        <div v-if="isCompany" style="width: 250px">
           <v-select
-          @change="getDataFromApi()"
-          class="pt-10 px-2"
-          v-model="branch_id"
-          :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
-          dense
-          placeholder="Select Branch"
-          outlined
-          item-value="id"
-          item-text="branch_name"
-        >
-        </v-select>
+            @change="getDataFromApi()"
+            class="pt-10 px-2"
+            v-model="branch_id"
+            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
+            dense
+            placeholder="Select Branch"
+            outlined
+            item-value="id"
+            item-text="branch_name"
+          >
+          </v-select>
         </div>
         <!-- </template>
           <span>Reload</span>
@@ -392,10 +392,6 @@
         <template v-slot:item.name="{ item }">
           {{ caps(item.name) }}
         </template>
-        <template v-slot:item.branch="{ item }">
-          {{ item.company_branch ? item.company_branch.branch_name : "---" }}
-        </template>
-
         <template v-slot:item.short_name="{ item }">
           {{ caps(item.short_name) }}
         </template>
@@ -755,6 +751,7 @@ export default {
     branches: [],
     branchesList: [],
     branch_id: "",
+    isCompany: true,
   }),
 
   computed: {
@@ -776,35 +773,42 @@ export default {
       this.search = "";
     },
   },
-  created() {
+  async created() {
     this.loading = true;
-    if (this.$auth.user.branch_id == null) {
-      let branch_header = [
-        {
-          text: "Branch",
-          align: "left",
-          sortable: true,
-          key: "branch_id", //sorting
-          value: "branch", //edit purpose
-          width: "300px",
-          filterable: true,
-          filterSpecial: true,
-        },
-      ];
-      this.headers.splice(0, 0, ...branch_header);
+
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
     }
 
-    this.$axios
-      .get(`branches_list`, {
+    let branch_header = [
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch_id", //sorting
+        value: "company_branch.branch_name", //edit purpose
+        width: "300px",
+        filterable: true,
+        filterSpecial: true,
+      },
+    ];
+    this.headers.splice(0, 0, ...branch_header);
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
         params: {
           per_page: 100,
           company_id: this.$auth.user.company_id,
         },
-      })
-      .then(({ data }) => {
-        this.branchesList = data;
-        this.branch_id = this.$auth.user.branch_id || "";
       });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
+
     this.getDataFromApi();
     this.getBranches();
     this.getDeviceStatus();
@@ -1054,6 +1058,11 @@ export default {
     },
     addItem() {
       this.payload = {};
+
+      if (!this.isCompany) {
+        this.payload.branch_id = this.branch_id;
+      }
+
       this.editedIndex = -1;
       this.editDialog = true;
     },
