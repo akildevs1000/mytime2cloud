@@ -23,7 +23,7 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12">
+              <v-col v-if="isCompany" cols="12">
                 <label for="" style="margin-bottom: 5px">Branches</label> <br />
                 <v-select
                   v-model="editedItem.branch_id"
@@ -34,7 +34,9 @@
                   item-value="id"
                   item-text="branch_name"
                   hide-details
-                  :error-messages="errors && errors.branch_id ? errors.branch_id[0] : ''"
+                  :error-messages="
+                    errors && errors.branch_id ? errors.branch_id[0] : ''
+                  "
                 >
                 </v-select>
               </v-col>
@@ -99,7 +101,7 @@
                 >mdi mdi-reload</v-icon
               >
             </v-btn>
-            <div style="width: 250px">
+            <div v-if="isCompany" style="width: 250px">
               <v-select
                 @change="getDataFromApi()"
                 class="pt-10 px-2"
@@ -338,41 +340,47 @@ export default {
     DialogEmployeesData: {},
     branchesList: [],
     branch_id: "",
+    isCompany: true,
   }),
 
   computed: {},
 
   watch: {},
-  created() {
+  async created() {
     this.loading = true;
 
-    if (this.$auth.user.branch_id == null) {
-      let branch_header = [
-        {
-          text: "Branch",
-          align: "left",
-          sortable: true,
-          key: "branch_id", //sorting
-          value: "branch.branch_name", //edit purpose
-          width: "300px",
-          filterable: true,
-          filterSpecial: true,
-        },
-      ];
-      this.headers.splice(0, 0, ...branch_header);
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
     }
 
-    this.$axios
-      .get(`branches_list`, {
+    let branch_header = [
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch_id", //sorting
+        value: "branch.branch_name", //edit purpose
+        width: "300px",
+        filterable: true,
+        filterSpecial: true,
+      },
+    ];
+    this.headers.splice(0, 0, ...branch_header);
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
         params: {
-          per_page: 1000,
+          per_page: 100,
           company_id: this.$auth.user.company_id,
         },
-      })
-      .then(({ data }) => {
-        this.branchesList = data;
-        this.branch_id = this.$auth.user.branch_id || "";
       });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
 
     this.getDataFromApi();
   },
@@ -386,6 +394,9 @@ export default {
         name: "",
         short_name: "",
       };
+      if (!this.isCompany) {
+        this.editedItem.branch_id = this.branch_id;
+      }
       this.defaultItem = {
         name: "",
         short_name: "",
