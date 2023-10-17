@@ -62,7 +62,7 @@
               >mdi mdi-reload</v-icon
             >
           </v-btn>
-          <div style="width: 250px">
+          <div v-if="isCompany" style="width: 250px">
             <v-select
               @change="getDataFromApi()"
               class="pt-10 px-2"
@@ -225,32 +225,30 @@
             >
           </template>
           <template v-slot:item.actions="{ item }">
-                  <v-menu bottom left>
-                    <template v-slot:activator="{ on, attrs }">
-                      <div class="text-center">
-                        <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                          <v-icon>mdi-dots-vertical</v-icon>
-                        </v-btn>
-                      </div>
-                    </template>
-                    <v-list width="120" dense>
-                      <v-list-item @click="editItem(item)">
-                        <v-list-item-title style="cursor: pointer">
-                          <v-icon color="secondary" small>
-                            mdi-pencil
-                          </v-icon>
-                          Edit
-                        </v-list-item-title>
-                      </v-list-item>
-                      <v-list-item @click="deleteItem(item)">
-                        <v-list-item-title style="cursor: pointer">
-                          <v-icon color="error" small> mdi-delete </v-icon>
-                          Delete
-                        </v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </template>
+            <v-menu bottom left>
+              <template v-slot:activator="{ on, attrs }">
+                <div class="text-center">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <v-list width="120" dense>
+                <v-list-item @click="editItem(item)">
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="secondary" small> mdi-pencil </v-icon>
+                    Edit
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="deleteItem(item)">
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="error" small> mdi-delete </v-icon>
+                    Delete
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
         </v-data-table>
       </v-card>
     </div>
@@ -343,6 +341,7 @@ export default {
     ],
     branchesList: [],
     branch_id: "",
+    isCompany: true,
   }),
   watch: {
     options: {
@@ -352,35 +351,41 @@ export default {
       deep: true,
     },
   },
-  created() {
+  async created() {
     this.preloader = false;
-    if (this.$auth.user.branch_id == null) {
-      let branch_header = [
-        {
-          text: "Branch",
-          align: "left",
-          sortable: true,
-          key: "branch_id", //sorting
-          value: "branch.branch_name", //edit purpose
-          width: "300px",
-          filterable: true,
-          filterSpecial: true,
-        },
-      ];
-      this.headers.splice(0, 0, ...branch_header);
+
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
     }
 
-    this.$axios
-      .get(`branches_list`, {
+    let branch_header = [
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch_id", //sorting
+        value: "branch.branch_name", //edit purpose
+        width: "300px",
+        filterable: true,
+        filterSpecial: true,
+      },
+    ];
+    this.headers.splice(0, 0, ...branch_header);
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
         params: {
-          per_page: 1000,
+          per_page: 100,
           company_id: this.$auth.user.company_id,
         },
-      })
-      .then(({ data }) => {
-        this.branchesList = data;
-        this.branch_id = this.$auth.user.branch_id || "";
       });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
 
     this.id = this.$auth?.user?.company?.id;
     this.getDataFromApi();

@@ -20,7 +20,7 @@
         </v-card-title>
         <v-container>
           <v-row>
-            <v-col cols="6">
+            <v-col v-if="isCompany" cols="6">
               <v-select
                 v-model="payload.branch_id"
                 :items="branchesList"
@@ -49,6 +49,8 @@
                 errors.subject[0]
               }}</span>
             </v-col>
+          </v-row>
+          <v-row>
             <v-col cols="4">
               <v-autocomplete
                 @change="setDay"
@@ -511,22 +513,31 @@ export default {
     errors: [],
     branchesList: [],
     branch_id: "",
+    isCompany: true,
   }),
 
-  created() {
+  async created() {
     this.preloader = false;
-    this.$axios
-      .get(`branches_list`, {
+    this.payload.company_id = this.$auth?.user?.company?.id;
+
+    if (this.$auth.user.branch_id) {
+      this.payload.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
+    }
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
         params: {
-          per_page: 1000,
+          per_page: 100,
           company_id: this.$auth.user.company_id,
         },
-      })
-      .then(({ data }) => {
-        this.branchesList = data;
-        this.branch_id = this.$auth.user.branch_id || "";
       });
-    this.payload.company_id = this.$auth?.user?.company?.id;
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
   },
   methods: {
     setDay() {
