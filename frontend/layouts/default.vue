@@ -675,6 +675,31 @@ export default {
           (item) => item.module === this.topMenu_Selected
         );
 
+        if (this.getLoginType === "company") {
+          let branch_single_menu = [
+            {
+              icon: "mdi-filmstrip-box-multiple",
+              title: "Branches",
+              to: "/branches",
+              menu: "branch_access",
+              module: "settings",
+            },
+          ];
+          this.items.splice(0, 0, ...branch_single_menu);
+
+          let profile_single_menu = [
+            {
+              icon: "mdi-domain",
+              title: "Profile",
+              to: "/companies",
+              menu: "setting_access",
+              class: "submenutitle",
+              module: "settings",
+            },
+          ];
+          this.items.splice(2, 0, ...profile_single_menu);
+        }
+
         return;
       }
       if (this.getLoginType === "employee") {

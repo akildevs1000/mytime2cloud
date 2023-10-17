@@ -40,7 +40,6 @@
     "click": "access_control",
     "module": "dashboard"
   },
-
   {
     "icon": "mdi-transit-transfer",
     "title": "Visitors",
@@ -57,14 +56,6 @@
     "click": "visitors",
     "module": "dashboard"
   },
-
-  {
-    "icon": "mdi-filmstrip-box-multiple",
-    "title": "Branches",
-    "to": "/branches",
-    "menu": "branch_access",
-    "module": "settings"
-  },
   {
     "icon": "mdi-email",
     "title": "Automation",
@@ -72,16 +63,6 @@
     "menu": "notifications_access",
     "module": "settings"
   },
-
-  {
-    "icon": "mdi-domain",
-    "title": "Profile",
-    "to": "/companies",
-    "menu": "setting_access",
-    "class": "submenutitle",
-    "module": "settings"
-  },
-
   {
     "icon": "mdi-chair-rolling",
     "title": "Departments",
