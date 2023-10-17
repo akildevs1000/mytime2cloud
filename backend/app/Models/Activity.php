@@ -28,16 +28,6 @@ class Activity extends Model
         return $this->hasOne(User::class, "id", "user_id");
     }
 
-    public function branch()
-    {
-        return $this->belongsTo(CompanyBranch::class, "branch_id");
-    }
-
-    public function company()
-    {
-        return $this->belongsTo(Company::class);
-    }
-
     public function getDateTimeAttribute()
     {
         return date("d M Y  H:i", strtotime($this->created_at));
