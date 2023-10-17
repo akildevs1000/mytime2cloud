@@ -55,7 +55,7 @@ class FiloShiftController extends Controller
         $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
 
         $items = [];
-        $message = [];
+        $message = "";
         foreach ($logsEmployees as $key => $logs) {
 
             $logs = $logs->toArray() ?? [];
@@ -67,15 +67,13 @@ class FiloShiftController extends Controller
             $shift = $schedule["shift"] ?? false;
 
             if (!$schedule) {
-                $message[] = $key . " : No schedule is mapped with user.";
+                $message .= "$key : No schedule is mapped with user.";
                 continue;
             }
             if (!$firstLog["schedule"]["shift_type_id"]) {
-                $message[] = $key . " : No shift configured on  date:" . $params["date"];
+                $message .= "$key : No shift configured on  date:" . $params["date"];
                 continue;
             }
-
-
 
 
             $item = [
@@ -139,7 +137,7 @@ class FiloShiftController extends Controller
             $message = '[' . $date . " " . date("H:i:s") . '] Filo Shift: No data found' . $message;
 
             Logger::channel("render_manual_logs")->info($message);
-            return   $message;
+            return $message;
         }
 
         try {
