@@ -20,10 +20,9 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12">
+              <v-col v-if="isCompany" cols="12">
                 <v-select
                   @change="getDataFromApi()"
-                  class="pt-10 px-2"
                   v-model="branch_id"
                   :items="[
                     { id: ``, branch_name: `Select All` },
@@ -66,7 +65,7 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12">
+              <v-col v-if="isCompany" cols="12">
                 <label for="" style="padding-bottom: 5px">Branches</label>
                 <v-select
                   v-model="editedItem.branch_id"
@@ -109,83 +108,6 @@
                   :key="editedItem.start_date + editedItem.end_date"
                 />
               </v-col>
-              <!-- <v-col cols="12">
-                <CustomFilter
-                  style="float: right"
-                  @filter-attr="filterAttr"
-                  :defaultFilterType="1"
-                  :height="'35px '"
-                />
-                <v-menu
-                  ref="from_menu"
-                  v-model="start_menu"
-                  :close-on-content-click="false"
-                  :return-value.sync="editedItem.start_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <div class="mb-1">Start Date</div>
-                    <v-text-field
-                      outlined
-                      dense
-                      v-model="editedItem.start_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      :error-messages="
-                        errors && errors.start_date ? errors.start_date[0] : ''
-                      "
-                    >
-                    </v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="editedItem.start_date"
-                    small
-                    no-title
-                    scrollable
-                    @change="update_EdititemStart"
-                  >
-                  </v-date-picker>
-                </v-menu> 
-              </v-col>-->
-
-              <!-- <v-col cols="12">
-                <v-menu
-                  ref="end_menu"
-                  v-model="end_menu"
-                  :close-on-content-click="false"
-                  :return-value.sync="editedItem.end_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <div class="mb-1">End Date</div>
-                    <v-text-field
-                      outlined
-                      dense
-                      v-model="editedItem.end_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      :error-messages="
-                        errors && errors.end_date ? errors.end_date[0] : ''
-                      "
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    :min="editedItem.start_date"
-                    small
-                    v-model="editedItem.end_date"
-                    @change="update_EdititemEnd"
-                    no-title
-                    scrollable
-                  >
-                  </v-date-picker>
-                </v-menu>
-              </v-col> -->
               <v-col cols="12">
                 <label for="">Today Days : {{ editedItem.total_days }}</label>
               </v-col>
@@ -526,6 +448,7 @@ export default {
     filterYear: "",
     branchesList: [],
     branch_id: "",
+    isCompany: true,
   }),
 
   computed: {},
@@ -538,37 +461,42 @@ export default {
       deep: true,
     },
   },
-  created() {
+  async created() {
     this.loading = true;
 
-    this.options = {
-      params: {
-        per_page: 100,
-        company_id: this.$auth.user.company_id,
-      },
-    };
-
-    if (this.$auth.user.branch_id == null) {
-      let branch_header = [
-        {
-          text: "Branch",
-          align: "left",
-          sortable: true,
-          key: "branch_id", //sorting
-          value: "branch.branch_name", //edit purpose
-          width: "300px",
-          filterable: true,
-          filterSpecial: true,
-        },
-      ];
-      this.headers.splice(0, 0, ...branch_header);
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
     }
 
-    this.$axios.get(`branches_list`, this.options).then(({ data }) => {
-      this.branchesList = data;
-      this.branch_id = this.$auth.user.branch_id || "";
-    });
+    let branch_header = [
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch_id", //sorting
+        value: "branch.branch_name", //edit purpose
+        width: "300px",
+        filterable: true,
+        filterSpecial: true,
+      },
+    ];
+    this.headers.splice(0, 0, ...branch_header);
 
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
+   
     let endDate = new Date();
     this.filterYear = endDate.getFullYear();
 
@@ -577,9 +505,6 @@ export default {
   },
 
   methods: {
-    getDateForamt(date) {
-      return this.$dateFormat.foramt1(date);
-    },
     filterAttr(data) {
       this.editedItem.start_date = data.from;
       this.editedItem.end_date = data.to;
@@ -589,17 +514,6 @@ export default {
     lastTenYears() {
       const year = new Date().getFullYear();
       this.dataYears = Array.from({ length: 10 }, (_, i) => year - i);
-    },
-    update_EdititemStart() {
-      this.$refs.from_menu.save(this.editedItem.start_date);
-      this.from_menu = false;
-      this.getDayscount();
-    },
-    update_EdititemEnd() {
-      this.$refs.end_menu.save(this.editedItem.end_date);
-      this.end_menu = false;
-
-      this.getDayscount();
     },
     getDayscount() {
       if (!this.editedItem.start_date || !this.editedItem.end_date) {
@@ -618,76 +532,9 @@ export default {
 
       this.editedItem.total_days = diffDays + 1;
     },
-    gotoDialogPage(item) {
-      // console.log('item', item);
-      this.DialogEmployeesData = item.employees;
-      this.dialogEmployees = true;
-    },
-    datatable_save() {},
-    datatable_cancel() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_open() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_close() {
-      this.loading = false;
-    },
-    toggleDepartmentSelection() {
-      this.selectAllDepartment = !this.selectAllDepartment;
-    },
-    toggleEmployeeSelection() {
-      this.selectAllEmployee = !this.selectAllEmployee;
-    },
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
-      );
-    },
-    onScroll() {
-      this.scrollInvoked++;
-    },
-
-    getDepartments() {
-      let options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company_id,
-        },
-      };
-      this.$axios.get(`departments`, options).then(({ data }) => {
-        this.departments = data.data;
-      });
-    },
-
-    employeesByDepartment() {
-      this.loading_dialog = true;
-      const { page, itemsPerPage } = this.options_dialog;
-
-      let options = {
-        params: {
-          department_ids: this.editedItem.departments,
-          per_page: itemsPerPage,
-          page: page,
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      if (!this.editedItem.departments.length) {
-        this.getEmployees();
-        return;
-      }
-
-      this.$axios.get("employeesByDepartment", options).then(({ data }) => {
-        this.employees_dialog = data.data;
-        this.loading_dialog = false;
-      });
-    },
-
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       if (url == "") url = this.endpoint;
       this.loading = true;
@@ -728,13 +575,6 @@ export default {
         this.dialogFilter = false;
       });
     },
-    searchIt(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${e}`);
-      }
-    },
     addItem() {
       this.editedItem = {
         name: "",
@@ -743,6 +583,9 @@ export default {
         end_date: null,
         year: null,
       };
+      if (!this.isCompany) {
+        this.editedItem.branch_id = this.branch_id;
+      }
       this.dialog = true;
     },
     editItem(item) {
