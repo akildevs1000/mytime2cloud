@@ -25,17 +25,12 @@ class ActivityController extends Controller
     public function filters($request)
     {
         $model = Activity::query();
-
-        $model->when($request->filled("action"), function ($q) use ($request) {
-            return $q->where("action", $request->action);
-        });
-        $model->when($request->filled("type"), function ($q) use ($request) {
-            return $q->where("type", $request->type);
-        });
-        $model->with(['user' => function ($query) {
-            return   $query->with('employee');
-        }]);
-
+        $model->when($request->filled("company_id"), fn ($q) => $q->where("company_id", $request->company_id));
+        $model->when($request->filled("branch_id"), fn ($q) => $q->where("branch_id", $request->branch_id));
+        $model->when($request->filled("action"), fn ($q) => $q->where("action", $request->action));
+        $model->when($request->filled("type"), fn ($q) => $q->where("type", $request->type));
+        $model->with(['user' => fn ($q) => $q->with('employee')]);
+        $model->with("branch");
         return $model;
     }
 

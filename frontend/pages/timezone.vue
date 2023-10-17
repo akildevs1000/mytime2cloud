@@ -59,7 +59,11 @@
             <v-col>
               <div v-if="viewmode">
                 <strong class="">Branch</strong>:
-                {{ editedItem && editedItem.branch && editedItem.branch.branch_name }}
+                {{
+                  editedItem &&
+                  editedItem.branch &&
+                  editedItem.branch.branch_name
+                }}
               </div>
               <v-select
                 v-else
@@ -271,6 +275,20 @@
             >mdi mdi-reload</v-icon
           >
         </v-btn>
+        <div style="width: 250px">
+          <v-select
+            @change="getDataFromApi()"
+            class="pt-10 px-2"
+            v-model="branch_id"
+            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
+            dense
+            placeholder="Select Branch"
+            outlined
+            item-value="id"
+            item-text="branch_name"
+          >
+          </v-select>
+        </div>
         <!-- </template>
           <span>Reload</span>
         </v-tooltip> -->
@@ -507,6 +525,7 @@ export default {
     editedIndex: -1,
 
     branchesList: [],
+    branch_id: "",
   }),
 
   computed: {},
@@ -541,7 +560,7 @@ export default {
 
     this.options = {
       params: {
-        per_page: 100,
+        per_page: 1000,
         company_id: this.$auth.user.company_id,
       },
     };
@@ -562,31 +581,13 @@ export default {
       this.headers.splice(1, 0, ...branch_header);
     }
 
-    this.getbranchesList();
+    this.$axios.get(`branches_list`, this.options).then(({ data }) => {
+      this.branchesList = data;
+      this.branch_id = this.$auth.user.branch_id || "";
+    });
   },
 
   methods: {
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-        if (this.$auth.user.branch_id) {
-          this.branch_id = this.$auth.user.branch_id;
-        } else {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-          this.branch_id = "";
-        }
-      });
-    },
     getSlotTitle(slot, slot2) {
       slot2 = slot2 != undefined ? slot2 : "24:00";
       return slot + " to " + slot2;
@@ -860,6 +861,7 @@ export default {
           per_page: this.pagination.per_page,
           page: page,
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
         },
       };
       if (filter_column != "") {

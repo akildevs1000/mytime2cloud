@@ -68,7 +68,7 @@
   {
     "icon": "mdi-email",
     "title": "Automation",
-    "to": "/automation",
+    "to": "/report_notifications",
     "menu": "notifications_access",
     "module": "settings"
   },
@@ -94,14 +94,6 @@
     "title": "Roles",
     "to": "/role",
     "menu": "role_access",
-    "module": "settings"
-  },
-
-  {
-    "icon": "mdi-star-box-multiple-outline",
-    "title": "Dep Mapping",
-    "to": "/department-mapping/",
-    "menu": "assign_permission_access",
     "module": "settings"
   },
   {
@@ -214,7 +206,20 @@
     "menu": "payroll_settings_access",
     "module": "payroll"
   },
-
+  {
+    "icon": "mdi-format-list-bulleted",
+    "title": "Payroll Formulla List",
+    "to": "/payroll_formula",
+    "menu": "payroll_settings_access",
+    "module": "payroll"
+  },
+  {
+    "icon": "mdi-format-list-bulleted",
+    "title": "Payroll Generation Date List",
+    "to": "/payroll_generate_date",
+    "menu": "payroll_settings_access",
+    "module": "payroll"
+  },
   {
     "icon": "mdi mdi-clock-time-four-outline",
     "title": "Timezones",

@@ -23,6 +23,21 @@
               <v-col cols="12">
                 <v-select
                   @change="getDataFromApi()"
+                  class="pt-10 px-2"
+                  v-model="branch_id"
+                  :items="[
+                    { id: ``, branch_name: `Select All` },
+                    ...branchesList,
+                  ]"
+                  dense
+                  placeholder="Select Branch"
+                  outlined
+                  item-value="id"
+                  item-text="branch_name"
+                >
+                </v-select>
+                <v-select
+                  @change="getDataFromApi()"
                   outlined
                   dense
                   x-small
@@ -52,15 +67,35 @@
           <v-container>
             <v-row>
               <v-col cols="12">
+                <label for="" style="padding-bottom: 5px">Branches</label>
+                <v-select
+                  v-model="editedItem.branch_id"
+                  :items="branchesList"
+                  dense
+                  placeholder="Select Branch"
+                  outlined
+                  item-value="id"
+                  item-text="branch_name"
+                  hide-details
+                  :error-messages="
+                    errors && errors.branch_id ? errors.branch_id[0] : ''
+                  "
+                >
+                </v-select>
+              </v-col>
+
+              <v-col cols="12">
                 <label for="" style="padding-bottom: 5px">Title</label>
                 <v-text-field
                   dense
                   outlined
                   v-model="editedItem.name"
                   placeholder="Title"
+                  hide-details
                   :error-messages="errors && errors.name ? errors.name[0] : ''"
                 ></v-text-field>
               </v-col>
+
               <v-col cols="12">
                 <label for="" style="padding-bottom: 5px">Date</label>
                 <CustomFilter
@@ -489,6 +524,8 @@ export default {
     DialogEmployeesData: {},
     dataYears: [],
     filterYear: "",
+    branchesList: [],
+    branch_id: "",
   }),
 
   computed: {},
@@ -503,6 +540,34 @@ export default {
   },
   created() {
     this.loading = true;
+
+    this.options = {
+      params: {
+        per_page: 100,
+        company_id: this.$auth.user.company_id,
+      },
+    };
+
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(0, 0, ...branch_header);
+    }
+
+    this.$axios.get(`branches_list`, this.options).then(({ data }) => {
+      this.branchesList = data;
+      this.branch_id = this.$auth.user.branch_id || "";
+    });
 
     let endDate = new Date();
     this.filterYear = endDate.getFullYear();
@@ -640,6 +705,7 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
           year: this.filterYear,
+          branch_id: this.branch_id,
         },
       };
       if (filter_column != "") {

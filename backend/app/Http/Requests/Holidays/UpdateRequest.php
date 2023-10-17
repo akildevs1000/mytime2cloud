@@ -31,6 +31,7 @@ class UpdateRequest extends FormRequest
             'end_date' => 'required|date',
             'total_days' => 'required',
             'company_id' => 'required',
+            'branch_id' => 'required',
         ];
     }
 }

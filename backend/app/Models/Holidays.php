@@ -16,13 +16,13 @@ class Holidays extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
-    protected static function boot()
+    public function branch()
     {
-        parent::boot();
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
 
-        // Order by name ASC
-        static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('start_date', 'asc');
-        });
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }

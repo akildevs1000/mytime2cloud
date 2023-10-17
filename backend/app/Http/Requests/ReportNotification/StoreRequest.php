@@ -23,6 +23,7 @@ class StoreRequest extends FormRequest
             'day' => 'nullable',
             'date' => 'nullable',
             'company_id' => 'required',
+            'branch_id' => 'required',
             'frequency' => 'required',
             'time' => 'required',
             'reports' => 'array|min:1|max:5',

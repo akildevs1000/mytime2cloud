@@ -16,13 +16,23 @@ class AnnouncementsCategories extends Model
         'company_id',
         // 'description',
     ];
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        // Order by   ASC
-        static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('name', 'asc');
-        });
+    //     // Order by   ASC
+    //     static::addGlobalScope('order', function (Builder $builder) {
+    //         $builder->orderBy('name', 'asc');
+    //     });
+    // }
+
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }

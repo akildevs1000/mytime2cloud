@@ -150,7 +150,7 @@
         "title": "Shift & Schedule",
         "to": "/shift",
         "menu": "shift_access"
-      },  
+      },
       {
         "icon": "mdi-account-tiess",
         "title": "Employee Schedule",
@@ -214,6 +214,13 @@
         "title": "Assign Departments",
         "to": "/department-mapping/",
         "menu": "assign_permission_access"
+      },
+      {
+        "icon": "mdi-star-box-multiple-outline",
+        "title": "Dep Mapping",
+        "to": "/department-mapping/",
+        "menu": "assign_permission_access",
+        "module": "settings"
       },
       {
         "icon": "mdi-cellphone-textss",

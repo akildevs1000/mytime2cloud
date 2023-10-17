@@ -23,6 +23,22 @@
               <v-divider></v-divider>
               <v-row>
                 <v-col cols="4">
+                  <label class="col-form-label"><b>Branch List</b></label>
+                </v-col>
+                <v-col cols="3">
+                  <v-autocomplete
+                    placeholder="Select Branch"
+                    dense
+                    outlined
+                    v-model="payload.branch_id"
+                    :items="branchesList"
+                    item-value="id"
+                    item-text="branch_name"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
                   <label class="col-form-label pt-0 mt-5"
                     ><b>Salary calculation formula</b></label
                   >
@@ -126,6 +142,22 @@
               <v-divider></v-divider>
               <v-row>
                 <v-col cols="4">
+                  <label class="col-form-label"><b>Branch List</b></label>
+                </v-col>
+                <v-col cols="3">
+                  <v-autocomplete
+                    placeholder="Select Branch"
+                    dense
+                    outlined
+                    v-model="branch_id"
+                    :items="branchesList"
+                    item-value="id"
+                    item-text="branch_name"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
                   <label class="col-form-label"
                     ><b>Salary Payslip Generation Date (Every Month)</b></label
                   >
@@ -163,10 +195,13 @@ export default {
   components: { Back },
 
   data: () => ({
+    branch_id: null,
+    branchesList: [],
     payload: {
       salary_type: "basic_salary",
       ot_value: 1.5,
       deduction_value: 1.5,
+      branch_id: "",
     },
     menu: false,
     date: 1,
@@ -182,6 +217,9 @@ export default {
   }),
 
   created() {
+    this.getbranchesList();
+    this.branch_id = this.$auth.user.branch_id;
+    this.payload.branch_id = this.$auth.user.branch_id;
     this.payload.company_id = this.$auth?.user?.company?.id;
 
     this.preloader = false;
@@ -204,6 +242,33 @@ export default {
   },
 
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+
+        if (!this.$auth.user.branch_id) {
+          // this.branchesList = [
+          //   { branch_name: `All Branches`, id: `` },
+          //   ,
+          //   ...this.branchesList,
+          // ];
+
+          if (this.$auth.user.branch_id) {
+            this.branch_id = this.$auth.user.branch_id;
+            this.payload.branch_id = this.$auth.user.branch_id;
+          } else {
+            this.branch_id = "";
+            this.payload.branch_id = "";
+          }
+        }
+      });
+    },
     getDate() {
       const date = new Date();
       const year = date.getFullYear();
@@ -245,6 +310,7 @@ export default {
       let payload = {
         company_id: this.$auth?.user?.company?.id,
         date: this.date,
+        branch_id: this.branch_id,
       };
 
       this.$axios

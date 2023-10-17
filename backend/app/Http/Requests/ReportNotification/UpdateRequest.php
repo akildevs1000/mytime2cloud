@@ -29,6 +29,7 @@ class UpdateRequest extends FormRequest
             'tos' => 'array|min:1',
             'ccs' => 'array|nullable',
             'bccs' => 'array|nullable',
+            'branch_id' => 'required',
         ];
 
         // if weekly or monthly

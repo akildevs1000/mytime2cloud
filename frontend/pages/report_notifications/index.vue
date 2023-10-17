@@ -62,13 +62,27 @@
               >mdi mdi-reload</v-icon
             >
           </v-btn>
+          <div style="width: 250px">
+            <v-select
+              @change="getDataFromApi()"
+              class="pt-10 px-2"
+              v-model="branch_id"
+              :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
+              dense
+              placeholder="Select Branch"
+              outlined
+              item-value="id"
+              item-text="branch_name"
+            >
+            </v-select>
+          </div>
           <!-- </template>
             <span>Reload</span>
           </v-tooltip> -->
 
           <!-- <v-tooltip top color="primary">
             <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn
+          <!-- <v-btn
             x-small
             :ripple="false"
             text
@@ -76,7 +90,7 @@
             @click="toggleFilter()"
           >
             <v-icon dark>mdi-filter</v-icon>
-          </v-btn>
+          </v-btn> -->
           <!-- </template>
             <span>Filter</span>
           </v-tooltip> -->
@@ -128,7 +142,7 @@
         <v-data-table
           flat
           dense
-          :headers="headers_table"
+          :headers="headers"
           :items="data"
           model-value="data.id"
           :loading="loading"
@@ -289,7 +303,7 @@ export default {
     data: [],
     options: {},
     errors: [],
-    headers_table: [
+    headers: [
       {
         text: "Subject",
         align: "left",
@@ -318,6 +332,8 @@ export default {
         filterSpecial: false,
       },
     ],
+    branchesList: [],
+    branch_id: "",
   }),
   watch: {
     options: {
@@ -329,6 +345,34 @@ export default {
   },
   created() {
     this.preloader = false;
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(0, 0, ...branch_header);
+    }
+
+    this.$axios
+      .get(`branches_list`, {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.branchesList = data;
+        this.branch_id = this.$auth.user.branch_id || "";
+      });
+
     this.id = this.$auth?.user?.company?.id;
     this.getDataFromApi();
   },
@@ -447,6 +491,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
           role_type: "employee",
           ...this.filters,
         },

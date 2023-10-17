@@ -1,14 +1,41 @@
 <template>
   <div>
-    <ComonPreloader icon="face-scan" v-if="loading" />
-    <!-- <div v-else-if="!logs.length">No record found</div> -->
     <v-card class="mb-5 mt-2 rounded-md" elevation="0">
       <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title><span> Web user Logins </span></v-toolbar-title>
+
+        <v-btn
+          dense
+          class="ma-0 px-0"
+          x-small
+          :ripple="false"
+          text
+          title="Reload"
+        >
+          <v-icon class="ml-2" @click="getRecords()" dark
+            >mdi-reload</v-icon
+          >
+        </v-btn>
+
+        <div style="width: 250px">
+          <v-select
+            @change="getRecords()"
+            class="pt-10 px-2"
+            v-model="branch_id"
+            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
+            dense
+            placeholder="Select Branch"
+            outlined
+            item-value="id"
+            item-text="branch_name"
+          >
+          </v-select>
+        </div>
       </v-toolbar>
       <v-data-table
+        class="pt-5"
         dense
-        :headers="headers_table"
+        :headers="headers"
         :items="logs"
         :loading="loading"
         :options.sync="options"
@@ -43,6 +70,9 @@
               </v-img>
             </v-col>
           </v-row>
+        </template>
+        <template v-slot:item.branch.branch_name="{ item }">
+          {{ item.branch && item.branch_name || "---" }}
         </template>
         <template v-slot:item.employee.first_name="{ item, index }">
           {{ item.user.employee ? item.user.employee.first_name : "Admin" }}
@@ -99,7 +129,7 @@ export default {
 
       total: 0,
       options: {},
-      headers_table: [
+      headers: [
         {
           text: "Pic",
           align: "left",
@@ -151,6 +181,8 @@ export default {
           value: "LogTime", //edit purpose
         },
       ],
+      branch_id: null,
+      branchesList: [],
     };
   },
   watch: {
@@ -161,28 +193,36 @@ export default {
       deep: true,
     },
   },
-  mounted() {
-    //this.socketConnection();
-    //this.getRecords();
-  },
-  created() {},
-  computed: {
-    employees() {
-      return this.$store.state.employees.map((e) => ({
-        system_user_id: e.system_user_id,
-        first_name: e.first_name,
-        last_name: e.last_name,
-        display_name: e.display_name,
-      }));
-    },
-    devices() {
-      return this.$store.state.devices.map((e) => e.device_id);
-    },
+  created() {
+    this.options = {
+      params: {
+        per_page: 100,
+        company_id: this.$auth.user.company_id,
+      },
+    };
+
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(1, 0, ...branch_header);
+    }
+
+    this.$axios.get(`branches_list`, this.options).then(({ data }) => {
+      this.branchesList = data;
+      this.branch_id = this.$auth.user.branch_id || "";
+    });
   },
   methods: {
-    viewLogs() {
-      this.$router.push("/web_login_logs");
-    },
     caps(str) {
       if (str == "" || str == null) {
         return "";
@@ -206,6 +246,7 @@ export default {
       if (!itemsPerPage1) itemsPerPage1 = 5;
       let options = {
         params: {
+          branch_id: this.branch_id,
           page: page,
           sortBy: sortedBy,
           sortDesc: sortedDesc,
@@ -221,100 +262,6 @@ export default {
         this.logs = data.data;
         this.loading = false;
       });
-    },
-    socketConnection() {
-      this.socket = new WebSocket(this.url);
-
-      this.socket.onmessage = ({ data }) => {
-        let json = JSON.parse(data);
-
-        if (json.Status == 200 && json.Data.UserCode > 0) {
-          console.log("employee_report_page");
-          this.getDetails(json.Data);
-        }
-      };
-    },
-    getDetails(item) {
-      item.company_id = this.$auth.user.company_id;
-
-      this.$axios.post(`/device/details`, item).then(({ data }) => {
-        if (
-          data.device &&
-          this.$auth.user &&
-          data.device.company_id == this.$auth.user.company_id
-        ) {
-          this.logs.unshift(data);
-        }
-      });
-    },
-    getDataFromApi() {
-      const { page, itemsPerPage } = this.options;
-      console.log(page);
-      if (page == 1) {
-        this.loading = true;
-      }
-      let options = {
-        params: {
-          page: page,
-          per_page: itemsPerPage,
-        },
-      };
-      this.$axios
-        .get(
-          `device/getLastRecordsHistory/${this.$auth.user.company_id}/${this.number_of_records}`,
-          options
-        )
-        .then(async ({ data }) => {
-          this.loading = false;
-          this.total = data.total;
-          this.logs = await data.data.map((e) => ({
-            UserCode: e.UserID,
-            time: e.time,
-            name:
-              e.employee &&
-              (e.employee.display_name ||
-                e.employee.first_name ||
-                e.employee.last_name),
-            image:
-              (e.employee && e.employee.profile_picture) ||
-              "/no-profile-image.jpg",
-          }));
-        });
-    },
-    socketConnection() {
-      this.socket = new WebSocket(this.url);
-
-      this.socket.onmessage = ({ data }) => {
-        let json = JSON.parse(data).Data;
-        if (json && json.UserCode > 0) {
-          this.getDetails(json);
-        }
-      };
-    },
-    getDetails({ SN, RecordImage, UserCode, RecordDate }) {
-      if (this.devices.includes(SN)) {
-        let employee = this.employees.find(
-          (e) => e.system_user_id == UserCode && e.first_name !== null
-        );
-
-        let item = {
-          UserCode,
-          image: "data:image;base64," + RecordImage || "/no-profile-image.jpg",
-          time: this.setTime(RecordDate),
-          name:
-            employee &&
-            (employee.display_name ||
-              employee.first_name ||
-              employee.last_name),
-        };
-        this.logs.unshift(item);
-      }
-    },
-    setTime(dateTimeString) {
-      const dateTime = new Date(dateTimeString);
-      const hours = dateTime.getHours().toString().padStart(2, "0");
-      const minutes = dateTime.getMinutes().toString().padStart(2, "0");
-      return `${hours}:${minutes}`;
     },
   },
 };

@@ -31,7 +31,7 @@
               dense
               v-model="payload.branch_id"
               x-small
-              :items="[{ branch_name: 'All Branches', id: '' }, ...branches]"
+              :items="branches"
               item-value="id"
               item-text="branch_name"
               :hide-details="true"
@@ -669,23 +669,16 @@ export default {
       });
     },
     getBranches() {
-      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
-
-      let sortedBy = sortBy ? sortBy[0] : "";
-      let sortedDesc = sortDesc ? sortDesc[0] : "";
-      let options = {
-        params: {
-          page: page,
-          sortBy: sortedBy,
-          sortDesc: sortedDesc,
-          per_page: itemsPerPage, //this.pagination.per_page,
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get("branch", options).then(({ data }) => {
-        this.branches = data.data;
-      });
+      this.$axios
+        .get("branch", {
+          params: {
+            per_page: 1000,
+            company_id: this.$auth.user.company_id,
+          },
+        })
+        .then(({ data }) => {
+          this.branches = data.data;
+        });
     },
     setDailyDate() {
       this.payload.daily_date = new Date().toJSON().slice(0, 10);

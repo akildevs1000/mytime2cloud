@@ -24,19 +24,36 @@
           <v-container>
             <v-row>
               <v-col cols="12">
+                <label for="" style="margin-bottom: 5px">Branches</label> <br />
+                <v-select
+                  v-model="editedItem.branch_id"
+                  :items="branchesList"
+                  dense
+                  placeholder="Select Branch"
+                  outlined
+                  item-value="id"
+                  item-text="branch_name"
+                  hide-details
+                  :error-messages="errors && errors.branch_id ? errors.branch_id[0] : ''"
+                >
+                </v-select>
+              </v-col>
+              <v-col cols="12">
                 <label for="" style="margin-bottom: 5px">Name</label> <br />
                 <v-text-field
                   dense
                   outlined
                   v-model="editedItem.name"
                   placeholder="Name"
+                  hide-details
                   :error-messages="errors && errors.name ? errors.name[0] : ''"
                 ></v-text-field>
               </v-col>
 
               <v-col cols="12">
-                <label for="" mb-1 style="margin-bottom: 5px">Short Name</label>
+                <label for="" style="margin-bottom: 5px">Short Name</label>
                 <v-text-field
+                  hide-details
                   dense
                   outlined
                   v-model="editedItem.short_name"
@@ -53,7 +70,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
-          <v-btn class="primary" small @click="save">Save</v-btn>
+          <v-btn class="primary" small @click="submit">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -82,6 +99,23 @@
                 >mdi mdi-reload</v-icon
               >
             </v-btn>
+            <div style="width: 250px">
+              <v-select
+                @change="getDataFromApi()"
+                class="pt-10 px-2"
+                v-model="branch_id"
+                :items="[
+                  { id: ``, branch_name: `Select All` },
+                  ...branchesList,
+                ]"
+                dense
+                placeholder="Select Branch"
+                outlined
+                item-value="id"
+                item-text="branch_name"
+              >
+              </v-select>
+            </div>
             <!-- </template>
               <span>Reload</span>
             </v-tooltip> -->
@@ -302,6 +336,8 @@ export default {
     selectAllDepartment: false,
     selectAllEmployee: false,
     DialogEmployeesData: {},
+    branchesList: [],
+    branch_id: "",
   }),
 
   computed: {},
@@ -309,6 +345,34 @@ export default {
   watch: {},
   created() {
     this.loading = true;
+
+    if (this.$auth.user.branch_id == null) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+          width: "300px",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(0, 0, ...branch_header);
+    }
+
+    this.$axios
+      .get(`branches_list`, {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.branchesList = data;
+        this.branch_id = this.$auth.user.branch_id || "";
+      });
 
     this.getDataFromApi();
   },
@@ -328,104 +392,9 @@ export default {
       };
       this.dialog = true;
     },
-    update_EdititemStart() {
-      this.$refs.from_menu.save(this.editedItem.start_date);
-      this.from_menu = false;
-      this.getDayscount();
-    },
-    update_EdititemEnd() {
-      this.$refs.end_menu.save(this.editedItem.end_date);
-      this.end_menu = false;
-
-      this.getDayscount();
-    },
-    getDayscount() {
-      if (!this.editedItem.start_date || !this.editedItem.end_date) {
-        return false;
-      }
-      let startDate = new Date(this.editedItem.start_date);
-      let endDate = new Date(this.editedItem.end_date);
-
-      this.editedItem.year = endDate.getFullYear();
-
-      // Calculate the time difference in milliseconds
-      let timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
-
-      // Convert the time difference to days
-      let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-      this.editedItem.total_days = diffDays + 1;
-    },
-    gotoDialogPage(item) {
-      // console.log('item', item);
-      this.DialogEmployeesData = item.employees;
-      this.dialogEmployees = true;
-    },
-    datatable_save() {},
-    datatable_cancel() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_open() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_close() {
-      this.loading = false;
-    },
-    toggleDepartmentSelection() {
-      this.selectAllDepartment = !this.selectAllDepartment;
-    },
-    toggleEmployeeSelection() {
-      this.selectAllEmployee = !this.selectAllEmployee;
-    },
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
-      );
-    },
-    onScroll() {
-      this.scrollInvoked++;
-    },
-
-    getDepartments() {
-      let options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company_id,
-        },
-      };
-      this.$axios.get(`departments`, options).then(({ data }) => {
-        this.departments = data.data;
-      });
-    },
-
-    employeesByDepartment() {
-      this.loading_dialog = true;
-      const { page, itemsPerPage } = this.options_dialog;
-
-      let options = {
-        params: {
-          department_ids: this.editedItem.departments,
-          per_page: itemsPerPage,
-          page: page,
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      if (!this.editedItem.departments.length) {
-        this.getEmployees();
-        return;
-      }
-
-      this.$axios.get("employeesByDepartment", options).then(({ data }) => {
-        this.employees_dialog = data.data;
-        this.loading_dialog = false;
-      });
-    },
-
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       if (url == "") url = this.endpoint;
       this.loading = true;
@@ -438,6 +407,7 @@ export default {
         params: {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
           year: endDate.getFullYear(),
         },
       };
@@ -458,14 +428,6 @@ export default {
         this.loading = false;
       });
     },
-    searchIt(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${e}`);
-      }
-    },
-
     editItem(item) {
       this.errors = [];
       this.formTitle = "Edit Leave Type";
@@ -473,28 +435,6 @@ export default {
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
-
-    delteteSelectedRecords() {
-      confirm(
-        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .post(`${this.endpoint}/delete/selected`, {
-            ids: this.ids.map((e) => e.id),
-          })
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.snackbar = data.status;
-              this.ids = [];
-              this.response = "Selected records has been deleted";
-            }
-            this.getDataFromApi();
-          })
-          .catch((err) => console.log(err));
-    },
-
     deleteItem(item) {
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
@@ -512,7 +452,6 @@ export default {
           })
           .catch((err) => console.log(err));
     },
-
     close() {
       this.dialog = false;
       setTimeout(() => {
@@ -520,25 +459,7 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-
-    getEmployees(url = "employee") {
-      this.loading = true;
-
-      const { page, itemsPerPage } = this.options;
-
-      let options = {
-        params: {
-          per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        this.employees_dialog = data.data;
-      });
-    },
-
-    save() {
+    submit() {
       this.editedItem.company_id = this.$auth.user.company_id;
 
       if (this.editedIndex > -1) {
@@ -572,7 +493,6 @@ export default {
           .then(({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
-
               this.snackbar = true;
               this.snackColor = "error";
               this.response = data.message;

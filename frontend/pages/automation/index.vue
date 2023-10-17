@@ -44,20 +44,11 @@
         </v-dialog>
       </div>
       <!-- <Back class="primary white--text" /> -->
-      <v-dialog v-model="dialogNew" width="600">
-        <v-card>
-          <v-card-title dense class="popup_background">
-            <h5>{{ formTitle }}</h5>
-            <v-spacer></v-spacer>
-            <v-icon @click="dialogNew = false" outlined dark>
-              mdi mdi-close-circle
-            </v-icon>
-          </v-card-title>
-          <v-card-text>
-            <Automation></Automation>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
+      <Automation
+        :dialogNew="dialogNew"
+        @close-dialog="dialogNew = false"
+      ></Automation>
+
       <v-card class="mb-5 mt-2" elevation="0">
         <v-toolbar class="rounded-md" dense flat>
           <v-toolbar-title><span> Automation List</span></v-toolbar-title>
@@ -110,8 +101,8 @@
             x-small
             :ripple="false"
             text
-            title="Add   Notification"
-            @click="openNewForm()"
+            title="Add Notification"
+            @click="dialogNew = true"
           >
             <v-icon dark>mdi-plus-circle-outline</v-icon>
           </v-btn>
@@ -361,10 +352,6 @@ export default {
     this.getDataFromApi();
   },
   methods: {
-    openNewForm() {
-      this.dialogNew = true;
-    },
-    datatable_save() {},
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },

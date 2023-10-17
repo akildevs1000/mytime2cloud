@@ -29,6 +29,7 @@ class UpdateRequest extends FormRequest
             'name' => 'required',
             'short_name' => 'required',
             'company_id' => 'required',
+            'branch_id' => 'required',
         ];
     }
 }
