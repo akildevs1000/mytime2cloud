@@ -27,7 +27,7 @@
         </div>
       </v-row>
       <v-row>
-        <v-col cols="3">
+        <v-col v-if="isCompany" cols="3">
           <v-select
             @change="filterDepartmentsByBranch($event)"
             v-model="branch_id"
@@ -750,6 +750,7 @@ export default {
           cols: ["id", "name"],
         },
       },
+      isCompany: true,
     };
   },
   mounted: function () {
@@ -769,10 +770,8 @@ export default {
       //this.snackbar = false;
     }, 2000);
   },
-  created() {
-    this.getbranchesList();
-    this.branch_id = this.$auth.user.branch_id;
-    // }
+  async created() {
+    await this.getbranchesList();
   },
   methods: {
     filterDepartmentsByBranch(branch_id) {
@@ -781,28 +780,24 @@ export default {
       this.getEmployeesDataFromApi(branch_id);
       this.getTimezonesFromApi(branch_id);
     },
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+    async getbranchesList() {
+      if (this.$auth.user.branch_id) {
+        this.branch_id = this.$auth.user.branch_id;
+        this.isCompany = false;
+        return;
+      }
+      try {
+        const { data } = await this.$axios.get(`branches_list`, {
+          params: {
+            per_page: 100,
+            company_id: this.$auth.user.company_id,
+          },
+        });
         this.branchesList = data;
-
-        if (!this.$auth.user.branch_id) {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-
-          if (this.$auth.user.branch_id)
-            this.branch_id = this.$auth.user.branch_id;
-          else this.branch_id = "";
-        }
-      });
+      } catch (error) {
+        // Handle the error
+        console.error("Error fetching branch list", error);
+      }
     },
     getDepartmentsApi(options, branch_id) {
       options.params.branch_id = branch_id;
