@@ -396,12 +396,19 @@ class CompanyController extends Controller
 
         $i = 0;
 
+        $foundKeys = [];
+
         foreach ($rows as $arr) {
 
             if ($arr["device"]) {
 
                 if (!$arr["device"]["company_id"]) {
                     Logger::channel("custom")->info("[" . $date . "] Cron: UpdateCompanyIds. {$arr["device"]} is not assigned with any company.\n");
+                    $foundKeys[] = $arr["DeviceID"];
+                    continue;
+                }
+
+                if (in_array($arr["DeviceID"], $foundKeys)) {
                     continue;
                 }
 
