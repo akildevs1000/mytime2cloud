@@ -26,11 +26,12 @@ class ActivityController extends Controller
     {
         $model = Activity::query();
         $model->when($request->filled("company_id"), fn ($q) => $q->where("company_id", $request->company_id));
-        $model->when($request->filled("branch_id"), fn ($q) => $q->where("branch_id", $request->branch_id));
+        $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            $q->whereHas("user.employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+        });
         $model->when($request->filled("action"), fn ($q) => $q->where("action", $request->action));
         $model->when($request->filled("type"), fn ($q) => $q->where("type", $request->type));
         $model->with(['user' => fn ($q) => $q->with('employee')]);
-        $model->with("branch");
         return $model;
     }
 
