@@ -27,7 +27,7 @@
                   </v-avatar>
                 </v-card-text>
                 <div>
-                  <strong>{{ test_employee.name }} (1111)</strong>
+                  <strong>{{ test_employee.name }} </strong>
                   <v-card-subtitle>{{
                     test_employee.position
                   }}</v-card-subtitle>

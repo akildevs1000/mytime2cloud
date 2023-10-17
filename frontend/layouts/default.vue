@@ -904,6 +904,7 @@ header i {
 }
 .view-profile-table-lineheight td {
   padding-right: 5px;
+  padding-left: 5px;
 }
 
 .whitebackground--text {
@@ -1019,4 +1020,8 @@ header i {
   color: #6946dd !important;
   caret-color: #6946dd !important;
 } */
+
+.slidegroup1 .v-slide-group {
+  height: 34px !important;
+}
 </style>

@@ -22,6 +22,40 @@ export default ({ app }, inject) => {
 
       return `${year}-${month}-${day}`;
     },
+    monthStartEnd: (inputdate) => {
+      // Get the current date
+      const currentDate = new Date(inputdate);
+
+      // Get the first day of the current month
+      const firstDayOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1
+      );
+
+      // Get the last day of the current month
+      const lastDayOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        0
+      );
+
+      // Format the dates as strings (in 'YYYY-MM-DD' format)
+      const formattedFirstDay = `${firstDayOfMonth.getFullYear()}-${(
+        firstDayOfMonth.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}-01`;
+      const formattedLastDay = `${lastDayOfMonth.getFullYear()}-${(
+        lastDayOfMonth.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}-${lastDayOfMonth.getDate()}`;
+
+      return { first: formattedFirstDay, last: formattedLastDay };
+      console.log("First day of the current month:", formattedFirstDay);
+      console.log("Last day of the current month:", formattedLastDay);
+    },
     format_month_name_year: (inputdate) => {
       // Create a Date object with the date "2023-09-13"  Output: "23-09-13"
       const date = new Date(inputdate);

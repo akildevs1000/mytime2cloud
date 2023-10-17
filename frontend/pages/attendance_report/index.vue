@@ -237,15 +237,13 @@
 </template>
 <script>
 import AttendanceReport from "../../components/attendance_report/reportComponent.vue";
-import AttendanceReportMulti from "../../components/attendance_report/reportComponent_multi.vue";
-import AttendanceReportDual from "../../components/attendance_report/reportComponent_dual.vue";
 
 import generalHeaders from "../../headers/general.json";
 import multiHeaders from "../../headers/multi.json";
 import doubleHeaders from "../../headers/double.json";
 
 export default {
-  components: { AttendanceReport, AttendanceReportMulti, AttendanceReportDual },
+  components: { AttendanceReport },
 
   props: ["title", "shift_type_id", "render_endpoint", "process_file_endpoint"],
 
