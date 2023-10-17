@@ -24,6 +24,13 @@ class Kernel extends ConsoleKernel
         $date = date("M-Y");
 
         $schedule
+            ->command('task:sync_attendance_logs')
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        $schedule
             ->command('task:update_company_ids')
             // ->everyThirtyMinutes()
             ->everyMinute()
@@ -232,13 +239,7 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-        $schedule
-            ->command('task:render_missing')
-            ->dailyAt('00:15')
-            // ->everyMinute()
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-render-missing-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
 
         $payroll_settings = PayrollSetting::get(["id", "date", "company_id"]);
 
@@ -270,12 +271,20 @@ class Kernel extends ConsoleKernel
             }
         }
 
+        $schedule
+            ->command('task:render_missing')
+            ->dailyAt('00:15')
+            // ->everyMinute()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/$date-render-missing-logs.log"))
+            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
         if (env("APP_ENV") == "production") {
-            $schedule
-                ->command('task:db_backup')
-                ->dailyAt('6:00')
-                ->appendOutputTo(storage_path("logs/db_backup.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command('task:db_backup')
+            //     ->dailyAt('6:00')
+            //     ->appendOutputTo(storage_path("logs/db_backup.log"))
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command('restart_sdk')
@@ -335,12 +344,7 @@ class Kernel extends ConsoleKernel
         //     }
         // }
 
-        // $schedule
-        //     ->command('task:sync_attendance_logs')
-        //     ->everyMinute()
-        //     ->withoutOverlapping()
-        //     ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log"))
-        //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
 
 
         // $devices = AccessControlTimeSlot::get();
