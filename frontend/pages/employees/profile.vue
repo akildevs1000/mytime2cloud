@@ -2,9 +2,22 @@
   <div v-if="employeeObject">
     <v-row class="pt-5">
       <v-col cols="3">
-        <v-card elevation="2">
+        <v-card elevation="2" style="min-height: 845px">
           <v-row>
-            <v-col cols="12">
+            <v-col cols="12" class="pb-0">
+              <div class="text-end pa-5">
+                <v-chip
+                  v-if="employeeObject.status"
+                  color="green"
+                  filter
+                  label
+                  outlined
+                  >Active</v-chip
+                >
+                <v-chip v-else color="red" filter label outlined
+                  >In-Active</v-chip
+                >
+              </div>
               <div class="mt-5" style="margin: 0 auto; width: 200px">
                 <v-img
                   style="
@@ -24,17 +37,18 @@
                 </div>
                 <div class="text-center text-center">
                   <strong
-                    ><v-icon color="violet">mdi-account-tie</v-icon>Employee ID:
-                    {{ employeeObject.employee_id }}</strong
+                    ><v-icon style="vertical-align: baseline" color="violet"
+                      >mdi-account-tie</v-icon
+                    >Employee ID: {{ employeeObject.employee_id }}</strong
                   >
                 </div>
-                <div class="text-center">
+                <div class="text-center pt-2">
                   <span v-html="formatJoiningDate"></span>
                 </div>
               </div>
               <hr />
             </v-col>
-            <v-col cols="12" class="pl-5">
+            <v-col cols="12" class="pt-0">
               <table class="view-profile-table-lineheight">
                 <!-- <tr>
                       <td>
@@ -106,13 +120,13 @@
                 </tr>
                 <tr>
                   <td style="text-align: left">
-                    <strong>Designation </strong>
+                    <strong>Des </strong>
                   </td>
                   <td style="text-align: right">
                     {{ employeeObject.designation.name }}
                   </td>
                 </tr>
-                <tr>
+                <tr style="border-bottom: 0px">
                   <td style="text-align: left">
                     <strong>Role </strong>
                   </td>
@@ -129,11 +143,11 @@
         </v-card>
       </v-col>
       <v-col cols="9" class="pa-0">
-        <v-card elevation="2">
+        <v-card elevation="2" style="min-height: 845px">
           <v-tabs
             v-model="tabmain"
             background-color="transparent"
-            color="whitebackground"
+            color="violet"
             grow
             flat
           >
@@ -148,20 +162,25 @@
                 <v-row class="pt-5">
                   <v-col md="2" class="align-left">
                     <v-icon
+                      size="40"
                       @click="updateCalender(calender_month_switcher--)"
                       style="cursor: pointer"
                     >
                       mdi-less-than</v-icon
                     ></v-col
                   >
-                  <v-col md="8" class="text-center bold text--violet"
-                    ><v-icon dark fill color="violet"
+                  <v-col
+                    md="8"
+                    class="text-center bold text--violet"
+                    style="font-size: 30px"
+                    ><v-icon size="40" dark fill color="violet"
                       >mdi-calendar-month</v-icon
                     >
                     {{ month_year_display }}
                   </v-col>
                   <v-col md="2" class="align-right text-end">
                     <v-icon
+                      size="40"
                       @click="updateCalender(calender_month_switcher++)"
                       style="cursor: pointer"
                     >
@@ -239,11 +258,95 @@
                   </v-col>
                 </v-row>
                 <v-divider></v-divider>
-                <DashboardRealTimeLogTableview
+                <!-- <DashboardRealTimeLogTableview
                   v-if="employeeObject.system_user_id > 0"
                   :system_user_id="employeeObject.system_user_id"
                   :key="employeeObject.system_user_id"
-                />
+                /> -->
+                <v-tabs
+                  class="slidegroup1"
+                  v-model="tab"
+                  background-color="transparent"
+                  right
+                  dark
+                  color="violet"
+                  flat
+                >
+                  <v-tabs-slider
+                    class="violet slidegroup1"
+                    style="height: 3px"
+                  ></v-tabs-slider>
+
+                  <v-tab
+                    @click="commonMethod()"
+                    :key="1"
+                    style="height: 30px"
+                    href="#tab-1"
+                    class="black--text slidegroup1"
+                  >
+                    Single
+                  </v-tab>
+
+                  <v-tab
+                    :key="2"
+                    @click="commonMethod()"
+                    style="height: 30px"
+                    href="#tab-2"
+                    class="black--text slidegroup1"
+                  >
+                    Double
+                  </v-tab>
+
+                  <v-tab
+                    :key="3"
+                    @click="commonMethod"
+                    style="height: 30px"
+                    href="#tab-3"
+                    class="black--text slidegroup1"
+                  >
+                    Multi
+                  </v-tab>
+                </v-tabs>
+
+                <v-tabs-items v-model="tab">
+                  <v-tab-item value="tab-1">
+                    <AttendanceReport
+                      :key="1"
+                      title="General Reports"
+                      shift_type_id="1"
+                      :headers="generalHeaders"
+                      :report_template="report_template"
+                      :payload1="payload11"
+                      process_file_endpoint=""
+                      render_endpoint="render_general_report"
+                    />
+                  </v-tab-item>
+                  <v-tab-item value="tab-2">
+                    <AttendanceReport
+                      title="Split Reports"
+                      shift_type_id="5"
+                      :headers="doubleHeaders"
+                      :report_template="report_template"
+                      :payload1="payload11"
+                      process_file_endpoint="multi_in_out_"
+                      render_endpoint="render_multi_inout_report"
+                      :key="2"
+                      ref="profile"
+                    />
+                  </v-tab-item>
+                  <v-tab-item value="tab-3">
+                    <AttendanceReport
+                      :key="3"
+                      title="Multi In/Out Reports"
+                      shift_type_id="2"
+                      :headers="multiHeaders"
+                      :report_template="report_template"
+                      :payload1="payload11"
+                      process_file_endpoint="multi_in_out_"
+                      render_endpoint="render_multi_inout_report"
+                    />
+                  </v-tab-item>
+                </v-tabs-items>
               </v-tab-item>
               <v-tab-item> leave Quota </v-tab-item>
               <v-tab-item> Payslips</v-tab-item>
@@ -251,7 +354,7 @@
                 <v-tabs
                   v-model="tab"
                   background-color="transparent"
-                  color="whitebackground"
+                  color="violet"
                   grow
                   flat
                 >
@@ -1104,12 +1207,23 @@
 <script>
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
+
+import AttendanceReport from "../../components/attendance_report/reportComponent.vue";
+
+import generalHeaders from "../../headers/general.json";
+import multiHeaders from "../../headers/multi.json";
+import doubleHeaders from "../../headers/double.json";
 export default {
   components: {
     VueCropper,
+    AttendanceReport,
   },
-
   data: () => ({
+    tab: "",
+    generalHeaders,
+    multiHeaders,
+    doubleHeaders,
+    report_template: "Template1",
     month_year_display: "",
     calender_month_switcher: 0,
     tabmain: null,
@@ -1186,6 +1300,8 @@ export default {
     payloadOptions: {},
     last_login: {},
     document_list: [],
+
+    payload11: {},
   }),
 
   created() {
@@ -1243,10 +1359,25 @@ export default {
       let month = dateObj.toLocaleString("default", { month: "long" });
       let year = dateObj.getFullYear();
       let daySuffix = this.setDaySuffix(day);
-      return `<p>DOJ: ${day}<sup>${daySuffix}</sup> ${month} ${year}</p>`;
+      return ` DOJ: ${day}<sup>${daySuffix}</sup> ${month} ${year} `;
     },
   },
   methods: {
+    commonMethod() {
+      let monthObj = this.$dateFormat.monthStartEnd(new Date());
+
+      this.payload11 = {
+        company_id: this.$auth.user.company_id,
+        report_type: "Monthly", //filterDay,
+
+        overtime: 0,
+        from_date: monthObj.first,
+        to_date: monthObj.last,
+        employee_id: 1001,
+
+        filterType: "Monthly",
+      };
+    },
     addMonths(date, months) {
       date.setMonth(date.getMonth() + months);
       return date;
@@ -1265,9 +1396,12 @@ export default {
         },
       };
 
-      console.log(options);
       this.$axios.get("employee", options).then(({ data }) => {
         if (data.data[0]) this.employeeObject = data.data[0];
+
+        setTimeout(() => {
+          this.commonMethod();
+        }, 2000);
       });
     },
     getLastLogin() {

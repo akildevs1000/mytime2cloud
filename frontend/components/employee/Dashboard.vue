@@ -517,6 +517,7 @@ export default {
     };
   },
   created() {
+    this.$router.push("/employees/profile");
     this.initialize();
     this.get_announcements();
     this.first_login_auth = this.$auth.user.first_login;
