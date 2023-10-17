@@ -386,7 +386,7 @@ class CompanyController extends Controller
         $model = AttendanceLog::query();
         $model->distinct('DeviceID');
         $model->where("company_id", 0);
-        $model->take(1000);
+        $model->take(100);
         $model->with("device:device_id,company_id,location,device_type");
         $rows = $model->get(["DeviceID"]);
 
@@ -399,6 +399,12 @@ class CompanyController extends Controller
         foreach ($rows as $arr) {
 
             if ($arr["device"]) {
+
+                if (!$arr["device"]["company_id"]) {
+                    Logger::channel("custom")->info("[" . $date . "] Cron: UpdateCompanyIds. {$arr["device"]} is not assigned with any company.\n");
+                    continue;
+                }
+
                 try {
                     $i++;
                     AttendanceLog::where("DeviceID", $arr["DeviceID"])->update([
