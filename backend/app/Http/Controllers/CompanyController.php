@@ -402,13 +402,13 @@ class CompanyController extends Controller
 
             if ($arr["device"]) {
 
-                if (!$arr["device"]["company_id"]) {
-                    Logger::channel("custom")->info("[" . $date . "] Cron: UpdateCompanyIds. {$arr["device"]} is not assigned with any company.\n");
-                    $foundKeys[] = $arr["DeviceID"];
+                if (in_array($arr["DeviceID"], $foundKeys)) {
                     continue;
                 }
 
-                if (in_array($arr["DeviceID"], $foundKeys)) {
+                if (!$arr["device"]["company_id"]) {
+                    Logger::channel("custom")->info("[" . $date . "] Cron: UpdateCompanyIds. {$arr["device"]} is not assigned with any company.\n");
+                    $foundKeys[] = $arr["DeviceID"];
                     continue;
                 }
 
