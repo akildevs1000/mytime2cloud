@@ -64,7 +64,7 @@ class SplitShiftController extends Controller
 
         $items = [];
 
-        $message = [];
+        $message = "";
         foreach ($employees as $row) {
 
             $params["isOverTime"] = $row->schedule->isOverTime;
@@ -76,11 +76,11 @@ class SplitShiftController extends Controller
             $data = $logs[$row->system_user_id] ?? [];
 
             if (!count($data)) {
-                $message[] =    $row->system_user_id . ' has No Logs to render';
+                $message .= $row->system_user_id . ' has No Logs to render';
                 continue;
             }
             if (!$params["shift"]["id"]) {
-                $message[] =   $row->system_user_id . ' : No shift configured on  date:' . $date;
+                $message .= $row->system_user_id . ' : No shift configured on  date:' . $date;
                 continue;
             }
 
@@ -167,16 +167,9 @@ class SplitShiftController extends Controller
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
 
-
-
-
-
-            $message[] = "[" . $date . " " . date("H:i:s") .  "] Dual Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
-            Logger::channel("render_manual_logs")->info(json_encode($message));
-
-
+            $message = "[" . $date . " " . date("H:i:s") .  "] Dual Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . " " . $message;
+            Logger::channel("render_manual_logs")->info($message);
             return ($message);
-            return $this->getMeta("Dual Shift", json_encode($message));
         } catch (\Throwable $e) {
             return $this->getMeta("Dual Shift", $e->getMessage());
         }
