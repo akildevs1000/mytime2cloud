@@ -386,6 +386,11 @@ class CompanyController extends Controller
         $model = AttendanceLog::query();
         $model->distinct('DeviceID');
         $model->where("company_id", 0);
+
+        $model->whereHas('device', function ($query) {
+            $query->where('company_id', '!=', 0);
+        });
+
         $model->take(100);
         $model->with("device:device_id,company_id,location,device_type");
         $rows = $model->get(["DeviceID"]);
@@ -396,40 +401,24 @@ class CompanyController extends Controller
 
         $i = 0;
 
-        $foundKeys = [];
-
         foreach ($rows as $arr) {
+            try {
+                $i++;
+                AttendanceLog::where("DeviceID", $arr["DeviceID"])->update([
+                    "company_id" => $arr["device"]["company_id"] ?? 0,
+                    "gps_location" => $arr["device"]["location"],
+                    "log_type" => $arr["device"]["device_type"]
+                ]);
+            } catch (\Throwable $th) {
+                Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
 
-            if ($arr["device"]) {
+                $data = [
+                    'title' => 'Quick action required',
+                    'body' => $th,
+                ];
 
-                if (in_array($arr["DeviceID"], $foundKeys)) {
-                    continue;
-                }
-
-                if (!$arr["device"]["company_id"]) {
-                    Logger::channel("custom")->info("[" . $date . "] Cron: UpdateCompanyIds. {$arr["device"]} is not assigned with any company.\n");
-                    $foundKeys[] = $arr["DeviceID"];
-                    continue;
-                }
-
-                try {
-                    $i++;
-                    AttendanceLog::where("DeviceID", $arr["DeviceID"])->update([
-                        "company_id" => $arr["device"]["company_id"] ?? 0,
-                        "gps_location" => $arr["device"]["location"],
-                        "log_type" => $arr["device"]["device_type"]
-                    ]);
-                } catch (\Throwable $th) {
-                    Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
-
-                    $data = [
-                        'title' => 'Quick action required',
-                        'body' => $th,
-                    ];
-
-                    Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
-                    return "[" . $date . "] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
-                }
+                Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+                return "[" . $date . "] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
             }
         }
 
