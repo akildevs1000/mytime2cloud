@@ -332,7 +332,7 @@ export default {
         filterSpecial: false,
       },
       {
-        text: "Time",
+        text: "Action",
         align: "left",
         sortable: false,
         key: "actions",
