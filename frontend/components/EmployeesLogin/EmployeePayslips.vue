@@ -258,7 +258,7 @@
 </template>
 <script>
 export default {
-  props: ["system_user_id", "employee_id", "id"],
+  props: ["system_user_id", "employee_id", "table_id"],
   data: () => ({
     year_display: "",
     payroll: {},
@@ -682,7 +682,8 @@ export default {
       // if (this.filters) {
       //   page = 1;
       // }
-      console.log(this.$auth.user);
+      //console.log(this.$auth.user);
+
       let options = {
         params: {
           page: page,

@@ -434,7 +434,7 @@
             <v-card-text>
               <EmployeeProfileView
                 :table_id="employeeId"
-                :employee_id="employeeId"
+                :employee_id="employee_id"
                 :system_user_id="system_user_id"
               />
             </v-card-text>
@@ -1005,6 +1005,7 @@ export default {
     tabMenu: [],
     tab: "0",
     employeeId: 0,
+    employee_id: 0,
     employeeObject: {},
     attrs: [],
     dialog: false,

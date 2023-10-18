@@ -24,13 +24,13 @@ export default {
     this.system_user_id = this.$auth.user.employee.system_user_id;
 
     this.employee_id = this.$auth.user.employee.employee_id;
+
     this.id = this.$auth.user.employee.id;
   },
   mounted() {
-    this.system_user_id = this.$auth.user.employee.system_user_id;
-
-    this.employee_id = this.$auth.user.employee.employee_id;
-    this.id = this.$auth.user.employee.id;
+    // this.system_user_id = this.$auth.user.employee.system_user_id;
+    // this.employee_id = this.$auth.user.employee.employee_id;
+    // this.id = this.$auth.user.employee.id;
   },
 
   methods: {},
