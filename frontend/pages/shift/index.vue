@@ -19,10 +19,7 @@
         <v-card-text>
           <v-row class="pa-1">
             <v-col v-if="isCompany" md="3" sm="12" cols="12">
-              <label
-                >Branch 
-                <span class="error--text">*</span></label
-              >
+              <label>Branch <span class="error--text">*</span></label>
               <v-select
                 clearable
                 :hide-details="true"
@@ -328,7 +325,7 @@ export default {
     errors: [],
     renderComponent: 0,
     branch_id: null,
-    isCompany: false,
+    isCompany: true,
     comp: "",
   }),
 

@@ -146,7 +146,7 @@
                   "
                 ></v-text-field>
               </v-col>
-              <v-col md="6" sm="12" cols="12">
+              <v-col v-if="isCompany" md="6" sm="12" cols="12">
                 <label class="col-form-label">Branch </label>
                 <v-select
                   @change="filterDepartmentsByBranch($event)"
@@ -161,7 +161,7 @@
                 </v-select>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Department </label>
+                <label class="col-form-label">Department</label>
                 <v-select
                   @change="filterSubDepartmentsByDepartment($event)"
                   :items="departments"
@@ -359,9 +359,10 @@ export default {
     payloadOptions: {},
     filterBranchId: null,
     branchesList: [],
+    isCompany: true,
   }),
 
-  created() {
+  async created() {
     this.getInfo(this.employeeId);
 
     this.payloadOptions = {
@@ -371,7 +372,6 @@ export default {
         //department_ids: this.$auth.user.assignedDepartments,
       },
     };
-    this.getbranchesList();
     // this.getDepartments();
     // this.getSubDepartments();
     this.getDesignations();
@@ -385,6 +385,26 @@ export default {
         this.editItemId(employee_id);
       }
     } catch (error) {}
+
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.employee.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
+    }
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
   },
   mounted() {
     //this.getDataFromApi();
@@ -404,27 +424,6 @@ export default {
     filterDepartmentsByBranch(filterBranchId) {
       this.getDepartments(filterBranchId);
       //this.getSubDepartments(filterBranchId);
-    },
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-        if (this.$auth.user.branch_id) {
-          this.branch_id = this.$auth.user.branch_id;
-        } else {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-          this.branch_id = "";
-        }
-      });
     },
     getDepartments(filterBranchId) {
       this.filterBranchId = filterBranchId;
