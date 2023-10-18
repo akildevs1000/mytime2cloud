@@ -1264,24 +1264,38 @@ export default {
           overtime: this.overtime ? 1 : 0,
           ...this.filters,
           ...this.payload,
+          cache: true,
         },
       };
       if (filter_column != "") options.params[filter_column] = filter_value;
 
-      this.$axios.get(url, options).then(({ data }) => {
-        if (filter_column != "" && data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = "error";
-          this.snackText = "No Results Found";
-          this.loading = false;
-          return false;
-        }
+      this.$axios
+        .get(url + "?cache=true", options, { cache: true })
+        .then(({ data }) => {
+          if (filter_column != "" && data.data.length == 0) {
+            this.snack = true;
+            this.snackColor = "error";
+            this.snackText = "No Results Found";
+            this.loading = false;
+            return false;
+          }
 
-        this.data = data.data;
-        this.total = data.total;
-        this.loading = false;
-        this.totalRowsCount = data.total;
-      });
+          this.data = data.data;
+          this.total = data.total;
+          this.loading = false;
+          this.totalRowsCount = data.total;
+
+          //this.getAverageTimeCalculation(data);
+
+          // try {
+          //   if (this.shift_type_id == 1)
+          //     this.$emit("genRecordCount", this.totalRowsCount);
+          //   if (this.shift_type_id == 2)
+          //     this.$emit("multiRecordCount", this.totalRowsCount);
+          //   if (this.shift_type_id == 5)
+          //     this.$emit("dualRecordCount", this.totalRowsCount);
+          // } catch (e) {}
+        });
     },
 
     editItem(item) {

@@ -5,284 +5,164 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog
-      persistent
-      v-model="dialogPayslipsResults"
-      :fullscreen="false"
-      width="700px"
-    >
-      <v-card>
-        <v-card-title dense class="primary white--text background">
-          Payslip Results
-          <v-spacer></v-spacer>
-          <v-icon
-            @click="dialogPayslipsResults = false"
-            outlined
-            dark
-            color="white"
-          >
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <template>
-              <table style="width: 100%" v-if="payslipsResultsmessages.length">
-                <thead>
-                  <tr>
-                    <th class="text-left">#</th>
-
-                    <th class="text-left">Status</th>
-                    <th class="text-right">Download</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    :style="{
-                      color: item.status ? '' : 'red',
-                    }"
-                    v-for="(item, index) in payslipsResultsmessages"
-                    :key="item.id"
-                  >
-                    <td>{{ index + 1 }}</td>
-
-                    <td>{{ item.status_message }}</td>
-                    <td class="text-right">
-                      <a
-                        v-if="item.status"
-                        :href="getdownloadLink(item.employee_table_id)"
-                        style="
-                          font-size: 25px;
-                          vertical-align: inherit;
-                          cursor: pointer;
-                        "
-                      >
-                        <v-icon small class="primary--text"
-                          >mdi-download</v-icon
-                        >
-                      </a>
-                      <a
-                        v-if="!item.status"
-                        @click="navigatetoEmployeepage()"
-                        style="
-                          font-size: 14px;
-                          vertical-align: inherit;
-                          cursor: pointer;
-                        "
-                      >
-                        Go to Employee Page
-                      </a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div v-else>No Employees are available</div>
-            </template>
-
-            <!-- <v-list lines="one">
-              <v-list-item
-                v-for="(item, index) in payslipsResultsmessages"
-                :key="item.id"
-                :title="item.status_message"
-              >
-                <span v-if="item.status"
-                  >{{ index + 1 }}: {{ item.status_message }}</span
-                >
-                <span style="color: red" v-else
-                  >{{ index + 1 }}: {{ item.status_message }}</span
-                >
-              </v-list-item>
-            </v-list> -->
-          </v-container>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <v-dialog persistent v-model="dialogVisible" max-width="500px">
-      <v-card flat dense class="white--text">
-        <v-card-title class="background">
-          <span class="headline">Filter</span>
-        </v-card-title>
-        <v-progress-linear
-          v-if="filterLoader"
-          indeterminate
-          color="primary"
-        ></v-progress-linear>
-
-        <br />
-
-        <v-card-text>
-          <v-autocomplete
-            placeholder="Department"
-            outlined
-            dense
-            @change="getDataFromApi(`employee`)"
-            v-model="department_id"
-            x-small
-            :items="departments"
-            item-value="id"
-            item-text="name"
-          ></v-autocomplete>
-          <v-autocomplete
-            outlined
-            dense
-            @change="handleFilters"
-            x-small
-            item-value="id"
-            item-text="name"
-            v-model="payslip_year"
-            :items="dataYears"
-            placeholder="Year"
-          ></v-autocomplete>
-          <v-autocomplete
-            outlined
-            dense
-            @change="handleFilters"
-            x-small
-            v-model="payslip_month"
-            :items="fitleredMonthNames()"
-            item-text="label"
-            item-value="value"
-            placeholder="Month"
-          ></v-autocomplete>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn dark color="background" @click="dialogVisible = false"
-            >Close</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog
-      persistent
-      v-model="generatePayslipDialog"
-      :fullscreen="false"
-      width="600px"
-    >
-      <v-card>
-        <v-card-title dense class="primary white--text background">
-          Generate Payslips
-          <v-spacer></v-spacer>
-          <v-icon
-            @click="generatePayslipDialog = false"
-            outlined
-            dark
-            color="white"
-          >
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-row class="mt-4">
-              <v-col cols="5">
-                <div class="">Departments</div>
-                <v-select
-                  outlined
-                  dense
-                  x-small
-                  v-model="department_idPopup"
-                  item-text="name"
-                  item-value="id"
-                  :items="departments"
-                  placeholder="Department"
-                  solo
-                  flat
-                ></v-select>
-              </v-col>
-
-              <v-col cols="3">
-                <div class="">Year</div>
-                <v-select
-                  outlined
-                  dense
-                  x-small
-                  v-model="payslip_year_Popup"
-                  :items="dataYears"
-                  placeholder="Year"
-                  solo
-                  flat
-                ></v-select>
-              </v-col>
-              <v-col cols="3">
-                <div class="">Month</div>
-                <v-select
-                  outlined
-                  dense
-                  x-small
-                  v-model="payslip_month_Popup"
-                  :items="monthNames"
-                  item-text="label"
-                  item-value="value"
-                  placeholder="Month"
-                  solo
-                  flat
-                ></v-select>
-              </v-col>
-
-              <v-card-actions>
-                <v-col md="6" lg="6" style="padding: 0px">
-                  <!-- <v-btn class="error" @click="closePopup">
-                    Cancel
-                  </v-btn>-->
-                </v-col>
-                <v-col md="6" lg="6" class="text-right" style="padding: 0px">
-                  <v-btn
-                    class="primary"
-                    @click="generateNewpayslipsByDepartment"
-                    style
-                    >Generate Payslips</v-btn
-                  >
-                </v-col>
-              </v-card-actions>
-            </v-row>
-          </v-container>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
 
     <div v-if="can(`employee_view`)">
       <v-row>
         <v-col>
-          <v-card class="mb-5" elevation="0">
-            <v-toolbar
-              class="rounded-md mb-2 white--text"
-              color="background"
-              dense
-              flat
-            >
-              <v-col cols="8">
-                <span> Payslips</span>
-                <!-- <v-icon @click="clearFilters()" class="mx-1 white--text">mdi-reload</v-icon>
-                <v-icon @click="dialogVisible = true" class="mx-1 white--text">mdi-filter-multiple</v-icon>
-                <v-icon @click="toggleFilter" class="mx-1 white--text">mdi-filter</v-icon>
- -->
+          <!-- <Back class="primary white--text" /> -->
 
-                <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      dense
-                      class="ma-0 px-0"
-                      x-small
-                      :ripple="false"
-                      text
-                      v-bind="attrs"
-                      v-on="on"
-                    >
-                      <v-icon
-                        color="white"
-                        class="ml-2"
-                        @click="clearFilters"
-                        dark
-                        >mdi mdi-reload</v-icon
-                      >
-                    </v-btn>
-                  </template>
-                  <span>Reload</span>
-                </v-tooltip>
+          <v-card class="mb-5 mt-2" elevation="0">
+            <v-row class="pt-5">
+              <v-col md="2" class="align-left">
+                <v-icon
+                  size="40"
+                  @click="getDataFromApi(--year_display)"
+                  style="cursor: pointer"
+                >
+                  mdi-less-than</v-icon
+                ></v-col
+              >
+              <v-col
+                md="8"
+                class="text-center bold text--violet"
+                style="font-size: 30px"
+                ><v-icon size="40" dark fill color="violet"
+                  >mdi-calendar-month</v-icon
+                >
+                {{ year_display }}
               </v-col>
-            </v-toolbar>
+              <v-col md="2" class="align-right text-end">
+                <v-icon
+                  size="40"
+                  @click="getDataFromApi(++year_display)"
+                  style="cursor: pointer"
+                >
+                  mdi-greater-than</v-icon
+                ></v-col
+              >
+            </v-row>
+            <!-- <v-toolbar class="mb-2" dense flat>
+              <v-toolbar-title style="color: black"
+                ><span> Payslips</span></v-toolbar-title
+              >
+
+               
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
+              >
+                <v-icon class="ml-2" @click="clearFilters" dark
+                  >mdi mdi-reload</v-icon
+                >
+              </v-btn>
+             
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Filter By Department"
+              >
+                <v-icon class="ml-2" @click="dialogVisible = true" dark
+                  >mdi-filter
+                </v-icon>
+              </v-btn>
+               
+              <v-btn
+                v-btn
+                v-if="selectedItems.length"
+                @click="generateNewpayslipsSelected"
+                small
+                class="primary toolbar-button-design1"
+                color="primary"
+                title="Payslips For selected"
+              >
+                Payslips For selected
+              </v-btn>
+
+              <v-col cols="4" class="text-right">
+                 
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Generate Payslips by Department"
+                >
+                  <v-icon @click="openPayslipDialog" class="mx-1 white--text"
+                    >mdi-briefcase-outline</v-icon
+                  >
+                </v-btn>
+                
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  v-if="downloadAllDisplayStatus"
+                  download
+                  :href="payslipsDownloadAllURL"
+                  small
+                  title="Download All Payslips"
+                >
+                  <v-icon
+                    @click="showFilters = !showFilters"
+                    class="mx-1 white--text"
+                    >mdi mdi-download</v-icon
+                  >
+                </v-btn>
+                 
+              </v-col>
+            </v-toolbar> -->
+
+            <!-- <v-data-table
+                v-model="data"
+                show-select
+                item-key="id"
+                :headers="headers_table"
+                :items="data"
+              >
+                <template v-slot:item.imgUrl="{ item }">
+                  <v-img
+                    style="
+                      border-radius: 50%;
+                      height: 50px;
+                      width: 50px !important;
+                    "
+                    :src="item.profile_picture || '/no-profile-image.jpg'"
+                  ></v-img>
+                </template>
+              </v-data-table>
+              <v-row>
+                <v-col lg="12" class="float-right">
+                  <div class="float-right">
+                    <v-pagination
+                      v-model="pagination.current"
+                      :length="pagination.total"
+                      @input="onPageChange"
+                      :total-visible="5"
+                    ></v-pagination>
+                  </div>
+                </v-col>
+              </v-row>
+   -->
+
+            <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+              {{ snackText }}
+
+              <template v-slot:action="{ attrs }">
+                <v-btn v-bind="attrs" text @click="snack = false">
+                  Close
+                </v-btn>
+              </template>
+            </v-snackbar>
 
             <v-data-table
               dense
@@ -291,78 +171,33 @@
               :items="data"
               model-value="data.id"
               :loading="loading"
-              :options.sync="options"
-              :footer-props="{
-                itemsPerPageOptions: [10, 50, 100, 500, 1000],
-              }"
               class="elevation-1"
-              :server-items-length="totalRowsCount"
+              hide-default-footer
+              disable-pagination
             >
-              <template v-slot:item.employee_id="{ item }">
-                {{ item.employee_id }}
-              </template>
-
-              <template
-                v-slot:item.first_name="{ item, index }"
-                style="width: 300px"
-              >
-                <v-row no-gutters>
-                  <v-col
-                    style="
-                      padding: 5px;
-                      padding-left: 0px;
-                      width: 50px;
-                      max-width: 50px;
-                    "
-                  >
-                    <v-img
-                      style="
-                        border-radius: 50%;
-                        height: auto;
-                        width: 50px;
-                        max-width: 50px;
-                      "
-                      :src="
-                        item.profile_picture
-                          ? item.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
-                    >
-                    </v-img>
-                  </v-col>
-                  <v-col style="padding: 10px">
-                    <strong>
-                      {{ item.first_name ? item.first_name : "---" }}
-                      {{ item.last_name ? item.last_name : "---" }}</strong
-                    >
-                    <div>
-                      {{
-                        item.designation ? caps(item.designation.name) : "---"
-                      }}
-                    </div>
-                  </v-col>
-                </v-row>
-              </template>
-
-              <template v-slot:item.department_name="{ item }">
-                <strong>{{ caps(item.department.name) }}</strong>
-                <div>{{ caps(item.sub_department.name) }}</div>
+              <template v-slot:item.sno="{ item, index }">
+                {{
+                  currentPage
+                    ? (currentPage - 1) * perPage +
+                      (cumulativeIndex + data.indexOf(item))
+                    : ""
+                }}
               </template>
               <template v-slot:item.year_month="{ item }">
                 {{ item.payroll_month }} / {{ item.payroll_year }}
               </template>
 
-              <template v-slot:item.payroll_basic_salary="{ item }">
-                {{ item.payroll && item.payroll.basic_salary }}
+              <template v-slot:item.basic_salary="{ item }">
+                {{ item.basic_salary }}
               </template>
 
-              <template v-slot:item.payroll_net_salary="{ item }">
-                {{ item.payroll && item.payroll.net_salary }}
+              <template v-slot:item.net_salary="{ item }">
+                {{ item.net_salary }}
               </template>
               <template v-slot:item.payslip="{ item }">
                 <span
-                  v-if="item?.payroll?.basic_salary"
-                  @click="navigateToViewPDF(item.employee_id)"
+                  v-if="item?.payslip_status"
+                  @click="navigateToViewPDF(item.id)"
                   style="
                     font-size: 25px;
                     vertical-align: inherit;
@@ -371,6 +206,45 @@
                 >
                   <v-icon small class="primary--text">mdi-eye</v-icon>
                 </span>
+                <a
+                  v-if="item?.payslip_status"
+                  :href="getdownloadLink(item.employee_table_id)"
+                  style="
+                    font-size: 25px;
+                    vertical-align: inherit;
+                    cursor: pointer;
+                  "
+                >
+                  <v-icon small class="primary--text">mdi-download</v-icon>
+                </a>
+              </template>
+
+              <template v-slot:item.actions="{ item }">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item @click="editItem(item)">
+                      <v-list-item-title style="cursor: pointer">
+                        <v-icon color="secondary" small>
+                          mdi-information
+                        </v-icon>
+                        View
+                      </v-list-item-title>
+                    </v-list-item>
+                    <!-- <v-list-item @click="res(item.id)">
+                          <v-list-item-title style="cursor:pointer">
+                            <v-icon color="primary" small>
+                              mdi-eye
+                            </v-icon>
+                            Select
+                          </v-list-item-title>
+                        </v-list-item> -->
+                  </v-list>
+                </v-menu>
               </template>
             </v-data-table>
           </v-card>
@@ -385,6 +259,12 @@
 <script>
 export default {
   data: () => ({
+    year_display: "",
+    payroll: {},
+    cumulativeIndex: 1,
+    perPage: 12,
+    currentPage: 1,
+    branchesList: [],
     filterLoader: false,
     filters: {},
     isFilter: false,
@@ -428,36 +308,27 @@ export default {
       "Uniform",
       "Medical/health",
     ],
-
+    headers: [
+      { text: "#" },
+      { text: "E.ID" },
+      { text: "Name" },
+      { text: "Month/Year" },
+      { text: "Designation" },
+      { text: "Department" },
+      { text: "Basic Salary" },
+      { text: "Net Salary" },
+      { text: "Payslip" },
+    ],
     headers_table: [
       {
-        text: "Emp ID",
-        align: "left",
-        sortable: true,
-        key: "employee_id",
-        filterable: true,
-        value: "employee_id",
-      },
-      {
-        text: "Name",
+        text: "#",
         align: "left",
         sortable: false,
-        filterable: true,
-        key: "display_name",
-        value: "first_name",
+        key: "year_month",
+        filterable: false,
+        value: "sno",
         filterSpecial: false,
       },
-
-      {
-        text: "Department",
-        align: "left",
-        sortable: false,
-        filterable: true,
-        key: "department_id",
-        value: "department_name", //template name should be match
-        filterSpecial: true,
-      },
-
       {
         text: "Month/Year",
         align: "left",
@@ -470,19 +341,19 @@ export default {
       {
         text: "Basic Salary",
         align: "left",
-        sortable: false,
+        sortable: true,
         filterable: true,
         key: "payrollbasic",
-        value: "payroll_basic_salary",
+        value: "basic_salary",
         filterSpecial: false,
       },
       {
         text: "Net Salary",
         align: "left",
-        sortable: false,
+        sortable: true,
         filterable: true,
         key: "net_salary",
-        value: "payroll_net_salary",
+        value: "net_salary",
       },
       {
         text: "Payslip",
@@ -596,15 +467,41 @@ export default {
     },
   },
   created() {
+    let dt = new Date();
+    this.year_display = dt.getFullYear();
     this.loading = true;
     this.getDepartments();
     this.lastTenYears();
+    this.getbranchesList();
   },
   mounted() {
     this.getDataFromApi();
   },
 
   methods: {
+    // getBasicSalaryJSON(json) {
+    //   let jsonArray = JSON.parse(json);
+
+    //   return jsonArray.basic_salary;
+    // },
+    // getBasicNetSalaryJSON(json) {
+    //   let jsonArray = JSON.parse(json);
+
+    //   return jsonArray.net_salary;
+    // },
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     toggleFilter() {
       this.isFilter = !this.isFilter;
     },
@@ -658,7 +555,7 @@ export default {
     },
 
     navigateToViewPDF(id) {
-      let path = `/employees/payroll/salary/${id}_${this.payslip_month}_${this.payslip_year}`;
+      let path = `/payroll/salary/${id}_${this.payslip_month}_${this.payslip_year}`;
       this.$router.push(path);
     },
 
@@ -684,9 +581,9 @@ export default {
       return this.$pagePermission.can(per, this);
     },
     can_old(per) {
-      let { permissions } = this.$auth.user;
+      let { permissions, is_master } = this.$auth.user;
 
-      return permissions.includes(per);
+      return permissions.includes(per) || is_master;
     },
     res(id) {
       this.$axios.get(`employee/${id}`).then(({ data }) => {
@@ -706,6 +603,7 @@ export default {
       let options = {
         params: {
           per_page: 100,
+          //department_ids: this.$auth.user.assignedDepartments,
           company_id: this.$auth.user.company_id,
         },
       };
@@ -715,33 +613,30 @@ export default {
       });
     },
     generateNewpayslipsByDepartment() {
-      let url = this.endpoint;
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-          department_id: this.department_idPopup,
-
-          month: this.payslip_month_Popup,
-          year: this.payslip_year_Popup,
-        },
-      };
-      //localhost:8001/api/payslip-by-department/80
-
-      this.$axios.get(`payslip-by-department`, options).then(({ data }) => {
-        this.payslipsResultsmessages = [];
-        this.data = data.data;
-        this.dialogPayslipsResults = true;
-        this.payslipsResultsmessages = data;
-        this.snackbar = true;
-        //data.status;
-        //this.ids = [];
-        this.response = "Payslips will be Genereated by selected department.";
-        // this.pagination.current = data.current_page;
-        // this.pagination.total = data.last_page;
-        // this.loading = false;
-
-        this.getDataFromApi();
-      });
+      //   let url = this.endpoint;
+      //   let options = {
+      //     params: {
+      //       company_id: this.$auth.user.company_id,
+      //       department_id: this.department_idPopup,
+      //       month: this.payslip_month_Popup,
+      //       year: this.payslip_year_Popup,
+      //     },
+      //   };
+      //   //localhost:8001/api/payslip-by-department/80
+      //   this.$axios.get(`payslip-by-department`, options).then(({ data }) => {
+      //     this.payslipsResultsmessages = [];
+      //     this.data = data.data;
+      //     this.dialogPayslipsResults = true;
+      //     this.payslipsResultsmessages = data;
+      //     this.snackbar = true;
+      //     //data.status;
+      //     //this.ids = [];
+      //     this.response = "Payslips will be Genereated by selected department.";
+      //     // this.pagination.current = data.current_page;
+      //     // this.pagination.total = data.last_page;
+      //     // this.loading = false;
+      //     this.getDataFromApi();
+      //   });
     },
 
     generateNewpayslipsSelected() {
@@ -786,7 +681,7 @@ export default {
       // if (this.filters) {
       //   page = 1;
       // }
-
+      console.log(this.$auth.user);
       let options = {
         params: {
           page: page,
@@ -794,69 +689,49 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
-          department_id: department_id,
-          year: this.payslip_year,
-          month: this.payslip_month,
+          // department_id: department_id,
+          year: this.year_display,
           employee_id: this.$auth.user.employee.employee_id,
+          employee_table_id: this.$auth.user.employee.id,
+
+          //month: this.payslip_month,
+          ////department_ids: this.$auth.user.assignedDepartments,
+          ...this.filters,
         },
       };
 
-      // if (search_column_name != "") {
-      //   options.params.per_page = 1000;
-      // }
+      this.$axios
+        .get("get-payslip-by-employee-year", options)
+        .then(({ data }) => {
+          this.data = data;
+          //this.payroll = data.payroll;
+          this.loading = false;
+          this.selectedItems = [];
+          this.payslipsDownloadAllEmployeeidsArray = [];
+          this.data.forEach((element) => {
+            if (element.payslip_status)
+              this.payslipsDownloadAllEmployeeidsArray.push(
+                element.employee_id
+              );
+          });
 
-      // if (search_column_name == "search_department_name") {
-      //   options.params.search_department_name = "search_department_name";
-      // } else if (search_column_name == "search_designation_name") {
-      //   options.params.search_designation_name = "search_designation_name";
-      // } else if (search_column_name == "searchBybasic_salary") {
-      //   options.params.searchBybasic_salary = "searchBybasic_salary";
-      // } else if (search_column_name == "searchBynet_salary") {
-      //   options.params.searchBynet_salary = "searchBynet_salary";
-      // } else options.params.search_column_name = search_column_name;
+          if (this.payslipsDownloadAllEmployeeidsArray.length > 0) {
+            this.payslipsDownloadAllURL =
+              this.$axios.defaults.baseURL +
+              "/generate-payslips-zip?company_id=" +
+              this.$auth.user.company_id +
+              "&employee_ids=" +
+              this.payslipsDownloadAllEmployeeidsArray +
+              "&month=" +
+              this.payslip_month +
+              "&year=" +
+              this.payslip_year;
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        // if (search_column_name != "" && data.data.length == 0) {
-        //   this.snack = true;
-        //   this.snackColor = "error";
-        //   this.snackText = "No Results Found";
-        //   this.loading = false;
-        //   return false;
-        // }
-
-        this.data = data.data;
-        this.totalRowsCount = data.total;
-        //this.server_datatable_totalItems = data.total;
-
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
-        this.loading = false;
-        this.toggleSelectAll();
-        //this.allSelected = [];
-        this.selectedItems = [];
-        this.payslipsDownloadAllEmployeeidsArray = [];
-        this.data.forEach((element) => {
-          if (element.payslip_status)
-            this.payslipsDownloadAllEmployeeidsArray.push(element.employee_id);
+            this.downloadAllDisplayStatus = true;
+          } else {
+            this.downloadAllDisplayStatus = false;
+          }
         });
-
-        if (this.payslipsDownloadAllEmployeeidsArray.length > 0) {
-          this.payslipsDownloadAllURL =
-            this.$axios.defaults.baseURL +
-            "/generate-payslips-zip?company_id=" +
-            this.$auth.user.company_id +
-            "&employee_ids=" +
-            this.payslipsDownloadAllEmployeeidsArray +
-            "&month=" +
-            this.payslip_month +
-            "&year=" +
-            this.payslip_year;
-
-          this.downloadAllDisplayStatus = true;
-        } else {
-          this.downloadAllDisplayStatus = false;
-        }
-      });
 
       this.loading = true;
 

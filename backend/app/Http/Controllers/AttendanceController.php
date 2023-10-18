@@ -11,6 +11,7 @@ use App\Models\ScheduleEmployee;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
@@ -81,7 +82,7 @@ class AttendanceController extends Controller
         $attendance->where("company_id", $company_id);
         $attendance->whereMonth("date", date("m"));
         $attendance->delete();
-        
+
         foreach ($chunks as $chunk) {
             $attendance->insert($chunk);
             $insertedCount += count($chunk);
@@ -90,7 +91,158 @@ class AttendanceController extends Controller
         $message = "Cron AttendanceSeeder: " . $insertedCount . " record has been inserted.";
         return $message;
     }
+    public function attendance_avg_clock(Request $request)
+    {
+        //     $attendanceCounts =   AttendanceLog::selectRaw('DATE("LogTime") as date, MIN("LogTime") as first_entry')
+        //     ->groupBy('date')
+        //     ->orderBy('date', 'asc')->get();;
 
+
+        // return $attendanceCounts;
+        // Assuming your timestamps are stored in a 'timestamp' column in your model's database table
+        //$timestamps = AttendanceLog::pluck('LogTime');
+
+
+        $avg_clock_in = $this->getAvgClockIn($request);
+        $avg_clock_out = $this->getAvgClockOut($request);
+        $avg_working_hours = $this->getAvgWorkingHours($request);
+        $leavesArray = $this->getEmployeeLeavecount($request);
+
+        return ["avg_clock_in" => $avg_clock_in, "avg_clock_out" => $avg_clock_out, "avg_working_hours" => $avg_working_hours, "leaves" => $leavesArray];
+    }
+
+    public function getEmployeeLeavecount($request)
+    {
+
+        $model = Attendance::where("employee_id", $request->system_user_id)
+            ->where("date", '>=', $request->start_date)
+            ->where("date", '<=', $request->end_date)
+            ->where("company_id", $request->company_id);
+
+
+
+
+        return  $info = (object) [
+            'total_absent' => $model->clone()->where('status', 'A')->count(),
+            'total_present' => $model->clone()->where('status', 'P')->count(),
+            'total_off' => $model->clone()->where('status', 'O')->count(),
+            'total_missing' => $model->clone()->where('status', 'M')->count(),
+            'total_leaves' => $model->clone()->where('status', 'L')->count(),
+            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
+
+
+        ];
+    }
+    public function getAvgClockIn($request)
+    {
+
+        $timestamps = AttendanceLog::where("UserID", $request->system_user_id)
+            ->where("LogTime", '>=', $request->start_date)
+            ->where("LogTime", '<=', $request->end_date)
+            ->where("company_id", $request->company_id)->orderBy('LogTime', 'asc')->pluck('LogTime');
+
+        $timeDifferences = [];
+        $date_prev = '';
+        foreach ($timestamps as $timestamp) {
+            $timeComponents = explode(' ', $timestamp);
+            $date = $timeComponents[0];
+            if ($date != $date_prev) {
+                $time = $timeComponents[1];
+                list($hours, $minutes) = explode(':', $time);
+                $totalSeconds = $hours * 3600 + $minutes * 60;
+                $timeDifferences[] = $totalSeconds;
+
+                $date_prev = $date;
+            }
+        }
+
+        if (count($timeDifferences) > 0) {
+            $averageTimeInSeconds = array_sum($timeDifferences) / count($timeDifferences);
+        } else {
+            $averageTimeInSeconds = 0;
+        }
+        $averageTimeFormatted = gmdate("H:i", $averageTimeInSeconds);
+
+        return $averageTimeFormatted;
+    }
+    public function getAvgClockOut($request)
+    {
+
+
+        $timestamps = AttendanceLog::where("UserID", $request->system_user_id)
+            ->where("LogTime", '>=', $request->start_date)
+            ->where("LogTime", '<=', $request->end_date)
+            ->where("company_id", $request->company_id)->orderBy('LogTime', 'desc')->pluck('LogTime');
+
+
+        $dateCount = array();
+
+        foreach ($timestamps as $timestamp) {
+            $date = date("Y-m-d", strtotime($timestamp));
+
+            if (isset($dateCount[$date])) {
+                $dateCount[$date]++;
+            } else {
+                $dateCount[$date] = 1;
+            }
+        };
+
+        $timeDifferences = [];
+        $date_prev = '';
+        foreach ($timestamps as $timestamp) {
+            $timeComponents = explode(' ', $timestamp);
+            $date = $timeComponents[0];
+            if ($date != $date_prev &&  $dateCount[$date] > 1) {
+                $time = $timeComponents[1];
+                list($hours, $minutes) = explode(':', $time);
+                $totalSeconds = $hours * 3600 + $minutes * 60;
+                $timeDifferences[] = $totalSeconds;
+
+                $date_prev = $date;
+            }
+        }
+
+        if (count($timeDifferences) > 0) {
+            $averageTimeInSeconds = array_sum($timeDifferences) / count($timeDifferences);
+        } else {
+            $averageTimeInSeconds = 0;
+        }
+        $averageTimeFormatted = gmdate("H:i", $averageTimeInSeconds);
+
+        return $averageTimeFormatted;
+    }
+
+    public function  getAvgWorkingHours($request)
+    {
+        $timestamps = Attendance::where("employee_id", $request->system_user_id)
+            ->where("date", '>=', $request->start_date)
+            ->where("date", '<=', $request->end_date)
+            ->where("company_id", $request->company_id)
+            ->where("total_hrs", '!=', "---")
+            ->pluck('total_hrs');
+
+        $timeDifferences = [];
+
+
+
+        foreach ($timestamps as $time) {
+
+            list($hours, $minutes) = explode(':', $time);
+            $totalSeconds = $hours * 3600 + $minutes * 60;
+            $timeDifferences[] = $totalSeconds;
+        }
+
+
+
+        if (count($timeDifferences) > 0) {
+            $averageTimeInSeconds = array_sum($timeDifferences) / count($timeDifferences);
+        } else {
+            $averageTimeInSeconds = 0;
+        }
+        $averageTimeFormatted = gmdate("H:i", $averageTimeInSeconds);
+
+        return $averageTimeFormatted;
+    }
     public function seedDefaultDataManual(Request $request)
     {
         $scheduleEmployees = ScheduleEmployee::withOut("shift", "shift_type")

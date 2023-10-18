@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Payroll;
+use App\Models\Payslips;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Illuminate\Http\Request;
@@ -164,6 +165,8 @@ class PayslipController extends Controller
     public function renderPayslip($employee, $request)
     {
 
+
+
         if (!$employee->payroll) {
 
             $payroll['status'] = false;
@@ -229,6 +232,7 @@ class PayslipController extends Controller
             $payroll->date = date('j F Y');
             $payroll->presentDays = $present;
             $payroll->absentDays = $absent;
+            $payroll['employee_table_id'] = $employee->id;
             $payroll['employee_id'] = $employee->employee_id;
             $payroll['display_name'] = $employee->display_name;
             $payroll['first_name'] = $employee->first_name;
@@ -238,6 +242,18 @@ class PayslipController extends Controller
             $payroll['status'] = true;
             $payroll['status_message'] = $employee->employee_id . ': ' . $employee->display_name . " - Payslip Generated Successfully";
             //company details
+
+            $payslips = [
+                'company_id' => $employee->payroll->company_id, 'employee_id' => $employee->employee_id, 'employee_table_id' => $employee->id,
+                'month' => $month, 'year' => $year, 'basic_salary' => $payroll->basic_salary, 'net_salary' => $payroll->net_salary, 'final_salary' => $payroll->finalSalary
+            ];
+
+
+            Payslips::updateOrCreate([
+                'company_id' => $employee->payroll->company_id, 'employee_id' => $employee->employee_id, 'employee_table_id' => $employee->id,
+                'month' => $month, 'year' => $year,
+            ], $payslips);
+
 
             $payroll->company = Company::where('id', $employee->payroll->company_id)->first();
         } catch (\Throwable $th) {

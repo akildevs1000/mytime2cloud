@@ -2,22 +2,33 @@
   <div v-if="employeeObject">
     <v-row class="pt-5">
       <v-col cols="3">
-        <v-card elevation="2" style="min-height: 845px">
+        <v-card elevation="2" style="min-height: 925px">
           <v-row>
+            <v-col cols="6" class="text-left pa-5">
+              <v-chip
+                v-if="employeeObject.status"
+                color="green"
+                filter
+                label
+                outlined
+                >Active</v-chip
+              >
+              <v-chip v-else color="red" filter label outlined
+                >In-Active</v-chip
+              >
+            </v-col>
+            <v-col cols="6" class="text-end pa-5">
+              <v-chip
+                v-if="employeeObject.status"
+                color="green"
+                filter
+                label
+                outlined
+                ><v-icon style="margin-top: -2px">mdi-identifier</v-icon>
+                {{ employeeObject.employee_id }}</v-chip
+              >
+            </v-col>
             <v-col cols="12" class="pb-0">
-              <div class="text-end pa-5">
-                <v-chip
-                  v-if="employeeObject.status"
-                  color="green"
-                  filter
-                  label
-                  outlined
-                  >Active</v-chip
-                >
-                <v-chip v-else color="red" filter label outlined
-                  >In-Active</v-chip
-                >
-              </div>
               <div class="mt-5" style="margin: 0 auto; width: 200px">
                 <v-img
                   style="
@@ -120,7 +131,7 @@
                 </tr>
                 <tr>
                   <td style="text-align: left">
-                    <strong>Des </strong>
+                    <strong>Desg </strong>
                   </td>
                   <td style="text-align: right">
                     {{ employeeObject.designation.name }}
@@ -163,7 +174,7 @@
                   <v-col md="2" class="align-left">
                     <v-icon
                       size="40"
-                      @click="updateCalender(calender_month_switcher--)"
+                      @click="updateCalender(--calender_month_switcher)"
                       style="cursor: pointer"
                     >
                       mdi-less-than</v-icon
@@ -181,7 +192,7 @@
                   <v-col md="2" class="align-right text-end">
                     <v-icon
                       size="40"
-                      @click="updateCalender(calender_month_switcher++)"
+                      @click="updateCalender(++calender_month_switcher)"
                       style="cursor: pointer"
                     >
                       mdi-greater-than</v-icon
@@ -199,7 +210,7 @@
                         >
                       </v-col>
                       <v-col class="text-left"
-                        ><div class="bold">10:00</div>
+                        ><div class="bold">{{ avg_clock_in }}</div>
                         Avg Clock In
                       </v-col>
                     </v-row>
@@ -217,7 +228,7 @@
                         >
                       </v-col>
                       <v-col class="text-left"
-                        ><div class="bold">10:00</div>
+                        ><div class="bold">{{ avg_clock_out }}</div>
                         Avg Clock Out
                       </v-col>
                     </v-row>
@@ -230,11 +241,11 @@
                     <v-row>
                       <v-col cols="4" class="text-end">
                         <v-icon size="50" color="violet"
-                          >mdi-clock-check-outline</v-icon
+                          >mdi-account-clock</v-icon
                         >
                       </v-col>
                       <v-col class="text-left"
-                        ><div class="bold">10:00</div>
+                        ><div class="bold">{{ avg_working_hours }}</div>
                         Avg Working Hr.
                       </v-col>
                     </v-row>
@@ -247,12 +258,12 @@
                     <v-row>
                       <v-col cols="4" class="text-end">
                         <v-icon size="50" color="violet"
-                          >mdi-clock-check-outline</v-icon
+                          >mdi-calendar-month</v-icon
                         >
                       </v-col>
                       <v-col class="text-left"
-                        ><div class="bold">5/10</div>
-                        Absents/Leaves
+                        ><div class="bold">{{ presents }} / {{ leaves }}</div>
+                        Presents / Leaves
                       </v-col>
                     </v-row>
                   </v-col>
@@ -319,6 +330,7 @@
                       :payload1="payload11"
                       process_file_endpoint=""
                       render_endpoint="render_general_report"
+                      @genRecordCount="genRecordCount"
                     />
                   </v-tab-item>
                   <v-tab-item value="tab-2">
@@ -332,6 +344,7 @@
                       render_endpoint="render_multi_inout_report"
                       :key="2"
                       ref="profile"
+                      @dualRecordCount="dualRecordCount"
                     />
                   </v-tab-item>
                   <v-tab-item value="tab-3">
@@ -344,788 +357,60 @@
                       :payload1="payload11"
                       process_file_endpoint="multi_in_out_"
                       render_endpoint="render_multi_inout_report"
+                      @multiRecordCount="multiRecordCount"
                     />
                   </v-tab-item>
                 </v-tabs-items>
               </v-tab-item>
-              <v-tab-item> leave Quota </v-tab-item>
-              <v-tab-item> Payslips</v-tab-item>
               <v-tab-item>
-                <v-tabs
-                  v-model="tab"
-                  background-color="transparent"
-                  color="violet"
-                  grow
-                  flat
-                >
-                  <v-tab> Contact </v-tab>
-                  <v-tab> Passport & Emirates </v-tab>
-
-                  <v-tab> Visa & Bank </v-tab>
-
-                  <v-tab> Documents & Qualification</v-tab>
-
-                  <v-tab> Settings </v-tab>
-                  <v-tab> Payroll </v-tab>
-
-                  <v-tabs-slider color="violet"></v-tabs-slider>
-                  <v-tabs-items v-model="tab">
-                    <v-tab-item>
-                      <v-card>
-                        <v-card-text>
-                          <v-row>
-                            <v-col md="6" style="border-right: 1px solid #ddd">
-                              <h5>Contact Details</h5>
-                              <table class="view-profile-table-lineheight">
-                                <tr>
-                                  <td>
-                                    <strong>Phone Number </strong> :
-                                    {{
-                                      employeeObject.phone_number
-                                        ? employeeObject.phone_number
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Whatsapp Number </strong> :
-                                    {{
-                                      employeeObject.whatsapp_number
-                                        ? employeeObject.whatsapp_number
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Alternate Email</strong> :
-                                    {{
-                                      employeeObject.local_email
-                                        ? employeeObject.local_email
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Phone Relative Number </strong> :
-                                    {{
-                                      employeeObject.phone_relative_number
-                                        ? employeeObject.phone_relative_number
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Relation</strong> :
-                                    {{
-                                      employeeObject.relation
-                                        ? employeeObject.relation
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Local Address</strong> :
-                                    {{
-                                      employeeObject.local_address
-                                        ? employeeObject.local_address
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Local City</strong> :
-                                    {{
-                                      employeeObject.local_city
-                                        ? employeeObject.local_city
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-
-                                <tr>
-                                  <td>
-                                    <strong>Local Country</strong> :
-                                    {{
-                                      employeeObject.local_country
-                                        ? employeeObject.local_country
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                              </table>
-                            </v-col>
-                            <v-col md="6">
-                              <h5>Home Country - Details</h5>
-                              <table class="view-profile-table-lineheight">
-                                <tr>
-                                  <td>
-                                    <strong>Address</strong> :
-                                    {{
-                                      employeeObject.home_address
-                                        ? employeeObject.home_address
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Tel</strong> :
-                                    {{
-                                      employeeObject.home_tel
-                                        ? employeeObject.home_tel
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Mobile</strong> :
-                                    {{
-                                      employeeObject.home_mobile
-                                        ? employeeObject.home_mobile
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Fax</strong> :
-                                    {{
-                                      employeeObject.home_fax
-                                        ? employeeObject.home_fax
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>City</strong> :
-                                    {{
-                                      employeeObject.home_city
-                                        ? employeeObject.home_city
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>State</strong> :
-                                    {{
-                                      employeeObject.home_state
-                                        ? employeeObject.home_state
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Country</strong> :
-                                    {{
-                                      employeeObject.home_country
-                                        ? employeeObject.home_country
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Personal Email</strong> :
-                                    {{
-                                      employeeObject.home_email
-                                        ? employeeObject.home_email
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                              </table>
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                      <v-card elevation="4">
-                        <v-card-text>
-                          <v-row>
-                            <v-col md="6" style="border-right: 1px solid #ddd">
-                              <h5>Passport Details</h5>
-                              <table class="view-profile-table-lineheight">
-                                <tr>
-                                  <td>
-                                    <strong>Passport No </strong> :
-                                    {{
-                                      employeeObject.passport
-                                        ? employeeObject.passport.passport_no
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Place Of Issue </strong> :
-                                    {{
-                                      employeeObject.passport
-                                        ? employeeObject.passport
-                                            .place_of_issues
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Issue Date</strong> :
-                                    {{
-                                      employeeObject.passport
-                                        ? employeeObject.passport.issue_date
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Expiry Date </strong> :
-                                    {{
-                                      employeeObject.passport
-                                        ? employeeObject.passport.expiry_date
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Country</strong> :
-                                    {{
-                                      employeeObject.passport
-                                        ? employeeObject.passport.country
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Note</strong> :
-                                    {{
-                                      employeeObject.passport
-                                        ? employeeObject.passport.note
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                              </table>
-                            </v-col>
-                            <v-col md="6">
-                              <h5>Emirates Details</h5>
-                              <table class="view-profile-table-lineheight">
-                                <tr>
-                                  <td>
-                                    <strong>Emirate Id </strong> :
-                                    {{
-                                      employeeObject.emirate
-                                        ? employeeObject.emirate.emirate_id
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Nationality </strong> :
-                                    {{
-                                      employeeObject.emirate
-                                        ? employeeObject.emirate.nationality
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Issue Date</strong> :
-                                    {{
-                                      employeeObject.emirate
-                                        ? employeeObject.emirate.issue
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Expiry Date </strong> :
-                                    {{
-                                      employeeObject.emirate
-                                        ? employeeObject.emirate.expiry
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Date of Birth</strong> :
-                                    {{
-                                      employeeObject.emirate
-                                        ? employeeObject.emirate.date_of_birth
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                              </table>
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                      <v-card elevation="2">
-                        <v-card-text>
-                          <v-row>
-                            <v-col md="6" style="border-right: 1px solid #ddd">
-                              <h5>Visa Details</h5>
-                              <table class="view-profile-table-lineheight">
-                                <tr>
-                                  <td>
-                                    <strong>Visa Number </strong> :
-                                    {{
-                                      employeeObject.visa
-                                        ? employeeObject.visa.visa_no
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Place Of Issue </strong> :
-                                    {{
-                                      employeeObject.visa
-                                        ? employeeObject.visa.place_of_issues
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Issue Date</strong> :
-                                    {{
-                                      employeeObject.visa
-                                        ? employeeObject.visa.issue_date
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Expiry Date </strong> :
-                                    {{
-                                      employeeObject.visa
-                                        ? employeeObject.visa.expiry_date
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Country</strong> :
-                                    {{
-                                      employeeObject.visa
-                                        ? employeeObject.visa.country
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Labour No</strong> :
-                                    {{
-                                      employeeObject.visa
-                                        ? employeeObject.visa.note
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Note</strong> :
-                                    {{
-                                      employeeObject.visa
-                                        ? employeeObject.visa.note
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                              </table>
-                            </v-col>
-                            <v-col md="6">
-                              <h5>Bank Details</h5>
-                              <table class="view-profile-table-lineheight">
-                                <tr>
-                                  <td>
-                                    <strong>Bank Name</strong> :
-                                    {{
-                                      employeeObject.bank
-                                        ? employeeObject.bank.bank_name
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Bank Address </strong> :
-                                    {{
-                                      employeeObject.bank
-                                        ? employeeObject.bank.address
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Account No</strong> :
-                                    {{
-                                      employeeObject.bank
-                                        ? employeeObject.bank.account_no
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Account Name</strong> :
-                                    {{
-                                      employeeObject.bank
-                                        ? employeeObject.bank.account_title
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>IBAN</strong> :
-                                    {{
-                                      employeeObject.bank
-                                        ? employeeObject.bank.iban
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Other Text</strong> :
-                                    {{
-                                      employeeObject.bank
-                                        ? employeeObject.bank.other_text
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Other Value</strong> :
-                                    {{
-                                      employeeObject.bank
-                                        ? employeeObject.bank.other_value
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                              </table>
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                      <v-card elevation="2">
-                        <v-card-text>
-                          <h5>Documents({{ document_list.length }})</h5>
-                          <table
-                            style="
-                              width: 100%;
-                              border-collapse: collapse;
-                              margin: 5px;
-                            "
-                          >
-                            <thead>
-                              <tr>
-                                <th style="padding: 8px; text-align: left">
-                                  Title
-                                </th>
-                                <th style="padding: 8px; text-align: left">
-                                  Document
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr
-                                v-for="(document, index) in document_list"
-                                :key="index"
-                              >
-                                <td
-                                  style="
-                                    padding: 8px;
-                                    text-align: left;
-                                    border-top: 1px solid #ddd;
-                                  "
-                                >
-                                  {{ document.title }}
-                                </td>
-                                <td
-                                  style="
-                                    padding: 8px;
-                                    text-align: left;
-                                    border-top: 1px solid #ddd;
-                                  "
-                                >
-                                  <a
-                                    :href="document.attachment"
-                                    download
-                                    target="_blank"
-                                  >
-                                    <v-icon color="primary">
-                                      mdi-download
-                                    </v-icon>
-                                  </a>
-                                </td>
-                              </tr>
-                              <!-- Add more rows as needed -->
-                            </tbody>
-                          </table>
-                          <!-- <v-divider></v-divider> -->
-                          <v-row>
-                            <v-col md="6" style="border-right: 0px solid #ddd">
-                              <h5>Qualification Details</h5>
-                              <table class="view-profile-table-lineheight">
-                                <tr>
-                                  <td>
-                                    <strong>Certificate </strong> :
-                                    {{
-                                      employeeObject.qualification.certificate
-                                        ? employeeObject.qualification
-                                            .certificate
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>College </strong> :
-                                    {{
-                                      employeeObject.qualification.collage
-                                        ? employeeObject.qualification.collage
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Start Date</strong> :
-                                    {{
-                                      employeeObject.qualification.start
-                                        ? employeeObject.qualification.start
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>End Date</strong> :
-                                    {{
-                                      employeeObject.qualification.end
-                                        ? employeeObject.qualification.end
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Type</strong> :
-                                    {{
-                                      employeeObject.bank.type
-                                        ? employeeObject.bank.type
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                              </table>
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                      <v-card elevation="2">
-                        <v-card-text>
-                          <v-row>
-                            <v-col md="6" style="border-right: 1px solid #ddd">
-                              <h5>Settings</h5>
-
-                              <table style="width: 70%">
-                                <tr>
-                                  <td><strong>Employee Status</strong></td>
-                                  <td>
-                                    <v-switch
-                                      disabled
-                                      color="success"
-                                      class="mt-0 ml-2"
-                                      size="5"
-                                      v-model="employeeObject.status"
-                                    ></v-switch>
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td><strong>Web Login Access</strong></td>
-                                  <td>
-                                    <v-switch
-                                      disabled
-                                      color="success"
-                                      class="mt-0 ml-2"
-                                      v-model="
-                                        employeeObject.user.web_login_access
-                                      "
-                                    ></v-switch>
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong>Mobile App Login Access</strong>
-                                  </td>
-                                  <td>
-                                    <v-switch
-                                      disabled
-                                      color="success"
-                                      class="mt-0 ml-2"
-                                      v-model="
-                                        employeeObject.user
-                                          .mobile_app_login_access
-                                      "
-                                    ></v-switch>
-                                  </td>
-                                </tr>
-
-                                <tr>
-                                  <th>Over Time</th>
-                                  <td>
-                                    <div class="text-overline mb-1">
-                                      <v-switch
-                                        disabled
-                                        color="success"
-                                        class="mt-0 ml-2"
-                                        v-model="employeeObject.overtime"
-                                      ></v-switch>
-                                    </div>
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <th>Enable Whatsapp OTP</th>
-                                  <td>
-                                    <div class="text-overline mb-1">
-                                      <v-switch
-                                        disabled
-                                        color="success"
-                                        class="mt-0 ml-2"
-                                        v-model="
-                                          employeeObject.user
-                                            .enable_whatsapp_otp
-                                        "
-                                      ></v-switch>
-                                    </div>
-                                  </td>
-                                </tr>
-                              </table>
-                              <table class="view-profile-table-lineheight">
-                                <tr>
-                                  <td>
-                                    <strong>Leave Group </strong> :
-                                    {{
-                                      employeeObject.leave_group
-                                        ? employeeObject.leave_group.name
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <strong
-                                      >Leave Manager/Reporting Manger
-                                    </strong>
-                                    :
-                                    {{
-                                      employeeObject.reporting_manager
-                                        ? employeeObject.reporting_manager
-                                            .first_name +
-                                          " " +
-                                          employeeObject.reporting_manager
-                                            .last_name
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                              </table>
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                      <v-card elevation="2">
-                        <v-card-text>
-                          <h5>Salary Information</h5>
-                          <v-row>
-                            <v-col md="6" style="border-right: 1px solid #ddd">
-                              <table
-                                class="employee-table view-profile-table-lineheight"
-                                style="width: 100%"
-                              >
-                                <tr style="border: 0px solid #ddd">
-                                  <th>Effective Date</th>
-                                  <td class="text-left">
-                                    :
-                                    {{
-                                      employeeObject.payroll &&
-                                      employeeObject.payroll
-                                        .effective_date_formatted
-                                        ? employeeObject.payroll
-                                            .effective_date_formatted
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-                                <tr style="border: 0px solid #ddd">
-                                  <th>Basic Salary</th>
-                                  <td class="text-left">
-                                    :
-                                    {{
-                                      employeeObject.payroll &&
-                                      employeeObject.payroll.basic_salary
-                                        ? employeeObject.payroll.basic_salary
-                                        : "---"
-                                    }}
-                                  </td>
-                                </tr>
-
-                                <tr
-                                  style="border: 0px solid #ddd"
-                                  v-for="(item, index) in employeeObject.payroll
-                                    .earnings"
-                                  :key="index"
-                                >
-                                  <th>{{ item.label }}</th>
-                                  <td class="text-left">: {{ item.value }}</td>
-                                </tr>
-                              </table>
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-tab-item>
-                  </v-tabs-items>
-                </v-tabs>
+                <v-card>
+                  <v-card-title dense class="popup_title">
+                    Leave Group : {{ leave_group_name }}
+                  </v-card-title>
+                  <v-card-text>
+                    <v-data-table
+                      v-model="ids"
+                      item-key="id"
+                      :headers="headersGroupInfo"
+                      :items="DialogLeaveGroupData"
+                      :loading="loading"
+                      :hide-default-footer="true"
+                      class="elevation-1"
+                    >
+                      <template v-slot:item.leave_type="{ item }" center>
+                        {{ item.leave_type.name }} ({{
+                          item.leave_type.short_name
+                        }})
+                      </template>
+                      <template v-slot:item.total="{ item }">
+                        <v-chip color="black" text-color="white">
+                          {{ item.leave_type_count }}</v-chip
+                        >
+                      </template>
+                      <template v-slot:item.approved="{ item }">
+                        <v-chip color="primary">
+                          {{ item.employee_used }}</v-chip
+                        >
+                      </template>
+                      <template v-slot:item.available="{ item }">
+                        <v-chip class="ma-2" color="green" text-color="white">
+                          {{
+                            item.leave_type_count - item.employee_used
+                          }}</v-chip
+                        >
+                      </template>
+                    </v-data-table>
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item> <EmployeePayslips /></v-tab-item>
+              <v-tab-item>
+                <EmployeeProfileView
+                  :employeeObject="employeeObject"
+                ></EmployeeProfileView>
               </v-tab-item>
             </v-tabs-items>
           </v-tabs>
-          <v-divider></v-divider>
         </v-card>
       </v-col>
       <v-col cols="2">
@@ -1210,6 +495,8 @@ import VueCropper from "vue-cropperjs";
 
 import AttendanceReport from "../../components/attendance_report/reportComponent.vue";
 
+import EmployeeProfileView from "../../components/EmployeesLogin/ProfileView.vue";
+import EmployeePayslips from "../../components/EmployeesLogin/payslips.vue";
 import generalHeaders from "../../headers/general.json";
 import multiHeaders from "../../headers/multi.json";
 import doubleHeaders from "../../headers/double.json";
@@ -1217,8 +504,18 @@ export default {
   components: {
     VueCropper,
     AttendanceReport,
+    EmployeePayslips,
+    EmployeeProfileView,
   },
   data: () => ({
+    tab2: "",
+    leave_group_name: "",
+    absents: 0,
+    leaves: 0,
+    presents: 0,
+    avg_clock_in: "00:00",
+    avg_clock_out: "00:00",
+    avg_working_hours: "00:00",
     tab: "",
     generalHeaders,
     multiHeaders,
@@ -1302,6 +599,38 @@ export default {
     document_list: [],
 
     payload11: {},
+    tabSwitcherCount: 0,
+    headersGroupInfo: [
+      {
+        text: "Leave Type",
+        align: "left",
+        key: "name",
+        sortable: false,
+        value: "leave_type",
+      },
+      {
+        text: "Total",
+        align: "center",
+        key: "name",
+        sortable: false,
+        value: "total",
+      },
+      {
+        text: "Approved",
+        align: "center",
+        key: "name",
+        sortable: false,
+        value: "approved",
+      },
+      {
+        text: "Available",
+        align: "center",
+        key: "name",
+        sortable: false,
+        value: "available",
+      },
+    ],
+    DialogLeaveGroupData: [],
   }),
 
   created() {
@@ -1309,24 +638,6 @@ export default {
       new Date().toISOString(),
       0
     );
-    // this.payloadOptions = {
-    //   params: {
-    //     per_page: 1000,
-    //     company_id: this.$auth.user.company_id,
-    //   },
-    // };
-    // this.getDepartments();
-    // this.getSubDepartments();
-    // this.getDesignations();
-    // this.getRoles();
-    // this.getLastLogin();
-    // try {
-    //   let employee_id = this.$route.params.id;
-    //   if (employee_id) {
-    //     this.editItemId(employee_id);
-    //   }
-    // } catch (error) {}
-    // this.openDocumentDrawer();
   },
   mounted() {
     this.getDataFromApi();
@@ -1335,6 +646,10 @@ export default {
     dialog(val) {
       val || this.close();
     },
+    // tab(val) {
+    //   console.log(val);
+    //   this.commonMethod();
+    // },
     // options: {
     //   handler() {
     //     this.getDataFromApi();
@@ -1363,29 +678,105 @@ export default {
     },
   },
   methods: {
-    commonMethod() {
-      let monthObj = this.$dateFormat.monthStartEnd(new Date());
-
-      this.payload11 = {
-        company_id: this.$auth.user.company_id,
-        report_type: "Monthly", //filterDay,
-
-        overtime: 0,
-        from_date: monthObj.first,
-        to_date: monthObj.last,
-        employee_id: 1001,
-
-        filterType: "Monthly",
+    gotoGroupDetails(leaveGroupId, employee_id, employee_name) {
+      this.dialogLeaveGroup = true;
+      this.viewEmployeeName = employee_name;
+      let options = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+          employee_id: employee_id,
+        },
       };
+      this.$axios
+        .get("leave_groups/" + leaveGroupId, options)
+        .then(({ data }) => {
+          this.DialogLeaveGroupData = data[0].leave_count;
+          this.leave_group_name = data[0].group_name;
+        });
     },
+    getAvgClock(payload11) {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          system_user_id: this.$auth.user.employee.system_user_id,
+          start_date: payload11.from_date,
+          end_date: payload11.to_date,
+        },
+      };
+
+      this.$axios.get("attendance_avg_clock", options).then(({ data }) => {
+        try {
+          this.avg_clock_in = data.avg_clock_in;
+          this.avg_clock_out = data.avg_clock_out;
+
+          this.avg_working_hours = data.avg_working_hours;
+          this.absents = data.leaves.total_absent;
+          this.leaves = data.leaves.total_leaves;
+          this.presents = data.leaves.total_present;
+        } catch (e) {}
+      });
+    },
+    commonMethod() {
+      let date = this.addMonths(
+        new Date(),
+        this.calender_month_switcher
+      ).toISOString();
+      let monthObj = this.$dateFormat.monthStartEnd(date);
+      if (this.employeeObject) {
+        this.payload11 = {
+          company_id: this.$auth.user.company_id,
+          report_type: "Monthly", //filterDay,
+
+          overtime: 0,
+          from_date: monthObj.first,
+          to_date: monthObj.last,
+          employee_id: this.employeeObject.employee_id,
+
+          filterType: "Monthly",
+        };
+        this.getAvgClock(this.payload11);
+        if (this.tabSwitcherCount == 0) {
+          setTimeout(() => {
+            this.tab = "tab-2";
+          }, 2000);
+          setTimeout(() => {
+            this.tab = "tab-3";
+          }, 3000);
+          setTimeout(() => {
+            this.tab = "tab-1";
+          }, 4000);
+          this.tabSwitcherCount++;
+        }
+      }
+    },
+    genRecordCount(recordCount) {
+      // if (recordCount > 0) {
+      //   this.tab = "tab-1";
+      // }
+    },
+    dualRecordCount(recordCount) {
+      // if (recordCount > 0) {
+      //   this.tab = "tab-2";
+      // }
+    },
+
+    multiRecordCount(recordCount) {
+      // if (recordCount > 0) {
+      //   this.tab = "tab-3";
+      // }
+    },
+
     addMonths(date, months) {
       date.setMonth(date.getMonth() + months);
       return date;
     },
     updateCalender(counter) {
+      //this.tabSwitcherCount = 0;
+      console.log("counter", counter);
       let date = this.addMonths(new Date(), counter).toISOString();
-
       this.month_year_display = this.$dateFormat.format_month_name_year(date);
+      this.commonMethod();
     },
     getDataFromApi() {
       let options = {
@@ -1398,7 +789,11 @@ export default {
 
       this.$axios.get("employee", options).then(({ data }) => {
         if (data.data[0]) this.employeeObject = data.data[0];
-
+        this.gotoGroupDetails(
+          this.employeeObject.leave_group_id,
+          this.employeeObject.employee_id,
+          this.employeeObject.first_name
+        );
         setTimeout(() => {
           this.commonMethod();
         }, 2000);
