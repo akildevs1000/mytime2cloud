@@ -806,6 +806,8 @@ export default {
         );
         setTimeout(() => {
           this.commonMethod();
+
+          this.getLastLogin();
         }, 2000);
       });
     },
