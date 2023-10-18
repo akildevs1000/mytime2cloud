@@ -43,9 +43,14 @@ export default {
           name: "Missing",
           data: [],
         },
+        {
+          name: "Off",
+          data: [],
+        },
       ],
+
       chartOptions: {
-        colors: ["#14B012", "#FF0000", "#FFB600"],
+        colors: ["#14B012", "#FF0000", "#FFB600", "#FFB600"],
         chart: {
           type: "bar",
           width: "98%",
@@ -155,6 +160,10 @@ export default {
               name: "Missing",
               data: [],
             },
+            {
+              name: "Off",
+              data: [],
+            },
           ];
 
           this.chartOptions.xaxis = {
@@ -169,6 +178,9 @@ export default {
             );
             this.chartOptions.series[2]["data"][counter] = parseInt(
               item.missingCount
+            );
+            this.chartOptions.series[3]["data"][counter] = parseInt(
+              item.offCount
             );
             this.chartOptions.xaxis.categories[counter] =
               this.$dateFormat.format2(item.date);
