@@ -361,10 +361,12 @@ class Employee extends Model
                 $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->department_branch_id));
             })
             ->when($request->filled("branch_id"), function ($q) use ($request) {
-                $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->branch_id));
+                $q->where('branch_id', '=', $request->branch_id);
+                // $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->branch_id));
             })
             ->when($request->filled("filter_branch_id"), function ($q) use ($request) {
-                $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->filter_branch_id));
+                $q->where('branch_id', '=', $request->filter_branch_id);
+                // $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->filter_branch_id));
             })
 
 
