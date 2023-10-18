@@ -103,16 +103,19 @@ export default {
     // Format the dates (optional)
     this.date_to = today.toISOString().split("T")[0];
     this.date_from = sevenDaysAgo.toISOString().split("T")[0];
-    this.getDataFromApi();
-    setTimeout(() => {}, 1000 * 3);
+    // this.display_title =
+    //   "Attendance : " + this.date_from + " to " + this.date_to;
+    setTimeout(() => {
+      this.getDataFromApi();
+    }, 1000 * 2);
   },
   mounted() {
     this.chartOptions.chart.height = this.height;
     this.chartOptions.series = this.series;
-    new ApexCharts(
-      document.querySelector("#" + this.name),
-      this.chartOptions
-    ).render();
+    // new ApexCharts(
+    //   document.querySelector("#" + this.name),
+    //   this.chartOptions
+    // ).render();
   },
 
   methods: {

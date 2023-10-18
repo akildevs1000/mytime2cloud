@@ -62,7 +62,6 @@
             <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
               <DashboardLoginActivities />
             </v-card>
-            <!-- <v-card class="mt-2" style="height: 350px"> </v-card> -->
           </v-col>
         </v-row>
       </v-col>
