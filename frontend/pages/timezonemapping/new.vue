@@ -31,7 +31,7 @@
           <v-select
             @change="filterDepartmentsByBranch($event)"
             v-model="branch_id"
-            :items="branchesList"
+            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
             dense
             placeholder="All Branches"
             outlined
@@ -771,7 +771,25 @@ export default {
     }, 2000);
   },
   async created() {
-    await this.getbranchesList();
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      this.filterDepartmentsByBranch(this.branch_id);
+      return;
+    }
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
   },
   methods: {
     filterDepartmentsByBranch(branch_id) {
@@ -779,25 +797,6 @@ export default {
       this.getDevisesDataFromApi(branch_id);
       this.getEmployeesDataFromApi(branch_id);
       this.getTimezonesFromApi(branch_id);
-    },
-    async getbranchesList() {
-      if (this.$auth.user.branch_id) {
-        this.branch_id = this.$auth.user.branch_id;
-        this.isCompany = false;
-        return;
-      }
-      try {
-        const { data } = await this.$axios.get(`branches_list`, {
-          params: {
-            per_page: 100,
-            company_id: this.$auth.user.company_id,
-          },
-        });
-        this.branchesList = data;
-      } catch (error) {
-        // Handle the error
-        console.error("Error fetching branch list", error);
-      }
     },
     getDepartmentsApi(options, branch_id) {
       options.params.branch_id = branch_id;

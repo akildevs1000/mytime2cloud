@@ -727,11 +727,6 @@ export default {
       // Handle the error
       console.error("Error fetching branch list", error);
     }
-
-    this.getDepartmentsApi(this.options, null);
-    this.getDevisesDataFromApi(null);
-    this.getEmployeesDataFromApi(null);
-    this.getTimezonesFromApi(null);
   },
   methods: {
     filterDepartmentsByBranch(branch_id) {
