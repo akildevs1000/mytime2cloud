@@ -35,7 +35,7 @@
                     width: 100%;
                     height: 200px;
                     border: 1px solid #5fafa3;
-                    border-radius: 50%;
+
                     margin: 0 auto;
                   "
                   :src="
@@ -154,7 +154,7 @@
         </v-card>
       </v-col>
       <v-col cols="9" class="pa-0">
-        <v-card elevation="2" style="min-height: 845px">
+        <v-card elevation="2" style="min-height: 925px">
           <v-tabs
             v-model="tabmain"
             background-color="transparent"
@@ -496,7 +496,7 @@ import VueCropper from "vue-cropperjs";
 import AttendanceReport from "../../components/attendance_report/reportComponent.vue";
 
 import EmployeeProfileView from "../../components/EmployeesLogin/ProfileView.vue";
-import EmployeePayslips from "../../components/EmployeesLogin/payslips.vue";
+import EmployeePayslips from "../../components/EmployeesLogin/Payslips.vue";
 import generalHeaders from "../../headers/general.json";
 import multiHeaders from "../../headers/multi.json";
 import doubleHeaders from "../../headers/double.json";

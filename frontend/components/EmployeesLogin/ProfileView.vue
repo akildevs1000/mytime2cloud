@@ -7,7 +7,7 @@
             <v-tabs
               v-model="tab"
               background-color="transparent"
-              color="whitebackground"
+              color="violet"
               grow
               flat
             >
