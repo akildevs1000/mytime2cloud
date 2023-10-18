@@ -259,7 +259,7 @@
                       "
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="6">
+                  <v-col v-if="isCompany" cols="6">
                     <label class="col-form-label"
                       >Branch <span class="text-danger">*</span></label
                     >
@@ -283,7 +283,8 @@
 
                   <v-col cols="6">
                     <label class="col-form-label"
-                      >Department <span class="text-danger">*</span></label
+                      >Department
+                      <span class="text-danger">*</span></label
                     >
                     <v-autocomplete
                       :items="departments"
@@ -955,7 +956,6 @@ export default {
   },
 
   data: () => ({
-    departments: [],
     shifts: [],
     timezones: [],
     joiningDate: null,
@@ -1083,17 +1083,6 @@ export default {
         filterSpecial: false,
       },
       {
-        text: "Branch",
-        align: "left",
-        sortable: true,
-        key: "branch_id",
-        value: "department.branch.id", //template name should be match for sorting sub table should be the same
-        width: "200px",
-        filterable: true,
-        filterSpecial: true,
-      },
-
-      {
         text: "Department",
         align: "left",
         sortable: true,
@@ -1103,7 +1092,6 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
-
       {
         text: "Mobile",
         align: "left",
@@ -1150,28 +1138,44 @@ export default {
       },
     ],
     branchesList: [],
+    branch_id: null,
+    isCompany: true,
   }),
 
   async created() {
-    console.log("user", this.$auth.user);
     this.loading = false;
     this.boilerplate = true;
 
-    this.payloadOptions = {
-      params: {
-        per_page: 10,
-        company_id: this.$auth.user.company_id,
-      },
-    };
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.employee.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
+    }
+    this.headers_table.splice(2, 0, {
+      text: "Branch",
+      align: "left",
+      sortable: true,
+      key: "branch_id",
+      value: "branch.branch_name",
+      filterable: true,
+      filterSpecial: true,
+    });
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
 
     this.getDataFromApi();
-    // this.getDepartments();
-    //this.getShifts();
-    //this.getTimezone();
-
-    setTimeout(() => {
-      this.getbranchesList();
-    }, 1000 * 5);
   },
   mounted() {
     //this.getDataFromApi();
@@ -1261,6 +1265,10 @@ export default {
       this.employee = {};
       this.departments = [];
       this.employeeDialog = true;
+
+      if (this.$auth.user.branch_id) {
+        this.getDepartments(this.$auth.user.branch_id);
+      }
     },
     filterDepartmentsByBranch(filterBranchId) {
       this.getDepartments(filterBranchId);
