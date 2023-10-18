@@ -182,11 +182,9 @@
                   >
                   <v-col
                     md="8"
-                    class="text-center bold text--violet"
-                    style="font-size: 30px"
-                    ><v-icon size="40" dark fill color="violet"
-                      >mdi-calendar-month</v-icon
-                    >
+                    class="text-center bold"
+                    style="font-size: 30px; font-weight: 300"
+                    ><v-icon size="40" fill>mdi-calendar-month</v-icon>
                     {{ month_year_display }}
                   </v-col>
                   <v-col md="2" class="align-right text-end">
@@ -205,9 +203,7 @@
                   <v-col md="3" class="text-center">
                     <v-row>
                       <v-col cols="4" class="text-end">
-                        <v-icon size="50" color="violet"
-                          >mdi-clock-check-outline</v-icon
-                        >
+                        <v-icon size="50">mdi-clock-check-outline</v-icon>
                       </v-col>
                       <v-col class="text-left"
                         ><div class="bold">{{ avg_clock_in }}</div>
@@ -223,9 +219,7 @@
                   >
                     <v-row>
                       <v-col cols="4" class="text-end">
-                        <v-icon size="50" color="violet"
-                          >mdi-clock-check-outline</v-icon
-                        >
+                        <v-icon size="50">mdi-clock-check-outline</v-icon>
                       </v-col>
                       <v-col class="text-left"
                         ><div class="bold">{{ avg_clock_out }}</div>
@@ -240,9 +234,7 @@
                   >
                     <v-row>
                       <v-col cols="4" class="text-end">
-                        <v-icon size="50" color="violet"
-                          >mdi-account-clock</v-icon
-                        >
+                        <v-icon size="50">mdi-account-clock</v-icon>
                       </v-col>
                       <v-col class="text-left"
                         ><div class="bold">{{ avg_working_hours }}</div>
@@ -257,9 +249,7 @@
                   >
                     <v-row>
                       <v-col cols="4" class="text-end">
-                        <v-icon size="50" color="violet"
-                          >mdi-calendar-month</v-icon
-                        >
+                        <v-icon size="50">mdi-calendar-month</v-icon>
                       </v-col>
                       <v-col class="text-left"
                         ><div class="bold">{{ presents }} / {{ leaves }}</div>
