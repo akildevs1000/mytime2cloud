@@ -416,15 +416,29 @@
         </v-card>
       </v-dialog>
       <div class="text-center">
-        <v-dialog v-model="viewDialog" width="1400px" :key="employeeId">
-          <!-- <EmployeeDetails
-            @close-parent-dialog="closeViewDialog"
-            :employeeObject="employeeObject"
-          /> -->
+        <!-- <v-dialog v-model="viewDialog" width="1400px" :key="employeeId">
           <EmployeeDetails2
             @close-parent-dialog="closeViewDialog"
             :employeeObject="employeeObject"
           />
+        </v-dialog> -->
+        <v-dialog v-model="viewDialog" width="80%" :key="employeeId">
+          <v-card>
+            <v-card-title dense>
+              Employee Information
+              <v-spacer></v-spacer>
+              <v-icon @click="viewDialog = false" outlined dark color="black">
+                mdi mdi-close-circle
+              </v-icon>
+            </v-card-title>
+            <v-card-text>
+              <EmployeeProfileView
+                :table_id="employeeId"
+                :employee_id="employeeId"
+                :system_user_id="system_user_id"
+              />
+            </v-card-text>
+          </v-card>
         </v-dialog>
       </div>
       <v-dialog persistent v-model="dialog" max-width="500px">
@@ -933,6 +947,8 @@ import Setting from "../../components/employee/Setting.vue";
 import Payroll from "../../components/employee/Payroll.vue";
 import Login from "../../components/employee/Login.vue";
 
+import EmployeeProfileView from "../../components/EmployeesLogin/EmployeeLanding.vue";
+
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
 const compList = [
@@ -952,9 +968,13 @@ const compList = [
 export default {
   components: {
     VueCropper,
+    EmployeeProfileView,
   },
 
   data: () => ({
+    id: "",
+    employee_id: "",
+    system_user_id: "",
     departments: [],
     shifts: [],
     timezones: [],
@@ -1564,6 +1584,9 @@ export default {
     },
     viewItem(item) {
       this.employeeId = item.id;
+
+      this.system_user_id = item.system_user_id;
+      this.employee_id = item.employee_id;
 
       this.employeeObject = item;
       this.viewDialog = true;

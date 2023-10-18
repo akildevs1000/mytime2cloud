@@ -258,6 +258,7 @@
 </template>
 <script>
 export default {
+  props: ["system_user_id", "employee_id", "id"],
   data: () => ({
     year_display: "",
     payroll: {},
@@ -691,8 +692,8 @@ export default {
           company_id: this.$auth.user.company_id,
           // department_id: department_id,
           year: this.year_display,
-          employee_id: this.$auth.user.employee.employee_id,
-          employee_table_id: this.$auth.user.employee.id,
+          employee_id: this.employee_id, //this.$auth.user.employee.employee_id,
+          employee_table_id: this.table_id, //this.$auth.user.employee.id,
 
           //month: this.payslip_month,
           ////department_ids: this.$auth.user.assignedDepartments,

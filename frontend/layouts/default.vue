@@ -146,7 +146,7 @@
       <span style="100%">
         <template v-if="getLoginType == 'company' || getLoginType == 'branch'">
           <v-row align="center" justify="space-around" class="">
-            <v-col v-for="items in company_top_menu">
+            <v-col v-for="(items, index) in company_top_menu" :key="index">
               <v-btn
                 small
                 text
@@ -167,7 +167,10 @@
 
         <template v-if="getLoginType == 'employee'">
           <v-row>
-            <v-col v-for="items in employee_top_menu">
+            <v-col
+              v-for="(items, index) in employee_top_menu"
+              :key="index + '1'"
+            >
               <v-btn
                 small
                 text
