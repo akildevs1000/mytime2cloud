@@ -45,7 +45,7 @@
                     <td class="text-right">
                       <a
                         v-if="item.status"
-                        :href="getdownloadLink(item.employee_id)"
+                        :href="getdownloadLink(item.employee_table_id)"
                         style="
                           font-size: 25px;
                           vertical-align: inherit;
@@ -606,7 +606,7 @@
               <template v-slot:item.payslip="{ item }">
                 <span
                   v-if="item?.payroll?.basic_salary"
-                  @click="navigateToViewPDF(item.employee_id)"
+                  @click="navigateToViewPDF(item.id)"
                   style="
                     font-size: 25px;
                     vertical-align: inherit;
@@ -617,7 +617,7 @@
                 </span>
                 <a
                   v-if="item?.payroll?.basic_salary"
-                  :href="getdownloadLink(item.employee_id)"
+                  :href="getdownloadLink(item.id)"
                   style="
                     font-size: 25px;
                     vertical-align: inherit;

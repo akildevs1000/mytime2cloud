@@ -554,8 +554,14 @@ export default {
     this.$store.commit("loginType", this.$auth.user.user_type);
     this.getCompanyDetails();
     this.setMenus();
-    this.deviceList();
-    this.getEmployeeList();
+
+    if (
+      this.$auth.user.user_type == "company" ||
+      this.$auth.user.user_type == "branch"
+    ) {
+      this.deviceList();
+      this.getEmployeeList();
+    }
 
     this.setTopMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");

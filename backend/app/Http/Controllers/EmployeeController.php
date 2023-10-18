@@ -19,6 +19,7 @@ use App\Models\Designation;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Payroll;
+use App\Models\Payslips;
 use App\Models\ScheduleEmployee;
 use App\Models\Timezone;
 use App\Models\User;
@@ -197,6 +198,51 @@ class EmployeeController extends Controller
         $data = $this->getPayslipstatus($data, $request);
 
         return $data;
+    }
+
+    public function getEmployeePayslipYear(Request $request)
+    {
+
+        $payroll = Payslips::where("company_id", $request->company_id)->where('employee_id', $request->employee_id)->where("year", $request["year"])->orderBy('month', 'asc')->get();
+        foreach ($payroll as $key => $value) {
+
+            $pdfFile_name = 'payslips/' . $request["company_id"] . '/' . $request["company_id"] . '_' . $value->employee_id . '_' . $value["month"] . '_' . $request["year"] . '_payslip.pdf';
+            if (Storage::disk('local')->exists($pdfFile_name)) {
+                $value->payslip_status = true;
+            } else {
+                $value->payslip_status = false;
+            }
+
+            $value->payroll_month = $value["month"];
+            $value->payroll_year = $request["year"];
+        }
+        return $payroll;
+        // $payroll = Payroll::where("company_id", $request->company_id)->where('employee_id', $request->employee_id)->get();
+
+        // $payslips = [];
+        // for ($i = 1; $i <= 12; $i++) {
+
+        //     $row = [];
+
+        //     $pdfFile_name = 'payslips/' . $request["company_id"] . '/' . $request["company_id"] . '_' . $request->employee_id . '_' . $i . '_' . $request["year"] . '_payslip.pdf';
+        //     if (Storage::disk('local')->exists($pdfFile_name)) {
+        //         $row['payslip_status'] = true;
+        //     } else {
+        //         $row['payslip_status'] = false;
+        //     }
+        //     $row['employee_id'] = $request->employee_id;
+        //     $row['company_id'] = $request["company_id"];
+        //     $row['payroll_month'] = $i;
+        //     $row['payroll_year'] = $request["year"];
+        //     $row['net_salary'] = 1000;
+        //     $row['basic_salary'] = 1000;
+
+
+        //     $payslips[] = $row;
+        // }
+        // $data['payroll'] = $payroll;
+        // $data['payslips'] = $payslips;
+        // return $data;
     }
 
     public function getPayslipstatus($data, $request)
