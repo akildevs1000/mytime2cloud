@@ -740,7 +740,7 @@ export default {
           overtime: 0,
           from_date: monthObj.first,
           to_date: monthObj.last,
-          employee_id: this.employeeObject.employee_id,
+          employee_id: this.employeeObject.system_user_id,
 
           filterType: "Monthly",
         };
@@ -799,11 +799,12 @@ export default {
       this.$axios.get("employee", options).then(({ data }) => {
         console.log("datadata", data);
         if (data.data[0]) this.employeeObject = data.data[0];
-        this.gotoGroupDetails(
-          this.employeeObject.leave_group_id,
-          this.employeeObject.employee_id,
-          this.employeeObject.first_name
-        );
+        if (this.employeeObject.leave_group_id)
+          this.gotoGroupDetails(
+            this.employeeObject.leave_group_id,
+            this.employeeObject.employee_id,
+            this.employeeObject.first_name
+          );
         setTimeout(() => {
           this.commonMethod();
 
