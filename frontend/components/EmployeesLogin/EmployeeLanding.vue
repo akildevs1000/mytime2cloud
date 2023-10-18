@@ -1,6 +1,5 @@
 <template>
   <div v-if="employeeObject">
-    {{ id }} - {{ table_id }} - {{ system_user_id }}
     <v-row class="pt-5">
       <v-col cols="3">
         <v-card elevation="2" style="min-height: 925px">
