@@ -56,8 +56,8 @@
         </v-card-title>
         <v-card-text class="mt-2">
           <v-row>
-            <v-col>
-              <div v-if="viewmode">
+            <v-col v-if="viewmode" cols="6">
+              <div>
                 <strong class="">Branch</strong>:
                 {{
                   editedItem &&
@@ -65,8 +65,10 @@
                   editedItem.branch.branch_name
                 }}
               </div>
+            </v-col>
+
+            <v-col v-if="!viewmode && isCompany" cols="6">
               <v-select
-                v-else
                 class="pt-2"
                 v-model="editedItem.branch_id"
                 :items="branchesList"
@@ -275,7 +277,7 @@
             >mdi mdi-reload</v-icon
           >
         </v-btn>
-        <div style="width: 250px">
+        <div v-if="isCompany" style="width: 250px">
           <v-select
             @change="getDataFromApi()"
             class="pt-10 px-2"
@@ -526,6 +528,7 @@ export default {
 
     branchesList: [],
     branch_id: "",
+    isCompany: true,
   }),
 
   computed: {},
@@ -553,38 +556,43 @@ export default {
       this.searchIt();
     },
   },
-  created() {
+  async created() {
     this.timeSlots = this.generateTimeSlots(24);
     this.loading = true;
     this.loading_dialog = true;
 
-    this.options = {
-      params: {
-        per_page: 1000,
-        company_id: this.$auth.user.company_id,
-      },
-    };
-
-    if (this.$auth.user.branch_id == null) {
-      let branch_header = [
-        {
-          text: "Branch",
-          align: "left",
-          sortable: true,
-          key: "branch_id", //sorting
-          value: "branch.branch_name", //edit purpose
-          width: "300px",
-          filterable: true,
-          filterSpecial: true,
-        },
-      ];
-      this.headers.splice(1, 0, ...branch_header);
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
     }
 
-    this.$axios.get(`branches_list`, this.options).then(({ data }) => {
+    let branch_header = [
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch_id", //sorting
+        value: "branch.branch_name", //edit purpose
+        width: "300px",
+        filterable: true,
+        filterSpecial: true,
+      },
+    ];
+    this.headers.splice(0, 0, ...branch_header);
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
       this.branchesList = data;
-      this.branch_id = this.$auth.user.branch_id || "";
-    });
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
   },
 
   methods: {
@@ -701,6 +709,10 @@ export default {
       this.readOnly = false;
       this.editedIndex = -1;
       this.editedItem = this.defaultItem;
+
+      if (!this.isCompany) {
+        this.editedItem.branch_id = this.branch_id;
+      }
     },
     viewItem(item) {
       this.viewmode = true;

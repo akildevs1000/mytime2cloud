@@ -21,7 +21,7 @@
             </v-toolbar>
             <v-container>
               <v-divider></v-divider>
-              <v-row>
+              <v-row v-if="isCompany">
                 <v-col cols="4">
                   <label class="col-form-label"><b>Branch List</b></label>
                 </v-col>
@@ -140,7 +140,7 @@
 
             <v-container>
               <v-divider></v-divider>
-              <v-row>
+              <v-row v-if="isCompany">
                 <v-col cols="4">
                   <label class="col-form-label"><b>Branch List</b></label>
                 </v-col>
@@ -195,6 +195,7 @@ export default {
   components: { Back },
 
   data: () => ({
+    isCompany: true,
     branch_id: null,
     branchesList: [],
     payload: {
@@ -216,11 +217,29 @@ export default {
     errors: [],
   }),
 
-  created() {
-    this.getbranchesList();
-    this.branch_id = this.$auth.user.branch_id;
-    this.payload.branch_id = this.$auth.user.branch_id;
+  async created() {
+
     this.payload.company_id = this.$auth?.user?.company?.id;
+
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.payload.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
+    }
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
 
     this.preloader = false;
 
@@ -242,33 +261,6 @@ export default {
   },
 
   methods: {
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-
-        if (!this.$auth.user.branch_id) {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-
-          if (this.$auth.user.branch_id) {
-            this.branch_id = this.$auth.user.branch_id;
-            this.payload.branch_id = this.$auth.user.branch_id;
-          } else {
-            this.branch_id = "";
-            this.payload.branch_id = "";
-          }
-        }
-      });
-    },
     getDate() {
       const date = new Date();
       const year = date.getFullYear();

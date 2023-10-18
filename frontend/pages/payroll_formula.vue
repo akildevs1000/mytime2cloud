@@ -17,7 +17,7 @@
             >mdi mdi-reload</v-icon
           >
         </v-btn>
-        <div style="width: 250px">
+        <div v-if="isCompany" style="width: 250px">
           <v-select
             @change="getDataFromApi()"
             class="pt-10 px-2"
@@ -149,6 +149,7 @@ export default {
     ],
     branch_id: null,
     branchesList: [],
+    isCompany:true,
   }),
 
   watch: {
@@ -159,36 +160,27 @@ export default {
       deep: true,
     },
   },
-  created() {
+  async created() {
     this.loading = true;
 
-    this.options = {
-      params: {
-        per_page: 100,
-        company_id: this.$auth.user.company_id,
-      },
-    };
-
-    if (this.$auth.user.branch_id == null) {
-      let branch_header = [
-        {
-          text: "Branch",
-          align: "left",
-          sortable: true,
-          key: "branch_id", //sorting
-          value: "branch.branch_name", //edit purpose
-          width: "300px",
-          filterable: true,
-          filterSpecial: true,
-        },
-      ];
-      this.headers.splice(1, 0, ...branch_header);
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
     }
 
-    this.$axios.get(`branches_list`, this.options).then(({ data }) => {
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
       this.branchesList = data;
-      this.branch_id = this.$auth.user.branch_id || "";
-    });
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
   },
 
   methods: {

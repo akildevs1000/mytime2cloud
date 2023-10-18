@@ -103,7 +103,11 @@ class DeviceController extends Controller
             //     $record = $model->create($request->validated());
             // }
 
-            $record = $model->create($request->validated());
+            $data = $request->validated();
+            $data["ip"] = "0.0.0.0";
+            $data["port"] = "0000";
+
+            $record = $model->create($data);
 
             if ($record) {
                 return $this->response('Device successfully added.', $record, true);

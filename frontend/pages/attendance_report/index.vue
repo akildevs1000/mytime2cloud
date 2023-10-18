@@ -22,7 +22,7 @@
               :hide-details="true"
             ></v-select>
           </v-col>
-          <v-col md="2" sm="2" v-if="$auth.user.branch_id == null">
+          <v-col md="2" sm="2" v-if="isCompany">
             Branch
             <v-select
               placeholder="Branch"
@@ -409,6 +409,7 @@ export default {
         name: "Custom",
       },
     ],
+    isCompany: true,
   }),
 
   computed: {
@@ -669,6 +670,13 @@ export default {
       });
     },
     getBranches() {
+      if (this.$auth.user.branch_id) {
+        this.payload.branch_id = this.$auth.user.branch_id;
+        console.log(this.payload.branch_id);
+        this.isCompany = false;
+        return;
+      }
+
       this.$axios
         .get("branch", {
           params: {

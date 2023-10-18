@@ -27,11 +27,11 @@
         </div>
       </v-row>
       <v-row>
-        <v-col cols="3">
+        <v-col v-if="isCompany" cols="3">
           <v-select
             @change="filterDepartmentsByBranch($event)"
             v-model="branch_id"
-            :items="branchesList"
+            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
             dense
             placeholder="All Branches"
             outlined
@@ -750,6 +750,7 @@ export default {
           cols: ["id", "name"],
         },
       },
+      isCompany: true,
     };
   },
   mounted: function () {
@@ -769,10 +770,26 @@ export default {
       //this.snackbar = false;
     }, 2000);
   },
-  created() {
-    this.getbranchesList();
-    this.branch_id = this.$auth.user.branch_id;
-    // }
+  async created() {
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      this.filterDepartmentsByBranch(this.branch_id);
+      return;
+    }
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
   },
   methods: {
     filterDepartmentsByBranch(branch_id) {
@@ -780,29 +797,6 @@ export default {
       this.getDevisesDataFromApi(branch_id);
       this.getEmployeesDataFromApi(branch_id);
       this.getTimezonesFromApi(branch_id);
-    },
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-
-        if (!this.$auth.user.branch_id) {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-
-          if (this.$auth.user.branch_id)
-            this.branch_id = this.$auth.user.branch_id;
-          else this.branch_id = "";
-        }
-      });
     },
     getDepartmentsApi(options, branch_id) {
       options.params.branch_id = branch_id;
