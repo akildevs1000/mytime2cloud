@@ -22,13 +22,8 @@
                   mdi-less-than</v-icon
                 ></v-col
               >
-              <v-col
-                md="8"
-                class="text-center bold text--violet"
-                style="font-size: 30px"
-                ><v-icon size="40" dark fill color="violet"
-                  >mdi-calendar-month</v-icon
-                >
+              <v-col md="8" class="text-center" style="font-size: 30px"
+                ><v-icon size="40" fill>mdi-calendar-month</v-icon>
                 {{ year_display }}
               </v-col>
               <v-col md="2" class="align-right text-end">

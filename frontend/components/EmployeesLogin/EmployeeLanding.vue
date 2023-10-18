@@ -180,10 +180,7 @@
                       mdi-less-than</v-icon
                     ></v-col
                   >
-                  <v-col
-                    md="8"
-                    class="text-center bold"
-                    style="font-size: 30px; font-weight: 300"
+                  <v-col md="8" class="text-center" style="font-size: 30px"
                     ><v-icon size="40" fill>mdi-calendar-month</v-icon>
                     {{ month_year_display }}
                   </v-col>
