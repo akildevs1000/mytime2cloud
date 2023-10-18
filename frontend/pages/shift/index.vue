@@ -18,8 +18,11 @@
         </v-card-title>
         <v-card-text>
           <v-row class="pa-1">
-            <v-col md="3" sm="12" cols="12">
-              <label>Branch <span class="error--text">*</span></label>
+            <v-col v-if="isCompany" md="3" sm="12" cols="12">
+              <label
+                >Branch 
+                <span class="error--text">*</span></label
+              >
               <v-select
                 clearable
                 :hide-details="true"
@@ -39,7 +42,7 @@
               }}</span>
             </v-col>
             <v-col md="3" sm="12" cols="12">
-              <label>Name of Schedule <span class="error--text">*</span></label>
+              <label>Name of Schedule<span class="error--text">*</span></label>
               <v-text-field
                 v-model="payload.name"
                 :hide-details="true"
@@ -175,7 +178,7 @@
       <v-data-table
         dense
         :server-items-length="total"
-        :headers="headers_table"
+        :headers="headers"
         :items="data"
         model-value="data.id"
         :loading="loading"
@@ -278,7 +281,7 @@
 <script>
 import DatePickerCommon from "../../components/Snippets/DatePickerCommon.vue";
 import Back from "../../components/Snippets/Back.vue";
-import headers_table from "../../menus/shift.json";
+import headers from "../../menus/shift.json";
 import defaults from "../../defaults/shift.json";
 
 import SplitShift from "../../components/widgets/Shifts/SplitShift.vue";
@@ -292,7 +295,6 @@ export default {
 
   data: () => ({
     showDialog: false,
-    branchesList1: [],
     branchesList: [],
     isFilter: false,
     filters: {},
@@ -320,13 +322,14 @@ export default {
     ids: [],
     loading: false,
     total: 0,
-    headers: headers_table,
-    headers_table,
+    headers,
     response: "",
     data: [],
     errors: [],
     renderComponent: 0,
     branch_id: null,
+    isCompany: false,
+    comp: "",
   }),
 
   watch: {
@@ -337,52 +340,47 @@ export default {
       deep: true,
     },
   },
-  created() {
-    if (this.$auth.user.branch_id == null) {
-      let branch_header = [
-        {
-          text: "Branch",
-          align: "left",
-          sortable: true,
-          key: "branch_id",
-          value: "branch.branch_name",
-          filterable: true,
-          filterSpecial: true,
-        },
-      ];
-      this.headers_table.splice(1, 0, ...branch_header);
-    }
+  async created() {
     this.loading = true;
-    this.getDataFromApi();
+
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
+    }
+
+    let branch_header = [
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch_id",
+        value: "branch.branch_name",
+        filterable: true,
+        filterSpecial: true,
+      },
+    ];
+
+    this.headers.splice(1, 0, ...branch_header);
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
+
     // this.getShifts();
     this.getComponent();
-    this.getbranchesList();
   },
 
   methods: {
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-        this.branchesList1 = data;
-
-        if (this.$auth.user.branch_id) {
-          this.branch_id = this.$auth.user.branch_id;
-        } else {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-          this.branch_id = "";
-        }
-      });
-    },
     getRelatedShiftComponent() {
       this.payload = {
         shift_type_id: this.payload.shift_type_id,

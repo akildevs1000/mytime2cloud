@@ -117,14 +117,14 @@ export default {
     return {};
   },
   mounted() {
-    if (this.$auth.user.user_type == "employee") {
-      this.$router.push(`/dashboard/employee`);
-    }
+    // if (this.$auth.user.user_type == "employee") {
+    //   this.$router.push(`/dashboard/employee`);
+    // }
   },
   created() {
-    if (this.$auth.user.user_type == "employee") {
-      this.$router.push(`/dashboard/employee`);
-    }
+    // if (this.$auth.user.user_type == "employee") {
+    //   this.$router.push(`/dashboard/employee`);
+    // }
   },
 
   methods: {},
