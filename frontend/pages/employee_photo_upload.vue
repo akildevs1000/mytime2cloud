@@ -16,7 +16,7 @@
       <v-col cols="12">
         <!-- <Back class="primary white--text" /> -->
       </v-col>
-      <v-col cols="3">
+      <v-col v-if="isCompany" cols="3">
         <v-select
           @change="filterDepartmentsByBranch($event)"
           v-model="branch_id"
@@ -647,6 +647,7 @@ export default {
   components: {},
   data() {
     return {
+      isCompany: true,
       branch_id: null,
       branchesList: [],
       loading: false,
@@ -706,16 +707,31 @@ export default {
       //this.snackbar = false;
     }, 2000);
   },
-  created() {
-    this.getbranchesList();
+  async created() {
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      this.filterDepartmentsByBranch(this.branch_id);
+      return;
+    }
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
+        params: {
+          per_page: 100,
+          company_id: this.$auth.user.company_id,
+        },
+      });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
+
     this.getDepartmentsApi(this.options, null);
     this.getDevisesDataFromApi(null);
     this.getEmployeesDataFromApi(null);
     this.getTimezonesFromApi(null);
-
-    // if (this.$auth.user.branch_id) {
-    this.branch_id = this.$auth.user.branch_id;
-    // }
   },
   methods: {
     filterDepartmentsByBranch(branch_id) {
@@ -968,29 +984,6 @@ export default {
     },
     goback() {
       this.$router.push("/timezonemapping/list");
-    },
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-
-        if (!this.$auth.user.branch_id) {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-
-          if (this.$auth.user.branch_id)
-            this.branch_id = this.$auth.user.branch_id;
-          else this.branch_id = "";
-        }
-      });
     },
     getDevisesDataFromApi(branch_id, url = this.endpointDevise) {
       //this.loading = true;
