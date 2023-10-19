@@ -97,7 +97,7 @@ export default {
     },
   },
   mounted() {},
-  created() {
+  async created() {
     // Get today's date
     let today = new Date();
 
@@ -110,9 +110,8 @@ export default {
     this.date_from = sevenDaysAgo.toISOString().split("T")[0];
     // this.display_title =
     //   "Attendance : " + this.date_from + " to " + this.date_to;
-    setTimeout(() => {
-      this.getDataFromApi();
-    }, 1000 * 2);
+
+    await this.getDataFromApi();
   },
   mounted() {
     this.chartOptions.chart.height = this.height;
@@ -135,6 +134,7 @@ export default {
       this.$store.commit("dashboard/setDashboardData", null);
     },
     async getDataFromApi() {
+      
       this.loading = true;
 
       this.$store.dispatch("dashboard/setDates", {
