@@ -34,44 +34,6 @@ export default {
         rel: "stylesheet",
         href: "https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.4.95/css/materialdesignicons.min.css",
       },
-      //Datatables
-      // {
-      //   rel: "stylesheet",
-      //   href: "https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css",
-      // },
-      // {
-      //   rel: "stylesheet",
-      //   href: "https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css",
-      // },
-      // {
-      //   rel: "stylesheet",
-      //   href: "https://cdn.datatables.net/colreorder/1.6.2/css/colReorder.dataTables.min.css",
-      // },
-      // {
-      //   rel: "stylesheet",
-      //   href: "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css",
-      // },
-      // {
-      //   rel: "stylesheet",
-      //   href: "https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css",
-      // },
-      // {
-      //   rel: "stylesheet",
-      //   href: "https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css",
-      // },
-      // {
-      //   rel: "stylesheet",
-      //   href: "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css",
-      // },
-      // {
-      //   rel: "stylesheet",
-      //   href: "https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.min.css",
-      // },
-
-      // {
-      //   rel: "stylesheet",
-      //   href: "https://unpkg.com/cropperjs@1.5.12/dist/cropper.min.css",
-      // },
     ],
     script: [
       {
@@ -87,118 +49,12 @@ export default {
         body: false,
       }, // Insert in body
 
-      // // with shorthand
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdn.datatables.net/colreorder/1.6.2/js/dataTables.colReorder.min.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-
-      // // ...
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-
-      // {
-      //   type: "text/javascript",
-      //   src: "https://code.jquery.com/ui/1.12.1/jquery-ui.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-
       {
         type: "text/javascript",
         src: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
         async: false,
         body: false,
       }, // Insert in body
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js",
-      //   async: false,
-      //   body: false,
-      // }, //
-
-      // {
-      //   type: "text/javascript",
-      //   src: "https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-
-      // {
-      //   type: "text/javascript",
-      //   src: "https://unpkg.com/cropperjs@1.5.12/dist/cropper.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-
-      // // {
-      // //   type: "text/javascript",
-      // //   src: "https://unpkg.com/vue@3/dist/vue.global.js",
-      // //   async: false,
-      // //   body: false,
-      // // }, // Insert in body
-
-      // {
-      //   type: "text/javascript",
-      //   src: "https://unpkg.com/vue-avatar-cropper/dist/avatar-cropper.umd.js",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
-
-      // {
-      //   type: "text/javascript",
-      //   src: "https://wzrd.in/standalone/mime%2flite@latest",
-      //   async: false,
-      //   body: false,
-      // }, // Insert in body
     ],
   },
 
@@ -292,27 +148,6 @@ export default {
           success: colors.green.accent3,
           main_bg: "#ECF0F4",
         },
-        // extend: {
-        //   fontFamily: {
-        //     roboto: ["Roboto"],
-        //   },
-        // },
-        // defaultAssets: {
-        //   font: {
-        //     family: "Roboto",
-        //   },
-        // },
-        // dark: {
-        //     // primary: "#fffff",
-        //     // accent: "#d8363a",
-        //     // secondary: "#242424",
-        //     // background: "#34444c",
-        //     // info: colors.teal.lighten1,
-        //     // warning: colors.amber.base,
-        //     // error: colors.deepOrange.accent4,
-        //     // success: colors.green.accent3,
-        //     // main_bg: "#ECF0F4"
-        // }
       },
     },
   },
