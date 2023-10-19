@@ -4,6 +4,8 @@ export const state = () => ({
     dashboardData: null,
     date_from: null, // Add 'date_from' property
     date_to: null,   // Add 'date_to' property
+    recent_logs: null   // Add 'date_to' property
+
 });
 
 export const mutations = {
@@ -16,6 +18,9 @@ export const mutations = {
     },
     date_to(state, date_to) {     // Mutation to set 'date_to'
         state.date_to = date_to;
+    },
+    recent_logs(state, recent_logs) {     // Mutation to set 'recent_logs'
+        state.recent_logs = recent_logs;
     },
 };
 
