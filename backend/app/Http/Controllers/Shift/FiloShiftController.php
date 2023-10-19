@@ -155,13 +155,13 @@ class FiloShiftController extends Controller
 
 
 
-            $message[] = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
+            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . " " . $message;
             Logger::channel("render_manual_logs")->info(json_encode($message));
 
 
             return ($message);
         } catch (\Throwable $e) {
-            $message[] = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
+            $message .= "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
             info(json_encode($message));
 
             return "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Server Error";

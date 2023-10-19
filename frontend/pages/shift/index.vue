@@ -358,7 +358,14 @@ export default {
       },
     ];
 
-    this.headers.splice(1, 0, ...branch_header);
+    const headerExists = this.headers.some(
+      (header) => header.text === "Branch"
+    );
+
+    if (!headerExists) {
+      // Insert the "Branch" header if it doesn't already exist
+      this.headers.splice(1, 0, ...branch_header);
+    }
 
     try {
       const { data } = await this.$axios.get(`branches_list`, {

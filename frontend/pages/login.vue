@@ -413,7 +413,7 @@ export default {
             }
 
             if (data.user && data.user.user_type == "employee") {
-              this.$router.push(`/dashboard/employee`);
+              this.$router.push(`/employees/profile`);
 
               return;
             }
