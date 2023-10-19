@@ -131,6 +131,8 @@ export default {
 
       this.display_title =
         "Attendance : " + this.date_from + " to " + this.date_to;
+
+      this.$store.commit("dashboard/setDashboardData", null);
     },
     async getDataFromApi() {
       this.loading = true;
@@ -143,22 +145,6 @@ export default {
       const data = await this.$store.dispatch("dashboard/states_for_7_days");
 
       this.renderChart(data);
-
-      return;
-
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-          date_from: this.date_from,
-          date_to: this.date_to,
-        },
-      };
-
-      this.$axios
-        .get("dashboard_counts_last_7_days", options)
-        .then(({ data }) => {
-          this.renderChart(data);
-        });
     },
     renderChart(data) {
       let counter = 0;
