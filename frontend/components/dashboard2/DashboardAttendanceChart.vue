@@ -44,13 +44,13 @@ export default {
           data: [],
         },
         {
-          name: "Off",
+          name: "WeekOff",
           data: [],
         },
       ],
 
       chartOptions: {
-        colors: ["#14B012", "#FF0000", "#FFB600", "#FFB600"],
+        colors: ["#14B012", "#FF0000", "#FFB600", "#2196F3"],
         chart: {
           type: "bar",
           width: "98%",
@@ -161,7 +161,7 @@ export default {
               data: [],
             },
             {
-              name: "Off",
+              name: "WeekOff",
               data: [],
             },
           ];
