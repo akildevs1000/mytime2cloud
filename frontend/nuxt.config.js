@@ -7,7 +7,7 @@ export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     titleTemplate: "",
-    title: "Idea HRMS",
+    title: "MyTime 2 Cloud",
     meta: [
       { charset: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -207,8 +207,9 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    '~/plugins/qrcode.js',
-    { src: '~/plugins/crypto.js', mode: 'client' },
+    "~/plugins/qrcode.js",
+    "~/plugins/custom-methods.js",
+    { src: "~/plugins/crypto.js", mode: "client" },
     { src: "~/plugins/axios.js" },
     { src: "~/plugins/TiptapVuetify", mode: "client" },
     { src: "~/plugins/vue-apexchart.js", ssr: false },
@@ -264,14 +265,13 @@ export default {
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {
     manifest: {
-      name: 'IdeaHrms',
-      short_name: 'IdeaHrms',
-      lang: 'en',
+      name: "MyTime 2 Cloud",
+      short_name: "MyTime 2 Cloud",
+      lang: "en",
     },
     icon: {
-      source: 'static/icon.png', // Path to your app icon
+      source: "static/icon.png", // Path to your app icon
     },
-
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
@@ -328,6 +328,6 @@ export default {
   },
 
   env: {
-    SECRET_PASS_PHRASE: process.env.SECRET_PASS_PHRASE
+    SECRET_PASS_PHRASE: process.env.SECRET_PASS_PHRASE,
   },
 };
