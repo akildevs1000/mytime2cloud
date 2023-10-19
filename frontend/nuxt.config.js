@@ -138,7 +138,8 @@ export default {
 
       themes: {
         light: {
-          primary: "#5fafa3",
+          //primary: "#5fafa3", //green
+          primary: "#6946dd", //violoet
           accent: "#d8363a",
           secondary: "#242424",
           background: "#34444c",
@@ -147,6 +148,8 @@ export default {
           error: colors.deepOrange.accent4,
           success: colors.green.accent3,
           main_bg: "#ECF0F4",
+          violet: "#6946dd",
+          popup_background: "#ecf0f4",
         },
       },
     },
