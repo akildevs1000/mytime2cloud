@@ -93,7 +93,7 @@
 
 <script>
 import DashboardAttendanceChart from "../../components/dashboard2/DashboardAttendanceChartV1.vue";
-import DashboardRealTimeLogTableview from "../../components/dashboard2/DashboardRealTimeLogTableview.vue";
+import DashboardRealTimeLogTableview from "../../components/dashboard2/DashboardRealTimeLogTableviewV1.vue";
 import DashboardAnnouncment from "../../components/dashboard2/DashboardAnnouncment.vue";
 import DashboardLoginActivities from "../../components/dashboard2/DashboardLoginActivities.vue";
 import DashboardAttednaceDepartmentWise from "../../components/dashboard2/DashboardAttednaceDepartmentWise.vue";
