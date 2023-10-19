@@ -198,6 +198,11 @@ class Kernel extends ConsoleKernel
         })->dailyAt('00:00');
 
         $schedule->call(function () {
+            exec('pm2 reload 21');
+            info("MyTime2Cloud SDK restarted");
+        })->dailyAt('04:15');
+
+        $schedule->call(function () {
             $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false]);
             info($count . "companies has been updated");
         })->dailyAt('00:00');
