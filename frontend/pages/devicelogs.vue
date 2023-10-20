@@ -306,7 +306,7 @@
             <template v-slot:item.device.name="{ item }">
               {{ item.device ? caps(item.device.name) : "---" }}
             </template>
-            <template v-slot:item.device.location="{ item }">
+            <template v-slot:item.gps_location="{ item }">
               {{ item.gps_location || "---" }}
             </template>
           </v-data-table>
@@ -469,11 +469,11 @@ export default {
         filterSpecial: true,
       },
       {
-        text: "Device Location",
+        text: "Gps Location",
         align: "left",
         sortable: true,
-        key: "devicelocation",
-        value: "device.location",
+        key: "gps_location",
+        value: "gps_location",
         filterable: true,
         filterSpecial: true,
       },
