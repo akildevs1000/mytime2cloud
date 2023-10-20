@@ -1,288 +1,226 @@
 <template>
-  <v-dialog v-model="dialogNew" width="800">
-    <v-card>
-      <v-card-title dense class="popup_background">
-        <h5>Create Report Notification</h5>
+  <div>
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+        {{ response }}
+      </v-snackbar>
+    </div>
+
+    <v-autocomplete
+      class="pb-0"
+      v-model="payload.branch_id"
+      :items="branchesList"
+      dense
+      placeholder="Select Branch"
+      outlined
+      item-value="id"
+      item-text="branch_name"
+      label="Branch"
+    >
+    </v-autocomplete>
+
+    <span
+      v-if="errors && errors.branch_id && errors.branch_id[0]"
+      class="error--text"
+      >{{ errors.branch_id[0] }}</span
+    >
+    <v-text-field
+      class="pb-4"
+      :hide-details="!payload.subject"
+      v-model="payload.subject"
+      placeholder="Subject"
+      outlined
+      dense
+      label="Subject"
+    ></v-text-field>
+    <span v-if="errors && errors.subject" class="error--text"
+      >{{ errors.subject[0] }}
+    </span>
+
+    <v-autocomplete
+      class="pb-1"
+      label="Report Type"
+      @change="setDay"
+      :hide-details="!payload.frequency"
+      v-model="payload.frequency"
+      outlined
+      dense
+      placeholder="Frequency"
+      :items="['Daily', 'Weekly', 'Monthly']"
+    >
+    </v-autocomplete>
+    <span v-if="errors && errors.frequency" class="error--text">{{
+      errors.frequency[0]
+    }}</span>
+
+    <!-- <v-autocomplete
+      class="pb-2"
+      v-if="payload.frequency == 'Daily'"
+      :hide-details="!payload.day"
+      v-model="payload.day"
+      outlined
+      dense
+      placeholder="Days"
+      :items="payload.frequency == 'Weekly' ? days : []"
+      item-text="name"
+      item-value="id"
+      label="Week Day"
+    >
+    </v-autocomplete> -->
+    <v-autocomplete
+      class="pb-2"
+      v-if="payload.frequency == 'Weekly'"
+      :hide-details="!payload.day"
+      v-model="payload.day"
+      outlined
+      dense
+      placeholder="Days"
+      :items="payload.frequency == 'Weekly' ? days : []"
+      item-text="name"
+      item-value="id"
+      label="Week Day"
+    >
+    </v-autocomplete>
+    <v-menu
+      v-if="payload.frequency == 'Monthly'"
+      ref="menu"
+      v-model="menu"
+      :close-on-content-click="false"
+      :return-value.sync="payload.date"
+      transition="scale-transition"
+      offset-y
+      min-width="auto"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-text-field
+          class="pb-2"
+          label="Monthly Date"
+          :hide-details="payload.date"
+          outlined
+          dense
+          v-model="payload.date"
+          readonly
+          v-bind="attrs"
+          v-on="on"
+        ></v-text-field>
+      </template>
+      <v-date-picker v-model="payload.date" no-title scrollable>
         <v-spacer></v-spacer>
-        <v-icon @click="close" outlined dark> mdi mdi-close-circle </v-icon>
-      </v-card-title>
-      <v-card-text>
-        <v-container>
-          <v-row>
-            <v-col cols="6">
-              <v-select
-                v-model="payload.branch_id"
-                :items="[
-                  { id: ``, branch_name: `Select All` },
-                  ...branchesList,
-                ]"
-                dense
-                placeholder="Select Branch"
-                outlined
-                item-value="id"
-                item-text="branch_name"
-              >
-              </v-select>
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                :hide-details="!payload.subject"
-                v-model="payload.subject"
-                placeholder="Title/Subject"
-                outlined
-                dense
-              ></v-text-field>
+        <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>
+        <v-btn
+          text
+          color="primary"
+          @click="set_date_save($refs.menu, payload.date)"
+        >
+          OK
+        </v-btn>
+      </v-date-picker>
+    </v-menu>
 
-              <span v-if="errors && errors.subject" class="error--text">{{
-                errors.subject[0]
-              }}</span>
+    <span v-if="errors && errors.date" class="error--text">{{
+      errors.date[0]
+    }}</span>
 
-              <span v-if="errors && errors.subject" class="error--text">{{
-                errors.subject[0]
-              }}</span>
-            </v-col>
-            <v-col cols="4">
-              <v-autocomplete
-                @change="setDay"
-                :hide-details="!payload.frequency"
-                v-model="payload.frequency"
-                outlined
-                dense
-                placeholder="Frequency"
-                :items="['Daily', 'Weekly', 'Monthly']"
-              >
-              </v-autocomplete>
-              <span v-if="errors && errors.frequency" class="error--text">{{
-                errors.frequency[0]
-              }}</span>
-            </v-col>
-            <v-col cols="4">
-              <v-autocomplete
-                v-if="
-                  payload.frequency == 'Daily' || payload.frequency == 'Weekly'
-                "
-                :hide-details="!payload.day"
-                v-model="payload.day"
-                outlined
-                dense
-                placeholder="Days"
-                :items="payload.frequency == 'Weekly' ? days : []"
-                item-text="name"
-                item-value="id"
-              >
-              </v-autocomplete>
-              <v-menu
-                v-if="payload.frequency == 'Monthly'"
-                class="mt-2"
-                ref="menu"
-                v-model="menu"
-                :close-on-content-click="false"
-                :return-value.sync="payload.date"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    :hide-details="payload.date"
-                    outlined
-                    dense
-                    v-model="payload.date"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker v-model="payload.date" no-title scrollable>
-                  <v-spacer></v-spacer>
-                  <v-btn text color="primary" @click="menu = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="set_date_save($refs.menu, payload.date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-              <span v-if="errors && errors.day" class="error--text">{{
-                errors.day[0]
-              }}</span>
-              <span v-if="errors && errors.date" class="error--text">{{
-                errors.date[0]
-              }}</span>
-            </v-col>
+    <TimePickerCommon
+      label=""
+      :default_value="payload.time"
+      @getTime="(value) => (payload.time = value)"
+    />
+    <span v-if="errors && errors.time" class="error--text">{{
+      errors.time[0]
+    }}</span>
 
-            <v-col cols="4">
-              <v-menu
-                ref="menu"
-                v-model="menu2"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                :return-value.sync="payload.time"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-width="290px"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    :hide-details="!payload.time"
-                    outlined
-                    dense
-                    v-model="payload.time"
-                    placeholder="Time"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-time-picker
-                  v-if="menu2"
-                  v-model="payload.time"
-                  full-width
-                  @click:minute="$refs.menu.save(payload.time)"
-                ></v-time-picker>
-              </v-menu>
-              <span v-if="errors && errors.time" class="text-danger mt-2">{{
-                errors.time[0]
-              }}</span>
-            </v-col>
-          </v-row>
-          <v-divider></v-divider>
-          <v-row dense>
-            <label class="col-form-label pt-5"><b>Reports</b></label>
-            <v-col cols="4" class="pa-0 ma-0">
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Daily Summary"
-                value="daily_summary.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Daily Present"
-                value="daily_present.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Daily Absent"
-                value="daily_absent.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Daily Missing"
-                value="daily_missing.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Daily Manual Entry"
-                value="daily_manual.pdf"
-              ></v-checkbox>
-              <span v-if="errors && errors.reports" class="error--text">{{
-                errors.reports[0]
-              }}</span>
-            </v-col>
-            <v-col cols="4" class="pa-0 ma-0">
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Weekly Summary"
-                value="weekly_summary.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Weekly Present"
-                value="weekly_present.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Weekly Absent"
-                value="weekly_absent.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Weekly Missing"
-                value="weekly_missing.pdf"
-              ></v-checkbox>
+    <v-divider></v-divider>
 
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Weekly Manual Entry"
-                value="weekly_manual.pdf"
-              ></v-checkbox>
-            </v-col>
-            <v-col cols="4" class="pa-0 ma-0">
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Monthly Summary"
-                value="monthly_summary.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Monthly Present"
-                value="monthly_present.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Monthly Absent"
-                value="monthly_absent.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Monthly Missing"
-                value="monthly_missing.pdf"
-              ></v-checkbox>
-              <v-checkbox
-                dense
-                v-model="payload.reports"
-                label="Monthly Manual Entry"
-                value="monthly_manual.pdf"
-              ></v-checkbox>
-            </v-col>
-          </v-row>
-          <v-divider></v-divider>
-          <v-row dense>
-            <label class="col-form-label pt-5"><b>Medium </b></label>
+    <v-row dense class="pt-3">
+      <!-- <label class="col-form-label pt-3 pr-3"><b>Medium </b></label> -->
 
-            <v-col cols="3" class="pa-0 ma-0">
-              <v-checkbox
-                dense
-                v-model="payload.mediums"
-                label="Email"
-                value="Email"
-              ></v-checkbox>
-            </v-col>
-            <v-col cols="3" class="pa-0 mr-7">
-              <v-checkbox
-                dense
-                v-model="payload.mediums"
-                label="Whatsapp"
-                value="Whatsapp"
-              ></v-checkbox>
-            </v-col>
-            <v-col cols="12" class="pa-0 ma-0">
-              <span v-if="errors && errors.mediums" class="error--text">{{
-                errors.mediums[0]
-              }}</span>
-            </v-col>
-          </v-row>
-          <v-divider></v-divider>
-          <v-row>
+      <v-col cols="6" class="pa-1 ma-0">
+        <!-- <v-checkbox
+          dense
+          v-model="payload.mediums"
+          label="Email"
+          value="Email"
+        ></v-checkbox> -->
+        <v-switch v-model="email" label="Email"></v-switch>
+      </v-col>
+      <v-col cols="6" class="pa-1 align-end">
+        <!-- <v-checkbox
+          dense
+          v-model="payload.mediums"
+          label="Whatsapp"
+          value="Whatsapp"
+        ></v-checkbox> -->
+        <v-switch v-model="whatsapp" label="Whatsapp"></v-switch>
+      </v-col>
+      <v-col cols="12" class="pa-0 ma-0">
+        <span v-if="errors && errors.mediums" class="error--text">{{
+          errors.mediums[0]
+        }}</span>
+      </v-col>
+    </v-row>
+    <v-divider></v-divider>
+    <v-row class="pt-3">
+      <v-col md="6"><b>Add Manager(s)</b></v-col>
+    </v-row>
+
+    <div v-for="(item, index) in managers" :key="index">
+      <v-text-field
+        dense
+        outlined
+        v-model="item.name"
+        label="Name"
+      ></v-text-field>
+
+      <v-text-field
+        dense
+        outlined
+        type="email"
+        v-model="item.email"
+        label="Email"
+      ></v-text-field>
+
+      <v-text-field
+        dense
+        outlined
+        v-model="item.whatsapp_number"
+        label="Whatsapp Number"
+      ></v-text-field>
+
+      <v-row>
+        <v-col md="6" class="pa-0"> <v-divider></v-divider></v-col>
+
+        <v-col md="6" class="pa-0 text-end" style="margin-top: -10px">
+          <v-icon @click="removeItem(index)" title="Delete"
+            >mdi-trash-can-outline</v-icon
+          >
+          <v-icon
+            v-if="index == managers.length - 1"
+            title="Add - Maximum 3 managers"
+            color="black"
+            :disabled="managers.length >= 3"
+            @click="add"
+            >mdi-plus-circle</v-icon
+          >
+        </v-col>
+      </v-row>
+
+      <v-col md="12"
+        ><span v-if="errors && errors.managers" class="error--text">{{
+          errors.managers[0]
+        }}</span>
+      </v-col>
+    </div>
+
+    <v-card-actions class="mt-5">
+      <v-spacer></v-spacer>
+
+      <v-btn :disabled="!managers.length" class="primary" small @click="store">
+        {{ editItemPayload ? "Update" : "Save" }}</v-btn
+      >
+    </v-card-actions>
+
+    <!-- <v-row>
             <v-col cols="12">
               <label class="col-form-label"> <h4>Mail Settings</h4> </label
               ><br />
@@ -408,14 +346,15 @@
             <v-col col="2" class="text-end">
               <v-btn small color="primary" @click="store"> Submit </v-btn>
             </v-col>
-          </v-row>
-        </v-container>
+          </v-row> -->
+    <!-- </v-container>
       </v-card-text>
-    </v-card>
-  </v-dialog>
+    </v-card> -->
+  </div>
 </template>
 
 <script>
+import TimePickerCommon from "../components/Snippets/TimePickerCommon.vue";
 import {
   TiptapVuetify,
   Heading,
@@ -432,10 +371,12 @@ import {
 } from "tiptap-vuetify";
 
 export default {
-  props: ["dialogNew"],
-  components: { TiptapVuetify },
+  props: ["dialogNew", "editItemPayload"],
+  components: { TiptapVuetify, TimePickerCommon },
 
   data: () => ({
+    managers: [],
+    time_in_menu: false,
     menu: false,
     days: [
       { id: 1, name: "Monday" },
@@ -484,6 +425,8 @@ export default {
     number: "",
     cc: "",
     bcc: "",
+    email: "",
+    whatsapp: "",
     payload: {
       day: 1,
       reports: [],
@@ -505,6 +448,7 @@ export default {
   }),
 
   created() {
+    console.log(this.editItemPayload);
     this.preloader = false;
 
     this.$axios
@@ -519,8 +463,64 @@ export default {
         this.branch_id = this.$auth.user.branch_id || "";
       });
     this.payload.company_id = this.$auth?.user?.company?.id;
+    let reports = [
+      "daily_summary.pdf",
+      "daily_present.pdf",
+      "daily_absent.pdf",
+      "daily_missing.pdf",
+      "daily_manual.pdf",
+    ];
+    this.payload.reports = reports;
+    this.add();
+
+    if (this.editItemPayload) {
+      this.payload.branch_id = this.editItemPayload.branch_id;
+
+      this.payload.day = this.editItemPayload.day;
+      this.payload.frequency = this.editItemPayload.frequency;
+
+      this.payload.reports = this.editItemPayload.reports;
+
+      this.payload.time = this.editItemPayload.time;
+
+      this.payload.date = this.editItemPayload.date;
+      this.payload.company_id = this.editItemPayload.company_id;
+      this.payload.branch_id = this.editItemPayload.branch_id;
+      this.payload.subject = this.editItemPayload.subject;
+      this.managers = this.editItemPayload.managers;
+      this.email = this.editItemPayload.mediums.includes("Email")
+        ? "Email"
+        : "";
+
+      this.whatsapp = this.editItemPayload.mediums.includes("Whatsapp")
+        ? "Whatsapp"
+        : "";
+
+      if (this.managers.length == 0) {
+        this.add();
+      }
+    }
   },
   methods: {
+    set_date_save(from_menu, field) {
+      from_menu.save(field);
+    },
+    add() {
+      if (this.managers.length >= 3) {
+        this.snackbar = true;
+        this.response = "Maximum 3 managers";
+        return false;
+      }
+      this.managers.push({
+        name: "",
+        email: "",
+        whatsapp_number: "",
+      });
+    },
+    removeItem(index) {
+      this.managers.splice(index, 1);
+    },
+
     close() {
       this.$emit("close-dialog");
     },
@@ -532,6 +532,34 @@ export default {
       }
 
       this.payload.day = day;
+      let reports = [];
+      if (frequency == "Daily") {
+        reports = [
+          "daily_summary.pdf",
+          "daily_present.pdf",
+          "daily_absent.pdf",
+          "daily_missing.pdf",
+          "daily_manual.pdf",
+        ];
+      } else if (frequency == "Weekly") {
+        reports = [
+          "weekly_summary.pdf",
+          "weekly_present.pdf",
+          "weekly_absent.pdf",
+          "weekly_missing.pdf",
+          "weekly_manual.pdf",
+        ];
+      } else if (frequency == "Monthly") {
+        reports = [
+          "monthly_summary.pdf",
+          "monthly_present.pdf",
+          "monthly_absent.pdf",
+          "monthly_missing.pdf",
+          "monthly_manual.pdf",
+        ];
+      }
+
+      this.payload.reports = reports;
     },
     onScroll() {
       this.scrollInvoked++;
@@ -582,24 +610,63 @@ export default {
     },
 
     store() {
-      this.$axios
-        .post("/report_notification", this.payload)
-        .then(({ data }) => {
-          this.loading = false;
+      this.payload.managers = this.managers.filter(
+        (e) => e.email != "" && e.name != ""
+      );
 
-          if (!data.status) {
-            this.errors = data.errors;
-            return;
-          }
+      this.payload.mediums = [];
+      if (this.email) {
+        this.payload.mediums.push("Email");
+      }
+      if (this.whatsapp) {
+        this.payload.mediums.push("Whatsapp");
+      }
 
-          this.snackbar = data.status;
-          this.response = data.message;
+      this.managers.forEach((element) => {
+        element.company_id = this.$auth.user.company_id;
+        element.branch_id = this.payload.branch_id;
+      });
 
-          setTimeout(() => {
-            this.$router.push("/automation");
-          }, 1000);
-        })
-        .catch((e) => console.log(e));
+      if (this.editItemPayload) {
+        this.$axios
+          .put("/report_notification/" + this.editItemPayload.id, this.payload)
+          .then(({ data }) => {
+            this.loading = false;
+            this.$emit("getDataFromApi");
+            if (!data.status) {
+              this.errors = data.errors;
+              return;
+            }
+
+            this.snackbar = data.status;
+            this.response = data.message;
+
+            setTimeout(() => {
+              this.$emit("closePopup", data);
+            }, 500);
+          })
+          .catch((e) => console.log(e));
+      } else {
+        this.$axios
+          .post("/report_notification", this.payload)
+          .then(({ data }) => {
+            this.loading = false;
+
+            this.$emit("getDataFromApi");
+            if (!data.status) {
+              this.errors = data.errors;
+              return;
+            }
+
+            this.snackbar = data.status;
+            this.response = data.message;
+
+            setTimeout(() => {
+              this.$emit("closePopup", data);
+            }, 500);
+          })
+          .catch((e) => console.log(e));
+      }
     },
     test_endpoint() {
       // /test/whatsapp
@@ -656,7 +723,7 @@ export default {
   },
 };
 </script>
-<style>
+<!-- <style>
 .tiptap-vuetify-editor__content {
   min-height: 400px !important;
 }
@@ -672,4 +739,4 @@ export default {
 .tiptap-icon .v-btn--icon {
   color: white !important;
 }
-</style>
+</style> -->

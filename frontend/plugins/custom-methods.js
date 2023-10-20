@@ -22,6 +22,39 @@ export default ({ app }, inject) => {
 
       return `${year}-${month}-${day}`;
     },
+    format3: (inputdate) => {
+      const currentDate = new Date(inputdate);
+
+      const year = currentDate.getFullYear();
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0"); // Adding 1 to month because it's zero-based.
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const hours = currentDate.getHours().toString().padStart(2, "0");
+      const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+      const seconds = currentDate.getSeconds().toString().padStart(2, "0");
+
+      return `${year}-${month}-${day} ${hours}:${minutes} `;
+    },
+    format4: (inputdate) => {
+      const currentDate = new Date(inputdate);
+
+      const year = currentDate.getFullYear();
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0"); // Adding 1 to month because it's zero-based.
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const hours = currentDate.getHours().toString().padStart(2, "0");
+      const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+      const seconds = currentDate.getSeconds().toString().padStart(2, "0");
+
+      const inputDate = new Date(inputdate);
+      const options = {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        weekday: "short",
+      };
+      const formattedDate = inputDate.toLocaleDateString("en-US", options);
+
+      return `${formattedDate}  ${hours}:${minutes} `;
+    },
     monthStartEnd: (inputdate) => {
       // Get the current date
       const currentDate = new Date(inputdate);
@@ -53,8 +86,6 @@ export default ({ app }, inject) => {
         .padStart(2, "0")}-${lastDayOfMonth.getDate()}`;
 
       return { first: formattedFirstDay, last: formattedLastDay };
-      console.log("First day of the current month:", formattedFirstDay);
-      console.log("Last day of the current month:", formattedLastDay);
     },
     format_month_name_year: (inputdate) => {
       // Create a Date object with the date "2023-09-13"  Output: "23-09-13"

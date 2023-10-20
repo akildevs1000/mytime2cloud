@@ -14,7 +14,7 @@ class ReportNotificationController extends Controller
     public function index(ReportNotification $model, Request $request)
     {
 
-        return $model->with("managers")->where('company_id', $request->company_id)
+        $model = $model->with(["managers", "logs"])->where('company_id', $request->company_id)
             ->when($request->filled('subject'), function ($q) use ($request) {
                 $q->where('subject', 'ILIKE', "$request->subject%");
             })
@@ -24,9 +24,27 @@ class ReportNotificationController extends Controller
             ->when($request->filled('frequency'), function ($q) use ($request) {
                 $q->where('frequency', 'ILIKE', "$request->frequency%");
             })
+
+
+            ->when($request->filled('manager1'), function ($q) use ($request) {
+
+                $q->whereHas("managers", fn ($q) => $q->where("name", "ILIKE", $request->manager1 . '%')->orWhere("email", "ILIKE", $request->manager1 . '%')->orWhere("whatsapp_number", "ILIKE", $request->manager1 . '%'));
+            })
+            ->when($request->filled('manager2'), function ($q) use ($request) {
+
+                $q->whereHas("managers", fn ($q) => $q->where("name", "ILIKE", $request->manager2 . '%')->orWhere("email", "ILIKE", $request->manager2 . '%')->orWhere("whatsapp_number", "ILIKE", $request->manager2 . '%'));
+            })
+            ->when($request->filled('manager3'), function ($q) use ($request) {
+
+                $q->whereHas("managers", fn ($q) => $q->where("name", "ILIKE", $request->manager3 . '%')->orWhere("email", "ILIKE", $request->manager3 . '%')->orWhere("whatsapp_number", "ILIKE", $request->manager3 . '%'));
+            })
             ->when($request->filled('time'), function ($q) use ($request) {
                 $q->where('time', 'ILIKE', "$request->time%");
             })
+            ->when($request->filled('medium'), function ($q) use ($request) {
+                $q->where('mediums', 'ILIKE', "%$request->medium%");
+            })
+
             ->when($request->filled('serach_medium'), function ($q) use ($request) {
                 $key = strtolower($request->serach_medium);
                 //$q->where(DB::raw("json_contains('mediums', '$key')"));
@@ -50,8 +68,12 @@ class ReportNotificationController extends Controller
                     $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
                     }
                 }
-            })
-            ->with("branch")
+            });
+
+        if (!$request->filled('sortBy')) {
+            $model = $model->orderBy('updated_at', 'desc');
+        }
+        return $model->with("branch")
             ->paginate($request->per_page);
     }
 
@@ -93,9 +115,28 @@ class ReportNotificationController extends Controller
     public function update(UpdateRequest $request, ReportNotification $ReportNotification)
     {
         try {
-            $record = $ReportNotification->update($request->validated());
+
+            if (!$request->validated())
+                return false;
+
+            $record = $ReportNotification->update($request->except('managers'));
 
             if ($record) {
+
+
+                $notification_id = $ReportNotification->id;
+
+                ReportNotificationManagers::where("notification_id", $notification_id)->delete();
+
+                $managers = $request->only('managers');
+                foreach ($managers['managers'] as $manager) {
+                    $manager['notification_id'] = $notification_id;
+
+
+                    ReportNotificationManagers::create($manager);
+                }
+
+
                 return $this->response('Report Notification updated.', $record, true);
             } else {
                 return $this->response('Report Notification update.', null, false);

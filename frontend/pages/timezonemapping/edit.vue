@@ -902,11 +902,17 @@ export default {
       this.errors = [];
       this.response = "";
 
-      $.extend(this.leftEmployees, {
-        sdkEmpResponse: "",
+      // $.extend(this.leftEmployees, {
+      //   sdkEmpResponse: "",
+      // });
+      // $.extend(this.leftDevices, {
+      //   sdkDeviceResponse: "",
+      // });
+      this.leftEmployees.forEach((element) => {
+        element["sdkEmpResponse"] = "";
       });
-      $.extend(this.leftDevices, {
-        sdkDeviceResponse: "",
+      this.leftEmployees.forEach((element) => {
+        element["sdkDeviceResponse"] = "";
       });
     },
     onSubmit() {
@@ -993,8 +999,8 @@ export default {
         // this.displaybutton = false;
         if (data.record.SDKResponse) {
           this.loading = false;
-
-          $.each(this.rightDevices, function (index, rightDevicesobj) {
+          this.rightDevices.forEach((rightDevicesobj) => {
+            // $.each(this.rightDevices, function (index, rightDevicesobj) {
             let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
               (e) => e.sn == rightDevicesobj.device_id
             );

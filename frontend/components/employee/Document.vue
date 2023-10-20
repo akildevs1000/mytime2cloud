@@ -9,12 +9,10 @@
       <v-row class="pl-1 mt-0 mb-0">
         <v-card class="mb-5 rounded-md" elevation="0">
           <v-toolbar
+            elevation="1"
             class="rounded-md"
             style="border-radius: 5px 5px 0px 0px"
-            color="background"
             dense
-            flat
-            dark
           >
             <span> Documents List</span>
 

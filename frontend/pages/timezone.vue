@@ -579,7 +579,7 @@ export default {
         filterSpecial: true,
       },
     ];
-    this.headers.splice(0, 0, ...branch_header);
+    this.headers.splice(1, 0, ...branch_header);
 
     try {
       const { data } = await this.$axios.get(`branches_list`, {

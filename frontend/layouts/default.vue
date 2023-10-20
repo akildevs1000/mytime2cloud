@@ -276,7 +276,7 @@
         plan
         @click="goToSettings()"
         class="mr-3"
-        ><v-icon class="black--text" style="color: black; text-align: center"
+        ><v-icon class="violet--text" style="text-align: center"
           >mdi-settings</v-icon
         ></v-btn
       >
@@ -288,15 +288,14 @@
           :color="pendingLeavesCount > 0 ? 'red' : 'white'"
           :content="pendingLeavesCount"
         >
-          <v-icon @click="navigateToLeavePage()">mdi mdi-bell-ring</v-icon>
+          <v-icon class="violet--text" @click="navigateToLeavePage()"
+            >mdi mdi-bell-ring</v-icon
+          >
         </v-badge>
-        <v-badge
-          v-else
-          @click="navigateToLeavePage()"
-          color="black"
-          content="0"
-        >
-          <v-icon @click="navigateToLeavePage()">mdi mdi-bell-ring</v-icon>
+        <v-badge v-else @click="navigateToLeavePage()" content="0">
+          <v-icon class="violet--text" @click="navigateToLeavePage()"
+            >mdi mdi-bell-ring</v-icon
+          >
         </v-badge>
       </label>
       <v-snackbar
@@ -1057,5 +1056,199 @@ header i {
 
 .slidegroup1 .v-slide-group {
   height: 34px !important;
+}
+</style>
+
+<style>
+/*! CSS Used from: https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css */
+*,
+:after,
+:before {
+  box-sizing: border-box;
+}
+button {
+  border-radius: 0;
+}
+button:focus:not(:focus-visible) {
+  outline: 0;
+}
+button {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+button {
+  text-transform: none;
+}
+[type="button"],
+button {
+  -webkit-appearance: button;
+}
+[type="button"]:not(:disabled),
+button:not(:disabled) {
+  cursor: pointer;
+}
+.btn {
+  display: inline-block;
+  color: #4f4f4f;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  background-color: transparent;
+  border: 0.125rem solid transparent;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}
+.btn:hover {
+  color: #4f4f4f;
+}
+.btn:disabled {
+  pointer-events: none;
+  opacity: 0.65;
+}
+button:focus {
+  outline: 0;
+}
+.btn {
+  text-transform: uppercase;
+  vertical-align: bottom;
+  border: 0;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2), 0 2px 10px 0 rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  padding: 0.625rem 1.5rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+.btn:active,
+.btn:active:focus,
+.btn:focus,
+.btn:hover {
+  box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+}
+.btn:disabled {
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2), 0 2px 10px 0 rgba(0, 0, 0, 0.1);
+  border: 0;
+}
+.btn:focus {
+  outline: 0;
+  box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+}
+.btn-block {
+  display: block;
+  width: 100%;
+}
+.btn-block + .btn-block {
+  margin-top: 0.5rem;
+}
+/*! CSS Used from: https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.4.95/css/materialdesignicons.min.css */
+.mdi:before {
+  display: inline-block;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  font-size: inherit;
+  text-rendering: auto;
+  line-height: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.mdi-chevron-right::before {
+  content: "\F142";
+}
+/*! CSS Used from: https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css */
+.mdi:before {
+  display: inline-block;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  font-size: inherit;
+  text-rendering: auto;
+  line-height: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.mdi-chevron-right::before {
+  content: "\F0142";
+}
+/*! CSS Used from: Embedded */
+*,
+:after,
+:before {
+  background-repeat: no-repeat;
+  box-sizing: inherit;
+}
+:after,
+:before {
+  text-decoration: inherit;
+  vertical-align: inherit;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+button {
+  font: inherit;
+}
+button {
+  overflow: visible;
+}
+button {
+  text-transform: none;
+}
+[type="button"],
+button {
+  color: inherit;
+  cursor: pointer;
+}
+button,
+html [type="button"] {
+  -webkit-appearance: button;
+}
+button {
+  background-color: transparent;
+  border-style: none;
+}
+.v-icon.v-icon {
+  font-feature-settings: "liga";
+  align-items: center;
+  display: inline-flex;
+  font-size: 24px;
+  justify-content: center;
+  letter-spacing: normal;
+  line-height: 1;
+  position: relative;
+  text-indent: 0;
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1), visibility 0s;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  vertical-align: middle;
+}
+.v-icon.v-icon:after {
+  background-color: currentColor;
+  border-radius: 50%;
+  content: "";
+  display: inline-block;
+  height: 100%;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transform: scale(1.3);
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+  width: 100%;
+}
+
+.apexcharts-menu-icon {
+  padding-top: 10px;
 }
 </style>

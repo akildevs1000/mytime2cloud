@@ -28,6 +28,11 @@ class ReportNotification extends Model
     {
         return $this->hasMany(ReportNotificationManagers::class, "notification_id");
     }
+    public function logs()
+    {
+        return $this->hasMany(ReportNotificationLogs::class, "notification_id");
+    }
+
 
     public function company()
     {

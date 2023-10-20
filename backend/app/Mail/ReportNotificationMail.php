@@ -17,7 +17,7 @@ class ReportNotificationMail extends Mailable implements ShouldQueue
      * @return void
      */
     public $model;
-    
+
     public function __construct($model)
     {
         $this->model = $model;
@@ -34,10 +34,11 @@ class ReportNotificationMail extends Mailable implements ShouldQueue
 
         $company_id = $this->model->company_id;
 
-        foreach ($this->model->reports as $file){
+        foreach ($this->model->reports as $file) {
             $this->attach(storage_path("app/pdf/$company_id/$file"));
         }
 
-        return $this->view('emails.report')->with(["body" => $this->model->body]);
+        //return $this->view('emails.report')->with(["body" => $this->model->body]);
+        return $this->view('emails.report')->with(["body" => "Hi, Attached reports for your reference. "]);
     }
 }
