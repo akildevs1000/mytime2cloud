@@ -24,6 +24,10 @@ class ReportNotification extends Model
     {
         return $this->belongsTo(CompanyBranch::class, "branch_id");
     }
+    public function managers()
+    {
+        return $this->hasMany(ReportNotificationManagers::class, "notification_id");
+    }
 
     public function company()
     {

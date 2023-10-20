@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReportNotification\StoreRequest;
 use App\Http\Requests\ReportNotification\UpdateRequest;
 use App\Models\ReportNotification;
+use App\Models\ReportNotificationManagers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +14,7 @@ class ReportNotificationController extends Controller
     public function index(ReportNotification $model, Request $request)
     {
 
-        return $model->where('company_id', $request->company_id)
+        return $model->with("managers")->where('company_id', $request->company_id)
             ->when($request->filled('subject'), function ($q) use ($request) {
                 $q->where('subject', 'ILIKE', "$request->subject%");
             })
@@ -46,10 +47,9 @@ class ReportNotificationController extends Controller
                     // }
 
                 } else {
-                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{}
-
+                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                    }
                 }
-
             })
             ->with("branch")
             ->paginate($request->per_page);
@@ -57,10 +57,25 @@ class ReportNotificationController extends Controller
 
     public function store(StoreRequest $request)
     {
+        if (!$request->validated())
+            return false;
+
         try {
-            $record = ReportNotification::create($request->validated());
+            $record = ReportNotification::create($request->except('managers'));
 
             if ($record) {
+                $notification_id = $record->id;
+
+                $managers = $request->only('managers');
+                foreach ($managers['managers'] as $manager) {
+                    $manager['notification_id'] = $notification_id;
+
+
+                    ReportNotificationManagers::create($manager);
+                }
+
+
+
                 return $this->response('Report Notification created.', $record, true);
             } else {
                 return $this->response('Report Notification cannot create.', null, false);
