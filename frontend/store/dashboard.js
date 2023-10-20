@@ -4,7 +4,9 @@ export const state = () => ({
     dashboardData: null,
     date_from: null, // Add 'date_from' property
     date_to: null,   // Add 'date_to' property
-    recent_logs: null   // Add 'date_to' property
+    recent_logs: null,   // Add 'date_to' property
+    previous_week_attendance_count: null   // Add 'date_to' property
+
 
 });
 
@@ -21,6 +23,9 @@ export const mutations = {
     },
     recent_logs(state, recent_logs) {     // Mutation to set 'recent_logs'
         state.recent_logs = recent_logs;
+    },
+    previous_week_attendance_count(state, previous_week_attendance_count) {     // Mutation to set 'previous_week_attendance_count'
+        state.previous_week_attendance_count = previous_week_attendance_count;
     },
 };
 
