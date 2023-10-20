@@ -109,27 +109,23 @@ class ThemeController extends Controller
 
         return  $return;
     }
-    public function dashboardGetCountPreviousMonth(Request $request)
+    public function previousWeekAttendanceCount($id)
     {
-
-        $finalarray = [];
-
         $dates = [];
+        
         for ($i = 14; $i >= 7; $i--) {
             $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
             $dates[] = $date;
         }
 
-
-
         $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
-        $model = Attendance::where('company_id', $request->company_id)
+        $model = Attendance::where('company_id', $id)
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
             ->whereIn('date', $dates)
             ->select('status')
             ->get();
 
-        $finalarray[] = [
+        return [
             "date" => $date,
             "presentCount" => $model->where('status', 'P')->count(),
             "absentCount" => $model->where('status', 'A')->count(),
@@ -139,10 +135,6 @@ class ThemeController extends Controller
             "leaveCount" => $model->where('status', 'L')->count(),
             "vaccationCount" => $model->where('status', 'V')->count(),
         ];
-
-
-
-        return  $finalarray;
     }
     public function dashboardGetCountslast7Days(Request $request)
     {
