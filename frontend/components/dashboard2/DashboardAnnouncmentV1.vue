@@ -197,8 +197,6 @@ export default {
 
       if (announcements) {
         this.data = announcements;
-        console.log(`announcements`);
-        console.log(announcements);
         return;
       }
 
