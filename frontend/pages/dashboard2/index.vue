@@ -104,13 +104,13 @@ import DashboardAttendanceHourChart from "../../components/dashboard2/DashboardA
 export default {
   components: {
     DashboardAttendanceChart,
+    DashboardlLastMonthStatistics,
     DashboardRealTimeLogTableview,
     DashboardAnnouncment,
     DashboardLoginActivities,
     DashboardAttednaceDepartmentWise,
     DashboardRightsideStaticstics,
     DashboardlastMultiStatistics,
-    DashboardlLastMonthStatistics,
     DashboardAttendanceHourChart,
   },
   data() {
