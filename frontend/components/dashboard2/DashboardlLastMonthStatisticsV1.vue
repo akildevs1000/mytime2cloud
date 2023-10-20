@@ -120,7 +120,6 @@ export default {
     },
     getDataFromApi() {
       if (this.$store.state.dashboard.previous_week_attendance_count) {
-        console.log(`loaded data from state`);
         this.data = this.$store.state.dashboard.previous_week_attendance_count;
         return;
       }

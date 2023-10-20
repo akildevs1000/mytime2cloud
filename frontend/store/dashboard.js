@@ -5,9 +5,10 @@ export const state = () => ({
     date_from: null, // Add 'date_from' property
     date_to: null,   // Add 'date_to' property
     recent_logs: null,   // Add 'date_to' property
-    previous_week_attendance_count: null   // Add 'date_to' property
-
-
+    previous_week_attendance_count: null,   // Add 'date_to' property
+    attendance_count: null,   // Add 'date_to' property
+    off_devices_count: null,   // Add 'date_to' property
+    leaves_request_count: null,   // Add 'date_to' property
 });
 
 export const mutations = {
@@ -26,6 +27,15 @@ export const mutations = {
     },
     previous_week_attendance_count(state, previous_week_attendance_count) {     // Mutation to set 'previous_week_attendance_count'
         state.previous_week_attendance_count = previous_week_attendance_count;
+    },
+    attendance_count(state, attendance_count) {     // Mutation to set 'attendance_count'
+        state.attendance_count = attendance_count;
+    },
+    off_devices_count(state, off_devices_count) {     // Mutation to set 'off_devices_count'
+        state.off_devices_count = off_devices_count;
+    },
+    leaves_request_count(state, leaves_request_count) {     // Mutation to set 'leaves_request_count'
+        state.leaves_request_count = leaves_request_count;
     },
 };
 
