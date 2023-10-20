@@ -9,6 +9,8 @@ export const state = () => ({
     attendance_count: null,   // Add 'date_to' property
     off_devices_count: null,   // Add 'date_to' property
     leaves_request_count: null,   // Add 'date_to' property
+    announcements: null,   // Add 'date_to' property
+
 });
 
 export const mutations = {
@@ -34,8 +36,12 @@ export const mutations = {
     off_devices_count(state, off_devices_count) {     // Mutation to set 'off_devices_count'
         state.off_devices_count = off_devices_count;
     },
-    leaves_request_count(state, leaves_request_count) {     // Mutation to set 'leaves_request_count'
+    leaves_request_count(state, leaves_request_count) {     // Mutation to set 'leaves_request_count' 
         state.leaves_request_count = leaves_request_count;
+    },
+
+    announcements(state, announcements) {     // Mutation to set 'announcements' 
+        state.announcements = announcements;
     },
 };
 
