@@ -29,8 +29,8 @@
     <v-row>
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="green">
                   <v-icon size="30" style="color: #fff"
@@ -71,8 +71,8 @@
 
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="red">
                   <v-icon size="30" style="color: #fff"
@@ -113,8 +113,8 @@
     <v-row>
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="blue">
                   <v-icon size="30" style="color: #fff"
@@ -153,16 +153,18 @@
           </v-row>
         </v-card>
       </v-col>
+
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="yellow">
                   <v-icon size="30" style="color: #fff"
                     >mdi-clock-time-eight-outline</v-icon
                   >
                 </v-avatar>
+                <!-- <v-icon color="blue" size="30" fill>mdi-airplane-takeoff</v-icon> -->
               </v-col>
 
               <v-col md="6" class="menu-icon-right">
@@ -184,11 +186,10 @@
             </v-row>
             <v-row>
               <v-col md="12" style="text-align: center; padding-top: 0px">
-                <div class="bold text-h3 orange--text">
+                <div class="bold text-h3 blue--text">
                   {{ data.leaveCount }}
                 </div>
-
-                <div>On Leave</div>
+                <div style="width: 210px; text-align: center">On Leave</div>
               </v-col>
             </v-row>
           </v-row>
@@ -199,8 +200,8 @@
     <v-row>
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="#E65100">
                   <v-icon size="30" style="color: #fff"
@@ -239,8 +240,8 @@
 
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="black">
                   <v-icon size="30" style="color: #fff"

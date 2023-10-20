@@ -262,7 +262,7 @@ class Kernel extends ConsoleKernel
         $models = ReportNotification::get();
 
         foreach ($models as $model) {
-            $scheduleCommand = $schedule->command('task:report_notification_crons')
+            $scheduleCommand = $schedule->command('task:report_notification_crons ' . $model->id)
                 ->runInBackground()
                 ->appendOutputTo("custom_cron.log")
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));

@@ -20,7 +20,7 @@
       max-width="15%"
     >
       <template v-slot:activator="{ on, attrs }">
-        <label for=""> {{ label }}</label>
+        <label v-if="label != ''" for=""> {{ label }}</label>
         <v-text-field
           class="mt-1"
           outlined

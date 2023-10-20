@@ -5,6 +5,50 @@
         {{ response }}
       </v-snackbar>
     </div>
+
+    <v-dialog v-model="dialogviewHisotry" width="900" :key="newDialogKey">
+      <v-card>
+        <v-card-title dense class="popup_background">
+          History
+          <v-spacer></v-spacer>
+          <v-icon @click="dialogviewHisotry = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <v-data-table
+            flat
+            dense
+            :headers="headers_table_history"
+            :items="data_history"
+            :options.sync="options_history"
+            :footer-props="{
+              itemsPerPageOptions: [10, 50, 100, 500, 1000],
+            }"
+            class="elevation-1"
+            :server-items-length="totalRowsCount_history"
+          >
+            <template v-slot:item.sno="{ item, index }">
+              {{
+                currentPage_history
+                  ? (currentPage_history - 1) * perPage_history +
+                    (cumulativeIndex_history + data_history.indexOf(item))
+                  : ""
+              }}
+            </template>
+            <template v-slot:item.created_at="{ item }">
+              {{ $dateFormat.format4(item.created_at) }}
+            </template>
+            <template v-slot:item.wahtsapp_number="{ item }">
+              {{ item.wahtsapp_number || "---" }}
+            </template>
+            <template v-slot:item.email="{ item }">
+              {{ item.email || "---" }}
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <div v-if="!preloader">
       <div class="text-center">
         <v-dialog persistent v-model="dialog" width="500">
@@ -43,12 +87,33 @@
           </v-card>
         </v-dialog>
       </div>
-      <!-- <Back class="primary white--text" /> -->
-      <Automation
-        :dialogNew="dialogNew"
-        @close-dialog="dialogNew = false"
-      ></Automation>
 
+      <v-navigation-drawer
+        v-model="dialogNew"
+        bottom
+        temporary
+        right
+        fixed
+        style="width: 300px"
+      >
+        <v-card>
+          <v-card-title dense class="popup_background">
+            {{ editItemPayload ? "Edit" : "New" }} Automation
+            <v-spacer></v-spacer>
+            <v-icon @click="dialogNew = false" outlined dark>
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
+          <v-card-text class="mt-4">
+            <Automation
+              @getDataFromApi="getDataFromApi"
+              :editItemPayload="editItemPayload"
+              :key="newDialogKey"
+              @closePopup="closePopup"
+            ></Automation>
+          </v-card-text>
+        </v-card>
+      </v-navigation-drawer>
       <v-card class="mb-5 mt-2" elevation="0">
         <v-toolbar class="rounded-md" dense flat>
           <v-toolbar-title><span> Automation List</span></v-toolbar-title>
@@ -100,11 +165,12 @@
           <v-btn
             x-small
             :ripple="false"
-            text
             title="Add Notification"
-            @click="dialogNew = true"
+            @click="openNewPage()"
+            color="violet"
+            class="primary"
           >
-            <v-icon dark>mdi-plus-circle-outline</v-icon>
+            Add+
           </v-btn>
         </v-toolbar>
 
@@ -124,9 +190,8 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [100, 500, 1000],
+            itemsPerPageOptions: [10, 50, 100, 500, 1000],
           }"
-          hide-default-footer
           class="elevation-1"
           :server-items-length="totalRowsCount"
         >
@@ -145,60 +210,183 @@
                     dense
                     autocomplete="off"
                   ></v-text-field>
+
+                  <v-select
+                    :id="header.key"
+                    :hide-details="true"
+                    v-if="
+                      header.filterSpecial &&
+                      header.value == 'branch.branch_name'
+                    "
+                    clearable
+                    outlined
+                    dense
+                    small
+                    v-model="filters[header.key]"
+                    item-text="branch_name"
+                    item-value="id"
+                    :items="[
+                      { branch_name: `All Branches`, id: `` },
+                      ...branchesList,
+                    ]"
+                    placeholder="Branch"
+                    @change="applyFilters(header.key, id)"
+                  ></v-select>
+                  <v-select
+                    :id="header.key"
+                    :hide-details="true"
+                    v-if="header.filterSpecial && header.value == 'frequency'"
+                    clearable
+                    outlined
+                    dense
+                    small
+                    v-model="filters[header.key]"
+                    item-text="name"
+                    item-value="id"
+                    :items="[
+                      { name: `All`, id: `` },
+                      { name: `Daily`, id: `Daily` },
+                      { name: `Weekly`, id: `Weekly` },
+                      { name: `Monthly`, id: `Monthly` },
+                    ]"
+                    placeholder="Report Type"
+                    @change="applyFilters(header.key, id)"
+                  ></v-select>
+                  <v-select
+                    :id="header.key"
+                    :hide-details="true"
+                    v-if="header.filterSpecial && header.value == 'medium'"
+                    clearable
+                    outlined
+                    dense
+                    small
+                    v-model="filters[header.key]"
+                    item-text="name"
+                    item-value="id"
+                    :items="[
+                      { name: `All`, id: `` },
+                      { name: `Email`, id: `Email` },
+                      { name: `Whatsapp`, id: `Whatsapp` },
+                    ]"
+                    placeholder="Medium"
+                    @change="applyFilters(header.key, id)"
+                  ></v-select>
                 </v-container>
               </td>
             </tr>
           </template>
-
+          <template v-slot:item.sno="{ item, index }">
+            {{
+              currentPage
+                ? (currentPage - 1) * perPage +
+                  (cumulativeIndex + data.indexOf(item))
+                : ""
+            }}
+          </template>
           <template v-slot:item.medium="{ item }">
-            <v-chip
+            <div
               v-for="(medium, i) in item.mediums"
               :key="i"
               class="ma-1"
               small
               color="primary"
-              >{{ medium }}</v-chip
             >
-          </template>
-          <template v-slot:item.reports="{ item }">
-            <v-chip
-              v-for="(report, i) in item.reports"
-              :key="i"
-              small
-              color="primary"
-              class="ma-1"
-              >{{ report }}</v-chip
-            >
-          </template>
-          <template v-slot:item.recipients="{ item }">
-            <v-chip
-              v-for="(to, i) in item.tos"
-              :key="i"
-              small
-              color="primary"
-              class="ma-1"
-              :id="item.id"
-              >{{ to }}</v-chip
-            >
-            <v-chip
-              v-for="(cc, i) in item.ccs"
-              :key="i"
-              small
-              color="primary"
-              class="ma-1"
-              :id="item.id"
-              >{{ cc }} (Cc)</v-chip
-            >
+              {{ medium }}
 
-            <v-chip
-              v-for="(bcc, i) in item.bccs"
-              :key="i"
-              small
-              color="primary"
-              class="ma-1"
-              :id="item.id"
-              >{{ bcc }} (Bcc)</v-chip
-            >
+              <br />
+            </div>
+          </template>
+          <template v-slot:item.manager1="{ item }">
+            {{
+              (item.managers && item.managers[0] && item.managers[0].name) ||
+              "---"
+            }}
+            <br />
+            {{
+              (item.managers && item.managers[0] && item.managers[0].email) ||
+              "---"
+            }}
+            <br />
+            {{
+              (item.managers &&
+                item.managers[0] &&
+                item.managers[0].whatsapp_number) ||
+              "---"
+            }}
+          </template>
+          <template v-slot:item.manager2="{ item }">
+            {{
+              (item.managers && item.managers[1] && item.managers[1].name) ||
+              "---"
+            }}
+            <br />
+            {{
+              (item.managers && item.managers[1] && item.managers[1].email) ||
+              "---"
+            }}
+            <br />
+            {{
+              (item.managers &&
+                item.managers[1] &&
+                item.managers[1].whatsapp_number) ||
+              "---"
+            }}
+          </template>
+          <template v-slot:item.manager3="{ item }">
+            {{
+              (item.managers && item.managers[2] && item.managers[2].name) ||
+              "---"
+            }}
+            <br />
+            {{
+              (item.managers && item.managers[2] && item.managers[2].email) ||
+              "---"
+            }}
+            <br />
+            {{
+              (item.managers &&
+                item.managers[2] &&
+                item.managers[2].whatsapp_number) ||
+              "---"
+            }}
+          </template>
+          <template v-slot:item.last_sent="{ item }">
+            {{
+              (item.logs &&
+                item.logs[0] &&
+                $dateFormat.format4(item.logs[0].created_at)) ||
+              "---"
+            }}
+          </template>
+
+          <template v-slot:item.options="{ item }">
+            <v-menu bottom left>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </template>
+              <v-list width="120" dense>
+                <v-list-item @click="viewItem(item)">
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="secondary" small> mdi-eye </v-icon>
+                    View
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="editItem(item)">
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="secondary" small> mdi-pencil </v-icon>
+                    Edit
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="deleteItem(item)">
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="error" small> mdi-delete </v-icon>
+                    Delete
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </template>
         </v-data-table>
       </v-card>
@@ -209,13 +397,25 @@
 </template>
 
 <script>
-import Back from "../../components/Snippets/Back.vue";
 import Automation from "../../components/automation.vue";
 
 export default {
-  components: { Back, Automation },
+  components: { Automation },
 
   data: () => ({
+    dialogviewHisotry: false,
+    totalRowsCount_history: 10,
+    branchesList: [],
+    editItemPayload: null,
+    newDialogKey: 1,
+
+    perPage_history: 10,
+    cumulativeIndex_history: 1,
+    currentPage_history: 1,
+
+    perPage: 10,
+    cumulativeIndex: 1,
+    currentPage: 1,
     dialogNew: false,
     showFilters: false,
     filters: {},
@@ -254,13 +454,63 @@ export default {
     data: [],
     options: {},
     errors: [],
+    data_history: [],
+    options_history: {},
+    headers_table_history: [
+      {
+        text: "#",
+        align: "left",
+        sortable: false,
+        key: "title",
+        value: "sno",
+        filterable: false,
+        filterSpecial: false,
+      },
+      {
+        text: "Email",
+        align: "left",
+        sortable: false,
+        key: "email",
+        value: "email",
+        filterable: false,
+        filterSpecial: false,
+      },
+      {
+        text: "Whatsapp Number",
+        align: "left",
+        sortable: false,
+        key: "wahtsapp_number",
+        value: "wahtsapp_number",
+        filterable: false,
+        filterSpecial: false,
+      },
+      {
+        text: "Sent at ",
+        align: "left",
+        sortable: false,
+        key: "created_at",
+        value: "created_at",
+        filterable: false,
+        filterSpecial: false,
+      },
+    ],
     headers_table: [
       {
         text: "#",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "title",
         value: "sno",
+        filterable: false,
+        filterSpecial: false,
+      },
+
+      {
+        text: "Subject",
+        align: "left",
+        sortable: true,
+        key: "subject",
+        value: "subject",
         filterable: true,
         filterSpecial: false,
       },
@@ -268,26 +518,18 @@ export default {
         text: "Type",
         align: "left",
         sortable: true,
-        key: "title",
-        value: "subject",
+        key: "frequency",
+        value: "frequency",
         filterable: true,
-        filterSpecial: false,
+        filterSpecial: true,
       },
-      {
-        text: "Branch",
-        align: "left",
-        sortable: true,
-        key: "title",
-        value: "subject",
-        filterable: true,
-        filterSpecial: false,
-      },
+
       {
         text: "Manager1",
         align: "left",
         sortable: true,
-        key: "frequency",
-        value: "frequency",
+        key: "manager",
+        value: "manager1",
         filterable: true,
         filterSpecial: false,
       },
@@ -295,8 +537,8 @@ export default {
         text: "Manager2",
         align: "left",
         sortable: true,
-        key: "frequency",
-        value: "frequency",
+        key: "manager",
+        value: "manager2",
         filterable: true,
         filterSpecial: false,
       },
@@ -304,8 +546,8 @@ export default {
         text: "Manager3",
         align: "left",
         sortable: true,
-        key: "frequency",
-        value: "frequency",
+        key: "manager",
+        value: "manager3",
         filterable: true,
         filterSpecial: false,
       },
@@ -313,8 +555,17 @@ export default {
         text: "Media",
         align: "left",
         sortable: true,
-        key: "frequency",
-        value: "frequency",
+        key: "medium",
+        value: "medium",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
+        text: "Time",
+        align: "left",
+        sortable: true,
+        key: "time",
+        value: "time",
         filterable: true,
         filterSpecial: false,
       },
@@ -323,20 +574,21 @@ export default {
         align: "left",
         sortable: true,
         key: "time",
-        value: "time",
+        value: "last_sent",
         filterable: true,
         filterSpecial: false,
       },
       {
         text: "Options",
         align: "left",
-        sortable: true,
+        sortable: false,
         key: "time",
-        value: "time",
-        filterable: true,
+        value: "options",
+        filterable: false,
         filterSpecial: false,
       },
     ],
+    viewHistoryItem: null,
   }),
   watch: {
     options: {
@@ -345,13 +597,59 @@ export default {
       },
       deep: true,
     },
+    // options_history: {
+    //   handler() {
+    //     this.getDataFromApi_history(this.viewHistoryItem);
+    //   },
+    //   deep: true,
+    // },
   },
   created() {
     this.preloader = false;
     this.id = this.$auth?.user?.company?.id;
     this.getDataFromApi();
+    if (!this.$auth.user.branch_id) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          key: "branch_id", //sorting
+          value: "branch.branch_name", //edit purpose
+
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers_table.splice(1, 0, ...branch_header);
+    }
+
+    this.getbranchesList();
   },
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
+    openNewPage() {
+      ++this.newDialogKey;
+      this.editItemPayload = null;
+      this.dialogNew = true;
+    },
+
+    closePopup(data) {
+      this.snackbar = data.status;
+      this.response = data.message;
+
+      this.dialogNew = false;
+    },
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -378,9 +676,48 @@ export default {
         (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
+    viewItem(item) {
+      //++this.newDialogKey;
 
+      this.dialogviewHisotry = true;
+      this.viewHistoryItem = item;
+      this.getDataFromApi_history(item);
+    },
+    getDataFromApi_history(item) {
+      this.loading = true;
+      this.data_history = [];
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options_history;
+
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
+      let options = {
+        params: {
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage,
+          company_id: this.$auth.user.company_id,
+          notification_id: item.id,
+        },
+      };
+      this.currentPage = page;
+      this.perPage = itemsPerPage;
+
+      this.$axios
+        .get(`report_notification_logs?page=${page}`, options)
+        .then(({ data }) => {
+          this.data_history = data.data;
+          this.totalRowsCount_history = data.total;
+          this.total_history = data.total;
+          this.loading = false;
+        });
+    },
     editItem(item) {
-      this.$router.push("/report_notifications/" + item.id);
+      //this.$router.push("/report_notifications/" + item.id);
+
+      ++this.newDialogKey;
+      this.dialogNew = true;
+      this.editItemPayload = item;
     },
 
     deleteItem(item) {
@@ -469,7 +806,8 @@ export default {
           ...this.filters,
         },
       };
-
+      this.currentPage = page;
+      this.perPage = itemsPerPage;
       if (filter_column != "") options.params[filter_column] = filter_value;
 
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {

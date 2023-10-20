@@ -789,12 +789,12 @@ export default {
         sortable: true,
         key: "branch_id", //sorting
         value: "company_branch.branch_name", //edit purpose
-        width: "300px",
+
         filterable: true,
         filterSpecial: true,
       },
     ];
-    this.headers.splice(0, 0, ...branch_header);
+    this.headers.splice(1, 0, ...branch_header);
 
     try {
       const { data } = await this.$axios.get(`branches_list`, {

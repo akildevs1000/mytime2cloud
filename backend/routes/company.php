@@ -32,6 +32,7 @@ use App\Http\Controllers\PersonalInfoController;
 use App\Http\Controllers\policyController;
 use App\Http\Controllers\QualificationController;
 use App\Http\Controllers\ReportNotificationController;
+use App\Http\Controllers\ReportNotificationLogsController;
 use App\Http\Controllers\Reports\AutoReportController;
 use App\Http\Controllers\Reports\ManualReportController;
 use App\Http\Controllers\ResetPasswordController;
@@ -46,6 +47,7 @@ use App\Http\Controllers\SubDepartmentController;
 use App\Http\Controllers\TimeTableController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisaController;
+use App\Models\ReportNotificationLogs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -244,6 +246,7 @@ Route::post('report_notifications', function (Request $request) {
 });
 
 Route::apiResource('report_notification', ReportNotificationController::class);
+Route::apiResource('report_notification_logs', ReportNotificationLogsController::class);
 
 Route::get('/auto_shift', [AutoShiftController::class, 'index']);
 Route::post('/auto_shift', [AutoShiftController::class, 'store']);

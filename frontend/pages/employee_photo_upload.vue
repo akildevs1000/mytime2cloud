@@ -903,7 +903,8 @@ export default {
         if (data.record.SDKResponse.data) {
           this.loading = false;
 
-          $.each(this.rightDevices, function (index, rightDevicesobj) {
+          this.rightDevices.forEach((rightDevicesobj) => {
+            // $.each(this.rightDevices, function (index, rightDevicesobj) {
             let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
               (e) => e.sn == rightDevicesobj.device_id
             );
@@ -932,13 +933,15 @@ export default {
                 if (EmpStatusResponse != "") {
                   //Adding extra parameters for Employee object
                   if (selectedEmpobject) {
-                    $.extend(element, {
-                      sdkEmpResponse: "person info error ",
-                    });
+                    element.sdkEmpResponse = "person info error ";
+                    // $.extend(element, {
+                    //   sdkEmpResponse: "person info error ",
+                    // });
                   } else {
-                    $.extend(element, {
-                      sdkEmpResponse: "Success",
-                    });
+                    element.sdkEmpResponse = "Success ";
+                    // $.extend(element, {
+                    //   sdkEmpResponse: "Success",
+                    // });
                   }
                 }
               });
@@ -946,9 +949,14 @@ export default {
             }
 
             //Adding extra parameters for Devices object
-            $.extend(rightDevicesobj, {
-              sdkDeviceResponse:
-                deviceStatusResponse != "" ? deviceStatusResponse : "Success",
+            // $.extend(rightDevicesobj, {
+            //   sdkDeviceResponse:
+            //     deviceStatusResponse != "" ? deviceStatusResponse : "Success",
+            // });
+
+            rightDevicesobj.forEach((element) => {
+              element["sdkDeviceResponse"] =
+                deviceStatusResponse != "" ? deviceStatusResponse : "Success";
             });
             this.errors = [];
           });
@@ -1424,7 +1432,7 @@ export default {
                     // $.extend(element, {
                     //   sdkEmpResponse: " Success",
                     // });
-                    element["sdkEmpResponse"] = "Success";
+                    element["sdkEmpResponse"] = " Success";
                   }
                 }
               });
