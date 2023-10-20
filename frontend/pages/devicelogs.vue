@@ -307,7 +307,7 @@
               {{ item.device ? caps(item.device.name) : "---" }}
             </template>
             <template v-slot:item.device.location="{ item }">
-              {{ item.device ? caps(item.device.location) : "---" }}
+              {{ item.gps_location || "---" }}
             </template>
           </v-data-table>
         </v-card>
