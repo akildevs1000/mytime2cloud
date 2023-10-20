@@ -90,8 +90,8 @@
       dense
       placeholder="Date"
       :items="daysNumaric"
-      item-text="id"
-      item-value="name"
+      item-text="name"
+      item-value="id"
       label="Date"
     >
     </v-autocomplete>
@@ -465,7 +465,7 @@ export default {
 
   created() {
     for (let i = 1; i <= 31; i++) {
-      this.daysNumaric.push({ id: i, name: i });
+      this.daysNumaric.push({ id: i + "", name: i + "" });
     }
     console.log(this.editItemPayload);
     this.preloader = false;
