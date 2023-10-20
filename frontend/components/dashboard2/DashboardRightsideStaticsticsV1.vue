@@ -29,8 +29,8 @@
     <v-row>
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="green">
                   <v-icon size="30" style="color: #fff"
@@ -71,8 +71,8 @@
 
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="red">
                   <v-icon size="30" style="color: #fff"
@@ -113,8 +113,8 @@
     <v-row>
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="blue">
                   <v-icon size="30" style="color: #fff"
@@ -155,8 +155,8 @@
       </v-col>
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="yellow">
                   <v-icon size="30" style="color: #fff"
@@ -199,8 +199,8 @@
     <v-row>
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="#E65100">
                   <v-icon size="30" style="color: #fff"
@@ -239,8 +239,8 @@
 
       <v-col md="6" xs="12" sm="12" cols="12">
         <v-card class="py-2">
-          <v-row class="p-2">
-            <v-row class="p-0 m-0">
+          <v-row class="pa-2">
+            <v-row class="pa-0 ma-0">
               <v-col md="6">
                 <v-avatar color="black">
                   <v-icon size="30" style="color: #fff"
