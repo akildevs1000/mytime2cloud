@@ -79,6 +79,7 @@ class AttendanceLog extends Model
             ->with('employee', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
+            // ->distinct("LogTime", "UserID", "company_id")
             ->when($request->filled('department_ids'), function ($q) use ($request) {
                 $q->whereHas('employee', fn (Builder $query) => $query->where('department_id', $request->department_ids));
             })

@@ -55,6 +55,8 @@ socket.onmessage = ({ data }) => {
       const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber}`;
       fs.appendFileSync(logFilePath, logEntry + "\n");
       console.log(logEntry);
+    } else {
+      console.log(data);
     }
   } catch (error) {
     console.error("Error processing message:", error.message);
