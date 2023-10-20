@@ -81,7 +81,22 @@
       label="Week Day"
     >
     </v-autocomplete>
-    <v-menu
+
+    <v-autocomplete
+      class="pb-2"
+      v-if="payload.frequency == 'Monthly'"
+      v-model="payload.day"
+      outlined
+      dense
+      placeholder="Date"
+      :items="daysNumaric"
+      item-text="id"
+      item-value="name"
+      label="Date"
+    >
+    </v-autocomplete>
+
+    <!-- <v-menu
       v-if="payload.frequency == 'Monthly'"
       ref="menu"
       v-model="menu"
@@ -115,7 +130,7 @@
           OK
         </v-btn>
       </v-date-picker>
-    </v-menu>
+    </v-menu> -->
 
     <span v-if="errors && errors.date" class="error--text">{{
       errors.date[0]
@@ -375,6 +390,7 @@ export default {
   components: { TiptapVuetify, TimePickerCommon },
 
   data: () => ({
+    daysNumaric: [],
     managers: [],
     time_in_menu: false,
     menu: false,
@@ -448,6 +464,9 @@ export default {
   }),
 
   created() {
+    for (let i = 1; i <= 31; i++) {
+      this.daysNumaric.push({ id: i, name: i });
+    }
     console.log(this.editItemPayload);
     this.preloader = false;
 
@@ -527,9 +546,9 @@ export default {
     setDay() {
       let { frequency, day, date } = this.payload;
 
-      if (frequency == "Monthly") {
-        day = new Date(date).getDate();
-      }
+      // if (frequency == "Monthly") {
+      //   day = new Date(date).getDate();
+      // }
 
       this.payload.day = day;
       let reports = [];

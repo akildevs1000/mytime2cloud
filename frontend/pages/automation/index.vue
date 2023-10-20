@@ -296,59 +296,69 @@
               <br />
             </div>
           </template>
+          <template v-slot:item.frequency="{ item, index }">
+            {{ item.frequency }}
+            <div class="secondary-value">
+              {{ item.frequency == "Weekly" ? getDayName(item.day) : "" }}
+              {{ item.frequency == "Monthly" ? item.day : "" }}
+            </div>
+          </template>
           <template v-slot:item.manager1="{ item }">
             {{
               (item.managers && item.managers[0] && item.managers[0].name) ||
               "---"
             }}
-            <br />
-            {{
-              (item.managers && item.managers[0] && item.managers[0].email) ||
-              "---"
-            }}
-            <br />
-            {{
-              (item.managers &&
-                item.managers[0] &&
-                item.managers[0].whatsapp_number) ||
-              "---"
-            }}
+            <div class="secondary-value">
+              {{
+                (item.managers && item.managers[0] && item.managers[0].email) ||
+                "---"
+              }}
+              <br />
+              {{
+                (item.managers &&
+                  item.managers[0] &&
+                  item.managers[0].whatsapp_number) ||
+                "---"
+              }}
+            </div>
           </template>
           <template v-slot:item.manager2="{ item }">
             {{
               (item.managers && item.managers[1] && item.managers[1].name) ||
               "---"
             }}
-            <br />
-            {{
-              (item.managers && item.managers[1] && item.managers[1].email) ||
-              "---"
-            }}
-            <br />
-            {{
-              (item.managers &&
-                item.managers[1] &&
-                item.managers[1].whatsapp_number) ||
-              "---"
-            }}
+            <div class="secondary-value">
+              {{
+                (item.managers && item.managers[1] && item.managers[1].email) ||
+                "---"
+              }}
+              <br />
+              {{
+                (item.managers &&
+                  item.managers[1] &&
+                  item.managers[1].whatsapp_number) ||
+                "---"
+              }}
+            </div>
           </template>
           <template v-slot:item.manager3="{ item }">
             {{
               (item.managers && item.managers[2] && item.managers[2].name) ||
               "---"
             }}
-            <br />
-            {{
-              (item.managers && item.managers[2] && item.managers[2].email) ||
-              "---"
-            }}
-            <br />
-            {{
-              (item.managers &&
-                item.managers[2] &&
-                item.managers[2].whatsapp_number) ||
-              "---"
-            }}
+            <div class="secondary-value">
+              {{
+                (item.managers && item.managers[2] && item.managers[2].email) ||
+                "---"
+              }}
+              <br />
+              {{
+                (item.managers &&
+                  item.managers[2] &&
+                  item.managers[2].whatsapp_number) ||
+                "---"
+              }}
+            </div>
           </template>
           <template v-slot:item.last_sent="{ item }">
             {{
@@ -456,6 +466,15 @@ export default {
     errors: [],
     data_history: [],
     options_history: {},
+    days: [
+      { id: 1, name: "Monday" },
+      { id: 2, name: "Tuesday" },
+      { id: 3, name: "Wednesday" },
+      { id: 4, name: "Thursday" },
+      { id: 5, name: "Friday" },
+      { id: 6, name: "Saturday" },
+      { id: 0, name: "Sunday" },
+    ],
     headers_table_history: [
       {
         text: "#",
@@ -523,7 +542,15 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
-
+      {
+        text: "Time",
+        align: "left",
+        sortable: true,
+        key: "time",
+        value: "time",
+        filterable: true,
+        filterSpecial: false,
+      },
       {
         text: "Manager1",
         align: "left",
@@ -560,15 +587,7 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
-      {
-        text: "Time",
-        align: "left",
-        sortable: true,
-        key: "time",
-        value: "time",
-        filterable: true,
-        filterSpecial: false,
-      },
+
       {
         text: "Last Sent",
         align: "left",
@@ -627,6 +646,12 @@ export default {
     this.getbranchesList();
   },
   methods: {
+    getDayName(id) {
+      let day = this.days.filter((item) => item.id == id);
+      if (day.length == 1) {
+        return day[0].name;
+      }
+    },
     getbranchesList() {
       this.payloadOptions = {
         params: {
@@ -700,8 +725,8 @@ export default {
           notification_id: item.id,
         },
       };
-      this.currentPage = page;
-      this.perPage = itemsPerPage;
+      this.currentPage_history = page;
+      this.perPage_history = itemsPerPage;
 
       this.$axios
         .get(`report_notification_logs?page=${page}`, options)
