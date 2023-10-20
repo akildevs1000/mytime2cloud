@@ -29,6 +29,9 @@ class DeviceController extends Controller
     public function index(Request $request)
     {
         $model = Device::query();
+        
+        $model->excludeMobile();
+
         $cols = $request->cols;
         $model->with(['status', 'company', 'companyBranch']);
         $model->where('company_id', $request->company_id);

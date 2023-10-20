@@ -37,13 +37,8 @@ class Device extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
-    protected static function boot()
+    public function scopeExcludeMobile($query)
     {
-        parent::boot();
-
-        // Order by name ASC
-        // static::addGlobalScope('order', function (Builder $builder) {
-        //     $builder->orderBy('id', 'desc');
-        // });
+        return $query->where('name', '!=', 'Mobile');
     }
 }
