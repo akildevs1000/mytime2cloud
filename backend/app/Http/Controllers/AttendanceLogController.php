@@ -222,7 +222,7 @@ class AttendanceLogController extends Controller
     public function GenerateLog(Request $request)
     {
 
-
+        return "test";
         try {
             $log = AttendanceLog::create($request->all());
 
