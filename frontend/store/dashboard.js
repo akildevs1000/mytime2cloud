@@ -11,6 +11,7 @@ export const state = () => ({
     leaves_request_count: null,   // Add 'date_to' property
     announcements: null,   // Add 'date_to' property
     every_hour_count: null,
+    web_logins: null,
 });
 
 export const mutations = {
@@ -45,13 +46,16 @@ export const mutations = {
     every_hour_count(state, every_hour_count) {     // Mutation to set 'every_hour_count' 
         state.every_hour_count = every_hour_count;
     },
+    web_logins(state, web_logins) {     // Mutation to set 'web_logins' 
+        state.web_logins = web_logins;
+    },
 };
 
 export const actions = {
+
+
     async states_for_7_days({ commit, state }) {
-        console.log(state.dashboardData);
         if (state.dashboardData && state.date_from && state.date_to) {
-            console.log("from store data loaded");
             return state.dashboardData; // Return cached data if available.
         }
 
@@ -65,8 +69,23 @@ export const actions = {
             });
 
             commit('setDashboardData', data);
-            console.log("from database data loaded");
 
+            return data;
+        } catch (error) {
+            return error;
+        }
+    },
+
+    async every_hour_count({ commit, state }) {
+
+        if (state.every_hour_count) return state.every_hour_count;
+        try {
+            const { data } = await this.$axios.get('dashboard_get_counts_today_hour_in_out', {
+                params: {
+                    company_id: this.$auth.user.company_id,
+                },
+            });
+            commit('every_hour_count', data);
             return data;
         } catch (error) {
             return error;
@@ -77,4 +96,5 @@ export const actions = {
         commit('date_from', date_from);
         commit('date_to', date_to);
     },
-};  
+};
+
