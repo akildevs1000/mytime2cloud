@@ -13,6 +13,8 @@ use App\Http\Controllers\DeductionController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\DeviceNotificationsController;
+use App\Http\Controllers\DeviceNotificationsLogController;
 use App\Http\Controllers\DocumentInfoController;
 use App\Http\Controllers\DutyOrganizerController;
 use App\Http\Controllers\EmiratesController;
@@ -47,6 +49,7 @@ use App\Http\Controllers\SubDepartmentController;
 use App\Http\Controllers\TimeTableController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisaController;
+use App\Models\DeviceNotifications;
 use App\Models\ReportNotificationLogs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -247,6 +250,9 @@ Route::post('report_notifications', function (Request $request) {
 
 Route::apiResource('report_notification', ReportNotificationController::class);
 Route::apiResource('report_notification_logs', ReportNotificationLogsController::class);
+
+Route::apiResource('device_notifications', DeviceNotificationsController::class);
+Route::apiResource('device_notifications_logs', DeviceNotificationsLogController::class);
 Route::get('testmail', [ReportNotificationController::class, 'testmail']);
 Route::get('/auto_shift', [AutoShiftController::class, 'index']);
 Route::post('/auto_shift', [AutoShiftController::class, 'store']);

@@ -72,7 +72,13 @@
     "menu": "notifications_access",
     "module": "settings"
   },
-
+  {
+    "icon": "mdi-mobile",
+    "title": "Device Notifications",
+    "to": "/device_notifications",
+    "menu": "notifications_access",
+    "module": "settings"
+  },
   {
     "icon": "mdi-domain",
     "title": "Profile",
