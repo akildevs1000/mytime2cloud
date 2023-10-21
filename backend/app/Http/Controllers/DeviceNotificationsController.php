@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ReportNotification\StoreRequest;
-use App\Http\Requests\ReportNotification\UpdateRequest;
-use App\Mail\ReportNotificationMail;
-use App\Models\ReportNotification;
-use App\Models\ReportNotificationManagers;
+use App\Http\Requests\DeviceNotifications\StoreRequest;
+use App\Http\Requests\DeviceNotifications\UpdateRequest;
+use App\Mail\DeviceNotificationMail;
+
+use App\Models\DeviceNotification;
+use App\Models\DeviceNotificationsManagers;
 use App\Notifications\CompanyCreationNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
-class ReportNotificationController extends Controller
+class DeviceNotificationsController extends Controller
 {
-    public function index(ReportNotification $model, Request $request)
+    public function index(DeviceNotification $model, Request $request)
     {
 
 
@@ -82,12 +83,12 @@ class ReportNotificationController extends Controller
     }
     public function testmail()
     {
-        $model = ReportNotification::with(["managers"])->where("id", 35)->first();
+        $model = DeviceNotification::with(["managers"])->where("id", 35)->first();
 
         // $test = Mail::to("akildevs1004@gmail.com")
-        //     ->queue(new ReportNotificationMail($model));
+        //     ->queue(new DeviceNotificationsMail($model));
 
-        $test2 = Mail::to('akildevs1004@gmail.com')->send(new ReportNotificationMail($model));
+        $test2 = Mail::to('akildevs1004@gmail.com')->send(new DeviceNotificationMail($model));
 
         // $test3 = NotificationsController::toSend(["email" => "akildevs1004@gmail.com"], new CompanyCreationNotification, $model);
 
@@ -98,8 +99,10 @@ class ReportNotificationController extends Controller
         if (!$request->validated())
             return false;
 
+
+
         try {
-            $record = ReportNotification::create($request->except('managers'));
+            $record = DeviceNotification::create($request->except('managers'));
 
             if ($record) {
                 $notification_id = $record->id;
@@ -109,62 +112,67 @@ class ReportNotificationController extends Controller
                     $manager['notification_id'] = $notification_id;
 
 
-                    ReportNotificationManagers::create($manager);
+                    DeviceNotificationsManagers::create($manager);
                 }
 
 
 
                 return $this->response('Report Notification created.', $record, true);
             } else {
-                return $this->response('Report Notification cannot created.', null, false);
+                return $this->response('Report Notification cannot create.', null, false);
             }
         } catch (\Throwable $th) {
             throw $th;
         }
     }
 
-    public function show(ReportNotification $ReportNotification)
+    public function show(DeviceNotification $DeviceNotifications)
     {
-        return $ReportNotification->load("branch");
+        return $DeviceNotifications->load("branch");
     }
 
-    public function update(UpdateRequest $request, ReportNotification $ReportNotification)
+    public function update(UpdateRequest $request, $id)
     {
         try {
 
             if (!$request->validated())
                 return false;
 
-            $record = $ReportNotification->update($request->except('managers'));
+
+            $record = DeviceNotification::where("id", $id)->update($request->except('managers'));
+
+
 
             if ($record) {
 
 
-                $notification_id = $ReportNotification->id;
+                $notification_id = $id;
 
-                ReportNotificationManagers::where("notification_id", $notification_id)->delete();
+                DeviceNotificationsManagers::where("notification_id", $notification_id)->delete();
 
                 $managers = $request->only('managers');
                 foreach ($managers['managers'] as $manager) {
                     $manager['notification_id'] = $notification_id;
 
 
-                    ReportNotificationManagers::create($manager);
+                    DeviceNotificationsManagers::create($manager);
                 }
 
 
-                return $this->response('Report Notification updated.', $record, true);
+                return $this->response('Device Notification updated.', $record, true);
             } else {
-                return $this->response('Report Notification not updated.', null, false);
+                return $this->response('Device Notification not updated.', null, false);
             }
         } catch (\Throwable $th) {
             throw $th;
         }
     }
 
-    public function destroy(ReportNotification $ReportNotification)
+    public function destroy($id)
     {
-        $record = $ReportNotification->delete();
+
+
+        $record = DeviceNotification::where("id", $id)->delete();
 
         if ($record) {
             return $this->response('Report Notification deleted.', $record, true);

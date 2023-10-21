@@ -93,38 +93,32 @@ class Kernel extends ConsoleKernel
             //weekly
 
             $array = ['All', "P", "A", "M", "ME"];
-            foreach ($array as $day) {
+            foreach ($array as $status) {
 
                 $schedule
-                    ->command("task:generate_daily_report {$companyId}  {$day}")
+                    ->command("task:generate_daily_report {$companyId}  {$status}")
                     // ->everyMinute()
                     ->dailyAt('03:45')
                     ->runInBackground()
                     ->appendOutputTo(storage_path("logs/$date-generate_daily_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
                 $schedule
-                    ->command("task:generate_weeky_report {$companyId} {$day}")
+                    ->command("task:generate_weeky_report {$companyId} {$status}")
                     // ->everyMinute()
                     ->dailyAt('04:00')
                     ->runInBackground()
                     ->appendOutputTo(storage_path("logs/$date-generate_weeky_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
                 $schedule
-                    ->command("task:generate_monthly_report {$companyId} {$day}")
+                    ->command("task:generate_monthly_report {$companyId} {$status}")
                     // ->everyMinute()
-                    ->dailyAt('04:15')
+                    ->monthlyOn(1, "04:30")
                     ->runInBackground()
                     ->appendOutputTo(storage_path("logs/$date-generate_monthly_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             }
 
 
-            $schedule
-                ->command("task:generate_weeky_report {$companyId} M")
-                // ->everyMinute()
-                ->dailyAt('04:00')
-                ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-generate_weeky_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:send_whatsapp_notification {$companyId}")
@@ -191,7 +185,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             exec('pm2 reload 21');
             info("MyTime2Cloud SDK restarted");
-        })->dailyAt('04:15');
+        })->dailyAt('05:15');
 
         $schedule->call(function () {
             $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false]);
