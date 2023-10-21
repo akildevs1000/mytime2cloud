@@ -18,7 +18,7 @@ export default {
     link: [
       { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
 
-      // {
+      // { test
       //   rel: "stylesheet",
       //   href: "https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css",
       // },
