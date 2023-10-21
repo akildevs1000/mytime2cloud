@@ -27,16 +27,14 @@ class Kernel extends ConsoleKernel
             ->command('task:sync_attendance_logs')
             ->everyMinute()
             ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
             ->command('task:update_company_ids')
             // ->everyThirtyMinutes()
             ->everyMinute()
             ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            ->appendOutputTo(storage_path("logs/$date-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
         $companyIds = Company::pluck("id");
@@ -51,8 +49,7 @@ class Kernel extends ConsoleKernel
                     // ->everyThirtyMinutes()
                     // ->everyMinute()
                     ->runInBackground()
-                    ->appendOutputTo(storage_path("logs/$date-send-notification-for-offline-devices-{$companyId}.log"))
-                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                    ->appendOutputTo(storage_path("logs/$date-send-notification-for-offline-devices-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
 
             $schedule
@@ -60,40 +57,35 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->between('06:00', '23:59')
                 ->runInBackground()
-                ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
                 ->hourly()
                 ->between('00:00', '05:59')
                 ->runInBackground()
-                ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/shifts/multi/$date-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_filo_shift {$companyId} " . date("Y-m-d"))
                 // ->hourly()
                 ->everyMinute()
                 ->runInBackground()
-                ->appendOutputTo(storage_path("logs/shifts/filo/$date-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/shifts/filo/$date-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_single_shift {$companyId} " . date("Y-m-d"))
                 // ->hourly()
                 ->everyMinute()
                 ->runInBackground()
-                ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/shifts/single/$date-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
                 ->everyMinute()
                 // ->dailyAt('09:00')
                 ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/$date-sync-split-logs-by-log-type-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             // $schedule
             //     ->command("task:generate_daily_report {$companyId} All")
@@ -132,64 +124,56 @@ class Kernel extends ConsoleKernel
                 // ->everyMinute()
                 ->dailyAt('09:00')
                 ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/$date-send-whatsapp-notification-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_leaves $companyId")
                 //->everyFiveMinutes()
                 ->dailyAt('01:00')
                 ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-leaves-$companyId.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/$date-leaves-$companyId.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_holidays $companyId")
                 //->everyTenMinutes()
                 ->dailyAt('01:30')
                 ->runInBackground()
-                ->appendOutputTo(storage_path("logs/$date-holidays-$companyId.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/$date-holidays-$companyId.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_monthly_flexible_holidays --company_id=$companyId")
                 // ->everyMinute()
                 ->dailyAt('02:00')
                 ->appendOutputTo(storage_path("logs/$date-monthly-flexible-holidays-$companyId.log"))
-                ->runInBackground()
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_off_by_day_week1 $companyId")
                 // ->everyMinute()
                 ->dailyAt('02:00')
                 ->appendOutputTo(storage_path("logs/$date-sync-off-by-day-week-1-$companyId.log"))
-                ->runInBackground()
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_off_by_day_week2 $companyId")
                 // ->everyMinute()
                 ->dailyAt('02:00')
                 ->appendOutputTo(storage_path("logs/$date-sync-off-by-day-week-2-$companyId.log"))
-                ->runInBackground()
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->runInBackground(); // ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_flexible_offs_week1 $companyId")
                 // ->everyMinute()
                 ->dailyAt('02:00')
                 ->appendOutputTo(storage_path("logs/$date-sync-flexible-offs-week-1-$companyId.log"))
-                ->runInBackground()
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_flexible_offs_week2 $companyId")
                 // ->everyMinute()
                 ->dailyAt('02:00')
                 ->appendOutputTo(storage_path("logs/$date-sync-flexible-offs-week-2-$companyId.log"))
-                ->runInBackground()
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
         $schedule->call(function () {
@@ -241,8 +225,7 @@ class Kernel extends ConsoleKernel
             ->everyThirtyMinutes()
             ->between('7:00', '23:59')
             ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-devices-health.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            ->appendOutputTo(storage_path("logs/$date-devices-health.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
 
@@ -255,8 +238,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:payslip_generation $payroll_setting->company_id")
                 ->monthlyOn((int) $payroll_date, "00:00")
-                ->appendOutputTo(storage_path("$date-payslip-generate-$payroll_setting->company_id.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("$date-payslip-generate-$payroll_setting->company_id.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
         $models = ReportNotification::get();
@@ -264,8 +246,8 @@ class Kernel extends ConsoleKernel
         foreach ($models as $model) {
             $scheduleCommand = $schedule->command('task:report_notification_crons ' . $model->id)
                 ->runInBackground()
-                ->appendOutputTo("custom_cron.log")
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo("custom_cron.log");
+            //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             if ($model->frequency == "Daily") {
                 $scheduleCommand->dailyAt($model->time);
@@ -281,8 +263,7 @@ class Kernel extends ConsoleKernel
             ->dailyAt('00:15')
             // ->everyMinute()
             ->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/$date-render-missing-logs.log"))
-            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            ->appendOutputTo(storage_path("logs/$date-render-missing-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         if (env("APP_ENV") == "production") {
             // $schedule
@@ -297,8 +278,7 @@ class Kernel extends ConsoleKernel
                 // ->everyThirtyMinutes()
                 ->dailyAt('4:00')
                 //->hourly()
-                ->appendOutputTo(storage_path("logs/restart_sdk.log"))
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/restart_sdk.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
         // $devices = DeviceActivesettings::with('devices')->get();
