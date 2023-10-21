@@ -111,26 +111,20 @@ class Controller extends BaseController
 
     public function getStatusText($status)
     {
-        switch ($status) {
-            case 'P':
-                return "Present";
-            case 'A':
-                return "Absent";
-            case 'M':
-                return "Missing";
-            case 'ME':
-                return "Manual Entry";
-            case 'O':
-                return "Off";
-            case 'H':
-                return "Holidays";
-            case 'L':
-                return "Leaves";
-            case 'V':
-                return "Vaccation";
-            default:
-                return "Summary";
-        }
+        $arr = [
+            "A" => "Absent",
+            "M" => "Missing",
+            "P" => "Present",
+            "O" => "Week Off",
+            "L" => "Leave",
+            "H" => "Holiday",
+            "V" => "Vaccation",
+            "LC" => "Late In",
+            "EG" => "Early Out",
+            "-1" => "Summary"
+        ];
+
+        return $arr[$status];
     }
 
     public function process_ilike_filter($model, $request, $fields)

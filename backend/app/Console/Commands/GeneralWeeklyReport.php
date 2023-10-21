@@ -2,24 +2,24 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\Reports\DailyController;
+use App\Http\Controllers\Reports\WeeklyController;
 use Illuminate\Console\Command;
 
-class GeneralDailytReport extends Command
+class GeneralWeeklyReport extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'task:generate_daily_report {id} {status}';
+    protected $signature = 'task:generate_weekly_report {id} {status}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate Daily Report';
+    protected $description = 'Generate Weekly Report';
 
     /**
      * Execute the console command.
@@ -31,6 +31,6 @@ class GeneralDailytReport extends Command
         $id = $this->argument("id");
         $status = $this->argument("status");
         if ($status == "All") $status = "-1";
-        echo (new DailyController)->custom_request_general($id, $status, 1);
+        echo (new WeeklyController)->custom_request_general($id, $status, 1);
     }
 }

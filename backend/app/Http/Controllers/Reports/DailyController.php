@@ -51,24 +51,6 @@ class DailyController extends Controller
         return Pdf::loadView('pdf.daily', compact("company", "info", "data"));
     }
 
-    public function getStatusText($status)
-    {
-        $arr = [
-            "A" => "Absent",
-            "M" => "Missing",
-            "P" => "Present",
-            "O" => "Week Off",
-            "L" => "Leave",
-            "H" => "Holiday",
-            "V" => "Vaccation",
-            "LC" => "Late In",
-            "EG" => "Early Out",
-            "-1" => "Summary"
-        ];
-
-        return $arr[$status];
-    }
-
     public function daily(Request $request)
     {
         return $this->processPDF($request)->stream();

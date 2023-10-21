@@ -14,6 +14,8 @@ use App\Models\ShiftType;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class MonthlyController extends Controller
 {
@@ -26,6 +28,67 @@ class MonthlyController extends Controller
     {
         $report = $this->processPDF($request);
         return $report->download();
+    }
+
+    public function custom_request_general($id, $status, $shift_type_id)
+    {
+        $apiUrl = env('BASE_URL') . '/api/monthly_generate_pdf';
+
+        $queryParams = [
+            'report_template' => "Template1",
+            'shift_type_id'   => $shift_type_id,
+            'report_type'     => 'Monthly',
+            'company_id'      => $id,
+            'status'          => $status,
+            'from_date'       => date('Y-m-d', strtotime('-30 days', time())),
+            'to_date'         => date('Y-m-d', strtotime('-1 days', time())),
+        ];
+
+        $response = Http::timeout(300)->withoutVerifying()->get($apiUrl, $queryParams);
+
+        if ($response->successful()) {
+            return $response->body();
+        } else {
+            return $response;
+            return $this->getMeta("Monthly Report Generate", "Cannot genereate for Company id: $id");
+        }
+    }
+
+    public function monthly_generate_pdf(Request $request)
+    {
+        $data = $this->processPDF($request)->output();
+
+        $id =  $request->company_id;
+
+        $status = $request->status;
+
+        $file_name = $this->getFileNameByStatus($status);
+
+        $file_path = "pdf/$id/monthly_$file_name.pdf";
+
+        Storage::disk('local')->put($file_path, $data);
+
+        $msg = "Monthly {$this->getStatusText($status)} has been generated for Company id: $id. path: storage/app/$file_path";
+
+        return $this->getMeta("Monthly Report Generate", $msg) . "\n";
+    }
+
+    public function getFileNameByStatus($status)
+    {
+        $arr = [
+            "A" => "absent",
+            "M" => "missing",
+            "P" => "present",
+            "O" => "weekoff",
+            "L" => "leave",
+            "H" => "holiday",
+            "V" => "vaccation",
+            "LC" => "latein",
+            "EG" => "earlyout",
+            "-1" => "summary"
+        ];
+
+        return $arr[$status];
     }
 
     public function multi_in_out_monthly_download_pdf(Request $request)

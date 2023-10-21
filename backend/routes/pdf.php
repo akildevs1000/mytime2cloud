@@ -56,12 +56,13 @@ Route::get('/generateManualReport/{id}', [DailyController::class, 'generateManua
 // weekly
 Route::get('/weekly', [WeeklyController::class, 'weekly']);
 Route::get('/weekly_download_pdf', [WeeklyController::class, 'weekly_download_pdf']);
+Route::get('/weekly_generate_pdf', [WeeklyController::class, 'weekly_generate_pdf']);
 Route::get('/weekly_download_csv', [WeeklyController::class, 'weekly_download_csv']);
-
 
 //monthly
 Route::get('/monthly', [MonthlyController::class, 'monthly']);
 Route::get('/monthly_download_pdf', [MonthlyController::class, 'monthly_download_pdf']);
+Route::get('/monthly_generate_pdf', [MonthlyController::class, 'monthly_generate_pdf']);
 Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download_csv']);
 
 //multi in out
