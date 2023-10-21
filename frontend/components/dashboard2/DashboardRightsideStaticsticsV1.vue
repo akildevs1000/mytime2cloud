@@ -188,7 +188,7 @@
                   {{ data.leaveCount }}
                 </div>
 
-                <div>On Leave</div>
+                <div style="width: 200px; text-align: center">On Leave</div>
               </v-col>
             </v-row>
           </v-row>
@@ -317,7 +317,11 @@ export default {
       let { attendance_count, off_devices_count, leaves_request_count } =
         this.$store.state.dashboard;
 
-      if (attendance_count && off_devices_count && leaves_request_count != null) {
+      if (
+        attendance_count &&
+        off_devices_count &&
+        leaves_request_count != null
+      ) {
         this.data = attendance_count;
         this.offlineDevices = off_devices_count;
         this.leaveRequests = leaves_request_count;

@@ -2,7 +2,7 @@
   <div class="mt-2 pl-2">
     <v-row>
       <v-col cols="10" md="10" sm="10" xs="10" style="flex: auto">
-        <h6>Today Presents By Department wise</h6>
+        <h4>Today Presents By Department wise</h4>
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">

@@ -191,14 +191,14 @@
       </span>
 
       <v-spacer></v-spacer>
-      Hi
+      <!-- Hi
       {{
         getLoginType == "manager"
           ? "Department Manager"
           : getLoginType == "branch"
           ? getBranchName()
           : ""
-      }}
+      }} -->
       <v-menu
         nudge-bottom="50"
         transition="scale-transition"
@@ -216,9 +216,8 @@
           <v-btn icon color="yellow" v-bind="attrs" v-on="on">
             <!-- {{ getUser }} -->
             <v-avatar size="35">
-              <v-img
-                :src="`https://ui-avatars.com/api/?name=${getUser}`"
-              ></v-img>
+              <v-img :src="getLogo"></v-img>
+
               <!-- <img :src="getLogo || '/no-image.PNG'" /> -->
             </v-avatar>
           </v-btn>
@@ -293,7 +292,9 @@
           >
         </v-badge>
         <v-badge v-else @click="navigateToLeavePage()" content="0">
-          <v-icon class="violet--text" @click="navigateToLeavePage()"
+          <v-icon
+            style="color: #e91919 !important"
+            @click="navigateToLeavePage()"
             >mdi mdi-bell-ring</v-icon
           >
         </v-badge>
@@ -616,6 +617,8 @@ export default {
     getLogo() {
       if (this.$auth.user && this.$auth.user.user_type == "master") {
         return "/no-image.PNG";
+      } else if (this.$auth.user && this.$auth.user.user_type == "employee") {
+        return this.$auth.user.employee.profile_picture;
       }
       return this.$auth.user && this.$auth.user.company.logo;
     },

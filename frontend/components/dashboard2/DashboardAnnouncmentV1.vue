@@ -21,7 +21,7 @@
 
     <v-row>
       <v-col md="10">
-        <h6 class="pl-2">Announcements</h6>
+        <h4 class="pl-2">Announcements</h4>
       </v-col>
       <v-col md="2" class="menu-icon-right">
         <v-menu bottom left>

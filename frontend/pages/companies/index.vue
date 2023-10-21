@@ -823,6 +823,7 @@ export default {
     },
 
     getDataFromApi() {
+      this.id = this.$auth.user.company_id;
       this.$axios
         .get(`company/${this.$auth.user.company_id}`)
         .then(({ data }) => {

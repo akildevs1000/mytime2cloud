@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ReportNotification\StoreRequest;
 use App\Http\Requests\ReportNotification\UpdateRequest;
+use App\Mail\ReportNotificationMail;
 use App\Models\ReportNotification;
 use App\Models\ReportNotificationManagers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class ReportNotificationController extends Controller
 {
     public function index(ReportNotification $model, Request $request)
     {
+
 
         $model = $model->with(["managers", "logs"])->where('company_id', $request->company_id)
             ->when($request->filled('subject'), function ($q) use ($request) {
@@ -76,7 +79,16 @@ class ReportNotificationController extends Controller
         return $model->with("branch")
             ->paginate($request->per_page);
     }
+    public function testmail()
+    {
+        $model = ReportNotification::with(["managers"])->where("id", 35)->first();
 
+        // $test = Mail::to("akildevs1004@gmail.com")
+        //     ->queue(new ReportNotificationMail($model));
+
+        $test2 = Mail::to('akildevs1004@gmail.com')->send(new ReportNotificationMail($model));
+        return ['111111',   $test2];
+    }
     public function store(StoreRequest $request)
     {
         if (!$request->validated())

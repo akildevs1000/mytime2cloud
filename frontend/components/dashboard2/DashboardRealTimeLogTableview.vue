@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col md="10" sm="10" xs="10" class="pl-5">
-        <h6>Recent Employee Logs on Devices</h6>
+        <h4>Recent Employee Logs on Devices</h4>
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">

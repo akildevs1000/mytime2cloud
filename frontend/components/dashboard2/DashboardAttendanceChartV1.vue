@@ -2,7 +2,7 @@
   <div style="width: 100%">
     <v-row>
       <v-col md="6">
-        <h6>{{ display_title }}</h6></v-col
+        <h4>{{ display_title }}</h4></v-col
       >
 
       <v-col md="6">
