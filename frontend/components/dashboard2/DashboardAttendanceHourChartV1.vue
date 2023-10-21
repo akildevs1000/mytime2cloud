@@ -97,25 +97,9 @@ export default {
     viewLogs() {
       this.$router.push("/attendance_report");
     },
-    getDataFromApi() {
-      let { every_hour_count } = this.$store.state.dashboard;
-
-      if (every_hour_count) {
-        this.renderChart(every_hour_count);
-        return;
-      }
-
-      setTimeout(() => {
-        this.$axios
-          .get("dashboard_get_counts_today_hour_in_out", {
-            params: {
-              company_id: this.$auth.user.company_id,
-            },
-          })
-          .then(({ data }) => {
-            this.renderChart(data);
-          });
-      }, 1000 * 6);
+    async getDataFromApi() {
+      const data = await this.$store.dispatch("dashboard/every_hour_count");
+      this.renderChart(data);
     },
     renderChart(data) {
       let counter = 0;
@@ -129,8 +113,6 @@ export default {
         document.querySelector("#" + this.name),
         this.chartOptions
       ).render();
-
-      this.$store.commit("dashboard/every_hour_count", data);
     },
   },
 };
