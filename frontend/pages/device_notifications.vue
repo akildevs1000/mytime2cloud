@@ -366,7 +366,9 @@
             {{
               (item.logs &&
                 item.logs[0] &&
-                $dateFormat.format4(item.logs[0].created_at)) ||
+                $dateFormat.format4(
+                  item.logs[item.logs.length - 1].created_at
+                )) ||
               "---"
             }}
           </template>
