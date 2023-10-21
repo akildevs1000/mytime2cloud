@@ -98,7 +98,7 @@ import DashboardRealTimeLogTableview from "../../components/dashboard2/Dashboard
 import DashboardRightsideStaticstics from "../../components/dashboard2/DashboardRightsideStaticsticsV1.vue";
 import DashboardAnnouncment from "../../components/dashboard2/DashboardAnnouncmentV1.vue";
 import DashboardAttendanceHourChart from "../../components/dashboard2/DashboardAttendanceHourChartV1.vue";
-import DashboardLoginActivities from "../../components/dashboard2/DashboardLoginActivities.vue";
+import DashboardLoginActivities from "../../components/dashboard2/DashboardLoginActivitiesV1.vue";
 import DashboardAttednaceDepartmentWise from "../../components/dashboard2/DashboardAttednaceDepartmentWise.vue";
 import DashboardlastMultiStatistics from "../../components/dashboard2/DashboardlastMultiStatistics.vue";
 export default {
