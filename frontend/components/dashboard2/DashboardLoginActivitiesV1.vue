@@ -175,16 +175,23 @@ export default {
       }
     },
     getRecords() {
+      if (this.$store.state.dashboard.web_logins) {
+        this.logs = this.$store.state.dashboard.web_logins;
+        return;
+      }
+
       this.loading = true;
 
       this.$axios
         .get(`activity`, {
           params: {
             per_page: 5,
+            company_id: this.$auth.user.company_id,
           },
         })
         .then(({ data }) => {
           this.logs = data;
+          this.$store.commit("dashboard/web_logins", data);
           this.loading = false;
         });
     },
