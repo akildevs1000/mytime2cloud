@@ -83,10 +83,10 @@ class ReportNotificationController extends Controller
     {
         $model = ReportNotification::with(["managers"])->where("id", 35)->first();
 
-        $test = Mail::to("akildevs1000@gmail.com")
+        $test = Mail::to("akildevs1004@gmail.com")
             ->queue(new ReportNotificationMail($model));
 
-        $test2 = Mail::to('akildevs1000@gmail.com')->send(new ReportNotificationMail($model));
+        $test2 = Mail::to('akildevs1004@gmail.com')->send(new ReportNotificationMail($model));
         return ['111111', $test, $test2];
     }
     public function store(StoreRequest $request)
