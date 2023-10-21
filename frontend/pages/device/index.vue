@@ -1175,3 +1175,6 @@ export default {
   background-color: #fff;
 }
 </style>
+<style scoped>
+@import "https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css";
+</style>
