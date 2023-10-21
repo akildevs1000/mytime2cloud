@@ -92,11 +92,10 @@ export default {
     };
   },
   watch: {
-    display_title() {
-      this.getDataFromApi();
+    async display_title() {
+      await this.getDataFromApi();
     },
   },
-  mounted() {},
   async created() {
     // Get today's date
     let today = new Date();
@@ -113,14 +112,6 @@ export default {
 
     await this.getDataFromApi();
   },
-  mounted() {
-    this.chartOptions.chart.height = this.height;
-    this.chartOptions.series = this.series;
-    // new ApexCharts(
-    //   document.querySelector("#" + this.name),
-    //   this.chartOptions
-    // ).render();
-  },
 
   methods: {
     filterAttr(data) {
@@ -134,7 +125,6 @@ export default {
       this.$store.commit("dashboard/setDashboardData", null);
     },
     async getDataFromApi() {
-      
       this.loading = true;
 
       this.$store.dispatch("dashboard/setDates", {
@@ -142,11 +132,14 @@ export default {
         date_to: this.date_to,
       });
 
-      const data = await this.$store.dispatch("dashboard/states_for_7_days");
-
-      this.renderChart(data);
+      this.renderChart(
+        await this.$store.dispatch("dashboard/states_for_7_days")
+      );
     },
     renderChart(data) {
+      this.chartOptions.chart.height = this.height;
+      this.chartOptions.series = this.series;
+
       let counter = 0;
 
       this.chartOptions.series = [
