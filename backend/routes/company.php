@@ -247,7 +247,7 @@ Route::post('report_notifications', function (Request $request) {
 
 Route::apiResource('report_notification', ReportNotificationController::class);
 Route::apiResource('report_notification_logs', ReportNotificationLogsController::class);
-
+Route::get('testmail', [ReportNotificationController::class, 'testmail']);
 Route::get('/auto_shift', [AutoShiftController::class, 'index']);
 Route::post('/auto_shift', [AutoShiftController::class, 'store']);
 Route::apiResource('roster', RosterController::class);
