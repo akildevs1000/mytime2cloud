@@ -12,6 +12,7 @@ export const state = () => ({
     announcements: null,   // Add 'date_to' property
     every_hour_count: null,
     web_logins: null,
+    attendance_count_by_department:null,
 });
 
 export const mutations = {
@@ -48,6 +49,9 @@ export const mutations = {
     },
     web_logins(state, web_logins) {     // Mutation to set 'web_logins' 
         state.web_logins = web_logins;
+    },
+    attendance_count_by_department(state, attendance_count_by_department) {     // Mutation to set 'attendance_count_by_department' 
+        state.attendance_count_by_department = attendance_count_by_department;
     },
 };
 
