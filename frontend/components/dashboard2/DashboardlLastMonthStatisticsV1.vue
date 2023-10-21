@@ -124,18 +124,13 @@ export default {
         return;
       }
 
-      setTimeout(() => {
-        this.$axios
-          .get(`previous_week_attendance_count/${this.$auth.user.company_id}`)
-          .then(({ data }) => {
-            this.data = data;
-            this.$store.commit(
-              "dashboard/previous_week_attendance_count",
-              data
-            );
-          })
-          .catch(({ message }) => console.log(message));
-      }, 1000 * 6);
+      this.$axios
+        .get(`previous_week_attendance_count/${this.$auth.user.company_id}`)
+        .then(({ data }) => {
+          this.data = data;
+          this.$store.commit("dashboard/previous_week_attendance_count", data);
+        })
+        .catch(({ message }) => console.log(message));
     },
   },
 };
