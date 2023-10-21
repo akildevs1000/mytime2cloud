@@ -2,7 +2,7 @@
   <div class="bordertop">
     <v-row>
       <v-col md="10" sm="10" xs="10">
-        <h6>Previous Week Attendance</h6>
+        <h4>Previous Week Attendance</h4>
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">

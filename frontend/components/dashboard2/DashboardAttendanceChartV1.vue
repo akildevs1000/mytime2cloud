@@ -2,7 +2,7 @@
   <div style="width: 100%">
     <v-row>
       <v-col md="6">
-        <h6>{{ display_title }}</h6></v-col
+        <h4>{{ display_title }}</h4></v-col
       >
 
       <v-col md="6">
@@ -134,7 +134,6 @@ export default {
       this.$store.commit("dashboard/setDashboardData", null);
     },
     async getDataFromApi() {
-      
       this.loading = true;
 
       this.$store.dispatch("dashboard/setDates", {
