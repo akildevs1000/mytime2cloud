@@ -31,7 +31,11 @@ class SendTestEmail extends Command
      */
     public function handle()
     {
-        Mail::to('akildevs1000@gmail.com')->send(new SimpleEmail());
-        return "Email sent successfully!";
+
+
+        //  Mail::to('akildevs1004@gmail.com')->send(new SimpleEmail());
+
+
+        echo "Email sent successfully!";
     }
 }

@@ -81,7 +81,7 @@ class DailyController extends Controller
     public function custom_request_general($id, $status, $shift_type_id)
     {
 
-        $apiUrl = 'https://backend.eztime.online/api/daily_generate_pdf';
+        $apiUrl = env('BASE_URL') . '/api/daily_generate_pdf';
         $queryParams = [
             'report_template' => "Template1",
             'shift_type_id' => $shift_type_id,

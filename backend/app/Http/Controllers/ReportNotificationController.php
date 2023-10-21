@@ -7,6 +7,7 @@ use App\Http\Requests\ReportNotification\UpdateRequest;
 use App\Mail\ReportNotificationMail;
 use App\Models\ReportNotification;
 use App\Models\ReportNotificationManagers;
+use App\Notifications\CompanyCreationNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -87,6 +88,9 @@ class ReportNotificationController extends Controller
         //     ->queue(new ReportNotificationMail($model));
 
         $test2 = Mail::to('akildevs1004@gmail.com')->send(new ReportNotificationMail($model));
+
+        // $test3 = NotificationsController::toSend(["email" => "akildevs1004@gmail.com"], new CompanyCreationNotification, $model);
+
         return ['111111',   $test2];
     }
     public function store(StoreRequest $request)
