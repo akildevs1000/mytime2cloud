@@ -99,8 +99,8 @@ import DashboardRightsideStaticstics from "../../components/dashboard2/Dashboard
 import DashboardAnnouncment from "../../components/dashboard2/DashboardAnnouncmentV1.vue";
 import DashboardAttendanceHourChart from "../../components/dashboard2/DashboardAttendanceHourChartV1.vue";
 import DashboardLoginActivities from "../../components/dashboard2/DashboardLoginActivitiesV1.vue";
-import DashboardAttednaceDepartmentWise from "../../components/dashboard2/DashboardAttednaceDepartmentWise.vue";
-import DashboardlastMultiStatistics from "../../components/dashboard2/DashboardlastMultiStatistics.vue";
+import DashboardAttednaceDepartmentWise from "../../components/dashboard2/DashboardAttednaceDepartmentWiseV1.vue";
+// import DashboardlastMultiStatistics from "../../components/dashboard2/DashboardlastMultiStatistics.vue";
 export default {
   components: {
     DashboardAttendanceChart,
@@ -110,7 +110,7 @@ export default {
     DashboardLoginActivities,
     DashboardAttednaceDepartmentWise,
     DashboardRightsideStaticstics,
-    DashboardlastMultiStatistics,
+    // DashboardlastMultiStatistics,
     DashboardAttendanceHourChart,
   },
   data() {
