@@ -501,7 +501,7 @@ class DeviceController extends Controller
 
                     $this->sendNotification($notification, $company, $offlineDevicesCount, $devicesLocation, $message);
 
-                    //$company->update(["is_offline_device_notificaiton_sent" => true]);
+                    $company->update(["is_offline_device_notificaiton_sent" => true]);
                 }
             }
         }

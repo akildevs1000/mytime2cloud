@@ -57,13 +57,25 @@ class ReportNotificationCrons extends Command
 
 
                         Mail::to($value->email)
-                            ->queue(new ReportNotificationMail($model));
+                            ->send(new ReportNotificationMail($model));
 
 
                         $data = ["company_id" => $value->company_id, "branch_id" => $value->branch_id, "notification_id" => $value->notification_id, "notification_manager_id" => $value->id, "email" => $value->email];
 
 
+
                         ReportNotificationLogs::create($data);
+
+                        // $response = Http::withoutVerifying()->get('https://ezwhat.com/api/send.php', [
+                        //     'number' => $value->whatsapp_number,
+                        //     'type' => 'text',
+                        //     'message' => $message,
+                        //     'instance_id' => '64DB354A9EBCC',
+                        //     'access_token' => 'a27e1f9ca2347bb766f332b8863ebe9f',
+                        // ]);
+
+
+
                     }
                     // Mail::to($model->tos)
                     //     ->cc($model->ccs)
