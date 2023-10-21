@@ -10,6 +10,8 @@ use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\Device;
 use App\Models\DeviceActivesettings;
+use App\Models\DeviceNotification;
+use App\Models\DeviceNotificationsLog;
 use App\Models\DevicesActiveWeeklySettings;
 use App\Models\Employee;
 use Illuminate\Http\Request;
@@ -29,7 +31,7 @@ class DeviceController extends Controller
     public function index(Request $request)
     {
         $model = Device::query();
-        
+
         $model->excludeMobile();
 
         $cols = $request->cols;
@@ -459,39 +461,87 @@ class DeviceController extends Controller
         ];
     }
 
-    public function handleNotifictiaon($id)
+    public function handleNotification($id)
     {
 
-        $company = Company::where("id", $id)->where("is_offline_device_notificaiton_sent", false)->with(["devices" => fn ($q) => $q->where("status_id", self::OFFLINE_STATUS_ID)])->first();
+        $company = Company::where("id", $id)->where("is_offline_device_notificaiton_sent", false)->first();
 
-        if (!$company) {
-            return $this->getMeta("SendNotificatinForOfflineDevices", "No record found");
+        if ($company) {
+            $notifications = DeviceNotification::with("managers")->where("company_id", $id)->get();
+
+
+            foreach ($notifications as $key => $notification) {
+
+                $company = $company->load(['devices' => function ($q) use ($notification) {
+                    $q->where("status_id", self::OFFLINE_STATUS_ID)
+                        ->where("branch_id", $notification->branch_id);
+                }]);
+
+
+                if ($company) {
+                    $offlineDevicesCount = count($company->devices);
+
+                    // if (!$offlineDevicesCount) {
+                    //     return $this->getMeta("SendNotificatinForOfflineDevices", "All Devices Online");
+                    // }
+
+                    $devicesLocation = json_encode(array_column($company->devices->toArray(), "location"));
+
+
+                    $message = "🔔 *Notification for offline devices* 🔔\n\n";
+                    $message .= "*Hello, {$company->name}*\n\n";
+                    $message .= "Total *({$offlineDevicesCount})* of your devices are currently offline. Please take a look and address the issue as needed to avoid any errors in report.\n\n";
+                    $message .= "Devices location: *{$devicesLocation}*.\n\n";
+                    $message .= "If you have any questions or need assistance, feel free to reach out.\n\n";
+                    $message .= "Best regards\n";
+                    $message .= "*MyTime2Cloud*";
+                    // $this->sendWhatsappNotification($message, '971554501483');
+                    // $this->sendWhatsappNotification($message, '971553303991'); 
+
+
+                    $this->sendNotification($notification, $company, $offlineDevicesCount, $devicesLocation, $message);
+
+                    //$company->update(["is_offline_device_notificaiton_sent" => true]);
+                }
+            }
         }
 
 
-        $offlineDevicesCount = count($company->devices);
-
-        if (!$offlineDevicesCount) {
-            return $this->getMeta("SendNotificatinForOfflineDevices", "All Devices Online");
-        }
-
-        $devicesLocation = json_encode(array_column($company->devices->toArray(), "location"));
 
 
-        $message = "🔔 *Notification for offline devices* 🔔\n\n";
-        $message .= "*Hello, {$company->name}*\n\n";
-        $message .= "Total *({$offlineDevicesCount})* of your devices are currently offline. Please take a look and address the issue as needed to avoid any errors in report.\n\n";
-        $message .= "Devices location: *{$devicesLocation}*.\n\n";
-        $message .= "If you have any questions or need assistance, feel free to reach out.\n\n";
-        $message .= "Best regards\n";
-        $message .= "*MyTime*";
-        // $this->sendWhatsappNotification($message, '971554501483');
-        // $this->sendWhatsappNotification($message, '971553303991');
 
-        Mail::to($company->user->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devicesLocation));
-
-        $company->update(["is_offline_device_notificaiton_sent" => true]);
 
         return "Notification sent to WhatsApp and email.";
+    }
+
+    public function sendNotification($notification, $company, $offlineDevicesCount, $devicesLocation, $message)
+    {
+
+        foreach ($notification->managers as $key => $manager) {
+            $data = [
+                "company_id" => $company->id,
+                "branch_id" => $notification->branch_id,
+                "notification_id" => $notification->id,
+                "notification_manager_id" => $manager->id,
+                "email" => null,
+                "whatsapp_number" => null,
+                "message" => $message
+            ];
+
+            if (in_array("Email", $notification->mediums)) {
+                if ($manager->email != '') {
+                    Mail::to($manager->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devicesLocation));
+                    $data["email"] = $manager->email;
+                }
+            }
+            if (in_array("Whatsapp", $notification->mediums)) {
+                if ($manager->whatsapp_number != '' && strlen($manager->whatsapp_number) > 10) {
+                    $this->sendWhatsappNotification($message, $manager->whatsapp_number);
+                    $data["whatsapp_number"] = $manager->whatsapp_number;
+                }
+            }
+
+            DeviceNotificationsLog::create($data);
+        }
     }
 }

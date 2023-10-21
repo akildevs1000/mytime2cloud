@@ -39,8 +39,8 @@
             <template v-slot:item.created_at="{ item }">
               {{ $dateFormat.format4(item.created_at) }}
             </template>
-            <template v-slot:item.wahtsapp_number="{ item }">
-              {{ item.wahtsapp_number || "---" }}
+            <template v-slot:item.whatsapp_number="{ item }">
+              {{ item.whatsapp_number || "---" }}
             </template>
             <template v-slot:item.email="{ item }">
               {{ item.email || "---" }}
@@ -498,8 +498,8 @@ export default {
         text: "Whatsapp Number",
         align: "left",
         sortable: false,
-        key: "wahtsapp_number",
-        value: "wahtsapp_number",
+        key: "whatsapp_number",
+        value: "whatsapp_number",
         filterable: false,
         filterSpecial: false,
       },
