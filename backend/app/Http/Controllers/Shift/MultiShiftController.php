@@ -15,7 +15,12 @@ class MultiShiftController extends Controller
     {
         // Extract start and end dates from the JSON data
         $startDateString = $request->dates[0];
-        $endDateString = $request->dates[1];
+        // $endDateString = $request->dates[1];
+        if (isset($request->dates[1])) {
+            $endDateString = $request->dates[1];
+        } else {
+            $endDateString = $request->dates[0];
+        }
         $company_id = $request->company_ids[0];
         $employee_ids = $request->employee_ids;
 

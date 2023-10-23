@@ -458,10 +458,10 @@
     </v-row>
 
     <v-row justify="center">
-      <v-dialog persistent v-model="dialog" max-width="700px">
+      <v-dialog persistent v-model="dialog" max-width="300px">
         <v-card>
           <v-card-title class="popup_background">
-            <span class="headline"> Update Log </span>
+            <span class="headline"> Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon @click="dialog = false" outlined dark>
               mdi mdi-close-circle
@@ -470,8 +470,13 @@
           <v-card-text>
             <v-container>
               <v-row>
-                <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-col md="12">
+                <v-form
+                  ref="form"
+                  v-model="valid"
+                  lazy-validation
+                  style="width: 100%"
+                >
+                  <v-col md="12" class="pa-0">
                     <v-menu
                       ref="time_menu_ref"
                       v-model="time_menu"
@@ -535,7 +540,7 @@
                   >
                 </v-col> -->
 
-                  <v-col md="12">
+                  <!-- <v-col md="12">
                     <v-autocomplete
                       label="Select Device"
                       v-model="editItems.device_id"
@@ -550,8 +555,8 @@
                       class="text-danger mt-2"
                       >{{ errors.device_id[0] }}</span
                     >
-                  </v-col>
-                  <v-col cols="12">
+                  </v-col> -->
+                  <v-col cols="12" class="pa-0">
                     <v-textarea
                       filled
                       label="Reason"
@@ -559,6 +564,7 @@
                       auto-grow
                       :rules="nameRules"
                       required
+                      rows="2"
                     ></v-textarea>
                     <span v-if="errors && errors.reason" class="error--text">
                       {{ errors.reason[0] }}
@@ -579,7 +585,7 @@
 
     <v-row justify="center">
       <v-dialog persistent v-model="reportSync" max-width="800px">
-        <v-card>
+        <v-card style="width: 100%">
           <v-card-title class="popup_background">
             <span class="headline"> Render Report </span>
             <v-spacer></v-spacer>
@@ -588,6 +594,8 @@
           <RenderAttendance
             :shift_type_id="shift_type_id"
             :endpoint="render_endpoint"
+            :display_emp_pic="display_emp_pic"
+            :system_user_id="system_user_id"
             @update-data-table="getDataFromApi()"
           />
         </v-card>
@@ -610,6 +618,7 @@
                 <GenerateLog
                   @close-popup="generateLogsDialog = false"
                   :endpoint="render_endpoint"
+                  :system_user_id="system_user_id"
                   @update-data-table="getDataFromApi()"
                 />
               </v-row>
@@ -807,6 +816,8 @@ export default {
     // "daily_date",
     // "from_date",
     // "to_date",
+    "display_emp_pic",
+    "system_user_id",
   ],
 
   data: () => ({
@@ -952,6 +963,23 @@ export default {
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
+    },
+
+    employees() {
+      return this.$store.state.employees.map((e) => ({
+        system_user_id: e.system_user_id,
+        first_name: e.first_name,
+        last_name: e.last_name,
+        user_id: e.user_id,
+        display_name: e.display_name,
+        name_with_id: `${e.first_name} ${e.last_name}`,
+        // name_with_id: `${e.first_name} ${e.last_name} - ${
+        //   e.schedule.shift && e.schedule.shift.name
+        //     ? e.schedule.shift.name
+        //     : "---"
+        // }`,
+        shift_type_id: e.schedule_all[0] && e.schedule_all[0].shift_type_id,
+      }));
     },
   },
 
@@ -1174,6 +1202,80 @@ export default {
           this.response = message;
         });
     },
+    update() {
+      //  UserID: this.editItems.UserID,
+      //       LogTime: this.editItems.date + " " + this.editItems.time,
+      //       DeviceID: this.editItems.device_id,
+      //       user_id: this.editItems.UserID,
+      //       company_id: this.$auth.user.company_id,
+      //console.log(this.editItems);
+      //console.log(this.employees);
+
+      let emp = this.employees.find(
+        (e) => e.system_user_id == this.editItems.UserID
+      );
+
+      //let { user_id, date, time } = this.log_payload;
+
+      //console.log(emp);
+      let shift_type_id = emp.shift_type_id;
+      let log_payload = {
+        UserID: this.editItems.UserID,
+        LogTime: this.editItems.date + " " + this.editItems.time,
+        DeviceID: "Manual",
+        company_id: this.$auth.user.company_id,
+        log_type: "auto",
+      };
+      this.loading = true;
+
+      // if (!user_id || !date || !time) {
+      //   alert("Please enter required fields");
+      //   return;
+      // }
+
+      this.$axios
+        .post(`/generate_log`, log_payload)
+        .then(({ data }) => {
+          this.loading = false;
+
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.render_report(this.editItems.date, shift_type_id);
+            this.$emit("close-popup");
+            this.snackbar = true;
+            this.response = data.message;
+            this.getDataFromApi();
+            //this.generateLogsDialog = false;
+            this.dialog = false;
+          }
+        })
+        .catch(({ message }) => {
+          this.snackbar = true;
+          this.response = message;
+        });
+    },
+    render_report(date, shift_type_id) {
+      let payload = {
+        params: {
+          dates: [date, date],
+          UserIds: [this.editItems.UserID],
+          company_ids: [this.$auth.user.company_id],
+          user_id: this.$auth.user.id,
+          updated_by: this.$auth.user.id,
+          reason: this.reason,
+          employee_ids: [this.editItems.UserID],
+          shift_type_id: shift_type_id,
+        },
+      };
+      this.$axios
+        .get("render_logs", payload)
+        .then(({ data }) => {
+          this.loading = false;
+          this.$emit("update-data-table");
+        })
+        .catch((e) => console.log(e));
+    },
     setEmployeeId(id) {
       this.$store.commit("employee_id", id);
     },
@@ -1305,33 +1407,33 @@ export default {
       this.editItems.date = item.edit_date;
     },
 
-    update() {
-      if (this.$refs.form.validate()) {
-        let payload = {
-          UserID: this.editItems.UserID,
-          LogTime: this.editItems.date + " " + this.editItems.time,
-          DeviceID: this.editItems.device_id,
-          user_id: this.editItems.UserID,
-          company_id: this.$auth.user.company_id,
-        };
-        this.$axios
-          .post("/generate_manual_log", payload)
-          .then(({ data }) => {
-            this.loading = false;
-            if (!data.status) {
-              this.errors = data.errors;
-              // this.msg = data.message;
-            } else {
-              this.snackbar = true;
-              this.response = data.message;
-              this.renderByType(this.render_endpoint);
-              this.close();
-              this.editItems = [];
-            }
-          })
-          .catch((e) => console.log(e));
-      }
-    },
+    // update() {
+    //   if (this.$refs.form.validate()) {
+    //     let payload = {
+    //       UserID: this.editItems.UserID,
+    //       LogTime: this.editItems.date + " " + this.editItems.time,
+    //       DeviceID: this.editItems.device_id,
+    //       user_id: this.editItems.UserID,
+    //       company_id: this.$auth.user.company_id,
+    //     };
+    //     this.$axios
+    //       .post("/generate_manual_log", payload)
+    //       .then(({ data }) => {
+    //         this.loading = false;
+    //         if (!data.status) {
+    //           this.errors = data.errors;
+    //           // this.msg = data.message;
+    //         } else {
+    //           this.snackbar = true;
+    //           this.response = data.message;
+    //           this.renderByType(this.render_endpoint);
+    //           this.close();
+    //           this.editItems = [];
+    //         }
+    //       })
+    //       .catch((e) => console.log(e));
+    //   }
+    // },
 
     renderByType(type) {
       const UserID = this.editItems.UserID;
@@ -1430,7 +1532,7 @@ export default {
       qs += `&main_shift_type=${this.shift_type_id}`;
       qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
-      qs += `&status=${this.payload.status}`;
+      qs += `&status=${this.payload.status & this.payload.status || "-1"}`;
       if (
         this.payload.department_ids &&
         this.payload.department_ids.length > 0

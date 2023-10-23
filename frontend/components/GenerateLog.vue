@@ -127,7 +127,7 @@
 
 <script>
 export default {
-  props: ["endpoint"],
+  props: ["endpoint", "system_user_id"],
   data: () => ({
     Model: "Manual Log",
 
@@ -167,7 +167,7 @@ export default {
   }),
   computed: {
     employees() {
-      return this.$store.state.employees.map((e) => ({
+      let employees = this.$store.state.employees.map((e) => ({
         system_user_id: e.system_user_id,
         first_name: e.first_name,
         last_name: e.last_name,
@@ -180,6 +180,15 @@ export default {
         // }`,
         shift_type_id: e.schedule_all[0] && e.schedule_all[0].shift_type_id,
       }));
+
+      if (this.system_user_id) {
+        this.log_payload.user_id = this.system_user_id;
+        return employees.filter(
+          (e) => (e.system_user_id = this.system_user_id)
+        );
+      } else {
+        return employees;
+      }
     },
   },
   created() {
