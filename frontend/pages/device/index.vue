@@ -54,6 +54,7 @@
       <v-row class="ma-1">
         <v-col md="12">
           <v-text-field
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.name"
             v-model="payload.name"
@@ -62,12 +63,13 @@
             dense
             label="Device Name *"
           ></v-text-field>
-          <span v-if="errors && errors.name" class="error--text"
+          <span v-if="errors && errors.name" class="error--text pa-0 ma-0"
             >{{ errors.name[0] }}
           </span>
         </v-col>
         <v-col md="12">
           <v-text-field
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.short_name"
             v-model="payload.short_name"
@@ -76,12 +78,13 @@
             dense
             label="Short Name *"
           ></v-text-field>
-          <span v-if="errors && errors.short_name" class="error--text"
+          <span v-if="errors && errors.short_name" class="error--text pa-0 ma-0"
             >{{ errors.short_name[0] }}
           </span>
         </v-col>
         <v-col md="12">
           <v-autocomplete
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.branch_id"
             v-model="payload.branch_id"
@@ -93,12 +96,13 @@
             item-value="id"
             item-text="branch_name"
           ></v-autocomplete>
-          <span v-if="errors && errors.branch_id" class="error--text"
+          <span v-if="errors && errors.branch_id" class="error--text pa-0 ma-0"
             >{{ errors.branch_id[0] }}
           </span>
         </v-col>
         <v-col md="12">
           <v-text-field
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.location"
             v-model="payload.location"
@@ -113,6 +117,7 @@
         </v-col>
         <v-col md="12">
           <v-autocomplete
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.utc_time_zone"
             v-model="payload.utc_time_zone"
@@ -130,6 +135,7 @@
         </v-col>
         <v-col md="12">
           <v-text-field
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.model_number"
             v-model="payload.model_number"
@@ -144,6 +150,7 @@
         </v-col>
         <v-col md="12">
           <v-text-field
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.device_id"
             v-model="payload.device_id"
@@ -158,6 +165,7 @@
         </v-col>
         <v-col md="12">
           <v-autocomplete
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.function"
             v-model="payload.function"
@@ -179,6 +187,7 @@
         </v-col>
         <v-col md="12">
           <v-autocomplete
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.device_type"
             v-model="payload.device_type"
@@ -200,6 +209,7 @@
         </v-col>
         <v-col md="12">
           <v-autocomplete
+            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.status_id"
             v-model="payload.status_id"
@@ -1345,6 +1355,18 @@ export default {
   },
 };
 </script>
+<style scoped>
+.v-text-field.v-text-field--enclosed .v-text-field__details,
+.v-text-field.v-text-field--enclosed .v-text-field__details,
+.v-text-field__details,
+.v-text-field.v-text-field--enclosed .v-text-field__details {
+  margin-bottom: 0px !important;
+  padding: 0px !important;
+}
+.v-messages {
+  min-height: 0px !important;
+}
+</style>
 
 <!-- <style>
 .v-dialog {
