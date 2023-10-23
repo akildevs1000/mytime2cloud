@@ -9,7 +9,7 @@
     <v-dialog v-model="dialogviewHisotry" width="900" :key="newDialogKey">
       <v-card>
         <v-card-title dense class="popup_background">
-          History
+          History1
           <v-spacer></v-spacer>
           <v-icon @click="dialogviewHisotry = false" outlined dark>
             mdi mdi-close-circle
@@ -28,13 +28,12 @@
             class="elevation-1"
             :server-items-length="totalRowsCount_history"
           >
-            <template v-slot:item.sno="{ item, index }">
-              {{ currentPage_history }}
+            <template v-slot:item.sno1="{ item }">
               {{
                 currentPage_history
                   ? (currentPage_history - 1) * perPage_history +
                     (cumulativeIndex_history + data_history.indexOf(item))
-                  : "-------"
+                  : cumulativeIndex_history + data_history.indexOf(item)
               }}
             </template>
             <template v-slot:item.created_at="{ item }">
@@ -486,7 +485,7 @@ export default {
         align: "left",
         sortable: false,
         key: "title",
-        value: "sno",
+        value: "sno1",
         filterable: false,
         filterSpecial: false,
       },
