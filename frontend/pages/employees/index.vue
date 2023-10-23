@@ -934,7 +934,7 @@ import Setting from "../../components/employee/Setting.vue";
 import Payroll from "../../components/employee/Payroll.vue";
 import Login from "../../components/employee/Login.vue";
 
-import EmployeeProfileView from "../../components/EmployeesLogin/employeelanding.vue";
+import EmployeeProfileView from "../../components/EmployeesLogin/EmployeeLanding.vue";
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";

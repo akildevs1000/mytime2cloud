@@ -29,11 +29,12 @@
             :server-items-length="totalRowsCount_history"
           >
             <template v-slot:item.sno="{ item, index }">
+              {{ currentPage_history }}
               {{
                 currentPage_history
                   ? (currentPage_history - 1) * perPage_history +
                     (cumulativeIndex_history + data_history.indexOf(item))
-                  : ""
+                  : "-------"
               }}
             </template>
             <template v-slot:item.created_at="{ item }">

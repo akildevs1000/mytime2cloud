@@ -639,6 +639,7 @@ export default {
         value: "available",
       },
     ],
+    test: "",
     DialogLeaveGroupData: [],
   }),
 
