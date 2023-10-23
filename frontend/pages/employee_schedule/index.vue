@@ -41,6 +41,7 @@
                 :items="shifts_branch_wise"
                 item-value="shift_id"
                 item-text="name"
+                :disabled="!isEdit"
               ></v-autocomplete>
             </v-col>
             <v-col md="3">
@@ -145,8 +146,8 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <!-- <v-btn dark small color="grey" @click="editDialog = false">
-            Close
-          </v-btn> -->
+              Close
+            </v-btn> -->
           <v-btn v-if="isEdit" dark small color="primary" @click="update">
             Submit
           </v-btn>
@@ -352,7 +353,7 @@
           ><span> Schedule List</span></v-toolbar-title
         >
         <!-- <v-tooltip top dark>
-          <template v-slot:activator="{ on, attrs }"> -->
+            <template v-slot:activator="{ on, attrs }"> -->
         <v-btn
           dense
           class="ma-0 px-0"
@@ -366,10 +367,10 @@
           >
         </v-btn>
         <!-- </template>
-          <span>Reload</span>
-        </v-tooltip> -->
+            <span>Reload</span>
+          </v-tooltip> -->
         <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
+            <template v-slot:activator="{ on, attrs }"> -->
         <v-btn
           dense
           class="ma-0 px-0"
@@ -383,27 +384,27 @@
           >
         </v-btn>
         <!-- </template>
-          <span>Filter</span>
-        </v-tooltip> -->
+            <span>Filter</span>
+          </v-tooltip> -->
 
         <v-spacer></v-spacer>
 
         <!-- <v-tooltip top color="primary" v-if="can(`employee_schedule_create`)">
-          <template v-slot:activator="{ on, attrs }"> -->
+            <template v-slot:activator="{ on, attrs }"> -->
         <!-- <v-btn
-          title="Add Schedule"
-          dense
-          class="ma-0 px-0"
-          x-small
-          :ripple="false"
-          text
-          @click="gotoCreateSchedule"
-        >
-          <v-icon class="ml-2" dark>mdi mdi-plus-circle</v-icon>
-        </v-btn> -->
+            title="Add Schedule"
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            @click="gotoCreateSchedule"
+          >
+            <v-icon class="ml-2" dark>mdi mdi-plus-circle</v-icon>
+          </v-btn> -->
         <!-- </template>  
-       <span>Add Schedule</span>  
-        </v-tooltip> -->
+         <span>Add Schedule</span>  
+          </v-tooltip> -->
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -686,12 +687,12 @@
           </div>
         </template>
         <!-- <template v-slot:item.employee_id="{ item }">
-          {{ caps(item?.employee_id || "") }}
-        </template>
-        <template v-slot:item.employee.first_name="{ item }">
-          {{ caps(item.first_name && item.first_name) }}
-          {{ caps(item.last_name && item.last_name) }}
-        </template> -->
+            {{ caps(item?.employee_id || "") }}
+          </template>
+          <template v-slot:item.employee.first_name="{ item }">
+            {{ caps(item.first_name && item.first_name) }}
+            {{ caps(item.last_name && item.last_name) }}
+          </template> -->
 
         <template v-slot:item.schedules_count="{ item }">
           {{ item.schedule_all.length }}
@@ -719,11 +720,11 @@
                 </v-list-item-title>
               </v-list-item>
               <!-- <v-list-item @click="ScheduleItem(item, 'edit')">
-                <v-list-item-title style="cursor: pointer">
-                  <v-icon color="secondary" small> mdi-plus-circle </v-icon>
-                  Add
-                </v-list-item-title>
-              </v-list-item> -->
+                  <v-list-item-title style="cursor: pointer">
+                    <v-icon color="secondary" small> mdi-plus-circle </v-icon>
+                    Add
+                  </v-list-item-title>
+                </v-list-item> -->
               <v-list-item @click="ScheduleItem(item, 'edit')">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>

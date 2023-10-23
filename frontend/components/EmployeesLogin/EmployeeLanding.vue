@@ -163,6 +163,7 @@
             flat
           >
             <v-tab> Attendance </v-tab>
+            <v-tab> Schedule </v-tab>
             <v-tab> leave Quota </v-tab>
             <v-tab> Payslips </v-tab>
             <v-tab> Profile</v-tab>
@@ -356,6 +357,12 @@
                 </v-tabs-items>
               </v-tab-item>
               <v-tab-item>
+                <ScheduleListVue
+                  :id="table_id"
+                  :employee_id="employee_id"
+                  :system_user_id="system_user_id"
+              /></v-tab-item>
+              <v-tab-item>
                 <v-card>
                   <v-card-title dense class="popup_title">
                     Leave Group : {{ leave_group_name }}
@@ -498,6 +505,8 @@ import EmployeePayslips from "../../components/EmployeesLogin/EmployeePayslips.v
 import generalHeaders from "../../headers/general.json";
 import multiHeaders from "../../headers/multi.json";
 import doubleHeaders from "../../headers/double.json";
+
+import ScheduleListVue from "../../components/EmployeesLogin/EmployeeScheduleList.vue";
 export default {
   props: ["system_user_id", "employee_id", "table_id"],
   components: {
@@ -505,6 +514,7 @@ export default {
     AttendanceReport,
     EmployeePayslips,
     EmployeePersonal,
+    ScheduleListVue,
   },
   data: () => ({
     tab2: "",
