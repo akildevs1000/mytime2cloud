@@ -247,13 +247,16 @@ class AttendanceLog extends Model
         $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
         $params["end"] = date("Y-m-d", strtotime($params["date"] . " +1 day")) . " " . $params["shift"]->off_duty_time;
 
+
         return AttendanceLog::where("company_id", $params["company_id"])
             ->whereBetween("LogTime", [$params["start"], $params["end"]])
             ->distinct("LogTime", "UserID", "company_id")
             ->whereHas("schedule", function ($q) use ($params) {
                 $q->where("shift_type_id", $params["shift_type_id"]);
             })
+            ->orderBy("LogTime", 'asc')
             ->get()
+
             ->groupBy(['UserID']);
     }
 }

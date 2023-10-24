@@ -9,7 +9,7 @@
     <v-dialog v-model="dialogviewHisotry" width="900" :key="newDialogKey">
       <v-card>
         <v-card-title dense class="popup_background">
-          History
+          History1
           <v-spacer></v-spacer>
           <v-icon @click="dialogviewHisotry = false" outlined dark>
             mdi mdi-close-circle
@@ -28,19 +28,19 @@
             class="elevation-1"
             :server-items-length="totalRowsCount_history"
           >
-            <template v-slot:item.sno="{ item, index }">
+            <template v-slot:item.sno1="{ item }">
               {{
                 currentPage_history
                   ? (currentPage_history - 1) * perPage_history +
                     (cumulativeIndex_history + data_history.indexOf(item))
-                  : ""
+                  : cumulativeIndex_history + data_history.indexOf(item)
               }}
             </template>
             <template v-slot:item.created_at="{ item }">
               {{ $dateFormat.format4(item.created_at) }}
             </template>
-            <template v-slot:item.wahtsapp_number="{ item }">
-              {{ item.wahtsapp_number || "---" }}
+            <template v-slot:item.whatsapp_number="{ item }">
+              {{ item.whatsapp_number || "---" }}
             </template>
             <template v-slot:item.email="{ item }">
               {{ item.email || "---" }}
@@ -366,7 +366,9 @@
             {{
               (item.logs &&
                 item.logs[0] &&
-                $dateFormat.format4(item.logs[0].created_at)) ||
+                $dateFormat.format4(
+                  item.logs[item.logs.length - 1].created_at
+                )) ||
               "---"
             }}
           </template>
@@ -483,7 +485,7 @@ export default {
         align: "left",
         sortable: false,
         key: "title",
-        value: "sno",
+        value: "sno1",
         filterable: false,
         filterSpecial: false,
       },
@@ -500,8 +502,8 @@ export default {
         text: "Whatsapp Number",
         align: "left",
         sortable: false,
-        key: "wahtsapp_number",
-        value: "wahtsapp_number",
+        key: "whatsapp_number",
+        value: "whatsapp_number",
         filterable: false,
         filterSpecial: false,
       },

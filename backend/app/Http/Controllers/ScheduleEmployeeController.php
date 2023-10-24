@@ -489,21 +489,25 @@ class ScheduleEmployeeController extends Controller
             $data = $model
                 ->whereCompanyId($request->company_id)
                 ->whereEmployeeId($id)
-                ->withOut(["shift", "shift_type"]);
+                // ->withOut(["shift", "shift_type"])
+            ;
             $data->when($request->filled('edit_id'), function ($q) use ($request) {
 
                 $q->where('id', $request->edit_id);
             });
 
             // ->with('roster')
-            $data =   $data->orderBy("from_date", "ASC")
-                ->get(['id', 'employee_id', 'isOverTime as is_over_time', 'shift_type_id', 'shift_id', 'branch_id', 'from_date', 'to_date'])
-                ->makeHidden(['employee_id', 'show_from_date', 'show_to_date']);
+            $data =   $data->orderBy("from_date", "DESC");
 
 
-            $data = $data->groupBy('employee_id');
 
-            return isset($data[$id]) ? $data[$id] : [];
+            if ($request->pagination) {
+                return $data->paginate($request->per_page ?? 10);
+            } else {
+
+                return   $data->get(['id', 'employee_id', 'isOverTime as is_over_time', 'shift_type_id', 'shift_id', 'branch_id', 'from_date', 'to_date'])
+                    ->makeHidden(['employee_id', 'show_from_date', 'show_to_date']);
+            }
         } catch (\Throwable $th) {
             throw $th;
         }

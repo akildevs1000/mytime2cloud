@@ -43,7 +43,7 @@
     <!-- <Back color="primary" /> -->
     <v-navigation-drawer v-model="editDialog" bottom temporary right fixed>
       <v-toolbar class="popup_background" dense>
-        {{ this.editedIndex == 0 ? "New " : "Edit " }} Device
+        {{ this.editedIndex == -1 ? "New " : "Edit " }} Device
         <v-spacer></v-spacer>
 
         <v-icon @click="editDialog = false" outlined dark>
@@ -51,7 +51,183 @@
         </v-icon>
       </v-toolbar>
 
-      <div class="row pa-3">
+      <v-row class="ma-1">
+        <v-col md="12">
+          <v-text-field
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.name"
+            v-model="payload.name"
+            placeholder="Device Name"
+            outlined
+            dense
+            label="Device Name *"
+          ></v-text-field>
+          <span v-if="errors && errors.name" class="error--text pa-0 ma-0"
+            >{{ errors.name[0] }}
+          </span>
+        </v-col>
+        <v-col md="12">
+          <v-text-field
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.short_name"
+            v-model="payload.short_name"
+            placeholder="Short Name"
+            outlined
+            dense
+            label="Short Name *"
+          ></v-text-field>
+          <span v-if="errors && errors.short_name" class="error--text pa-0 ma-0"
+            >{{ errors.short_name[0] }}
+          </span>
+        </v-col>
+        <v-col md="12">
+          <v-autocomplete
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.branch_id"
+            v-model="payload.branch_id"
+            placeholder="Branch Name"
+            outlined
+            dense
+            label="Branch Name *"
+            :items="branches"
+            item-value="id"
+            item-text="branch_name"
+          ></v-autocomplete>
+          <span v-if="errors && errors.branch_id" class="error--text pa-0 ma-0"
+            >{{ errors.branch_id[0] }}
+          </span>
+        </v-col>
+        <v-col md="12">
+          <v-text-field
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.location"
+            v-model="payload.location"
+            placeholder="Device location"
+            outlined
+            dense
+            label="Device location *"
+          ></v-text-field>
+          <span v-if="errors && errors.location" class="error--text"
+            >{{ errors.location[0] }}
+          </span>
+        </v-col>
+        <v-col md="12">
+          <v-autocomplete
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.utc_time_zone"
+            v-model="payload.utc_time_zone"
+            placeholder="Time Zone"
+            outlined
+            dense
+            label="Time Zone(Ex:UTC+) *"
+            :items="getTimezones()"
+            item-value="key"
+            item-text="text"
+          ></v-autocomplete>
+          <span v-if="errors && errors.utc_time_zone" class="error--text"
+            >{{ errors.utc_time_zone[0] }}
+          </span>
+        </v-col>
+        <v-col md="12">
+          <v-text-field
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.model_number"
+            v-model="payload.model_number"
+            placeholder="Model Number"
+            outlined
+            dense
+            label="Model Number *"
+          ></v-text-field>
+          <span v-if="errors && errors.model_number" class="error--text"
+            >{{ errors.model_number[0] }}
+          </span>
+        </v-col>
+        <v-col md="12">
+          <v-text-field
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.device_id"
+            v-model="payload.device_id"
+            placeholder="Serial Number"
+            outlined
+            dense
+            label="Serial Number *"
+          ></v-text-field>
+          <span v-if="errors && errors.device_id" class="error--text"
+            >{{ errors.device_id[0] }}
+          </span>
+        </v-col>
+        <v-col md="12">
+          <v-autocomplete
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.function"
+            v-model="payload.function"
+            placeholder="Function"
+            outlined
+            dense
+            label="Function *"
+            :items="[
+              { id: 'auto', name: 'Auto' },
+              { id: 'In', name: 'In' },
+              { id: 'Out', name: 'Out' },
+            ]"
+            item-value="id"
+            item-text="name"
+          ></v-autocomplete>
+          <span v-if="errors && errors.function" class="error--text"
+            >{{ errors.function[0] }}
+          </span>
+        </v-col>
+        <v-col md="12">
+          <v-autocomplete
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.device_type"
+            v-model="payload.device_type"
+            placeholder="Device Type"
+            outlined
+            dense
+            label="Device Type *"
+            :items="[
+              { id: 'all', name: 'All(Attendance and Access)' },
+              { id: 'Attendance', name: 'Attendance' },
+              { id: 'Access Control', name: 'Access Control' },
+            ]"
+            item-value="id"
+            item-text="name"
+          ></v-autocomplete>
+          <span v-if="errors && errors.device_type" class="error--text"
+            >{{ errors.device_type[0] }}
+          </span>
+        </v-col>
+        <v-col md="12">
+          <v-autocomplete
+            style="height: 50px"
+            class="pb-0"
+            :hide-details="!payload.status_id"
+            v-model="payload.status_id"
+            placeholder="Time Zone"
+            outlined
+            dense
+            label="Device Status *"
+            :items="device_statusses"
+            item-value="id"
+            item-text="name"
+          ></v-autocomplete>
+          <span v-if="errors && errors.status_id" class="error--text"
+            >{{ errors.status_id[0] }}
+          </span>
+        </v-col>
+      </v-row>
+
+      <!-- <div class="row pa-3">
         <div class="col-sm-12">
           <div class="form-group">
             <label class="col-form-label">Device Name </label>
@@ -207,7 +383,7 @@
           </div>
         </div>
 
-        <!-- <div class="col-sm-12">
+          <div class="col-sm-12">
           <div class="form-group">
             <label class="col-form-label">Device Status </label>
             <span class="text-danger">*</span>
@@ -229,8 +405,8 @@
               errors.status_id[0]
             }}</span>
           </div>
-        </div> -->
-      </div>
+        </div>  
+      </div> -->
       <v-row>
         <v-col cols="12">
           <div class="text-right">
@@ -752,6 +928,7 @@ export default {
     branchesList: [],
     branch_id: "",
     isCompany: true,
+    timeZoneOptions: [],
   }),
 
   computed: {
@@ -815,6 +992,14 @@ export default {
   },
 
   methods: {
+    getTimezones() {
+      return Object.keys(this.timeZones).map((key) => ({
+        offset: this.timeZones[key].offset,
+        time_zone: this.timeZones[key].time_zone,
+        key: key,
+        text: key + " - " + this.timeZones[key].offset,
+      }));
+    },
     getBranches() {
       this.$axios
         .get(`branch`, { company_id: this.$auth.user.company_id })
@@ -1049,6 +1234,7 @@ export default {
     },
 
     editItem(item) {
+      this.errors = [];
       this.payload = {};
       this.editedIndex = item.id;
 
@@ -1058,7 +1244,7 @@ export default {
     },
     addItem() {
       this.payload = {};
-
+      this.errors = [];
       if (!this.isCompany) {
         this.payload.branch_id = this.branch_id;
       }
@@ -1169,9 +1355,24 @@ export default {
   },
 };
 </script>
+<style scoped>
+.v-text-field.v-text-field--enclosed .v-text-field__details,
+.v-text-field.v-text-field--enclosed .v-text-field__details,
+.v-text-field__details,
+.v-text-field.v-text-field--enclosed .v-text-field__details {
+  margin-bottom: 0px !important;
+  padding: 0px !important;
+}
+.v-messages {
+  min-height: 0px !important;
+}
+</style>
 
-<style>
+<!-- <style>
 .v-dialog {
   background-color: #fff;
 }
 </style>
+<style scoped>
+@import "https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css";
+</style> -->

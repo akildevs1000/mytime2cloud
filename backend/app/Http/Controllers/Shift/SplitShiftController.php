@@ -14,7 +14,13 @@ class SplitShiftController extends Controller
     {
         // Extract start and end dates from the JSON data
         $startDateString = $request->dates[0];
-        $endDateString = $request->dates[1];
+        // $endDateString = $request->dates[1];
+        if (isset($request->dates[1])) {
+            $endDateString = $request->dates[1];
+        } else {
+            $endDateString = $request->dates[0];
+        }
+
         $company_id = $request->company_ids[0];
         $employee_ids = $request->employee_ids;
 
@@ -116,6 +122,8 @@ class SplitShiftController extends Controller
                     "device_out" => $nextLog['device']['short_name'] ?? $nextLog['device']['name'] ?? "---",
                 ];
 
+
+
                 if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
 
                     $parsed_out = strtotime($nextLog['time'] ?? 0);
@@ -140,6 +148,7 @@ class SplitShiftController extends Controller
 
                 $i++;
             }
+
 
             $item["logs"] = json_encode($logsJson);
 

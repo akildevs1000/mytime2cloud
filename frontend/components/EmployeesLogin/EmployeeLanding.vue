@@ -163,6 +163,7 @@
             flat
           >
             <v-tab> Attendance </v-tab>
+            <v-tab> Schedule </v-tab>
             <v-tab> leave Quota </v-tab>
             <v-tab> Payslips </v-tab>
             <v-tab> Profile</v-tab>
@@ -170,7 +171,7 @@
             <v-tabs-slider color="violet"></v-tabs-slider>
             <v-tabs-items v-model="tabmain">
               <v-tab-item>
-                <v-row class="pt-5">
+                <v-row class="pt-5 pb-3">
                   <v-col md="2" class="align-left">
                     <v-icon
                       size="40"
@@ -318,6 +319,8 @@
                       process_file_endpoint=""
                       render_endpoint="render_general_report"
                       @genRecordCount="genRecordCount"
+                      :display_emp_pic="false"
+                      :system_user_id="system_user_id"
                     />
                   </v-tab-item>
                   <v-tab-item value="tab-2">
@@ -332,6 +335,8 @@
                       :key="2"
                       ref="profile"
                       @dualRecordCount="dualRecordCount"
+                      :display_emp_pic="false"
+                      :system_user_id="system_user_id"
                     />
                   </v-tab-item>
                   <v-tab-item value="tab-3">
@@ -345,10 +350,18 @@
                       process_file_endpoint="multi_in_out_"
                       render_endpoint="render_multi_inout_report"
                       @multiRecordCount="multiRecordCount"
+                      :display_emp_pic="false"
+                      :system_user_id="system_user_id"
                     />
                   </v-tab-item>
                 </v-tabs-items>
               </v-tab-item>
+              <v-tab-item>
+                <ScheduleListVue
+                  :id="table_id"
+                  :employee_id="employee_id"
+                  :system_user_id="system_user_id"
+              /></v-tab-item>
               <v-tab-item>
                 <v-card>
                   <v-card-title dense class="popup_title">
@@ -492,6 +505,8 @@ import EmployeePayslips from "../../components/EmployeesLogin/EmployeePayslips.v
 import generalHeaders from "../../headers/general.json";
 import multiHeaders from "../../headers/multi.json";
 import doubleHeaders from "../../headers/double.json";
+
+import ScheduleListVue from "../../components/EmployeesLogin/EmployeeScheduleList.vue";
 export default {
   props: ["system_user_id", "employee_id", "table_id"],
   components: {
@@ -499,6 +514,7 @@ export default {
     AttendanceReport,
     EmployeePayslips,
     EmployeePersonal,
+    ScheduleListVue,
   },
   data: () => ({
     tab2: "",
@@ -623,6 +639,7 @@ export default {
         value: "available",
       },
     ],
+    test: "",
     DialogLeaveGroupData: [],
   }),
 
@@ -631,6 +648,15 @@ export default {
       new Date().toISOString(),
       0
     );
+    if (!this.display_emp_pic) {
+      this.generalHeaders = this.generalHeaders.filter(
+        (e) => e.text != "Employee"
+      );
+      this.doubleHeaders = this.doubleHeaders.filter(
+        (e) => e.text != "Employee"
+      );
+      this.multiHeaders = this.multiHeaders.filter((e) => e.text != "Employee");
+    }
   },
   mounted() {
     this.getDataFromApi();

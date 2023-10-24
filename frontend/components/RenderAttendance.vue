@@ -6,55 +6,66 @@
     <v-card-text>
       <v-container>
         <v-row>
-          <v-form ref="form" v-model="valid" lazy-validation>
-            <v-col md="12">
-              <v-autocomplete
-                class="mt-5"
-                placeholder="Employee Device Id"
-                v-model="editItems.UserIDs"
-                :items="employees"
-                :item-text="`name_with_id`"
-                item-value="system_user_id"
-                dense
-                outlined
-                multiple
-              >
-                <template v-if="employees.length" #prepend-item>
-                  <v-list-item @click="toggleEmployeeSelection">
-                    <v-list-item-action>
-                      <v-checkbox
-                        @click="toggleEmployeeSelection"
-                        v-model="selectAllEmployee"
-                        :indeterminate="isIndeterminateEmployee"
-                        :true-value="true"
-                        :false-value="false"
-                      ></v-checkbox>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        {{ selectAllEmployee ? "Unselect All" : "Select All" }}
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </template>
-                <template v-slot:selection="{ item, index }">
-                  <span v-if="index === 0 && editItems.UserIDs.length == 1"
-                    >{{ item.first_name }} {{ item.last_name }}</span
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+            style="width: 100%"
+          >
+            <v-row>
+              <v-col md="6">
+                <v-autocomplete
+                  class="mt-5"
+                  placeholder="Employee Device Id"
+                  v-model="editItems.UserIDs"
+                  :items="employees"
+                  :item-text="`name_with_id`"
+                  item-value="system_user_id"
+                  dense
+                  outlined
+                  multiple
+                >
+                  <template
+                    v-if="employees.length && !system_user_id"
+                    #prepend-item
                   >
-                  <span
-                    v-else-if="
-                      index === 1 &&
-                      editItems.UserIDs.length == employees.length
-                    "
-                    class=" "
-                  >
-                    All Selected
-                  </span>
-                  <span v-else-if="index === 1" class=" ">
-                    Selected {{ editItems.UserIDs.length }} Employee(s)
-                  </span>
-                </template>
-                <!-- <template v-slot:selection="{ item, index }">
+                    <v-list-item @click="toggleEmployeeSelection">
+                      <v-list-item-action>
+                        <v-checkbox
+                          @click="toggleEmployeeSelection"
+                          v-model="selectAllEmployee"
+                          :indeterminate="isIndeterminateEmployee"
+                          :true-value="true"
+                          :false-value="false"
+                        ></v-checkbox>
+                      </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{
+                            selectAllEmployee ? "Unselect All" : "Select All"
+                          }}
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </template>
+                  <template v-slot:selection="{ item, index }">
+                    <span v-if="index === 0 && editItems.UserIDs.length == 1"
+                      >{{ item.first_name }} {{ item.last_name }}</span
+                    >
+                    <span
+                      v-else-if="
+                        index === 1 &&
+                        editItems.UserIDs.length == employees.length
+                      "
+                      class=" "
+                    >
+                      All Selected
+                    </span>
+                    <span v-else-if="index === 1" class=" ">
+                      Selected {{ editItems.UserIDs.length }} Employee(s)
+                    </span>
+                  </template>
+                  <!-- <template v-slot:selection="{ item, index }">
 
                     <span v-if="index === 0">{{ item.first_name }} {{ item.last_name }}</span>
 
@@ -62,16 +73,16 @@
                       (+{{ editedItem.employees.length - 1 }} others)
                     </span>
                   </template> -->
-              </v-autocomplete>
+                </v-autocomplete>
 
-              <!-- <v-text-field
+                <!-- <v-text-field
                   v-model="editItems.UserID"
                   label="User Id"
                 ></v-text-field> -->
-            </v-col>
-            <v-col md="12">
-              <DateRangePickerCommon @selected-dates="handleDatesFilter" />
-              <!-- <v-menu
+              </v-col>
+              <v-col md="6" class="pt-4">
+                <DateRangePickerCommon @selected-dates="handleDatesFilter" />
+                <!-- <v-menu
                   ref="menu"
                   v-model="menu"
                   :close-on-content-click="false"
@@ -103,16 +114,18 @@
                     </v-btn>
                   </v-date-picker>
                 </v-menu> -->
-            </v-col>
-            <v-col cols="12">
-              <v-card outlined>
-                <ul style="height: 150px; overflow-y: scroll">
-                  <li v-for="(item, index) in result" :key="index">
-                    <div>{{ item }}</div>
-                  </li>
-                </ul>
-              </v-card>
-            </v-col>
+              </v-col>
+
+              <v-col cols="12">
+                <v-card outlined>
+                  <ul style="height: 150px; overflow-y: scroll">
+                    <li v-for="(item, index) in result" :key="index">
+                      <div>{{ item }}</div>
+                    </li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
           </v-form>
         </v-row>
       </v-container>
@@ -142,7 +155,7 @@
 import DateRangePickerCommon from "./Snippets/DateRangePickerCommon.vue";
 
 export default {
-  props: ["endpoint", "shift_type_id"],
+  props: ["endpoint", "shift_type_id", "system_user_id"],
   data: () => ({
     valid: false,
     snackbar: false,
@@ -171,21 +184,35 @@ export default {
       );
     },
     employees() {
-      return this.$store.state.employees.map((e) => ({
+      // return this.$store.state.employees.map((e) => ({
+      //   system_user_id: e.system_user_id,
+      //   first_name: e.first_name,
+      //   last_name: e.last_name,
+      //   display_name: e.display_name,
+      //   name_with_id: `${e.first_name} - ${e.system_user_id}`,
+      // }));
+      let employees = this.$store.state.employees.map((e) => ({
         system_user_id: e.system_user_id,
         first_name: e.first_name,
         last_name: e.last_name,
         display_name: e.display_name,
         name_with_id: `${e.first_name} - ${e.system_user_id}`,
       }));
+
+      if (this.system_user_id) {
+        // this.editItems.UserIDs=this.system_user_id;
+        return employees.filter(
+          (e) => (e.system_user_id = this.system_user_id)
+        );
+      } else {
+        return employees;
+      }
     },
   },
   watch: {
     selectAllEmployee(value) {
       if (value) {
         this.editItems.UserIDs = this.employees.map((e) => e.system_user_id);
-      } else {
-        this.editItems.UserIDs = [];
       }
     },
   },

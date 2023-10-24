@@ -73,7 +73,7 @@
     "module": "settings"
   },
   {
-    "icon": "mdi-mobile",
+    "icon": "mdi-cellphone-text",
     "title": "Device Notifications",
     "to": "/device_notifications",
     "menu": "notifications_access",

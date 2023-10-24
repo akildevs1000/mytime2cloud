@@ -1255,3 +1255,13 @@ button {
   padding-top: 10px;
 }
 </style>
+<style>
+.error--text {
+  font-size: 13px;
+}
+.v-messages {
+  min-height: 0px !important;
+}
+</style>
+
+<!-- <link rel="stylesheet" href="../static/css/textbox-label-style.css" /> -->
