@@ -221,12 +221,12 @@ class AttendanceLogController extends Controller
 
     public function GenerateLog(Request $request)
     {
+        $message = "";
+        
         try {
-            $log = AttendanceLog::create($request->all());
+            $message = AttendanceLog::create($request->all());
 
-            Logger::channel("render_manual_logs")->info(json_encode($log));
-
-            if ($log) {
+            if ($message) {
                 // $Attendance = new AttendanceController;
                 // $Attendance->SyncAttendance();
                 return [
@@ -235,8 +235,11 @@ class AttendanceLogController extends Controller
                 ];
             }
         } catch (\Throwable $th) {
-            throw $th;
+            $message = $th;
         }
+
+        $this->devLog("render-manual-log", $message);
+        return $message;
     }
 
     public function SyncCompanyIdsWithDevices()

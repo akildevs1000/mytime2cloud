@@ -63,7 +63,7 @@ return [
         ],
         'render_manual_logs' => [
             'driver' => 'single',
-            'path' => storage_path('logs/render_manual_logs-' . date('d-m-Y') . '.log'),
+            'path' => storage_path('logs/render_manual_logs.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
         'whatsapp_logs' => [

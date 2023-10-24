@@ -11,6 +11,8 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
+
 
 class Controller extends BaseController
 {
@@ -398,5 +400,10 @@ class Controller extends BaseController
             Log::channel('whatsapp_logs')->info($response->body());
         }
         return $message;
+    }
+
+    public function devLog($file_name, $message): void
+    {
+        Storage::append($file_name . date('d-m-Y') . ".log", $message . "\n");
     }
 }
