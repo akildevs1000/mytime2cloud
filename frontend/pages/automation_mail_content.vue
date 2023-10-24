@@ -139,15 +139,12 @@ import {
   Italic,
   Strike,
   Underline,
-  Code,
   Paragraph,
   BulletList,
   OrderedList,
   ListItem,
-  Link,
   Blockquote,
-  HardBreak,
-  HorizontalRule,
+  History,
 } from "tiptap-vuetify";
 
 export default {
@@ -156,8 +153,8 @@ export default {
   },
   data: () => ({
     extensions: [
+      History,
       Blockquote,
-      Link,
       Underline,
       Strike,
       Italic,
@@ -173,10 +170,7 @@ export default {
         },
       ],
       Bold,
-      Code,
-      HorizontalRule,
       Paragraph,
-      HardBreak,
     ],
     endpoint: "mail_content",
     editedItem: {
