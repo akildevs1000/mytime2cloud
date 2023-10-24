@@ -41,7 +41,8 @@ class Kernel extends ConsoleKernel
 
         foreach ($companyIds as $companyId) {
 
-            if ($companyId == 1) {
+            //if ($companyId == 1) 
+            {
                 $schedule
                     ->command("send_notificatin_for_offline_devices {$companyId}")
                     //  ->dailyAt('09:00')
