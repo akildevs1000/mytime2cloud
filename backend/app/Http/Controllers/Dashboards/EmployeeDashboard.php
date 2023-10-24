@@ -17,47 +17,79 @@ class EmployeeDashboard extends Controller
 
         return [
             [
-                'title' => 'Total Presents',
+                'Key' => 'P',
+                'title' => 'Presents',
                 'value' => $this->getStatusCount($records, 'P'),
                 'icon' => 'fas fa-calendar-check',
-                'color' => 'l-bg-green-dark',
+                'color' => 'success',
                 'link' => $this->getLink($request, 'P'),
             ],
             [
-                'title' => 'Total Absence',
+                'Key' => 'A',
+                'title' => 'Absence',
                 'value' => $this->getStatusCount($records, 'A'),
                 'icon' => 'fas fa-calendar-times',
-                'color' => 'l-bg-orange-dark',
+                'color' => 'warning',
                 'link' => $this->getLink($request, 'A'),
             ],
             [
-                'title' => 'Total Missing',
+                'Key' => 'M',
+                'title' => 'Missing',
                 'value' => $this->getStatusCount($records, 'M'),
                 'icon' => 'fas fa-calendar-times',
-                'color' => 'l-bg-cyan-dark',
+                'color' => 'warning',
                 'link' => $this->getLink($request, 'M'),
             ],
             [
-                'title' => 'Total Leaves',
+                'Key' => 'ME',
+                'title' => 'Manual Entry',
+                'value' => $this->getStatusCount($records, 'ME'),
+                'icon' => 'fas fa-calendar-times',
+                'color' => 'warning',
+                'link' => $this->getLink($request, 'ME'),
+            ],
+            [
+                'Key' => 'L',
+                'title' => 'Leaves',
                 'value' => $this->getStatusCount($records, 'L'),
                 'icon' => 'fas fa-calendar-week',
-                'color' => 'l-bg-orange-dark',
+                'color' => 'indigo',
                 'link' => $this->getLink($request, 'L'),
                 'border_color' => '526C78',
             ],
             [
-                'title' => 'Total Holidays',
+                'Key' => 'H',
+                'title' => 'Holidays',
                 'value' => $this->getStatusCount($records, 'H'),
                 'icon' => 'fas fa-calendar-plus',
-                'color' => 'l-bg-green-dark',
+                'color' => 'grey',
                 'link' => $this->getLink($request, 'H'),
                 'border_color' => '526C78',
             ],
             [
-                'title' => 'Total Off',
+                'Key' => 'LI',
+                'title' => 'Late In',
+                'value' => $this->getStatusCount($records, 'LC'),
+                'icon' => 'fas fa-calendar',
+                'color' => 'red',
+                'link' => $this->getLink($request, 'LC'),
+                'border_color' => '526C78',
+            ],
+            [
+                'Key' => 'EO',
+                'title' => 'Early Out',
+                'value' => $this->getStatusCount($records, 'EG'),
+                'icon' => 'fas fa-calendar',
+                'color' => 'red',
+                'link' => $this->getLink($request, 'EG'),
+                'border_color' => '526C78',
+            ],
+            [
+                'Key' => 'O',
+                'title' => 'Week Off',
                 'value' => $this->getStatusCount($records, 'O'),
                 'icon' => 'fas fa-calendar',
-                'color' => 'l-bg-purple-dark',
+                'color' => 'grey',
                 'link' => $this->getLink($request, 'O'),
                 'border_color' => '526C78',
             ],
@@ -102,7 +134,7 @@ class EmployeeDashboard extends Controller
 
         $model->whereMonth('date', now()->month);
 
-        return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])->get();
+        return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V','ME'])->get();
 
         // working code with cache
         $cacheKey = 'employee_attendance_records:' . $request->company_id . "_" . $request->employee_id;
