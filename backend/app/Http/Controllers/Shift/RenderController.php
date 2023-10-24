@@ -12,7 +12,9 @@ use App\Models\Reason;
 use App\Models\ScheduleEmployee;
 use App\Models\Shift;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class RenderController extends Controller
@@ -573,7 +575,7 @@ class RenderController extends Controller
     }
     public function renderOffCron($company_id = 0)
     {
-        $UserIds = $this->renderOffScript($company_id, date("Y-m-d"));
+        $UserIds = $this->renderOffScript($company_id, date("Y-m-d", strtotime('-8 day')));
 
         $result = json_encode($UserIds);
 
@@ -639,12 +641,25 @@ class RenderController extends Controller
             $employees_absent =   $employees_absent->where("company_id", $company_id)->where("date", $date)->where("status", "A");
             $employees_absent = $employees_absent->with(["schedule" => function ($q) use ($company_id, $date) {
                 $q->where("company_id",  $company_id);
+                $q->where("from_date", "<=", $date);
                 $q->where("to_date", ">=", $date);
+
+
+
+                //$q->where("shift.to_date", ">=", $date);
                 $q->withOut("shift_type");
                 // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
+
+
+                //$q->whereHas('shift', fn (Builder $query) =>  $query->where("from_date", "<=", $date));
+                //$q->whereHas('shift', fn (Builder $query) =>  $query->where("to_date", ">=", $date));
+
+                // $q->whereHas('shift', fn (Builder $query) =>  $query->where("from_date", "<=", $date));
+                // $q->whereHas('shift', fn (Builder $query) =>  $query->where("to_date", ">=", $date));
+
+
                 $q->orderBy("to_date", "asc");
             }])->where("company_id", $company_id)->where("date", $date)->where("status", "A")->get();
-
 
 
 
@@ -669,38 +684,58 @@ class RenderController extends Controller
 
             $records = [];
 
+
+
             foreach ($employees_absent as $employee) {
                 $data = null;
 
                 //$records[] = null; // $employee->schedule;
                 $weekend1 = "";
                 $weekend2 = "";
-                if ($employee->schedule != null)
+                if ($employee->schedule != null) {
                     if ($employee->schedule->shift != null) {
 
                         $weekend1  = $employee->schedule->shift->weekend1;
                         $weekend2  = $employee->schedule->shift->weekend2;
                     }
+                    $weekStart = date('Y-m-d', strtotime('this week', strtotime($date)));
+                    $weekEnd = date('Y-m-d', strtotime('next week', strtotime($date)));
 
+                    $maximum_weekends = 0;
+                    if ($weekend1 == 'Not Applicable' && $weekend2 != 'Not Applicable') {
+                        $maximum_weekends = 1;
+                    }
+                    if ($weekend1 != 'Not Applicable' && $weekend2 == 'Not Applicable') {
+                        $maximum_weekends = 1;
+                    }
+                    if ($weekend1 != 'Not Applicable' && $weekend2 != 'Not Applicable') {
+                        $maximum_weekends = 2;
+                    }
 
-                if ($weekend1 == date('l', strtotime($date))) {
-                    $data = [
-                        "company_id" => $company_id,
-                        "date" => $date,
-                        "status" => "O",
-                        "employee_id" => $employee->employee_id,
-                        "shift_id" => $employee->shift_id,
-                        "shift_type_id" => $employee->shift_type_id,
-                    ];
-                } else if ($weekend2 == date('l', strtotime($date))) {
-                    $data = [
-                        "company_id" => $company_id,
-                        "date" => $date,
-                        "status" => "O",
-                        "employee_id" => $employee->employee_id,
-                        "shift_id" => $employee->shift_id,
-                        "shift_type_id" => $employee->shift_type_id,
-                    ];
+                    $employees_current_week_off_count = Attendance::where("company_id", $company_id)->where("employee_id", $employee->employee_id)
+                        ->where("date", ">=", $weekStart)->where("date", "<=", $weekEnd)->where("status", "O")->count();
+
+                    if ($maximum_weekends - $employees_current_week_off_count > 0) {
+                        if ($weekend1 == date('l', strtotime($date)) || $weekend2 == date('l', strtotime($date))) {
+                            $data = [
+                                "company_id" => $company_id,
+                                "date" => $date,
+                                "status" => "O",
+                                "employee_id" => $employee->employee_id,
+                                "shift_id" => $employee->shift_id,
+                                "shift_type_id" => $employee->shift_type_id,
+                            ];
+                        } else if ($weekend1 == 'Flexi' || $weekend2 == 'Flexi') {
+                            $data = [
+                                "company_id" => $company_id,
+                                "date" => $date,
+                                "status" => "O",
+                                "employee_id" => $employee->employee_id,
+                                "shift_id" => $employee->shift_id,
+                                "shift_type_id" => $employee->shift_type_id,
+                            ];
+                        }
+                    }
                 }
                 if ($data)
                     $records[] = $data;
@@ -711,6 +746,7 @@ class RenderController extends Controller
 
 
             if (count($records) > 0) {
+
                 $model = Attendance::query();
                 // $model->where("shift_id", -1);
                 $model->where("company_id", $company_id);
@@ -722,9 +758,6 @@ class RenderController extends Controller
                 });
 
                 $model->delete();
-
-
-
                 Attendance::insert($records);
             }
             $UserIds = array_column($records, "employee_id");

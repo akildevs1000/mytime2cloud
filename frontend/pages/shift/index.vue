@@ -92,7 +92,7 @@
             </v-col>
           </v-row>
           <v-row v-if="can(`shift_create`) && payload.shift_type_id != 5">
-            <v-col cols="4" md="6">
+            <v-col cols="4" md="4">
               <DatePickerCommon
                 label="From Date"
                 :default_value="currentDate"
@@ -102,7 +102,7 @@
                 errors.from_date[0]
               }}</span>
             </v-col>
-            <v-col cols="4" md="6">
+            <v-col cols="4" md="4">
               <DatePickerCommon
                 label="To Date"
                 :default_value="nextYearDate"
@@ -540,6 +540,10 @@ export default {
 
       this.payload.from_date = new Date(item.from_date);
       this.payload.to_date = new Date(item.to_date);
+
+      this.currentDate = item.from_date;
+      this.nextYearDate = item.to_date;
+
       this.showDialog = true;
       this.getComponent();
     },

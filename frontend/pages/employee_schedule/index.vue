@@ -66,6 +66,7 @@
                       readonly
                       v-bind="!isEdit || attrs"
                       v-on="!isEdit || on"
+                      :disabled="!isEdit"
                     ></v-text-field>
                   </template>
                   <v-date-picker
@@ -114,6 +115,7 @@
                       outlined
                       dense
                       :hide-details="true"
+                      :disabled="!isEdit"
                     ></v-text-field>
                   </template>
                   <v-date-picker
