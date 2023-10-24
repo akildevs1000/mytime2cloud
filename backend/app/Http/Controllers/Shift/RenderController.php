@@ -634,52 +634,99 @@ class RenderController extends Controller
     public function renderOffScript($company_id, $date, $user_id = 0)
     {
         try {
-            $model = ScheduleEmployee::query();
+            $employees_absent = Attendance::query();
 
-            $model->where("company_id", $company_id);
+            $employees_absent =   $employees_absent->where("company_id", $company_id)->where("date", $date)->where("status", "A");
+            $employees_absent = $employees_absent->with(["schedule" => function ($q) use ($company_id, $date) {
+                $q->where("company_id",  $company_id);
+                $q->where("to_date", ">=", $date);
+                $q->withOut("shift_type");
+                // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
+                $q->orderBy("to_date", "asc");
+            }])->where("company_id", $company_id)->where("date", $date)->where("status", "A")->get();
 
-            $model->when($user_id, function ($q) use ($user_id) {
-                $q->where("employee_id", $user_id);
-            });
 
-            $model->where(function ($q) use ($date) {
-                $q->where('from_date', '<=', $date)
-                    ->where('to_date', '>=', $date);
-            });
 
-            $model->when(!$user_id, function ($q) {
-                $q->where("shift_id", -1);
-            });
 
-            $employees = $model->distinct("employee_id")->get(["employee_id", "shift_type_id"]);
+            //$model = ScheduleEmployee::query();
+
+            // $model->where("company_id", $company_id);
+
+            // $model->when($user_id, function ($q) use ($user_id) {
+            //     $q->where("employee_id", $user_id);
+            // });
+
+            // $model->where(function ($q) use ($date) {
+            //     $q->where('from_date', '<=', $date)
+            //         ->where('to_date', '>=', $date);
+            // });
+
+            // $model->when(!$user_id, function ($q) {
+            //     $q->where("shift_id", -1);
+            // });
+
+            // $employees = $model->distinct("employee_id")->get(["employee_id", "shift_type_id"]);
 
             $records = [];
 
-            foreach ($employees as $employee) {
-                $records[] = [
-                    "company_id" => $company_id,
-                    "date" => $date,
-                    "status" => "O",
-                    "employee_id" => $employee->employee_id,
-                    "shift_id" => -1,
-                    "shift_type_id" => $employee->shift_type_id,
-                ];
+            foreach ($employees_absent as $employee) {
+                $data = null;
+
+                //$records[] = null; // $employee->schedule;
+                $weekend1 = "";
+                $weekend2 = "";
+                if ($employee->schedule != null)
+                    if ($employee->schedule->shift != null) {
+
+                        $weekend1  = $employee->schedule->shift->weekend1;
+                        $weekend2  = $employee->schedule->shift->weekend2;
+                    }
+
+
+                if ($weekend1 == date('l', strtotime($date))) {
+                    $data = [
+                        "company_id" => $company_id,
+                        "date" => $date,
+                        "status" => "O",
+                        "employee_id" => $employee->employee_id,
+                        "shift_id" => $employee->shift_id,
+                        "shift_type_id" => $employee->shift_type_id,
+                    ];
+                } else if ($weekend2 == date('l', strtotime($date))) {
+                    $data = [
+                        "company_id" => $company_id,
+                        "date" => $date,
+                        "status" => "O",
+                        "employee_id" => $employee->employee_id,
+                        "shift_id" => $employee->shift_id,
+                        "shift_type_id" => $employee->shift_type_id,
+                    ];
+                }
+                if ($data)
+                    $records[] = $data;
             }
 
-            $model = Attendance::query();
-            // $model->where("shift_id", -1);
-            $model->where("company_id", $company_id);
-            $model->where("date", $date);
-            $model->whereIn("status", ["P", "A", "M", "O"]);
 
-            $model->when($user_id, function ($q) use ($user_id) {
-                return $q->where("employee_id", $user_id);
-            });
+            $UserIds = array_column($records, "employee_id");
 
-            $model->delete();
 
-            $model->insert($records);
+            if (count($records) > 0) {
+                $model = Attendance::query();
+                // $model->where("shift_id", -1);
+                $model->where("company_id", $company_id);
+                $model->where("date", $date);
 
+                $model->whereIn("employee_id", $UserIds);
+                $model->when($user_id, function ($q) use ($user_id) {
+                    return $q->where("employee_id", $user_id);
+                });
+
+                $model->delete();
+
+
+
+                Attendance::insert($records);
+            }
             $UserIds = array_column($records, "employee_id");
 
             return $UserIds;
