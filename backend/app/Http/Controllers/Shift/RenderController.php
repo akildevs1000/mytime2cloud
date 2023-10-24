@@ -575,7 +575,8 @@ class RenderController extends Controller
     }
     public function renderOffCron($company_id = 0)
     {
-        $UserIds = $this->renderOffScript($company_id, date("Y-m-d", strtotime('-1 day')));
+        //$UserIds = $this->renderOffScript($company_id, date("Y-m-d", strtotime('-1 day')));
+        $UserIds = $this->renderOffScript($company_id, date("Y-m-d"));
 
         $result = json_encode($UserIds);
 
