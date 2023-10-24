@@ -189,7 +189,7 @@ class Kernel extends ConsoleKernel
         })->dailyAt('05:15');
 
         $schedule->call(function () {
-            $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false]);
+            $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
             info($count . "companies has been updated");
         })->dailyAt('00:00');
 

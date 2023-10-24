@@ -80,7 +80,7 @@
                   label="User Id"
                 ></v-text-field> -->
               </v-col>
-              <v-col md="6" class="pt-4">
+              <v-col md="6" class="pt-8">
                 <DateRangePickerCommon @selected-dates="handleDatesFilter" />
                 <!-- <v-menu
                   ref="menu"
@@ -213,6 +213,8 @@ export default {
     selectAllEmployee(value) {
       if (value) {
         this.editItems.UserIDs = this.employees.map((e) => e.system_user_id);
+      } else {
+        this.editItems.UserIDs = [];
       }
     },
   },

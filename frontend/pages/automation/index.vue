@@ -165,6 +165,16 @@
           <v-btn
             x-small
             :ripple="false"
+            title="EMail Content"
+            @click="gotoPage('/automation_mail_content')"
+            color="violet"
+            class="primary mr-5"
+          >
+            Email Content
+          </v-btn>
+          <v-btn
+            x-small
+            :ripple="false"
             title="Add Notification"
             @click="openNewPage()"
             color="violet"
@@ -669,6 +679,9 @@ export default {
       ++this.newDialogKey;
       this.editItemPayload = null;
       this.dialogNew = true;
+    },
+    gotoPage(url) {
+      this.$router.push(url);
     },
 
     closePopup(data) {

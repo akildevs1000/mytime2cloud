@@ -38,8 +38,15 @@ class ReportNotificationMail extends Mailable
             if (file_exists(storage_path("app/pdf/$company_id/$file")))
                 $this->attach(storage_path("app/pdf/$company_id/$file"));
         }
-
+        $body_content =  "Hi, Automated Email Reports. <br/>Thanks.";
         //return $this->view('emails.report')->with(["body" => $this->model->body]);
-        return $this->view('emails.report')->with(["body" => "Hi, Attached reports for your reference. "]);
+        if ($this->model->company->company_mail_content) {
+            if ($this->model->company->company_mail_content[0]) {
+                $body_content = $this->model->company->company_mail_content[0]->content;
+            }
+        }
+
+
+        return $this->view('emails.report')->with(["body" =>  $body_content]);
     }
 }

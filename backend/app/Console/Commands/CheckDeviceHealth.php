@@ -94,7 +94,7 @@ class CheckDeviceHealth extends Command
             }
         }
 
-        $count = Company::whereIn("id", array_values($companiesIds))->where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false]);
+        $count = Company::whereIn("id", array_values($companiesIds))->where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
         info($count . "companies has been updated");
 
         $date = date("Y-m-d H:i:s");
