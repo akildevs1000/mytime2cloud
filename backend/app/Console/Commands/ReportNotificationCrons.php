@@ -43,7 +43,9 @@ class ReportNotificationCrons extends Command
 
         try {
 
-            $model = ReportNotification::with(["managers"])->where("id", $id)->first();
+            $model = ReportNotification::with(["managers", "company.company_mail_content"])->where("id", $id)->first();
+
+
 
             // foreach ($models as $model)
             {
@@ -77,16 +79,16 @@ class ReportNotificationCrons extends Command
 
 
                     }
-                    // Mail::to($model->tos)
-                    //     ->cc($model->ccs)
-                    //     ->bcc($model->bccs)
-                    //     ->queue(new ReportNotificationMail($model));
-                    //}
+                } else {
+                    echo "[" . $date . "] Cron: $script_name. No emails are configured";
                 }
                 // if (in_array("Whatsapp", $model->mediums)) {
                 //     Mail::to($model->tos)->send(new TestMail($model));
                 // }
             }
+
+
+
             echo "[" . $date . "] Cron: $script_name. Report Notification Crons has been sent.\n";
             return;
         } catch (\Throwable $th) {

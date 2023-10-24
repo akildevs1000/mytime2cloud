@@ -1321,13 +1321,4 @@ export default {
 .tiptap-icon .v-btn--icon {
   color: white !important;
 }
-
-.breakthewords {
-  display: -webkit-box;
-  font-size: 12px !important;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 </style>

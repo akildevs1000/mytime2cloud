@@ -1262,6 +1262,22 @@ button {
 .v-messages {
   min-height: 0px !important;
 }
+
+.text-break-dot {
+  text-overflow: ellipsis;
+  width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  height: 25px;
+}
+.breakthewords {
+  display: -webkit-box;
+  font-size: 12px !important;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>
 
 <!-- <link rel="stylesheet" href="../static/css/textbox-label-style.css" /> -->

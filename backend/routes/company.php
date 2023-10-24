@@ -27,6 +27,7 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveCountController;
 use App\Http\Controllers\LeaveGroupsController;
 use App\Http\Controllers\LeaveTypesController;
+use App\Http\Controllers\MailContentController;
 use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\PassportController;
 use App\Http\Controllers\PermissionController;
@@ -132,6 +133,8 @@ Route::apiResource('policy', policyController::class);
 Route::get('policy/search/{key}', [policyController::class, 'search']);
 Route::post('policy/delete/selected', [policyController::class, 'deleteSelected']);
 
+//mail content 
+Route::apiResource('mail_content', MailContentController::class);
 
 // activities
 Route::apiResource('activity', ActivityController::class);

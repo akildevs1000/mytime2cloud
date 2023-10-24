@@ -139,6 +139,14 @@
     "to": "/web_login_logs",
     "module": "settings"
   },
+
+  {
+    "icon": "mdi-mail",
+    "title": "Mail",
+    "open_menu": false,
+    "to": "/automation_mail_content",
+    "module": "settings"
+  },
   {
     "icon": "mdi-account-tie",
     "title": "Employees",

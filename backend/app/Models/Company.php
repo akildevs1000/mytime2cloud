@@ -60,7 +60,10 @@ class Company extends Model
     {
         return $this->hasOne(Shift::class);
     }
-
+    public function company_mail_content()
+    {
+        return $this->hasMany(MailContent::class, "company_id")->where('name', 'email');
+    }
     public function shifts()
     {
         return $this->hasMany(Shift::class);

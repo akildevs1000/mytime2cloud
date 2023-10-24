@@ -40,6 +40,8 @@ class ReportNotificationMail extends Mailable
         }
 
         //return $this->view('emails.report')->with(["body" => $this->model->body]);
-        return $this->view('emails.report')->with(["body" => "Hi, Attached reports for your reference. "]);
+        $body_content = $this->model->company->company_mail_content ? $this->model->company->company_mail_content[0]->content : "Hi, Automated Email Reports. <br/>Thanks.";
+
+        return $this->view('emails.report')->with(["body" =>  $body_content]);
     }
 }
