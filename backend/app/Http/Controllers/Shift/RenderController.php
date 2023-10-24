@@ -575,7 +575,7 @@ class RenderController extends Controller
     }
     public function renderOffCron($company_id = 0)
     {
-        //$UserIds = $this->renderOffScript($company_id, date("Y-m-d", strtotime('-1 day')));
+        //return $UserIds = $this->renderOffScript($company_id, date("Y-m-d", strtotime('-2 day')));
         $UserIds = $this->renderOffScript($company_id, date("Y-m-d"));
 
         $result = json_encode($UserIds);
@@ -655,8 +655,8 @@ class RenderController extends Controller
                 //$q->whereHas('shift', fn (Builder $query) =>  $query->where("from_date", "<=", $date));
                 //$q->whereHas('shift', fn (Builder $query) =>  $query->where("to_date", ">=", $date));
 
-                // $q->whereHas('shift', fn (Builder $query) =>  $query->where("from_date", "<=", $date));
-                // $q->whereHas('shift', fn (Builder $query) =>  $query->where("to_date", ">=", $date));
+                $q->whereHas('shift', fn (Builder $query) =>  $query->where("from_date", "<=", $date));
+                $q->whereHas('shift', fn (Builder $query) =>  $query->where("to_date", ">=", $date));
 
 
                 $q->orderBy("to_date", "asc");
