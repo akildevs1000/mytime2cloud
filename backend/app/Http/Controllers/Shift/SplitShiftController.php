@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
-use Illuminate\Support\Facades\Log as Logger;
 
 class SplitShiftController extends Controller
 {
@@ -168,10 +167,11 @@ class SplitShiftController extends Controller
             }
 
             $message = "[" . $date . " " . date("H:i:s") .  "] Dual Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . " " . $message;
-            Logger::channel("render_manual_logs")->info($message);
-            return ($message);
         } catch (\Throwable $e) {
-            return $this->getMeta("Dual Shift", $e->getMessage());
+            $message = $this->getMeta("Dual Shift", $e->getMessage());
         }
+
+        $this->devLog("render-manual-log", $message);
+        return ($message);
     }
 }

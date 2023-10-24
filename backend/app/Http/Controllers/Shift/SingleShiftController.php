@@ -124,7 +124,9 @@ class SingleShiftController extends Controller
         }
 
         if (!count($items)) {
-            return '[' . $date . " " . date("H:i:s") . '] Single Shift: No data found';
+            $message = '[' . $date . " " . date("H:i:s") . '] Single Shift: No data found';
+            $this->devLog("render-manual-log", $message);
+            return $message;
         }
 
         try {
@@ -140,11 +142,12 @@ class SingleShiftController extends Controller
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
 
-            return "[" . $date . " " . date("H:i:s") .  "] Single Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
+            $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
         } catch (\Throwable $e) {
             $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift. " . $e->getMessage();
-            info($message);
-            return "[" . $date . " " . date("H:i:s") .  "] Single Shift. Server Error";
         }
+
+        $this->devLog("render-manual-log", $message);
+        return $message;
     }
 }

@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
-use Illuminate\Support\Facades\Log as Logger;
 
 class MultiShiftController extends Controller
 {
@@ -162,10 +161,12 @@ class MultiShiftController extends Controller
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
             $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . " " . $message;
-            Logger::channel("render_manual_logs")->info($message);
-            return ($message);
+           
         } catch (\Throwable $e) {
-            return $this->getMeta("Multi Shift", $e->getMessage());
+            $message = $this->getMeta("Multi Shift", $e->getMessage());
         }
+
+        $this->devLog("render-manual-log", $message);
+        return $message;
     }
 }

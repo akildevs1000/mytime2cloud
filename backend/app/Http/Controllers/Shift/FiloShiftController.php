@@ -6,7 +6,6 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log as Logger;
 
 class FiloShiftController extends Controller
 {
@@ -135,8 +134,7 @@ class FiloShiftController extends Controller
 
         if (!count($items)) {
             $message = '[' . $date . " " . date("H:i:s") . '] Filo Shift: No data found' . $message;
-
-            Logger::channel("render_manual_logs")->info($message);
+            $this->devLog("render-manual-log", $message);
             return $message;
         }
 
@@ -152,19 +150,12 @@ class FiloShiftController extends Controller
             if (!$custom_render) {
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
-
-
-
             $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . " " . $message;
-            Logger::channel("render_manual_logs")->info(json_encode($message));
-
-
-            return ($message);
         } catch (\Throwable $e) {
-            $message .= "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
-            info(json_encode($message));
-
-            return "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Server Error";
+            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
         }
+
+        $this->devLog("render-manual-log", $message);
+        return ($message);
     }
 }
