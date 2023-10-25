@@ -43,7 +43,7 @@ Route::get('/syncLogsScript', function (Request $request) {
     // ];
 });
 
-Route::get('/test/test', function (Request $request) {
+Route::get('/test/test/3', function (Request $request) {
 
 
 
