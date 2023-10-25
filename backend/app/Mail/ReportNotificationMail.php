@@ -48,7 +48,7 @@ class ReportNotificationMail extends Mailable
         }
 
         $body_content1  = "Hi " . $this->manager->name . '<br/>';
-        $body_content1  =  $body_content1 . "Company:  " . $this->model->company->name . '<br/>';
+        $body_content1  =  $body_content1 . "<b>Company:  " . $this->model->company->name . '</b><br/>';
         $body_content  =  $body_content1 . $body_content;
 
 

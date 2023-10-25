@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('payroll_settings_access')">
+  <div v-if="can('payroll_settings_create')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -218,7 +218,6 @@ export default {
   }),
 
   async created() {
-
     this.payload.company_id = this.$auth?.user?.company?.id;
 
     if (this.$auth.user.branch_id) {

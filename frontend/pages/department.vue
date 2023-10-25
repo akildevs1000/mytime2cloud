@@ -5,7 +5,7 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <div v-if="can(`employee_view`)">
+    <div>
       <v-row>
         <v-dialog
           persistent
@@ -247,18 +247,38 @@
               </v-tooltip> -->
 
               <v-spacer></v-spacer>
-              <v-btn to="/designation" small class="primary mr-1">
+              <v-btn
+                v-if="can(`designation_access`)"
+                to="/designation"
+                small
+                class="primary mr-1"
+              >
                 View Designations
               </v-btn>
-              <v-btn @click="newDesignation" small class="primary">
+              <v-btn
+                v-if="can(`designation_create`)"
+                @click="newDesignation"
+                small
+                class="primary"
+              >
                 Designation +
               </v-btn>
               &nbsp;
-              <v-btn @click="newSubDepartment" small class="primary">
+              <v-btn
+                v-if="can(`sub_department_create`)"
+                @click="newSubDepartment"
+                small
+                class="primary"
+              >
                 Sub Department +
               </v-btn>
               &nbsp;
-              <v-btn @click="newItem" small class="primary">
+              <v-btn
+                v-if="can(`department_create`)"
+                @click="newItem"
+                small
+                class="primary"
+              >
                 {{ Model }} +
               </v-btn>
             </v-toolbar>
@@ -352,20 +372,29 @@
                     </v-btn>
                   </template>
                   <v-list width="120" dense>
-                    <v-list-item @click="gotoSubdepartments(item)">
+                    <v-list-item
+                      v-if="can(`department_view`)"
+                      @click="gotoSubdepartments(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="primary" small> mdi-view-list </v-icon>
                         View
                       </v-list-item-title>
                     </v-list-item>
 
-                    <v-list-item @click="editItem(item)">
+                    <v-list-item
+                      v-if="can(`department_edit`)"
+                      @click="editItem(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-pencil </v-icon>
                         Edit
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="deleteItem(item)">
+                    <v-list-item
+                      v-if="can(`department_delete`)"
+                      @click="deleteItem(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="error" small> mdi-delete </v-icon>
                         Delete
@@ -379,8 +408,6 @@
         </v-col>
       </v-row>
     </div>
-
-    <NoAccess v-else />
   </div>
   <NoAccess v-else />
 </template>

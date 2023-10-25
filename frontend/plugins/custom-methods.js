@@ -128,10 +128,14 @@ export default ({ app }, inject) => {
     can(per, thisobj) {
       let u = thisobj.$auth.user;
 
+      // return (
+      //   (u && u.permissions.some((e) => e == per || per == "/")) ||
+      //   u.is_master ||
+      //   u.user_type == "branch"
+      // );
+
       return (
-        (u && u.permissions.some((e) => e == per || per == "/")) ||
-        u.is_master ||
-        u.user_type == "branch"
+        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
       );
     },
   });

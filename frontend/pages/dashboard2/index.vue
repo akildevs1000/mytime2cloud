@@ -1,5 +1,8 @@
 <template>
-  <div style="width: 100%">
+  <div
+    style="width: 100%"
+    v-if="can('dashboard_access') && can('dashboard_view')"
+  >
     <v-row style="width: 100%">
       <v-col lg="9" md="9" sm="12" xs="12">
         <v-row>
@@ -89,6 +92,7 @@
       </v-col>
     </v-row>
   </div>
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -127,6 +131,10 @@ export default {
     // }
   },
 
-  methods: {},
+  methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
+  },
 };
 </script>

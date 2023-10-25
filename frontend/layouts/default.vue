@@ -239,7 +239,7 @@
               </v-list-item-content>
             </v-list-item>
 
-            <v-list-item
+            <!-- <v-list-item
               v-if="getLoginType == 'manager' || getLoginType == 'branch'"
               @click="setLoginType"
             >
@@ -251,6 +251,22 @@
                   Login Into
                   {{
                     caps(getLoginType == "manager" ? "employee" : "manager")
+                  }}</v-list-item-title
+                >
+              </v-list-item-content>
+            </v-list-item> -->
+            <v-list-item
+              v-if="getLoginType == 'manager' || getLoginType == 'branch'"
+              @click="setLoginType"
+            >
+              <v-list-item-icon>
+                <v-icon>mdi-account-multiple-outline</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="black--text">
+                  Login Into
+                  {{
+                    caps(getLoginType == "branch" ? "employee" : "manager")
                   }}</v-list-item-title
                 >
               </v-list-item-content>

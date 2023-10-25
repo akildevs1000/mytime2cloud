@@ -715,7 +715,10 @@
               </v-btn>
             </template>
             <v-list width="120" dense>
-              <v-list-item @click="ScheduleItem(item, 'view')">
+              <v-list-item
+                v-if="can(`employee_schedule_view`)"
+                @click="ScheduleItem(item, 'view')"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-eye </v-icon>
                   View
@@ -727,13 +730,19 @@
                     Add
                   </v-list-item-title>
                 </v-list-item> -->
-              <v-list-item @click="ScheduleItem(item, 'edit')">
+              <v-list-item
+                v-if="can(`employee_schedule_edit`)"
+                @click="ScheduleItem(item, 'edit')"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
                   Manage Schedules
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="deleteItem(item, 'edit')">
+              <v-list-item
+                v-if="can(`employee_schedule_delete`)"
+                @click="deleteItem(item, 'edit')"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
                   Clear All Schedules

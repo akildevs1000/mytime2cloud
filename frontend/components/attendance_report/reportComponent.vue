@@ -117,13 +117,19 @@
             </v-btn>
           </template>
           <v-list width="200" dense>
-            <v-list-item @click="reportSync = true">
+            <v-list-item
+              v-if="can(`attendance_report_re_generate`)"
+              @click="reportSync = true"
+            >
               <v-list-item-title style="cursor: pointer">
                 <v-icon color="secondary" small> mdi-cached </v-icon>
                 Re-Generate Report
               </v-list-item-title>
             </v-list-item>
-            <v-list-item @click="generateLogsDialog = true">
+            <v-list-item
+              v-if="can(`attendance_report_create`)"
+              @click="generateLogsDialog = true"
+            >
               <v-list-item-title style="cursor: pointer">
                 <v-icon color="secondary" small>
                   mdi-plus-circle-outline

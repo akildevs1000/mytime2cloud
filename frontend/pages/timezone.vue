@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`employee_schedule_access`)">
+  <div v-if="can(`timezone_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -309,6 +309,7 @@
           <v-icon dark fill color="violet"> mdi-sync-circle</v-icon>
         </v-btn>
         <v-btn
+          v-if="can(`timezone_create`)"
           x-small
           :ripple="false"
           text
@@ -358,19 +359,22 @@
               </v-btn>
             </template>
             <v-list width="120" dense>
-              <v-list-item @click="viewItem(item)">
+              <v-list-item @click="viewItem(item)" v-if="can(`timezone_view`)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-eye </v-icon>
                   View
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="editItem(item)">
+              <v-list-item v-if="can(`timezone_edit`)" @click="editItem(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
                   Edit
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="deleteItem(item)">
+              <v-list-item
+                v-if="can(`timezone_delete`)"
+                @click="deleteItem(item)"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
                   Delete
