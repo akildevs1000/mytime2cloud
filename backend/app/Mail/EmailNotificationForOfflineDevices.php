@@ -13,12 +13,14 @@ class EmailNotificationForOfflineDevices extends Mailable
     public $company;
     public $offlineDevicesCount;
     public $devicesLocation;
+    public $manager;
 
-    public function __construct($company, $offlineDevicesCount, $devicesLocation)
+    public function __construct($company, $offlineDevicesCount, $devicesLocation, $manager)
     {
         $this->company = $company;
         $this->offlineDevicesCount = $offlineDevicesCount;
         $this->devicesLocation = $devicesLocation;
+        $this->manager = $manager;
     }
 
     public function build()
