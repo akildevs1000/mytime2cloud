@@ -215,7 +215,7 @@
 
           <v-btn icon color="yellow" v-bind="attrs" v-on="on">
             <!-- {{ getUser }} -->
-            <v-avatar size="35">
+            <v-avatar size="35" style="border: 1px solid #6946dd">
               <v-img :src="getLogo"></v-img>
 
               <!-- <img :src="getLogo || '/no-image.PNG'" /> -->
