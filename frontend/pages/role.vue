@@ -19,6 +19,7 @@
                   outlined
                   dense
                   v-model="editedItem.name"
+                  :disabled="editedItem.name == 'manager'"
                   placeholder="Enter New Role Name"
                 ></v-text-field>
                 <span v-if="errors && errors.name" class="error--text">
@@ -232,6 +233,7 @@
             <v-icon
               v-if="can('role_delete')"
               color="error"
+              :disabled="item.name == 'manager'"
               small
               @click="deleteItem(item)"
             >

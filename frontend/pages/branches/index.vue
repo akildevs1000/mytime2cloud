@@ -918,6 +918,17 @@ export default {
       this.branch = item;
       this.branchDialog = true;
       this.disabled = false;
+
+      let options = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+          branch_id: item.id,
+          // //department_ids: this.$auth.user.assignedDepartments,
+        },
+      };
+
+      this.getManagers(options);
     },
     viewItem(item) {
       this.previewImage = item.logo;

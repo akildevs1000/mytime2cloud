@@ -44,6 +44,9 @@ class AssignedDepartmentEmployeeController extends Controller
                 return $q->with("role");
             },
         ]);
+        $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            return $q->where("branch_id", $request->branch_id);
+        });
         $model->whereHas("user.role", function ($q) {
             return $q->where('name', "ILIKE", "manager");
         });
