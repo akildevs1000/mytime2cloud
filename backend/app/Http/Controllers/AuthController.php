@@ -170,12 +170,13 @@ class AuthController extends Controller
         unset($user->employee);
 
 
-        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
+        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo")->get();
         if (isset($branchesArray[0])) {
             $assigned_branch_id = $branchesArray[0]['id'];
 
             $user->user_type = "branch";
             $user->branch_name = $branchesArray[0]['branch_name'];
+            $user->branch_logo =   $branchesArray[0]['logo'];
         }
         $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
 
@@ -206,12 +207,13 @@ class AuthController extends Controller
         $user->user_type = $this->getUserType($user);
         // $assigned_branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id', 'branch_name')->first();
 
-        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
+        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo")->get();
         if (isset($branchesArray[0])) {
             $assigned_branch_id = $branchesArray[0]['id'];
 
             $user->user_type = "branch";
             $user->branch_name = $branchesArray[0]['branch_name'];
+            $user->branch_logo =  $branchesArray[0]['logo'];
         }
         $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
 

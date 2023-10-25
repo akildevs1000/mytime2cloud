@@ -199,6 +199,8 @@
           ? getBranchName()
           : ""
       }} -->
+      <!-- {{ $auth.user }}   -->
+
       <v-menu
         nudge-bottom="50"
         transition="scale-transition"
@@ -213,7 +215,7 @@
             <!-- {{ getUser }} -->
           </label>
 
-          <v-btn icon color="yellow" v-bind="attrs" v-on="on">
+          <v-btn icon color="red" v-bind="attrs" v-on="on">
             <!-- {{ getUser }} -->
             <v-avatar size="35" style="border: 1px solid #6946dd">
               <v-img :src="getLogo"></v-img>
@@ -256,8 +258,8 @@
               </v-list-item-content>
             </v-list-item> -->
             <v-list-item
-              v-if="getLoginType == 'manager' || getLoginType == 'branch'"
-              @click="setLoginType"
+              v-if="getLoginType == 'branch' || getLoginType == 'employee'"
+              @click="changeLoginType"
             >
               <v-list-item-icon>
                 <v-icon>mdi-account-multiple-outline</v-icon>
@@ -266,7 +268,7 @@
                 <v-list-item-title class="black--text">
                   Login Into
                   {{
-                    caps(getLoginType == "branch" ? "employee" : "manager")
+                    caps(getLoginType == "branch" ? "employee" : "branch")
                   }}</v-list-item-title
                 >
               </v-list-item-content>
@@ -631,12 +633,20 @@ export default {
     },
 
     getLogo() {
+      let logosrc = "";
       if (this.$auth.user && this.$auth.user.user_type == "master") {
-        return "/no-image.PNG";
+        logosrc = "/no-image.PNG";
       } else if (this.$auth.user && this.$auth.user.user_type == "employee") {
-        return this.$auth.user.employee.profile_picture;
+        logosrc = this.$auth.user.employee.profile_picture || "";
+      } else if (this.$auth.user && this.$auth.user.user_type == "branch") {
+        logosrc = this.$auth.user.branch_logo || "";
       }
-      return this.$auth.user && this.$auth.user.company.logo;
+
+      if (logosrc == "") {
+        logosrc = this.$auth.user && this.$auth.user.company.logo;
+      }
+
+      return logosrc;
     },
     getLoginType() {
       return this.$store.state.loginType;
@@ -750,11 +760,26 @@ export default {
         perms.includes(menu)
       );
     },
-    setLoginType() {
+    changeLoginType() {
+      // this.$store.commit(
+      //   "loginType",
+      //   this.getLoginType == "manager" ? "employee" : "manager"
+      // );
+      // this.$store.commit(
+      //   "loginType",
+      //   this.getLoginType == "branch" ? "employee" : "branch"
+      // );
+      // this.setMenus();
+      if (this.getLoginType == "branch") {
+        this.$router.push("/employees/profile");
+      } else {
+        this.$router.push("/dashboard2");
+      }
       this.$store.commit(
         "loginType",
-        this.getLoginType == "manager" ? "employee" : "manager"
+        this.getLoginType == "branch" ? "employee" : "branch"
       );
+
       this.setMenus();
     },
     navigateToLeavePage() {

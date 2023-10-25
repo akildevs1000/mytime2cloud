@@ -533,7 +533,7 @@ export default {
       this.$router.push("/setting");
     },
     goToProfile() {
-      let u = this.$auth.user.user_type;
+      //let u = this.$auth.user.user_type;
       // if(u){
       // this.$router.push(`/empl/${this.$auth.user?.company?.id}`);
       // }
