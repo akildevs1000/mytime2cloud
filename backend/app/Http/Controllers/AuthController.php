@@ -235,9 +235,14 @@ class AuthController extends Controller
                 return "employee";
             }
 
-            $user->assignedDepartments = $this->getAssignedDepartments($user);
-            //return "branch";
-            return "manager";
+            $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
+            if (isset($branchesArray[0])) {
+                return "branch";
+            }
+            return "employee";
+            // $user->assignedDepartments = $this->getAssignedDepartments($user);
+            // //return "branch";
+            // return "manager";
         } else {
             return $user->role_id > 0 ? "user" : "master";
         }
