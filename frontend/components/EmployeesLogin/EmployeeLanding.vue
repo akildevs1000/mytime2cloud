@@ -827,11 +827,13 @@ export default {
     },
     getLastLogin() {
       //
-      this.$axios
-        .get(`activity/${this.employeeObject.user_id}?action=Login`)
-        .then(({ data }) => {
-          this.last_login = data.date_time;
-        });
+
+      if (this.employeeObject)
+        this.$axios
+          .get(`activity/${this.employeeObject.user_id}?action=Login`)
+          .then(({ data }) => {
+            this.last_login = data.date_time;
+          });
     },
 
     openDocumentDrawer() {
