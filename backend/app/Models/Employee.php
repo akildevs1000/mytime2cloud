@@ -287,6 +287,11 @@ class Employee extends Model
             },
         ])
             ->with([
+                "user" => function ($q) {
+                    return $q->with("branchLogin");
+                },
+            ])
+            ->with([
                 "reportTo", "schedule_all", "branch", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
                 "emirate", "qualification", "bank", "leave_group",  "Visa", "reporting_manager",
             ])

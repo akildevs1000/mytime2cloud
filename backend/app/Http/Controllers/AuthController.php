@@ -265,7 +265,7 @@ class AuthController extends Controller
             ]);
         } else if (!$user->web_login_access && !$user->is_master) {
             throw ValidationException::withMessages([
-                'email' => ['Login access is not available. Please contact your admin.'],
+                'email' => ['Login access is disabled. Please contact your admin.'],
             ]);
         }
     }

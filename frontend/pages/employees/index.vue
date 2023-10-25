@@ -840,6 +840,11 @@
                 >
                 <div>
                   {{ item.designation ? caps(item.designation.name) : "---" }}
+
+                  {{
+                    item.user.branch_login &&
+                    "(" + item.user.branch_login.branch_name + ")"
+                  }}
                 </div>
               </v-col>
             </v-row>
