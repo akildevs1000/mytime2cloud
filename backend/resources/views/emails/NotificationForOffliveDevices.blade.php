@@ -3,7 +3,7 @@
 # Company: {{ $company->name }}
 Total **({{ $offlineDevicesCount }})** of your devices are currently offline.
 
-Devices location {{ $devicesLocation }}.
+<b>Devices location(s) :</b> {{ $devicesLocation }}.
 
 Please take a look and address the issue as needed to avoid any errors in reports.
 

@@ -490,7 +490,7 @@ class DeviceController extends Controller
                     foreach ($location_array as $key => $location) {
                         $devicesLocations .= $location;
                         if ($key < count($location_array) - 1) {
-                            $devicesLocations .= ',';
+                            $devicesLocations .= ', ';
                         }
                     }
 
@@ -522,7 +522,7 @@ class DeviceController extends Controller
             $message .= "*Hello, {$manager->name}*\n\n";
             $message .= "*Company: , {$company->name}*\n\n";
             $message .= "Total *({$offlineDevicesCount})* of your devices are currently offline. Please take a look and address the issue as needed to avoid any errors in report.\n\n";
-            $message .= "Devices location: *{$devicesLocations}*.\n\n";
+            $message .= "Devices location(s): *{$devicesLocations}*.\n\n";
             $message .= "If you have any questions or need assistance, feel free to reach out.\n\n";
             $message .= "Best regards\n";
             $message .= "*MyTime2Cloud*";
