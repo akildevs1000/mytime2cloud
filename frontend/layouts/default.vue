@@ -258,7 +258,7 @@
               </v-list-item-content>
             </v-list-item> -->
             <v-list-item
-              v-if="getLoginType == 'branch' || getLoginType == 'employee'"
+              v-if="$auth.user.user_type == 'branch'"
               @click="changeLoginType"
             >
               <v-list-item-icon>
