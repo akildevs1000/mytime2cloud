@@ -517,6 +517,7 @@ export default {
     };
   },
   created() {
+    console.log("verification1");
     this.$router.push("/employees/profile");
     this.initialize();
     this.get_announcements();

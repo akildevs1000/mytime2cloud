@@ -42,6 +42,14 @@ class AuthController extends Controller
             ], 200);
         }
         $user->user_type = $this->getUserType($user);
+        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
+        if (isset($branchesArray[0])) {
+            $assigned_branch_id = $branchesArray[0]['id'];
+
+            $user->user_type = "branch";
+            $user->branch_name = $branchesArray[0]['branch_name'];
+        }
+        $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
 
 
         if ($user->enable_whatsapp_otp == 1 && $user->company->enable_whatsapp_otp == 1) {
@@ -166,6 +174,16 @@ class AuthController extends Controller
 
         $user->user_type = $this->getUserType($user);
 
+        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
+        if (isset($branchesArray[0])) {
+            $assigned_branch_id = $branchesArray[0]['id'];
+
+            $user->user_type = "branch";
+            $user->branch_name = $branchesArray[0]['branch_name'];
+        }
+        $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
+
+
         unset($user->company);
         unset($user->employee);
 
@@ -179,6 +197,9 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
+
+
+
         // return User::where("id", ">", 0)->update(["employee_role_id" => 0]);
 
         // $data = User::withOut("assigned_permissions")->where("employee_role_id", ">", 0)->get(["id", "employee_role_id", "role_id"]);
@@ -210,10 +231,22 @@ class AuthController extends Controller
     public function getUserType($user)
     {
 
+
+
         if ($user->company_id > 0) {
 
             if ($user->user_type === "company") {
                 return $user->user_type;
+            }
+
+            $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
+            if (isset($branchesArray[0])) {
+                $assigned_branch_id = $branchesArray[0]['id'];
+
+                $user->user_type = "branch";
+                $user->branch_name = $branchesArray[0]['branch_name'];
+
+                return "branch";
             }
 
             $assginedDepartments = $this->getAssignedDepartments($user);
