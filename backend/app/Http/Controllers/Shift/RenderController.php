@@ -576,7 +576,7 @@ class RenderController extends Controller
     public function renderOffCron($company_id = 0)
     {
         //return $UserIds = $this->renderOffScript($company_id, date("Y-m-d", strtotime('-2 day')));
-        $UserIds = $this->renderOffScript($company_id, date("Y-m-d"));
+        $UserIds = $this->renderOffScript($company_id, date('Y-m-d', strtotime('-1 day')));
 
         $result = json_encode($UserIds);
 
@@ -717,16 +717,7 @@ class RenderController extends Controller
                         ->where("date", ">=", $weekStart)->where("date", "<=", $weekEnd)->where("status", "O")->count();
 
                     if ($maximum_weekends - $employees_current_week_off_count > 0) {
-                        if ($weekend1 == date('l', strtotime($date)) || $weekend2 == date('l', strtotime($date))) {
-                            $data = [
-                                "company_id" => $company_id,
-                                "date" => $date,
-                                "status" => "O",
-                                "employee_id" => $employee->employee_id,
-                                "shift_id" => $employee->shift_id,
-                                "shift_type_id" => $employee->shift_type_id,
-                            ];
-                        } else if ($weekend1 == 'Flexi' || $weekend2 == 'Flexi') {
+                        if ($weekend1 == date('l', strtotime($date)) || $weekend2 == date('l', strtotime($date)) || $weekend1 == 'Flexi' || $weekend2 == 'Flexi') {
                             $data = [
                                 "company_id" => $company_id,
                                 "date" => $date,
