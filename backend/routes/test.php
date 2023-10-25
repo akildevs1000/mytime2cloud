@@ -43,7 +43,7 @@ Route::get('/syncLogsScript', function (Request $request) {
     // ];
 });
 
-Route::get('/test', function (Request $request) {
+Route::get('/test/test', function (Request $request) {
 
 
 
@@ -489,6 +489,10 @@ Route::get('/test/whatsapp', function () {
 });
 
 Route::get('/test_attachment', function () {
+    $test = new RenderController();
+    return  $test->renderOffCron(8);
+
+    return  $model = ReportNotification::with(["managers", "company.companyMailContent"])->where("id", "8")->first();
 
     $models = ReportNotification::get();
 
