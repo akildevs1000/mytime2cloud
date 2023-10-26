@@ -540,10 +540,10 @@ class DeviceController extends Controller
 
             // return  view('emails.TestmailFormat', ["company" => $company, "offlineDevicesCount" => $offlineDevicesCount, "devicesLocations" => $devicesLocations, "manager" => $manager]);
             // return false;
-
+            $branch_name = $notification->branch ?  $notification->branch->branch_name :  '---';
             if (in_array("Email", $notification->mediums)) {
                 if ($manager->email != '') {
-                    Mail::to($manager->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devices, $manager, $notification->branch && $notification->branch->branch_name || ''));
+                    Mail::to($manager->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devices, $manager, $branch_name));
 
                     $data["email"] = $manager->email;
                 }
