@@ -33,3 +33,4 @@ include('access_control_time_slot.php');
 include('devices.php');
 include('realtime_location.php');
 include('clocking.php');
+include('change_request.php');
