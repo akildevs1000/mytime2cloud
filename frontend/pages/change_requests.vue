@@ -375,8 +375,9 @@ export default {
   },
   methods: {
     updateStatus(item) {
+
       this.$axios
-        .post("update-change-request/" + item.id, { status: item.status })
+        .post("update-change-request/" + item.id, item)
         .then(({ data }) => {
           this.snackbar = true;
           this.responseStatusColor = "green";
