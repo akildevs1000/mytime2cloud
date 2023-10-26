@@ -542,7 +542,7 @@ class DeviceController extends Controller
 
             if (in_array("Email", $notification->mediums)) {
                 if ($manager->email != '') {
-                    Mail::to($manager->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devices, $manager, $notification->branch->branch_name));
+                    Mail::to($manager->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devices, $manager, $notification->branch && $notification->branch->branch_name || ''));
 
                     $data["email"] = $manager->email;
                 }
