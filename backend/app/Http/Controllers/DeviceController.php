@@ -472,9 +472,12 @@ class DeviceController extends Controller
 
             foreach ($notifications as $key => $notification) {
 
+
+
                 $company = $company->load(['devices' => function ($q) use ($notification) {
                     $q->where("status_id", self::OFFLINE_STATUS_ID)
-                        ->where("branch_id", $notification->branch_id);
+                        ->where("branch_id", $notification->branch_id)
+                        ->where("name", "!=", "Mobile");
                 }]);
 
 
@@ -498,22 +501,18 @@ class DeviceController extends Controller
                     // $this->sendWhatsappNotification($message, '971553303991'); 
 
 
-                    $this->sendNotification($notification, $company, $offlineDevicesCount, $devicesLocations, "");
+                    $this->sendNotification($notification, $company, $offlineDevicesCount, $devicesLocations, "", $company->devices);
 
-                    $company->update(["is_offline_device_notificaiton_sent" => true, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
+                    //  $company->update(["is_offline_device_notificaiton_sent" => true, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
                 }
             }
+            return "Notification sent to WhatsApp and email.";
+        } else {
+            return "Already sent. Waiting for schedule time";
         }
-
-
-
-
-
-
-        return "Notification sent to WhatsApp and email.";
     }
 
-    public function sendNotification($notification, $company, $offlineDevicesCount, $devicesLocations, $message)
+    public function sendNotification($notification, $company, $offlineDevicesCount, $devicesLocations, $message, $devices)
     {
 
         foreach ($notification->managers as $key => $manager) {
@@ -539,9 +538,13 @@ class DeviceController extends Controller
                 "message" => $message
             ];
 
+            // return  view('emails.TestmailFormat', ["company" => $company, "offlineDevicesCount" => $offlineDevicesCount, "devicesLocations" => $devicesLocations, "manager" => $manager]);
+            // return false;
+            $branch_name = $notification->branch ?  $notification->branch->branch_name :  '---';
             if (in_array("Email", $notification->mediums)) {
                 if ($manager->email != '') {
-                    Mail::to($manager->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devicesLocations, $manager));
+                    Mail::to($manager->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devices, $manager, $branch_name));
+
                     $data["email"] = $manager->email;
                 }
             }
