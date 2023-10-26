@@ -4,7 +4,7 @@
 @component('mail::header', ['url' => config('app.url')])
 <!-- {{ config('app.name') }} -->
 
-<img style="width:150px;max-width:150px;height:auto" src="{{   config('base.url').'/logo.png'  }}" alt="{{ config('app.name') }}">
+<img style="width:150px;max-width:150px;height:auto" src="{{   env('BASE_URL').'/logo.png'  }}" alt="{{ config('app.name') }}">
 
 
 
