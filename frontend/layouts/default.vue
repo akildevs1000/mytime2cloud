@@ -200,7 +200,74 @@
           : ""
       }} -->
       <!-- {{ $auth.user }}   -->
+      <!-- <v-autocomplete
+        v-if="
+          this.$auth &&
+          this.$auth.user.user_type == 'company' &&
+          this.$route.name == 'dashboard2'
+        "
+        class="pb-0"
+        v-model="branch_id"
+        :items="branchesList"
+        dense
+        placeholder="Select Branch"
+        outlined
+        item-value="id"
+        item-text="branch_name"
+        label="Branch"
+        color="black"
+      >
+      </v-autocomplete> -->
+      <!-- <v-menu
+        v-if="
+          this.$auth &&
+          this.$auth.user.user_type == 'company' &&
+          this.$route.name == 'dashboard2'
+        "
+        nudge-bottom="50"
+        transition="scale-transition"
+        origin="center center"
+        bottom
+        left
+        min-width="200"
+        nudge-left="20"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <label class="px-2 text-overflow" v-bind="attrs" v-on="on">
+            {{ selectedBranchName }}
+          </label>
+        </template>
 
+        <v-list light nav dense>
+          <v-list-item-group color="primary">
+            <v-list-item
+              @click="filterBranch(branch)"
+              v-for="branch in branchesList"
+            >
+              <v-list-item-content class="text-left">
+                <v-list-item-title class="black--text">
+                  <img
+                    :src="branch.logo"
+                    style="vertical-align: middle; max-width: 25px"
+                  />
+
+                  <span style="">{{ branch.branch_name }}</span>
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item v-if="selectedBranchName != 'All Branches'">
+              <v-list-item-content
+                class="text-center"
+                @click="filterBranch(null)"
+              >
+                <v-list-item-title class="black--text">
+                  <span style="">All Branches</span>
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-menu> -->
       <v-menu
         nudge-bottom="50"
         transition="scale-transition"
@@ -219,8 +286,6 @@
             <!-- {{ getUser }} -->
             <v-avatar size="35" style="border: 1px solid #6946dd">
               <v-img :src="getLogo"></v-img>
-
-              <!-- <img :src="getLogo || '/no-image.PNG'" /> -->
             </v-avatar>
           </v-btn>
         </template>
@@ -287,6 +352,7 @@
           </v-list-item-group>
         </v-list>
       </v-menu>
+
       <v-btn
         v-if="getLoginType == 'company' || getLoginType == 'branch'"
         icon
@@ -493,6 +559,8 @@ import employee_top_menu from "../menus/employee_modules_top.json";
 export default {
   data() {
     return {
+      selectedBranchName: "All Branches",
+      branch_id: "",
       menuProperties: {
         dashboard: {
           elevation: 0,
@@ -568,6 +636,7 @@ export default {
         icon: "mdi-logout",
         label: "Logout",
       },
+      branchesList: [],
     };
   },
   created() {
@@ -586,6 +655,8 @@ export default {
 
     this.setTopMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");
+
+    this.getBranches();
   },
 
   mounted() {
@@ -607,6 +678,13 @@ export default {
   watch: {
     // socketConnectionStatus(val) {
     //   console.log('watch ', val);
+    // },
+    // selectedBranchName(val) {
+    //   if (val == "All Branches") {
+    //     this.getBranches();
+    //   } else {
+    //     this.branchesList.push();
+    //   }
     // },
   },
   computed: {
@@ -657,6 +735,18 @@ export default {
     },
   },
   methods: {
+    getBranches() {
+      this.$axios
+        .get(`branches_list`, {
+          params: {
+            per_page: 1000,
+            company_id: this.$auth.user.company_id,
+          },
+        })
+        .then(({ data }) => {
+          this.branchesList = data;
+        });
+    },
     getBranchName() {
       return this.$auth.user.branch_name;
     },
@@ -843,6 +933,11 @@ export default {
           this.pendingLeavesCount = data.total_pending_count;
         }
       });
+    },
+
+    filterBranch(branch) {
+      if (branch) this.selectedBranchName = branch.branch_name;
+      else this.selectedBranchName = "All Branches";
     },
     collapseSubItems() {
       this.company_menus.map((item) => (item.active = false));
@@ -1318,6 +1413,10 @@ button {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.branchlogo {
+  width: 50px;
 }
 </style>
 
