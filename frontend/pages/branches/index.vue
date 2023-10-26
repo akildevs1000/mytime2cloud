@@ -80,9 +80,10 @@
                       >
                     </v-col>
                     <v-col md="6" cols="12" sm="12" dense>
-                      <label>Role Managers </label>
+                      <label v-if="formTitle == 'Update'">Role Managers </label>
 
                       <v-autocomplete
+                        v-if="formTitle == 'Update'"
                         :disabled="disabled"
                         v-model="branch.user_id"
                         :items="managers"
@@ -235,7 +236,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
-              v-if="formTitle == 'create' && can('branch_create')"
+              v-if="formTitle == 'Create' && can('branch_create')"
               small
               :loading="loading"
               color="primary"
@@ -986,7 +987,8 @@ export default {
       let branch = new FormData();
       branch.append("company_id", this.$auth.user.company_id);
       branch.append("branch_name", this.branch.branch_name);
-      branch.append("user_id", this.branch.user_id);
+      // branch.append("user_id", this.branch.user_id);
+      branch.append("user_id", 0);
 
       branch.append("licence_number", this.branch.licence_number);
       branch.append(
