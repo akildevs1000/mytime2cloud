@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ChangeRequest\StoreRequest;
 use App\Http\Requests\ChangeRequest\UpdateRequest;
+use App\Models\Attendance;
 use App\Models\ChangeRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ChangeRequestController extends Controller
 {
@@ -53,17 +55,28 @@ class ChangeRequestController extends Controller
     public function updateChangeRequest($id, UpdateRequest $request)
     {
         try {
-            $data = $request->validated();
+            // Validate the request data using the UpdateRequest rules
+            $data = $request->all();
 
-            if (isset($request->attachment) && $request->hasFile('attachment')) {
-                $file = $request->file('attachment');
-                $ext = $file->getClientOriginalExtension();
-                $fileName = time() . '.' . $ext;
-                $request->file('attachment')->move(public_path('/ChangeRequest/attachments'), $fileName);
-                $data['attachment'] = $fileName;
+            // Start a database transaction
+            DB::beginTransaction();
+
+            // Update Attendance records
+
+            // A status = Approve from change request table
+            if ($data['status'] == "A") {
+
+                Attendance::where('company_id', $data['company_id'])
+                    ->where('employee_id', $data['employee_device_id'])
+                    ->whereBetween('date', [$data['from_date'], $data['to_date']])
+                    ->update(['status' => "P"]);
             }
 
-            $record = ChangeRequest::where("id", $id)->update($data);
+            // Update the ChangeRequest
+            $record = ChangeRequest::where('id', $id)->update(['status' => $data['status']]);
+
+            // Commit the transaction if all operations are successful
+            DB::commit();
 
             if ($record) {
                 return $this->response('ChangeRequest updated.', $record, true);
@@ -71,9 +84,13 @@ class ChangeRequestController extends Controller
                 return $this->response('ChangeRequest cannot update.', null, false);
             }
         } catch (\Throwable $th) {
-            throw $th;
+            // Roll back the transaction in case of an error
+            DB::rollBack();
+
+            return $this->response('An error occurred while updating the ChangeRequest.', null, false);
         }
     }
+
 
     public function destroy(ChangeRequest $ChangeRequest)
     {
