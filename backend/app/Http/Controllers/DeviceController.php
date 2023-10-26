@@ -484,22 +484,21 @@ class DeviceController extends Controller
                     // if (!$offlineDevicesCount) {
                     //     return $this->getMeta("SendNotificatinForOfflineDevices", "All Devices Online");
                     // }
+                    $location_array = array_column($company->devices->toArray(), "location");
+                    $devicesLocation = json_encode($location_array);
+                    $devicesLocations = '';
+                    foreach ($location_array as $key => $location) {
+                        $devicesLocations .= $location;
+                        if ($key < count($location_array) - 1) {
+                            $devicesLocations .= ', ';
+                        }
+                    }
 
-                    $devicesLocation = json_encode(array_column($company->devices->toArray(), "location"));
-
-
-                    $message = "🔔 *Notification for offline devices* 🔔\n\n";
-                    $message .= "*Hello, {$company->name}*\n\n";
-                    $message .= "Total *({$offlineDevicesCount})* of your devices are currently offline. Please take a look and address the issue as needed to avoid any errors in report.\n\n";
-                    $message .= "Devices location: *{$devicesLocation}*.\n\n";
-                    $message .= "If you have any questions or need assistance, feel free to reach out.\n\n";
-                    $message .= "Best regards\n";
-                    $message .= "*MyTime2Cloud*";
                     // $this->sendWhatsappNotification($message, '971554501483');
                     // $this->sendWhatsappNotification($message, '971553303991'); 
 
 
-                    $this->sendNotification($notification, $company, $offlineDevicesCount, $devicesLocation, $message);
+                    $this->sendNotification($notification, $company, $offlineDevicesCount, $devicesLocations, "");
 
                     $company->update(["is_offline_device_notificaiton_sent" => true, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
                 }
@@ -514,10 +513,22 @@ class DeviceController extends Controller
         return "Notification sent to WhatsApp and email.";
     }
 
-    public function sendNotification($notification, $company, $offlineDevicesCount, $devicesLocation, $message)
+    public function sendNotification($notification, $company, $offlineDevicesCount, $devicesLocations, $message)
     {
 
         foreach ($notification->managers as $key => $manager) {
+
+            $message = "🔔 *Notification for offline devices* 🔔\n\n";
+            $message .= "*Hello, {$manager->name}*\n\n";
+            $message .= "*Company: , {$company->name}*\n\n";
+            $message .= "Total *({$offlineDevicesCount})* of your devices are currently offline. Please take a look and address the issue as needed to avoid any errors in report.\n\n";
+            $message .= "Devices location(s): *{$devicesLocations}*.\n\n";
+            $message .= "If you have any questions or need assistance, feel free to reach out.\n\n";
+            $message .= "Best regards\n";
+            $message .= "*MyTime2Cloud*";
+
+
+
             $data = [
                 "company_id" => $company->id,
                 "branch_id" => $notification->branch_id,
@@ -530,7 +541,7 @@ class DeviceController extends Controller
 
             if (in_array("Email", $notification->mediums)) {
                 if ($manager->email != '') {
-                    Mail::to($manager->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devicesLocation));
+                    Mail::to($manager->email)->send(new EmailNotificationForOfflineDevices($company, $offlineDevicesCount, $devicesLocations, $manager));
                     $data["email"] = $manager->email;
                 }
             }

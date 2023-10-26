@@ -25,7 +25,7 @@ export default {
       items: [
         { id: `Not Applicable`, name: `Not Applicable` },
         { id: `Flexi`, name: `Flexi` },
-        { id: `Half Day`, name: `Half Day` },
+        //{ id: `Half Day`, name: `Half Day` },
         { id: `Monday`, name: `Monday` },
         { id: `Tuesday`, name: `Tuesday` },
         { id: `Wednesday`, name: `Wednesday` },

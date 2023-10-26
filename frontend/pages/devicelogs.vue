@@ -69,6 +69,7 @@
             <!-- <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
+              v-if="can(`logs_create`)"
               title="Attendance Log"
               x-small
               :ripple="false"

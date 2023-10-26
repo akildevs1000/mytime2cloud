@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('setting_company_access')">
+  <div v-if="can('device_notification_contnet_access')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -165,6 +165,7 @@
           <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }"> -->
           <v-btn
+            v-if="can('device_notification_contnet_create')"
             x-small
             :ripple="false"
             title="Add Notification"
@@ -381,19 +382,28 @@
                 </v-btn>
               </template>
               <v-list width="120" dense>
-                <v-list-item @click="viewItem(item)">
+                <v-list-item
+                  v-if="can('device_notification_contnet_view')"
+                  @click="viewItem(item)"
+                >
                   <v-list-item-title style="cursor: pointer">
                     <v-icon color="secondary" small> mdi-eye </v-icon>
                     View
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="editItem(item)">
+                <v-list-item
+                  v-if="can('device_notification_contnet_edit')"
+                  @click="editItem(item)"
+                >
                   <v-list-item-title style="cursor: pointer">
                     <v-icon color="secondary" small> mdi-pencil </v-icon>
                     Edit
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="deleteItem(item)">
+                <v-list-item
+                  v-if="can('device_notification_contnet_delete')"
+                  @click="deleteItem(item)"
+                >
                   <v-list-item-title style="cursor: pointer">
                     <v-icon color="error" small> mdi-delete </v-icon>
                     Delete

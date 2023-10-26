@@ -169,6 +169,19 @@ class AuthController extends Controller
         unset($user->company);
         unset($user->employee);
 
+
+        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo")->get();
+        if (isset($branchesArray[0])) {
+            $assigned_branch_id = $branchesArray[0]['id'];
+
+            $user->user_type = "branch";
+            $user->branch_name = $branchesArray[0]['branch_name'];
+            $user->branch_logo =   $branchesArray[0]['logo'];
+        }
+        $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
+
+
+
         $arr = [
             'token' => $user->createToken('myApp')->plainTextToken,
             'user' => $user,
@@ -194,12 +207,13 @@ class AuthController extends Controller
         $user->user_type = $this->getUserType($user);
         // $assigned_branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id', 'branch_name')->first();
 
-        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
+        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo")->get();
         if (isset($branchesArray[0])) {
             $assigned_branch_id = $branchesArray[0]['id'];
 
             $user->user_type = "branch";
             $user->branch_name = $branchesArray[0]['branch_name'];
+            $user->branch_logo =  $branchesArray[0]['logo'];
         }
         $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
 
@@ -223,9 +237,14 @@ class AuthController extends Controller
                 return "employee";
             }
 
-            $user->assignedDepartments = $this->getAssignedDepartments($user);
-            //return "branch";
-            return "manager";
+            $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
+            if (isset($branchesArray[0])) {
+                return "branch";
+            }
+            return "employee";
+            // $user->assignedDepartments = $this->getAssignedDepartments($user);
+            // //return "branch";
+            // return "manager";
         } else {
             return $user->role_id > 0 ? "user" : "master";
         }
@@ -253,7 +272,7 @@ class AuthController extends Controller
             ]);
         } else if (!$user->web_login_access && !$user->is_master) {
             throw ValidationException::withMessages([
-                'email' => ['Login access is not available. Please contact your admin.'],
+                'email' => ['Login access is disabled. Please contact your admin.'],
             ]);
         }
     }

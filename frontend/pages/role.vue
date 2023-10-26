@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('settings_roles_access') && can('settings_roles_view')">
+  <div v-if="can('role_access')">
     <v-dialog v-model="dialogNewRole" width="60%">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -19,6 +19,7 @@
                   outlined
                   dense
                   v-model="editedItem.name"
+                  :disabled="editedItem.name == 'manager'"
                   placeholder="Enter New Role Name"
                 ></v-text-field>
                 <span v-if="errors && errors.name" class="error--text">
@@ -36,6 +37,15 @@
                 ></v-text-field>
                 <span v-if="errors && errors.description" class="error--text">
                   {{ errors.description[0] }}</span
+                >
+              </v-col>
+
+              <v-col cols="4" class="text-end">
+                <v-spacer></v-spacer>
+
+                <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
+                <v-btn class="mt-6" color="primary" fill small @click="save"
+                  >Save</v-btn
                 >
               </v-col>
 
@@ -189,6 +199,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }"> -->
                     <v-btn
+                      v-if="can('role_create')"
                       dense
                       class="ma-0 px-0"
                       x-small
@@ -211,7 +222,7 @@
 
           <template v-slot:item.action="{ item }">
             <v-icon
-              v-if="can('settings_roles_edit')"
+              v-if="can('role_edit')"
               color="secondary"
               small
               class="mr-2"
@@ -220,8 +231,9 @@
               mdi-pencil
             </v-icon>
             <v-icon
-              v-if="can('settings_roles_delete')"
+              v-if="can('role_delete')"
               color="error"
+              :disabled="item.name == 'manager'"
               small
               @click="deleteItem(item)"
             >

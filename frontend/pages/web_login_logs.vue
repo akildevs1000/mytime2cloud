@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can(`web_logs_access`)">
     <v-card class="mb-5 mt-2 rounded-md" elevation="0">
       <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title><span> Web user Logins</span></v-toolbar-title>
@@ -110,6 +110,7 @@
       </v-data-table>
     </v-card>
   </div>
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -228,6 +229,9 @@ export default {
   },
 
   methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
     caps(str) {
       if (str == "" || str == null) {
         return "";

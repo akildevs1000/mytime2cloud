@@ -22,12 +22,17 @@ class Shift extends Model
 
     public function getShowFromDateAttribute(): string
     {
-        return date('d M Y', strtotime($this->from_date));
+
+
+        //return date('d M Y', strtotime($this->from_date));
+        return date('Y-m-d', strtotime($this->from_date));
     }
 
     public function getShowToDateAttribute(): string
     {
-        return date('d M Y', strtotime($this->to_date));
+
+        //return date('d M Y', strtotime($this->to_date));
+        return date('Y-m-d', strtotime($this->to_date));
     }
 
     public function shift_type()

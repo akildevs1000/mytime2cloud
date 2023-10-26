@@ -1,5 +1,8 @@
 <template>
-  <div style="width: 100% !important">
+  <div
+    style="width: 100% !important"
+    v-if="can(`employee_device_photo_upload`)"
+  >
     <div class="text-center ma-2">
       <v-snackbar
         :color="snackbar.color"
@@ -729,6 +732,9 @@ export default {
     }
   },
   methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
     filterDepartmentsByBranch(branch_id) {
       this.getDepartmentsApi(this.options, branch_id);
       this.getDevisesDataFromApi(branch_id);

@@ -458,7 +458,7 @@ class EmployeeController extends Controller
 
             return Employee::query()
                 ->latest()
-                ->with(["user", "department", "sub_department", "designation", "timezone"])
+                ->with(["user.branchLogin", "department", "sub_department", "designation", "timezone"])
                 ->where('company_id', $request->company_id)
                 ->when($request->filled('department_id'), function ($q) use ($request) {
                     $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`employee_schedule_access`)">
+  <div v-if="can(`payroll_generation_date_access`)">
     <v-card class="mt-2">
       <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title
@@ -74,7 +74,10 @@
                   Edit
                 </v-list-item-title>
               </v-list-item> -->
-              <v-list-item @click="deleteItem(item)">
+              <v-list-item
+                v-if="can(`payroll_generation_date_delete`)"
+                @click="deleteItem(item)"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
                   Delete
@@ -136,7 +139,7 @@ export default {
     ],
     branch_id: null,
     branchesList: [],
-    isCompany:true,
+    isCompany: true,
   }),
 
   watch: {

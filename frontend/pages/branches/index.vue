@@ -81,11 +81,12 @@
                     </v-col>
                     <v-col md="6" cols="12" sm="12" dense>
                       <label>Role Managers </label>
+
                       <v-autocomplete
                         :disabled="disabled"
                         v-model="branch.user_id"
                         :items="managers"
-                        item-text="first_name"
+                        item-text="full_name"
                         item-value="user_id"
                         hide-details
                         dense
@@ -234,7 +235,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
-              v-if="can('branch_create')"
+              v-if="formTitle == 'create' && can('branch_create')"
               small
               :loading="loading"
               color="primary"
@@ -243,7 +244,7 @@
               Submit
             </v-btn>
             <v-btn
-              v-if="formTitle == 'Update'"
+              v-else-if="formTitle == 'Update'"
               small
               :loading="loading"
               color="primary"
@@ -394,7 +395,7 @@
               <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }"> -->
               <v-btn
-                v-if="$auth.user.user_type == 'company'"
+                v-if="$store.state.loginType == 'company'"
                 dense
                 x-small
                 class="ma-0 px-0"
@@ -481,7 +482,7 @@
                         max-width: 40px;
                       "
                       :src="
-                        item.user.employee.profile_picture
+                        item.user && item.user.employee
                           ? item.user.employee.profile_picture
                           : '/no-profile-image.jpg'
                       "
@@ -513,19 +514,28 @@
                     </v-btn>
                   </template>
                   <v-list width="120" dense>
-                    <v-list-item @click="viewItem(item)">
+                    <v-list-item
+                      v-if="can('branch_view')"
+                      @click="viewItem(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-eye </v-icon>
                         View
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="editItem(item)">
+                    <v-list-item
+                      v-if="can('branch_edit')"
+                      @click="editItem(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-pencil </v-icon>
                         Edit
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="deleteItem(item)">
+                    <v-list-item
+                      v-if="can('branch_delete')"
+                      @click="deleteItem(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="error" small> mdi-delete </v-icon>
                         Delete
@@ -909,6 +919,17 @@ export default {
       this.branch = item;
       this.branchDialog = true;
       this.disabled = false;
+
+      let options = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+          branch_id: item.id,
+          // //department_ids: this.$auth.user.assignedDepartments,
+        },
+      };
+
+      this.getManagers(options);
     },
     viewItem(item) {
       this.previewImage = item.logo;

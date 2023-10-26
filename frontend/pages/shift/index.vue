@@ -92,7 +92,7 @@
             </v-col>
           </v-row>
           <v-row v-if="can(`shift_create`) && payload.shift_type_id != 5">
-            <v-col cols="4" md="6">
+            <v-col cols="4" md="4">
               <DatePickerCommon
                 label="From Date"
                 :default_value="currentDate"
@@ -102,7 +102,7 @@
                 errors.from_date[0]
               }}</span>
             </v-col>
-            <v-col cols="4" md="6">
+            <v-col cols="4" md="4">
               <DatePickerCommon
                 label="To Date"
                 :default_value="nextYearDate"
@@ -157,7 +157,14 @@
 
         <!-- <v-tooltip top color="primary">
           <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn dense x-small :ripple="false" text title="Add   Shift Details">
+        <v-btn
+          v-if="can(`shift_create`)"
+          dense
+          x-small
+          :ripple="false"
+          text
+          title="Add   Shift Details"
+        >
           <v-icon dark @click="goToCreate">mdi mdi-plus-circle</v-icon>
         </v-btn>
         <!-- </template>
@@ -253,13 +260,13 @@
               </div>
             </template>
             <v-list width="120" dense>
-              <v-list-item @click="editItem(item)">
+              <v-list-item v-if="can(`shift_edit`)" @click="editItem(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
                   Edit
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="deleteItem(item)">
+              <v-list-item v-if="can(`shift_delete`)" @click="deleteItem(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
                   Delete
@@ -540,6 +547,10 @@ export default {
 
       this.payload.from_date = new Date(item.from_date);
       this.payload.to_date = new Date(item.to_date);
+
+      this.currentDate = item.from_date;
+      this.nextYearDate = item.to_date;
+
       this.showDialog = true;
       this.getComponent();
     },

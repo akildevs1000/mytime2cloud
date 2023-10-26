@@ -149,33 +149,41 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("logs/$date-monthly-flexible-holidays-$companyId.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-            $schedule
-                ->command("task:sync_off_by_day_week1 $companyId")
-                // ->everyMinute()
-                ->dailyAt('02:00')
-                ->appendOutputTo(storage_path("logs/$date-sync-off-by-day-week-1-$companyId.log"))
-                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
-                ->command("task:sync_off_by_day_week2 $companyId")
+                ->command("task:sync_off $companyId")
                 // ->everyMinute()
                 ->dailyAt('02:00')
-                ->appendOutputTo(storage_path("logs/$date-sync-off-by-day-week-2-$companyId.log"))
-                ->runInBackground(); // ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-            $schedule
-                ->command("task:sync_flexible_offs_week1 $companyId")
-                // ->everyMinute()
-                ->dailyAt('02:00')
-                ->appendOutputTo(storage_path("logs/$date-sync-flexible-offs-week-1-$companyId.log"))
+                ->appendOutputTo(storage_path("logs/$date-sync-off-by-day-$companyId.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command("task:sync_off_by_day_week1 $companyId")
+            //     // ->everyMinute()
+            //     ->dailyAt('02:00')
+            //     ->appendOutputTo(storage_path("logs/$date-sync-off-by-day-week-1-$companyId.log"))
+            //     ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-            $schedule
-                ->command("task:sync_flexible_offs_week2 $companyId")
-                // ->everyMinute()
-                ->dailyAt('02:00')
-                ->appendOutputTo(storage_path("logs/$date-sync-flexible-offs-week-2-$companyId.log"))
-                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command("task:sync_off_by_day_week2 $companyId")
+            //     // ->everyMinute()
+            //     ->dailyAt('02:00')
+            //     ->appendOutputTo(storage_path("logs/$date-sync-off-by-day-week-2-$companyId.log"))
+            //     ->runInBackground(); // ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+            // $schedule
+            //     ->command("task:sync_flexible_offs_week1 $companyId")
+            //     // ->everyMinute()
+            //     ->dailyAt('02:00')
+            //     ->appendOutputTo(storage_path("logs/$date-sync-flexible-offs-week-1-$companyId.log"))
+            //     ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+            // $schedule
+            //     ->command("task:sync_flexible_offs_week2 $companyId")
+            //     // ->everyMinute()
+            //     ->dailyAt('02:00')
+            //     ->appendOutputTo(storage_path("logs/$date-sync-flexible-offs-week-2-$companyId.log"))
+            //     ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
         $schedule->call(function () {

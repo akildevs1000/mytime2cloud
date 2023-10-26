@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can(`automation_contnet_access`)">
     <v-dialog
       v-model="dialogAccessSettings"
       width="90%"
@@ -491,6 +491,7 @@
           <span>Sync Devices</span>
         </v-tooltip> -->
         <v-btn
+          v-if="can(`device_create`)"
           x-small
           :ripple="false"
           text
@@ -735,13 +736,16 @@
               </div>
             </template>
             <v-list width="120" dense>
-              <v-list-item @click="editItem(item)">
+              <v-list-item v-if="can(`device_edit`)" @click="editItem(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
                   Edit
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="deleteItem(item)">
+              <v-list-item
+                v-if="can(`device_delete`)"
+                @click="deleteItem(item)"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
                   Delete
@@ -1130,13 +1134,8 @@ export default {
           this.getDataFromApi();
         });
     },
-    can(permission) {
-      let user = this.$auth;
-      return;
-      return (
-        (user && user.permissions.some((e) => e.permission == permission)) ||
-        user.master
-      );
+    can(per) {
+      return this.$pagePermission.can(per, this);
     },
     caps(str) {
       if (str == "" || str == null) {

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`employee_access`)">
+  <div v-if="can(`timezone_mapping_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
@@ -54,6 +54,7 @@
                 <!-- <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }"> -->
                 <v-btn
+                  v-if="can(`timezone_mapping_create`)"
                   dense
                   class="ma-0 px-0"
                   x-small
@@ -207,7 +208,10 @@
                   dense
                   style="background-color: #fff !important"
                 >
-                  <v-list-item @click="displayView(item.id)">
+                  <v-list-item
+                    v-if="can(`timezone_mapping_view`)"
+                    @click="displayView(item.id)"
+                  >
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="primary" small> mdi-view-list </v-icon>
                       View
@@ -220,7 +224,10 @@
                       Edit
                     </v-list-item-title>
                   </v-list-item> -->
-                  <v-list-item @click="deleteItem(item.id, item.timezone_id)">
+                  <v-list-item
+                    v-if="can(`timezone_mapping_delete`)"
+                    @click="deleteItem(item.id, item.timezone_id)"
+                  >
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="error" small> mdi-delete </v-icon>
                       Delete

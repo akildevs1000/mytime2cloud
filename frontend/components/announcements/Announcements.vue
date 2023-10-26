@@ -416,6 +416,7 @@
             <!-- <v-tooltip top color="primary" v-if="can(`announcement_create`)">
               <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
+              v-if="can(`announcement_create`)"
               dense
               class="ma-0 px-0"
               x-small

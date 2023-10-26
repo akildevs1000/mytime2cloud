@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`announcement_access`)">
+  <div v-if="can(`announcement_category_access`)">
     <div class="text-center ma-2">
       <v-snackbar
         v-model="snackbar"
@@ -118,12 +118,13 @@
             <!-- <v-tooltip v-if="can(`leave_type_create`)" top color="primary">
                 <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
+              v-if="can(`announcement_category_create`)"
               dense
               class="ma-0 px-0"
               x-small
               :ripple="false"
               text
-              title="Add LeaveType"
+              title="Add Announcement Category"
             >
               <v-icon class="ml-2" @click="newDialog()" dark
                 >mdi mdi-plus-circle</v-icon
@@ -164,7 +165,7 @@
                   <v-list-item @click="editItem(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon
-                        v-if="can(`leave_type_edit`)"
+                        v-if="can(`announcement_category_edit`)"
                         color="secondary"
                         small
                         @click="editItem(item)"
@@ -177,7 +178,7 @@
                   <v-list-item @click="deleteItem(item)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon
-                        v-if="can(`leave_type_delete`)"
+                        v-if="can(`announcement_category_delete`)"
                         color="error"
                         small
                         @click="deleteItem(item)"

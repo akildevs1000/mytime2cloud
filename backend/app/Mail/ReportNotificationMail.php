@@ -17,10 +17,11 @@ class ReportNotificationMail extends Mailable
      * @return void
      */
     public $model;
-
-    public function __construct($model)
+    public $manager;
+    public function __construct($model, $manager)
     {
         $this->model = $model;
+        $this->manager = $manager;
     }
 
     /**
@@ -45,6 +46,10 @@ class ReportNotificationMail extends Mailable
                 $body_content = $this->model->company->company_mail_content[0]->content;
             }
         }
+
+        $body_content1  = "Hi " . $this->manager->name . '<br/>';
+        $body_content1  =  $body_content1 . "<b>Company:  " . $this->model->company->name . '</b><br/>';
+        $body_content  =  $body_content1 . $body_content;
 
 
         return $this->view('emails.report')->with(["body" =>  $body_content]);

@@ -44,13 +44,21 @@ class AssignedDepartmentEmployeeController extends Controller
                 return $q->with("role");
             },
         ]);
+        $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            return $q->where("branch_id", $request->branch_id);
+        });
         $model->whereHas("user.role", function ($q) {
             return $q->where('name', "ILIKE", "manager");
         });
+
+        // $model->whereHas("user.role", function ($q) {
+        //     return $q->where('id', ">", 0);
+        // });
+
         $model->where("company_id", $request->company_id);
 
 
-        return $model->select(['id', 'first_name', "user_id"])->get();
+        return $model->select(['id', 'first_name', "last_name", "user_id"])->get();
     }
     public function show($id)
     {

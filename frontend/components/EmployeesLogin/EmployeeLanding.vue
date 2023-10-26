@@ -812,7 +812,7 @@ export default {
       this.$axios.get("employee", options).then(({ data }) => {
         console.log("datadata", data);
         if (data.data[0]) this.employeeObject = data.data[0];
-        if (this.employeeObject.leave_group_id)
+        if (this.employeeObject && this.employeeObject.leave_group_id)
           this.gotoGroupDetails(
             this.employeeObject.leave_group_id,
             this.employeeObject.employee_id,
@@ -827,11 +827,13 @@ export default {
     },
     getLastLogin() {
       //
-      this.$axios
-        .get(`activity/${this.employeeObject.user_id}?action=Login`)
-        .then(({ data }) => {
-          this.last_login = data.date_time;
-        });
+
+      if (this.employeeObject)
+        this.$axios
+          .get(`activity/${this.employeeObject.user_id}?action=Login`)
+          .then(({ data }) => {
+            this.last_login = data.date_time;
+          });
     },
 
     openDocumentDrawer() {

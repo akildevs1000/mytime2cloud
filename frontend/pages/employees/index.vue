@@ -575,7 +575,8 @@
           >
 
           <v-icon
-            title="New Employee"
+            v-if="can('employee_create')"
+            title="Add Employee"
             @click="openNewPage()"
             right
             dark
@@ -837,14 +838,19 @@
                   {{ item.first_name ? item.first_name : "---" }}
                   {{ item.last_name ? item.last_name : "---" }}</strong
                 >
-                <div>
+                <div class="secondary-value">
                   {{ item.designation ? caps(item.designation.name) : "---" }}
+
+                  <!-- {{
+                    item.user.branch_login &&
+                    "(" + item.user.branch_login.branch_name + ")"
+                  }} -->
                 </div>
               </v-col>
             </v-row>
           </template>
 
-          <template v-slot:item.department.branch.id="{ item }">
+          <template v-slot:item.branch.branch_name="{ item }">
             {{
               caps(
                 item.department &&
@@ -852,6 +858,9 @@
                   item.department.branch.branch_name
               )
             }}
+            <div class="secondary-value">
+              {{ item.user.branch_login && "(Manager)" }}
+            </div>
           </template>
           <template v-slot:item.department.name.id="{ item }">
             <strong>{{ caps(item.department.name) }}</strong>
@@ -891,19 +900,28 @@
                 </v-btn>
               </template>
               <v-list width="120" dense>
-                <v-list-item @click="viewItem(item)">
+                <v-list-item
+                  v-if="can('employee_profile_view')"
+                  @click="viewItem(item)"
+                >
                   <v-list-item-title style="cursor: pointer">
                     <v-icon color="secondary" small> mdi-eye </v-icon>
                     View
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="editItem(item)">
+                <v-list-item
+                  v-if="can('employee_edit')"
+                  @click="editItem(item)"
+                >
                   <v-list-item-title style="cursor: pointer">
                     <v-icon color="secondary" small> mdi-pencil </v-icon>
                     Edit
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="deleteItem(item)">
+                <v-list-item
+                  v-if="can('employee_delete')"
+                  @click="deleteItem(item)"
+                >
                   <v-list-item-title style="cursor: pointer">
                     <v-icon color="error" small> mdi-delete </v-icon>
                     Delete

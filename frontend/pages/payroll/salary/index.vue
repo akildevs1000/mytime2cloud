@@ -241,7 +241,7 @@
       </v-card>
     </v-dialog>
 
-    <div v-if="can(`employee_view`)">
+    <div v-if="can(`payroll_view`)">
       <v-row>
         <v-col>
           <!-- <Back class="primary white--text" /> -->
@@ -277,6 +277,7 @@
               <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }"> -->
               <v-btn
+                v-if="can(`payroll_payslip_generate_access`)"
                 dense
                 class="ma-0 px-0"
                 x-small
@@ -311,7 +312,9 @@
 
               <v-btn
                 v-btn
-                v-if="selectedItems.length"
+                v-if="
+                  selectedItems.length && can(`payroll_payslip_generate_access`)
+                "
                 @click="generateNewpayslipsSelected"
                 small
                 class="primary toolbar-button-design1"
@@ -325,6 +328,7 @@
                 <!-- <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }"> -->
                 <v-btn
+                  v-if="can(`payroll_payslip_generate_access`)"
                   dense
                   class="ma-0 px-0"
                   x-small

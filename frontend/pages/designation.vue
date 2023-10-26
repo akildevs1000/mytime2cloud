@@ -117,7 +117,7 @@
               <span>Filter</span>
             </v-tooltip> -->
             <v-spacer></v-spacer>
-            <v-toolbar-items>
+            <v-toolbar-items v-if="can(`designation_create`)">
               <v-btn text @click="newItem" small>
                 <v-icon class="ml-2">mdi mdi-plus-circle</v-icon>
               </v-btn>
@@ -183,13 +183,19 @@
                   </v-btn>
                 </template>
                 <v-list width="120" dense>
-                  <v-list-item @click="editItem(item)">
+                  <v-list-item
+                    v-if="can(`designation_edit`)"
+                    @click="editItem(item)"
+                  >
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="secondary" small> mdi-pencil </v-icon>
                       Edit
                     </v-list-item-title>
                   </v-list-item>
-                  <v-list-item @click="deleteItem(item)">
+                  <v-list-item
+                    v-if="can(`designation_delete`)"
+                    @click="deleteItem(item)"
+                  >
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="error" small> mdi-delete </v-icon>
                       Delete

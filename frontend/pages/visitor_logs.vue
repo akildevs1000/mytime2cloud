@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`logs_access`)">
+  <div v-if="can(`visitors_log_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
