@@ -16,4 +16,14 @@ class ChangeRequest extends Model
         'to_date' => 'datetime:d-M-Y',
         'requested_at' => 'datetime:d-M-Y H:i:s',
     ];
+
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

@@ -19,6 +19,7 @@ class ChangeRequestController extends Controller
         $model->when($request->filled("request_type"), fn ($q) => $q->where('request_type', $request->request_type));
         $model->when($request->filled("status"), fn ($q) => $q->where('status', $request->status));
         $model->when($request->filled("branch_id"), fn ($q) => $q->where('branch_id', $request->branch_id));
+        $model->with("branch");
         $model->orderBy("id", "desc");
         return $model->paginate($request->per_page ?? 100);
     }

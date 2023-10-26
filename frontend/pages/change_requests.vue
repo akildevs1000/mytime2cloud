@@ -64,7 +64,7 @@
               </template>
               <span>Filter</span>
             </v-tooltip>
-            <div>
+            <div v-if="isCompany">
               <v-select
                 outlined
                 autocomplete="off"
@@ -233,6 +233,7 @@ export default {
   },
   data: () => ({
     branchesList: [],
+    isCompany: true,
     tableHeight: 750,
     id: "",
     from_menu_filter: "",
@@ -349,21 +350,46 @@ export default {
       this.tableHeight = window.innerHeight - 270;
     });
   },
-  created() {
+  async created() {
     this.loading = true;
-    this.getChangeRequests();
 
-    this.$axios
-      .get(`branches_list`, {
+    console.log(this.$auth.user.branch_id);
+
+    if (this.$auth.user.branch_id) {
+      this.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      return;
+    }
+
+    let branch_header = [
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch_id",
+        value: "branch.branch_name",
+        width: "300px",
+        filterable: true,
+        filterSpecial: true,
+      },
+    ];
+
+    this.headers.splice(0, 0, ...branch_header);
+
+    try {
+      const { data } = await this.$axios.get(`branches_list`, {
         params: {
-          per_page: 1000,
+          per_page: 100,
           company_id: this.$auth.user.company_id,
         },
-      })
-      .then(({ data }) => {
-        this.branchesList = data;
-        this.branch_id = this.$auth.user.branch_id || "";
       });
+      this.branchesList = data;
+    } catch (error) {
+      // Handle the error
+      console.error("Error fetching branch list", error);
+    }
+
+    this.getChangeRequests();
   },
   watch: {
     options: {
@@ -375,7 +401,6 @@ export default {
   },
   methods: {
     updateStatus(item) {
-
       this.$axios
         .post("update-change-request/" + item.id, item)
         .then(({ data }) => {
