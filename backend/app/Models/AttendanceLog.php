@@ -75,6 +75,8 @@ class AttendanceLog extends Model
     {
         $model = self::query();
 
+        $model->whereDoesntHave('device', fn ($q) => $q->where('device_type', 'Access Control'));
+
         $model->with("device")->where("company_id", $request->company_id)
             ->with('employee', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
