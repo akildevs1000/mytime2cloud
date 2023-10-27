@@ -28,7 +28,7 @@
                     <v-card-text>
                       <v-row>
                         <v-col md="6" style="border-right: 1px solid #ddd">
-                          <h5>Contact Details</h5>
+                          <!-- <h5>Contact Details</h5> -->
                           <table class="view-profile-table-lineheight">
                             <tr>
                               <td>
@@ -114,7 +114,7 @@
                           </table>
                         </v-col>
                         <v-col md="6">
-                          <h5>Home Country - Details</h5>
+                          <!-- <h5>Home Country - Details</h5> -->
                           <table class="view-profile-table-lineheight">
                             <tr>
                               <td>
@@ -207,7 +207,7 @@
                     <v-card-text>
                       <v-row>
                         <v-col md="6" style="border-right: 1px solid #ddd">
-                          <h5>Passport Details</h5>
+                          <!-- <h5>Passport Details</h5> -->
                           <table class="view-profile-table-lineheight">
                             <tr>
                               <td>
@@ -272,7 +272,7 @@
                           </table>
                         </v-col>
                         <v-col md="6">
-                          <h5>Emirates Details</h5>
+                          <!-- <h5>Emirates Details</h5> -->
                           <table class="view-profile-table-lineheight">
                             <tr>
                               <td>
@@ -335,7 +335,7 @@
                     <v-card-text>
                       <v-row>
                         <v-col md="6" style="border-right: 1px solid #ddd">
-                          <h5>Visa Details</h5>
+                          <!-- <h5>Visa Details</h5> -->
                           <table class="view-profile-table-lineheight">
                             <tr>
                               <td>
@@ -410,7 +410,7 @@
                           </table>
                         </v-col>
                         <v-col md="6">
-                          <h5>Bank Details</h5>
+                          <!-- <h5>Bank Details</h5> -->
                           <table class="view-profile-table-lineheight">
                             <tr>
                               <td>
@@ -608,7 +608,7 @@
                     <v-card-text>
                       <v-row>
                         <v-col md="6" style="border-right: 1px solid #ddd">
-                          <h5>Settings</h5>
+                          <!-- <h5>Settings</h5> -->
 
                           <table style="width: 70%">
                             <tr>
@@ -648,7 +648,7 @@
                             </tr>
 
                             <tr>
-                              <th>Over Time</th>
+                              <td><strong>Over Time</strong></td>
                               <td>
                                 <div class="text-overline mb-1">
                                   <v-switch
@@ -661,7 +661,7 @@
                               </td>
                             </tr>
                             <tr>
-                              <th>Enable Whatsapp OTP</th>
+                              <td><strong>Enable Whatsapp OTP</strong></td>
                               <td>
                                 <div class="text-overline mb-1">
                                   <v-switch
@@ -670,6 +670,21 @@
                                     class="mt-0 ml-2"
                                     v-model="
                                       employeeObject.user.enable_whatsapp_otp
+                                    "
+                                  ></v-switch>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><strong>Live Tracking Location</strong></td>
+                              <td>
+                                <div class="text-overline mb-1">
+                                  <v-switch
+                                    disabled
+                                    color="success"
+                                    class="mt-0 ml-2"
+                                    v-model="
+                                      employeeObject.user.tracking_status
                                     "
                                   ></v-switch>
                                 </div>
@@ -710,7 +725,7 @@
                 <v-tab-item>
                   <v-card elevation="2">
                     <v-card-text>
-                      <h5>Salary Information</h5>
+                      <!-- <h5>Salary Information</h5> -->
                       <v-row>
                         <v-col md="6" style="border-right: 1px solid #ddd">
                           <table
