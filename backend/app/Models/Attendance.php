@@ -247,9 +247,14 @@ class Attendance extends Model
 
             $q->orderBy($request->sortBy, $sortDesc == 'true' ? 'desc' : 'asc');
         });
+        
         $model->when(!$request->filled('sortBy'), function ($q) use ($request) {
             $q->orderBy('date', 'asc');
         });
+
+        $model->whereDoesntHave('device_in', fn ($q) => $q->where('device_type', 'Access Control'));
+        $model->whereDoesntHave('device_out', fn ($q) => $q->where('device_type', 'Access Control'));
+
         return $model;
     }
 
