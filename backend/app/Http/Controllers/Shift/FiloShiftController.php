@@ -64,8 +64,9 @@ class FiloShiftController extends Controller
 
             $logs = $logs->toArray() ?? [];
 
-            $firstLog = $logs[0];
-            $lastLog = $logs[count($logs) - 1];
+            $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
+            $lastLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "in")->last();
+
 
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;
@@ -96,11 +97,6 @@ class FiloShiftController extends Controller
                 "status" => "M",
             ];
 
-            if ($firstLog["log_type"] == "in") {
-                $item["in"] = $firstLog["log_type"] == "in" ? $firstLog["time"] : "---";
-                $item["device_id_in"] = $firstLog["log_type"] == "in" ? $firstLog["DeviceID"] : "---";
-            }
-
             if ($shift && $item["shift_type_id"] == 6) {
                 $item["late_coming"] =  $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
 
@@ -114,11 +110,9 @@ class FiloShiftController extends Controller
                 $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
                 $item["out"] = $lastLog["time"] ?? "---";
 
-                if (in_array($lastLog["log_type"], ["in", "out"])) {
-                    $item["device_id_out"] = $lastLog["log_type"] == "out" ? $lastLog["DeviceID"] : "---";
-                    $item["out"] = $lastLog["log_type"] == "out" ? $lastLog["time"] : "---";
+                if ($item["out"] !== "---") {
+                    $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
                 }
-                $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
 
                 if ($schedule["isOverTime"] ?? false) {
                     $item["ot"] = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
@@ -134,8 +128,6 @@ class FiloShiftController extends Controller
             }
             $items[] = $item;
         }
-
-        // info($items);
 
         if (!count($items)) {
             $message = '[' . $date . " " . date("H:i:s") . '] Filo Shift: No data found' . $message;

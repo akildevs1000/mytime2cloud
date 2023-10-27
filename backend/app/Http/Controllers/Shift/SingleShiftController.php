@@ -65,8 +65,8 @@ class SingleShiftController extends Controller
 
             $logs = $logs->toArray() ?? [];
 
-            $firstLog = $logs[0];
-            $lastLog = $logs[count($logs) - 1];
+            $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
+            $lastLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "in")->last();
 
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;
@@ -76,10 +76,10 @@ class SingleShiftController extends Controller
             $item = [
                 "roster_id" => 0,
                 "total_hrs" => "---",
-                "in" => $firstLog["log_type"] == "auto" ? $firstLog["time"] : "---",
+                "in" => $firstLog["time"] ?? "---",
                 "out" =>  "---",
                 "ot" => "---",
-                "device_id_in" => $firstLog["log_type"] == "auto" ? $firstLog["DeviceID"] : "---",
+                "device_id_in" =>  $firstLog["DeviceID"] ?? "---",
                 "device_id_out" => "---",
                 "date" => $params["date"],
                 "company_id" => $params["company_id"],
@@ -88,11 +88,7 @@ class SingleShiftController extends Controller
                 "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
                 "status" => "M",
             ];
-
-            if ($firstLog["log_type"] == "in") {
-                $item["in"] = $firstLog["log_type"] == "in" ? $firstLog["time"] : "---";
-                $item["device_id_in"] = $firstLog["log_type"] == "in" ? $firstLog["DeviceID"] : "---";
-            }
+           
 
             if ($shift && $item["shift_type_id"] == 6) {
                 $item["late_coming"] =  $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
@@ -104,14 +100,12 @@ class SingleShiftController extends Controller
 
             if ($shift && $lastLog && count($logs) > 1) {
                 $item["status"] = "P";
-                $item["device_id_out"] = $lastLog["log_type"] == "auto" ? $lastLog["DeviceID"] : "---";
-                $item["out"] = $lastLog["log_type"] == "auto" ? $lastLog["time"] : "---";
+                $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
+                $item["out"] = $lastLog["time"] ?? "---";
 
-                if (in_array($lastLog["log_type"], ["in", "out"])) {
-                    $item["device_id_out"] = $lastLog["log_type"] == "out" ? $lastLog["DeviceID"] : "---";
-                    $item["out"] = $lastLog["log_type"] == "out" ? $lastLog["time"] : "---";
+                if ($item["out"] !== "---") {
+                    $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
                 }
-                $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
 
                 if ($schedule["isOverTime"] ?? false) {
                     $item["ot"] = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
