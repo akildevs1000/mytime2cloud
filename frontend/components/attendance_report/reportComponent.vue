@@ -796,7 +796,7 @@
             <b class="background--text mx-1">({{ log_list.length }})</b>
             <hr />
             <ul v-for="(log, index) in log_list" :key="index">
-              <li>{{ log.date }} - {{ log.time }}</li>
+              <li>{{ log.date }} - {{ log.time }} <b>{{ log.log_type }}</b> </li>
             </ul>
           </v-card-text>
         </v-card>
