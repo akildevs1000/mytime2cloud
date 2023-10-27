@@ -294,12 +294,12 @@ class EmployeeController extends Controller
 
     public function employeeTodayAnnouncements(Request $request, $id)
     {
-        return Employee::where("company_id", $request->company_id)->find($id)->announcements()->where('start_date', '=', date("Y-m-d"))->paginate($request->per_page ?? 100);
+        return Employee::where("company_id", $request->company_id)->find($id)->announcements()->with("category")->where('start_date', '=', date("Y-m-d"))->paginate($request->per_page ?? 100);
     }
 
     public function employeeAnnouncements(Request $request, $id)
     {
-        return Employee::where("company_id", $request->company_id)->find($id)->announcements()->paginate($request->per_page ?? 100);
+        return Employee::where("company_id", $request->company_id)->find($id)->announcements()->with(["category", "user.employee", "user.employeeData", "user.company"])->paginate($request->per_page ?? 100);
     }
 
     public function employeesByDepartmentForAnnoucements(Request $request)

@@ -98,7 +98,7 @@
               <v-col cols="12">
                 <label for="" style="padding-bottom: 5px">Date</label>
                 <CustomFilter
-                  style="float: right; width: 100%"
+                  style="float: right; width: 100%; padding-left: 13px"
                   @filter-attr="filterAttr"
                   :default_date_from="editedItem.start_date"
                   :default_date_to="editedItem.end_date"
@@ -277,32 +277,7 @@
   <NoAccess v-else />
 </template>
 <script>
-import {
-  TiptapVuetify,
-  Image,
-  Heading,
-  Bold,
-  Italic,
-  Strike,
-  Underline,
-  Code,
-  Paragraph,
-  BulletList,
-  OrderedList,
-  ListItem,
-  Link,
-  Blockquote,
-  HardBreak,
-  HorizontalRule,
-  History,
-} from "tiptap-vuetify";
-import Back from "../components/Snippets/Back.vue";
-
 export default {
-  components: {
-    TiptapVuetify,
-    Back,
-  },
   data: () => ({
     dialogFilter: false,
     options: {},
@@ -316,32 +291,7 @@ export default {
     snack: false,
     snackColor: "",
     snackText: "",
-    extensions: [
-      History,
-      Blockquote,
-      Link,
-      Image,
-      Underline,
-      Strike,
-      Italic,
-      ListItem,
-      BulletList,
-      OrderedList,
-      [
-        Heading,
-        {
-          options: {
-            levels: [1, 2, 3],
-          },
-        },
-      ],
-      Bold,
-      Link,
-      Code,
-      HorizontalRule,
-      Paragraph,
-      HardBreak,
-    ],
+
     // starting editor's content
     content: `
       <h1>Yay Headlines!</h1>
@@ -496,7 +446,7 @@ export default {
       // Handle the error
       console.error("Error fetching branch list", error);
     }
-   
+
     let endDate = new Date();
     this.filterYear = endDate.getFullYear();
 
