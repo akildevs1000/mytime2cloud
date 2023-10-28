@@ -218,12 +218,12 @@
                     </v-list-item-title>
                   </v-list-item>
 
-                  <!-- <v-list-item @click="displayEdit(item.id)">
+                  <v-list-item @click="displayEdit(item.id)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="secondary" small> mdi-pencil </v-icon>
                       Edit
                     </v-list-item-title>
-                  </v-list-item> -->
+                  </v-list-item>
                   <v-list-item
                     v-if="can(`timezone_mapping_delete`)"
                     @click="deleteItem(item.id, item.timezone_id)"

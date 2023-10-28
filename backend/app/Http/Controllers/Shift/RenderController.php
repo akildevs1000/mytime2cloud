@@ -725,6 +725,8 @@ class RenderController extends Controller
                                 "employee_id" => $employee->employee_id,
                                 "shift_id" => $employee->shift_id,
                                 "shift_type_id" => $employee->shift_type_id,
+                                "created_at"    => now(),
+                                "updated_at"    => now()
                             ];
                         }
                     }

@@ -86,8 +86,9 @@
                   <v-col md="1" style="padding: 0px; margin-top: -7px">
                     <v-checkbox
                       v-if="
-                        user.timezone.timezone_name == '---' ||
-                        user.timezone.timezone_id == 1
+                        user.timezone &&
+                        (user.timezone.timezone_name == '---' ||
+                          user.timezone.timezone_id == 1)
                       "
                       dense
                       small
@@ -135,7 +136,7 @@
                       v-if="user.timezone && user.timezone.timezone_id != 1"
                     >
                       {{
-                        user.timezone.timezone_name == "---"
+                        user.timezone && user.timezone.timezone_name == "---"
                           ? "---"
                           : user.timezone.timezone_name + " Assigned"
                       }}
@@ -272,8 +273,9 @@
                   <v-col md="1" style="padding: 0px;margin-top-3">
                     <v-checkbox
                       v-if="
-                        user.timezone.timezone_name == '---' ||
-                        user.timezone.timezone_id == 1
+                        user.timezone &&
+                        (user.timezone.timezone_name == '---' ||
+                          user.timezone.timezone_id == 1)
                       "
                       dense
                       small
@@ -667,14 +669,12 @@
       <v-row>
         <v-col cols="12">
           <div class="row">
-            <div class="col col-lg-6 text-center">
-              <span v-if="errors && errors.message" class="text-danger mt-2">{{
+            <div class="col col-lg-9 text-right">
+              <!-- <span v-if="errors && errors.message" class="text-danger mt-2">{{
                 errors.message
-              }}</span>
-            </div>
-            <div class="col col-lg-3 text-right">
-              <div style="width: 150px; float: right">
-                <!-- <button
+              }}</span> -->
+
+              <!-- <button
                   :loading="loading"
                   @click="goback()"
                   type="button"
@@ -683,11 +683,16 @@
                 >
                   Back
                 </button> -->
-              </div>
+              <span
+                style="color: red"
+                v-if="errors && errors.message"
+                class="text-danger mt-2"
+                >{{ errors.message }}</span
+              >
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button
+                <v-btn
                   :loading="loading"
                   @click="onSubmit"
                   type="button"
@@ -695,7 +700,7 @@
                   class="btn primary btn-block white--text v-size--default"
                 >
                   Submit
-                </button>
+                </v-btn>
               </div>
             </div>
           </div>
@@ -748,6 +753,7 @@ export default {
       },
       mappingtId: "",
       timezone_id: "",
+      branch_id: null,
     };
   },
   mounted: function () {
@@ -806,6 +812,7 @@ export default {
         this.rightDevices = data.device_id;
 
         this.timezonesselected = parseInt(data.timezone_id);
+        this.branch_id = data.branch_id;
 
         this.rightEmployees
           .map((e) => ({ id: e.id }))
@@ -820,6 +827,13 @@ export default {
         //this.leftEmployees = leftEmployees.filter((el) => el.timezone.timezone_name == '---');
         //this.rightEmployees = this.leftEmployees.filter((el) => el.timezone.timezone_name != '---');
 
+        for (const newParams of this.leftDevices) {
+          this.updateParamsById(this.rightDevices, newParams.id, newParams);
+        }
+        for (const newParams of this.leftEmployees) {
+          this.updateParamsById(this.rightEmployees, newParams.id, newParams);
+        }
+
         this.rightDevices
           .map((e) => ({ id: e.id }))
           .filter((re) => {
@@ -830,6 +844,14 @@ export default {
             this.leftDevices.splice(selectedindex, 1);
           });
       });
+    },
+    updateParamsById(data, targetId, newParams) {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].id === targetId) {
+          // Update all parameters for the matching ID
+          Object.assign(data[i], newParams);
+        }
+      }
     },
     loadDepartmentemployees() {
       //this.loading = true;
@@ -878,12 +900,9 @@ export default {
 
           this.timezonesselected = parseInt(this.$route.query.id);
 
-          console.log(this.timezones);
-          console.log(this.timezonesselected);
           this.$axios
             .get("employee_timezone_mapping", options)
             .then(({ data }) => {
-              console.log(data);
               data.data.forEach((element) => {
                 //2/3
 
@@ -916,6 +935,7 @@ export default {
       });
     },
     onSubmit() {
+      this.loading = true;
       this.resetErrorMessages();
 
       if (this.timezonesselected == "") {
@@ -935,7 +955,6 @@ export default {
         }, 1000 * 10);
         return false;
       }
-      this.loading = true;
 
       let columnsToFilter = ["systeM_user_id"];
       let onlyUserSystemids = {};
@@ -986,6 +1005,7 @@ export default {
         company_id: this.$auth.user.company_id,
         employee_ids: filteredDataEmp,
         device_ids: filteredDataDevices,
+        branch_id: this.branch_id,
       };
 
       let url = this.endpointUpdatetimezoneStore;
@@ -996,9 +1016,9 @@ export default {
       let SDKSuccessStatus = true;
       let idTable = this.$route.query.id;
       this.$axios.put(`${url}/${idTable}`, options).then(({ data }) => {
+        this.loading = false;
         // this.displaybutton = false;
         if (data.record.SDKResponse) {
-          this.loading = false;
           this.rightDevices.forEach((rightDevicesobj) => {
             // $.each(this.rightDevices, function (index, rightDevicesobj) {
             let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
@@ -1053,7 +1073,7 @@ export default {
           this.rightEmployees = jsrightEmployees;
           this.progressloading = false;
 
-          this.loading = false;
+          //this.loading = false;
           if (!SDKSuccessStatus) {
             {
               this.errors = data.errors;

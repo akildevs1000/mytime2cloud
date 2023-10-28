@@ -154,9 +154,13 @@ class EmployeeTimezoneMappingController extends Controller
                 $SDKresponse = ($SDKObj->PersonAddRangeWithData($SDKjsonRequest));
 
                 $finalArray['SDKRequest'] = $SDKjsonRequest;
-                $finalArray['SDKResponse'] = json_decode($SDKresponse, true);
 
-                $finalArray['recordResponse'] = $request->all();
+                try {
+                    $finalArray['SDKResponse'] = json_decode($SDKresponse, true);
+
+                    $finalArray['recordResponse'] = $request->all();
+                } catch (\Throwable $th) {
+                }
                 return $this->response('EmployeeTimezoneMapping successfully updated.', $finalArray, true);
             } else {
                 return $this->response('EmployeeTimezoneMapping cannot update.', null, false);
@@ -225,7 +229,7 @@ class EmployeeTimezoneMappingController extends Controller
     public function gettimezonesinfo(EmployeeTimezoneMapping $model, Request $request)
     {
         return $model->where('company_id', $request->company_id)
-            ->when($request->filled('branch_id'), fn($q) =>  $q->where('branch_id', $request->branch_id))
+            ->when($request->filled('branch_id'), fn ($q) =>  $q->where('branch_id', $request->branch_id))
             ->when($request->filled('timezoneName'), function ($q) use ($request) {
                 $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezoneName%"));
             })
@@ -235,6 +239,10 @@ class EmployeeTimezoneMappingController extends Controller
             ->when($request->filled('employees'), function ($q) use ($request) {
                 $q->whereJsonContains('employee_id', [['first_name' => "$request->employees"]]);
             })
+            ->when($request->filled('employee_id'), function ($q) use ($request) {
+                $q->whereJsonContains('employee_id', [['employee_id' => $request->employee_id]]);
+            })
+
             ->with(["timezone", "branch"])
             ->paginate($request->per_page);
     }
