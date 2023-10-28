@@ -255,7 +255,13 @@
     "menu": "employee_photo_upload",
     "module": "access_control"
   },
-
+  {
+    "icon": "mdi mdi-clock-time-four-outline",
+    "title": "Access Control Report",
+    "to": "/access_control_report",
+    "menu": "timezone",
+    "module": "access_control"
+  },
   {
     "icon": "mdi-home",
     "title": "Dashboard",

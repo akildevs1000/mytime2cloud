@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AbsentController;
+use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\FlexibleOffController;
 use App\Http\Controllers\MonthlyFlexibleHolidaysController;
 use App\Http\Controllers\OffByDayController;
@@ -39,6 +40,12 @@ Route::post('render_employee_report', [RenderController::class, 'renderEmployeeR
 Route::post('renderFiloRequest', [FiloShiftController::class, 'renderRequest']);
 Route::post('renderSingleRequest', [SingleShiftController::class, 'renderRequest']);
 Route::post('renderMultiRequest', [MultiShiftController::class, 'renderRequest']);
+
+
+
+
+Route::get('access_control_report', [AccessControlController::class, 'index']);
+
 
 
 
