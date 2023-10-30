@@ -35,8 +35,9 @@ export default ({ app }, inject) => {
       return `${year}-${month}-${day} ${hours}:${minutes} `;
     },
     format4: (inputdate) => {
+      console.log(inputdate);
       const currentDate = new Date(inputdate);
-
+      console.log(currentDate);
       const year = currentDate.getFullYear();
       const month = (currentDate.getMonth() + 1).toString().padStart(2, "0"); // Adding 1 to month because it's zero-based.
       const day = currentDate.getDate().toString().padStart(2, "0");
