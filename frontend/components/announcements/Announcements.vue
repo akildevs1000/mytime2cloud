@@ -260,7 +260,7 @@
               </v-col>
               <v-col>
                 <label for="">Category</label>
-                {{ editedItem.category_id }}
+
                 <v-select
                   dense
                   outlined
@@ -1127,7 +1127,7 @@ export default {
           page,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
-          branch_id: this.editedItem.branch_id,
+          //branch_id: this.editedItem.branch_id,
         },
       };
 
