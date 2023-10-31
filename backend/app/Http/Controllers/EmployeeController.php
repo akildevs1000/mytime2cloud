@@ -590,8 +590,8 @@ class EmployeeController extends Controller
     {
 
         $employeeProfile = $this->getSingleEmployeeProfile($id);
-        // return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();
-        return Pdf::loadView('pdf.employee_profile', ["employee" => $employeeProfile])->download();; //->donwload();
+        //return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();
+        return Pdf::loadView('pdf.employee_profile', ["employee" => $employeeProfile])->setPaper('A4', 'potrait')->download();; //->donwload();
     }
     public function employeeLoginUpdate(Request $request, $id)
     {

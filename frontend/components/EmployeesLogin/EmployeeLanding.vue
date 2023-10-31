@@ -57,6 +57,18 @@
                   <span v-html="formatJoiningDate"></span>
                   <span style="float: right; margin-right: -60px"
                     ><a
+                      title="Download Profile PDF"
+                      :href="
+                        getDonwloadLink(
+                          employeeObject.profile_picture_raw,
+                          employeeObject.id
+                        )
+                      "
+                    >
+                      <img src="/icons/icon_pdf.png" class="iconsize" /></a
+                  ></span>
+                  <!-- <span style="float: right; margin-right: -60px"
+                    ><a
                       title="Download Profile Picture"
                       :href="
                         getDonwloadLink(
@@ -68,7 +80,7 @@
                         >mdi-arrow-down-bold-circle</v-icon
                       ></a
                     ></span
-                  >
+                  > -->
                 </div>
               </div>
               <hr />
@@ -711,11 +723,19 @@ export default {
     },
   },
   methods: {
+    // getDonwloadLink(pic, employee_id) {
+    //   return (
+    //     process.env.BACKEND_URL + "/download-emp-pic/" + pic + "/" + employee_id
+    //   );
+    // },
     getDonwloadLink(pic, employee_id) {
       return (
-        process.env.BACKEND_URL + "/download-emp-pic/" + pic + "/" + employee_id
+        process.env.BACKEND_URL +
+        "/download-employee-profile-pdf/" +
+        employee_id
       );
     },
+
     gotoGroupDetails(leaveGroupId, employee_id, employee_name) {
       if (!leaveGroupId) {
         return false;

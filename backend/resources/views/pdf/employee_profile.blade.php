@@ -3,249 +3,63 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 <head>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" />
-
-
-    <style>
-        body {
-            text-align: center;
-            width: 1000px;
-            margin: auto;
-            padding: 0px;
-            ;
-        }
-
-        td,
-        th {
-            font-size: 14px;
-            padding: 0px;
-            margin: 0px;
-
-            border: 0px solid #eeeeee;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            border: none;
-            width: 100%;
-            line-height: 30px;
-        }
-
-
-        th {
-            background-color: #dbdbdb;
-            padding-left: 5px !important;
-
-
-            color: #8838fb;
-        }
-
-
-        .background {
-
-
-            background-color: #8838fb;
-            color: #FFF;
-        }
-
-
-
-        footer {
-            bottom: 0px;
-            position: absolute;
-            width: 100%;
-        }
-
-        /* .page-break {
-            page-break-after: always;
-        } */
-
-        .main-table {
-            padding-bottom: 20px;
-            padding-top: 10px;
-            padding-right: 15px;
-            padding-left: 15px;
-        }
-
-        hr {
-            position: relative;
-            border: none;
-            height: 2px;
-            background: #c5c2c2;
-            padding: 0px
-        }
-
-        .title-font {
-            font-family: Arial, Helvetica, sans-serif !important;
-            font-size: 14px;
-            font-weight: bold
-        }
-
-        .summary-header th {
-            font-size: 10px
-        }
-
-        .summary-table td {
-            font-size: 9px
-        }
-
-        .border {
-            border: 1px solid #DDD;
-        }
-
-        .border-left {
-            border-left: 1px solid #DDD;
-            ;
-        }
-
-        .border-right {
-            border-right: 1px solid #DDD;
-            ;
-        }
-
-        .border-top {
-            border-top: 1px solid #DDD;
-            ;
-        }
-
-        .border-bottom {
-            border-bottom: 1px solid #DDD;
-            ;
-        }
-
-        .border-left0 {
-            border-left: 0px solid #DDD;
-            ;
-        }
-
-        .border-right0 {
-            border-right: 0px solid #DDD;
-            ;
-        }
-
-        .border-top0 {
-            border-top: 0px solid #DDD;
-            ;
-        }
-
-        .border-bottom0 {
-            border-bottom: 0px solid #DDD;
-            ;
-        }
-
-        .left-space {
-            padding-left: 5px;
-        }
-
-        .right-space {
-            padding-right: 5px;
-        }
-
-        .text-right {
-            float: right;
-            padding-right: 5px;
-        }
-
-        .text-left {
-            text-align: left;
-        }
-
-        .header {
-            background-color: #dbdbdb;
-        }
-
-        .material-symbols-outlined {
-            vertical-align: middle;
-        }
-
-        .green {
-            color: green;
-        }
-
-        .red {
-            color: red;
-        }
-    </style>
-</head>
 
 <body>
-    <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
+    <table style=" width:100%">
         <tr>
-            <td style="text-align: left;width: 300px; border :none; padding:15px;   ">
-                <div style="text-align: left;
-    vertical-align: middle;">
-                    @if ($employee->company['logo'] !='')
+            <td style="text-align: left;  padding:15px;  width:30%  ">
 
-                    <img src="{{$employee->company['logo']}}" height="70px" width="200">
+                @if ($employee->company['logo'] !='')
 
-                    @else
-                    <img src="{{ env('APP_URL').'/no-company-logo.png'}}" height="70px" width="200">
-                    @endif
+                <img src="{{$employee->company['logo']}}" width="150">
+
+                @else
+                <img src="{{ env('BASE_URL').'/no-company-logo.png'}}" width="150">
+                @endif
 
 
+
+            </td>
+            <td style="  text-align: center;width:40% ;
+    vertical-align: middle;font-size:16px;border:0px solid black ">
+                <div>
+                    {{$employee->first_name}} {{$employee->last_name}} <br />
+
+                    Employee ID: {{$employee->employee_id}}
                 </div>
             </td>
-            <td style="text-align: left;width: 300px; border :none; padding:15px;; font-size:20px;text-align: center;
-    vertical-align: middle; ">
-                <div> {{$employee->first_name}} {{$employee->last_name}}
+            <td style="float:right;text-align:right;padding-right:5px;width:30% ">
+                <div>
+                    {{$employee->company['name']}}
                 </div>
-                <div> Employee ID: {{$employee->employee_id}}
+                <div>
+                    {{$employee->company['p_o_box_no']}}
                 </div>
-            </td>
-            <td style=" float:right;padding:15px;">
-                <table style="text-align: right; border :none;   margin-top:5px;baczkground-color:blue">
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: right; border :none; ">
-                            <b>
-                                {{$employee->company['name']}}
+                <div> {{$employee->company['location']}} </div>
+                <div>Tel: {{$employee->company['mol_id']}} </div>
 
-                            </b>
-                            <br>
-                        </td>
-                    </tr>
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: right; border :none; ">
-                            <span style="margin-right: 3px"> {{$employee->company['p_o_box_no']}}</span>
-                            <br>
-                        </td>
-                    </tr>
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: right; border :none; ">
-                            <span style="margin-right: 3px">{{$employee->company['location']}}</span>
-                            <br>
-                        </td>
-                    </tr>
-                    <tr style="text-align: left; border :none;">
-                        <td style="text-align: right; border :none; ">
-                            <span style="margin-right: 3px">Tel: {{$employee->company['mol_id']}}</span>
-                            <br>
-                        </td>
-                    </tr>
-                </table>
+
             </td>
         </tr>
+
         <tr>
             <td colspan="3">
                 <table>
                     <tr>
-                        <td style="width:350px;" class="border">
+                        <td class="border">
                             <table>
                                 <tr>
-                                    <td style="width:200px;text-align:center">
+                                    <td style=" text-align:center">
 
-                                        <div style="height:250px">
-                                            <img src="{{  $employee->profile_picture  }}" width="250" height="auto">
+                                        <div style="height:250px;vertical-align:middle">
+                                            <img src="{{  $employee->profile_picture  }}" width="230" height="auto">
                                         </div>
                                         <div class="border-top"><span class="material-symbols-outlined" style="    vertical-align: middle;">
-                                                person
+                                                <img src="{{ env('BASE_URL').'/icons/person.png'}}" width="13">
                                             </span> {{ $employee->first_name  }} {{ $employee->last_name  }}
                                         </div>
                                         <div class="border-top"> <span class="material-symbols-outlined">
-                                                badge
+                                                <img src="{{ env('BASE_URL').'/icons/id.png'}}" width="13">
                                             </span> Employee ID: {{ $employee->employee_id  }}
                                         </div>
                                         <div class="border-top  ">DOJ: {{ date('d M Y', strtotime($employee->joining_date))  }}
@@ -258,26 +72,26 @@
                                         <table>
                                             <tr class="border-top">
                                                 <td style="text-align:left" class="left-space"><span style="color:blue" class="material-symbols-outlined">
-                                                        phone_iphone
+                                                        <img src="{{ env('BASE_URL').'/icons/mobile.png'}}" width="20">
                                                     </span></td>
                                                 <td style="text-align:right" class="right-space">{{ $employee->phone_number  }}</td>
                                             </tr>
                                             <tr class="border-top">
-                                                <td style="text-align:left" class="left-space"><span style="    color: green;
-    font-size: 24px;" class="mdi mdi-whatsapp"></span>
+                                                <td style="text-align:left" class="left-space">
+                                                    <img src="{{ env('BASE_URL').'/icons/whatsapp.png'}}" width="20">
                                                 </td>
                                                 <td style="text-align:right" class="right-space">{{ $employee->whatsapp_number  }}</td>
                                             </tr>
                                             <tr class="border-top">
                                                 <td style="text-align:left" class="left-space"><span class="red material-symbols-outlined">
-                                                        mail
+                                                        <img src="{{ env('BASE_URL').'/icons/mail.png'}}" width="20">
                                                     </span></td>
                                                 <td style="text-align:right" class="right-space">{{ $employee->local_email  }}
                                                 </td>
                                             </tr>
                                             <tr class="border-top">
                                                 <td style="text-align:left" class="left-space"><span class="material-symbols-outlined">
-                                                        login
+                                                        <img src="{{ env('BASE_URL').'/icons/login.png'}}" width="20">
                                                     </span></td>
                                                 <td style="text-align:right" class="right-space">Last Login :{{ date('d M Y', strtotime($employee->last_login))  }}
                                                 </td>
@@ -285,16 +99,15 @@
                                             <tr class="border-top">
                                                 <td style="text-align:left" class="left-space green">
 
-
                                                     @if ($employee->status)
 
                                                     <span class="material-symbols-outlined green">
-                                                        toggle_on
+                                                        <img src="{{ env('BASE_URL').'/icons/off.png'}}" width="20">
                                                     </span>
 
                                                     @else
                                                     <span class="material-symbols-outlined red">
-                                                        toggle_off
+                                                        <img src="{{ env('BASE_URL').'/icons/on.png'}}" width="20">
                                                     </span>
                                                     @endif
 
@@ -309,12 +122,12 @@
                                                     @if ($employee->user->web_login_access)
 
                                                     <span class="material-symbols-outlined green">
-                                                        toggle_on
+                                                        <img src="{{ env('BASE_URL').'/icons/off.png'}}" width="20">
                                                     </span>
 
                                                     @else
                                                     <span class="material-symbols-outlined red">
-                                                        toggle_off
+                                                        <img src="{{ env('BASE_URL').'/icons/on.png'}}" width="20">
                                                     </span>
                                                     @endif
                                                 </td>
@@ -326,12 +139,12 @@
                                                     @if ($employee->user->mobile_app_login_access)
 
                                                     <span class="material-symbols-outlined green">
-                                                        toggle_on
+                                                        <img src="{{ env('BASE_URL').'/icons/off.png'}}" width="20">
                                                     </span>
 
                                                     @else
                                                     <span class="material-symbols-outlined red">
-                                                        toggle_off
+                                                        <img src="{{ env('BASE_URL').'/icons/on.png'}}" width="20">
                                                     </span>
                                                     @endif
                                                 </td>
@@ -344,12 +157,12 @@
                                                     @if ($employee->user->otp_whatsapp)
 
                                                     <span class="material-symbols-outlined green">
-                                                        toggle_on
+                                                        <img src="{{ env('BASE_URL').'/icons/off.png'}}" width="20">
                                                     </span>
 
                                                     @else
                                                     <span class="material-symbols-outlined red">
-                                                        toggle_off
+                                                        <img src="{{ env('BASE_URL').'/icons/on.png'}}" width="20">
                                                     </span>
                                                     @endif
                                                 </td>
@@ -362,12 +175,12 @@
                                                     @if ($employee->overtime)
 
                                                     <span class="material-symbols-outlined green">
-                                                        toggle_on
+                                                        <img src="{{ env('BASE_URL').'/icons/off.png'}}" width="20">
                                                     </span>
 
                                                     @else
                                                     <span class="material-symbols-outlined red">
-                                                        toggle_off
+                                                        <img src="{{ env('BASE_URL').'/icons/on.png'}}" width="20">
                                                     </span>
                                                     @endif
                                                 </td>
@@ -380,12 +193,12 @@
                                                     @if ($employee->user->tracking_status)
 
                                                     <span class="material-symbols-outlined green">
-                                                        toggle_on
+                                                        <img src="{{ env('BASE_URL').'/icons/off.png'}}" width="20">
                                                     </span>
 
                                                     @else
                                                     <span class="material-symbols-outlined red">
-                                                        toggle_off
+                                                        <img src="{{ env('BASE_URL').'/icons/on.png'}}" width="20">
                                                     </span>
                                                     @endif
 
@@ -431,7 +244,7 @@
                             </table>
                         </td>
 
-                        <td style="width:650px" class="border">
+                        <td class="border">
                             <table>
 
                                 <tr>
@@ -441,7 +254,7 @@
     color: #FFF;" class="left-space ">COMMUNICATION </th>
                                 </tr>
                                 <tr>
-                                    <td style="width:325px;border-right:1px solid #DDD">
+                                    <td style=" border-right:1px solid #DDD">
                                         <table>
                                             <tr>
                                                 <th colspan="2" class="left-space ">Home Contact Details</th>
@@ -497,7 +310,7 @@
 
 
 
-                                        <table style="width:100%" class="border-top">
+                                        <table class="border-top">
                                             <tr>
                                                 <th colspan="2" class="left-space">Bank Details</th>
 
@@ -629,8 +442,8 @@
 
 
                                     </td>
-                                    <td style="width:325px">
-                                        <table style="width:100%" class="border-top">
+                                    <td>
+                                        <table class="border-top">
                                             <tr>
                                                 <th colspan="2" class="left-space">Current Address Details</th>
 
@@ -817,6 +630,177 @@
 
         </tr>
     </table>
+    </td>
+    </tr>
+    </table>
 </body>
+
+<style>
+    body {
+        text-align: center;
+        width: 100%;
+        margin: auto;
+        padding: 0px;
+    }
+
+    td,
+    th {
+        font-size: 10px;
+        padding: 0px;
+        margin: 0px;
+
+        border: 0px solid #eeeeee;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        border: none;
+        width: 100%;
+        line-height: 20px;
+    }
+
+
+    th {
+        background-color: #dbdbdb;
+        padding-left: 5px !important;
+
+
+        color: #8838fb;
+    }
+
+
+    .background {
+
+
+        background-color: #8838fb;
+        color: #FFF;
+    }
+
+
+
+    footer {
+        bottom: 0px;
+        position: absolute;
+        width: 100%;
+    }
+
+    /* .page-break {
+            page-break-after: always;
+        } */
+
+    .main-table {
+        padding-bottom: 20px;
+        padding-top: 10px;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
+    hr {
+        position: relative;
+        border: none;
+        height: 2px;
+        background: #c5c2c2;
+        padding: 0px
+    }
+
+    .title-font {
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 14px;
+        font-weight: bold
+    }
+
+    .summary-header th {
+        font-size: 10px
+    }
+
+    .summary-table td {
+        font-size: 9px
+    }
+
+    .border {
+        border: 1px solid #DDD;
+    }
+
+    .border-left {
+        border-left: 1px solid #DDD;
+        ;
+    }
+
+    .border-right {
+        border-right: 1px solid #DDD;
+        ;
+    }
+
+    .border-top {
+        border-top: 1px solid #DDD;
+        ;
+    }
+
+    .border-bottom {
+        border-bottom: 1px solid #DDD;
+        ;
+    }
+
+    .border-left0 {
+        border-left: 0px solid #DDD;
+        ;
+    }
+
+    .border-right0 {
+        border-right: 0px solid #DDD;
+        ;
+    }
+
+    .border-top0 {
+        border-top: 0px solid #DDD;
+        ;
+    }
+
+    .border-bottom0 {
+        border-bottom: 0px solid #DDD;
+        ;
+    }
+
+    .left-space {
+        padding-left: 5px;
+    }
+
+    .right-space {
+        padding-right: 5px;
+    }
+
+    .text-right {
+        float: right;
+        padding-right: 5px;
+    }
+
+    .text-left {
+        text-align: left;
+    }
+
+    .header {
+        background-color: #dbdbdb;
+    }
+
+    .material-symbols-outlined {
+        vertical-align: middle;
+    }
+
+    .green {
+        color: green;
+    }
+
+    .red {
+        color: red;
+    }
+
+    td {
+        border: 0px solid #DDD;
+    }
+</style>
+</head>
 
 </html>
