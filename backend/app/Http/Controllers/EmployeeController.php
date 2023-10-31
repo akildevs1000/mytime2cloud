@@ -585,7 +585,13 @@ class EmployeeController extends Controller
             abort(404);
         }
     }
+    public function downloadEmployeeProfilepdfView(Request $request, $id)
+    {
 
+        $employeeProfile = $this->getSingleEmployeeProfile($id);
+        return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();
+        return Pdf::loadView('pdf.employee_profile', ["employee" => $employeeProfile])->setPaper('A4', 'potrait')->download();; //->donwload();
+    }
     public function downloadEmployeeProfilepdf(Request $request, $id)
     {
 

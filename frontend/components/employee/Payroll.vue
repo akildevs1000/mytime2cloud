@@ -68,7 +68,7 @@
           </v-col>
         </v-row>
 
-        <v-row v-if="displayEditform">
+        <div v-if="displayEditform">
           <v-row class="mt-5">
             <v-col cols="5">
               <label class="mb-1">Basic Salary</label>
@@ -176,7 +176,7 @@
               >
             </v-col>
           </v-row>
-        </v-row>
+        </div>
       </transition>
     </v-container>
     <!-- <table>

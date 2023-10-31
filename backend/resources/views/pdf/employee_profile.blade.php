@@ -7,7 +7,7 @@
 <body>
     <table style=" width:100%">
         <tr>
-            <td style="text-align: left;  padding:15px;  width:30%  ">
+            <td style="text-align: left;  padding:15px;  width:20%  ">
 
                 @if ($employee->company['logo'] !='')
 
@@ -28,7 +28,7 @@
                     Employee ID: {{$employee->employee_id}}
                 </div>
             </td>
-            <td style="float:right;text-align:right;padding-right:5px;width:30% ">
+            <td style="float:right;text-align:right;padding-right:5px;width:40% ">
                 <div>
                     {{$employee->company['name']}}
                 </div>
@@ -52,7 +52,7 @@
                                     <td style=" text-align:center">
 
                                         <div style="height:250px;vertical-align:middle">
-                                            <img src="{{  $employee->profile_picture  }}" width="230" height="auto">
+                                            <img src="{{  $employee->profile_picture  }}" style="padding-top:10px" width="230" height="auto">
                                         </div>
                                         <div class="border-top"><span class="material-symbols-outlined" style="    vertical-align: middle;">
                                                 <img src="{{ env('BASE_URL').'/icons/person.png'}}" width="13">
@@ -93,7 +93,7 @@
                                                 <td style="text-align:left" class="left-space"><span class="material-symbols-outlined">
                                                         <img src="{{ env('BASE_URL').'/icons/login.png'}}" width="20">
                                                     </span></td>
-                                                <td style="text-align:right" class="right-space">Last Login :{{ date('d M Y', strtotime($employee->last_login))  }}
+                                                <td style="text-align:right" class="right-space">Last Login : {{ date('d M Y', strtotime($employee->last_login))  }}
                                                 </td>
                                             </tr>
                                             <tr class="border-top">
@@ -261,7 +261,7 @@
 
                                             </tr>
                                             <tr>
-                                                <td class="left-space">Home Mobile Number</td>
+                                                <td class="left-space" style="width:100px">Home Mobile Number</td>
                                                 <td class="text-right">: {{$employee->home_mobile ?$employee->home_mobile:'---'}}</td>
 
                                             </tr>
@@ -299,11 +299,11 @@
 
 
                                             </tr>
-                                            <tr class="border-top">
+                                            <!-- <tr class="border-top">
                                                 <td class="left-space">&nbsp; </td>
                                                 <td class="text-right"> &nbsp;</td>
 
-                                            </tr>
+                                            </tr> -->
 
 
                                         </table>
@@ -316,7 +316,7 @@
 
                                             </tr>
                                             <tr class="border-top">
-                                                <td class="left-space">Bank Name </td>
+                                                <td class="left-space" style="width:100px">Bank Name </td>
                                                 <td class="text-right">: {{$employee->bank?$employee->bank->bank_name:'---'}} </td>
 
                                             </tr>
@@ -357,11 +357,11 @@
 
                                         <table style="width:100%">
                                             <tr>
-                                                <th colspan="2">Qualification Details</th>
+                                                <th colspan="2" style="vertical-align:middle">Qualification Details</th>
 
                                             </tr>
                                             <tr class="border-top">
-                                                <td class="left-space">Certificate </td>
+                                                <td class="left-space" style="width:100px">Certificate </td>
                                                 <td class="text-right">: {{$employee->qualification ? $employee->qualification->certificate:'---'}} </td>
 
                                             </tr>
@@ -395,7 +395,7 @@
 
                                             </tr>
                                             <tr class="border-top">
-                                                <td class="left-space">Effective Date</td>
+                                                <td class="left-space" style="width:100px">Effective Date</td>
                                                 <td class="text-right">: {{$employee->payroll ? $employee->payroll->effective_date_formatted :'--'}}</td>
 
                                             </tr>
@@ -404,15 +404,23 @@
                                                 <td class="text-right">: {{$employee->payroll ? $employee->payroll->basic_salary :'--'}}</td>
 
                                             </tr>
-                                            @foreach ( $employee->payroll->earnings as $earnings)
+                                            @php
 
+
+                                            if(isset($employee->payroll))
+                                            {
+                                            foreach ( $employee->payroll->earnings as $earnings)
+                                            @endphp
                                             <tr class="border-top">
                                                 <td class="left-space">{{$earnings['label']}}</td>
                                                 <td class="text-right">: {{$earnings['value']}}</td>
 
                                             </tr>
+                                            @php
 
-                                            @endforeach
+
+                                            }
+                                            @endphp
                                         </table>
                                         <table>
                                             <tr>
@@ -420,7 +428,7 @@
 
                                             </tr>
                                             <tr class="border-top">
-                                                <td style="text-align:left" class="left-space">Leave Group </td>
+                                                <td style="text-align:left" class="left-space" style="width:100px">Leave Group </td>
                                                 <td style="text-align:right" class="right-space">: {{$employee->leave_group ? $employee->leave_group->group_name : '---'}}</td>
 
                                             </tr>
@@ -449,45 +457,45 @@
 
                                             </tr>
                                             <tr class="border-top">
-                                                <td class="left-space">Mobile </td>
-                                                <td class="text-right">:{{$employee->local_mobile ? $employee->local_mobile:'---'}}</td>
+                                                <td class="left-space" style="width:100px">Mobile </td>
+                                                <td class="text-right">: {{$employee->phone_number ? $employee->phone_number:'---'}}</td>
 
                                             </tr>
-                                            <tr class="border-top">
+                                            <!-- <tr class="border-top">
                                                 <td class="left-space">Tel </td>
                                                 <td class="text-right">: {{$employee->local_tel ? $employee->local_tel:'---'}}</td>
 
-                                            </tr>
+                                            </tr> -->
                                             <tr class="border-top">
                                                 <td class="left-space">Address </td>
-                                                <td class="text-right">:{{$employee->local_address ?$employee->local_address:'---'}}</td>
+                                                <td class="text-right">: {{$employee->local_address ?$employee->local_address:'---'}}</td>
 
                                             </tr>
 
 
                                             <tr class="border-top">
                                                 <td class="left-space">Fax</td>
-                                                <td class="text-right">:{{$employee->local_fax?$employee->local_fax:'---'}}</td>
+                                                <td class="text-right">: {{$employee->local_fax?$employee->local_fax:'---'}}</td>
 
                                             </tr>
                                             <tr class="border-top">
                                                 <td class="left-space">City</td>
-                                                <td class="text-right">:{{$employee->local_city?$employee->local_city:'---'}}</td>
+                                                <td class="text-right">: {{$employee->local_city?$employee->local_city:'---'}}</td>
 
                                             </tr>
                                             <tr class="border-top">
                                                 <td class="left-space">State </td>
-                                                <td class="text-right">:{{$employee->local_country?$employee->local_country:'---'}}</td>
+                                                <td class="text-right">: {{$employee->local_country?$employee->local_country:'---'}}</td>
 
                                             </tr>
                                             <tr class="border-top">
                                                 <td class="left-space">Country</td>
-                                                <td class="text-right">:{{$employee->local_country?$employee->local_country:'---'}}</td>
+                                                <td class="text-right">: {{$employee->local_country?$employee->local_country:'---'}}</td>
 
                                             </tr>
                                             <tr class="border-top">
                                                 <td class="left-space"> Email</td>
-                                                <td class="text-right">:{{$employee->local_email?$employee->local_email:'---'}}</td>
+                                                <td class="text-right">: {{$employee->local_email?$employee->local_email:'---'}}</td>
 
                                             </tr>
 
@@ -499,7 +507,7 @@
 
                                             </tr>
                                             <tr class="border-top">
-                                                <td class="left-space">Passport No </td>
+                                                <td class="left-space" style="width:100px">Passport No </td>
                                                 <td class="text-right">: {{$employee->passport ? $employee->passport->passport_no : '---'}}</td>
 
 
@@ -543,7 +551,7 @@
 
                                             </tr>
                                             <tr class="border-top">
-                                                <td class="left-space">Emirate Id</td>
+                                                <td class="left-space" style="width:100px">Emirate Id</td>
                                                 <td class="text-right">: {{$employee->emirate ? $employee->emirate->emirate_id : '---'}}</td>
 
                                             </tr>
@@ -575,7 +583,7 @@
 
                                             </tr>
                                             <tr class="border-top">
-                                                <td class="left-space">Visa Number</td>
+                                                <td class="left-space" style="width:100px">Visa Number</td>
                                                 <td class="text-right">: {{$employee->visa ? $employee->visa->visa_no : '---'}}</td>
 
                                             </tr>
@@ -775,6 +783,7 @@
     .text-right {
         float: right;
         padding-right: 5px;
+        text-align: right;
     }
 
     .text-left {

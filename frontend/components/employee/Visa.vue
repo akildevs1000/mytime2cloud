@@ -10,11 +10,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("Visa no") }}</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               v-model="visaItem.visa_no"
               type="text"
               class="form-control"
-            />
+            ></v-text-field>
             <span v-if="errors && errors.visa_no" class="text-danger mt-2">{{
               errors.visa_no[0]
             }}</span>
@@ -23,7 +26,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("note") }}</label>
-            <input v-model="visaItem.note" type="text" class="form-control" />
+            <v-text-field
+              dense
+              small
+              outlined
+              v-model="visaItem.note"
+              type="text"
+              class="form-control"
+            ></v-text-field>
             <span v-if="errors && errors.note" class="text-danger mt-2">{{
               errors.note[0]
             }}</span>
@@ -32,11 +42,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("place of issues") }}</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               v-model="visaItem.place_of_issues"
               type="text"
               class="form-control"
-            />
+            ></v-text-field>
             <span
               v-if="errors && errors.place_of_issues"
               class="text-danger mt-2"
@@ -48,11 +61,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("country") }}</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               v-model="visaItem.country"
               class="form-control"
               type="text"
-            />
+            ></v-text-field>
             <span v-if="errors && errors.country" class="text-danger mt-2">{{
               errors.country[0]
             }}</span>
@@ -62,11 +78,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("issue date") }}</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               v-model="visaItem.issue_date"
               type="date"
               class="form-control"
-            />
+            ></v-text-field>
             <span v-if="errors && errors.issue_date" class="text-danger mt-2">{{
               errors.issue_date[0]
             }}</span>
@@ -76,11 +95,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("expiry date") }}</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               v-model="visaItem.expiry_date"
               type="date"
               class="form-control"
-            />
+            ></v-text-field>
             <span
               v-if="errors && errors.expiry_date"
               class="text-danger mt-2"
@@ -92,11 +114,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("labour no") }}</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               v-model="visaItem.labour_no"
               type="text"
               class="form-control"
-            />
+            ></v-text-field>
             <span v-if="errors && errors.labour_no" class="text-danger mt-2">{{
               errors.labour_no[0]
             }}</span>
@@ -105,11 +130,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">{{ caps("expiry date") }}</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               v-model="visaItem.personal_no"
               type="text"
               class="form-control"
-            />
+            ></v-text-field>
             <span
               v-if="errors && errors.personal_no"
               class="text-danger mt-2"
@@ -122,11 +150,14 @@
             <label class="col-form-label">{{
               caps("labour issue date")
             }}</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               v-model="visaItem.labour_issue_date"
               type="date"
               class="form-control"
-            />
+            ></v-text-field>
             <span
               v-if="errors && errors.labour_issue_date"
               class="text-danger mt-2"
@@ -139,11 +170,14 @@
             <label class="col-form-label">{{
               caps("labour expiry date")
             }}</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               v-model="visaItem.labour_expiry_date"
               type="date"
               class="form-control"
-            />
+            ></v-text-field>
             <span
               v-if="errors && errors.labour_expiry_date"
               class="text-danger mt-2"
