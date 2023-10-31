@@ -594,12 +594,12 @@
                                             </tr>
                                             <tr class="border-top">
                                                 <td class="left-space">Issue Date</td>
-                                                <td class="text-right">: {{$employee->emirate ?  date('d M Y', strtotime($employee->emirate->issue_date)) : '---'}}
+                                                <td class="text-right">: {{$employee->visa ?  date('d M Y', strtotime($employee->visa->issue_date)) : '---'}}
 
                                             </tr>
                                             <tr class="border-top">
                                                 <td class="left-space">Expiry Date</td>
-                                                <td class="text-right">: {{$employee->emirate ?  date('d M Y', strtotime($employee->emirate->expiry_date)) : '---'}}
+                                                <td class="text-right">: {{$employee->visa ?  date('d M Y', strtotime($employee->visa->expiry_date)) : '---'}}
 
                                             </tr>
                                             <tr class="border-top">
