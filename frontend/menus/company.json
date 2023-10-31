@@ -163,9 +163,16 @@
   },
   {
     "icon": "mdi-bell",
-    "title": "Announcements",
+    "title": "Announ.. Old",
     "open_menu": false,
     "to": "/announcement",
+    "module": "employees"
+  },
+  {
+    "icon": "mdi-bell",
+    "title": " Announ.. New",
+    "open_menu": false,
+    "to": "/announcements",
     "module": "employees"
   },
 

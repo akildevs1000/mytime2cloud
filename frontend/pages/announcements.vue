@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import Announcements from "../components/announcements/Announcements_old.vue";
+import Announcements from "../components/announcements/Announcements.vue";
 
 export default {
   components: { Announcements },

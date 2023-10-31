@@ -53,8 +53,22 @@
                     >Employee ID: {{ employeeObject.employee_id }}</strong
                   >
                 </div>
-                <div class="text-center pt-2">
+                <div class="text-center pt-2 mb-2">
                   <span v-html="formatJoiningDate"></span>
+                  <span style="float: right; margin-right: -60px"
+                    ><a
+                      title="Download Profile Picture"
+                      :href="
+                        getDonwloadLink(
+                          employeeObject.profile_picture_raw,
+                          employeeObject.employee_id
+                        )
+                      "
+                      ><v-icon color="violet"
+                        >mdi-arrow-down-bold-circle</v-icon
+                      ></a
+                    ></span
+                  >
                 </div>
               </div>
               <hr />
@@ -697,6 +711,11 @@ export default {
     },
   },
   methods: {
+    getDonwloadLink(pic, employee_id) {
+      return (
+        process.env.BACKEND_URL + "/download-emp-pic/" + pic + "/" + employee_id
+      );
+    },
     gotoGroupDetails(leaveGroupId, employee_id, employee_name) {
       if (!leaveGroupId) {
         return false;

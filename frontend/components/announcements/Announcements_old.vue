@@ -260,7 +260,7 @@
               </v-col>
               <v-col>
                 <label for="">Category</label>
-
+                {{ editedItem.category_id }}
                 <v-select
                   dense
                   outlined
@@ -375,16 +375,40 @@
       <v-col md="12">
         <v-card class="mb-5 mt-2 rounded-md" elevation="0">
           <v-toolbar class="rounded-md" dense flat>
-            <v-toolbar-title> </v-toolbar-title>
+            <v-toolbar-title
+              ><span> {{ Model }} List </span></v-toolbar-title
+            >
             <!-- <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
-
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
+            >
+              <v-icon class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
             <!-- </template>
               <span>Reload</span>
             </v-tooltip> -->
             <!-- <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
-
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+            >
+              <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                >mdi mdi-filter</v-icon
+              >
+            </v-btn>
             <!-- </template>
               <span>Filter</span>
             </v-tooltip> -->
@@ -398,23 +422,10 @@
               x-small
               :ripple="false"
               text
-              title="Add Announcement"
+              title="Announcement"
             >
               <v-icon class="ml-2" @click="dialog = true" dark
                 >mdi mdi-plus-circle</v-icon
-              >
-            </v-btn>
-            <v-btn
-              v-if="can(`announcement_edit`) && selectedItem"
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Edit Announcement"
-            >
-              <v-icon class="ml-2" @click="editItem()" dark
-                >mdi mdi-pencil-circle</v-icon
               >
             </v-btn>
             <!-- </template>
@@ -431,189 +442,266 @@
               <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
             </template>
           </v-snackbar>
-          <v-row>
-            <v-col md="3">
-              <v-card min-height="700">
-                <v-toolbar color="violet" dark style="height: 45px">
-                  <v-toolbar-title style="height: 50px"
-                    >Announcements</v-toolbar-title
-                  >
 
-                  <v-spacer></v-spacer>
-                  <!-- <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    title="Reload"
-                  >
-                    <v-icon class="ml-2" @click="getDataFromApi()" dark
-                      >mdi mdi-reload</v-icon
-                    >
-                  </v-btn>
+          <v-data-table
+            v-if="can(`announcement_view`)"
+            v-model="ids"
+            item-key="id"
+            :headers="headers"
+            :items="data"
+            :loading="loading"
+            :options.sync="options"
+            :footer-props="{
+              itemsPerPageOptions: [10, 50, 100, 500, 1000],
+            }"
+            class="elevation-1"
+            :server-items-length="totalRowsCount"
+          >
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="(header, index) in headers" :key="index">
+                  <v-container>
+                    <TextField
+                      :header="header"
+                      column="title"
+                      @entered-value="handleFilter"
+                    />
+                    <DropDown
+                      :disabled="true"
+                      :header="header"
+                      column="department"
+                      @entered-value="handleFilter"
+                      :items="departments"
+                    />
+                    <DropDown
+                      :disabled="true"
+                      :header="header"
+                      column="employees"
+                      @entered-value="handleFilter"
+                      :items="employees"
+                    />
+                    <DropDown
+                      :disabled="false"
+                      :header="header"
+                      column="categories"
+                      @entered-value="handleFilter"
+                      :items="categories"
+                    />
+                    <TextField
+                      :header="header"
+                      column="description"
+                      @entered-value="handleFilter"
+                    />
+                    <DateRangePicker
+                      :disabled="false"
+                      :header="header"
+                      column="date_range"
+                      @selected-dates="handleDatesFilter"
+                    />
+                  </v-container>
+                </td>
 
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    title="Filter"
-                  >
-                    <v-icon @click="toggleFilter" class="mx-1 ml-2"
-                      >mdi mdi-filter</v-icon
-                    >
-                  </v-btn> -->
-                </v-toolbar>
-                <v-list>
-                  <v-data-table
-                    v-if="can(`announcement_view`)"
-                    v-model="ids"
-                    item-key="id"
-                    :headers="headers"
-                    :items="data"
-                    :loading="loading"
-                    :options.sync="options"
-                    :footer-props="{
-                      itemsPerPageOptions: [10, 50, 100, 500, 1000],
-                    }"
-                    class="elevation-0 annnouncment_table"
-                    :server-items-length="totalRowsCount"
-                    hide-default-header
-                  >
-                    <template
-                      v-slot:item.title="{ item, index }"
-                      style="
-                        padding-left: 0px !important;
-                        padding-right: 0px !important;
-                      "
-                    >
-                      <v-col
-                        md="12"
-                        sm="12"
-                        xs="12"
-                        cols="12"
-                        @click="showContent(item)"
-                        :class="{ table_active: active_el == item.id }"
-                      >
-                        <div class="breakthewords11111">
-                          {{ ++index }}: {{ item.title }}
-                        </div>
-
-                        <v-row class="pt-2">
-                          <v-col cols="8">
-                            <div style="color: grey; font-size: 12px">
-                              Posted:
-                              {{ $dateFormat.format4(item.updated_at) }}
-                            </div>
-                          </v-col>
-                          <v-col
-                            cols="4"
-                            class="text-right"
-                            style="font-size: 12px"
-                          >
-                            <span :style="getPriorityColor(item.category)">{{
-                              item.category && item.category.name
-                            }}</span>
-                          </v-col>
-                        </v-row>
-                      </v-col>
-                    </template>
-                  </v-data-table>
-                </v-list>
-              </v-card></v-col
-            >
-            <v-col md="9">
-              <v-card min-height="700">
-                <v-toolbar dark class="popup_background" style="height: 40px">
-                  <v-toolbar-title style="height: 50px">{{
-                    selectedItem && selectedItem.title
-                  }}</v-toolbar-title>
-
-                  <v-spacer></v-spacer>
-
-                  <div style="height: 50px; font-size: 12px">
-                    Posted:
-                    {{
-                      selectedItem &&
-                      $dateFormat.format4(selectedItem.updated_at)
-                    }}
-                  </div>
-                </v-toolbar>
-                <v-card-text>
-                  <!-- <v-card class="mx-auto" color="#26c6da" dark max-width="400">
-                    <v-card-title>
-                      <span class="text-h6 font-weight-light">{{
-                        selectedItem && selectedItem.title
-                      }}</span>
-                    </v-card-title>
-
-                    <v-card-text class="text-h5 font-weight-bold">
-                      <div
-                        v-if="selectedItem"
-                        v-html="selectedItem.description"
-                      ></div>
-                    </v-card-text>
-
-                    <v-card-actions>
-                      <v-list-item class="grow">
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            <div
-                              v-if="selectedItem"
-                              class="announ_priority"
-                              :style="
-                                ' ' + getPriorityColor(selectedItem.category)
-                              "
-                            >
-                              {{
-                                selectedItem.category &&
-                                selectedItem.category.name
-                              }}
-                            </div></v-list-item-title
-                          >
-                        </v-list-item-content>
-
-                        <v-row align="center" justify="end">
-                          <span class="mr-1">·</span>
-
-                          <span class="subheading">
-                            Posted:
-                            {{
-                              selectedItem &&
-                              $dateFormat.format4(selectedItem.created_at)
-                            }}</span
-                          >
-                        </v-row>
-                      </v-list-item>
-                    </v-card-actions>
-                  </v-card> -->
-                  <div
-                    v-if="selectedItem"
-                    class="announ_priority"
-                    :style="
-                      ' font-size:20px;' +
-                      getPriorityColor(selectedItem.category)
+                <!-- fieldType -->
+                <!-- <DateRangePicker
+                    v-if="
+                      header.column == 'date_range' &&
+                      header.fieldType == 'date_range_picker'
                     "
+                  /> -->
+                <!-- <v-menu
+                    v-if="header.filterSpecial && header.value == 'start_date'"
+                    ref="from_menu_filter"
+                    v-model="from_menu_filter"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
                   >
-                    {{ selectedItem.category && selectedItem.category.name }}
-                  </div>
-                  <div
-                    v-if="selectedItem"
-                    v-html="selectedItem.description"
-                  ></div>
-                  <v-divider class="pa-5"></v-divider>
-                  <div class="text-green bold" style="color: green">
-                    Start Date: {{ selectedItem && selectedItem.start_date }}
-                  </div>
-                  <div class="text-red bold" style="color: red">
-                    End Date: {{ selectedItem && selectedItem.end_date }}
-                  </div>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :hide-details="!from_date_filter"
+                        outlined
+                        dense
+                        v-model="filters[header.value]"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        placeholder="Select Date"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      style="height: 350px"
+                      v-model="filters[header.value]"
+                      no-title
+                      scrollable
+                      @input="applyFilters()"
+                    >
+                      <v-spacer></v-spacer>
+
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="
+                          filters[header.value] = '';
+                          from_menu_filter = false;
+                          applyFilters();
+                        "
+                      >
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu>
+                  <v-menu
+                    v-if="header.filterSpecial && header.value == 'end_date'"
+                    ref="to_menu_filter"
+                    v-model="to_menu_filter"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        clearable
+                        @click:clear="
+                          filters[header.value] = '';
+                          applyFilters();
+                        "
+                        :hide-details="!to_date_filter"
+                        outlined
+                        dense
+                        v-model="filters[header.value]"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        placeholder="Select Date"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      clearable
+                      style="height: 350px"
+                      v-model="filters[header.value]"
+                      no-title
+                      scrollable
+                      @input="applyFilters()"
+                    >
+                      <v-spacer></v-spacer>
+
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="
+                          filters[header.value] = '';
+                          to_menu_filter = false;
+                          applyFilters();
+                        "
+                      >
+                        Clear
+                      </v-btn>
+                    </v-date-picker>
+                  </v-menu> -->
+              </tr>
+            </template>
+
+            <template v-slot:item.start_date="{ item }">
+              {{ item && item.start_date }} - {{ item && item.end_date }}
+            </template>
+            <template v-slot:item.categories="{ item }">
+              {{ item.category && item.category.name }}
+            </template>
+            <template v-slot:item.priority="{ item }">
+              {{ item.category && item.category.priority }}
+            </template>
+            <template v-slot:item.description="{ item }">
+              <div class="breakthewords" v-html="item.description"></div>
+            </template>
+            <template v-slot:item.user="{ item }">
+              {{ getUserDetails(item) }}
+            </template>
+            <template v-slot:item.action="{ item }">
+              <v-menu bottom left>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list width="120" dense>
+                  <!-- <v-list-item @click="gotoDialogPage(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="primary" small> mdi-view-list </v-icon>
+                      View
+                    </v-list-item-title>
+                  </v-list-item> -->
+
+                  <v-list-item @click="editItem(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon
+                        v-if="can(`announcement_edit`)"
+                        color="secondary"
+                        small
+                        @click="editItem(item)"
+                      >
+                        mdi-pencil
+                      </v-icon>
+                      Edit
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="deleteItem(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon
+                        v-if="can(`announcement_delete`)"
+                        color="error"
+                        small
+                        @click="deleteItem(item)"
+                        >mdi-delete
+                      </v-icon>
+                      Delete
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+
+            <template v-slot:item.department.name.id="{ item }">
+              <span
+                v-for="(dep, index) in item.departments"
+                :key="index"
+                small
+                class="  "
+                color="primary"
+              >
+                {{ dep.name }} <br />
+              </span>
+            </template>
+            <template v-slot:item.employees="{ item }">
+              <span
+                v-for="(emp, index) in item.employees.slice(0, 4)"
+                :key="index"
+                small
+                class="p-2 ma-1"
+                color="primary"
+              >
+                {{ emp.first_name }} {{ emp.last_name }} -
+                {{ emp.employee_id }}
+
+                <br />
+              </span>
+              <v-chip
+                small
+                class="primary ma-1"
+                style="color: black; margin-left: 10px !important"
+                @click="gotoDialogPage(item)"
+                v-if="item.employees.length > 4"
+              >
+                More...
+              </v-chip>
+            </template>
+          </v-data-table>
         </v-card>
       </v-col>
     </v-row>
@@ -667,11 +755,6 @@ export default {
       ],
       Bold,
       Paragraph,
-    ],
-    items: [
-      { text: "Real-Time", icon: "mdi-clock" },
-      { text: "Audience", icon: "mdi-account" },
-      { text: "Conversions", icon: "mdi-flag" },
     ],
     branchesList: [],
     categories: [],
@@ -734,6 +817,71 @@ export default {
         value: "title",
         fieldType: "text",
       },
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "department",
+        value: "branch.branch_name",
+        fieldType: "dropdown",
+      },
+      {
+        text: "Departments",
+        align: "left",
+        sortable: true,
+        key: "department",
+        value: "department.name.id",
+        fieldType: "dropdown",
+      },
+      {
+        text: "Employees",
+        align: "left",
+        sortable: true,
+        key: "employees",
+        value: "employees",
+        fieldType: "dropdown",
+      },
+      {
+        text: "Description",
+        align: "left",
+        sortable: true,
+        key: "description",
+        value: "description",
+        fieldType: "text",
+        class: "breakthewords",
+      },
+      {
+        text: "Date Range",
+        align: "left",
+        sortable: false,
+        key: "date_range",
+        value: "start_date",
+        fieldType: "date_range_picker",
+      },
+      {
+        text: "Category",
+        align: "left",
+        sortable: false,
+        key: "categories",
+        value: "categories",
+        fieldType: "dropdown",
+      },
+      {
+        text: "User",
+        align: "left",
+        sortable: false,
+        key: "user",
+        value: "user",
+        fieldType: "dropdown",
+      },
+
+      {
+        width: "50px",
+        text: "Actions",
+        align: "center",
+        value: "action",
+        sortable: false,
+      },
     ],
     editedIndex: -1,
     editedItem: {
@@ -767,28 +915,6 @@ export default {
     DialogEmployeesData: {},
 
     employees: [],
-
-    items: [
-      {
-        icon: true,
-        title: "Jason Oner",
-        avatar: "https://cdn.vuetifyjs.com/images/lists/1.jpg",
-      },
-      {
-        title: "Travis Howard",
-        avatar: "https://cdn.vuetifyjs.com/images/lists/2.jpg",
-      },
-      {
-        title: "Ali Connors",
-        avatar: "https://cdn.vuetifyjs.com/images/lists/3.jpg",
-      },
-      {
-        title: "Cindy Baker",
-        avatar: "https://cdn.vuetifyjs.com/images/lists/4.jpg",
-      },
-    ],
-    active_el: "",
-    selectedItem: null,
   }),
 
   computed: {
@@ -861,29 +987,6 @@ export default {
   },
 
   methods: {
-    showContent(el) {
-      console.log(el);
-      this.active_el = el.id;
-      this.selectedItem = el;
-    },
-    getPriorityColor(category) {
-      if (category == null) return "";
-      else {
-        if (category.name == "Urgent") {
-          return "color:#F44336";
-        } else if (category.name == "Informational") {
-          return "color:#3F51B5";
-        } else if (category.name == "Meeting") {
-          return "color:#FF5722";
-        } else if (category.name == "Priority") {
-          return "color:#4CAF50";
-        } else if (category.name == "Informational") {
-          return "color:#607D8B";
-        } else if (category.name == "Low Priority") {
-          return "color:#000000";
-        }
-      }
-    },
     getbranchesList() {
       this.payloadOptions = {
         params: {
@@ -903,8 +1006,6 @@ export default {
           //   ...this.branchesList,
           // ];
           this.branch_id = "";
-
-          this.getDepartments();
         }
       });
     },
@@ -967,7 +1068,6 @@ export default {
         this.departments = data.data;
 
         if (this.editItemId > -1) {
-          this.employeesByDepartment();
         } else {
           this.toggleDepartmentSelection();
         }
@@ -1044,7 +1144,6 @@ export default {
         //   this.loading = false;
         //   return false;
         // }
-        if (data.data[0]) this.showContent(data.data[0]);
         this.totalRowsCount = this.total = data.total;
 
         this.data = data.data;
@@ -1059,8 +1158,7 @@ export default {
       }
     },
 
-    editItem() {
-      let item = this.selectedItem;
+    editItem(item) {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
 
@@ -1127,7 +1225,7 @@ export default {
           page,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
-          //branch_id: this.editedItem.branch_id,
+          branch_id: this.editedItem.branch_id,
         },
       };
 
@@ -1208,7 +1306,7 @@ export default {
   },
 };
 </script>
-<!-- <style>
+<style>
 .tiptap-vuetify-editor__content {
   min-height: 400px !important;
 }
@@ -1224,4 +1322,4 @@ export default {
 .tiptap-icon .v-btn--icon {
   color: white !important;
 }
-</style> -->
+</style>

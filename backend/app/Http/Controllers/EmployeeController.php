@@ -566,7 +566,20 @@ class EmployeeController extends Controller
             'status' => true,
         ], 200);
     }
+    public function downloadEmployeePic(Request $request, $id, $employee_id)
+    {
+        // Define the path to the file in the public folder
+        $filePath = public_path("media/employee/profile_picture/" . $id);
 
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Create a response to download the file
+            return response()->download($filePath, $employee_id . ".jpg");
+        } else {
+            // Return a 404 Not Found response if the file doesn't exist
+            abort(404);
+        }
+    }
     public function employeeLoginUpdate(Request $request, $id)
     {
         $arr = [];

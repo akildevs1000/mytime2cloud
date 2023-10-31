@@ -715,9 +715,10 @@ export default {
       if (this.$auth.user && this.$auth.user.user_type == "master") {
         logosrc = "/no-image.PNG";
       } else if (this.$auth.user && this.$auth.user.user_type == "employee") {
-        logosrc = this.$auth.user.employee.profile_picture || "";
+        logosrc =
+          this.$auth.user.employee.profile_picture || "/no-profile-image.jpg";
       } else if (this.$auth.user && this.$auth.user.user_type == "branch") {
-        logosrc = this.$auth.user.branch_logo || "";
+        logosrc = this.$auth.user.branch_logo || "/no-profile-image.jpg";
       }
 
       if (logosrc == "") {
@@ -1417,6 +1418,23 @@ button {
 
 .branchlogo {
   width: 50px;
+}
+
+.table_active {
+  background: #e1e1e1;
+  border-left: 1px solid green;
+  font-weight: bold;
+}
+.annnouncment_table .text-left {
+  padding: 0px !important;
+}
+.announ_priority {
+  color: rgb(63, 81, 181);
+  width: 100%;
+  text-align: center;
+  padding-bottom: 10px;
+  font-weight: bold;
+  font-size: 19px;
 }
 </style>
 

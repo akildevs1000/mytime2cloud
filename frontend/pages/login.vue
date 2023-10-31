@@ -409,7 +409,7 @@ export default {
             //   id = data.user?.id;
             //   name = data.user?.name;
             // }
-            console.log("verification1", data.user.user_type);
+
             if (data.user && data.user.user_type == "master") {
               this.$router.push(`/master`);
 
