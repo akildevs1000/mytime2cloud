@@ -558,4 +558,33 @@ class DeviceController extends Controller
             DeviceNotificationsLog::create($data);
         }
     }
+
+    public function seedDefaultData($company_id)
+    {
+        $data = [];
+
+        foreach (range(1, 10) as $i) {
+            $data[] = [
+                "company_id" => $company_id,
+                "branch_id" => 1,
+                "status_id" => 1,
+                "name" => "demo-" . $i,
+                "short_name" => "demo-" . $i,
+                "device_id" => "OX-886202011" . $i,
+                "location" => "demo-" . $i,
+                "ip" => "0.0.0.0",
+                "port" => "00000",
+                "model_number" => "demo-" . $i,
+                "device_type" => "Access Control",
+                "synced" => 0,
+                "function" => "demo",
+                "serial_number" => "demo-" . $i,
+                "utc_time_zone" => "demo"
+            ];
+        }
+
+        Device::insert($data);
+
+        return "Cron DeviceSeeder: " . count($data) . " record has been inserted.";
+    }
 }

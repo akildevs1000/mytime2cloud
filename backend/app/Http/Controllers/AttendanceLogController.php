@@ -8,6 +8,8 @@ use App\Models\Employee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Storage;
 
@@ -222,7 +224,7 @@ class AttendanceLogController extends Controller
     public function GenerateLog(Request $request)
     {
         $message = "";
-        
+
         try {
             $message = AttendanceLog::create($request->all());
 
@@ -476,5 +478,35 @@ class AttendanceLogController extends Controller
         //     'body' => $th,
         // ];
         // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+    }
+
+    /**
+     * Seed default attendance log data for a company.
+     *
+     * @param int $company_id
+     * @param int $user_id (optional)
+     * @return string
+     */
+    public function seedDefaultData($company_id, $user_id = 0)
+    {
+        $deviceIds = Device::where("company_id", $company_id)->pluck("device_id")->toArray();
+
+        $logs = ["09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"];
+
+        $data = [];
+
+        foreach (range(1, 25) as $_) {
+
+            $logTime = date("Y-m-d") . " " . Arr::random($logs) . ":" . Arr::random($logs);
+
+            $data[] = [
+                'UserID' => $user_id,
+                'LogTime' => $logTime,
+                'DeviceID' => Arr::random($deviceIds),
+                'company_id' => $company_id,
+            ];
+        }
+        AttendanceLog::insert($data);
+        return "Attendance Log Seeder: " . count($data) . " records have been inserted.";
     }
 }
