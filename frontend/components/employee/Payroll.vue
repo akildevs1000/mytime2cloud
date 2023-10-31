@@ -128,12 +128,6 @@
                 >{{ errors.effective_date[0] }}</span
               >
             </v-col>
-            <v-col cols="2" style="padding-top: 40px">
-              <label class="mb-1">&nbsp</label>
-              <v-btn dark class="primary" @click="addEarning" small>
-                <v-icon small>mdi-plus</v-icon> Earnings
-              </v-btn>
-            </v-col>
           </v-row>
           <v-row v-for="(d, index) in payroll.earnings" :key="index">
             <v-col cols="5">
@@ -163,6 +157,16 @@
                 x-small
               >
                 <v-icon>mdi-delete</v-icon>
+              </v-btn>
+
+              <v-btn
+                v-if="index == payroll.earnings.length - 1"
+                dark
+                class="primary"
+                @click="addEarning"
+                small
+              >
+                <v-icon small>mdi-plus</v-icon> Earnings
               </v-btn>
             </v-col>
           </v-row>
