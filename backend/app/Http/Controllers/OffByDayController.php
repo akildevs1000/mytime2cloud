@@ -95,6 +95,7 @@ class OffByDayController extends Controller
                     "employee_id" => $missingEmployee->employee_id,
                     "shift_id" => $schedule->shift_id,
                     "shift_type_id" => $schedule->shift_type_id,
+                    "testing" => "renderOffByDayScript"
                 ];
             }
         }

@@ -727,6 +727,7 @@ class RenderController extends Controller
                                 "shift_type_id" => $employee->shift_type_id,
                                 "created_at"    => date('Y-m-d H:i:s'),
                                 "updated_at"    => date('Y-m-d H:i:s'),
+                                "testing" => "renderOffScript"
                             ];
                         }
                     }
