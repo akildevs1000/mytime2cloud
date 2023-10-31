@@ -5,8 +5,47 @@
 <head>
 
 <body>
+    <header class="row">
+        <table style=" width:100%">
+            <tr>
+                <td style="text-align: left;  padding:15px;  width:20%  ">
+
+                    @if ($employee->company['logo'] !='')
+
+                    <img src="{{$employee->company['logo']}}" width="150">
+
+                    @else
+                    <img src="{{ env('BASE_URL').'/no-company-logo.png'}}" width="150">
+                    @endif
+
+
+
+                </td>
+                <td style="  text-align: center;width:40% ;
+    vertical-align: middle;font-size:16px;border:0px solid black ">
+                    <div>
+                        {{$employee->first_name}} {{$employee->last_name}} <br />
+
+                        Employee ID: {{$employee->employee_id}}
+                    </div>
+                </td>
+                <td style="float:right;text-align:right;padding-right:5px;width:40% ">
+                    <div>
+                        {{$employee->company['name']}}
+                    </div>
+                    <div>
+                        {{$employee->company['p_o_box_no']}}
+                    </div>
+                    <div> {{$employee->company['location']}} </div>
+                    <div>Tel: {{$employee->company['mol_id']}} </div>
+
+
+                </td>
+            </tr>
+        </table>
+    </header>
     <table style=" width:100%">
-        <tr>
+        <!-- <tr>
             <td style="text-align: left;  padding:15px;  width:20%  ">
 
                 @if ($employee->company['logo'] !='')
@@ -40,7 +79,7 @@
 
 
             </td>
-        </tr>
+        </tr> -->
 
         <tr>
             <td colspan="3">
