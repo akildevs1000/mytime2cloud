@@ -795,8 +795,8 @@
                               <td>
                                 <strong>Type</strong> :
                                 {{
-                                  employeeObject.bank.type
-                                    ? employeeObject.bank.type
+                                  employeeObject.qualification.type
+                                    ? employeeObject.qualification.type
                                     : "---"
                                 }}
                               </td>

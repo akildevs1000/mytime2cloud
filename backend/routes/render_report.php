@@ -39,6 +39,3 @@ Route::post('render_employee_report', [RenderController::class, 'renderEmployeeR
 Route::post('renderFiloRequest', [FiloShiftController::class, 'renderRequest']);
 Route::post('renderSingleRequest', [SingleShiftController::class, 'renderRequest']);
 Route::post('renderMultiRequest', [MultiShiftController::class, 'renderRequest']);
-
-
-

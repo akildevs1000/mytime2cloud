@@ -19,3 +19,4 @@ Route::get('employee-today-announcements/{id}', [EmployeeController::class, 'emp
 
 Route::get('department-employee', [DepartmentController::class, 'departmentEmployee']);
 Route::get('download-emp-pic/{id}/{name}', [EmployeeController::class, 'downloadEmployeePic']);
+Route::get('download-employee-profile-pdf/{id}', [EmployeeController::class, 'downloadEmployeeProfilepdf']);

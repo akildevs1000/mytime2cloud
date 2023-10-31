@@ -599,7 +599,7 @@ class AttendanceController extends Controller
                 "employee_id" => $params["employee_id"],
                 "shift_id" => $employee->schedule->shift_id,
                 "shift_type_id" => $employee->schedule->shift_type_id,
-                "status" => Arr::random(["P", "A", "M", "O","ME"]),
+                "status" => Arr::random(["P", "A", "M", "O", "ME"]),
                 "in" => "---",
                 "out" => "---",
                 "total_hrs" => "---",

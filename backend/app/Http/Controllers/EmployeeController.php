@@ -23,6 +23,7 @@ use App\Models\Payslips;
 use App\Models\ScheduleEmployee;
 use App\Models\Timezone;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -274,6 +275,10 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         return $employee->with(["reportTo", "schedule", "user", "department", "sub_department", "designation", "role"])->whereId($employee->id)->first();
+    }
+    public function getSingleEmployeeProfile($id)
+    {
+        return Employee::with(["company", "reportTo", "schedule", "user.branchLogin", "department", "sub_department", "designation", "role", "leave_group"])->whereId($id)->first();
     }
     public function employeesList(Request $request)
     {
@@ -579,6 +584,14 @@ class EmployeeController extends Controller
             // Return a 404 Not Found response if the file doesn't exist
             abort(404);
         }
+    }
+
+    public function downloadEmployeeProfilepdf(Request $request, $id)
+    {
+
+        $employeeProfile = $this->getSingleEmployeeProfile($id);
+        // return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();
+        return Pdf::loadView('pdf.employee_profile', ["employee" => $employeeProfile])->download();; //->donwload();
     }
     public function employeeLoginUpdate(Request $request, $id)
     {
