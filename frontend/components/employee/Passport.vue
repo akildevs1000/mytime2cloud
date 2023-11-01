@@ -9,24 +9,32 @@
       <v-col cols="6">
         <div class="form-group">
           <label class="col-form-label">{{ caps("passport no") }}</label>
-          <input
+
+          <v-text-field
+            dense
+            small
+            outlined
             v-model="passport_list.passport_no"
             type="text"
             class="form-control"
-          />
+          ></v-text-field>
           <span v-if="errors && errors.passport_no" class="text-danger mt-2">{{
             errors.passport_no[0]
           }}</span>
         </div>
       </v-col>
+
       <v-col cols="6">
         <div class="form-group">
           <label class="col-form-label">{{ caps("note") }}</label>
-          <input
+          <v-text-field
+            dense
+            small
+            outlined
             v-model="passport_list.note"
             type="text"
             class="form-control"
-          />
+          ></v-text-field>
           <span v-if="errors && errors.note" class="text-danger mt-2">{{
             errors.note[0]
           }}</span>
@@ -35,11 +43,14 @@
       <v-col cols="6">
         <div class="form-group">
           <label class="col-form-label">{{ caps("place of issues") }}</label>
-          <input
+          <v-text-field
+            dense
+            small
+            outlined
             v-model="passport_list.place_of_issues"
             type="text"
             class="form-control"
-          />
+          ></v-text-field>
           <span
             v-if="errors && errors.place_of_issues"
             class="text-danger mt-2"
@@ -51,11 +62,14 @@
       <v-col cols="6">
         <div class="form-group">
           <label class="col-form-label">{{ caps("country") }}</label>
-          <input
+          <v-text-field
+            dense
+            small
+            outlined
             v-model="passport_list.country"
             class="form-control"
             type="text"
-          />
+          ></v-text-field>
           <span v-if="errors && errors.country" class="text-danger mt-2">{{
             errors.country[0]
           }}</span>
@@ -65,11 +79,14 @@
       <v-col cols="6">
         <div class="form-group">
           <label class="col-form-label">{{ caps("issue date") }}</label>
-          <input
+          <v-text-field
+            dense
+            small
+            outlined
             v-model="passport_list.issue_date"
             type="date"
             class="form-control"
-          />
+          ></v-text-field>
           <span v-if="errors && errors.issue_date" class="text-danger mt-2">{{
             errors.issue_date[0]
           }}</span>
@@ -79,11 +96,14 @@
       <v-col cols="6">
         <div class="form-group">
           <label class="col-form-label">{{ caps("expiry date") }}</label>
-          <input
+          <v-text-field
+            dense
+            small
+            outlined
             v-model="passport_list.expiry_date"
             type="date"
             class="form-control"
-          />
+          ></v-text-field>
           <span v-if="errors && errors.expiry_date" class="text-danger mt-2">{{
             errors.expiry_date[0]
           }}</span>

@@ -9,9 +9,9 @@
                 <div style=";">
                     <br> <br> <br>
                     @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" height="120px" width="180px">
+                    <img src="{{ $company->logo }}" height="120px" width="180px">
                     @else
-                        <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="120px" width="180px">
+                    <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="120px" width="180px">
                     @endif
 
                     <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
@@ -69,8 +69,7 @@
                 </div>
             </td>
             <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
-                <table class="summary-table"
-                    style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
+                <table class="summary-table" style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
                     <tr style="border: none">
                     </tr>
                     <tr class="summary-header" style="border: none;background-color:#eeeeee">
@@ -84,8 +83,7 @@
                         <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
                     </tr>
                 </table>
-                <table class="summary-table"
-                    style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
+                <table class="summary-table" style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
                     <tr style="border: none">
                     </tr>
                     <tr class="summary-header" style="border: none;background-color:#eeeeee">
@@ -112,95 +110,87 @@
             {{-- <p class="page"> </p> --}}
             <p></p>
             @php
-                $p = count($data) / 50;
-                if ($p <= 1) {
-                    echo '<span></span>';
-                } else {
-                    for ($a = 1; $a <= $p; $a++) {
-                        echo '<span></span>';
-                    }
-                }
-            @endphp
+            $p = count($data) / 50;
+            if ($p <= 1) { echo '<span></span>' ; } else { for ($a=1; $a <=$p; $a++) { echo '<span></span>' ; } } @endphp </div>
+                <div id="pageNumbers">
+                    <div class="page-number" style="font-size: 9px"></div>
+                </div>
         </div>
-        <div id="pageNumbers">
-            <div class="page-number" style="font-size: 9px"></div>
-        </div>
-    </div>
 
-    <footer id="page-bottom-line" style="padding-top: 100px!important">
-        <hr style="width: 100%;">
-        <table class="footer-main-table">
-            <tr style="border :none">
-                <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
-                <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
-                <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
-                </td>
-                <td style="text-align: right;border :none;">
-                    <b>Powered by</b>: <span style="color:blue">
-                        <a href="https://ideahrms.com/" target="_blank">ideahrms.com</a>
-                    </span>
-                </td>
-                <td style="text-align: right;border :none">
-                    Printed on : {{ date('d-M-Y ') }}
-                </td>
-            </tr>
-        </table>
-    </footer>
-    @php
+        <footer id="page-bottom-line" style="padding-top: 100px!important">
+            <hr style="width: 100%;">
+            <table class="footer-main-table">
+                <tr style="border :none">
+                    <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
+                    <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
+                    <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
+                    </td>
+                    <td style="text-align: right;border :none;">
+                        <b>Powered by</b>: <span style="color:blue">
+                            <a href="https://ideahrms.com/" target="_blank">ideahrms.com</a>
+                        </span>
+                    </td>
+                    <td style="text-align: right;border :none">
+                        Printed on : {{ date('d-M-Y ') }}
+                    </td>
+                </tr>
+            </table>
+        </footer>
+        @php
         $statusColor = '';
         $i = 0;
-    @endphp
+        @endphp
 
-    <table class="main-table" style="margin-bottom:0px;padding-bottom:0px">
-        <tr>
-            <td>Employee Id : {{ $info->employee->employee_id }}</td>
-            <td>Employee Name : {{ $info->employee->display_name }}</td>
-            <td>Department : {{ $info->employee->department->name ?? 'All' }}</td>
-            <td>Total Working Hours : {{ $info->total_hours }}</td>
-            <td>Total OT Hours : {{ $info->total_ot_hours }}</td>
-        </tr>
-    </table>
-    <table class="main-table">
-        <tr style="text-align: left;font-weight:bold">
-            <td style="text-align:  left;width:10px"> # </td>
-            <td style="text-align:  center;width:40px"> Date </td>
-            <td style="text-align:  center;width:40px"> Day </td>
-            <td style="text-align:  center;width:80px"> Roster </td>
+        <table class="main-table" style="margin-bottom:0px;padding-bottom:0px">
+            <tr>
+                <td>Employee Id : {{ $info->employee->employee_id }}</td>
+                <td>Employee Name : {{ $info->employee->display_name }}</td>
+                <td>Department : {{ $info->employee->department->name ?? 'All' }}</td>
+                <td>Total Working Hours : {{ $info->total_hours }}</td>
+                <td>Total OT Hours : {{ $info->total_ot_hours }}</td>
+            </tr>
+        </table>
+        <table class="main-table">
+            <tr style="text-align: left;font-weight:bold">
+                <td style="text-align:  left;width:10px"> # </td>
+                <td style="text-align:  center;width:40px"> Date </td>
+                <td style="text-align:  center;width:40px"> Day </td>
+                <td style="text-align:  center;width:80px"> Roster </td>
 
-            <td style="text-align:  center;width:40px"> In1 </td>
-            <td style="text-align:  center;width:40px"> Out1 </td>
+                <td style="text-align:  center;width:40px"> In1 </td>
+                <td style="text-align:  center;width:40px"> Out1 </td>
 
-            <td style="text-align:  center;width:40px"> In2 </td>
-            <td style="text-align:  center;width:40px"> Out2 </td>
+                <td style="text-align:  center;width:40px"> In2 </td>
+                <td style="text-align:  center;width:40px"> Out2 </td>
 
-            <td style="text-align:  center;width:40px"> In3 </td>
-            <td style="text-align:  center;width:40px"> Out3 </td>
+                <td style="text-align:  center;width:40px"> In3 </td>
+                <td style="text-align:  center;width:40px"> Out3 </td>
 
-            <td style="text-align:  center;width:40px"> In4 </td>
-            <td style="text-align:  center;width:40px"> Out4 </td>
+                <td style="text-align:  center;width:40px"> In4 </td>
+                <td style="text-align:  center;width:40px"> Out4 </td>
 
-            <td style="text-align:  center;width:40px"> In5 </td>
-            <td style="text-align:  center;width:40px"> Out5 </td>
+                <td style="text-align:  center;width:40px"> In5 </td>
+                <td style="text-align:  center;width:40px"> Out5 </td>
 
-            <td style="text-align:  center;width:40px"> Total Hours </td>
-            <td style="text-align:  center;width:40px"> OT </td>
-            <td style="text-align:  center;width:40px"> Status </td>
-        </tr>
-        {{-- @dd($data) --}}
-        @foreach ($data as $employee)
+                <td style="text-align:  center;width:40px"> Total Hours </td>
+                <td style="text-align:  center;width:40px"> OT </td>
+                <td style="text-align:  center;width:40px"> Status </td>
+            </tr>
+            {{-- @dd($data) --}}
+            @foreach ($data as $employee)
             @php
-                $employee = $employee[0];
-                if ($employee->status == 'P') {
-                    $statusColor = 'green';
-                } elseif ($employee->status == 'A') {
-                    $statusColor = 'red';
-                } elseif ($employee->status == 'O') {
-                    $statusColor = 'gray';
-                } elseif ($employee->status == 'M') {
-                    $statusColor = 'orange';
-                } elseif ($employee->status == '---') {
-                    $statusColor = '#f34100ed';
-                }
+            $employee = $employee[0];
+            if ($employee->status == 'P') {
+            $statusColor = 'green';
+            } elseif ($employee->status == 'A') {
+            $statusColor = 'red';
+            } elseif ($employee->status == 'O') {
+            $statusColor = 'gray';
+            } elseif ($employee->status == 'M') {
+            $statusColor = 'orange';
+            } elseif ($employee->status == '---') {
+            $statusColor = '#f34100ed';
+            }
             @endphp
             <tbody>
                 <tr style="text-align:  center;">
@@ -224,11 +214,11 @@
                     </td>
                 </tr>
             </tbody>
-        @endforeach
-    </table>
-    @php
-        
-    @endphp
+            @endforeach
+        </table>
+        @php
+
+        @endphp
 
 </body>
 <style>
@@ -238,7 +228,7 @@
 
     #pageNumbers div:before {
         counter-increment: currentPage;
-        content: "Page "counter(currentPage) " of ";
+        content: "Page " counter(currentPage) " of ";
     }
 
     #pageNumbers div:after {

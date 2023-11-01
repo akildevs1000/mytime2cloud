@@ -68,7 +68,7 @@
           </v-col>
         </v-row>
 
-        <v-row v-if="displayEditform">
+        <div v-if="displayEditform">
           <v-row class="mt-5">
             <v-col cols="5">
               <label class="mb-1">Basic Salary</label>
@@ -128,12 +128,6 @@
                 >{{ errors.effective_date[0] }}</span
               >
             </v-col>
-            <v-col cols="2" style="padding-top: 40px">
-              <label class="mb-1">&nbsp</label>
-              <v-btn dark class="primary" @click="addEarning" small>
-                <v-icon small>mdi-plus</v-icon> Earnings
-              </v-btn>
-            </v-col>
           </v-row>
           <v-row v-for="(d, index) in payroll.earnings" :key="index">
             <v-col cols="5">
@@ -164,6 +158,16 @@
               >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
+
+              <v-btn
+                v-if="index == payroll.earnings.length - 1"
+                dark
+                class="primary"
+                @click="addEarning"
+                small
+              >
+                <v-icon small>mdi-plus</v-icon> Earnings
+              </v-btn>
             </v-col>
           </v-row>
           <v-row>
@@ -176,7 +180,7 @@
               >
             </v-col>
           </v-row>
-        </v-row>
+        </div>
       </transition>
     </v-container>
     <!-- <table>

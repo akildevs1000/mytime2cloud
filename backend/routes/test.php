@@ -3,6 +3,8 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\CameraController;
+use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
@@ -42,7 +44,27 @@ Route::get('/syncLogsScript', function (Request $request) {
     //     // "Auto" => (new AutoShiftController)->processByManual($request)
     // ];
 });
+Route::get("/testemployee", function (Request $request) {
+    return (new EmployeeController)->getSingleEmployeeProfile(520);
+});
+Route::get('/donwloadfile', function (Request $request) {
+    // Define the path to the file in the public folder
+    $filePath = public_path("1666190454.jpg");
 
+    // Check if the file exists
+    if (file_exists($filePath)) {
+        // Create a response to download the file
+        return response()->download($filePath, 'myfile.png');
+    } else {
+        // Return a 404 Not Found response if the file doesn't exist
+        abort(404);
+    }
+});
+Route::get('/handleNotification', function (Request $request) {
+
+    $test = new DeviceController();
+    return  $test->handleNotification(8);
+});
 Route::get('/test/test/3', function (Request $request) {
 
 

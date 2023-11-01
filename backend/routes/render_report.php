@@ -45,7 +45,3 @@ Route::post('renderMultiRequest', [MultiShiftController::class, 'renderRequest']
 
 
 Route::get('access_control_report', [AccessControlController::class, 'index']);
-
-
-
-

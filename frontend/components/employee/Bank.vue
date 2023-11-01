@@ -10,7 +10,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">Bank Name</label>
-            <input type="text" v-model="data.bank_name" class="form-control" />
+            <v-text-field
+              dense
+              small
+              outlined
+              type="text"
+              v-model="data.bank_name"
+              class="form-control"
+            ></v-text-field>
             <span v-if="errors && errors.bank_name" class="text-danger mt-2">{{
               errors.bank_name[0]
             }}</span>
@@ -19,7 +26,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">Bank Address</label>
-            <input type="text" v-model="data.address" class="form-control" />
+            <v-text-field
+              dense
+              small
+              outlined
+              type="text"
+              v-model="data.address"
+              class="form-control"
+            ></v-text-field>
             <span v-if="errors && errors.address" class="text-danger mt-2">{{
               errors.address[0]
             }}</span>
@@ -28,7 +42,13 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">Account No</label>
-            <input v-model="data.account_no" class="form-control" />
+            <v-text-field
+              dense
+              small
+              outlined
+              v-model="data.account_no"
+              class="form-control"
+            ></v-text-field>
             <span
               type="text"
               v-if="errors && errors.account_no"
@@ -41,11 +61,14 @@
         <v-col cols="6">
           <div class="form-group">
             <label class="col-form-label">Account Name</label>
-            <input
+            <v-text-field
+              dense
+              small
+              outlined
               type="text"
               v-model="data.account_title"
               class="form-control"
-            />
+            ></v-text-field>
             <span
               v-if="errors && errors.account_title"
               class="text-danger mt-2"
@@ -56,8 +79,15 @@
 
         <v-col cols="6">
           <div class="form-group">
-            <label class="col-form-label">IBAN</label>
-            <input type="text" v-model="data.iban" class="form-control" />
+            <label> IBAN</label>
+            <v-text-field
+              dense
+              small
+              outlined
+              type="text"
+              v-model="data.iban"
+              class="form-control"
+            ></v-text-field>
             <span v-if="errors && errors.iban" class="text-danger mt-2">{{
               errors.iban[0]
             }}</span>
@@ -73,11 +103,14 @@
           <v-col cols="6">
             <div class="form-group">
               <label class="col-form-label">Other Text</label>
-              <input
+              <v-text-field
+                dense
+                small
+                outlined
                 type="text"
                 v-model="data.other_text"
                 class="form-control"
-              />
+              ></v-text-field>
               <span v-if="errors && errors.other_text" class="text-danger">{{
                 errors.other_text[0]
               }}</span>
@@ -87,11 +120,14 @@
           <v-col cols="6">
             <div class="form-group">
               <label class="col-form-label">Other Value</label>
-              <input
+              <v-text-field
+                dense
+                small
+                outlined
                 type="text"
                 v-model="data.other_value"
                 class="form-control"
-              />
+              ></v-text-field>
               <span
                 v-if="errors && errors.other_value"
                 class="text-danger mt-2"
