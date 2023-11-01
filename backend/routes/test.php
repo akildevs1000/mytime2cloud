@@ -45,7 +45,10 @@ Route::get('/syncLogsScript', function (Request $request) {
     // ];
 });
 Route::get("/testemployee", function (Request $request) {
-    return (new EmployeeController)->getSingleEmployeeProfile(520);
+    $data = (new EmployeeController)->getSingleEmployeeProfileAll();
+
+
+    return  View('pdf.test', ["employees" => $data]);; //->donwload();
 });
 Route::get('/donwloadfile', function (Request $request) {
     // Define the path to the file in the public folder

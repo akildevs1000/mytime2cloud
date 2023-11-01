@@ -280,6 +280,10 @@ class EmployeeController extends Controller
     {
         return Employee::with(["company", "reportTo", "schedule", "user.branchLogin", "department", "sub_department", "designation", "role", "leave_group"])->whereId($id)->first();
     }
+    public function getSingleEmployeeProfileAll()
+    {
+        return Employee::with(["company", "reportTo", "schedule", "user.branchLogin", "department", "sub_department", "designation", "role", "leave_group"])->offset(0)->limit(10)->get();
+    }
     public function employeesList(Request $request)
     {
         $columns = $request->columns;
@@ -587,6 +591,8 @@ class EmployeeController extends Controller
     }
     public function downloadEmployeeProfilepdfView(Request $request, $id)
     {
+
+
 
         $employeeProfile = $this->getSingleEmployeeProfile($id);
         return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();

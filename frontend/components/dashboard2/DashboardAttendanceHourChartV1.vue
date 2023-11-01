@@ -28,7 +28,7 @@
 <script>
 // import VueApexCharts from 'vue-apexcharts'
 export default {
-  props: ["name", "height"],
+  props: ["name", "height", "branch_id"],
   data() {
     return {
       series: [
@@ -79,7 +79,14 @@ export default {
       },
     };
   },
-  watch: {},
+  watch: {
+    branch_id() {
+      try {
+        this.$store.commit("dashboard/every_hour_count", null);
+        this.getDataFromApi();
+      } catch (e) {}
+    },
+  },
 
   created() {
     this.getDataFromApi();

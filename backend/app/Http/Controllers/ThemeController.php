@@ -44,21 +44,28 @@ class ThemeController extends Controller
     }
     public function getCounts($id = 0, $request): array
     {
-        $model = Attendance::where('company_id', $id)
+        $model = Attendance::with("employee")->where('company_id', $id)
 
             ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
                 $q->with(["employee" =>  function ($q) use ($request) {
                     $q->whereHas('department', fn (Builder $query) => $query->whereIn('department_id', $request->department_ids));
                 }]);
             })
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+            })
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
             ->get();
 
-        $attendanceCounts = AttendanceLog::where("company_id", $id)
+        $attendanceCounts = AttendanceLog::with(["employee"])->where("company_id", $id)
             ->whereDate("LogTime", date("Y-m-d"))
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+            })
             ->groupBy("UserID")
+
             ->selectRaw('"UserID", COUNT(*) as count')
             ->get();
 
@@ -68,7 +75,12 @@ class ThemeController extends Controller
             "employeeCount" => Employee::where("company_id", $id)
                 ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
                     $q->whereIn("department_id", $request->department_ids);
-                })->count() ?? 0,
+                })
+
+                ->when($request->filled("branch_id"), function ($q) use ($request) {
+                    $q->where("branch_id", $request->branch_id);
+                })
+                ->count() ?? 0,
             'totalIn' => $countsByParity->get('odd', 0),
             'totalOut' => $countsByParity->get('even', 0),
             "presentCount" => $model->where('status', 'P')->count(),
@@ -84,12 +96,14 @@ class ThemeController extends Controller
     {
         $model = Attendance::with(['employee:id,employee_id,status,system_user_id,department_id'])->where('company_id', $request->company_id)
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
-            ->whereDate('date', date("Y-m-d"))
-
+            ->whereDate('date', date("2023-10-31"))
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+            })
 
             ->get();
 
-        $departments = Department::where('company_id', $request->company_id)->get();
+        $departments = Department::where('company_id', $request->company_id)->orderBy("name", "asc")->get();
 
         $return = [];
         foreach ($departments as $department) {
@@ -109,7 +123,7 @@ class ThemeController extends Controller
 
         return  $return;
     }
-    public function previousWeekAttendanceCount($id)
+    public function previousWeekAttendanceCount(Request $request, $id)
     {
         $dates = [];
 
@@ -119,9 +133,12 @@ class ThemeController extends Controller
         }
 
         $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
-        $model = Attendance::where('company_id', $id)
+        $model = Attendance::with("employee")->where('company_id', $id)
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
             ->whereIn('date', $dates)
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+            })
             ->select('status')
             ->get();
 
@@ -227,9 +244,13 @@ class ThemeController extends Controller
 
 
             $date = $value; //date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
-            $model = Attendance::where('company_id', $request->company_id)
+            $model = Attendance::with("employee")->where('company_id', $request->company_id)
                 ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
                 ->whereDate('date', $date)
+                ->when($request->filled("branch_id"), function ($q) use ($request) {
+                    $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+                })
+
                 ->select('status')
                 ->get();
 
@@ -302,9 +323,12 @@ class ThemeController extends Controller
 
 
 
-            $model = Attendance::where('company_id', $request->company_id)
+            $model = Attendance::with("employee")->where('company_id', $request->company_id)
                 ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
                 ->whereDate('date', date('Y-m-d'))
+                ->when($request->filled("branch_id"), function ($q) use ($request) {
+                    $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+                })
                 ->select('status')
                 ->get();
 

@@ -32,8 +32,12 @@
       <!-- <v-col md="1" title="absentCount" style="text-align: center">V </v-col> -->
       <v-col md="1" title="Missing Count" style="text-align: center">L </v-col>
     </v-row>
-    <div style="height: 250px; overflow-y: auto; overflow-x: hidden">
-      <v-row v-for="(item, index, i) in departments" :key="'department' + i">
+    <div style="height: 250px; overflow: scroll; padding-bottom: 36px">
+      <v-row
+        v-for="(item, index, i) in departments"
+        :key="'department' + i"
+        style="font-size: 14px"
+      >
         <v-col md="2" class="text-center">
           <v-avatar
             size="30"
@@ -67,13 +71,23 @@
 <script>
 // import VueApexCharts from 'vue-apexcharts'
 export default {
+  props: ["branch_id"],
   data() {
     return {
       departments: [],
       loading: false,
     };
   },
-  watch: {},
+  watch: {
+    branch_id() {
+      this.loading = true;
+      setTimeout(() => {
+        this.$store.commit("dashboard/attendance_count_by_department", null);
+        this.getDataFromApi();
+        this.loading = false;
+      }, 3000);
+    },
+  },
   created() {
     this.getDataFromApi();
   },
@@ -83,7 +97,8 @@ export default {
     },
     getDataFromApi() {
       if (this.$store.state.dashboard.attendance_count_by_department) {
-        this.departments = this.$store.state.dashboard.attendance_count_by_department;
+        this.departments =
+          this.$store.state.dashboard.attendance_count_by_department;
         return;
       }
 
@@ -93,6 +108,7 @@ export default {
         .get("dashboard_get_count_department", {
           params: {
             company_id: this.$auth.user.company_id,
+            branch_id: this.branch_id > 0 ? this.branch_id : null,
           },
         })
         .then(({ data }) => {

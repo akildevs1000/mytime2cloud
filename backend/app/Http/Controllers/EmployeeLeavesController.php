@@ -189,6 +189,9 @@ class EmployeeLeavesController extends Controller
         $model->with(["leave_type", "employee.leave_group", "reporting"]);
         $model->where('company_id', $request->company_id);
         $model->where('status', 0);
+        $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+        });
         /// $model->where('created_at', '>=', date('Y-m-d H:i:00', strtotime('-2 minutes')));
 
         $data['new_leaves_data'] = $model->paginate($request->per_page ?? 100);
@@ -197,7 +200,9 @@ class EmployeeLeavesController extends Controller
         //$model->with(["leave_type", "employee.leave_group", "reporting"]);
         $model->where('company_id', $request->company_id);
         $model->where('status', 0);
-
+        $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+        });
         $data['total_pending_count'] = $model->count();
         $data['status'] = true;
         return $data;

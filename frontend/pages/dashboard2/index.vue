@@ -3,6 +3,10 @@
     style="width: 100%"
     v-if="can('dashboard_access') && can('dashboard_view')"
   >
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
+
     <v-row style="width: 100%">
       <v-col lg="9" md="9" sm="12" xs="12">
         <v-row>
@@ -18,6 +22,7 @@
                   style="flex: auto"
                 >
                   <DashboardAttendanceChart
+                    :branch_id="branch_id"
                     :name="'AttendanceChart1'"
                     :height="'300'"
                   />
@@ -30,7 +35,10 @@
                   class="d-xs-flex pa-2"
                   style="border-left: 1px solid #ddd"
                 >
-                  <DashboardlLastMonthStatistics name="LastMonthStatistics" />
+                  <DashboardlLastMonthStatistics
+                    :branch_id="branch_id"
+                    name="LastMonthStatistics"
+                  />
                 </v-col>
               </v-row>
             </v-card>
@@ -39,7 +47,7 @@
         <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
             <v-card class="py-2" style="height: 772px; overflow: hidden">
-              <DashboardRealTimeLogTableview />
+              <DashboardRealTimeLogTableview :branch_id="branch_id" />
             </v-card>
           </v-col>
         </v-row>
@@ -54,6 +62,7 @@
           >
             <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
               <DashboardAttendanceHourChart
+                :branch_id="branch_id"
                 :name="'AttendanceChart2'"
                 :height="'260'"
               />
@@ -63,7 +72,7 @@
             <!-- <DashboardlastMultiStatistics /> -->
 
             <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
-              <DashboardLoginActivities />
+              <DashboardLoginActivities :branch_id="branch_id" />
             </v-card>
             <!-- <v-card class="mt-2" style="height: 350px"> </v-card> -->
           </v-col>
@@ -71,12 +80,102 @@
       </v-col>
 
       <v-col lg="3" md="3" sm="12" xs="12">
-        <DashboardRightsideStaticstics />
+        <v-card class="py-2 mb-2">
+          <v-row class="mt-2">
+            <v-col cols="1">
+              <label> </label>
+            </v-col>
+            <v-col cols="3">
+              <label>Branches : </label>
+            </v-col>
+            <v-col cols="7" class="pa-0 ma-0">
+              <v-autocomplete
+                @change="overlay = !overlay"
+                v-model="branch_id"
+                dense
+                outlined
+                :items="[
+                  { branch_name: 'All Branches', id: '' },
+                  ...branchesList,
+                ]"
+                item-text="branch_name"
+                item-value="id"
+              ></v-autocomplete>
+            </v-col>
+            <v-col cols="1">
+              <label> </label>
+            </v-col>
+          </v-row>
+        </v-card>
+        <!-- <v-menu
+          v-if="
+            this.$auth &&
+            this.$auth.user.user_type == 'company' &&
+            this.$route.name == 'dashboard2'
+          "
+          nudge-bottom="50"
+          transition="scale-transition"
+          origin="center center"
+          bottom
+          left
+          min-width="200"
+          nudge-left="20"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <label
+              style="min-width: 150px"
+              class="px-2 text-overflow"
+              v-bind="attrs"
+              v-on="on"
+            >
+              {{ selectedBranchName != "All Branches" ? "Branch: " : "" }}
+              {{ selectedBranchName }}
+            </label>
+          </template>
+
+          <v-list light nav dense>
+            <v-list-item-group color="primary">
+              <v-list-item
+                @click="filterBranch(branch)"
+                v-for="branch in branchesList"
+              >
+                <v-list-item-content class="text-left">
+                  <v-list-item-title class="black--text">
+                    <img
+                      v-if="branch.logo"
+                      :src="branch.logo"
+                      style="vertical-align: middle; max-width: 25px"
+                    />
+
+                    <img
+                      v-else
+                      src="/no-image.PNG"
+                      style="vertical-align: middle; max-width: 25px"
+                    />
+
+                    <span style="">{{ branch.branch_name }}</span>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item v-if="selectedBranchName != 'All Branches'">
+                <v-list-item-content
+                  class="text-center"
+                  @click="filterBranch(null)"
+                >
+                  <v-list-item-title class="black--text">
+                    <span style="">All Branches</span>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-menu> -->
+        <DashboardRightsideStaticstics :branch_id="branch_id" />
 
         <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
             <v-card class="py-2 mt-2" style="height: 510px; overflow: hidden">
-              <DashboardAnnouncment />
+              <DashboardAnnouncment :branch_id="branch_id" />
             </v-card>
           </v-col>
         </v-row>
@@ -84,6 +183,7 @@
           <v-col lg="12" md="12" sm="12" xs="12">
             <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
               <DashboardAttednaceDepartmentWise
+                :branch_id="branch_id"
                 name="AttendanceDepartmentWise"
               />
             </v-card>
@@ -92,6 +192,7 @@
       </v-col>
     </v-row>
   </div>
+
   <NoAccess v-else />
 </template>
 
@@ -118,8 +219,19 @@ export default {
     DashboardAttendanceHourChart,
   },
   data() {
-    return {};
+    return {
+      branchesList: [],
+      selectedBranchName: "All Branches",
+      seelctedBranchId: "",
+      branch_id: "",
+      overlay: false,
+    };
   },
+  // watch: {
+  //   branch_id(branch_id) {
+  //     return branch_id > 0 ? branch_id : null;
+  //   },
+  // },
   mounted() {
     // if (this.$auth.user.user_type == "employee") {
     //   this.$router.push(`/dashboard/employee`);
@@ -129,11 +241,48 @@ export default {
     // if (this.$auth.user.user_type == "employee") {
     //   this.$router.push(`/dashboard/employee`);
     // }
+    this.getBranches();
+    //this.$root.$on("openalert", this.openalert);
   },
-
+  watch: {
+    overlay(val) {
+      val &&
+        setTimeout(() => {
+          this.overlay = false;
+        }, 3000);
+    },
+  },
   methods: {
     can(per) {
       return this.$pagePermission.can(per, this);
+    },
+    openalert(data) {
+      alert("");
+    },
+    filterBranch(branch) {
+      this.$emit("openalert", "");
+
+      // if (branch) {
+      //   this.selectedBranchName = branch.branch_name;
+      //   this.seelctedBranchId = branch.id;
+      //   this.branch_id = branch.id;
+      // } else {
+      //   this.selectedBranchName = "All Branches";
+      //   this.seelctedBranchId = "";
+      //   this.branch_id = "";
+      // }
+    },
+    getBranches() {
+      this.$axios
+        .get(`branches_list`, {
+          params: {
+            per_page: 1000,
+            company_id: this.$auth.user.company_id,
+          },
+        })
+        .then(({ data }) => {
+          this.branchesList = data;
+        });
     },
   },
 };

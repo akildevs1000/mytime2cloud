@@ -159,9 +159,12 @@ class DeviceController extends Controller
         $model->with(array('employee' => function ($query) use ($request) {
             $query->where('company_id', $request->company_id);
         }))->first();
+
         $model->with(['device']);
         $model->where('company_id', $id);
-
+        $model->when($request->filled("branch_id"), function ($q) use ($request) {
+            $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+        });
         $model->whereIn('UserID', function ($query) use ($request) {
             // $model1 = Employee::query();
             // $model1->select("system_user_id")->where('employees.company_id', $request->company_id);

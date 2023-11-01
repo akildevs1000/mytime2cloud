@@ -233,7 +233,13 @@
         nudge-left="20"
       >
         <template v-slot:activator="{ on, attrs }">
-          <label class="px-2 text-overflow" v-bind="attrs" v-on="on">
+          <label
+            style="min-width: 150px"
+            class="px-2 text-overflow"
+            v-bind="attrs"
+            v-on="on"
+          >
+            {{ selectedBranchName != "All Branches" ? "Branch: " : "" }}
             {{ selectedBranchName }}
           </label>
         </template>
@@ -247,7 +253,14 @@
               <v-list-item-content class="text-left">
                 <v-list-item-title class="black--text">
                   <img
+                    v-if="branch.logo"
                     :src="branch.logo"
+                    style="vertical-align: middle; max-width: 25px"
+                  />
+
+                  <img
+                    v-else
+                    src="/no-image.PNG"
                     style="vertical-align: middle; max-width: 25px"
                   />
 
@@ -560,6 +573,7 @@ export default {
   data() {
     return {
       selectedBranchName: "All Branches",
+      seelctedBranchId: "",
       branch_id: "",
       menuProperties: {
         dashboard: {
@@ -937,8 +951,15 @@ export default {
     },
 
     filterBranch(branch) {
-      if (branch) this.selectedBranchName = branch.branch_name;
-      else this.selectedBranchName = "All Branches";
+      this.$emit("openalert", "");
+
+      if (branch) {
+        this.selectedBranchName = branch.branch_name;
+        this.seelctedBranchId = branch.id;
+      } else {
+        this.selectedBranchName = "All Branches";
+        this.seelctedBranchId = "";
+      }
     },
     collapseSubItems() {
       this.company_menus.map((item) => (item.active = false));

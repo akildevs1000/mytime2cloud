@@ -44,7 +44,12 @@
             </tr>
         </table>
     </header>
-    <table style=" width:100%">
+    <main>
+        <p>page1</p>
+        <p>page2></p>
+    </main>
+    @php
+    for($i=0;$i<=0;$i++) { @endphp <table style=" width:100%">
         <!-- <tr>
             <td style="text-align: left;  padding:15px;  width:20%  ">
 
@@ -676,23 +681,27 @@
             </td>
 
         </tr>
-    </table>
-    <footer id="page-bottom-line" style="padding-top: 100px!important">
-        <hr style="width: 100%;">
-        <table class="footer-main-table">
-            <tr style="border :none">
-                <td style="width:40%">&nbsp;</td>
-                <td style="text-align: center;border :none;">
-                    <b>Powered by</b>: <span style="color:blue">
-                        <a href="{{ env('APP_URL')}}" target="_blank">{{ env('APP_NAME')}}</a>
-                    </span>
-                </td>
-                <td style="text-align: right;border :none">
-                    Printed on : {{ date('d-M-Y ') }}
-                </td>
-            </tr>
         </table>
-    </footer>
+
+        @php
+        }
+        @endphp
+        <footer id="page-bottom-line" style="padding-top: 100px!important">
+            <hr style="width: 100%;">
+            <table class="footer-main-table">
+                <tr style="border :none">
+                    <td style="width:40%">&nbsp;</td>
+                    <td style="text-align: center;border :none;">
+                        <b>Powered by</b>: <span style="color:blue">
+                            <a href="{{ env('APP_URL')}}" target="_blank">{{ env('APP_NAME')}}</a>
+                        </span>
+                    </td>
+                    <td style="text-align: right;border :none">
+                        Printed on : {{ date('d-M-Y ') }}
+                    </td>
+                </tr>
+            </table>
+        </footer>
 </body>
 
 <style>
