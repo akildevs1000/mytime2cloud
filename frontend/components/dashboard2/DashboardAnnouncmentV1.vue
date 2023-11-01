@@ -113,6 +113,7 @@
 </template>
 <script>
 export default {
+  props: ["branch_id"],
   data: () => ({
     announcementDialog: false,
     announcementViewObj: {},
@@ -147,6 +148,12 @@ export default {
 
     data: [],
   }),
+  watch: {
+    branch_id() {
+      this.$store.commit("dashboard/announcements", null);
+      this.getDataFromApi();
+    },
+  },
   created() {
     this.getDataFromApi();
   },
@@ -215,6 +222,7 @@ export default {
             sortDesc: sortedDesc,
             per_page: 5,
             company_id: this.$auth.user.company_id,
+            branch_id: this.branch_id > 0 ? this.branch_id : null,
           },
         };
 

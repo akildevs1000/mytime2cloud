@@ -24,10 +24,15 @@ class AnnouncementController extends Controller
 
     public function annoucement_list(Request $request)
     {
+
         return (new Announcement)->filters($request)->with(['category', 'user', 'branch'])->withOut("employees")
-            ->where('start_date', '<=', date("Y-m-d"))
-            ->where('end_date', '>=', date("Y-m-d"))
-            ->paginate($request->per_page ?? 100);
+            // ->where('start_date', '<=', date("Y-m-d"))
+            // ->where('end_date', '>=', date("Y-m-d"))
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->where("branch_id", $request->branch_id);
+            })
+
+            ->paginate(4);
     }
 
     public function store(StoreRequest $request)

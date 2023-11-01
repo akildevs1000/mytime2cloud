@@ -23,7 +23,7 @@
 <script>
 // import VueApexCharts from 'vue-apexcharts'
 export default {
-  props: ["name", "height"],
+  props: ["name", "height", "branch_id"],
   data() {
     return {
       loading: false,
@@ -95,6 +95,10 @@ export default {
     async display_title() {
       await this.getDataFromApi();
     },
+    async branch_id() {
+      this.$store.commit("dashboard/setDashboardData", null);
+      await this.getDataFromApi();
+    },
   },
   async created() {
     // Get today's date
@@ -117,6 +121,7 @@ export default {
     filterAttr(data) {
       this.date_from = data.from;
       this.date_to = data.to;
+
       this.filterType = "Monthly"; // data.type;
 
       this.display_title =
@@ -130,6 +135,7 @@ export default {
       this.$store.dispatch("dashboard/setDates", {
         date_from: this.date_from,
         date_to: this.date_to,
+        branch_id: this.branch_id > 0 ? this.branch_id : null,
       });
 
       this.renderChart(

@@ -98,6 +98,7 @@
 </template>
 <script>
 export default {
+  props: ["branch_id"],
   data: () => ({
     options: {},
 
@@ -106,6 +107,12 @@ export default {
 
     data: null,
   }),
+  watch: {
+    branch_id() {
+      this.$store.commit("dashboard/previous_week_attendance_count", null);
+      this.getDataFromApi();
+    },
+  },
   created() {
     this.getDataFromApi();
   },
@@ -123,9 +130,16 @@ export default {
         this.data = this.$store.state.dashboard.previous_week_attendance_count;
         return;
       }
-
+      let options = {
+        params: {
+          branch_id: this.branch_id > 0 ? this.branch_id : null,
+        },
+      };
       this.$axios
-        .get(`previous_week_attendance_count/${this.$auth.user.company_id}`)
+        .get(
+          `previous_week_attendance_count/${this.$auth.user.company_id}`,
+          options
+        )
         .then(({ data }) => {
           this.data = data;
           this.$store.commit("dashboard/previous_week_attendance_count", data);

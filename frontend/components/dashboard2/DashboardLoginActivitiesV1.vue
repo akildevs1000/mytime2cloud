@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col md="10">
-        <h6 class="pl-2">Web Login Activities</h6>
+        <h4 class="pl-2">Web Login Activities</h4>
       </v-col>
       <v-col md="2" class="text-end">
         <v-menu bottom left>
@@ -101,9 +101,10 @@
     </v-data-table>
   </div>
 </template>
->
+
 <script>
 export default {
+  props: ["branch_id"],
   data() {
     return {
       loading: false,
@@ -146,6 +147,16 @@ export default {
       ],
     };
   },
+  watch: {
+    branch_id() {
+      this.loading = true;
+      setTimeout(() => {
+        this.$store.commit("dashboard/web_logins", null);
+        this.getRecords();
+        this.loading = false;
+      }, 5000);
+    },
+  },
   created() {
     this.getRecords();
   },
@@ -187,6 +198,7 @@ export default {
           params: {
             per_page: 5,
             company_id: this.$auth.user.company_id,
+            branch_id: this.branch_id > 0 ? this.branch_id : null,
           },
         })
         .then(({ data }) => {

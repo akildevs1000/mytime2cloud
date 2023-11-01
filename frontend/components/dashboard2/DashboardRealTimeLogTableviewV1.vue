@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-col md="10" sm="10" xs="10" class="pl-5">
-        <h4>Recent Employee Logs on Devices</h4>
+        <h4>Live Employee Logs on Devices</h4>
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">
@@ -156,7 +156,7 @@
 
 <script>
 export default {
-  props: ["system_user_id"],
+  props: ["system_user_id", "branch_id"],
   data() {
     return {
       perPage: 10,
@@ -262,11 +262,18 @@ export default {
       },
       deep: true,
     },
+
+    branch_id() {
+      this.$store.commit("dashboard/recent_logs", null);
+      setTimeout(() => {
+        this.getRecords();
+      }, 500);
+    },
   },
   mounted() {
     setTimeout(() => {
       this.socketConnection();
-    }, 1000 * 5);
+    }, 1000 * 10);
 
     //this.getRecords();
   },
@@ -317,6 +324,7 @@ export default {
         .get(`device/getLastRecordsHistory/${this.$auth.user.company_id}/10`, {
           params: {
             per_page: 10,
+            branch_id: this.branch_id > 0 ? this.branch_id : null,
           },
         })
         .then(({ data }) => {
