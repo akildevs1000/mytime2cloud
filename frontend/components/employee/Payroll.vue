@@ -171,6 +171,19 @@
             </v-col>
           </v-row>
           <v-row>
+            <v-col class="text-end">
+              <v-btn
+                v-if="payroll.earnings.length == 0"
+                dark
+                class="primary"
+                @click="addEarning"
+                small
+              >
+                <v-icon small>mdi-plus</v-icon> Earnings
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row>
             <v-col cols="10" class="text-right">
               <v-btn class="error" small @click="cancel">Cancel</v-btn>
             </v-col>
@@ -281,6 +294,10 @@ export default {
         .then(({ data }) => {
           this.loading = false;
           this.payroll = data || { earnings: [] };
+
+          if (this.payroll.earnings.length == 0) {
+            this.addEarning();
+          }
         });
     },
     can(item) {
