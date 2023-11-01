@@ -28,7 +28,7 @@
 <script>
 // import VueApexCharts from 'vue-apexcharts'
 export default {
-  props: ["name", "height"],
+  props: ["name", "height", "branch_id"],
   data() {
     return {
       series: [
@@ -79,7 +79,12 @@ export default {
       },
     };
   },
-  watch: {},
+  watch: {
+    branch_id() {
+      this.getDataFromApi();
+      this.loading = false;
+    },
+  },
 
   created() {
     setTimeout(() => {
@@ -103,6 +108,7 @@ export default {
       let options = {
         params: {
           company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id > 0 ? this.branch_id : null,
         },
       };
 

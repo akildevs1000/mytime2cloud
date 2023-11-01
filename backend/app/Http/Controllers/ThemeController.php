@@ -297,8 +297,10 @@ class ThemeController extends Controller
             $j = $i <= 9 ? "0" . $i : $i;
 
             $date = date('Y-m-d'); //, strtotime(date('Y-m-d') . '-' . $i . ' days'));
-            $model = AttendanceLog::where('company_id', $request->company_id)
-
+            $model = AttendanceLog::with(["employee"])->where('company_id', $request->company_id)
+                ->when($request->filled("branch_id"), function ($q) use ($request) {
+                    $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+                })
                 // ->whereDate('LogTime', $date)
 
                 ->where('LogTime', '>=', $date . ' ' . $j . ':00:00')

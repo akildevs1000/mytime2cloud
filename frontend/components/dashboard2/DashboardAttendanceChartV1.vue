@@ -95,8 +95,9 @@ export default {
     async display_title() {
       await this.getDataFromApi();
     },
-    async branch_id() {
+    async branch_id(val) {
       this.$store.commit("dashboard/setDashboardData", null);
+      this.$store.commit("setDashboardData", null);
       await this.getDataFromApi();
     },
   },
@@ -135,7 +136,7 @@ export default {
       this.$store.dispatch("dashboard/setDates", {
         date_from: this.date_from,
         date_to: this.date_to,
-        branch_id: this.branch_id > 0 ? this.branch_id : null,
+        branch_id: this.branch_id,
       });
 
       this.renderChart(
