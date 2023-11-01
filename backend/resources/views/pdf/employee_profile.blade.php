@@ -10,12 +10,14 @@
             <tr>
                 <td style="text-align: left;  padding:15px;  width:20%  ">
 
-                    @if ($employee->company['logo'] !='')
+                    @if (isset($employee->company['logo']))
 
                     <img src="{{$employee->company['logo']}}" width="150">
 
                     @else
                     <img src="{{ env('BASE_URL').'/no-company-logo.png'}}" width="150">
+
+
                     @endif
 
 
@@ -454,6 +456,8 @@
                                             if(isset($employee->payroll))
                                             {
                                             foreach ( $employee->payroll->earnings as $earnings)
+                                            if(isset($earnings))
+                                            {
                                             @endphp
                                             <tr class="border-top">
                                                 <td class="left-space">{{$earnings['label']}}</td>
@@ -461,7 +465,7 @@
 
                                             </tr>
                                             @php
-
+                                            }
 
                                             }
                                             @endphp
