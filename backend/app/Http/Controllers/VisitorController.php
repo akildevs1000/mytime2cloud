@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Visitor\Register;
 use App\Http\Requests\Visitor\Store;
 use App\Http\Requests\Visitor\Update;
 use App\Jobs\ProcessSDKCommand;
@@ -70,6 +71,32 @@ class VisitorController extends Controller
             ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
 
             return $this->response('Visitor successfully created.', null, true);
+        } catch (\Throwable $th) {
+            return $this->response('Server Error.', null, true);
+        }
+    }
+
+    public function register(Register $request)
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $request->logo->move(public_path('media/visitor/logo/'), $fileName);
+            $data['logo'] = $fileName;
+        }
+
+        $data['date'] = date("Y-m-d");
+
+        try {
+
+            if (!Visitor::create($data)) {
+                return $this->response('Form is not submitted.', null, false);
+            }
+
+            return $this->response('Form has been submitted successfully.', null, true);
         } catch (\Throwable $th) {
             return $this->response('Server Error.', null, true);
         }

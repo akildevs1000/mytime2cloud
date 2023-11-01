@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('visitor-count', VisitorDashboard::class);
 Route::post('visitor/{id}', [VisitorController::class, 'update']);
 Route::apiResource('visitor', VisitorController::class);
+Route::post('visitor-register', [VisitorController::class, "register"]);
+
 Route::get('visitors_with_type', [VisitorController::class, "visitors_with_type"]);
 
 Route::get('/get_visitors_with_timezonename', [VisitorMappingController::class, 'get_visitors_with_timezonename']);
