@@ -327,7 +327,7 @@ Route::get('/check_device_health', function (Request $request) {
     $sdk_url = env("SDK_URL");
 
     if (checkSDKServerStatus($sdk_url) === 0) {
-        return "Failed to connect to the SDK Server.";
+        return "Failed to connect to the SDK Server: $sdk_url";
     }
 
     foreach ($devices as $device_id) {

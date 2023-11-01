@@ -1026,29 +1026,29 @@ export default {
     datatable_close() {
       this.loading = false;
     },
-    sync_date_time(item) {
-      console.log(item.sync_date_time);
-      let sync_able_date_time = this.getUTC_CurentTime(item.utc_time_zone);
-      console.log(item.sync_date_time);
-      console.log(sync_able_date_time);
+    async sync_date_time(item) {
+      try {
+        const dt = new Date();
+        const year = dt.getFullYear();
+        const month = String(dt.getMonth() + 1).padStart(2, "0");
+        const day = String(dt.getDate()).padStart(2, "0");
+        const hours = String(dt.getHours()).padStart(2, "0");
+        const minutes = String(dt.getMinutes()).padStart(2, "0");
+        const seconds = String(dt.getSeconds()).padStart(2, "0");
 
-      let options = {
-        params: {
-          sync_able_date_time: sync_able_date_time,
-        },
-      };
-      confirm("Are you sure want to Sync UTC time to Device?") &&
-        this.$axios
-          .get(`sync_device_date_time/${item.device_id}`, options)
-          .then(({ data }) => {
-            // if (data.status) {
-            //   const index = this.data.findIndex((row) => row.id == item.id);
-            //   this.data.splice(index, 1, data.record);
-            // }
+        const apiUrl = `sync_device_date_time/${item.device_id}`;
+        const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        const { data } = await this.$axios.get(apiUrl, {
+          params: { sync_able_date_time },
+        });
 
-            this.snackbar = true;
-            this.response = data.message;
-          });
+        this.snackbar = true;
+        this.response = data.message;
+      } catch (error) {
+        this.snackbar = true;
+        this.response = error;
+        console.error("Error syncing date and time:", error);
+      }
     },
     closepopup() {
       this.snackbar = true;
@@ -1056,13 +1056,7 @@ export default {
       this.dialogAccessSettings = false;
     },
     getUTC_CurentTime(targetTimezone) {
-      // Define the target time zone
-      //const targetTimezone = "America/New_York";
-
-      // Create a Date object for the current local time
       const localDate = new Date();
-
-      // Get the date and time components in the target time zone
       const options = {
         year: "numeric",
         month: "2-digit",
@@ -1074,9 +1068,6 @@ export default {
         hour12: false,
       };
       const formattedDateTime = localDate.toLocaleDateString("en-US", options);
-
-      // Display the formatted date and time
-      console.log(formattedDateTime);
 
       let dt = new Date(formattedDateTime);
 
@@ -1094,7 +1085,6 @@ export default {
       seconds = seconds < 10 ? "0" + seconds : seconds;
 
       let sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-      console.log(sync_able_date_time);
 
       return sync_able_date_time;
     },

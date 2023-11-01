@@ -93,25 +93,21 @@ class DeviceController extends Controller
         return $model->with(['status'])->where('company_id', $request->company_id)->get();
     }
 
-    public function store(Device $model, StoreRequest $request)
+    public function store(StoreRequest $request)
     {
-
-        // $record = false;
         try {
-            // $response = Http::post(env("LOCAL_IP") .':'. env("LOCAL_PORT") . '/Register', [
-            //     'sn' => $request->device_id, //OX-8862021010010
-            //     'ip' => $request->ip,
-            //     'port' => $request->port,
-            // ]);
+            $model = Device::query();
+            $model->where("company_id", $request->company_id);
+            $model->where("device_id", $request->device_id);
+            $model->where("name", $request->name);
 
-            // if ($response->status() == 200) {
-            //     $record = $model->create($request->validated());
-            // }
+            if ($model->exists()) {
+                return $this->response('Device already exist.', null, true);
+            }
 
             $data = $request->validated();
             $data["ip"] = "0.0.0.0";
             $data["port"] = "0000";
-
             $record = $model->create($data);
 
             if ($record) {
@@ -309,25 +305,16 @@ class DeviceController extends Controller
 
     public function sync_device_date_time(Request $request, $device_id)
     {
-        $curl = curl_init();
-        $dateTime = $request->sync_able_date_time;
+        // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
+        $url = env('SDK_URL') . "/$device_id/SyncDateTime";
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://sdk.ideahrms.com/$device_id/SyncDateTime",
-            // CURLOPT_URL => "http://139.59.69.241:5000/$device_id/SyncDateTime",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => '{ "dateTime": "' . $dateTime . '" }',
-        ));
+        $data = [
+            'dateTime' => $request->sync_able_date_time
+        ];
 
-        $response = curl_exec($curl);
+        // return ["url" => $url, "data" => $data];
 
-        curl_close($curl);
+        $response = $this->SDKCommand($url, $data);
 
         $result = json_decode($response);
 
@@ -343,7 +330,7 @@ class DeviceController extends Controller
                     return $this->response('Time cannot synced to the Device.', null, false);
                 }
             } catch (\Throwable $th) {
-                throw $th;
+                return $this->response('Time cannot synced to the Device.', null, false);
             }
         } else if ($result && $result->status == 102) {
             return $this->response("The device is not connected to the server or is not registered", $result, false);

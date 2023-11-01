@@ -40,7 +40,7 @@ class StoreRequest extends FormRequest
             ],
 
             'name' => ['required', 'min:2', 'max:50'],
-            'short_name' => ['required', 'nullable', 'min:3', 'max:8'],
+            'short_name' => ['required', 'nullable', 'min:3', 'max:50'],
             // 'device_id' => ['required', 'min:3', 'max:100', 'unique:devices'],
             'location' => ['nullable', 'min:2', 'max:300'],
             'company_id' => ['required', 'min:1', 'integer'],
