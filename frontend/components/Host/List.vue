@@ -97,7 +97,18 @@
                     errors && errors.email ? errors.email[0] : ''
                   "
                 ></v-text-field>
+                <div class="text-center">
+                  <v-avatar class="ma-1" v-if="qrCodeDataURL" size="150" tile>
+                    <img :src="qrCodeDataURL" alt="Avatar" />
+                  </v-avatar>
+                </div>
+                <span>
+                  <a :href="`${fullLink}`" target="_blank">
+                    {{ fullLink }}
+                  </a>
+                </span>
               </v-col>
+
               <v-col cols="9" class="pt-5">
                 <v-row>
                   <v-col cols="6">
@@ -395,14 +406,14 @@
         </v-card>
       </v-dialog>
 
-      <v-dialog persistent v-model="dialog" max-width="700px">
-        <v-card>
-          <v-card-title dense class="primary white--text background">
-            Register Link
-            <v-icon class="mx-2" color="white">mdi-clipboard-outline</v-icon>
+      <v-dialog persistent v-model="dialog" max-width="500px">
+        <v-card class="white--text">
+          <v-card-title dense class="" color="white">
+            <!-- Register Link
+            <v-icon class="mx-2" color="white">mdi-clipboard-outline</v-icon> -->
 
             <v-spacer></v-spacer>
-            <v-icon @click="dialog = false" outlined dark color="white">
+            <v-icon @click="dialog = false" outlined color="black">
               mdi-close-circle-outline
             </v-icon>
           </v-card-title>
@@ -410,11 +421,11 @@
             <v-container>
               <v-row>
                 <v-col cols="12" class="text-center">
-                  <v-avatar v-if="qrCodeDataURL" size="150" tile class="ma-5">
+                  <v-avatar v-if="qrCodeDataURL" size="150" tile class="ma-1">
                     <img :src="qrCodeDataURL" alt="Avatar" />
                   </v-avatar>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" class="text-center">
                   <span>
                     <a :href="`${fullLink}`" target="_blank">
                       {{ fullLink }}
@@ -497,7 +508,7 @@
               </v-tooltip> -->
               <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
+              <!-- <v-btn
                 dense
                 x-small
                 class="ma-0 px-0"
@@ -509,7 +520,7 @@
                 <v-icon right size="x-large" dark v-if="can('employee_create')"
                   >mdi-apps</v-icon
                 >
-              </v-btn>
+              </v-btn> -->
               <!-- </template>
                 <span>Test</span>
               </v-tooltip> -->
@@ -635,7 +646,7 @@ export default {
   },
 
   data: () => ({
-    originalURL: "http://localhost:3000/register/visitor/",
+    originalURL: `https://mobile.mytime2cloud.com/register/visitor/`,
     encryptedID: "",
     fullLink: "",
     qrCodeDataURL: "",
@@ -860,8 +871,6 @@ export default {
       },
     };
 
-    this.encrypt(1);
-    this.generateQRCode();
     this.getDataFromApi();
   },
   mounted() {},
@@ -874,9 +883,9 @@ export default {
     },
   },
   methods: {
-    encrypt(id) {
+    encrypt() {
       this.encryptedID = this.$crypto.encrypt(id);
-      this.fullLink = this.originalURL + this.encryptedID;
+      // this.fullLink = this.originalURL + this.encryptedID;
     },
     closeViewDialog() {
       this.viewDialog = false;
@@ -1060,6 +1069,9 @@ export default {
       this.DialogBox = true;
       this.payload = item;
       this.previewImage = item.logo;
+      this.fullLink =
+        this.originalURL + this.$auth.user.company_id + "-" + item.id;
+      this.generateQRCode(this.fullLink);
     },
     deleteItem(item) {
       confirm(
@@ -1129,9 +1141,9 @@ export default {
       return formData;
     },
 
-    async generateQRCode() {
+    async generateQRCode(fullLink) {
       try {
-        this.qrCodeDataURL = await this.$qrcode.generate(this.fullLink);
+        this.qrCodeDataURL = await this.$qrcode.generate(fullLink);
       } catch (error) {
         console.error("Error generating QR code:", error);
       }
@@ -1141,7 +1153,7 @@ export default {
       this.$axios
         .post(this.endpoint, this.mapper(Object.assign(this.payload)))
         .then(({ data }) => {
-          this.encrypt(data.record.id);
+          // this.encrypt(data.record.id);
           this.errors = [];
           this.snackbar = true;
           this.response = "Host inserted successfully";
