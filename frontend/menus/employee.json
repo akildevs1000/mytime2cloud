@@ -26,7 +26,7 @@
   {
     "icon": "mdi mdi-calendar-account",
     "title": "Request",
-    "to": "/employees/leave",
+    "to": "/employees/leaves",
     "menu": "leaves_access",
     "module": "dashboard",
     "click": "requests_topmenu"
@@ -80,10 +80,18 @@
     "menu": "attendance_access",
     "module": "attendance_topmenu"
   },
+
   {
     "icon": "mdi-calendar-badge",
-    "title": "Requests",
-    "to": "/employees/leave",
+    "title": "Leaves",
+    "to": "/employees/leaves",
+    "menu": "leave_application_access",
+    "module": "requests_topmenu"
+  },
+  {
+    "icon": "mdi-calendar-badge",
+    "title": "Quota",
+    "to": "/employees/leaves/leaves_quota",
     "menu": "leave_application_access",
     "module": "requests_topmenu"
   },

@@ -437,7 +437,7 @@ export default {
   },
   methods: {
     navigateToLeavePage() {
-      this.$router.push("/employees/leave");
+      this.$router.push("/employees/leaves");
     },
 
     verifyLeaveNotificationsSocket() {
