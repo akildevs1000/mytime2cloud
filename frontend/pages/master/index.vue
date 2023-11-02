@@ -76,10 +76,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return u && u.user_type == per;
-    },
+    
 
     getColor(calories) {
       if (calories > 400) return "red";

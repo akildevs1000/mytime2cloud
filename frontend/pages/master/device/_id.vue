@@ -237,10 +237,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return u && u.user_type == per;
-    },
+    
     getRecord() {
       let id = this.$route.params.id;
       this.$axios.get(`device/${id}`).then(({ data }) => {

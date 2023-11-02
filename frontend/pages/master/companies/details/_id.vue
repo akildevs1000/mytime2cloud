@@ -388,10 +388,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return u && u.user_type == per;
-    },
+    
     createBranch() {
       let { branches, max_branches } = this.company_payload;
       if (branches.length >= max_branches) {

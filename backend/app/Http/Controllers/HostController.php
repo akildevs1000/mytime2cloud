@@ -7,7 +7,7 @@ use App\Http\Requests\HostCompany\Update;
 use App\Models\HostCompany;
 use Illuminate\Http\Request;
 
-class HostCompanyController extends Controller
+class HostController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,24 +15,27 @@ class HostCompanyController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function host_company_list(Request $request)
+    public function host_list(Request $request)
     {
         $model = HostCompany::query();
 
-        $model->where("company_id", $request->input("company_id", 0));
+        $model->with("employee:id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
+        
+        $model->where("company_id", $request->input("company_id"));
 
         return $model->get();
     }
-
 
     public function index(Request $request)
     {
         $model = HostCompany::query();
 
-        $fields = ['flat_number', 'company_name', 'manager_name', 'phone', 'email', 'zone_id'];
+        $fields = ['flat_number'];
 
         $model = $this->process_ilike_filter($model, $request, $fields);
 
+        $model->with("employee:id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
+        
         $model->where("company_id", $request->input("company_id"));
 
         return $model->paginate($request->input("per_page", 100));

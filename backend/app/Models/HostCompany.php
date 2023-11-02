@@ -20,4 +20,14 @@ class HostCompany extends Model
         }
         return asset('media/company/logo/' . $value);
     }
+
+    /**
+     * Get the employee that owns the HostCompany
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class)->withOut(["schedule", "department", "designation", "department", "sub_department", 'branch']);
+    }
 }

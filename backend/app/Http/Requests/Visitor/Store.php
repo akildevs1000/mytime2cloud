@@ -33,7 +33,7 @@ class Store extends FormRequest
 
         $validations["zone_id"] = "required";
 
-        $validations['system_user_id'] = 'required|unique:visitors,system_user_id';
+        $validations['system_user_id'] = 'required|numeric|unique:visitors,system_user_id';
 
         $validations['visit_from'] = 'required|date';
         $validations['visit_to'] = 'required|date';
@@ -52,19 +52,11 @@ class Store extends FormRequest
         $validations['id_number'] = 'required|string|max:255';
         $validations['id_copy'] = 'required';
 
-        $validations['host_first_name'] = 'required|string|max:255';
-        $validations['host_last_name'] = 'required|string|max:255';
-        $validations['host_gender'] = 'required|in:Male,Female';
-
-        $validations['host_phone_number'] = 'required|string|max:255';
-        $validations['host_email'] = 'required|email|max:255';
         $validations['host_company_id'] = 'required';
 
         $validations['status_id'] = 'required';
         $validations['date'] = 'required|date';
         $validations["updated_by"] = "required";
-        $validations['status_phone_number'] = '|string|max:255';
-        $validations['company_name'] = 'required|string|max:255';
         $validations['reason'] = 'required|string|max:255';
         $validations["company_id"] = "required";
 

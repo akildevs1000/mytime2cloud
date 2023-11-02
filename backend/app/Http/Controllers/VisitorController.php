@@ -36,7 +36,7 @@ class VisitorController extends Controller
 
         $model->where("company_id", $request->input("company_id"));
 
-        return $model->with(["status", "zone"])->paginate($request->input("per_page", 100));
+        return $model->with(["status", "zone","host","timezone:id,timezone_id,timezone_name","purpose:id,name"])->paginate($request->input("per_page", 100));
     }
 
     /**
@@ -72,7 +72,7 @@ class VisitorController extends Controller
 
             return $this->response('Visitor successfully created.', null, true);
         } catch (\Throwable $th) {
-            return $this->response('Server Error.', null, true);
+            return $this->response($th, null, true);
         }
     }
 

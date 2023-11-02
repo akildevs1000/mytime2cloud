@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\HostCompanyController;
+use App\Http\Controllers\HostController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('host_company_list', [HostCompanyController::class, "host_company_list"]);
+Route::get('host_list', [HostController::class, "host_list"]);
 
-Route::post('host/{id}', [HostCompanyController::class, 'update']);
+Route::post('host/{id}', [HostController::class, 'update']);
 
-Route::apiResource('host', HostCompanyController::class);
+Route::apiResource('host', HostController::class);

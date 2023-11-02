@@ -1036,11 +1036,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let { permissions, is_master } = this.$auth.user;
-
-      return permissions.includes(per) || is_master;
-    },
+    
 
     logout() {
       this.$axios.get(`/logout`).then(({ res }) => {

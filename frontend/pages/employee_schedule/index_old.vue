@@ -1177,10 +1177,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let { permissions, is_master } = this.$auth.user;
-      return permissions.includes(per) || is_master;
-    },
     getSearchRecords(filter_column = "", filter_value = "") {
       this.getDataFromApi(this.endpoint, filter_column, filter_value);
     },

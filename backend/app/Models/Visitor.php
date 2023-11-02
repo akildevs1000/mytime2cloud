@@ -40,11 +40,22 @@ class Visitor extends Model
         return $this->belongsTo(Zone::class);
     }
 
+    public function purpose()
+    {
+        return $this->belongsTo(Purpose::class);
+    }
+
     public function timezone()
     {
         return $this->belongsTo(Timezone::class, 'timezone_id', 'timezone_id')->withDefault([
             "timezone_name" => "---",
         ]);
+    }
+
+    public function host()
+    {
+        return $this->belongsTo(HostCompany::class, 'host_company_id')
+            ->with("employee:id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
     }
 
 

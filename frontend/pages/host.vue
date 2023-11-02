@@ -60,7 +60,7 @@
         </v-col>
       </v-row>
 
-      <HostList />
+      <HostCreate />
     </div>
     <Preloader v-else />
   </div>
@@ -68,9 +68,11 @@
 </template>
 <script>
 import HostList from "../components/Host/List.vue";
+import HostCreate from "../components/Host/Create.vue";
+
 
 export default {
-  components: { HostList },
+  components: { HostList,HostCreate },
 
   data() {
     return {
@@ -79,10 +81,11 @@ export default {
       iframeDisplay: false,
       iframeUrl: "",
       items: [],
+      employees: [],
     };
   },
-  created() {
-    this.initialize();
+  async created() {
+    await this.initialize();
   },
   mounted() {},
   computed: {
@@ -142,32 +145,32 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let { is_master, permissions: p } =
-        this.$auth.user || this.$auth.user.permissions;
+    async initialize() {
+      try {
+        const options = {
+          params: { per_page: 1000, company_id: this.$auth.user.company_id },
+        };
 
-      if (p.some((e) => e == per) || is_master) return true;
+        const [countResponse, employeeResponse] = await Promise.all([
+          this.$axios.get(`count`, options),
+          this.$axios.get(`employee`, options),
+        ]);
 
-      // if (this.$auth.user.user_type == "employee") {
-      //   this.$router.push(`/employee_dashboard`);
-      //   return;
-      // }
+        if (countResponse.status === 200) {
+          this.items = countResponse.data;
+          this.loading = false;
+        } else {
+          console.error("Error fetching count data");
+        }
 
-      this.$router.push(`/attendance_report`);
-    },
-    initialize() {
-      let options = {
-        company_id: this.$auth.user.company_id,
-      };
-      this.$axios.get(`count`, { params: options }).then(({ data }) => {
-        this.items = data;
-        console.log(data);
-        this.loading = false;
-
-        // if (this.items.length > 0) {
-        //   this.loading = false;
-        // }
-      });
+        if (employeeResponse.status === 200) {
+          this.employees = employeeResponse.data.data;
+        } else {
+          console.error("Error fetching employee data");
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
     },
   },
 };

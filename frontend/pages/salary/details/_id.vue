@@ -208,13 +208,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
-      );
-    },
+    
     getSalaryDetails() {
       this.$axios.get(`salary/${this.$route.params.id}`).then(({ data }) => {
         this.payload = data.record;

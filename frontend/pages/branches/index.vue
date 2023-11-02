@@ -797,9 +797,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      return true;
-    },
     onPageChange() {
       this.getDataFromApi();
     },

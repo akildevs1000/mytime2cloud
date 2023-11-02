@@ -40,34 +40,36 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog persistent v-model="DialogBox" width="1100">
+      <v-dialog persistent v-model="DialogBox" width="900">
         <v-card>
           <v-toolbar class="popup_background" flat>
-            {{ formAction }} Company
+            {{ formAction }} Host
           </v-toolbar>
           <v-container>
             <v-row>
               <v-col cols="3" class="pt-5">
-                <div class="form-group" style="margin: 0 auto; width: 200px">
+                <div class="form-group" style="margin: 0 auto; width: 175px">
                   <v-img
                     style="
                       width: 100%;
-                      height: 200px;
-                      border: 1px solid #5fafa3;
+                      height: 175px;
+                      border: 1px solid #6946dd;
                       border-radius: 50%;
                       margin: 0 auto;
                     "
                     :src="previewImage || '/no-profile-image.jpg'"
                   ></v-img>
                   <br />
-                  <v-btn
-                    :disabled="disabled"
-                    small
-                    class="form-control primary"
-                    @click="onpick_attachment"
-                    >{{ !upload.name ? "Upload" : "Change" }} Company Logo
-                    <v-icon right dark>mdi-cloud-upload</v-icon>
-                  </v-btn>
+                  <div class="text-center">
+                    <v-btn
+                      :disabled="disabled"
+                      small
+                      class="form-control primary"
+                      @click="onpick_attachment"
+                      >{{ !upload.name ? "Upload" : "Change" }} Logo
+                      <v-icon right dark>mdi-cloud-upload</v-icon>
+                    </v-btn>
+                  </div>
                   <input
                     required
                     type="file"
@@ -81,41 +83,13 @@
                     errors.logo[0]
                   }}</span>
                 </div>
-
-                <v-text-field
-                  :disabled="disabled"
-                  type="email"
-                  class="mt-5"
-                  placeholder="Email Address"
-                  v-model="payload.email"
-                  dense
-                  menu-props="min-width: auto; max-height: 200px;"
-                  outlined
-                  :hide-details="!errors.email"
-                  :error="errors.email"
-                  :error-messages="
-                    errors && errors.email ? errors.email[0] : ''
-                  "
-                ></v-text-field>
-                <div class="text-center">
-                  <v-avatar class="ma-1" v-if="qrCodeDataURL" size="150" tile>
-                    <img :src="qrCodeDataURL" alt="Avatar" />
-                  </v-avatar>
-                </div>
-                <span>
-                  <a :href="`${fullLink}`" target="_blank">
-                    {{ fullLink }}
-                  </a>
-                </span>
               </v-col>
 
               <v-col cols="9" class="pt-5">
                 <v-row>
-                  <v-col cols="6">
-                    <label class="col-form-label"
-                      >Company Name<span class="text-danger">*</span></label
-                    >
+                  <!-- <v-col cols="6">
                     <v-text-field
+                      label="Company Name"
                       :disabled="disabled"
                       v-model="payload.company_name"
                       dense
@@ -130,34 +104,47 @@
                           : ''
                       "
                     ></v-text-field>
+                  </v-col> -->
+
+                  <v-col cols="6">
+                    <v-autocomplete
+                      label="Employee"
+                      outlined
+                      :disabled="disabled"
+                      v-model="payload.employee_id"
+                      :items="employees"
+                      dense
+                      item-text="first_name"
+                      item-value="id"
+                      :hide-details="!errors.employee_id"
+                      :error-messages="
+                        errors && errors.employee_id
+                          ? errors.employee_id[0]
+                          : ''
+                      "
+                    >
+                    </v-autocomplete>
                   </v-col>
 
                   <v-col cols="6">
-                    <label class="col-form-label"
-                      >Manager Name<span class="text-danger">*</span></label
-                    >
                     <v-text-field
+                      label="Zone. Number"
                       :disabled="disabled"
-                      v-model="payload.manager_name"
+                      v-model="payload.zone_id"
                       dense
-                      menu-props="min-width: auto; max-height: 200px;"
                       class="text-center"
                       outlined
-                      :hide-details="!errors.manager_name"
-                      :error="errors.manager_name"
+                      :hide-details="!errors.zone_id"
+                      :error="errors.zone_id"
                       :error-messages="
-                        errors && errors.manager_name
-                          ? errors.manager_name[0]
-                          : ''
+                        errors && errors.zone_id ? errors.zone_id[0] : ''
                       "
                     ></v-text-field>
                   </v-col>
 
                   <v-col cols="6">
-                    <label class="col-form-label"
-                      >Flat Number<span class="text-danger">*</span></label
-                    >
                     <v-text-field
+                      label="Flat Number"
                       :disabled="disabled"
                       v-model="payload.flat_number"
                       dense
@@ -175,10 +162,8 @@
                   </v-col>
 
                   <v-col cols="6">
-                    <label class="col-form-label"
-                      >Floor Number<span class="text-danger">*</span></label
-                    >
                     <v-text-field
+                      label="Floor Number"
                       :disabled="disabled"
                       v-model="payload.floor_number"
                       dense
@@ -200,8 +185,8 @@
 
                 <v-row>
                   <v-col cols="6">
-                    <label class="col-form-label">Phone Number</label>
                     <v-text-field
+                      label="Phone Number"
                       :disabled="disabled"
                       v-model="payload.number"
                       dense
@@ -217,10 +202,8 @@
                   </v-col>
 
                   <v-col cols="6">
-                    <label class="col-form-label"
-                      >Emergency Phone<span class="text-danger">*</span></label
-                    >
                     <v-text-field
+                      label="Emergency Number"
                       :disabled="disabled"
                       v-model="payload.emergency_phone"
                       dense
@@ -240,11 +223,6 @@
 
                 <v-row>
                   <v-col cols="6">
-                    <label class="col-form-label"
-                      >Office. Open time<span class="text-danger"
-                        >*</span
-                      ></label
-                    >
                     <v-menu
                       :disabled="disabled"
                       ref="openTimePicker"
@@ -256,6 +234,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
+                          label="Office. Open time"
                           :disabled="disabled"
                           v-model="payload.open_time"
                           append-icon="mdi-clock-outline"
@@ -285,9 +264,6 @@
                   </v-col>
 
                   <v-col cols="6">
-                    <label class="col-form-label"
-                      >Close. Open time<span class="text-danger">*</span></label
-                    >
                     <v-menu
                       :disabled="disabled"
                       ref="closeTimePicker"
@@ -299,6 +275,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
+                          label="Office. Close time"
                           :disabled="disabled"
                           v-model="payload.close_time"
                           append-icon="mdi-clock-outline"
@@ -327,25 +304,25 @@
                     </v-menu>
                   </v-col>
 
-                  <v-col cols="6">
-                    <label class="col-form-label"
-                      >Zone. Number<span class="text-danger">*</span></label
-                    >
-                    <v-text-field
-                      :disabled="disabled"
-                      v-model="payload.zone_id"
-                      dense
-                      menu-props="min-width: auto; max-height: 200px;"
-                      class="text-center"
-                      outlined
-                      :hide-details="!errors.zone_id"
-                      :error="errors.zone_id"
-                      :error-messages="
-                        errors && errors.zone_id ? errors.zone_id[0] : ''
-                      "
-                    ></v-text-field>
+                  <v-col cols="6" v-if="disabled">
+                    <div>
+                      <v-avatar
+                        class="ma-1"
+                        v-if="qrCodeDataURL"
+                        size="150"
+                        tile
+                      >
+                        <img :src="qrCodeDataURL" alt="Avatar" />
+                      </v-avatar>
+                    </div>
+                    <span>
+                      <a :href="`${fullLink}`" target="_blank">
+                        {{ fullLink }}
+                      </a>
+                    </span>
                   </v-col>
-                  <v-col cols="12">
+
+                  <!-- <v-col cols="12">
                     <v-switch
                       :disabled="disabled"
                       dense
@@ -357,8 +334,8 @@
                         errors && errors.weekend ? errors.weekend[0] : ''
                       "
                     ></v-switch>
-                  </v-col>
-                  <v-col cols="12">
+                  </v-col> -->
+                  <!-- <v-col cols="12">
                     <v-switch
                       :disabled="disabled"
                       dense
@@ -370,7 +347,7 @@
                         errors && errors.webaccess ? errors.webaccess[0] : ''
                       "
                     ></v-switch>
-                  </v-col>
+                  </v-col> -->
                 </v-row>
               </v-col>
             </v-row>
@@ -378,7 +355,7 @@
           <v-divider></v-divider>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <div class="text-right px-3 pb-3">
+            <div class="text-right">
               <v-btn small color="grey white--text" @click="DialogBox = false">
                 Close
               </v-btn>
@@ -388,7 +365,7 @@
                 small
                 :loading="loading"
                 color="primary"
-                @click="store_data"
+                @click="submit"
               >
                 Submit
               </v-btn>
@@ -403,38 +380,6 @@
               </v-btn>
             </div>
           </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <v-dialog persistent v-model="dialog" max-width="500px">
-        <v-card class="white--text">
-          <v-card-title dense class="" color="white">
-            <!-- Register Link
-            <v-icon class="mx-2" color="white">mdi-clipboard-outline</v-icon> -->
-
-            <v-spacer></v-spacer>
-            <v-icon @click="dialog = false" outlined color="black">
-              mdi-close-circle-outline
-            </v-icon>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12" class="text-center">
-                  <v-avatar v-if="qrCodeDataURL" size="150" tile class="ma-1">
-                    <img :src="qrCodeDataURL" alt="Avatar" />
-                  </v-avatar>
-                </v-col>
-                <v-col cols="12" class="text-center">
-                  <span>
-                    <a :href="`${fullLink}`" target="_blank">
-                      {{ fullLink }}
-                    </a>
-                  </span>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
         </v-card>
       </v-dialog>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -470,7 +415,7 @@
               </v-tooltip> -->
               <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
+              <!-- <v-btn
                 dense
                 class="ma-0 px-0"
                 x-small
@@ -481,7 +426,7 @@
                 <v-icon @click="toggleFilter" class="mx-1 ml-2"
                   >mdi mdi-filter</v-icon
                 >
-              </v-btn>
+              </v-btn> -->
               <!-- </template>
                 <span>Filter</span>
               </v-tooltip> -->
@@ -563,7 +508,7 @@
               </template>
 
               <template
-                v-slot:item.company_name="{ item, index }"
+                v-slot:item.first_name="{ item, index }"
                 style="width: 300px"
               >
                 <v-row no-gutters>
@@ -582,18 +527,39 @@
                         width: 50px;
                         max-width: 50px;
                       "
-                      :src="item?.logo || '/no-profile-image.jpg'"
+                      :src="
+                        item.employee.profile_picture
+                          ? item.employee.profile_picture
+                          : '/no-profile-image.jpg'
+                      "
                     >
                     </v-img>
                   </v-col>
                   <v-col style="padding: 10px">
                     <strong>
                       {{
-                        item.company_name ? item.company_name : "---"
-                      }}</strong
-                    >
+                        item.employee.first_name
+                          ? item.employee.first_name +
+                            " " +
+                            item.employee.last_name +
+                            "-" +
+                            item.employee.employee_id
+                          : "---"
+                      }}
+                    </strong>
+                    <div>
+                      {{
+                        item.employee.user.email
+                          ? item.employee.user.email
+                          : "---"
+                      }}
+                    </div>
                   </v-col>
                 </v-row>
+              </template>
+
+              <template v-slot:item.email="{ item }">
+                {{ item?.employee?.user?.email }}
               </template>
 
               <template v-slot:item.options="{ item }">
@@ -754,6 +720,7 @@ export default {
     errors: [],
     designations: [],
     roles: [],
+    employees: [],
     department_filter_id: "",
     dialogVisible: false,
     payloadOptions: {},
@@ -764,16 +731,27 @@ export default {
     // "webaccess": true,
     headers: [
       {
-        text: "ID",
+        text: "Host Name",
         align: "left",
         sortable: true,
-        key: "id",
-        value: "id",
+        key: "first_name",
+        value: "first_name",
+        width: "300px",
         filterable: true,
         filterSpecial: false,
       },
       {
-        text: "Door No/Flat No",
+        text: "Zone",
+        align: "left",
+        sortable: true,
+        key: "zone_id",
+        value: "zone_id",
+        filterable: true,
+        filterSpecial: true,
+      },
+
+      {
+        text: "Flat No",
         align: "left",
         sortable: true,
         key: "flat_number",
@@ -783,41 +761,31 @@ export default {
         filterSpecial: false,
       },
       {
-        text: "Company Name",
+        text: "Floor No",
         align: "left",
         sortable: true,
-        key: "company_name",
-        value: "company_name",
-        width: "300px",
+        key: "floor_number",
+        value: "floor_number",
         filterable: true,
-        filterSpecial: false,
-      },
-      {
-        text: "Manager Name",
-        align: "left",
-        sortable: true,
-        key: "manager_name",
-        value: "manager_name",
-        width: "300px",
-        filterable: true,
+        width: "150px",
         filterSpecial: false,
       },
       {
         text: "Phone",
         align: "left",
         sortable: true,
-        key: "mobile",
+        key: "number",
         value: "number",
         width: "150px",
         filterable: true,
         filterSpecial: false,
       },
       {
-        text: "Email",
+        text: "Emergency Phone",
         align: "left",
         sortable: true,
-        key: "email",
-        value: "email",
+        key: "emergency_phone",
+        value: "emergency_phone",
         width: "150px",
         filterable: true,
         filterSpecial: false,
@@ -840,15 +808,7 @@ export default {
         filterable: false,
         filterSpecial: false,
       },
-      {
-        text: "Zone",
-        align: "left",
-        sortable: true,
-        key: "zone_id",
-        value: "zone_id",
-        filterable: true,
-        filterSpecial: true,
-      },
+
       {
         text: "Details",
         align: "left",
@@ -872,7 +832,9 @@ export default {
     };
 
     this.getDataFromApi();
+    await this.initialize();
   },
+
   mounted() {},
   watch: {
     options: {
@@ -883,6 +845,24 @@ export default {
     },
   },
   methods: {
+    async initialize() {
+      try {
+        const options = {
+          params: { per_page: 1000, company_id: this.$auth.user.company_id },
+        };
+
+        const { data } = await this.$axios.get(`employee`, options);
+
+        this.employees = data.data.map((e) => ({
+          id: e.id,
+          first_name: e.first_name,
+          last_name: e.last_name,
+          display_name: e.display_name,
+        }));
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    },
     encrypt() {
       this.encryptedID = this.$crypto.encrypt(id);
       // this.fullLink = this.originalURL + this.encryptedID;
@@ -916,85 +896,10 @@ export default {
       this.errors = [];
       setTimeout(() => {}, 300);
     },
-    json_to_csv(json) {
-      let data = json.map((e) => ({
-        first_name: e.first_name,
-        last_name: e.last_name,
-        display_name: e.display_name,
-        email: e.user.email,
-        phone_number: e.phone_number,
-        whatsapp_number: e.whatsapp_number,
-        phone_relative_number: e.phone_relative_number,
-        whatsapp_relative_number: e.whatsapp_relative_number,
-        employee_id: e.employee_id,
-        joining_date: e.show_joining_date,
-        department_code: e.department_id,
-        designation_code: e.designation_id,
-        department: e.department.name,
-        designation: e.designation.name,
-      }));
-      let header = Object.keys(data[0]).join(",") + "\n";
-      let rows = "";
-      data.forEach((e) => {
-        rows += Object.values(e).join(",").trim() + "\n";
-      });
-      return header + rows;
-    },
-    export_submit() {
-      if (this.data.length == 0) {
-        this.snackbar = true;
-        this.response = "No record to download";
-        return;
-      }
-
-      let csvData = this.json_to_csv(this.data);
-      let element = document.createElement("a");
-      element.setAttribute(
-        "href",
-        "data:text/csv;charset=utf-8, " + encodeURIComponent(csvData)
-      );
-      element.setAttribute("download", "download.csv");
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-    },
-    importEmployee() {
-      let payload = new FormData();
-      payload.append("employees", this.files);
-      payload.append("company_id", this.$auth?.user?.company?.id);
-      let options = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
-      this.btnLoader = true;
-      this.$axios
-        .post("/employee/import", payload, options)
-        .then(({ data }) => {
-          this.btnLoader = false;
-          if (!data.status) {
-            this.errors = data.errors;
-          } else {
-            this.errors = [];
-            this.snackbar = true;
-            this.response = "Employees imported successfully";
-            this.getDataFromApi();
-            this.close();
-          }
-        })
-        .catch((e) => {
-          if (e.toString().includes("Error: Network Error")) {
-            this.errors = [
-              "File is modified.Please cancel the current file and try again",
-            ];
-            this.btnLoader = false;
-          }
-        });
-    },
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     onPageChange() {
       this.getDataFromApi();
     },
@@ -1144,7 +1049,8 @@ export default {
       }
     },
 
-    store_data() {
+    submit() {
+      console.log(this.payload);
       this.$axios
         .post(this.endpoint, this.mapper(Object.assign(this.payload)))
         .then(({ data }) => {

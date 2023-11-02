@@ -354,12 +354,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
-      );
-    },
+    
     getRecords(filter_column = "", filter_value = "") {
       if (filter_value != "" && filter_value.length <= 2) {
         this.snack = true;
