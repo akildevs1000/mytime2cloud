@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`leave_application_access`)">
+  <div>
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -20,7 +20,7 @@
             v-model="ids"
             item-key="id"
             :headers="headersGroupInfo"
-            :items="DialogLeaveGroupData"
+            :items="DialogLeavesList"
             :hide-default-footer="true"
             class="elevation-1"
           >
@@ -44,15 +44,13 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="dialog" width="1000px">
+    <v-dialog persistent v-model="dialog" width="600px">
       <v-card>
-        <v-card-title dense class="primary white--text background">
-          <span class="headline" v-if="editedIndex == -1"
-            >New Leave Application
-          </span>
-          <span class="headline" v-else>Edit Application </span>
+        <v-card-title dense class="popup_background">
+          <span class="headline" v-if="editedIndex == -1">New Leave </span>
+          <span class="headline" v-else>Edit </span>
           <v-spacer></v-spacer>
-          <v-icon @click="dialog = false" outlined dark color="white">
+          <v-icon @click="dialog = false" outlined dark color="black">
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -60,19 +58,22 @@
           <v-container>
             <v-row>
               <v-col cols="12">
-                <label style="padding-bottom: 5px"
-                  >Available Leave Count :
-                  <v-chip v-if="leave_available_count != ''" color="primary">{{
+                <label
+                  style="padding-bottom: 5px"
+                  v-if="leave_available_count != ''"
+                  >Available Leaves :
+                  <v-chip color="primary">{{
                     leave_available_count
                   }}</v-chip></label
                 >
               </v-col>
 
-              <v-col cols="6">
-                <label for="" style="padding-bottom: 5px"
+              <v-col md="12" sm="12" cols="12">
+                <!-- <label for="" style="padding-bottom: 5px"
                   >Select leave Type</label
-                >
+                > -->
                 <v-select
+                  label="Select Leave Type"
                   @change="verifyAvailableCount"
                   :items="leaveTypes"
                   item-text="leave_type.name"
@@ -90,7 +91,7 @@
                   outlined
                 ></v-select>
               </v-col>
-              <v-col cols="6">
+              <v-col md="12" sm="12" cols="12">
                 <v-menu
                   ref="from_menu"
                   v-model="start_menu"
@@ -101,8 +102,9 @@
                   min-width="auto"
                 >
                   <template v-slot:activator="{ on, attrs }">
-                    <label for="" style="padding-bottom: 5px">From Date</label>
+                    <!-- <label for="" style="padding-bottom: 5px">From Date</label> -->
                     <v-text-field
+                      label="From Date"
                       style="height: 45px"
                       outlined
                       dense
@@ -127,19 +129,8 @@
                   </v-date-picker>
                 </v-menu>
               </v-col>
-              <v-col cols="6">
-                <label for="" style="padding-bottom: 5px">Reason</label>
-                <v-text-field
-                  dense
-                  outlined
-                  v-model="editedItem.reason"
-                  placeholder="Reason/Notes"
-                  :error-messages="
-                    errors && errors.reason ? errors.reason[0] : ''
-                  "
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6">
+
+              <v-col md="12" sm="12" cols="12">
                 <v-menu
                   ref="end_menu"
                   v-model="end_menu"
@@ -150,8 +141,9 @@
                   min-width="auto"
                 >
                   <template v-slot:activator="{ on, attrs }">
-                    <div class="mb-1">End Date</div>
+                    <!-- <div class="mb-1">End Date</div> -->
                     <v-text-field
+                      label="To Date"
                       style="height: 45px"
                       outlined
                       dense
@@ -175,7 +167,19 @@
                   </v-date-picker>
                 </v-menu>
               </v-col>
-
+              <v-col md="12" sm="12" cols="12">
+                <!-- <label for="" style="padding-bottom: 5px">Reason</label> -->
+                <v-text-field
+                  label="Reason"
+                  dense
+                  outlined
+                  v-model="editedItem.reason"
+                  placeholder="Reason/Notes"
+                  :error-messages="
+                    errors && errors.reason ? errors.reason[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
               <v-col cols="12" v-if="errors && errors.reporting_manager_id">
                 <label for="" style="padding-bottom: 5px; color: red"
                   >Reporting Manager ID is not assigned. Contact Admin
@@ -196,7 +200,7 @@
                   dense
                   class="primary mb-2"
                   style="float: right"
-                  >Add Document +
+                  >Add Document+
                 </v-btn>
               </v-col>
               <v-col
@@ -254,8 +258,8 @@
                         "
                       >
                         <a :href="d.value" target="_blank">
-                          <v-btn small class="primary">
-                            View Uploaded file <v-icon>mdi-open-window</v-icon>
+                          <v-btn small class=" ">
+                            View file <v-icon>mdi-open-window</v-icon>
                           </v-btn>
                         </a>
                       </td>
@@ -299,14 +303,14 @@
       height="400px"
     >
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="popup_background">
           Documents
           <v-spacer></v-spacer>
           <v-icon
             @click="dialogUploadDocuments = false"
             outlined
             dark
-            color="white"
+            color="black"
           >
             mdi mdi-close-circle
           </v-icon>
@@ -314,25 +318,11 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12" style="min-height: 200px">
-                <v-row>
-                  <v-col cols="12" class="text-right">
-                    <v-btn
-                      title="Maximum file upload size is 100Kb"
-                      cols="2"
-                      @click="addDocumentInfo"
-                      small
-                      dense
-                      class="primary mb-2"
-                      style="float: right"
-                      >Add Document +
-                    </v-btn>
-                  </v-col>
-                </v-row>
-
+              <v-col cols="12" style="min-height: 200px" class="mt-4">
                 <v-row v-for="(d, index) in Document.items" :key="index">
-                  <v-col cols="5">
+                  <v-col cols="5" style="padding: 0px">
                     <v-text-field
+                      label="Title"
                       small
                       dense
                       outlined
@@ -340,26 +330,26 @@
                       placeholder="Title"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="5" class="file-upload">
+                  <v-col cols="6" class="file-upload" style="padding: 0px">
                     <v-file-input
                       @change="uploadFilesizeValidation($event, index)"
                       small
                       dense
                       outlined
                       v-model="d.file"
-                      style="padding: 0px"
+                      style="padding: 0px; margin: 0px"
                     >
                       <template
                         v-slot:selection="{ text }"
-                        style="padding: 0px"
+                        style="padding: 0px; margin: 0px"
                       >
                         <v-chip
                           v-if="text"
                           small
                           label
-                          color="primary"
-                          class="ma-1"
-                          style="width: 80%"
+                          class="ma-1 text-truncate custom-chip1"
+                          style="width: 85px; padding: 0px; margin: 0px"
+                          overflow="hidden"
                         >
                           {{ text }}
                         </v-chip>
@@ -374,292 +364,280 @@
                       >{{ errorsFileUpload[index].value[0] }}</span
                     >
                   </v-col>
-                  <v-col cols="1">
+                  <v-col cols="1" style="padding: 0px">
                     <v-icon class="error--text mt-1" @click="removeItem(index)"
                       >mdi-delete</v-icon
                     >
                   </v-col>
                 </v-row>
+                <v-row>
+                  <v-col cols="12" class="text-right" style="padding: 0px">
+                    <!-- <v-btn
+                      title="Maximum file upload size is 100Kb"
+                      cols="2"
+                      @click="addDocumentInfo"
+                      small
+                      dense
+                      class="primary"
+                      style="float: right"
+                      >Add +
+                    </v-btn> -->
+                    <v-icon
+                      style="float: right"
+                      class="black--text mt-1 text-end"
+                      @click="addDocumentInfo"
+                      >mdi-plus-circle</v-icon
+                    >
+                  </v-col>
+                </v-row>
               </v-col>
-              <v-card-actions>
-                <v-btn class="error" small @click="closeDialogUploadDocuments">
-                  Cancel/Clear
-                </v-btn>
-                <v-spacer></v-spacer>
-
-                <v-btn class="primary" small @click="SaveDocumentsDialog"
-                  >Save</v-btn
-                >
-              </v-card-actions>
             </v-row>
           </v-container>
         </v-card-text>
+        <v-card-actions>
+          <v-btn class="error" small @click="closeDialogUploadDocuments">
+            Cancel
+          </v-btn>
+          <v-spacer></v-spacer>
+
+          <v-btn class="primary" small @click="SaveDocumentsDialog">Save</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog persistent v-model="dialogView" width="1000px">
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="popup_background">
           Leave Information
           <v-spacer></v-spacer>
-          <v-icon @click="dialogView = false" outlined dark color="white">
+          <v-icon @click="dialogView = false" outlined dark color="black">
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
         <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="5">
-                <v-row>
-                  <v-col cols="4">
-                    <label for="">
-                      <strong>Employee Name</strong>
-                    </label>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for="">: {{ dialogViewObject.employee_name }}</label>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="4">
-                    <strong>Group Name</strong>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for=""
-                      >: {{ dialogViewObject.leave_group_name }}</label
+          <v-row>
+            <v-col cols="12">
+              <v-row>
+                <v-col cols="4">
+                  <label for="">
+                    <strong> Name</strong>
+                  </label>
+                </v-col>
+                <v-col cols="8">
+                  <label for="">: {{ dialogViewObject.employee_name }}</label>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
+                  <strong>Group </strong>
+                </v-col>
+                <v-col cols="8">
+                  <label for=""
+                    >: {{ dialogViewObject.leave_group_name }}</label
+                  >
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
+                  <strong> Type</strong>
+                </v-col>
+                <v-col cols="8">
+                  <label for="">: {{ dialogViewObject.leave_type }}</label>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
+                  <strong>From </strong>
+                </v-col>
+                <v-col cols="8">
+                  <label for="">: {{ dialogViewObject.from_date }}</label>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
+                  <strong>To </strong>
+                </v-col>
+                <v-col cols="8">
+                  <label for="">: {{ dialogViewObject.to_date }}</label>
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-col col="7">
+              <v-row>
+                <v-col cols="4">
+                  <strong>Applied on </strong>
+                </v-col>
+                <v-col cols="8">
+                  <label for="">: {{ dialogViewObject.applied_date }}</label>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
+                  <strong> Manager </strong>
+                </v-col>
+                <v-col cols="8">
+                  <label for=""
+                    >: {{ dialogViewObject.reporting_manager }}</label
+                  >
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
+                  <strong>Status </strong>
+                </v-col>
+                <v-col cols="8">
+                  <label for=""
+                    >:
+                    <v-chip
+                      v-if="dialogViewObject.status == 1"
+                      small
+                      class="p-2 mx-1"
+                      color="primary"
                     >
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="4">
-                    <strong>Application Type</strong>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for="">: {{ dialogViewObject.leave_type }}</label>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="4">
-                    <strong>From Date</strong>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for="">: {{ dialogViewObject.from_date }}</label>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="4">
-                    <strong>To Date</strong>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for="">: {{ dialogViewObject.to_date }}</label>
-                  </v-col>
-                </v-row>
-              </v-col>
-              <v-col col="7">
-                <v-row>
-                  <v-col cols="4">
-                    <strong>Applied Date </strong>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for="">: {{ dialogViewObject.applied_date }}</label>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="4">
-                    <strong>Reporting Manager </strong>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for=""
-                      >: {{ dialogViewObject.reporting_manager }}</label
+                      Approved
+                    </v-chip>
+                    <v-chip
+                      v-if="dialogViewObject.status == 2"
+                      small
+                      class="p-2 mx-1"
+                      color="error"
                     >
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="4">
-                    <strong>Status </strong>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for=""
-                      >:
-                      <v-chip
-                        v-if="dialogViewObject.status == 1"
-                        small
-                        class="p-2 mx-1"
-                        color="primary"
-                      >
-                        Approved
-                      </v-chip>
-                      <v-chip
-                        v-if="dialogViewObject.status == 2"
-                        small
-                        class="p-2 mx-1"
-                        color="error"
-                      >
-                        Rejected
-                      </v-chip>
-                      <v-chip
-                        v-if="dialogViewObject.status == 0"
-                        small
-                        class="p-2 mx-1"
-                        color="secondary"
-                      >
-                        Pending
-                      </v-chip></label
+                      Rejected
+                    </v-chip>
+                    <v-chip
+                      v-if="dialogViewObject.status == 0"
+                      small
+                      class="p-2 mx-1"
+                      color="secondary"
                     >
-                  </v-col>
-                </v-row>
-                <v-row v-if="dialogViewObject.status == 1">
-                  <v-col cols="4">
-                    <strong>Approved Date </strong>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for=""
-                      >: {{ dialogViewObject.approved_datetime }}</label
-                    >
-                  </v-col>
-                </v-row>
-                <v-row v-else-if="dialogViewObject.status == 2">
-                  <v-col cols="4">
-                    <strong>Rejected Date </strong>
-                  </v-col>
-                  <v-col cols="8">
-                    <label for=""
-                      >: {{ dialogViewObject.approved_datetime }}</label
-                    >
-                  </v-col>
-                </v-row>
+                      Pending
+                    </v-chip></label
+                  >
+                </v-col>
+              </v-row>
+              <v-row v-if="dialogViewObject.status == 1">
+                <v-col cols="4">
+                  <strong>Approved Date </strong>
+                </v-col>
+                <v-col cols="8">
+                  <label for=""
+                    >: {{ dialogViewObject.approved_datetime }}</label
+                  >
+                </v-col>
+              </v-row>
+              <v-row v-else-if="dialogViewObject.status == 2">
+                <v-col cols="4">
+                  <strong>Rejected Date </strong>
+                </v-col>
+                <v-col cols="8">
+                  <label for=""
+                    >: {{ dialogViewObject.approved_datetime }}</label
+                  >
+                </v-col>
+              </v-row>
 
-                <v-row v-if="dialogViewObject.status != 0">
-                  <v-col cols="4">
-                    <strong
-                      >{{
-                        dialogViewObject.status == 1 ? "Approved" : "Rejected"
-                      }}
-                      Notes
-                    </strong>
-                  </v-col>
-                  <v-col cols="8">
-                    : {{ dialogViewObject.approve_reject_notes }}
-                  </v-col>
-                </v-row>
-              </v-col>
-              <v-col cols="12">
-                <strong> Leave Notes </strong>:
-                <label for="">: {{ dialogViewObject.reason }}</label>
-              </v-col>
-              <label
-                ><strong>Uploaded Documents</strong> ({{
-                  document_list.length
-                }})</label
-              >
-              <v-col cols="12" v-if="document_list.length">
-                <table style="border-collapse: collapse; width: 100%">
-                  <thead>
-                    <tr>
-                      <th
-                        style="
-                          border: 1px solid #dddddd;
-                          text-align: left;
-                          padding: 8px;
-                        "
-                      >
-                        Title
-                      </th>
-                      <th
-                        style="
-                          border: 1px solid #dddddd;
-                          text-align: center;
-                          padding: 8px;
-                        "
-                      >
-                        File
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(d, index) in document_list" :key="index">
-                      <td
-                        style="
-                          border: 1px solid #dddddd;
-                          text-align: left;
-                          padding: 8px;
-                        "
-                      >
-                        {{ d.key }}
-                      </td>
-                      <td
-                        style="
-                          border: 1px solid #dddddd;
-                          text-align: center;
-                          padding: 8px;
-                        "
-                      >
-                        <a :href="d.value" target="_blank">
-                          <v-btn small class="primary">
-                            View Uploaded File <v-icon>mdi-open-window</v-icon>
-                          </v-btn>
-                        </a>
-                      </td>
-                    </tr>
-                    <!-- Add more rows as needed -->
-                  </tbody>
-                </table>
-              </v-col>
-            </v-row>
-          </v-container>
+              <v-row v-if="dialogViewObject.status != 0">
+                <v-col cols="4">
+                  <strong
+                    >{{
+                      dialogViewObject.status == 1 ? "Approved" : "Rejected"
+                    }}
+                    Notes
+                  </strong>
+                </v-col>
+                <v-col cols="8">
+                  : {{ dialogViewObject.approve_reject_notes }}
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-col cols="12">
+              <strong> Leave Notes </strong>:
+              <label for="">: {{ dialogViewObject.reason }}</label>
+            </v-col>
+            <label
+              ><strong>Uploaded Documents</strong> ({{
+                document_list.length
+              }})</label
+            >
+            <v-col cols="12" v-if="document_list.length">
+              <table style="border-collapse: collapse; width: 100%">
+                <thead>
+                  <tr>
+                    <th
+                      style="
+                        border: 1px solid #dddddd;
+                        text-align: left;
+                        padding: 8px;
+                      "
+                    >
+                      Title
+                    </th>
+                    <th
+                      style="
+                        border: 1px solid #dddddd;
+                        text-align: center;
+                        padding: 8px;
+                      "
+                    >
+                      File
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(d, index) in document_list" :key="index">
+                    <td
+                      style="
+                        border: 1px solid #dddddd;
+                        text-align: left;
+                        padding: 8px;
+                      "
+                    >
+                      {{ d.key }}
+                    </td>
+                    <td
+                      style="
+                        border: 1px solid #dddddd;
+                        text-align: center;
+                        padding: 8px;
+                      "
+                    >
+                      <a :href="d.value" target="_blank">
+                        <v-btn small class="primary">
+                          View File <v-icon>mdi-open-window</v-icon>
+                        </v-btn>
+                      </a>
+                    </td>
+                  </tr>
+                  <!-- Add more rows as needed -->
+                </tbody>
+              </table>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-dialog>
     <v-row>
       <v-col md="12">
-        <v-card class="mb-5 rounded-md" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> Leaves List</span></v-toolbar-title>
+        <v-card class="mb-5">
+          <v-toolbar
+            class="rounded-md"
+            color="popup_background"
+            dense
+            flat
+            style="width: 100%"
+          >
+            <v-toolbar-title>
+              Leave Group:
 
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon
-                    color="white"
-                    class="ml-2"
-                    @click="getDataFromApi()"
-                    dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
-              <span>Reload</span>
-            </v-tooltip>
-
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" class="ml-2" @click="toggleFilter" dark
-                    >mdi mdi-filter</v-icon
-                  >
-                </v-btn>
-              </template>
-              <span>Filter</span>
-            </v-tooltip>
+              {{
+                (DialogLeaveGroupInfo[0] &&
+                  DialogLeaveGroupInfo[0].group_name) ||
+                "---"
+              }}
+            </v-toolbar-title>
 
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-col>
+              <!-- <v-col>
                 <v-btn
                   v-if="can(`leave_application_create`)"
                   small
@@ -667,17 +645,15 @@
                   @click="dialogLeaveGroup = true"
                   class="mb-2"
                 >
-                  leaves count <v-icon>mdi-information</v-icon></v-btn
+                  count <v-icon>mdi-information</v-icon></v-btn
                 >
-              </v-col>
+              </v-col> -->
               <v-col>
-                <v-btn
-                  v-if="can(`leave_application_create`)"
-                  small
-                  color="primary"
+                <v-icon
+                  :disabled="!$auth.user.employee.leave_group_id"
                   @click="openNewDialog()"
                   class="mb-2"
-                  >{{ Model }} +</v-btn
+                  >mdi-plus-circle</v-icon
                 >
               </v-col>
             </v-toolbar-items>
@@ -691,7 +667,6 @@
             </template>
           </v-snackbar>
           <v-data-table
-            v-if="can(`leave_application_view`)"
             v-model="ids"
             item-key="id"
             :headers="headers"
@@ -700,7 +675,7 @@
             :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }"
-            class="elevation-1"
+            class="elevation-1 alternate-rows"
           >
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
@@ -804,12 +779,7 @@
                 <v-list width="120" dense>
                   <v-list-item @click="view(item)">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon
-                        v-if="can(`leave_application_view`)"
-                        color="primary"
-                        small
-                        @click="view(item)"
-                      >
+                      <v-icon color="primary" small @click="view(item)">
                         {{
                           item.announcement === "customer"
                             ? ""
@@ -821,12 +791,7 @@
                   </v-list-item>
                   <v-list-item @click="editItem(item)" v-if="item.status == 0">
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon
-                        v-if="can(`leave_application_edit`)"
-                        color="secondary"
-                        small
-                        @click="editItem(item)"
-                      >
+                      <v-icon color="secondary" small @click="editItem(item)">
                         mdi-pencil
                       </v-icon>
                       Edit
@@ -837,12 +802,7 @@
                     v-if="item.status == 0"
                   >
                     <v-list-item-title style="cursor: pointer">
-                      <v-icon
-                        v-if="can(`leave_application_delete`)"
-                        color="error"
-                        small
-                        @click="deleteItem(item)"
-                      >
+                      <v-icon color="error" small @click="deleteItem(item)">
                         {{
                           item.announcement === "customer" ? "" : "mdi-delete"
                         }}
@@ -861,34 +821,9 @@
       </v-col>
     </v-row>
   </div>
-
-  <NoAccess v-else />
 </template>
 <script>
-import {
-  TiptapVuetify,
-  Image,
-  Heading,
-  Bold,
-  Italic,
-  Strike,
-  Underline,
-  Code,
-  Paragraph,
-  BulletList,
-  OrderedList,
-  ListItem,
-  Link,
-  Blockquote,
-  HardBreak,
-  HorizontalRule,
-  History,
-} from "tiptap-vuetify";
-
 export default {
-  components: {
-    TiptapVuetify,
-  },
   data: () => ({
     dialogUploadDocuments: false,
     valid: true,
@@ -915,7 +850,8 @@ export default {
     newLeaveApplication: true,
     filters: {},
     isFilter: false,
-    DialogLeaveGroupData: [],
+    DialogLeavesList: [],
+    DialogLeaveGroupInfo: [],
     dialogLeaveGroup: false,
     attrs: {},
     dialogView: false,
@@ -943,37 +879,11 @@ export default {
     snack: false,
     snackColor: "",
     snackText: "",
-    extensions: [
-      History,
-      Blockquote,
-      Link,
-      Image,
-      Underline,
-      Strike,
-      Italic,
-      ListItem,
-      BulletList,
-      OrderedList,
-      [
-        Heading,
-        {
-          options: {
-            levels: [1, 2, 3],
-          },
-        },
-      ],
-      Bold,
-      Link,
-      Code,
-      HorizontalRule,
-      Paragraph,
-      HardBreak,
-    ],
     // starting editor's content
     content: `
-      <h1>Yay Headlines!</h1>
-      <p>All these <strong>cool tags</strong> are working now.</p>
-        `,
+        <h1>Yay Headlines!</h1>
+        <p>All these <strong>cool tags</strong> are working now.</p>
+          `,
 
     //end editor
     scrollInvoked: 0,
@@ -1143,9 +1053,11 @@ export default {
     let formattedDateTime = year + "-" + month + "-" + day;
 
     this.todayDate = formattedDateTime;
-    setInterval(() => {
-      this.getDataFromApi();
-    }, 1000 * 60 * 60);
+    // setInterval(() => {
+    //   this.getDataFromApi();
+    // }, 1000 * 60 * 60);
+
+    this.gotoGroupDetails();
   },
 
   methods: {
@@ -1175,7 +1087,7 @@ export default {
       this.dialogUploadDocuments = false;
     },
     verifyAvailableCount(leaveTypeId) {
-      let filterObject = this.DialogLeaveGroupData.find(
+      let filterObject = this.DialogLeavesList.find(
         (item) => item.leave_type_id === leaveTypeId
       );
 
@@ -1260,7 +1172,8 @@ export default {
         .get("leave_groups/" + leaveGroupId, options)
         .then(({ data }) => {
           //  this.dialogLeaveGroup = true;
-          this.DialogLeaveGroupData = data[0].leave_count;
+          this.DialogLeaveGroupInfo = data;
+          this.DialogLeavesList = data[0].leave_count;
         });
     },
     gotoDialogPage(item) {
@@ -1286,7 +1199,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     onScroll() {
       this.scrollInvoked++;
     },
@@ -1359,6 +1272,7 @@ export default {
           //return false;
         }
         this.data = data.data;
+
         this.total = data.total;
         this.loading = false;
         this.gotoGroupDetails("");
@@ -1602,7 +1516,7 @@ export default {
           this.errorsFileUpload[index] = {
             status: false,
 
-            value: ["Upload less than 100Kb.   "],
+            value: ["<100Kb.   "],
           };
           return false;
         } else {

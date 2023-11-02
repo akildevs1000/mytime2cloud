@@ -18,7 +18,6 @@ export const state = () => ({
 
 export const mutations = {
   setDashboardData(state, data) {
-    console.log(data);
     state.dashboardData = data;
   },
 
@@ -80,12 +79,10 @@ export const actions = {
       state.date_to &&
       state.branch_id
     ) {
-      console.log("state.dashboardData", state.dashboardData);
       return state.dashboardData; // Return cached data if available.
     }
 
     try {
-      console.log("state.dashboardData", state.dashboardData);
       const { data } = await this.$axios.get("dashboard_counts_last_7_days", {
         params: {
           company_id: this.$auth.user.company_id,
@@ -123,11 +120,9 @@ export const actions = {
   },
 
   setDates({ commit }, { date_from, date_to, branch_id }) {
-    console.log(branch_id);
     // Action to set 'date_from' and 'date_to'
     commit("date_from", date_from);
     commit("date_to", date_to);
     commit("branch_id", branch_id);
-    console.log(branch_id);
   },
 };

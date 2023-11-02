@@ -1,494 +1,68 @@
 <template>
-  <div v-if="can(`employee_schedule_access`)">
+  <div>
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
       </v-snackbar>
     </div>
 
-    <v-dialog persistent v-model="editDialog" width="900">
-      <v-card>
-        <v-card-title dense class="primary white--text background">
-          {{ !isEdit ? "View Shift(s)" : "Edit Shift(s)" }}
-          <v-spacer></v-spacer>
-
-          <v-icon @click="editDialog = false" outlined dark color="white">
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
-
-        <v-card-text>
-          <v-col col="3" text-right class="text-right"
-            ><v-btn
-              class="primary"
-              v-if="isEdit"
-              small
-              @click="addRow(rosterFirstValue)"
-            >
-              <b>Add +</b>
-            </v-btn></v-col
-          >
-
-          <v-row v-for="(item, i) in schedules_temp_list" :key="i">
-            <v-col md="3">
-              <div class="">Schedule List</div>
-              <v-autocomplete
-                outlined
-                :readonly="!isEdit"
-                dense
-                v-model="item.schedule_id"
-                x-small
-                :items="rosters"
-                item-value="schedule_id"
-                item-text="name"
-              ></v-autocomplete>
-            </v-col>
-            <v-col md="3">
-              <div class="mb-6">
-                <div>From</div>
-                <!-- <v-menu
-                  v-model="from_menu[i]"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="item.from_date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      outlined
-                      dense
-                      :hide-details="true"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="item.from_date"
-                    @input="from_menu[i] = false"
-                  ></v-date-picker>
-                </v-menu> -->
-                <v-menu
-                  ref="from_menu"
-                  v-model="from_menu[i]"
-                  :close-on-content-click="false"
-                  :return-value.sync="item.from_date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      :hide-details="true"
-                      outlined
-                      dense
-                      v-model="item.from_date"
-                      readonly
-                      v-bind="!isEdit || attrs"
-                      v-on="!isEdit || on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    :readonly="!isEdit"
-                    v-model="item.from_date"
-                    no-title
-                    scrollable
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="from_menu[i] = false">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="
-                        isEdit
-                          ? set_date_save($refs.from_menu[i], item.from_date, i)
-                          : ''
-                      "
-                    >
-                      OK
-                    </v-btn>
-                  </v-date-picker>
-                </v-menu>
-              </div>
-            </v-col>
-            <v-col md="3">
-              <div class="mb-6">
-                <div>To</div>
-                <v-menu
-                  v-model="to_menu[i]"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                  :readonly="!isEdit"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="item.to_date"
-                      readonly
-                      v-bind="!isEdit || attrs"
-                      v-on="!isEdit || on"
-                      outlined
-                      dense
-                      :hide-details="true"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    :readonly="!isEdit"
-                    v-model="item.to_date"
-                    @input="to_menu[i] = false"
-                  ></v-date-picker>
-                </v-menu>
-              </div>
-            </v-col>
-            <v-col md="2">
-              <div>
-                Overtime Allowed
-                <v-checkbox
-                  :readonly="!isEdit"
-                  style="margin-top: -8px"
-                  v-model="item.is_over_time"
-                ></v-checkbox>
-              </div>
-            </v-col>
-            <v-col md="1" v-if="isEdit">
-              <div></div>
-              <v-icon @click="removeItem(i, item)" color="error"
-                >mdi-delete</v-icon
-              >
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <!-- <v-btn dark small color="grey" @click="editDialog = false">
-            Close
-          </v-btn> -->
-          <v-btn v-if="isEdit" dark small color="primary" @click="update">
-            Submit
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog persistent v-model="dialog" width="1300">
-      <v-card>
-        <v-card-title class="text-h5">
-          Schedule Employees
-          <v-spacer></v-spacer>
-          <v-btn dark small color="grey" @click="close"> Close </v-btn> &nbsp;
-          <v-btn dark small color="primary" @click="save"> Submit </v-btn>
-        </v-card-title>
-        <v-divider></v-divider>
-        <v-card-text>
-          <v-row>
-            <v-col md="4">
-              <v-row>
-                <v-col md="12">
-                  <div class="mb-5">
-                    <span class="text-h6">Filters</span>
-                  </div>
-                  <div class="mb-1">Department</div>
-
-                  <v-autocomplete
-                    outlined
-                    dense
-                    @change="runMultipleFunctions"
-                    v-model="department_ids"
-                    multiple
-                    x-small
-                    :items="departments"
-                    item-value="id"
-                    item-text="name"
-                    :disabled="is_edit == true ? true : false"
-                  ></v-autocomplete>
-                  <div class="mb-1">Sub Department</div>
-                  <v-autocomplete
-                    outlined
-                    dense
-                    @change="getEmployeesBySubDepartment"
-                    v-model="sub_department_ids"
-                    multiple
-                    x-small
-                    :items="sub_departments"
-                    item-value="id"
-                    item-text="name"
-                    :disabled="is_edit == true ? true : false"
-                  ></v-autocomplete>
-
-                  <div class="mb-1">Shift Types</div>
-
-                  <v-autocomplete
-                    :error="errors && errors.shift_type_id"
-                    :error-messages="
-                      errors && errors.shift_type_id
-                        ? errors.shift_type_id[0]
-                        : ''
-                    "
-                    @change="runShiftTypeFunction"
-                    outlined
-                    dense
-                    v-model="shift_type_id"
-                    x-small
-                    :items="shift_types"
-                    item-value="id"
-                    item-text="name"
-                  ></v-autocomplete>
-
-                  <div class="mb-1">Shifts</div>
-                  <v-autocomplete
-                    :error="errors && errors.shift_id"
-                    :error-messages="
-                      errors && errors.shift_id ? errors.shift_id[0] : ''
-                    "
-                    @change="runShiftFunction"
-                    outlined
-                    dense
-                    v-model="shift_id"
-                    x-small
-                    :items="shifts"
-                    item-value="id"
-                    item-text="name"
-                  ></v-autocomplete>
-                  <div class="mb-6">
-                    <div>From</div>
-                    <v-menu
-                      v-model="from_menu"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="from_date"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                          outlined
-                          dense
-                          :hide-details="true"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        v-model="from_date"
-                        @input="from_menu = false"
-                      ></v-date-picker>
-                    </v-menu>
-                  </div>
-                  <div class="mb-6">
-                    <div>To</div>
-                    <v-menu
-                      v-model="to_menu"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="to_date"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                          outlined
-                          dense
-                          :hide-details="true"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        v-model="to_date"
-                        @input="to_menu = false"
-                      ></v-date-picker>
-                    </v-menu>
-                  </div>
-                  <v-checkbox
-                    dense
-                    v-model="isOverTime"
-                    label="Overtime Allowed"
-                  ></v-checkbox>
-                </v-col>
-              </v-row>
-            </v-col>
-
-            <v-col md="8">
-              <v-row>
-                <v-col md="6">
-                  <div class="mb-5">
-                    <span class="text-h6">Employees List</span>
-                  </div>
-                </v-col>
-                <v-col md="6">
-                  <div class="text-right">
-                    <v-text-field
-                      @input="dialogSearchIt"
-                      dense
-                      v-model="dialog_search"
-                      append-icon="mdi-magnify"
-                      single-line
-                      hide-details
-                    ></v-text-field>
-                  </div>
-                </v-col>
-              </v-row>
-
-              <v-data-table
-                v-model="employee_ids"
-                show-select
-                item-key="id"
-                :headers="headers_dialog"
-                :items="employees_dialog"
-                :server-items-length="total_dialog"
-                :loading="loading_dialog"
-                :options.sync="options_dialog"
-                :footer-props="{
-                  itemsPerPageOptions: [10, 50, 100, 500, 1000],
-                }"
-              >
-              </v-data-table>
-            </v-col>
-          </v-row>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn dark small color="grey" @click="close"> Close </v-btn>
-          <v-btn dark small color="primary" @click="save"> Submit </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-card class="mb-5 rounded-md mt-3" elevation="0">
-      <v-toolbar class="rounded-md" color="background" dense flat dark>
-        <v-toolbar-title><span> Schedule List</span></v-toolbar-title>
-        <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon color="white" class="ml-2" @click="clearFilters" dark
-                >mdi mdi-reload</v-icon
-              >
-            </v-btn>
-          </template>
-          <span>Reload</span>
-        </v-tooltip>
-
-        <v-spacer></v-spacer>
+    <v-card>
+      <v-toolbar class="rounded-md" color="popup_background" dense flat>
+        <v-col cols="12">
+          <v-toolbar-title><span>Schedule(s)</span></v-toolbar-title>
+        </v-col>
       </v-toolbar>
-      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-        {{ snackText }}
 
-        <template v-slot:action="{ attrs }">
-          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-        </template>
-      </v-snackbar>
-      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-        {{ snackText }}
-
-        <template v-slot:action="{ attrs }">
-          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-        </template>
-      </v-snackbar>
       <v-data-table
         dense
         :headers="headers_table"
-        :items="employees"
+        :items="schdulesList"
         model-value="data.id"
         :loading="loading"
         :options.sync="options"
         :footer-props="{
           itemsPerPageOptions: [10, 50, 100, 500, 1000],
         }"
-        class="elevation-1"
+        class="elevation-1 alternate-rows"
         :server-items-length="totalRowsCount"
       >
-        <!-- <template v-slot:header="{ props: { headers } }">
-          <tr v-if="isFilter">
-            <td
-              v-for="header in headers_table"
-              :key="header.text"
-              class="table-search-header"
-            >
-              <v-text-field
-                style="margin-left: 10px; width: 90% !important"
-                v-if="header.filterable"
-                autocomplete="off"
-                v-model="filters[header.filterName]"
-                id="header.value"
-                @input="applyFilters(header.value, $event)"
-                outlined
-                height="10px"
-                clearable
-              ></v-text-field>
-              <template v-else>
-                {{ header.text }}
-              </template>
-            </td>
-          </tr>
-        </template> -->
+        <template v-slot:item.sno="{ item, index }">
+          {{
+            currentPage
+              ? (currentPage - 1) * perPage +
+                (cumulativeIndex + schdulesList.indexOf(item))
+              : "-"
+          }}
+        </template>
 
-        <template v-slot:item.employee_id="{ item }">
-          {{ caps(item?.employee?.employee_id || "") }}
+        <template v-slot:item.shift_name="{ item }"
+          >{{ item.shift && item.shift.name }}
         </template>
-        <template v-slot:item.employee.first_name="{ item }">
-          {{ caps(item.employee && item.employee.first_name) }}
-          {{ caps(item.employee && item.employee.last_name) }}
+        <template v-slot:item.on_duty_time="{ item }"
+          >{{ item.shift && item.shift.on_duty_time }} to
+          {{ item.shift && item.shift.off_duty_time }}
         </template>
-        <template v-slot:item.roster.name="{ item }">
-          {{ caps(item.roster && item.roster.name) }}
+        <template v-slot:item.working_hours="{ item }">
+          {{ item.shift && item.shift.working_hours }}h
         </template>
-        <template v-slot:item.show_from_date="{ item }">
-          {{ item && item.from_date }}
+        <template v-slot:item.from_date="{ item }"
+          >{{ $dateFormat.format1(item.from_date) }} <br />
+          {{ $dateFormat.format1(item.to_date) }}
         </template>
-        <template v-slot:item.show.to_date="{ item }">
-          {{ item && item.to_date }}
+        <template v-slot:item.days="{ item, index }">
+          <span v-for="(day, index2) in item.shift.days" class="secondary-value"
+            >{{ day }}<span v-if="index2 < item.shift.days.length - 1"> ,</span>
+          </span>
         </template>
         <template v-slot:item.isOverTime="{ item }">
-          <v-icon v-if="item && item.isOverTime" color="success darken-1"
-            >mdi-check</v-icon
-          >
-          <v-icon v-else color="error">mdi-close</v-icon>
+          <v-switch
+            disabled
+            v-model="item.isOverTime"
+            lable="item.isOverTime"
+          ></v-switch>
         </template>
-        <template v-slot:item.shift.name="{ item }">
-          {{ getCurrentShift(item) }}
-        </template>
-        <template v-slot:item.shift_type.name="{ item }">
-          {{ item.shift_type && item.shift_type.name }}
-        </template>
-        <template v-slot:item.action="{ item }">
-          <v-menu bottom left>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                <v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
-            </template>
-            <v-list width="120" dense>
-              <v-list-item @click="ScheduleItem(item, 'view')">
-                <v-list-item-title style="cursor: pointer">
-                  <v-icon color="secondary" small> mdi-eye </v-icon>
-                  View All
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+        <template v-slot:item.shift_type="{ item }"
+          >{{ item.shift_type.name }}
         </template>
       </v-data-table>
     </v-card>
@@ -501,40 +75,30 @@
       </v-col>
     </v-row> -->
   </div>
-  <NoAccess v-else />
 </template>
 <script>
 export default {
+  // props: ["table_id", "employee_id", "system_user_id"],
   data: () => ({
+    schdulesList: [],
+    employees: [],
+    cumulativeIndex: 1,
+    perPage: 10,
+    currentPage: 1,
+    branchesList: [],
+    branch_id: null,
+
     totalRowsCount: 0,
 
-    showFilters: false,
-    filters: {},
-    isFilter: false,
-    datatable_search_textbox: "",
-    datatable_searchById: "",
-    filter_employeeid: "",
     snack: false,
     snackColor: "",
     snackText: "",
     displayNoRecords: false,
-    from_date: new Date().toJSON().slice(0, 10),
-    from_menu: false,
-    to_date: new Date().toJSON().slice(0, 10),
-    to_menu: false,
 
-    from_menu: [],
-    to_menu: [],
-
-    pagination: {
-      current: 1,
-      total: 0,
-      per_page: 10,
-    },
     Module: "Employee Schedule",
     shift_types: [],
     manual_shift: {},
-    options: {},
+    options: { perPage: 10 },
     options_dialog: {},
     endpoint: "scheduled_employees_index",
     endpoint_dialog: "scheduled_employees_list",
@@ -550,223 +114,92 @@ export default {
     isEdit: false,
     total: 0,
     total_dialog: 0,
-    // headers: [
-    //   {
-    //     text: "#",
-    //   },
-    //   {
-    //     text: "E.ID",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "system_user_id",
-    //   },
-    //   {
-    //     text: "Name",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "display_name",
-    //   },
-    //   {
-    //     text: "Schedule Start",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "from_date",
-    //   },
-    //   {
-    //     text: "Schedule Start",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "to_date",
-    //   },
-    //   {
-    //     text: "Shift Type",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "shift_type",
-    //   },
-    //   {
-    //     text: "Schedule",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "schedule",
-    //   },
-    //   {
-    //     text: "OT",
-    //     align: "left",
-    //     sortable: false,
-    //     value: "schedule.isOverTime",
-    //   },
+    system_user_id: 0,
 
-    //   {
-    //     text: "Actions",
-    //     align: "center",
-    //     value: "action",
-    //     sortable: false,
-    //   },
-    // ],
     headers_table: [
       {
-        text: "Emp Id",
+        text: "#",
         align: "left",
         sortable: false,
-        value: "employee_id",
-        filterable: true,
-        filterName: "employee_id",
-      },
-      {
-        text: "Name",
-        align: "left",
-        sortable: false,
-        value: "employee.first_name",
-        filterable: true,
-        filterName: "employee_first_name",
-      },
-      {
-        text: "	Current Schedule Name",
-        align: "left",
-        sortable: false,
-        value: "roster.name",
-        filterable: true,
-        filterName: "roster_name",
-      },
-      {
-        text: "Schedule Start",
-        align: "left",
-        sortable: false,
-        value: "show_from_date",
-        filterable: true,
-        filterName: "show_from_date",
-      },
-      {
-        text: "Schedule To Date",
-        align: "left",
-        sortable: false,
-        value: "show.to_date",
-        filterable: true,
-        filterName: "show_to_date",
-      },
-      {
-        text: "OT",
-        align: "left",
-        sortable: true,
-        value: "isOverTime",
+        value: "sno",
         filterable: false,
-        filterName: "isOverTime",
       },
       {
         text: "Shift Name",
         align: "left",
         sortable: false,
-        value: "shift.name",
-        filterable: true,
-        filterName: "shift_name",
+        value: "shift_name",
+        filterable: false,
+      },
+      {
+        text: "Time",
+        align: "left",
+        sortable: false,
+        value: "on_duty_time",
+        filterable: false,
+      },
+      {
+        text: "Working Hours",
+        align: "left",
+        sortable: false,
+        value: "working_hours",
+        filterable: false,
+      },
+
+      {
+        text: "Date",
+        align: "left",
+        sortable: false,
+        value: "from_date",
+        filterable: false,
+      },
+      {
+        text: "Days",
+        align: "left",
+        sortable: false,
+        value: "days",
+        filterable: false,
+      },
+      {
+        text: "OverTime",
+        align: "left",
+        sortable: false,
+        value: "isOverTime",
+        filterable: false,
       },
       {
         text: "Shift Type",
         align: "left",
         sortable: false,
-        value: "shift_type.name",
-        filterable: true,
-        filterName: "shift_type_name",
-      },
-
-      {
-        text: "Actions",
-        align: "center",
-        value: "action",
-        sortable: false,
+        value: "shift_type",
         filterable: false,
-        filterName: "",
       },
     ],
-    department_ids: ["---"],
-    sub_department_ids: ["---"],
-    employee_ids: [],
-    shift_id: null,
-    shift_type_id: "",
-    isOverTime: false,
-    is_edit: false,
-    shift_slug: "",
-    employees: [],
-    employees_dialog: [],
-    departments: [],
-    sub_departments: [],
-    shifts: [],
-    ids: [],
+    pagination: {
+      current: 1,
+      total: 0,
+      per_page: 10,
+    },
     response: "",
     data: [],
 
     errors: [],
     headers_ids: [],
-    rosters: [],
-    rosterFirstValue: "",
-    headers_dialog: [
-      {
-        text: "E.ID",
-        align: "left",
-        sortable: false,
-        value: "system_user_id",
-      },
-      {
-        text: "Name",
-        sortable: true,
-        value: "employee.first_name",
-      },
-      {
-        text: "Department",
-        sortable: false,
-        value: "department.name",
-      },
-    ],
-
-    deleteIds: [],
-    schedules_temp_list: [],
-    empId: "",
   }),
 
   computed: {},
 
   watch: {
-    dialog(val) {
-      val || this.close();
-      this.errors = [];
-      this.search = "";
-      if (!this.is_edit) {
-        this.getDepartments(this.options);
-        this.getDataFromApiForDialog();
-      }
-      this.getShiftTypes(this.options);
-    },
     options: {
       handler() {
         this.getDataFromApi();
       },
       deep: true,
     },
-    options_dialog: {
-      handler() {
-        if (!this.is_edit) {
-          this.getDataFromApiForDialog();
-        }
-      },
-      deep: true,
-    },
-    search() {
-      this.pagination.current = 1;
-      this.searchIt();
-    },
   },
   created() {
-    this.loading = true;
-    this.loading_dialog = true;
-    this.get_rosters();
+    this.system_user_id = this.$auth.user.employee.system_user_id;
     this.getDataFromApi();
-    this.options = {
-      params: {
-        per_page: 1000,
-        company_id: this.$auth.user.company_id,
-      },
-    };
   },
 
   methods: {
@@ -1014,6 +447,10 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
+    can_old(per) {
+      let { permissions } = this.$auth.user;
+      return permissions.includes(per);
+    },
     getSearchRecords(filter_column = "", filter_value = "") {
       this.getDataFromApi(this.endpoint, filter_column, filter_value);
     },
@@ -1039,182 +476,44 @@ export default {
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
 
-      // if (this.filters) {
-      //   page = 1;
-      // }
-
       let options = {
         params: {
           page: page,
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          page: page,
+          pagination: true,
           company_id: this.$auth.user.company_id,
-          employee_id: this.$auth.user.employee.employee_id,
         },
       };
 
       //if (filter_value != "") options.params[filter_column] = filter_value;
+      this.perPage = itemsPerPage;
+      this.$axios
+        .get(`get_shifts_by_employee/${this.system_user_id}`, {
+          params: options.params,
+        })
+        .then(({ data }) => {
+          // if (filter_column != "" && data.data.length == 0) {
+          //   this.snack = true;
+          //   this.snackColor = "error";
+          //   this.snackText = "No Results Found";
+          //   this.loading = false;
+          //   return false;
+          // }
+          this.schdulesList = data.data;
+          this.pagination.current = data.current_page;
+          this.pagination.total = data.last_page;
+          this.loading = false;
 
-      this.$axios.get(url, options).then(({ data }) => {
-        // if (filter_column != "" && data.data.length == 0) {
-        //   this.snack = true;
-        //   this.snackColor = "error";
-        //   this.snackText = "No Results Found";
-        //   this.loading = false;
-        //   return false;
-        // }
-        this.employees = data.data;
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
-        this.loading = false;
+          if (this.schdulesList.length == 0) {
+            this.displayNoRecords = true;
+          }
 
-        if (this.employees.length == 0) {
-          this.displayNoRecords = true;
-        }
-
-        this.totalRowsCount = data.total;
-      });
+          this.totalRowsCount = data.total;
+        });
 
       //this.loading = false;
-    },
-
-    getDataFromApiForDialog(url = this.endpoint_dialog) {
-      this.loading_dialog = true;
-
-      const { page, itemsPerPage } = this.options_dialog;
-
-      let options = {
-        params: {
-          per_page: itemsPerPage,
-          page: page,
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(url, options).then(({ data }) => {
-        this.employees_dialog = data.data;
-        this.total_dialog = data.total;
-        this.loading_dialog = false;
-      });
-    },
-
-    searchIt() {
-      let s = this.search.length;
-      let search = this.search;
-      if (s == 0) {
-        this.getDataFromApi();
-      } else if (s > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${search}`);
-      }
-    },
-
-    dialogSearchIt(e) {
-      if (e.length == 0) {
-        this.getDataFromApiForDialog();
-      } else if (e.length > 2) {
-        this.employees_dialog = this.employees.filter(({ display_name: fn }) =>
-          fn.includes(e)
-        );
-      }
-    },
-
-    delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.schedule.id);
-
-      confirm(
-        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .post(`schedule_employee/delete/selected`, {
-            ids: just_ids,
-          })
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-              alert("1");
-            } else {
-              this.getDataFromApi();
-              this.snackbar = data.status;
-              this.ids = [];
-              this.response = "Selected records has been deleted";
-            }
-          })
-          .catch((err) => console.log(err));
-    },
-
-    deleteItem(item) {
-      confirm(
-        "Are you sure you wish to delete , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .delete("schedule_employees/" + item.employee.system_user_id)
-          .then(({ data }) => {
-            const index = this.employees.indexOf(item);
-            this.employees.splice(index, 1);
-            this.snackbar = data.status;
-            this.response = data.message;
-            this.getDataFromApiForDialog();
-          })
-          .catch((err) => console.log(err));
-    },
-
-    save() {
-      this.loading_dialog = true;
-      if (this.employee_ids && this.employee_ids.length == 0) {
-        this.loading_dialog = false;
-        alert("Atleast 1 Employee must be selected");
-        return;
-      }
-      this.errors = [];
-
-      let payload = {
-        shift_type_id: this.shift_type_id,
-        shift_id: this.shift_id,
-        company_id: this.$auth.user.company_id,
-        isOverTime: this.isOverTime ? 1 : 0,
-        employee_ids: this.employee_ids.map((e) => e.system_user_id),
-
-        from_date: this.from_date,
-        to_date: this.to_date,
-      };
-
-      if (this.is_edit) {
-        this.process(
-          this.$axios.post(
-            `schedule_employees/${payload.employee_ids}`,
-            payload
-          )
-        );
-      } else {
-        this.process(this.$axios.post(`schedule_employees`, payload));
-      }
-    },
-
-    process(method) {
-      method
-        .then(({ data }) => {
-          if (!data.status) {
-            if (data?.custom_errors) {
-              this.custom_errors = data.custom_errors;
-              this.errors = [];
-            }
-            if (data?.errors) {
-              this.errors = data.errors;
-              this.custom_errors = [];
-            }
-            this.loading_dialog = false;
-            return;
-          }
-          this.response = data.message;
-          this.snackbar = true;
-          this.loading_dialog = false;
-          this.editDialog = false;
-          this.getDataFromApi();
-          this.getDataFromApiForDialog();
-        })
-        .catch((err) => console.log(err));
     },
   },
 };

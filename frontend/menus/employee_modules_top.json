@@ -16,7 +16,7 @@
   {
     "icon": "mdi-clock-outline",
     "title": "Attendance",
-    "to": "/employees/attendance_report/general",
+    "to": "/employees/attendance",
     "menu": "attendance_topmenu",
     "module": "topmenu"
   },
@@ -38,7 +38,7 @@
   {
     "icon": "mdi-bell",
     "title": "Payslips",
-    "to": "/employees/payroll/salary",
+    "to": "/employees/payroll/payslips",
     "menu": "payslips_topmenu",
     "module": "topmenu"
   },

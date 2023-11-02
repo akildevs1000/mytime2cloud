@@ -308,8 +308,6 @@
           x-small
           :ripple="false"
           text
-          v-bind="attrs"
-          v-on="on"
           @click="generateLogsDialog = true"
         >
           <v-icon class="" dark white>mdi-plus-circle</v-icon>

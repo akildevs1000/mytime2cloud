@@ -608,6 +608,31 @@ export default {
           elevation: 0,
           selected: "",
         },
+
+        profile_topmenu: {
+          elevation: 0,
+          selected: "",
+        },
+        attendance_topmenu: {
+          elevation: 0,
+          selected: "",
+        },
+        requests_topmenu: {
+          elevation: 0,
+          selected: "",
+        },
+        announcements_topmenu: {
+          elevation: 0,
+          selected: "",
+        },
+        payslips_topmenu: {
+          elevation: 0,
+          selected: "",
+        },
+        schedule_topmenu: {
+          elevation: 0,
+          selected: "",
+        },
       },
 
       topMenu_Selected: "dashboard",
@@ -1452,6 +1477,9 @@ button {
   padding-bottom: 10px;
   font-weight: bold;
   font-size: 19px;
+}
+.slidegroup1 .v-slide-group {
+  height: 34px !important;
 }
 </style>
 
