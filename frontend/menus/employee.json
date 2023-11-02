@@ -75,6 +75,13 @@
   },
   {
     "icon": "mdi-chart-box",
+    "title": "Logs",
+    "to": "/employees/logs",
+    "menu": "attendance_access",
+    "module": "attendance_topmenu"
+  },
+  {
+    "icon": "mdi-chart-box",
     "title": "Reports",
     "to": "/employees/attendance",
     "menu": "attendance_access",
