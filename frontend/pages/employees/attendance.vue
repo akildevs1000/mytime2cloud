@@ -365,6 +365,28 @@ export default {
       this.getDepartments(options);
       this.commonMethod();
     }, 1000);
+
+    if (this.$store.state.loginType == "employee") {
+      let indexToDelete = generalHeaders.findIndex(
+        (item) => item.value === "employee_name"
+      );
+      if (indexToDelete !== -1) {
+        generalHeaders.splice(indexToDelete, 1);
+      }
+
+      indexToDelete = multiHeaders.findIndex(
+        (item) => item.value === "employee_name"
+      );
+      if (indexToDelete !== -1) {
+        multiHeaders.splice(indexToDelete, 1);
+      }
+      indexToDelete = doubleHeaders.findIndex(
+        (item) => item.value === "employee_name"
+      );
+      if (indexToDelete !== -1) {
+        doubleHeaders.splice(indexToDelete, 1);
+      }
+    }
   },
 
   methods: {
