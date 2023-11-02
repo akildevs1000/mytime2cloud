@@ -36,7 +36,9 @@ class VisitorController extends Controller
 
         $model->where("company_id", $request->input("company_id"));
 
-        return $model->with(["status", "zone","host","timezone:id,timezone_id,timezone_name","purpose:id,name"])->paginate($request->input("per_page", 100));
+        $model->when($request->filled("host_company_id"), fn ($q) => $q->where("host_company_id", $request->host_company_id));
+
+        return $model->with(["status", "zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
     }
 
     /**
