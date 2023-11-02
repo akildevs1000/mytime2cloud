@@ -44,7 +44,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="dialog" width="80%">
+    <v-dialog persistent v-model="dialog" width="600px">
       <v-card>
         <v-card-title dense class="popup_background">
           <span class="headline" v-if="editedIndex == -1">New Leave </span>
@@ -58,9 +58,11 @@
           <v-container>
             <v-row>
               <v-col cols="12">
-                <label style="padding-bottom: 5px"
-                  >Used Leaves :
-                  <v-chip v-if="leave_available_count != ''" color="primary">{{
+                <label
+                  style="padding-bottom: 5px"
+                  v-if="leave_available_count != ''"
+                  >Available Leaves :
+                  <v-chip color="primary">{{
                     leave_available_count
                   }}</v-chip></label
                 >
@@ -198,7 +200,7 @@
                   dense
                   class="primary mb-2"
                   style="float: right"
-                  >Add +
+                  >Add Document+
                 </v-btn>
               </v-col>
               <v-col
@@ -647,13 +649,11 @@
                 >
               </v-col> -->
               <v-col>
-                <v-btn
+                <v-icon
                   :disabled="!$auth.user.employee.leave_group_id"
-                  small
-                  color="primary"
                   @click="openNewDialog()"
                   class="mb-2"
-                  >New +</v-btn
+                  >mdi-plus-circle</v-icon
                 >
               </v-col>
             </v-toolbar-items>
@@ -1199,7 +1199,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     onScroll() {
       this.scrollInvoked++;
     },
