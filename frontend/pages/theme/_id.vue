@@ -37,13 +37,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.includes((e) => e == per || per == "/")) ||
-        u.is_master
-      );
-    },
   },
   components: { CardDesginer, Back },
 };

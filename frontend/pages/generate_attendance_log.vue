@@ -171,13 +171,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e.name == per || per == "/")) ||
-        u.is_master
-      );
-    },
+    
 
     store_schedule() {
       let { user_id, date, time, device_id } = this.payload;

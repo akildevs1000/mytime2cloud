@@ -683,11 +683,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let { permissions } = this.$auth.user;
-
-      return permissions.includes(per);
-    },
     res(id) {
       this.$axios.get(`employee/${id}`).then(({ data }) => {
         this.work = { ...data };

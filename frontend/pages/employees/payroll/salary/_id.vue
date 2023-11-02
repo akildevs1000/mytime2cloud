@@ -424,10 +424,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return true;
-    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";

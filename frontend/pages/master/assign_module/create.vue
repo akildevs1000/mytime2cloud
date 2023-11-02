@@ -98,10 +98,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return u && u.user_type == per;
-    },
+    
     getCompanies() {
       this.$axios
         .get("assign-module/nacs")
@@ -122,12 +119,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
-      );
-    },
+    
     save() {
       if (this.$refs.form.validate()) {
         // this.loading = true;

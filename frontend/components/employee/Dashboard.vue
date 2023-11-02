@@ -593,14 +593,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    can_old(per) {
-      let { is_master, permissions: p } =
-        this.$auth.user || this.$auth.user.permissions;
-
-      if (p.some((e) => e == per) || is_master) return true;
-
-      this.$router.push(`/attendance_report`);
-    },
+    
     initialize() {
       this.loading = false;
 
