@@ -329,6 +329,7 @@ export default {
         },
       };
       this.currentPage = page;
+      this.perPage = itemsPerPage;
       if (filter_column != "")
         this.payloadOptions.params[filter_column] = filter_value;
       this.loading = true;
