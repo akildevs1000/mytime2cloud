@@ -52,12 +52,6 @@ class Update extends FormRequest
         $validations['id_number'] = 'required|string|max:255';
         $validations['id_copy'] = 'required';
 
-        $validations['host_first_name'] = 'required|string|max:255';
-        $validations['host_last_name'] = 'required|string|max:255';
-        $validations['host_gender'] = 'required|in:Male,Female';
-
-        $validations['host_phone_number'] = 'required|string|max:255';
-        $validations['host_email'] = 'required|email|max:255';
         $validations['host_company_id'] = 'required';
 
         $validations['status_id'] = 'required';
