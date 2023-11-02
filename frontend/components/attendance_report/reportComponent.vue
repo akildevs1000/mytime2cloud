@@ -167,7 +167,7 @@
         :loading="loading"
         :options.sync="options"
         :footer-props="{
-          itemsPerPageOptions: [10, 50, 100, 500, 1000],
+          itemsPerPageOptions: [31, 30, 50, 100, 500, 1000],
         }"
         class="elevation-1"
         model-value="data.id"
@@ -796,7 +796,9 @@
             <b class="background--text mx-1">({{ log_list.length }})</b>
             <hr />
             <ul v-for="(log, index) in log_list" :key="index">
-              <li>{{ log.date }} - {{ log.time }} <b>{{ log.log_type }}</b> </li>
+              <li>
+                {{ log.date }} - {{ log.time }} <b>{{ log.log_type }}</b>
+              </li>
             </ul>
           </v-card-text>
         </v-card>
@@ -1332,7 +1334,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     applyFilters(name, value) {
       if (value && value.length < 2) return false;

@@ -49,7 +49,7 @@
           {{ $dateFormat.format1(item.to_date) }}
         </template>
         <template v-slot:item.days="{ item, index }">
-          <span v-for="(day, index2) in item.shift.days" class="secondary-value"
+          <span v-for="(day, index2) in item.shift.days"
             >{{ day }}<span v-if="index2 < item.shift.days.length - 1"> ,</span>
           </span>
         </template>

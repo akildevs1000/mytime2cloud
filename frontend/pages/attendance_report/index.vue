@@ -722,7 +722,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     setStatusLabel(status) {
       const statuses = {

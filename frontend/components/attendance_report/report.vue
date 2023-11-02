@@ -1209,7 +1209,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     applyFilters(name, value) {
       if (value && value.length < 2) return false;
