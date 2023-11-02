@@ -862,7 +862,6 @@ export default {
 
   methods: {
     showContent(el) {
-      console.log(el);
       this.active_el = el.id;
       this.selectedItem = el;
     },
@@ -954,7 +953,6 @@ export default {
     getDepartments() {
       this.getCategories();
 
-      console.log(this.editedItem.branch_id);
       let options = {
         params: {
           per_page: 1000,

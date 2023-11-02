@@ -10,7 +10,6 @@
   {
     "icon": "mdi-account-tie",
     "title": "Employees",
-
     "to": "/employees",
     "menu": "employee_access",
     "click": "employees",

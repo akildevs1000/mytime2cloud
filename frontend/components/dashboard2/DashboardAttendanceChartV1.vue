@@ -97,7 +97,7 @@ export default {
     },
     async branch_id(val) {
       this.$store.commit("dashboard/setDashboardData", null);
-      this.$store.commit("setDashboardData", null);
+      //this.$store.commit("setDashboardData", null);
       await this.getDataFromApi();
     },
   },
