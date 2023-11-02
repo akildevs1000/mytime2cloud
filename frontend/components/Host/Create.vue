@@ -6,40 +6,6 @@
       </v-snackbar>
     </div>
     <div v-if="!loading">
-      <v-dialog persistent v-model="dialogCropping" width="500">
-        <v-card style="padding-top: 20px">
-          <v-card-text>
-            <VueCropper
-              v-show="selectedFile"
-              ref="cropper"
-              :src="selectedFile"
-              alt="Source Image"
-              :aspectRatio="1"
-              :autoCropArea="0.9"
-              :viewMode="3"
-            ></VueCropper>
-          </v-card-text>
-
-          <v-card-actions>
-            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
-              <v-btn
-                class="danger btn btn-danger text-left"
-                text
-                @click="closePopup()"
-                style="float: left"
-                >Cancel</v-btn
-              >
-            </div>
-            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
-              <v-btn
-                class="primary btn btn-danger text-right"
-                @click="saveCroppedImageStep2(), (dialog = false)"
-                >Crop</v-btn
-              >
-            </div>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
       <v-dialog persistent v-model="DialogBox" width="900">
         <v-card>
           <v-toolbar class="popup_background" flat>
@@ -47,47 +13,7 @@
           </v-toolbar>
           <v-container>
             <v-row>
-              <v-col cols="3" class="pt-5">
-                <div class="form-group" style="margin: 0 auto; width: 175px">
-                  <v-img
-                    style="
-                      width: 100%;
-                      height: 175px;
-                      border: 1px solid #6946dd;
-                      border-radius: 50%;
-                      margin: 0 auto;
-                    "
-                    :src="previewImage || '/no-profile-image.jpg'"
-                  ></v-img>
-                  <br />
-                  <div class="text-center">
-                    <v-btn
-                      :disabled="disabled"
-                      small
-                      class="form-control primary"
-                      @click="onpick_attachment"
-                      >{{ !upload.name ? "Upload" : "Change" }} Logo
-                      <v-icon right dark>mdi-cloud-upload</v-icon>
-                    </v-btn>
-                  </div>
-                  <input
-                    required
-                    type="file"
-                    @change="attachment"
-                    style="display: none"
-                    accept="image/*"
-                    ref="attachment_input"
-                  />
-
-                  <span v-if="errors && errors.logo" class="text-danger mt-2">{{
-                    errors.logo[0]
-                  }}</span>
-                </div>
-              </v-col>
-
-              <v-col cols="9" class="pt-5">
-                <v-row>
-                  <!-- <v-col cols="6">
+              <!-- <v-col cols="6">
                     <v-text-field
                       label="Company Name"
                       :disabled="disabled"
@@ -106,223 +32,202 @@
                     ></v-text-field>
                   </v-col> -->
 
-                  <v-col cols="6">
-                    <v-autocomplete
-                      label="Employee"
-                      outlined
-                      :disabled="disabled"
-                      v-model="payload.employee_id"
-                      :items="employees"
-                      dense
-                      item-text="first_name"
-                      item-value="id"
-                      :hide-details="!errors.employee_id"
-                      :error-messages="
-                        errors && errors.employee_id
-                          ? errors.employee_id[0]
-                          : ''
-                      "
-                    >
-                    </v-autocomplete>
-                  </v-col>
+              <v-col cols="6">
+                <v-autocomplete
+                  label="Employee"
+                  outlined
+                  :disabled="disabled"
+                  v-model="payload.employee_id"
+                  :items="employees"
+                  dense
+                  item-text="first_name"
+                  item-value="id"
+                  :hide-details="!errors.employee_id"
+                  :error-messages="
+                    errors && errors.employee_id ? errors.employee_id[0] : ''
+                  "
+                >
+                </v-autocomplete>
+              </v-col>
 
-                  <v-col cols="6">
+              <v-col cols="6">
+                <v-text-field
+                  label="Zone. Number"
+                  :disabled="disabled"
+                  v-model="payload.zone_id"
+                  dense
+                  class="text-center"
+                  outlined
+                  :hide-details="!errors.zone_id"
+                  :error="errors.zone_id"
+                  :error-messages="
+                    errors && errors.zone_id ? errors.zone_id[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6">
+                <v-text-field
+                  label="Flat Number"
+                  :disabled="disabled"
+                  v-model="payload.flat_number"
+                  dense
+                  menu-props="min-width: auto; max-height: 200px;"
+                  class="text-center"
+                  outlined
+                  :hide-details="!errors.flat_number"
+                  :error="errors.flat_number"
+                  :error-messages="
+                    errors && errors.flat_number ? errors.flat_number[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6">
+                <v-text-field
+                  label="Floor Number"
+                  :disabled="disabled"
+                  v-model="payload.floor_number"
+                  dense
+                  menu-props="min-width: auto; max-height: 200px;"
+                  class="text-center"
+                  outlined
+                  item-text="name"
+                  item-value="id"
+                  :hide-details="!errors.floor_number"
+                  :error="errors.floor_number"
+                  :error-messages="
+                    errors && errors.floor_number ? errors.floor_number[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6">
+                <v-text-field
+                  label="Phone Number"
+                  :disabled="disabled"
+                  v-model="payload.number"
+                  dense
+                  menu-props="min-width: auto; max-height: 200px;"
+                  class="text-center"
+                  outlined
+                  :hide-details="!errors.number"
+                  :error="errors.number"
+                  :error-messages="
+                    errors && errors.number ? errors.number[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  label="Emergency Number"
+                  :disabled="disabled"
+                  v-model="payload.emergency_phone"
+                  dense
+                  menu-props="min-width: auto; max-height: 200px;"
+                  class="text-center"
+                  outlined
+                  :hide-details="!errors.emergency_phone"
+                  :error="errors.emergency_phone"
+                  :error-messages="
+                    errors && errors.emergency_phone
+                      ? errors.emergency_phone[0]
+                      : ''
+                  "
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6">
+                <v-menu
+                  :disabled="disabled"
+                  ref="openTimePicker"
+                  v-model="openTimePicker"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                >
+                  <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      label="Zone. Number"
+                      label="Office. Open time"
                       :disabled="disabled"
-                      v-model="payload.zone_id"
+                      v-model="payload.open_time"
+                      append-icon="mdi-clock-outline"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
                       dense
                       class="text-center"
                       outlined
-                      :hide-details="!errors.zone_id"
-                      :error="errors.zone_id"
+                      :hide-details="!errors.open_time"
+                      :error="errors.open_time"
                       :error-messages="
-                        errors && errors.zone_id ? errors.zone_id[0] : ''
+                        errors && errors.open_time ? errors.open_time[0] : ''
                       "
                     ></v-text-field>
-                  </v-col>
+                  </template>
+                  <v-time-picker
+                    format="ampm"
+                    ampm-in-title
+                    v-model="payload.open_time"
+                    full-width
+                    @input="$refs.openTimePicker.save(payload.open_time)"
+                  ></v-time-picker>
+                </v-menu>
+              </v-col>
 
-                  <v-col cols="6">
+              <v-col cols="6">
+                <v-menu
+                  :disabled="disabled"
+                  ref="closeTimePicker"
+                  v-model="closeTimePicker"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                >
+                  <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      label="Flat Number"
+                      label="Office. Close time"
                       :disabled="disabled"
-                      v-model="payload.flat_number"
+                      v-model="payload.close_time"
+                      append-icon="mdi-clock-outline"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
                       dense
-                      menu-props="min-width: auto; max-height: 200px;"
                       class="text-center"
                       outlined
-                      :hide-details="!errors.flat_number"
-                      :error="errors.flat_number"
+                      :hide-details="!errors.close_time"
+                      :error="errors.close_time"
                       :error-messages="
-                        errors && errors.flat_number
-                          ? errors.flat_number[0]
-                          : ''
+                        errors && errors.close_time ? errors.close_time[0] : ''
                       "
                     ></v-text-field>
-                  </v-col>
+                  </template>
+                  <v-time-picker
+                    format="ampm"
+                    ampm-in-title
+                    v-model="payload.close_time"
+                    full-width
+                    @input="$refs.closeTimePicker.save(payload.close_time)"
+                  ></v-time-picker>
+                </v-menu>
+              </v-col>
 
-                  <v-col cols="6">
-                    <v-text-field
-                      label="Floor Number"
-                      :disabled="disabled"
-                      v-model="payload.floor_number"
-                      dense
-                      menu-props="min-width: auto; max-height: 200px;"
-                      class="text-center"
-                      outlined
-                      item-text="name"
-                      item-value="id"
-                      :hide-details="!errors.floor_number"
-                      :error="errors.floor_number"
-                      :error-messages="
-                        errors && errors.floor_number
-                          ? errors.floor_number[0]
-                          : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-
-                <v-row>
-                  <v-col cols="6">
-                    <v-text-field
-                      label="Phone Number"
-                      :disabled="disabled"
-                      v-model="payload.number"
-                      dense
-                      menu-props="min-width: auto; max-height: 200px;"
-                      class="text-center"
-                      outlined
-                      :hide-details="!errors.number"
-                      :error="errors.number"
-                      :error-messages="
-                        errors && errors.number ? errors.number[0] : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-
-                  <v-col cols="6">
-                    <v-text-field
-                      label="Emergency Number"
-                      :disabled="disabled"
-                      v-model="payload.emergency_phone"
-                      dense
-                      menu-props="min-width: auto; max-height: 200px;"
-                      class="text-center"
-                      outlined
-                      :hide-details="!errors.emergency_phone"
-                      :error="errors.emergency_phone"
-                      :error-messages="
-                        errors && errors.emergency_phone
-                          ? errors.emergency_phone[0]
-                          : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-
-                <v-row>
-                  <v-col cols="6">
-                    <v-menu
-                      :disabled="disabled"
-                      ref="openTimePicker"
-                      v-model="openTimePicker"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          label="Office. Open time"
-                          :disabled="disabled"
-                          v-model="payload.open_time"
-                          append-icon="mdi-clock-outline"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                          dense
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.open_time"
-                          :error="errors.open_time"
-                          :error-messages="
-                            errors && errors.open_time
-                              ? errors.open_time[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </template>
-                      <v-time-picker
-                        format="ampm"
-                        ampm-in-title
-                        v-model="payload.open_time"
-                        full-width
-                        @input="$refs.openTimePicker.save(payload.open_time)"
-                      ></v-time-picker>
-                    </v-menu>
-                  </v-col>
-
-                  <v-col cols="6">
-                    <v-menu
-                      :disabled="disabled"
-                      ref="closeTimePicker"
-                      v-model="closeTimePicker"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          label="Office. Close time"
-                          :disabled="disabled"
-                          v-model="payload.close_time"
-                          append-icon="mdi-clock-outline"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                          dense
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.close_time"
-                          :error="errors.close_time"
-                          :error-messages="
-                            errors && errors.close_time
-                              ? errors.close_time[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </template>
-                      <v-time-picker
-                        format="ampm"
-                        ampm-in-title
-                        v-model="payload.close_time"
-                        full-width
-                        @input="$refs.closeTimePicker.save(payload.close_time)"
-                      ></v-time-picker>
-                    </v-menu>
-                  </v-col>
-
-                  <v-col cols="6" v-if="disabled">
-                    <div>
-                      <v-avatar
-                        class="ma-1"
-                        v-if="qrCodeDataURL"
-                        size="150"
-                        tile
-                      >
-                        <img :src="qrCodeDataURL" alt="Avatar" />
-                      </v-avatar>
-                    </div>
-                    <span>
-                      <a :href="`${fullLink}`" target="_blank">
-                        {{ fullLink }}
-                      </a>
-                    </span>
-                  </v-col>
-
-                  <!-- <v-col cols="12">
+              <v-col cols="6" v-if="disabled">
+                <div>
+                  <v-avatar class="ma-1" v-if="qrCodeDataURL" size="150" tile>
+                    <img :src="qrCodeDataURL" alt="Avatar" />
+                  </v-avatar>
+                </div>
+                <span>
+                  <a :href="`${fullLink}`" target="_blank">
+                    {{ fullLink }}
+                  </a>
+                </span>
+              </v-col>
+              <!-- <v-col cols="12">
                     <v-switch
                       :disabled="disabled"
                       dense
@@ -335,7 +240,7 @@
                       "
                     ></v-switch>
                   </v-col> -->
-                  <!-- <v-col cols="12">
+              <!-- <v-col cols="12">
                     <v-switch
                       :disabled="disabled"
                       dense
@@ -348,8 +253,6 @@
                       "
                     ></v-switch>
                   </v-col> -->
-                </v-row>
-              </v-col>
             </v-row>
           </v-container>
           <v-divider></v-divider>
