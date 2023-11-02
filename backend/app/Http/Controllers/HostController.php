@@ -20,10 +20,15 @@ class HostController extends Controller
         $model = HostCompany::query();
 
         $model->with("employee:id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
-        
+
         $model->where("company_id", $request->input("company_id"));
 
         return $model->get();
+    }
+
+    public function show($id)
+    {
+        return HostCompany::where("employee_id", $id)->value("id") ?? 0;
     }
 
     public function index(Request $request)
@@ -35,7 +40,9 @@ class HostController extends Controller
         $model = $this->process_ilike_filter($model, $request, $fields);
 
         $model->with("employee:id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
-        
+
+        $model->when($request->filled("employee_id"), fn ($q) => $q->where(" employee_id", $request->employee_id));
+
         $model->where("company_id", $request->input("company_id"));
 
         return $model->paginate($request->input("per_page", 100));
