@@ -688,7 +688,7 @@
               </template>
               <template
                 v-slot:item.first_name="{ item, index }"
-                style="width: 200px"
+                style="width: 300px"
               >
                 <v-row no-gutters>
                   <v-col
@@ -702,19 +702,19 @@
                     <v-img
                       style="
                         border-radius: 50%;
-                        height: auto;
-                        width: 50px;
-                        max-width: 50px;
+                        width: 60px;
+                        max-width: 60px;
+                        height: 60px;
                       "
                       :src="
-                        item.profile_picture
-                          ? item.profile_picture
+                        item.logo
+                          ? item.logo
                           : '/no-profile-image.jpg'
                       "
                     >
                     </v-img>
                   </v-col>
-                  <v-col style="padding: 10px">
+                  <v-col class="px-5 pt-3">
                     <strong>
                       {{
                         item.first_name
@@ -722,12 +722,16 @@
                             " " +
                             item.last_name +
                             "-" +
-                            item.system_user_id
+                            item.employee_id
                           : "---"
                       }}
                     </strong>
                     <div>
-                      {{ item.email ? item.email : "---" }}
+                      {{
+                        item.email
+                          ? item.email
+                          : "---"
+                      }}
                     </div>
                   </v-col>
                 </v-row>
