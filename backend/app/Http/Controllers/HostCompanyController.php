@@ -19,7 +19,7 @@ class HostCompanyController extends Controller
     {
         $model = HostCompany::query();
 
-        $model->where("company_id", $request->input("company_id", 0));
+        $model->with("employee")->where("company_id", $request->input("company_id", 0));
 
         return $model->get();
     }
@@ -29,10 +29,12 @@ class HostCompanyController extends Controller
     {
         $model = HostCompany::query();
 
-        $fields = ['flat_number', 'company_name', 'manager_name', 'phone', 'email', 'zone_id'];
+        $fields = ['flat_number'];
 
         $model = $this->process_ilike_filter($model, $request, $fields);
 
+        $model->with("employee:id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
+        
         $model->where("company_id", $request->input("company_id"));
 
         return $model->paginate($request->input("per_page", 100));

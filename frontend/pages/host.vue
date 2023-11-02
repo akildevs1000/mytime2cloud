@@ -60,7 +60,7 @@
         </v-col>
       </v-row>
 
-      <HostList />
+      <HostCreate />
     </div>
     <Preloader v-else />
   </div>
@@ -68,9 +68,11 @@
 </template>
 <script>
 import HostList from "../components/Host/List.vue";
+import HostCreate from "../components/Host/Create.vue";
+
 
 export default {
-  components: { HostList },
+  components: { HostList,HostCreate },
 
   data() {
     return {
