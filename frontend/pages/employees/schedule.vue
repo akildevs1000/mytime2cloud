@@ -12,7 +12,6 @@
           <v-toolbar-title><span>Schedule(s)</span></v-toolbar-title>
         </v-col>
       </v-toolbar>
-
       <v-data-table
         dense
         :headers="headers_table"

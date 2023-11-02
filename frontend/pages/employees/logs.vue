@@ -124,6 +124,14 @@
             class="elevation-1"
             :server-items-length="totalRowsCount"
           >
+            <template v-slot:item.sno="{ item, index }">
+              {{
+                currentPage
+                  ? (currentPage - 1) * perPage +
+                    (cumulativeIndex + data.indexOf(item))
+                  : "-"
+              }}
+            </template>
             <template v-slot:item.UserID="{ item }">
               {{ item.UserID }}
             </template>
@@ -159,6 +167,9 @@
 <script>
 export default {
   data: () => ({
+    cumulativeIndex: 1,
+    perPage: 10,
+    currentPage: 1,
     totalRowsCount: 0,
     showFilters: false,
     filters: {},
@@ -197,6 +208,13 @@ export default {
     response: "",
     snackbar: false,
     headers_table: [
+      {
+        text: "#",
+        align: "left",
+        sortable: false,
+        key: "LogTime", //sorting
+        value: "sno", //edit purpose
+      },
       {
         text: "Log Time",
         align: "left",
@@ -327,6 +345,9 @@ export default {
           this.total = data.total;
           this.loading = false;
           this.totalRowsCount = data.total;
+
+          this.pagination.current = data.current_page;
+          this.pagination.total = data.last_page;
         });
     },
     searchIt() {
