@@ -42,461 +42,389 @@
       </v-dialog>
       <v-dialog persistent v-model="DialogBox" width="1100">
         <v-card>
-          <v-tabs
-            v-model="tab"
-            class="popup_background"
-            right
-            dark
-            icons-and-text
-          >
-            <v-tabs-slider color="violet"></v-tabs-slider>
+          <v-toolbar class="popup_background" flat>
+            {{ formAction }} Visitor
+          </v-toolbar>
+          <v-container>
+            <v-row>
+              <v-col cols="3" class="pt-5">
+                <div class="form-group" style="margin: 0 auto; width: 200px">
+                  <v-img
+                    style="
+                      width: 100%;
+                      height: 200px;
+                      border: 1px solid #5fafa3;
+                      border-radius: 50%;
+                      margin: 0 auto;
+                    "
+                    :src="previewImage || '/no-profile-image.jpg'"
+                  ></v-img>
+                  <br />
+                  <v-btn
+                    :disabled="disabled"
+                    small
+                    class="form-control primary"
+                    @click="onpick_attachment"
+                    >{{ !upload.name ? "Upload" : "Change" }} Profile Image
+                    <v-icon right dark>mdi-cloud-upload</v-icon>
+                  </v-btn>
+                  <input
+                    required
+                    type="file"
+                    @change="attachment"
+                    style="display: none"
+                    accept="image/*"
+                    ref="attachment_input"
+                  />
 
-            <v-tab href="#tab-1" class="black--text">
-              Visitor
-              <v-icon>mdi-account</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-2" class="black--text">
-              Host
-              <v-icon>mdi-account-tie</v-icon>
-            </v-tab>
-
-            <v-tab href="#tab-3" class="black--text">
-              Status
-              <v-icon>mdi-pencil</v-icon>
-            </v-tab>
-          </v-tabs>
-
-          <v-tabs-items v-model="tab">
-            <v-tab-item value="tab-1">
-              <v-container>
+                  <span
+                    v-if="errors && errors.profile_picture"
+                    class="text-danger mt-2"
+                    >{{ errors.profile_picture[0] }}</span
+                  >
+                </div>
+              </v-col>
+              <v-col cols="9" class="pt-5">
                 <v-row>
-                  <v-col cols="3" class="pt-5">
-                    <div
-                      class="form-group"
-                      style="margin: 0 auto; width: 200px"
-                    >
-                      <v-img
-                        style="
-                          width: 100%;
-                          height: 200px;
-                          border: 1px solid #5fafa3;
-                          border-radius: 50%;
-                          margin: 0 auto;
-                        "
-                        :src="previewImage || '/no-profile-image.jpg'"
-                      ></v-img>
-                      <br />
-                      <v-btn
-                        :disabled="disabled"
-                        small
-                        class="form-control primary"
-                        @click="onpick_attachment"
-                        >{{ !upload.name ? "Upload" : "Change" }} Profile Image
-                        <v-icon right dark>mdi-cloud-upload</v-icon>
-                      </v-btn>
-                      <input
-                        required
-                        type="file"
-                        @change="attachment"
-                        style="display: none"
-                        accept="image/*"
-                        ref="attachment_input"
-                      />
-
-                      <span
-                        v-if="errors && errors.profile_picture"
-                        class="text-danger mt-2"
-                        >{{ errors.profile_picture[0] }}</span
-                      >
-                    </div>
+                  <v-col cols="4">
+                    <v-select
+                      label="Timezone"
+                      :disabled="disabled"
+                      v-model="payload.timezone_id"
+                      placeholder="Timezone"
+                      :items="timezones"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center pt-3"
+                      outlined
+                      item-text="timezone_name"
+                      item-value="timezone_id"
+                      :hide-details="!errors.timezone_id"
+                      :error="errors.timezone_id"
+                      :error-messages="
+                        errors && errors.timezone_id
+                          ? errors.timezone_id[0]
+                          : ''
+                      "
+                    ></v-select>
                   </v-col>
-                  <v-col cols="9" class="pt-5">
-                    <v-row>
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Timezone<span class="text-danger">*</span></label
-                        >
-                        <v-select
-                          :disabled="disabled"
-                          v-model="payload.timezone_id"
-                          placeholder="Timezone"
-                          :items="timezones"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center pt-3"
-                          outlined
-                          item-text="timezone_name"
-                          item-value="timezone_id"
-                          :hide-details="!errors.timezone_id"
-                          :error="errors.timezone_id"
-                          :error-messages="
-                            errors && errors.timezone_id
-                              ? errors.timezone_id[0]
-                              : ''
-                          "
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Zone<span class="text-danger">*</span></label
-                        >
-                        <v-select
-                          :disabled="disabled"
-                          v-model="payload.zone_id"
-                          placeholder="Zone"
-                          :items="zones"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center pt-3"
-                          outlined
-                          item-text="name"
-                          item-value="id"
-                          :hide-details="!errors.zone_id"
-                          :error="errors.zone_id"
-                          :error-messages="
-                            errors && errors.zone_id ? errors.zone_id[0] : ''
-                          "
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Employee Device Id<span class="text-danger"
-                            >*</span
-                          ></label
-                        >
+                  <v-col cols="4">
+                    <v-select
+                      label="Zone"
+                      :disabled="disabled"
+                      v-model="payload.zone_id"
+                      placeholder="Zone"
+                      :items="zones"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center pt-3"
+                      outlined
+                      item-text="name"
+                      item-value="id"
+                      :hide-details="!errors.zone_id"
+                      :error="errors.zone_id"
+                      :error-messages="
+                        errors && errors.zone_id ? errors.zone_id[0] : ''
+                      "
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      label="Visitor Device Id"
+                      :disabled="disabled"
+                      autofocus
+                      placeholder="Device Id"
+                      v-model="payload.system_user_id"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center pt-3"
+                      outlined
+                      :hide-details="!errors.system_user_id"
+                      :error="errors.system_user_id"
+                      :error-messages="
+                        errors && errors.system_user_id
+                          ? errors.system_user_id[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="4">
+                    <v-menu
+                      ref="visit_from_menu_ref"
+                      v-model="visit_from_menu"
+                      :close-on-content-click="false"
+                      :return-value.sync="payload.visit_from"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
                         <v-text-field
+                          label="Visit From"
                           :disabled="disabled"
-                          autofocus
-                          placeholder="Device Id"
-                          v-model="payload.system_user_id"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center pt-3"
-                          outlined
-                          :hide-details="!errors.system_user_id"
-                          :error="errors.system_user_id"
+                          :hide-details="!errors.visit_from"
+                          :error="errors.visit_from"
                           :error-messages="
-                            errors && errors.system_user_id
-                              ? errors.system_user_id[0]
+                            errors && errors.visit_from
+                              ? errors.visit_from[0]
                               : ''
                           "
+                          v-model="payload.visit_from"
+                          append-icon="mdi-calendar"
+                          outlined
+                          dense
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
                         ></v-text-field>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Visit From<span class="text-danger">*</span></label
+                      </template>
+                      <v-date-picker
+                        v-model="payload.visit_from"
+                        no-title
+                        scrollable
+                      >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="visit_from_menu = false"
                         >
-
-                        <v-menu
-                          ref="visit_from_menu_ref"
-                          v-model="visit_from_menu"
-                          :close-on-content-click="false"
-                          :return-value.sync="payload.visit_from"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              :disabled="disabled"
-                              :hide-details="!errors.visit_from"
-                              :error="errors.visit_from"
-                              :error-messages="
-                                errors && errors.visit_from
-                                  ? errors.visit_from[0]
-                                  : ''
-                              "
-                              v-model="payload.visit_from"
-                              append-icon="mdi-calendar"
-                              outlined
-                              dense
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            v-model="payload.visit_from"
-                            no-title
-                            scrollable
-                          >
-                            <v-spacer></v-spacer>
-                            <v-btn
-                              text
-                              color="primary"
-                              @click="visit_from_menu = false"
-                            >
-                              Cancel
-                            </v-btn>
-                            <v-btn
-                              text
-                              color="primary"
-                              @click="
-                                $refs.visit_from_menu_ref.save(
-                                  payload.visit_from
-                                )
-                              "
-                            >
-                              OK
-                            </v-btn>
-                          </v-date-picker>
-                        </v-menu>
-                      </v-col>
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Visit To<span class="text-danger">*</span></label
-                        >
-                        <v-menu
-                          ref="visit_to_menu_ref"
-                          v-model="visit_to_menu"
-                          :close-on-content-click="false"
-                          :return-value.sync="payload.visit_to"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              :disabled="disabled"
-                              :hide-details="!errors.visit_to"
-                              :error="errors.visit_to"
-                              :error-messages="
-                                errors && errors.visit_to
-                                  ? errors.visit_to[0]
-                                  : ''
-                              "
-                              v-model="payload.visit_to"
-                              append-icon="mdi-calendar"
-                              outlined
-                              dense
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            v-model="payload.visit_to"
-                            no-title
-                            scrollable
-                          >
-                            <v-spacer></v-spacer>
-                            <v-btn
-                              text
-                              color="primary"
-                              @click="visit_to_menu = false"
-                            >
-                              Cancel
-                            </v-btn>
-                            <v-btn
-                              text
-                              color="primary"
-                              @click="
-                                $refs.visit_to_menu_ref.save(payload.visit_to)
-                              "
-                            >
-                              OK
-                            </v-btn>
-                          </v-date-picker>
-                        </v-menu>
-                      </v-col>
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Purpose<span class="text-danger">*</span></label
-                        >
-                        <v-select
-                          :disabled="disabled"
-                          v-model="payload.purpose_id"
-                          :items="purposes"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          item-text="name"
-                          item-value="id"
-                          :hide-details="!errors.purpose_id"
-                          :error="errors.purpose_id"
-                          :error-messages="
-                            errors && errors.purpose_id
-                              ? errors.purpose_id[0]
-                              : ''
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="
+                            $refs.visit_from_menu_ref.save(payload.visit_from)
                           "
-                        ></v-select>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >First Name<span class="text-danger">*</span></label
                         >
+                          OK
+                        </v-btn>
+                      </v-date-picker>
+                    </v-menu>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-menu
+                      ref="visit_to_menu_ref"
+                      v-model="visit_to_menu"
+                      :close-on-content-click="false"
+                      :return-value.sync="payload.visit_to"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
                         <v-text-field
+                          label="Visit To"
                           :disabled="disabled"
-                          v-model="payload.first_name"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.first_name"
-                          :error="errors.first_name"
+                          :hide-details="!errors.visit_to"
+                          :error="errors.visit_to"
                           :error-messages="
-                            errors && errors.first_name
-                              ? errors.first_name[0]
-                              : ''
+                            errors && errors.visit_to ? errors.visit_to[0] : ''
                           "
+                          v-model="payload.visit_to"
+                          append-icon="mdi-calendar"
+                          outlined
+                          dense
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
                         ></v-text-field>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Last Name<span class="text-danger">*</span></label
+                      </template>
+                      <v-date-picker
+                        v-model="payload.visit_to"
+                        no-title
+                        scrollable
+                      >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="visit_to_menu = false"
                         >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.last_name"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.last_name"
-                          :error="errors.last_name"
-                          :error-messages="
-                            errors && errors.last_name
-                              ? errors.last_name[0]
-                              : ''
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="
+                            $refs.visit_to_menu_ref.save(payload.visit_to)
                           "
-                        ></v-text-field>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Gender<span class="text-danger">*</span></label
                         >
-                        <v-select
-                          :disabled="disabled"
-                          :items="[`Male`, `Female`]"
-                          v-model="payload.gender"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.gender"
-                          :error="errors.gender"
-                          :error-messages="
-                            errors && errors.gender ? errors.gender[0] : ''
-                          "
-                        ></v-select>
-                      </v-col>
+                          OK
+                        </v-btn>
+                      </v-date-picker>
+                    </v-menu>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-select
+                      label="Purpose"
+                      :disabled="disabled"
+                      v-model="payload.purpose_id"
+                      :items="purposes"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      item-text="name"
+                      item-value="id"
+                      :hide-details="!errors.purpose_id"
+                      :error="errors.purpose_id"
+                      :error-messages="
+                        errors && errors.purpose_id ? errors.purpose_id[0] : ''
+                      "
+                    ></v-select>
+                  </v-col>
 
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Phone Number<span class="text-danger">*</span></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.phone_number"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.phone_number"
-                          :error="errors.phone_number"
-                          :error-messages="
-                            errors && errors.phone_number
-                              ? errors.phone_number[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      label="First Name"
+                      :disabled="disabled"
+                      v-model="payload.first_name"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.first_name"
+                      :error="errors.first_name"
+                      :error-messages="
+                        errors && errors.first_name ? errors.first_name[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
 
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Email Address<span class="text-danger"
-                            >*</span
-                          ></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.email"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.email"
-                          :error="errors.email"
-                          :error-messages="
-                            errors && errors.email ? errors.email[0] : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      label="Last Name"
+                      :disabled="disabled"
+                      v-model="payload.last_name"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.last_name"
+                      :error="errors.last_name"
+                      :error-messages="
+                        errors && errors.last_name ? errors.last_name[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
 
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Company Name<span class="text-danger">*</span></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.visitor_company_name"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.visitor_company_name"
-                          :error="errors.visitor_company_name"
-                          :error-messages="
-                            errors && errors.visitor_company_name
-                              ? errors.visitor_company_name[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
+                  <v-col cols="4">
+                    <v-select
+                      label="Gender"
+                      :disabled="disabled"
+                      :items="[`Male`, `Female`]"
+                      v-model="payload.gender"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.gender"
+                      :error="errors.gender"
+                      :error-messages="
+                        errors && errors.gender ? errors.gender[0] : ''
+                      "
+                    ></v-select>
+                  </v-col>
 
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >ID Type<span class="text-danger">*</span></label
-                        >
-                        <v-select
-                          :disabled="disabled"
-                          v-model="payload.id_type"
-                          :items="[
-                            { id: 1, name: `Emirates ID` },
-                            { id: 2, name: `National ID` },
-                          ]"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          item-text="name"
-                          item-value="id"
-                          :hide-details="!errors.id_type"
-                          :error="errors.id_type"
-                          :error-messages="
-                            errors && errors.id_type ? errors.id_type[0] : ''
-                          "
-                        ></v-select>
-                      </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      label="Phone Number"
+                      :disabled="disabled"
+                      v-model="payload.phone_number"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.phone_number"
+                      :error="errors.phone_number"
+                      :error-messages="
+                        errors && errors.phone_number
+                          ? errors.phone_number[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
 
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >ID Number<span class="text-danger">*</span></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.id_number"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.id_number"
-                          :error="errors.id_number"
-                          :error-messages="
-                            errors && errors.id_number
-                              ? errors.id_number[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      label="Email Address (optional)"
+                      :disabled="disabled"
+                      v-model="payload.email"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.email"
+                      :error="errors.email"
+                      :error-messages="
+                        errors && errors.email ? errors.email[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
 
-                      <v-col cols="4">
+                  <v-col cols="4">
+                    <v-text-field
+                      label="Company Name"
+                      :disabled="disabled"
+                      v-model="payload.visitor_company_name"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.visitor_company_name"
+                      :error="errors.visitor_company_name"
+                      :error-messages="
+                        errors && errors.visitor_company_name
+                          ? errors.visitor_company_name[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="4">
+                    <v-select
+                      label="ID Type"
+                      :disabled="disabled"
+                      v-model="payload.id_type"
+                      :items="[
+                        { id: 1, name: `Emirates ID` },
+                        { id: 2, name: `National ID` },
+                      ]"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      item-text="name"
+                      item-value="id"
+                      :hide-details="!errors.id_type"
+                      :error="errors.id_type"
+                      :error-messages="
+                        errors && errors.id_type ? errors.id_type[0] : ''
+                      "
+                    ></v-select>
+                  </v-col>
+
+                  <v-col cols="4">
+                    <v-text-field
+                      label="ID Number"
+                      :disabled="disabled"
+                      v-model="payload.id_number"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.id_number"
+                      :error="errors.id_number"
+                      :error-messages="
+                        errors && errors.id_number ? errors.id_number[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <!-- <v-col cols="4">
                         <label class="col-form-label"
                           >ID Copy<span class="text-danger">*</span></label
                         >
@@ -513,444 +441,77 @@
                             errors && errors.id_copy ? errors.id_copy[0] : ''
                           "
                         ></v-text-field>
-                      </v-col>
-                    </v-row>
+                      </v-col> -->
+
+                  <v-col cols="4">
+                    <v-select
+                      label="Host"
+                      :disabled="disabled"
+                      v-model="payload.host_company_id"
+                      :items="host_list"
+                      dense
+                      menu-props="min-width: auto; max-height: 200px;"
+                      class="text-center"
+                      outlined
+                      item-text="name"
+                      item-value="id"
+                      :hide-details="!errors.host_company_id"
+                      :error-messages="
+                        errors && errors.host_company_id
+                          ? errors.host_company_id[0]
+                          : ''
+                      "
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-textarea
+                      rows="2"
+                      label="Reason"
+                      :disabled="disabled"
+                      v-model="payload.reason"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.reason"
+                      :error="errors.reason"
+                      :error-messages="
+                        errors && errors.reason ? errors.reason[0] : ''
+                      "
+                    ></v-textarea>
                   </v-col>
                 </v-row>
-              </v-container>
-            </v-tab-item>
-            <v-tab-item value="tab-2">
-              <v-container>
-                <v-row>
-                  <v-col cols="3" class="pt-5">
-                    <div
-                      class="form-group"
-                      style="margin: 0 auto; width: 200px"
-                    >
-                      <v-img
-                        style="
-                          width: 100%;
-                          height: 200px;
-                          border: 1px solid #5fafa3;
-                          border-radius: 50%;
-                          margin: 0 auto;
-                        "
-                        :src="previewImage || '/no-profile-image.jpg'"
-                      ></v-img>
-                      <br />
-                      <v-btn
-                        :disabled="disabled"
-                        small
-                        class="form-control primary"
-                        @click="onpick_attachment"
-                        >{{ !upload.name ? "Upload" : "Change" }} Profile Image
-                        <v-icon right dark>mdi-cloud-upload</v-icon>
-                      </v-btn>
-                      <input
-                        required
-                        type="file"
-                        @change="attachment"
-                        style="display: none"
-                        accept="image/*"
-                        ref="attachment_input"
-                      />
+              </v-col>
+            </v-row>
+          </v-container>
 
-                      <span
-                        v-if="errors && errors.profile_picture"
-                        class="text-danger mt-2"
-                        >{{ errors.profile_picture[0] }}</span
-                      >
-                    </div>
-                  </v-col>
-                  <v-col cols="9" class="pt-5">
-                    <v-row>
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >First Name<span class="text-danger">*</span></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.host_first_name"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.host_first_name"
-                          :error="errors.host_first_name"
-                          :error-messages="
-                            errors && errors.host_first_name
-                              ? errors.host_first_name[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <div class="text-right">
+              <v-btn small color="grey white--text" @click="DialogBox = false">
+                Close
+              </v-btn>
 
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Last Name<span class="text-danger">*</span></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.host_last_name"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.host_last_name"
-                          :error="errors.host_last_name"
-                          :error-messages="
-                            errors && errors.host_last_name
-                              ? errors.host_last_name[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Gender<span class="text-danger">*</span></label
-                        >
-                        <v-select
-                          :disabled="disabled"
-                          :items="[`Male`, `Female`]"
-                          v-model="payload.host_gender"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          item-text="name"
-                          item-value="id"
-                          :hide-details="!errors.host_gender"
-                          :error="errors.host_gender"
-                          :error-messages="
-                            errors && errors.host_gender
-                              ? errors.host_gender[0]
-                              : ''
-                          "
-                        ></v-select>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Phone Number<span class="text-danger">*</span></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.host_phone_number"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.host_phone_number"
-                          :error="errors.host_phone_number"
-                          :error-messages="
-                            errors && errors.host_phone_number
-                              ? errors.host_phone_number[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Email Address<span class="text-danger"
-                            >*</span
-                          ></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.host_email"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.host_email"
-                          :error="errors.host_email"
-                          :error-messages="
-                            errors && errors.host_email
-                              ? errors.host_email[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Company<span class="text-danger">*</span></label
-                        >
-                        <v-select
-                          :disabled="disabled"
-                          v-model="payload.host_company_id"
-                          :items="host_company_list"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          item-text="company_name"
-                          item-value="id"
-                          :hide-details="!errors.host_company_id"
-                          :error="errors.host_company_id"
-                          :error-messages="
-                            errors && errors.host_company_id
-                              ? errors.host_company_id[0]
-                              : ''
-                          "
-                        ></v-select>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-tab-item>
-            <v-tab-item value="tab-3">
-              <v-container>
-                <v-row>
-                  <v-col cols="3" class="pt-5">
-                    <div
-                      class="form-group"
-                      style="margin: 0 auto; width: 200px"
-                    >
-                      <v-img
-                        style="
-                          width: 100%;
-                          height: 200px;
-                          border: 1px solid #5fafa3;
-                          border-radius: 50%;
-                          margin: 0 auto;
-                        "
-                        :src="previewImage || '/no-profile-image.jpg'"
-                      ></v-img>
-                      <br />
-                      <v-btn
-                        :disabled="disabled"
-                        small
-                        class="form-control primary"
-                        @click="onpick_attachment"
-                        >{{ !upload.name ? "Upload" : "Change" }} Profile Image
-                        <v-icon right dark>mdi-cloud-upload</v-icon>
-                      </v-btn>
-                      <input
-                        required
-                        type="file"
-                        @change="attachment"
-                        style="display: none"
-                        accept="image/*"
-                        ref="attachment_input"
-                      />
-
-                      <span
-                        v-if="errors && errors.profile_picture"
-                        class="text-danger mt-2"
-                        >{{ errors.profile_picture[0] }}</span
-                      >
-                    </div>
-                  </v-col>
-                  <v-col cols="9" class="pt-5">
-                    <v-row>
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Status<span class="text-danger">*</span></label
-                        >
-                        <v-select
-                          :disabled="disabled"
-                          v-model="payload.status_id"
-                          :items="statuses"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          item-text="name"
-                          item-value="id"
-                          :hide-details="!errors.status_id"
-                          :error="errors.status_id"
-                          :error-messages="
-                            errors && errors.status_id
-                              ? errors.status_id[0]
-                              : ''
-                          "
-                        ></v-select>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Date<span class="text-danger">*</span></label
-                        >
-
-                        <v-menu
-                          ref="date_menu_ref"
-                          v-model="date_menu"
-                          :close-on-content-click="false"
-                          :return-value.sync="payload.date"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              :disabled="disabled"
-                              :hide-details="!errors.date"
-                              :error="errors.date"
-                              :error-messages="
-                                errors && errors.date ? errors.date[0] : ''
-                              "
-                              v-model="payload.date"
-                              append-icon="mdi-calendar"
-                              outlined
-                              dense
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            v-model="payload.date"
-                            no-title
-                            scrollable
-                          >
-                            <v-spacer></v-spacer>
-                            <v-btn
-                              text
-                              color="primary"
-                              @click="date_menu_ref = false"
-                            >
-                              Cancel
-                            </v-btn>
-                            <v-btn
-                              text
-                              color="primary"
-                              @click="$refs.date_menu_ref.save(payload.date)"
-                            >
-                              OK
-                            </v-btn>
-                          </v-date-picker>
-                        </v-menu>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Approved BY<span class="text-danger">*</span></label
-                        >
-                        <v-select
-                          :disabled="disabled"
-                          v-model="payload.updated_by"
-                          :items="users"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          item-text="name"
-                          item-value="id"
-                          :hide-details="!errors.updated_by"
-                          :error="errors.updated_by"
-                          :error-messages="
-                            errors && errors.updated_by
-                              ? errors.updated_by[0]
-                              : ''
-                          "
-                        ></v-select>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Phone Number<span class="text-danger">*</span></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.status_phone_number"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.status_phone_number"
-                          :error="errors.status_phone_number"
-                          :error-messages="
-                            errors && errors.status_phone_number
-                              ? errors.status_phone_number[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
-
-                      <v-col cols="4">
-                        <label class="col-form-label"
-                          >Company Name<span class="text-danger">*</span></label
-                        >
-                        <v-text-field
-                          :disabled="disabled"
-                          v-model="payload.company_name"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.company_name"
-                          :error="errors.company_name"
-                          :error-messages="
-                            errors && errors.company_name
-                              ? errors.company_name[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-
-                    <v-row>
-                      <v-col cols="12">
-                        <label class="col-form-label"
-                          >Reason<span class="text-danger">*</span></label
-                        >
-                        <v-textarea
-                          :disabled="disabled"
-                          v-model="payload.reason"
-                          dense
-                          menu-props="min-width: auto; max-height: 200px;"
-                          class="text-center"
-                          outlined
-                          :hide-details="!errors.reason"
-                          :error="errors.reason"
-                          :error-messages="
-                            errors && errors.reason ? errors.reason[0] : ''
-                          "
-                        ></v-textarea>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-tab-item>
-            <v-divider></v-divider>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <div class="text-right px-3 pb-3">
-                <v-btn
-                  small
-                  color="grey white--text"
-                  @click="DialogBox = false"
-                >
-                  Close
-                </v-btn>
-
-                <v-btn
-                  v-if="can('employee_create') && formAction == 'Create'"
-                  small
-                  :loading="loading"
-                  color="primary"
-                  @click="store_data"
-                >
-                  Submit
-                </v-btn>
-                <v-btn
-                  v-else-if="can('employee_create') && formAction == 'Edit'"
-                  small
-                  :loading="loading"
-                  color="primary"
-                  @click="update_data"
-                >
-                  Update
-                </v-btn>
-              </div>
-            </v-card-actions>
-          </v-tabs-items>
+              <v-btn
+                v-if="can('employee_create') && formAction == 'Create'"
+                small
+                :loading="loading"
+                color="primary"
+                @click="store_data"
+              >
+                Submit
+              </v-btn>
+              <v-btn
+                v-else-if="can('employee_create') && formAction == 'Edit'"
+                small
+                :loading="loading"
+                color="primary"
+                @click="update_data"
+              >
+                Update
+              </v-btn>
+            </div>
+          </v-card-actions>
         </v-card>
       </v-dialog>
       <div class="text-center">
@@ -1127,7 +688,7 @@
               </template>
               <template
                 v-slot:item.first_name="{ item, index }"
-                style="width: 300px"
+                style="width: 200px"
               >
                 <v-row no-gutters>
                   <v-col
@@ -1145,19 +706,44 @@
                         width: 50px;
                         max-width: 50px;
                       "
-                      :src="item.logo ? item.logo : '/no-profile-image.jpg'"
+                      :src="
+                        item.profile_picture
+                          ? item.profile_picture
+                          : '/no-profile-image.jpg'
+                      "
                     >
                     </v-img>
                   </v-col>
                   <v-col style="padding: 10px">
                     <strong>
-                      {{ item.first_name ? item.first_name : "---" }}
-                      {{ item.last_name ? item.last_name : "---" }}</strong
-                    >
+                      {{
+                        item.first_name
+                          ? item.first_name +
+                            " " +
+                            item.last_name +
+                            "-" +
+                            item.system_user_id
+                          : "---"
+                      }}
+                    </strong>
+                    <div>
+                      {{ item.email ? item.email : "---" }}
+                    </div>
                   </v-col>
                 </v-row>
               </template>
-              <template v-slot:item.zone_name>{{ zone_name }}</template>
+
+              <template v-slot:item.host="{ item }">
+                {{ item.host.employee.first_name }}
+              </template>
+
+              <template v-slot:item.timezone="{ item }">
+                {{ item.timezone.timezone_name }}
+              </template>
+
+              <template v-slot:item.purpose="{ item }">
+                {{ item.purpose.name }}
+              </template>
 
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
@@ -1233,20 +819,14 @@ export default {
       purpose_id: 1,
       first_name: "",
       last_name: "",
-      host_first_name: "",
-      host_last_name: "",
       gender: "Male",
-      host_gender: "Male",
       phone_number: "",
-      host_phone_number: "",
       email: "",
-      host_email: "",
       visitor_company_name: "",
       id_type: 1,
       id_number: "",
       id_copy: "jpg",
       host_company_id: "",
-
       status_id: 1,
       date,
       updated_by: 1,
@@ -1340,7 +920,6 @@ export default {
     ids: [],
     loading: false,
     //total: 0,
-    headers: [],
     titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
     editedIndex: -1,
     editedItem: { name: "" },
@@ -1363,34 +942,26 @@ export default {
         sortable: true,
         filterSpecial: false,
         filterable: true,
-        key: "id",
-        value: "system_user_id",
-        text: "V.NO",
-      },
-      {
-        sortable: true,
-        filterSpecial: false,
-        filterable: true,
         key: "first_name",
         value: "first_name",
-        text: "Visitor Name",
+        text: "Visitor",
       },
       {
         sortable: true,
         filterSpecial: false,
         filterable: true,
-        key: "host_first_name",
-        value: "host_first_name",
-        text: "Host Name",
+        key: "host",
+        value: "host",
+        text: "Host",
       },
-      {
-        sortable: true,
-        filterSpecial: false,
-        filterable: true,
-        key: "reason",
-        value: "reason",
-        text: "Reason",
-      },
+      // {
+      //   sortable: true,
+      //   filterSpecial: false,
+      //   filterable: true,
+      //   key: "reason",
+      //   value: "reason",
+      //   text: "Reason",
+      // },
       // {
       //   sortable: true,
       //   filterSpecial: false,
@@ -1411,9 +982,9 @@ export default {
         sortable: true,
         filterSpecial: false,
         filterable: true,
-        key: "source",
-        value: "source",
-        text: "Source",
+        key: "timezone",
+        value: "timezone",
+        text: "Timezone",
       },
       {
         sortable: true,
@@ -1423,14 +994,39 @@ export default {
         value: "zone.name",
         text: "Zone Name",
       },
+
       {
         sortable: true,
         filterSpecial: false,
         filterable: true,
-        key: "status",
-        value: "status.name",
-        text: "Status",
+        key: "visit_from",
+        value: "visit_from",
+        text: "Visit From",
       },
+      {
+        sortable: true,
+        filterSpecial: false,
+        filterable: true,
+        key: "visit_to",
+        value: "visit_to",
+        text: "Visit To",
+      },
+      {
+        sortable: true,
+        filterSpecial: false,
+        filterable: true,
+        key: "purpose",
+        value: "purpose",
+        text: "Purpose",
+      },
+      // {
+      //   sortable: true,
+      //   filterSpecial: false,
+      //   filterable: true,
+      //   key: "status",
+      //   value: "status.name",
+      //   text: "Status",
+      // },
       {
         sortable: true,
         filterSpecial: false,
@@ -1441,7 +1037,7 @@ export default {
       },
     ],
     company_id: 1,
-    host_company_list: [],
+    host_list: [],
     device_ids: [],
     formAction: "Create",
   }),
@@ -1461,11 +1057,10 @@ export default {
     this.getDataFromApi();
     this.getPurposes();
     this.getUsers();
-    this.getHostCompanies();
-
     this.getStatuses();
     this.getTimezone();
     this.getZones();
+    this.getHostList();
   },
   mounted() {},
   watch: {
@@ -1477,14 +1072,6 @@ export default {
     },
   },
   methods: {
-    getCurrentShift(item) {
-      // Define an array of day names
-      const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const dayName = daysOfWeek[new Date().getDay()];
-      const { shift_name } = item.roster.json.find((e) => e.day == dayName);
-
-      return shift_name;
-    },
     closeViewDialog() {
       this.viewDialog = false;
     },
@@ -1497,12 +1084,6 @@ export default {
       }
     },
 
-    datatable_cancel() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_open() {
-      this.datatable_search_textbox = "";
-    },
     datatable_close() {
       this.loading = false;
       //this.datatable_search_textbox = '';
@@ -1525,86 +1106,10 @@ export default {
       this.errors = [];
       setTimeout(() => {}, 300);
     },
-    json_to_csv(json) {
-      let data = json.map((e) => ({
-        first_name: e.first_name,
-        last_name: e.last_name,
-        display_name: e.display_name,
-        email: e.user.email,
-        phone_number: e.phone_number,
-        whatsapp_number: e.whatsapp_number,
-        phone_relative_number: e.phone_relative_number,
-        whatsapp_relative_number: e.whatsapp_relative_number,
-        employee_id: e.employee_id,
-        joining_date: e.show_joining_date,
-        department_code: e.department_id,
-        designation_code: e.designation_id,
-        department: e.department.name,
-        designation: e.designation.name,
-      }));
-      let header = Object.keys(data[0]).join(",") + "\n";
-      let rows = "";
-      data.forEach((e) => {
-        rows += Object.values(e).join(",").trim() + "\n";
-      });
-      return header + rows;
-    },
-    export_submit() {
-      if (this.data.length == 0) {
-        this.snackbar = true;
-        this.response = "No record to download";
-        return;
-      }
-
-      let csvData = this.json_to_csv(this.data);
-      let element = document.createElement("a");
-      element.setAttribute(
-        "href",
-        "data:text/csv;charset=utf-8, " + encodeURIComponent(csvData)
-      );
-      element.setAttribute("download", "download.csv");
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-    },
-    importEmployee() {
-      let payload = new FormData();
-      payload.append("employees", this.files);
-      payload.append("company_id", this.$auth?.user?.company?.id);
-      let options = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
-      this.btnLoader = true;
-      this.$axios
-        .post("/employee/import", payload, options)
-        .then(({ data }) => {
-          this.btnLoader = false;
-          if (!data.status) {
-            this.errors = data.errors;
-            payload.delete("employees");
-          } else {
-            this.errors = [];
-            this.snackbar = true;
-            this.response = "Employees imported successfully";
-            this.getDataFromApi();
-            this.close();
-          }
-        })
-        .catch((e) => {
-          if (e.toString().includes("Error: Network Error")) {
-            this.errors = [
-              "File is modified.Please cancel the current file and try again",
-            ];
-            this.btnLoader = false;
-          }
-        });
-    },
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     onPageChange() {
       this.getDataFromApi();
     },
@@ -1657,15 +1162,19 @@ export default {
       });
     },
 
-    getHostCompanies() {
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-      this.$axios.get(`host_company_list`, options).then(({ data }) => {
-        this.host_company_list = data;
-      });
+    getHostList() {
+      this.$axios
+        .get(`host_list`, {
+          params: {
+            company_id: this.$auth.user.company_id,
+          },
+        })
+        .then(({ data }) => {
+          this.host_list = data.map((e) => ({
+            id: e.id,
+            name: e.employee.first_name,
+          }));
+        });
     },
 
     getPurposes() {
