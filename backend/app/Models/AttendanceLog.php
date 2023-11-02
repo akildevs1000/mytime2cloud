@@ -89,12 +89,19 @@ class AttendanceLog extends Model
             ->with('device', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
-            // ->when($request->from_date, function ($query) use ($request) {
-            //     return $query->whereDate('LogTime', '>=', $request->from_date);
-            // })
-            // ->when($request->to_date, function ($query) use ($request) {
-            //     return $query->whereDate('LogTime', '<=', $request->to_date);
-            // })
+            ->when($request->from_date, function ($query) use ($request) {
+                return $query->whereDate('LogTime', '>=', $request->from_date);
+            })
+            ->when($request->to_date, function ($query) use ($request) {
+                return $query->whereDate('LogTime', '<=', $request->to_date);
+            })
+
+            ->when($request->filled('dates') && count($request->dates) > 1, function ($q) use ($request) {
+                $q->where(function ($query) use ($request) {
+                    $query->where('LogTime', '>=', $request->dates[0])
+                        ->where('LogTime', '<=',   date("Y-m-d", strtotime($request->dates[1] . " +1 day")));
+                });
+            })
 
             ->when($request->filled('dates') && count($request->dates) > 1, function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
