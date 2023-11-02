@@ -527,59 +527,7 @@
           />
         </v-dialog>
       </div>
-      <v-dialog persistent v-model="dialog" max-width="500px">
-        <v-card>
-          <v-card-title dense class="primary white--text background">
-            Import Employee
-            <v-spacer></v-spacer>
-            <v-icon @click="dialog = false" outlined dark color="white">
-              mdi mdi-close-circle
-            </v-icon>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-file-input
-                    accept="text/csv"
-                    v-model="files"
-                    placeholder="Upload your file"
-                    label="File"
-                    prepend-icon="mdi-paperclip"
-                  >
-                    <template v-slot:selection="{ text }">
-                      <v-chip v-if="text" small label color="primary">
-                        {{ text }}
-                      </v-chip>
-                    </template>
-                  </v-file-input>
-                  <br />
-                  <a href="/employees.csv" download> Download Sample</a>
-                  <br />
-                  <span
-                    v-if="errors && errors.length > 0"
-                    class="error--text"
-                    >{{ errors[0] }}</span
-                  >
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn class="error" small @click="close"> Cancel </v-btn>
-
-            <v-btn
-              class="primary"
-              :loading="btnLoader"
-              small
-              @click="importEmployee"
-              >Save</v-btn
-            >
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
 
