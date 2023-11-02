@@ -328,6 +328,7 @@ export default {
           ...this.filters,
         },
       };
+      this.currentPage = page;
       if (filter_column != "")
         this.payloadOptions.params[filter_column] = filter_value;
       this.loading = true;

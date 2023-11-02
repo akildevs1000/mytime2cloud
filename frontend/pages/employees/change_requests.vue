@@ -201,7 +201,7 @@ export default {
           company_id: this.$auth.user.company_id,
         },
       };
-
+      this.currentPage = page;
       //if (filter_value != "") options.params[filter_column] = filter_value;
       this.perPage = itemsPerPage;
       this.$axios
