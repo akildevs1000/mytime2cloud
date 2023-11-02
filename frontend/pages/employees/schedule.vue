@@ -12,7 +12,6 @@
           <v-toolbar-title><span>Schedule(s)</span></v-toolbar-title>
         </v-col>
       </v-toolbar>
-
       <v-data-table
         dense
         :headers="headers_table"
@@ -486,7 +485,7 @@ export default {
           company_id: this.$auth.user.company_id,
         },
       };
-
+      this.currentPage = page;
       //if (filter_value != "") options.params[filter_column] = filter_value;
       this.perPage = itemsPerPage;
       this.$axios

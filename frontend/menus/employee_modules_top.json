@@ -23,7 +23,7 @@
   {
     "icon": "mdi mdi-calendar-account",
     "title": "Request",
-    "to": "/employees/leave",
+    "to": "/employees/leaves",
     "menu": "requests_topmenu",
     "module": "topmenu"
   },

@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
 
-    <v-row class="pt-2 mt-5">
+    <!-- <v-row class="pt-2 mt-5">
       <v-col cols="12" sm="8" md="2">
         <v-menu
           ref="from_menu"
@@ -35,13 +35,7 @@
             scrollable
             @change="searchIt"
           >
-            <!-- <v-spacer></v-spacer>
-            <v-btn class="blue-grey" small dark @click="from_menu = false">
-              Cancel
-            </v-btn>
-            <v-btn class="blue-grey darken-3" small dark @click="searchIt">
-              OK
-            </v-btn> -->
+            
           </v-date-picker>
         </v-menu>
       </v-col>
@@ -73,41 +67,42 @@
             scrollable
             @change="searchIt"
           >
-            <!-- <v-spacer></v-spacer>
-            <v-btn class="blue-grey" small dark @click="to_menu = false">
-              Cancel
-            </v-btn>
-            <v-btn class="blue-grey darken-3" small dark @click="searchIt">
-              OK
-            </v-btn> -->
+            
           </v-date-picker>
         </v-menu>
       </v-col>
-    </v-row>
+    </v-row> -->
     <v-row>
       <v-col>
-        <v-card class="mb-5" elevation="0">
-          <v-toolbar class="rounded-md" color="background" dense flat dark>
-            <v-toolbar-title><span> Attendances Logs</span></v-toolbar-title>
+        <v-card class="mb-5" elevation="1">
+          <v-toolbar
+            class="popup_background"
+            color="popup_background"
+            dense
+            flat
+          >
+            <v-toolbar-title><span> Attendance Logs</span> </v-toolbar-title>
 
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon color="white" class="ml-2" @click="firstLoad()" dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </template>
-              <span>Reload</span>
-            </v-tooltip>
+            <v-btn
+              title="Reload"
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+            >
+              <v-icon color="balck" class="ml-2" @click="firstLoad()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+
+            <v-spacer></v-spacer>
+            <Calender
+              style="width: 200px"
+              @filter-attr="filterAttr"
+              :defaultFilterType="1"
+              :height="'28px '"
+            />
           </v-toolbar>
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
             {{ snackText }}
@@ -124,11 +119,19 @@
             :loading="loading"
             :options.sync="options"
             :footer-props="{
-              itemsPerPageOptions: [10, 50, 100, 500, 1000],
+              itemsPerPageOptions: [50, 100, 500, 1000],
             }"
             class="elevation-1"
             :server-items-length="totalRowsCount"
           >
+            <template v-slot:item.sno="{ item, index }">
+              {{
+                currentPage
+                  ? (currentPage - 1) * perPage +
+                    (cumulativeIndex + data.indexOf(item))
+                  : "-"
+              }}
+            </template>
             <template v-slot:item.UserID="{ item }">
               {{ item.UserID }}
             </template>
@@ -141,6 +144,9 @@
             </template>
             <template v-slot:item.device.location="{ item }">
               {{ item.device ? item.device.location : "---" }}
+            </template>
+            <template v-slot:item.gps_location="{ item }">
+              {{ item.gps_location || "---" }}
             </template>
           </v-data-table>
         </v-card>
@@ -161,6 +167,9 @@
 <script>
 export default {
   data: () => ({
+    cumulativeIndex: 1,
+    perPage: 10,
+    currentPage: 1,
     totalRowsCount: 0,
     showFilters: false,
     filters: {},
@@ -200,25 +209,33 @@ export default {
     snackbar: false,
     headers_table: [
       {
+        text: "#",
+        align: "left",
+        sortable: false,
+        key: "LogTime", //sorting
+        value: "sno", //edit purpose
+      },
+      {
         text: "Log Time",
         align: "left",
         sortable: true,
         key: "LogTime", //sorting
         value: "LogTime", //edit purpose
       },
+
       {
-        text: "Device Name",
+        text: "Entry",
         align: "left",
         sortable: true,
         value: "devicename",
-        value: "device.device_name",
+        value: "device.name",
       },
       {
-        text: "Device Location",
+        text: "  Location",
         align: "left",
         sortable: true,
         key: "deviceid",
-        value: "device.location",
+        value: "gps_location",
       },
     ],
   }),
@@ -234,6 +251,15 @@ export default {
     },
   },
   methods: {
+    filterAttr(data) {
+      this.payload.from_date = data.from;
+      this.payload.to_date = data.to;
+      this.payload.from_date_txt = data.from;
+      this.payload.to_date_txt = data.to;
+
+      this.payload.UserID = this.$auth.user.employee.system_user_id;
+      this.getDataFromApi();
+    },
     firstLoad() {
       this.payload.from_date = this.getDate();
       this.payload.to_date = this.getDate();
@@ -260,7 +286,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     getRecords(filter_column = "", filter_value = "") {
       if (filter_value != "" && filter_value.length <= 2) {
         this.snack = true;
@@ -302,6 +328,8 @@ export default {
           ...this.filters,
         },
       };
+      this.currentPage = page;
+      this.perPage = itemsPerPage;
       if (filter_column != "")
         this.payloadOptions.params[filter_column] = filter_value;
       this.loading = true;
@@ -319,6 +347,9 @@ export default {
           this.total = data.total;
           this.loading = false;
           this.totalRowsCount = data.total;
+
+          this.pagination.current = data.current_page;
+          this.pagination.total = data.last_page;
         });
     },
     searchIt() {
