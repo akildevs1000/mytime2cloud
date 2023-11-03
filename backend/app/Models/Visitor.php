@@ -11,7 +11,7 @@ class Visitor extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['full_name', 'name_with_user_id'];
+    protected $appends = ['full_name', 'name_with_user_id', 'status'];
 
     protected $casts = [
         "created_at" => "datetime:d-M-Y",
@@ -30,14 +30,27 @@ class Visitor extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function status()
+    // public function status()
+    // {
+    //     return $this->belongsTo(Status::class);
+    // }
+
+    public function getStatusAttribute()
     {
-        return $this->belongsTo(Status::class);
+        return match ($this->status_id) {
+            1 => 'Pending',
+            2 => 'Approved',
+            3 => 'Rejected',
+            default => 'unknown' // Handle any other values if needed
+        };
     }
+
 
     public function zone()
     {
-        return $this->belongsTo(Zone::class);
+        return $this->belongsTo(Zone::class)->withDefault([
+            "name" => "---",
+        ]);
     }
 
     public function purpose()
