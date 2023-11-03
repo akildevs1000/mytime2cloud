@@ -328,6 +328,7 @@ class EmployeeController extends Controller
         return Employee::where("company_id", $request->company_id)->find($id)->announcements()->with(["category", "user.employee", "user.employeeData", "user.company"])->paginate($request->per_page ?? 100);
     }
 
+
     public function employeesByDepartmentForAnnoucements(Request $request)
     {
         $model = Employee::query();

@@ -6,95 +6,11 @@
       </v-snackbar>
     </div>
 
-    <!-- <v-row class="pt-2 mt-5">
-      <v-col cols="12" sm="8" md="2">
-        <v-menu
-          ref="from_menu"
-          v-model="from_menu"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          min-width="auto"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <div class="mb-1">From Date</div>
-            <v-text-field
-              :hide-details="!payload.from_date"
-              outlined
-              dense
-              v-model="payload.from_date_txt"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-              placeholder="Date"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="payload.from_date"
-            no-title
-            scrollable
-            @change="searchIt"
-          >
-            
-          </v-date-picker>
-        </v-menu>
-      </v-col>
-      <v-col cols="12" sm="8" md="2">
-        <div class="mb-1">To Date</div>
-        <v-menu
-          ref="to_menu"
-          v-model="to_menu"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          min-width="auto"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              :hide-details="!payload.to_date"
-              outlined
-              dense
-              v-model="payload.to_date_txt"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-              placeholder="Date"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="payload.to_date"
-            no-title
-            scrollable
-            @change="searchIt"
-          >
-            
-          </v-date-picker>
-        </v-menu>
-      </v-col>
-    </v-row> -->
     <v-row>
       <v-col>
-        <v-card class="mb-5" elevation="1">
-          <v-toolbar
-            class="popup_background"
-            color="popup_background"
-            dense
-            flat
-          >
-            <v-toolbar-title><span> Attendance Logs</span> </v-toolbar-title>
-
-            <v-btn
-              title="Reload"
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-            >
-              <v-icon color="balck" class="ml-2" @click="firstLoad()" dark
-                >mdi mdi-reload</v-icon
-              >
-            </v-btn>
+        <v-card class="mb-5" elevation="0">
+          <v-toolbar dense flat>
+            <v-toolbar-title><h5>Live Logs on Devices</h5> </v-toolbar-title>
 
             <v-spacer></v-spacer>
             <Calender
@@ -121,7 +37,7 @@
             :footer-props="{
               itemsPerPageOptions: [50, 100, 500, 1000],
             }"
-            class="elevation-1"
+            class="elevation-0"
             :server-items-length="totalRowsCount"
           >
             <template v-slot:item.sno="{ item, index }">
@@ -326,6 +242,7 @@ export default {
           company_id: this.$auth.user.company_id,
           ...this.payload,
           ...this.filters,
+          system_user_id: this.$auth.user.employee.system_user_id,
         },
       };
       this.currentPage = page;
@@ -348,8 +265,8 @@ export default {
           this.loading = false;
           this.totalRowsCount = data.total;
 
-          this.pagination.current = data.current_page;
-          this.pagination.total = data.last_page;
+          // this.pagination.current = data.current_page;
+          // this.pagination.total = data.last_page;
         });
     },
     searchIt() {

@@ -9,6 +9,7 @@ export default ({ $axios, store }, inject) => {
         branch_id: user && user.branch_id,
       };
     }
+
     // config.cache = {
     //   maxAge: 10 * 1000, // Set maxAge to 30 minutes if the condition is met
     // };

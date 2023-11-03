@@ -131,6 +131,9 @@ class AttendanceLog extends Model
             ->when($request->filled('device'), function ($q) use ($request) {
                 $q->where('DeviceID', $request->device);
             })
+            ->when($request->filled('system_user_id'), function ($q) use ($request) {
+                $q->where('UserID', $request->system_user_id);
+            })
             ->when($request->filled('devicelocation'), function ($q) use ($request) {
                 if ($request->devicelocation != 'All Locations') {
 

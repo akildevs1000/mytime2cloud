@@ -2,7 +2,7 @@
   {
     "icon": "mdi-home",
     "title": "Dashboard",
-    "to": "/employees/profile",
+    "to": "/employees/dashboard2",
     "menu": "dashboard_access",
     "module": "dashboard",
     "click": "dashboard"

@@ -10,7 +10,7 @@ const data = ({ $auth, redirect }) => {
       redirect("/dashboard2");
       break;
     case "employee":
-      redirect("/employees/profile");
+      redirect("/employees/dashboard2");
       break;
     case "manager":
       redirect("/dashboard2");

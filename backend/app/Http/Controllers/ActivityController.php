@@ -26,6 +26,9 @@ class ActivityController extends Controller
     {
         $model = Activity::query();
         $model->when($request->filled("company_id"), fn ($q) => $q->where("company_id", $request->company_id));
+        $model->when($request->filled("user_id"), fn ($q) => $q->where("user_id", $request->user_id));
+
+
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
             $q->whereHas("user.employee", fn ($q) => $q->where("branch_id", $request->branch_id));
         });
