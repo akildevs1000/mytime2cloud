@@ -527,7 +527,7 @@
           />
         </v-dialog>
       </div>
-      
+
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
 
@@ -654,32 +654,21 @@
                         max-width: 60px;
                         height: 60px;
                       "
-                      :src="
-                        item.logo
-                          ? item.logo
-                          : '/no-profile-image.jpg'
-                      "
+                      :src="item.logo ? item.logo : '/no-profile-image.jpg'"
                     >
                     </v-img>
                   </v-col>
                   <v-col class="px-5 pt-3">
-                    <strong>
-                      {{
-                        item.first_name
-                          ? item.first_name +
-                            " " +
-                            item.last_name +
-                            "-" +
-                            item.employee_id
-                          : "---"
-                      }}
-                    </strong>
                     <div>
-                      {{
-                        item.email
-                          ? item.email
-                          : "---"
-                      }}
+                      <b>V.ID#</b> {{ item.system_user_id ? item.system_user_id : "---" }}
+                    </div>
+
+                    <strong>
+                      {{ item && `${item.first_name} ${item.last_name}`  }}
+                    </strong>
+                    
+                    <div>
+                      {{ item.email ? item.email : "---" }}
                     </div>
                   </v-col>
                 </v-row>
@@ -971,14 +960,14 @@ export default {
         value: "purpose",
         text: "Purpose",
       },
-      // {
-      //   sortable: true,
-      //   filterSpecial: false,
-      //   filterable: true,
-      //   key: "status",
-      //   value: "status.name",
-      //   text: "Status",
-      // },
+      {
+        sortable: true,
+        filterSpecial: false,
+        filterable: true,
+        key: "status",
+        value: "status",
+        text: "Status",
+      },
       {
         sortable: true,
         filterSpecial: false,

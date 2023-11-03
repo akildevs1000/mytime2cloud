@@ -38,7 +38,7 @@ class VisitorController extends Controller
 
         $model->when($request->filled("host_company_id"), fn ($q) => $q->where("host_company_id", $request->host_company_id));
 
-        return $model->with(["status", "zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
+        return $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
     }
 
     /**
@@ -98,30 +98,17 @@ class VisitorController extends Controller
                 return $this->response('Form is not submitted.', null, false);
             }
 
+            // $preparedJson = $this->prepareJsonForSDK([
+            //     "first_name" => "first_name",
+            //     "last_name" => "last_name",
+            //     "system_user_id" => "system_user_id",
+            //     "timezone_id" => "timezone_id",
+            //     "logo" => "logo",
+            //     "zone_id" => "zone_id",
+            // ]);
+            // ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+
             return $this->response('Form has been submitted successfully.', null, true);
-        } catch (\Throwable $th) {
-            return $this->response('Server Error.', null, true);
-        }
-    }
-
-    public function store_test(Request $request)
-    {
-        $data = $request->all();
-
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $ext = $file->getClientOriginalExtension();
-            $fileName = time() . '.' . $ext;
-            $request->logo->move(public_path('media/visitor/logo/'), $fileName);
-            $data['logo'] = $fileName;
-        }
-
-        try {
-
-            $preparedJson = $this->prepareJsonForSDK($data);
-            // return $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
-            ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
-            return "francis";
         } catch (\Throwable $th) {
             return $this->response('Server Error.', null, true);
         }

@@ -28,7 +28,7 @@ class HostController extends Controller
 
     public function show($id)
     {
-        return HostCompany::where("employee_id", $id)->value("id") ?? 0;
+        return HostCompany::where("employee_id", $id)->first();
     }
 
     public function index(Request $request)

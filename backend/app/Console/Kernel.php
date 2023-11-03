@@ -89,7 +89,7 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("logs/$monthYear-sync-split-logs-by-log-type-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
-                ->command("task:default_attendance_seeder {$companyId}")
+                ->command("default_attendance_seeder {$companyId}")
                 ->monthlyOn(1, "00:00")
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$monthYear-default-attendance-seeder-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
