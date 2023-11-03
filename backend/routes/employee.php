@@ -21,3 +21,6 @@ Route::get('department-employee', [DepartmentController::class, 'departmentEmplo
 Route::get('download-emp-pic/{id}/{name}', [EmployeeController::class, 'downloadEmployeePic']);
 Route::get('download-employee-profile-pdf/{id}', [EmployeeController::class, 'downloadEmployeeProfilepdf']);
 Route::get('download-employee-profile-pdf-view/{id}', [EmployeeController::class, 'downloadEmployeeProfilepdfView']);
+
+
+Route::get('/donwload_storage_file', [EmployeeController::class, 'donwnloadStorageFile']);

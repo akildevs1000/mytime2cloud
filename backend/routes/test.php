@@ -44,7 +44,29 @@ Route::get('/syncLogsScript', function (Request $request) {
     //     // "Auto" => (new AutoShiftController)->processByManual($request)
     // ];
 });
+Route::get('/donwloadpdffile', function (Request $request) {
+
+
+
+
+    // Define the path to the file in the public folder
+    $filePath = Storage::url('app/payslips/8/8_3_8_2023_payslip.pdf');;;
+
+    $filePath = storage_path('app/payslips/8/8_3_8_2023_payslip.pdf');
+
+    // Check if the file exists
+    if (file_exists($filePath)) {
+        // Create a response to download the file
+        return response()->download($filePath, 'myfile.pdf');
+    } else {
+        // Return a 404 Not Found response if the file doesn't exist
+        return 'File not exist';
+    }
+});
 Route::get("/testemployee", function (Request $request) {
+
+    return Storage::url('8_3_8_2023_payslip.pdf');
+
     $data = (new EmployeeController)->getSingleEmployeeProfileAll();
 
 
@@ -52,7 +74,7 @@ Route::get("/testemployee", function (Request $request) {
 });
 Route::get('/donwloadfile', function (Request $request) {
     // Define the path to the file in the public folder
-    $filePath = public_path("1666190454.jpg");
+    $filePath = Storage::url('app8_3_8_2023_payslip.pdf');; //public_path("1666190454.jpg");
 
     // Check if the file exists
     if (file_exists($filePath)) {
@@ -446,10 +468,10 @@ Route::get('/generate_attendance_log', function (Request $request) {
 });
 
 Route::get('/test-re', function (Request $request) {
-    Employee::truncate();
-    DB::statement('DELETE FROM users WHERE id > 2');
+    // Employee::truncate();
+    // DB::statement('DELETE FROM users WHERE id > 2');
 
-    return 'done';
+    // return 'done';
 });
 
 Route::get('/test-date', function (Request $request) {

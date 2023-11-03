@@ -10,6 +10,7 @@ use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\MultiShiftController;
 use App\Http\Controllers\Shift\RenderController;
 use App\Http\Controllers\Shift\SingleShiftController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/render_logs', [RenderController::class, 'renderLogs']);

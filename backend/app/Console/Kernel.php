@@ -248,7 +248,7 @@ class Kernel extends ConsoleKernel
                 ->monthlyOn((int) $payroll_date, "00:00")
                 ->appendOutputTo(storage_path("$monthYear-payslip-generate-$payroll_setting->company_id.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
-
+        //whatsapp and email notifications
         $models = ReportNotification::get();
 
         foreach ($models as $model) {

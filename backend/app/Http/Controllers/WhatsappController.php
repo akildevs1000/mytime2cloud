@@ -153,6 +153,43 @@ class WhatsappController extends Controller
         return $result;
     }
 
+    //working method
+    public function sendWhatsappNotification($company, $message, $number, $attachments = [])
+    {
+        $data = [
+            'number' => $number,
+            'type' => 'text',
+            'message' => $message,
+            'instance_id' => $company->whatsapp_instance_id, //'64DB354A9EBCC',
+            'access_token' =>  $company->whatsapp_access_token, //'a27e1f9ca2347bb766f332b8863ebe9f',
+        ];
+
+        echo count($attachments);
+
+        echo $attachments['media_url'];
+
+        if (count($attachments)) {
+            $data = [
+                'number' => $number,
+                'type' => 'media',
+                'message' => $message,
+                'instance_id' => $company->whatsapp_instance_id, //'64DB354A9EBCC',
+                'access_token' =>  $company->whatsapp_access_token, //'a27e1f9ca2347bb766f332b8863ebe9f',
+                'media_url' => $attachments['media_url'],
+                'filename' => $attachments['filename'],
+            ];
+        }
+
+        $response = Http::withoutVerifying()->get(env('WHATSAPP_URL'), $data);
+
+        // You can check the response status and get the response content as needed
+        if ($response->successful()) {
+            Log::channel('whatsapp_logs')->info($response->json());
+        } else {
+            Log::channel('whatsapp_logs')->info($response->body());
+        }
+        return $message;
+    }
     public function prepareSummary($id)
     {
         $date = date("d-M-Y");
