@@ -493,7 +493,7 @@ class DeviceController extends Controller
 
                     $this->sendNotification($notification, $company, $offlineDevicesCount, $devicesLocations, "", $company->devices);
 
-                    //  $company->update(["is_offline_device_notificaiton_sent" => true, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
+                    $company->update(["is_offline_device_notificaiton_sent" => true, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
                 }
             }
             return "Notification sent to WhatsApp and email.";
@@ -540,7 +540,7 @@ class DeviceController extends Controller
             }
             if (in_array("Whatsapp", $notification->mediums)) {
                 if ($manager->whatsapp_number != '' && strlen($manager->whatsapp_number) > 10) {
-                    $this->sendWhatsappNotification($message, $manager->whatsapp_number);
+                    (new WhatsappController)->sendWhatsappNotification($company, $message, $manager->whatsapp_number);
                     $data["whatsapp_number"] = $manager->whatsapp_number;
                 }
             }

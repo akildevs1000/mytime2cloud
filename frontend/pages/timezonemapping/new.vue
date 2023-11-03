@@ -1137,6 +1137,23 @@ export default {
           } else {
             this.errors = [];
             this.progressloading = false;
+            this.snackbar.show = true;
+            this.errors["message"] =
+              data.message +
+              " But, Error:" +
+              "Device Communication is not available";
+
+            this.snackbar.message =
+              data.message +
+              "But,  Error:" +
+              "Device Communication is not available";
+            this.response =
+              data.message +
+              "But,  Error:" +
+              "Device Communication is not available";
+            return false;
+            this.errors = [];
+            this.progressloading = false;
 
             this.errors["message"] = "Device Communication is not available";
 

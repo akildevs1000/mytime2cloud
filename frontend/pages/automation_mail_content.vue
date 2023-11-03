@@ -26,7 +26,7 @@
               <v-btn color="primary" @click="save"> Update </v-btn>
             </v-col>
             <v-col md="12">
-              <ClientOnly>
+              <ClientOnly v-if="editedItem.name == 'email'">
                 <tiptap-vuetify
                   class="tiptap-icon"
                   v-model="editedItem.content"
@@ -38,8 +38,16 @@
                   }"
                 />
                 <template #placeholder> Loading... </template>
-              </ClientOnly></v-col
-            >
+              </ClientOnly>
+
+              <v-textarea
+                v-else
+                v-model="editedItem.content"
+                outlined
+                :label="editedItem.name"
+                value=" "
+              ></v-textarea>
+            </v-col>
           </v-row>
         </v-card-text>
       </v-card>

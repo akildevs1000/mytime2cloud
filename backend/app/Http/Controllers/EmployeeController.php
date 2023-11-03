@@ -49,7 +49,24 @@ class EmployeeController extends Controller
     {
         return ['status' => true];
     }
+    public function donwnloadStorageFile(Request $request)
+    {
 
+        if (isset($request->file_name)) {
+
+
+            $filePath = storage_path(urldecode($request->file_name));
+
+            // Check if the file exists
+            if (file_exists($filePath)) {
+                // Create a response to download the file
+                return response()->download($filePath, "download.pdf");
+            } else {
+            }
+        } else {
+            return null;
+        }
+    }
     public function employeeStore(StoreRequest $request)
     {
         $data = $request->validated();

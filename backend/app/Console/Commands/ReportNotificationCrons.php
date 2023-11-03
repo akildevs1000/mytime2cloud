@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\WhatsappController;
 use App\Mail\ReportNotificationMail;
 use App\Models\report_notification_logs;
 use App\Models\ReportNotification;
@@ -46,46 +47,78 @@ class ReportNotificationCrons extends Command
             $model = ReportNotification::with(["managers", "company.company_mail_content"])->where("id", $id)->first();
 
 
+            if (in_array("Email", $model->mediums)) {
 
-            // foreach ($models as $model)
-            {
+                // if ($model->frequency == "Daily") {
 
-
-                if (in_array("Email", $model->mediums)) {
-
-                    // if ($model->frequency == "Daily") {
-
-                    foreach ($model->managers as $key => $value) {
+                foreach ($model->managers as $key => $value) {
 
 
-                        Mail::to($value->email)
-                            ->send(new ReportNotificationMail($model, $value));
+                    Mail::to($value->email)
+                        ->send(new ReportNotificationMail($model, $value));
 
 
-                        $data = ["company_id" => $value->company_id, "branch_id" => $value->branch_id, "notification_id" => $value->notification_id, "notification_manager_id" => $value->id, "email" => $value->email];
+                    $data = ["company_id" => $value->company_id, "branch_id" => $value->branch_id, "notification_id" => $value->notification_id, "notification_manager_id" => $value->id, "email" => $value->email];
 
 
 
-                        ReportNotificationLogs::create($data);
-
-                        // $response = Http::withoutVerifying()->get('https://ezwhat.com/api/send.php', [
-                        //     'number' => $value->whatsapp_number,
-                        //     'type' => 'text',
-                        //     'message' => $message,
-                        //     'instance_id' => '64DB354A9EBCC',
-                        //     'access_token' => 'a27e1f9ca2347bb766f332b8863ebe9f',
-                        // ]);
-
-
-
-                    }
-                } else {
-                    echo "[" . $date . "] Cron: $script_name. No emails are configured";
+                    ReportNotificationLogs::create($data);
                 }
-                // if (in_array("Whatsapp", $model->mediums)) {
-                //     Mail::to($model->tos)->send(new TestMail($model));
-                // }
+            } else {
+                echo "[" . $date . "] Cron: $script_name. No emails are configured";
             }
+
+            //wahtsapp with attachments
+            if (in_array("Whatsapp", $model->mediums)) {
+
+                foreach ($model->managers as $key => $manager) {
+
+                    if ($manager->whatsapp_number != '') {
+
+
+
+
+
+
+                        foreach ($model->reports as $file) {
+
+                            $file_path = "app/pdf/" . $model->company->id . "/" . $file;
+                            if (file_exists(storage_path($file_path))) {
+
+                                $attachments = [];
+                                $attachments["media_url"] =  env('BASE_URL') . '/api/donwload_storage_file?file_name=' . urlencode($file_path);
+                                //$attachments["media_url"] =  "https://backend.mytime2cloud.com/api/donwload_storage_file?file_name=app%2Fpdf%2F2%2Fdaily_missing.pdf";
+
+                                $attachments["filename"] = $file;
+
+                                //https://backend.mytime2cloud.com/api/donwload_storage_file?file_name=app%2Fpdf%2F2%2Fdaily_missing.pdf
+                                //print_r($attachments);
+                                //return $attachments;
+                                (new WhatsappController())->sendWhatsappNotification($model->company, $file, $manager->whatsapp_number, $attachments);
+
+                                $data = [
+                                    "company_id" => $model->company->id,
+                                    "branch_id" => $manager->branch_id,
+                                    "notification_id" => $manager->notification_id,
+                                    "notification_manager_id" => $manager->id,
+                                    "whatsapp_number" => $manager->whatsapp_number
+                                ];
+
+                                ReportNotificationLogs::create($data);
+                            }
+                        } //for 
+
+
+                        $body_content1 = "*Hello, {$manager->name}*\n\n";
+                        $body_content1 .= "*Company:  {$model->company->name}*\n\n";
+                        if (count($model->company->company_whatsapp_content))
+                            $body_content1 .= $model->company->company_whatsapp_content[0]->content;
+
+                        (new WhatsappController())->sendWhatsappNotification($model->company, $body_content1, $manager->whatsapp_number, $attachments);
+                    }
+                }
+            }
+
 
 
 
