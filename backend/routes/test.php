@@ -47,21 +47,21 @@ Route::get('/syncLogsScript', function (Request $request) {
 Route::get('/donwloadpdffile', function (Request $request) {
 
 
+    return  $model = ReportNotification::with(["managers", "company.company_mail_content"])->where("id", 43)->first();
 
+    // // Define the path to the file in the public folder
+    // $filePath = Storage::url('app/payslips/8/8_3_8_2023_payslip.pdf');;;
 
-    // Define the path to the file in the public folder
-    $filePath = Storage::url('app/payslips/8/8_3_8_2023_payslip.pdf');;;
+    // $filePath = storage_path('app/payslips/8/8_3_8_2023_payslip.pdf');
 
-    $filePath = storage_path('app/payslips/8/8_3_8_2023_payslip.pdf');
-
-    // Check if the file exists
-    if (file_exists($filePath)) {
-        // Create a response to download the file
-        return response()->download($filePath, 'myfile.pdf');
-    } else {
-        // Return a 404 Not Found response if the file doesn't exist
-        return 'File not exist';
-    }
+    // // Check if the file exists
+    // if (file_exists($filePath)) {
+    //     // Create a response to download the file
+    //     return response()->download($filePath, 'myfile.pdf');
+    // } else {
+    //     // Return a 404 Not Found response if the file doesn't exist
+    //     return 'File not exist';
+    //  }
 });
 Route::get("/testemployee", function (Request $request) {
 

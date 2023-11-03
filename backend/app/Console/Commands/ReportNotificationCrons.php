@@ -87,6 +87,8 @@ class ReportNotificationCrons extends Command
 
                                 $attachments = [];
                                 $attachments["media_url"] =  env('BASE_URL') . '/api/donwload_storage_file?file_name=' . urlencode($file_path);
+                                //$attachments["media_url"] =  "https://backend.mytime2cloud.com/api/donwload_storage_file?file_name=app%2Fpdf%2F2%2Fdaily_missing.pdf";
+
                                 $attachments["filename"] = $file;
 
                                 //https://backend.mytime2cloud.com/api/donwload_storage_file?file_name=app%2Fpdf%2F2%2Fdaily_missing.pdf
@@ -109,8 +111,8 @@ class ReportNotificationCrons extends Command
 
                         $body_content1 = "*Hello, {$manager->name}*\n\n";
                         $body_content1 .= "*Company:  {$model->company->name}*\n\n";
-
-                        $body_content1 .= "These are the automated generated attendance  reports.\n\n";
+                        if (count($model->company->company_whatsapp_content))
+                            $body_content1 .= $model->company->company_whatsapp_content[0]->content;
 
                         (new WhatsappController())->sendWhatsappNotification($model->company, $body_content1, $manager->whatsapp_number, $attachments);
                     }

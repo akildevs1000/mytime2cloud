@@ -64,6 +64,12 @@ class Company extends Model
     {
         return $this->hasMany(MailContent::class, "company_id")->where('name', 'email');
     }
+    public function company_whatsapp_content()
+    {
+        return $this->hasMany(MailContent::class, "company_id")->where('name', 'whatsapp');
+    }
+
+
     public function shifts()
     {
         return $this->hasMany(Shift::class);
