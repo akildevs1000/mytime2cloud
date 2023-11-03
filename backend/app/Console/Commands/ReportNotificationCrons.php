@@ -73,35 +73,38 @@ class ReportNotificationCrons extends Command
 
                 foreach ($model->managers as $key => $manager) {
 
-                    $body_content =  "Hi " . $manager->name . ", Automated   Reports.  ";
+                    if ($manager->whatsapp_number != '') {
 
-                    if (count($model->company->company_mail_content)) {
-                        $body_content = $model->company->company_mail_content[0]->content;
-                    }
+                        $body_content =  "Hi " . $manager->name . ", Automated   Reports.  ";
+
+                        if (count($model->company->company_mail_content)) {
+                            $body_content = $model->company->company_mail_content[0]->content;
+                        }
 
 
-                    foreach ($model->reports as $file) {
+                        foreach ($model->reports as $file) {
 
-                        $file_path = "app/pdf/" . $model->company->id . "/" . $file;
-                        if (file_exists(storage_path($file_path))) {
+                            $file_path = "app/pdf/" . $model->company->id . "/" . $file;
+                            if (file_exists(storage_path($file_path))) {
 
-                            $attachments = [];
-                            $attachments["media_url"] = env('BASE_URL') . '/api/donwload_storage_file?file_name=' . urlencode($file_path);
-                            $attachments["filename"] = $file;
+                                $attachments = [];
+                                $attachments["media_url"] = env('BASE_URL') . '/api/donwload_storage_file?file_name=' . urlencode($file_path);
+                                $attachments["filename"] = $file;
 
-                            print_r($attachments);
-                            //return $attachments;
-                            (new WhatsappController())->sendWhatsappNotification($model->company, $body_content, $manager->whatsapp_number, $attachments);
+                                print_r($attachments);
+                                //return $attachments;
+                                (new WhatsappController())->sendWhatsappNotification($model->company, $body_content, $manager->whatsapp_number, $attachments);
 
-                            $data = [
-                                "company_id" => $model->company->id,
-                                "branch_id" => $manager->branch_id,
-                                "notification_id" => $manager->notification_id,
-                                "notification_manager_id" => $manager->id,
-                                "whatsapp_number" => $manager->whatsapp_number
-                            ];
+                                $data = [
+                                    "company_id" => $model->company->id,
+                                    "branch_id" => $manager->branch_id,
+                                    "notification_id" => $manager->notification_id,
+                                    "notification_manager_id" => $manager->id,
+                                    "whatsapp_number" => $manager->whatsapp_number
+                                ];
 
-                            ReportNotificationLogs::create($data);
+                                ReportNotificationLogs::create($data);
+                            }
                         }
                     }
                 }
