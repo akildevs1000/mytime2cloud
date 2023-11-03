@@ -77,9 +77,9 @@ class ReportNotificationCrons extends Command
 
                         $body_content =  "Hi " . $manager->name . ", Automated   Reports.  ";
 
-                        if (count($model->company->company_mail_content)) {
-                            $body_content = $model->company->company_mail_content[0]->content;
-                        }
+                        // if (count($model->company->company_mail_content)) {
+                        //     $body_content = $model->company->company_mail_content[0]->content;
+                        // }
 
 
                         foreach ($model->reports as $file) {
@@ -91,7 +91,7 @@ class ReportNotificationCrons extends Command
                                 $attachments["media_url"] = env('BASE_URL') . '/api/donwload_storage_file?file_name=' . urlencode($file_path);
                                 $attachments["filename"] = $file;
 
-                                print_r($attachments);
+                                //print_r($attachments);
                                 //return $attachments;
                                 (new WhatsappController())->sendWhatsappNotification($model->company, $body_content, $manager->whatsapp_number, $attachments);
 
