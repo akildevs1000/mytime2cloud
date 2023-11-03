@@ -164,9 +164,7 @@ class WhatsappController extends Controller
             'access_token' =>  $company->whatsapp_access_token, //'a27e1f9ca2347bb766f332b8863ebe9f',
         ];
 
-        echo count($attachments);
 
-        echo $attachments['media_url'];
 
         if (count($attachments)) {
             $data = [
@@ -179,7 +177,7 @@ class WhatsappController extends Controller
                 'filename' => $attachments['filename'],
             ];
         }
-
+        print_r($data);
         $response = Http::withoutVerifying()->get(env('WHATSAPP_URL'), $data);
 
         // You can check the response status and get the response content as needed
