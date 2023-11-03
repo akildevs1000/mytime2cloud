@@ -46,10 +46,9 @@
     <div class="table-container">
         <div class="table-cell" style="width:33%;">
             @if (env('APP_ENV') !== 'local')
-                <img src="{{ $data->company->logo }}" style="border-radius: 10%; " width="100" height="100">
+            <img src="{{ $data->company->logo }}" style="border-radius: 10%; " width="100" height="100">
             @else
-                <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0"
-                    style="border-radius: 10%; " width="100" height="100">
+            <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" style="border-radius: 10%; " width="100" height="100">
             @endif
 
 
@@ -76,7 +75,8 @@
                 <tr>
                     <td>Employee Name</td>
                     <td style="text-align: right;">
-                        {{ $data->employee->first_name ?? '---' }} {{ $data->employee->last_name ?? '---' }}</td>
+                        {{ $data->employee->first_name ?? '---' }} {{ $data->employee->last_name ?? '---' }}
+                    </td>
                 </tr>
                 <tr>
                     <td>Employee Id</td>
@@ -133,12 +133,12 @@
                     <th style="text-align: right;">Amount</th>
                 </tr>
                 @foreach ($data->earnings as $earning)
-                    <tr>
-                        <td>{{ $earning['label'] }}</td>
-                        <td style="text-align: right;">
-                            {{ number_format((float) $earning['value'], 2, '.', '') }}
-                        </td>
-                    </tr>
+                <tr>
+                    <td>{{ $earning['label'] }}</td>
+                    <td style="text-align: right;">
+                        {{ number_format((float) $earning['value'], 2, '.', '') }}
+                    </td>
+                </tr>
                 @endforeach
 
                 <tr>
@@ -161,39 +161,46 @@
                     <th>Deductions</th>
                     <th style="text-align: right;">Amount</th>
                 </tr>
-                @foreach ($data->deductions as $item)
-                    <tr>
-                        <td>
-                            {{ $item['label'] }}
-                        </td>
-                        <td style="text-align: right;">
-
-                            {{ number_format((float) $item['value'], 2, '.', '') }}
-
-
-                        </td>
-                    </tr>
-                @endforeach
                 @php
-                    $countdifference = count($data->earnings) - count($data->deductions);
+
+                $countdifference =0;
+                @endphp
+                @if (!is_null($data) && (is_array($data->deductions) || is_object($data->deductions)))
+
+                @foreach ($data->deductions as $item)
+                <tr>
+                    <td>
+                        {{ $item['label'] }}
+                    </td>
+                    <td style="text-align: right;">
+
+                        {{ number_format((float) $item['value'], 2, '.', '') }}
+
+
+                    </td>
+                </tr>
+                @endforeach
+
+
+                @php
+                $countdifference = count($data->earnings) - count($data->deductions);
                 @endphp
 
-
-                @for ($i = 1; $i <= $countdifference; $i++)
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td style="text-align: right;">&nbsp;</td>
+                @endif
+                @for ($i = 1; $i <= $countdifference; $i++) <tr>
+                    <td>&nbsp;</td>
+                    <td style="text-align: right;">&nbsp;</td>
                     </tr>
-                @endfor
+                    @endfor
 
 
-                <tr>
-                    <th>Total Deductions</th>
-                    <th style="text-align: right;">
-                        {{ number_format((float) $data->deductedSalary, 2, '.', '') }}
-                    </th>
-                </tr>
-                {{-- <tr>
+                    <tr>
+                        <th>Total Deductions</th>
+                        <th style="text-align: right;">
+                            {{ number_format((float) $data->deductedSalary, 2, '.', '') }}
+                        </th>
+                    </tr>
+                    {{-- <tr>
                     <td>Absent</td>
                     <td style="text-align: right;">$5,000</td>
                 </tr>
