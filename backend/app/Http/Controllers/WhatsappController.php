@@ -177,7 +177,7 @@ class WhatsappController extends Controller
                 'filename' => $attachments['filename'],
             ];
         }
-        print_r($data);
+        // print_r($data);
         $response = Http::withoutVerifying()->get(env('WHATSAPP_URL'), $data);
 
         // You can check the response status and get the response content as needed

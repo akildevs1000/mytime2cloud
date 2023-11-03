@@ -75,11 +75,9 @@ class ReportNotificationCrons extends Command
 
                     if ($manager->whatsapp_number != '') {
 
-                        $body_content =  "Hi " . $manager->name . ", Automated   Reports.  ";
 
-                        // if (count($model->company->company_mail_content)) {
-                        //     $body_content = $model->company->company_mail_content[0]->content;
-                        // }
+
+
 
 
                         foreach ($model->reports as $file) {
@@ -88,12 +86,13 @@ class ReportNotificationCrons extends Command
                             if (file_exists(storage_path($file_path))) {
 
                                 $attachments = [];
-                                $attachments["media_url"] = env('BASE_URL') . '/api/donwload_storage_file?file_name=' . urlencode($file_path);
+                                $attachments["media_url"] =  env('BASE_URL') . '/api/donwload_storage_file?file_name=' . urlencode($file_path);
                                 $attachments["filename"] = $file;
 
+                                //https://backend.mytime2cloud.com/api/donwload_storage_file?file_name=app%2Fpdf%2F2%2Fdaily_missing.pdf
                                 //print_r($attachments);
                                 //return $attachments;
-                                (new WhatsappController())->sendWhatsappNotification($model->company, $body_content, $manager->whatsapp_number, $attachments);
+                                (new WhatsappController())->sendWhatsappNotification($model->company, $file, $manager->whatsapp_number, $attachments);
 
                                 $data = [
                                     "company_id" => $model->company->id,
@@ -105,7 +104,15 @@ class ReportNotificationCrons extends Command
 
                                 ReportNotificationLogs::create($data);
                             }
-                        }
+                        } //for 
+
+
+                        $body_content1 = "*Hello, {$manager->name}*\n\n";
+                        $body_content1 .= "*Company:  {$model->company->name}*\n\n";
+
+                        $body_content1 .= "These are the automated generated attendance  reports.\n\n";
+
+                        (new WhatsappController())->sendWhatsappNotification($model->company, $body_content1, $manager->whatsapp_number, $attachments);
                     }
                 }
             }
