@@ -570,20 +570,21 @@ export default {
           this.DialogBox = false;
         })
         .catch(({ response }) => {
-          if (!response) {
-            return false;
-          }
-          this.responseStatus = "Fail";
-
-          let { status, data, statusText } = response;
-
-          if (status && status == 422) {
-            this.errors = data.errors;
-            return;
-          }
-
+          if (!response) return false;
+          
           this.responseDialog = true;
-          this.response = statusText;
+          this.responseStatus = "Fail";
+          this.response = response;
+
+          // let { status, data, statusText } = response;
+
+          // if (status && status == 422) {
+          //   this.errors = data.errors;
+          //   return;
+          // }
+
+          
+          // this.response = statusText;
         });
     },
   },

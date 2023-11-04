@@ -515,7 +515,7 @@ export default {
   },
 
   data: () => ({
-    originalURL: `https://mobile.mytime2cloud.com/register/visitor/`,
+    originalURL: `https://mytime2cloud.com/register/visitor/`,
     encryptedID: "",
     fullLink: "",
     qrCodeDataURL: "",
