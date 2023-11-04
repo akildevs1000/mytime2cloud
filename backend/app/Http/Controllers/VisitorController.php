@@ -123,7 +123,7 @@ class VisitorController extends Controller
 
         try {
 
-            $visitor = Visitor::whereId($id)->update(["status_id", $request->status_id]);
+            $visitor = Visitor::whereId($id)->update(["status_id" => $request->status_id]);
             if (!$visitor) {
                 return $this->response('Visitor cannot update.', null, false);
             }
