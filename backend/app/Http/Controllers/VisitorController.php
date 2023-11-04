@@ -9,6 +9,7 @@ use App\Jobs\ProcessSDKCommand;
 use App\Models\Visitor;
 use App\Models\Zone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class VisitorController extends Controller
 {
@@ -110,7 +111,9 @@ class VisitorController extends Controller
 
             return $this->response('Form has been submitted successfully.', null, true);
         } catch (\Throwable $th) {
-            return $this->response('Server Error.', null, true);
+            Log::custom($th);
+            return $th;
+            // return $this->response('Server Error.', null, true);
         }
     }
 
