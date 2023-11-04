@@ -111,6 +111,7 @@ class VisitorController extends Controller
 
             return $this->response('Form has been submitted successfully.', null, true);
         } catch (\Throwable $th) {
+            return "testing";
             Log::custom($th);
             return $th;
             // return $this->response('Server Error.', null, true);
