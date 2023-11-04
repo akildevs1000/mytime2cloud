@@ -128,7 +128,9 @@ class VisitorController extends Controller
                 return $this->response('Visitor cannot update.', null, false);
             }
 
-            return $this->response('Visitor status has been updated.', null, true);
+            $statusText = $request->status_id == 1 ? 'Approved' : 'Rejected';
+
+            return $this->response("Visitor status has been {$statusText}.", null, true);
         } catch (\Throwable $th) {
             throw $th;
         }
