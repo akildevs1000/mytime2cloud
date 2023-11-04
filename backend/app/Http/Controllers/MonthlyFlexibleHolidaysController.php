@@ -72,7 +72,7 @@ class MonthlyFlexibleHolidaysController extends Controller
             }
         }
 
-        $UserIds = array_column($records, "system_user_id");
+        $UserIds = array_column($records, "employee_id");
 
         // return $records;
 

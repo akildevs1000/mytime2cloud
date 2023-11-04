@@ -646,7 +646,7 @@ export default {
   },
 
   data: () => ({
-    originalURL: `https://mobile.mytime2cloud.com/register/visitor/`,
+    originalURL: `https://mytime2cloud.com/register/visitor/`,
     encryptedID: "",
     fullLink: "",
     qrCodeDataURL: "",
@@ -994,7 +994,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     onPageChange() {
       this.getDataFromApi();
     },

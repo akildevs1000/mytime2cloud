@@ -425,7 +425,7 @@
                   >
                     <v-img
                       style="
-                         border-radius: 50%;
+                        border-radius: 50%;
                         width: 60px;
                         max-width: 60px;
                         height: 60px;
@@ -515,7 +515,7 @@ export default {
   },
 
   data: () => ({
-    originalURL: `https://mobile.mytime2cloud.com/register/visitor/`,
+    originalURL: `https://mytime2cloud.com/register/visitor/`,
     encryptedID: "",
     fullLink: "",
     qrCodeDataURL: "",

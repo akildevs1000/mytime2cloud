@@ -1,8 +1,5 @@
 <template>
-  <div
-    style="width: 100%"
-    v-if="can('dashboard_access') && can('dashboard_view')"
-  >
+  <div style="width: 100%">
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
@@ -57,8 +54,6 @@
       </v-col>
     </v-row>
   </div>
-
-  <NoAccess v-else />
 </template>
 
 <script>

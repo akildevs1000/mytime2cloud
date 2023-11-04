@@ -92,7 +92,7 @@ class OffByDayController extends Controller
                     "company_id" => $company_id,
                     "date" => $date,
                     "status" => "O",
-                    "employee_id" => $missingEmployee->employee_id,
+                    "employee_id" => $missingEmployee->system_user_id,
                     "shift_id" => $schedule->shift_id,
                     "shift_type_id" => $schedule->shift_type_id,
                     "testing" => "renderOffByDayScript"
