@@ -116,11 +116,11 @@ class VisitorController extends Controller
             $message .= "*Dear, User*\n\n";
             $message .= "New visitor has been registered.\n\n";
             $message .= "Visitor Details.\n\n";
-            $message .= "*Name* " . $data['first_name'] . " " .  $data['first_name'] . ".\n\n";
-            $message .= "*Visit Date* " . $data['visit_from'] . " " .  $data['visit_to'] . ".\n\n";
-            $message .= "*Phone Number* " . $data['phone_number'] . ".\n\n";
-            $message .= "*Visitor Company* " . $data['visitor_company_name'] . ".\n\n";
-            $message .= "*Date:* " . date("d-M-y") . "\n\n";
+            $message .= "*Name* " . $data['first_name'] . " To " .  $data['first_name'] . ".\n";
+            $message .= "*Visit Date* " . $data['visit_from'] . " " .  $data['visit_to'] . ".\n";
+            $message .= "*Phone Number* " . $data['phone_number'] . ".\n";
+            $message .= "*Visitor Company* " . $data['visitor_company_name'] . ".\n";
+            $message .= "*Date:* " . date("d-M-y") . "\n";
             $message .= "*App Link:* " . "https: //mobile.mytime2cloud.com/login" . "\n\n";
             $message .= "Best regards\n";
             $message .= "*MyTime2Cloud*";
