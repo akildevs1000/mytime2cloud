@@ -83,6 +83,7 @@ class VisitorController extends Controller
 
     public function register(Register $request)
     {
+        info($request->input('logo'));
         $data = $request->validated();
 
         if ($request->has('logo')) {
