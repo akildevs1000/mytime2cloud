@@ -85,13 +85,41 @@ class VisitorController extends Controller
     {
         $data = $request->validated();
 
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $ext = $file->getClientOriginalExtension();
-            $fileName = time() . '.' . $ext;
-            $request->logo->move(public_path('media/visitor/logo/'), $fileName);
-            $data['logo'] = $fileName;
+        if ($request->has('logo')) {
+            $base64Image = $request->input('logo');
+        
+            // Decode the base64 image data
+            $imageData = base64_decode($base64Image);
+        
+            // Generate a unique filename for the image
+            $fileName = time() . '.png'; // You can use any extension you prefer
+        
+            // Define the directory where you want to save the image
+            $directory = public_path('media/visitor/logo/');
+        
+            // Ensure the directory exists, create it if not
+            if (!file_exists($directory)) {
+                mkdir($directory, 0755, true);
+            }
+        
+            // Save the decoded image to the file
+            file_put_contents($directory . $fileName, $imageData);
+        
+            // Create a URL for the saved image
+            $imageUrl = url('media/visitor/logo/' . $fileName);
+        
+            // Store the URL in your data array or database
+            $data['logo'] = $imageUrl;
         }
+        
+
+        // if ($request->hasFile('logo')) {
+        //     $file = $request->file('logo');
+        //     $ext = $file->getClientOriginalExtension();
+        //     $fileName = time() . '.' . $ext;
+        //     $request->logo->move(public_path('media/visitor/logo/'), $fileName);
+        //     $data['logo'] = $fileName;
+        // }
 
         $data['date'] = date("Y-m-d");
 
