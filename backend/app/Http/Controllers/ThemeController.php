@@ -250,7 +250,9 @@ class ThemeController extends Controller
                 ->when($request->filled("branch_id"), function ($q) use ($request) {
                     $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
                 })
-
+                ->when($request->filled("system_user_id"), function ($q) use ($request) {
+                    $q->where("employee_id", $request->system_user_id);
+                })
                 ->select('status')
                 ->get();
 

@@ -14,6 +14,7 @@ export const state = () => ({
   web_logins: null,
   attendance_count_by_department: null,
   branch_id: null,
+  system_user_id: null,
 });
 
 export const mutations = {
@@ -32,6 +33,10 @@ export const mutations = {
   date_to(state, date_to) {
     // Mutation to set 'date_to'
     state.date_to = date_to;
+  },
+  system_user_id(state, system_user_id) {
+    // Mutation to set 'date_to'
+    state.system_user_id = system_user_id;
   },
   recent_logs(state, recent_logs) {
     // Mutation to set 'recent_logs'
@@ -77,7 +82,8 @@ export const actions = {
       state.dashboardData &&
       state.date_from &&
       state.date_to &&
-      state.branch_id
+      state.branch_id &&
+      state.system_user_id
     ) {
       return state.dashboardData; // Return cached data if available.
     }
@@ -89,6 +95,8 @@ export const actions = {
           date_from: state.date_from,
           date_to: state.date_to,
           branch_id: state.branch_id > 0 ? state.branch_id : null,
+          system_user_id:
+            state.system_user_id > 0 ? state.system_user_id : null,
         },
       });
 
@@ -109,6 +117,8 @@ export const actions = {
           params: {
             company_id: this.$auth.user.company_id,
             branch_id: state.branch_id > 0 ? state.branch_id : null,
+            system_user_id:
+              state.system_user_id > 0 ? state.system_user_id : null,
           },
         }
       );
@@ -119,10 +129,12 @@ export const actions = {
     }
   },
 
-  setDates({ commit }, { date_from, date_to, branch_id }) {
+  setDates({ commit }, { date_from, date_to, branch_id, system_user_id }) {
+    console.log(date_from);
     // Action to set 'date_from' and 'date_to'
     commit("date_from", date_from);
     commit("date_to", date_to);
     commit("branch_id", branch_id);
+    commit("system_user_id", system_user_id);
   },
 };

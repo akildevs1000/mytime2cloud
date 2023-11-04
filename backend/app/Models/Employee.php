@@ -15,7 +15,7 @@ class Employee extends Model
 
     // protected $with = [];
 
-    protected $with = ["schedule", "department", "designation", "department", "sub_department", 'branch','user'];
+    protected $with = ["schedule", "department", "designation", "department", "sub_department", 'branch', 'user'];
 
     protected $guarded = [];
 
