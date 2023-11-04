@@ -118,6 +118,22 @@ class VisitorController extends Controller
         }
     }
 
+    public function visitorStatusUpdate(Request $request, $id)
+    {
+
+        try {
+
+            $visitor = Visitor::whereId($id)->update(["status_id", $request->status_id]);
+            if (!$visitor) {
+                return $this->response('Visitor cannot update.', null, false);
+            }
+
+            return $this->response('Visitor status has been updated.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     public function prepareJsonForSDK($data)
     {
         $personList = [];

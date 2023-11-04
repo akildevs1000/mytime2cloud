@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('visitor-count', VisitorDashboard::class);
 Route::post('visitor/{id}', [VisitorController::class, 'update']);
+Route::post('visitor-status-update/{id}', [VisitorController::class, 'visitorStatusUpdate']);
+
 Route::apiResource('visitor', VisitorController::class);
 Route::post('visitor-register', [VisitorController::class, "register"]);
 
