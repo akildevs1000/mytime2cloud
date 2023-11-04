@@ -114,22 +114,22 @@ class VisitorController extends Controller
             // ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
 
 
-            // $message = "👥 *New Visitor Registered* 👥\n\n";
-            // $message .= "*Dear, User*\n\n";
-            // $message .= "New visitor has been registered.\n\n";
-            // $message .= "Visitor Details.\n\n";
-            // $message .= "*Name* " . $data['first_name'] . " To " .  $data['first_name'] . ".\n";
-            // $message .= "*Visit Date* " . $data['visit_from'] . " " .  $data['visit_to'] . ".\n";
-            // $message .= "*Phone Number* " . $data['phone_number'] . ".\n";
-            // $message .= "*Visitor Company* " . $data['visitor_company_name'] . ".\n";
-            // $message .= "*Date:* " . date("d-M-y") . "\n";
-            // $message .= "*App Link:* " . "https: //mobile.mytime2cloud.com/login" . "\n\n";
-            // $message .= "Best regards\n";
-            // $message .= "*MyTime2Cloud*";
-            // $company = Company::where("id", $request->company_id)->first();
+            $message = "👥 *New Visitor Registered* 👥\n\n";
+            $message .= "*Dear, User*\n\n";
+            $message .= "New visitor has been registered.\n\n";
+            $message .= "Visitor Details.\n\n";
+            $message .= "*Name* " . $data['first_name'] . " To " .  $data['first_name'] . ".\n";
+            $message .= "*Visit Date* " . $data['visit_from'] . " " .  $data['visit_to'] . ".\n";
+            $message .= "*Phone Number* " . $data['phone_number'] . ".\n";
+            $message .= "*Visitor Company* " . $data['visitor_company_name'] . ".\n";
+            $message .= "*Date:* " . date("d-M-y") . "\n";
+            $message .= "*App Link:* " . "https: //mobile.mytime2cloud.com/login" . "\n\n";
+            $message .= "Best regards\n";
+            $message .= "*MyTime2Cloud*";
+            $company = Company::where("id", $request->company_id)->first();
 
-            // $host = HostCompany::where("id", $data['host_company_id'])->first();
-            // (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number);
+            $host = HostCompany::where("id", $data['host_company_id'])->first();
+            (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number);
 
             return $this->response('Form has been submitted successfully.', null, true);
         } catch (\Throwable $th) {
