@@ -118,7 +118,7 @@ class VisitorController extends Controller
             $message .= "*Phone Number* " . $data['phone_number'] . ".\n";
             $message .= "*Visitor Company* " . $data['visitor_company_name'] . ".\n";
             $message .= "*Date:* " . date("d-M-y") . "\n";
-            $message .= "*App Link:* " . "https: //mobile.mytime2cloud.com/login" . "\n\n";
+            $message .= "*App Link:* " . "https://mobile.mytime2cloud.com/login" . "\n\n";
             $message .= "Best regards\n";
             $message .= "*MyTime2Cloud*";
             $company = Company::where("id", $request->company_id)->first();
