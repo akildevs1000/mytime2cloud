@@ -124,7 +124,7 @@ class VisitorController extends Controller
             $company = Company::where("id", $request->company_id)->first();
 
             $host = HostCompany::where("id", $data['host_company_id'])->first();
-            // (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number);
+            (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number);
 
             $data['url'] = "https://backend.mytime2cloud.com/media/visitor/logo/" . $data['logo'];
 
