@@ -207,6 +207,13 @@
     "module": "attendance"
   },
   {
+    "icon": "mdi-clipboard-text",
+    "title": "Reports",
+    "to": "/change_requests",
+    "menu": "attendance_report_access",
+    "module": "attendance"
+  },
+  {
     "icon": "mdi-cash",
     "title": "Salary",
     "to": "/payroll/salary",
