@@ -61,4 +61,14 @@ class NotificationsController extends Controller
 
         return $model;
     }
+
+    public function update($id)
+    {
+        try {
+            $model = NotificationModel::where("id", $id)->update(["read_at" => date("d-M-y H:i:s")]);
+            return $this->response('Visitor successfully created.', $model, true);
+        } catch (\Throwable $th) {
+            return $this->response($th, null, true);
+        }
+    }
 }

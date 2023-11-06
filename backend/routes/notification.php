@@ -13,6 +13,4 @@ Route::post('/late_employee_notification', [WhatsappController::class, 'SendNoti
 Route::get('/notifications', [NotificationsController::class, 'index']);
 Route::get('/unread', [NotificationsController::class, 'unread']);
 Route::get('/read', [NotificationsController::class, 'read']);
-
-
-
+Route::put('/update/{id}', [NotificationsController::class, 'update']);
