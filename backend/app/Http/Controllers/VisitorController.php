@@ -8,6 +8,7 @@ use App\Http\Requests\Visitor\Update;
 use App\Jobs\ProcessSDKCommand;
 use App\Models\Company;
 use App\Models\HostCompany;
+use App\Models\Notification;
 use App\Models\Visitor;
 use App\Models\Zone;
 use Illuminate\Http\Request;
@@ -123,15 +124,24 @@ class VisitorController extends Controller
             $message .= "*MyTime2Cloud*";
             $company = Company::where("id", $request->company_id)->first();
 
-            $host = HostCompany::where("id", $data['host_company_id'])->first();
-            (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number);
+            $host = HostCompany::where("id", $data['host_company_id'])->with("employee:id,user_id,employee_id")->first();
+
+            Notification::create([
+                "data" => "New visitor has been registered",
+                "action" => "Registration",
+                "model" => "Visitor",
+                "user_id" => $host->employee->user_id ?? 0,
+                "company_id" => $request->company_id,
+            ]);
+
+            (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number ?? 971554501483);
 
             $data['url'] = "https://backend.mytime2cloud.com/media/visitor/logo/" . $data['logo'];
 
 
             return $this->response('Form has been submitted successfully.', $data, true);
         } catch (\Throwable $th) {
-            Log::custom($th);
+
             return $th;
             // return $this->response('Server Error.', null, true);
         }
