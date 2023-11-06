@@ -2,7 +2,7 @@
   <div></div>
 </template>
 <script>
-export default {
-  middleware: "userType"
-};
+// export default {
+//   middleware: "userType"
+// };
 </script>

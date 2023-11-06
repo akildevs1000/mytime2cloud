@@ -91,6 +91,8 @@ export default {
     // if (this.$auth.user.user_type == "employee") {
     //   this.$router.push(`/dashboard/employee`);
     // }
+    //this.verifyToken();
+
     this.getBranches();
     //this.$root.$on("openalert", this.openalert);
   },

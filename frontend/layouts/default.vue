@@ -122,7 +122,7 @@
     <!-- style="
     margin-left: -49px;
 " -->
-
+    {{ $store.state.login_token }}
     <v-app-bar
       :color="changeColor"
       dark
@@ -679,7 +679,8 @@ export default {
     };
   },
   created() {
-    //console.log("this.$auth.user", this.$auth.user);
+    this.verifyToken();
+
     this.$store.commit("loginType", this.$auth.user.user_type);
     this.getCompanyDetails();
     this.setMenus();
@@ -775,6 +776,46 @@ export default {
     },
   },
   methods: {
+    verifyToken() {
+      let token = this.$route.query.token;
+
+      if (token == "") {
+        token = this.$store.state.login_token;
+      }
+      // alert(this.$route.query.token);
+      if (this.$route.query.token) {
+        token = this.$route.query.token;
+        token = token.replace(":" + process.env.SECRET_PASS_PHRASE, "");
+        token = token; //this.$crypto.decrypt1(token);
+
+        if (token != "" && token != "undefined") {
+          this.$store.commit("login_token", token);
+
+          let options = {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
+          };
+          this.$axios
+            .get(`me`, null, options)
+            .then(({ data }) => {
+              if (!data.user) {
+                alert("Invalid Login Details. Please try again");
+                this.$router.push(`/login`);
+
+                return false;
+              } else {
+                this.$router.push(`/dashboard2`);
+              }
+            })
+            .catch((err) => console.log(err));
+        } else {
+          this.$router.push(`/login`);
+        }
+      } else {
+      }
+    },
     getBranches() {
       this.$axios
         .get(`branches_list`, {
@@ -891,30 +932,21 @@ export default {
       );
     },
     changeLoginType() {
-      // this.$store.commit(
-      //   "loginType",
-      //   this.getLoginType == "manager" ? "employee" : "manager"
-      // );
-      // this.$store.commit(
-      //   "loginType",
-      //   this.getLoginType == "branch" ? "employee" : "branch"
-      // );
-      // this.setMenus();
-
-      // this.$store.commit(
-      //   "loginType",
-      //   this.getLoginType == "branch" ? "employee" : "branch"
-      // );
-      console.log("process.env", process.env);
+      //console.log("detault page token", this.$store.state.login_token);
       if (this.getLoginType == "branch") {
         // this.$store.commit("loginType", "employee");
         // this.setMenus();
+        let token = this.$store.state.login_token;
 
-        window.location.href =
-          process.env.EMPLOYEE_APP_URL +
-          "/login?token=" +
-          this.$store.state.login_token;
-        return "";
+        if (token) {
+          window.location.href =
+            process.env.EMPLOYEE_APP_URL +
+            "/login?token=" +
+            token +
+            ":" +
+            process.env.SECRET_PASS_PHRASE;
+          return "";
+        }
         // this.$router.push("/employees/profile");
       } else {
         this.$store.commit("loginType", "branch");

@@ -293,8 +293,42 @@ export default {
     otp: "",
     userId: "",
   }),
-  created() {},
+  created() {
+    // this.verifyToken();
+  },
   methods: {
+    // verifyToken() {
+    //   // alert(this.$route.query.token);
+    //   if (this.$route.query.token) {
+    //     let token = this.$route.query.token;
+
+    //     console.log("verify token  Login Desktop ", token);
+
+    //     token = token; //this.$crypto.decrypt(token);
+    //     this.$store.commit("login_token", token);
+    //     console.log("token Desktop", token);
+    //     if (token != "" && token != "undefined") {
+    //       let options = {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Authorization: "Bearer " + token,
+    //         },
+    //       };
+    //       this.$axios
+    //         .get(`me`, null, options)
+    //         .then(({ data }) => {
+    //           if (!data.user) {
+    //             alert("Invalid Login Details. Please try again");
+    //           } else {
+    //             this.$router.push(`/dashboard2`);
+    //           }
+    //         })
+    //         .catch((err) => console.log(err));
+    //     } else {
+    //       this.$router.push(`/login`);
+    //     }
+    //   }
+    // },
     hideMobileNumber(inputString) {
       // Check if the input is a valid string
       if (typeof inputString !== "string" || inputString.length < 4) {
@@ -342,7 +376,7 @@ export default {
 
     loginWithOTP() {
       this.loading = true;
-      console.log(this.$refs.form.validate());
+
       //if (this.$refs.form.validate())
       {
         let credentials = {
@@ -409,20 +443,22 @@ export default {
             //   id = data.user?.id;
             //   name = data.user?.name;
             // }
-            console.log("data", data.user.user_type);
 
-            this.$store.commit("login_token", data.token);
-            console.log("login_token", this.$store.state.login_token);
+            let token = data.token;
+
+            token = token; //this.$crypto.encrypt1(token);
+
+            this.$store.commit("login_token", token);
 
             if (data.user && data.user.user_type == "employee") {
-              if (
-                this.$store.state.login_token != "" &&
-                this.$store.state.login_token != "undefined"
-              ) {
+              if (token != "" && token != "undefined") {
                 window.location.href =
-                  process.env.EMPLOYEE_APP_URL + "/login?token=" + data.token;
+                  process.env.EMPLOYEE_APP_URL +
+                  "/login?token=" +
+                  data.token +
+                  ":" +
+                  process.env.SECRET_PASS_PHRASE;
               } else {
-                console.log("--------");
               }
               return "";
             } else if (data.user && data.user.user_type == "master") {
