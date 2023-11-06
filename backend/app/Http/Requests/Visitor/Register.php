@@ -25,9 +25,9 @@ class Register extends FormRequest
     {
         $validations = [];
 
-        if ($this->logo) {
-            // $validations['logo'] = 'image|mimes:jpeg,png,jpg,gif|max:2048';
-        }
+        // if ($this->logo) {
+        // $validations['logo'] = 'image|mimes:jpeg,png,jpg,gif|max:2048';
+        // }
 
         $validations['visit_from'] = 'required|date';
         $validations['visit_to'] = 'required|date';
@@ -43,8 +43,16 @@ class Register extends FormRequest
         $validations['id_copy'] = 'required';
         $validations['host_company_id'] = 'required';
         $validations['company_id'] = 'required';
+        $validations['logo'] = 'required';
         $validations['date'] = 'required|date';
 
         return $validations;
+    }
+
+    public function messages()
+    {
+        return [
+            'logo.required' => 'The Photo field is required',
+        ];
     }
 }

@@ -389,4 +389,18 @@ class Controller extends BaseController
     {
         Storage::append($file_name . date('d-m-Y') . ".log", $message . "\n");
     }
+
+    public function processImage($folder): string
+    {
+        $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', request('logo')));
+        $imageName = time() . ".png";
+        $publicDirectory = public_path($folder);
+        if (!file_exists($publicDirectory)) {
+            mkdir($publicDirectory);
+        }
+        file_put_contents($publicDirectory . '/' . $imageName, $base64Image);
+        return $imageName;
+        $imageUrl = asset($folder . '/' . $imageName);
+        return $imageUrl;
+    }
 }

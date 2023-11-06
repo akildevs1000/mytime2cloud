@@ -41,6 +41,8 @@ class VisitorController extends Controller
 
         $model->when($request->filled("host_company_id"), fn ($q) => $q->where("host_company_id", $request->host_company_id));
 
+        $model->orderByDesc("id");
+
         return $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
     }
 
@@ -83,19 +85,12 @@ class VisitorController extends Controller
 
     public function register(Register $request)
     {
-        info($request->input('logo'));
-
         $data = $request->validated();
 
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $ext = $file->getClientOriginalExtension();
-            $fileName = time() . '.' . $ext;
-            $request->logo->move(public_path('media/visitor/logo/'), $fileName);
-            $data['logo'] = $fileName;
-        }
 
+        $data['logo'] = $this->processImage("media/visitor/logo");
         $data['date'] = date("Y-m-d");
+
 
         try {
 
@@ -118,12 +113,12 @@ class VisitorController extends Controller
             $message .= "*Dear, User*\n\n";
             $message .= "New visitor has been registered.\n\n";
             $message .= "Visitor Details.\n\n";
-            $message .= "*Name* " . $data['first_name'] . " To " .  $data['first_name'] . ".\n";
-            $message .= "*Visit Date* " . $data['visit_from'] . " " .  $data['visit_to'] . ".\n";
+            $message .= "*Name* " . $data['first_name'] . " " .  $data['last_name'] . ".\n";
+            $message .= "*Visit Date* " . $data['visit_from'] . " To " .  $data['visit_to'] . ".\n";
             $message .= "*Phone Number* " . $data['phone_number'] . ".\n";
             $message .= "*Visitor Company* " . $data['visitor_company_name'] . ".\n";
             $message .= "*Date:* " . date("d-M-y") . "\n";
-            $message .= "*App Link:* " . "https: //mobile.mytime2cloud.com/login" . "\n\n";
+            $message .= "*App Link:* " . "https://mobile.mytime2cloud.com/login" . "\n\n";
             $message .= "Best regards\n";
             $message .= "*MyTime2Cloud*";
             $company = Company::where("id", $request->company_id)->first();
@@ -131,9 +126,11 @@ class VisitorController extends Controller
             $host = HostCompany::where("id", $data['host_company_id'])->first();
             (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number);
 
-            return $this->response('Form has been submitted successfully.', null, true);
+            $data['url'] = "https://backend.mytime2cloud.com/media/visitor/logo/" . $data['logo'];
+
+
+            return $this->response('Form has been submitted successfully.', $data, true);
         } catch (\Throwable $th) {
-            return "testing";
             Log::custom($th);
             return $th;
             // return $this->response('Server Error.', null, true);
