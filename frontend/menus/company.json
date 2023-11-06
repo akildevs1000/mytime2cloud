@@ -208,7 +208,7 @@
   },
   {
     "icon": "mdi-clipboard-text",
-    "title": "Reports",
+    "title": "Change Requests",
     "to": "/change_requests",
     "menu": "attendance_report_access",
     "module": "attendance"
