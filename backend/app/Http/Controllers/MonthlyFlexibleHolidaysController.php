@@ -67,12 +67,14 @@ class MonthlyFlexibleHolidaysController extends Controller
                     "employee_id" => $missingEmployee->system_user_id,
                     "shift_id" => $schedule->shift_id,
                     "shift_type_id" => $schedule->shift_type_id,
-                    "testing" => "renderMonthlyFlexibleHolidaysScipt"
+                    "testing" => "renderMonthlyFlexibleHolidaysScipt",
+                    "created_at" => date('Y-m-d H:i:s'),
+                    "updated_at" => date('Y-m-d H:i:s')
                 ];
             }
         }
 
-        $UserIds = array_column($records, "system_user_id");
+        $UserIds = array_column($records, "employee_id");
 
         // return $records;
 

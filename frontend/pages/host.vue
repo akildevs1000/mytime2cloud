@@ -425,7 +425,7 @@
                   >
                     <v-img
                       style="
-                         border-radius: 50%;
+                        border-radius: 50%;
                         width: 60px;
                         max-width: 60px;
                         height: 60px;

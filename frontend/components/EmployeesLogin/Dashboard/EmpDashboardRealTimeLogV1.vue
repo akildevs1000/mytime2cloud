@@ -179,7 +179,7 @@ export default {
     firstLoad() {
       this.payload.from_date = this.getDate();
       this.payload.to_date = this.getDate();
-      this.payload.from_date_txt = this.getDate();
+      this.payload.from_date_txt = "2023-11-01"; //this.getDate();
       this.payload.to_date_txt = this.getDate();
 
       this.payload.UserID = this.$auth.user.employee.system_user_id;

@@ -542,53 +542,6 @@
                   </div>
                 </v-toolbar>
                 <v-card-text>
-                  <!-- <v-card class="mx-auto" color="#26c6da" dark max-width="400">
-                    <v-card-title>
-                      <span class="text-h6 font-weight-light">{{
-                        selectedItem && selectedItem.title
-                      }}</span>
-                    </v-card-title>
-
-                    <v-card-text class="text-h5 font-weight-bold">
-                      <div
-                        v-if="selectedItem"
-                        v-html="selectedItem.description"
-                      ></div>
-                    </v-card-text>
-
-                    <v-card-actions>
-                      <v-list-item class="grow">
-                        <v-list-item-content>
-                          <v-list-item-title>
-                            <div
-                              v-if="selectedItem"
-                              class="announ_priority"
-                              :style="
-                                ' ' + getPriorityColor(selectedItem.category)
-                              "
-                            >
-                              {{
-                                selectedItem.category &&
-                                selectedItem.category.name
-                              }}
-                            </div></v-list-item-title
-                          >
-                        </v-list-item-content>
-
-                        <v-row align="center" justify="end">
-                          <span class="mr-1">·</span>
-
-                          <span class="subheading">
-                            Posted:
-                            {{
-                              selectedItem &&
-                              $dateFormat.format4(selectedItem.created_at)
-                            }}</span
-                          >
-                        </v-row>
-                      </v-list-item>
-                    </v-card-actions>
-                  </v-card> -->
                   <div
                     v-if="selectedItem"
                     class="announ_priority"
@@ -940,7 +893,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     onScroll() {
       this.scrollInvoked++;
     },

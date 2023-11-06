@@ -23,6 +23,9 @@ vue.js version2 crop image file
 
 npm install --save vue-notification
 
+npm install --save vue-cropperjs
+
+
 <v-dialog v-model="dialogVisible" max-width="500px">
   <v-card flat dense class="white--text">
     <v-card-title class="background">

@@ -160,16 +160,10 @@
     "menu": "leave_application_access",
     "module": "employees"
   },
+
   {
     "icon": "mdi-bell",
-    "title": "Announ.. Old",
-    "open_menu": false,
-    "to": "/announcement",
-    "module": "employees"
-  },
-  {
-    "icon": "mdi-bell",
-    "title": " Announ.. New",
+    "title": "Announcements",
     "open_menu": false,
     "to": "/announcements",
     "module": "employees"
