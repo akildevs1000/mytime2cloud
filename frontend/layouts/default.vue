@@ -905,7 +905,7 @@ export default {
       //   "loginType",
       //   this.getLoginType == "branch" ? "employee" : "branch"
       // );
-
+      console.log("process.env", process.env);
       if (this.getLoginType == "branch") {
         // this.$store.commit("loginType", "employee");
         // this.setMenus();
