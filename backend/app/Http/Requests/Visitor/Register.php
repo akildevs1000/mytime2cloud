@@ -26,7 +26,7 @@ class Register extends FormRequest
         $validations = [];
 
         if ($this->logo) {
-            $validations['logo'] = 'image|mimes:jpeg,png,jpg,gif|max:2048';
+            // $validations['logo'] = 'image|mimes:jpeg,png,jpg,gif|max:2048';
         }
 
         $validations['visit_from'] = 'required|date';

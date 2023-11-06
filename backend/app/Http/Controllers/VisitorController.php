@@ -6,9 +6,12 @@ use App\Http\Requests\Visitor\Register;
 use App\Http\Requests\Visitor\Store;
 use App\Http\Requests\Visitor\Update;
 use App\Jobs\ProcessSDKCommand;
+use App\Models\Company;
+use App\Models\HostCompany;
 use App\Models\Visitor;
 use App\Models\Zone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class VisitorController extends Controller
 {
@@ -80,6 +83,8 @@ class VisitorController extends Controller
 
     public function register(Register $request)
     {
+        info($request->input('logo'));
+
         $data = $request->validated();
 
         if ($request->hasFile('logo')) {
@@ -108,9 +113,57 @@ class VisitorController extends Controller
             // ]);
             // ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
 
+
+            $message = "👥 *New Visitor Registered* 👥\n\n";
+            $message .= "*Dear, User*\n\n";
+            $message .= "New visitor has been registered.\n\n";
+            $message .= "Visitor Details.\n\n";
+            $message .= "*Name* " . $data['first_name'] . " To " .  $data['first_name'] . ".\n";
+            $message .= "*Visit Date* " . $data['visit_from'] . " " .  $data['visit_to'] . ".\n";
+            $message .= "*Phone Number* " . $data['phone_number'] . ".\n";
+            $message .= "*Visitor Company* " . $data['visitor_company_name'] . ".\n";
+            $message .= "*Date:* " . date("d-M-y") . "\n";
+            $message .= "*App Link:* " . "https: //mobile.mytime2cloud.com/login" . "\n\n";
+            $message .= "Best regards\n";
+            $message .= "*MyTime2Cloud*";
+            $company = Company::where("id", $request->company_id)->first();
+
+            $host = HostCompany::where("id", $data['host_company_id'])->first();
+            (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number);
+
             return $this->response('Form has been submitted successfully.', null, true);
         } catch (\Throwable $th) {
-            return $this->response('Server Error.', null, true);
+            return "testing";
+            Log::custom($th);
+            return $th;
+            // return $this->response('Server Error.', null, true);
+        }
+    }
+
+    public function visitorStatusUpdate(Request $request, $id)
+    {
+        // $company = Company::where("id", $request->company_id)->first();
+
+        // $message = "👥 *New Visitor Registered* 👥\n\n";
+        // $message .= "*Dear, User*\n\n";
+        // $message .= "New visitor has been registered.\n\n";
+        // $message .= "*Date:* " . date("d-M-y") . "\n\n";
+        // $message .= "Best regards\n";
+        // $message .= "*MyTime2Cloud*";
+
+        // return (new WhatsappController)->sendWhatsappNotification($company, $message, '971554501483');
+
+        try {
+            $visitor = Visitor::whereId($id)->update(["status_id" => $request->status_id]);
+            if (!$visitor) {
+                return $this->response('Visitor cannot update.', null, false);
+            }
+
+            $statusText = $request->status_id == 1 ? 'Approved' : 'Rejected';
+
+            return $this->response("Visitor status has been {$statusText}.", null, true);
+        } catch (\Throwable $th) {
+            throw $th;
         }
     }
 
