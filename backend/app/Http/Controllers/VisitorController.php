@@ -113,7 +113,7 @@ class VisitorController extends Controller
             $message .= "*Dear, User*\n\n";
             $message .= "New visitor has been registered.\n\n";
             $message .= "Visitor Details.\n\n";
-            $message .= "*Name* " . $data['first_name'] . " " .  $data['first_name'] . ".\n";
+            $message .= "*Name* " . $data['first_name'] . " " .  $data['last_name'] . ".\n";
             $message .= "*Visit Date* " . $data['visit_from'] . " To " .  $data['visit_to'] . ".\n";
             $message .= "*Phone Number* " . $data['phone_number'] . ".\n";
             $message .= "*Visitor Company* " . $data['visitor_company_name'] . ".\n";
