@@ -132,7 +132,7 @@ class VisitorController extends Controller
                 "model" => "Visitor",
                 "user_id" => $host->employee->user_id ?? 0,
                 "company_id" => $request->company_id,
-                "url" => "https://mobile.mytime2cloud.com/visitor_requests"
+                "redirect_url" => "visitor_requests"
             ]);
 
             (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number ?? 971554501483);
