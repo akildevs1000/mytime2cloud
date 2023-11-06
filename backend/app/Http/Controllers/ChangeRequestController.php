@@ -6,6 +6,8 @@ use App\Http\Requests\ChangeRequest\StoreRequest;
 use App\Http\Requests\ChangeRequest\UpdateRequest;
 use App\Models\Attendance;
 use App\Models\ChangeRequest;
+use App\Models\Employee;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -75,6 +77,17 @@ class ChangeRequestController extends Controller
 
             // Update the ChangeRequest
             $record = ChangeRequest::where('id', $id)->update(['status' => $data['status']]);
+
+            $employee = Employee::where("system_user_id", $data['employee_device_id'])->where("company_id", $data['company_id'])->first();
+
+            Notification::create([
+                "data" => "Attendance request has been udpated",
+                "action" => "Attendance Request",
+                "model" => "Attendance",
+                "user_id" => $employee->user_id ?? 0,
+                "company_id" => $data['company_id'],
+                "redirect_url" => "change_requests"
+            ]);
 
             // Commit the transaction if all operations are successful
             DB::commit();
