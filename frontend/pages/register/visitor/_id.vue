@@ -345,7 +345,7 @@ export default {
     },
     async getPurposes() {
       this.$axios
-        .get(`https://backend.mytime2cloud.com/api/purpose_list`, {
+        .get(`purpose_list`, {
           params: {
             company_id: this.payload.company_id,
           },
@@ -357,10 +357,7 @@ export default {
 
     submit() {
       this.$axios
-        .post(
-          "https://backend.mytime2cloud.com/api/visitor-register",
-          this.payload
-        )
+        .post("visitor-register", this.payload)
         .then(({ data }) => {
           this.errors = [];
           this.responseDialog = true;
