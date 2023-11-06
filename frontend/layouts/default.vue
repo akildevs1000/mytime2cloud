@@ -900,17 +900,27 @@ export default {
       //   this.getLoginType == "branch" ? "employee" : "branch"
       // );
       // this.setMenus();
+
+      // this.$store.commit(
+      //   "loginType",
+      //   this.getLoginType == "branch" ? "employee" : "branch"
+      // );
+
       if (this.getLoginType == "branch") {
-        this.$router.push("/employees/profile");
+        // this.$store.commit("loginType", "employee");
+        // this.setMenus();
+
+        window.location.href =
+          process.env.EMPLOYEE_APP_URL +
+          "/login?token=" +
+          this.$store.state.login_token;
+        return "";
+        // this.$router.push("/employees/profile");
       } else {
+        this.$store.commit("loginType", "branch");
+        this.setMenus();
         this.$router.push("/dashboard2");
       }
-      this.$store.commit(
-        "loginType",
-        this.getLoginType == "branch" ? "employee" : "branch"
-      );
-
-      this.setMenus();
     },
     navigateToLeavePage() {
       this.$router.push("/leaves");
@@ -1036,7 +1046,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     logout() {
       this.$axios.get(`/logout`).then(({ res }) => {

@@ -409,28 +409,35 @@ export default {
             //   id = data.user?.id;
             //   name = data.user?.name;
             // }
+            console.log("data", data.user.user_type);
 
-            if (data.user && data.user.user_type == "master") {
+            this.$store.commit("login_token", data.token);
+            console.log("login_token", this.$store.state.login_token);
+
+            if (data.user && data.user.user_type == "employee") {
+              if (
+                this.$store.state.login_token != "" &&
+                this.$store.state.login_token != "undefined"
+              ) {
+                window.location.href =
+                  process.env.EMPLOYEE_APP_URL + "/login?token=" + data.token;
+              } else {
+                console.log("--------");
+              }
+              return "";
+            } else if (data.user && data.user.user_type == "master") {
               this.$router.push(`/master`);
 
               return;
               id = data.user?.id;
               name = data.user?.name;
-            }
-
-            if (
+            } else if (
               (data.user && data.user.user_type == "company") ||
               data.user.user_type == "branch"
             ) {
               this.$router.push(`/dashboard2`);
 
               return false;
-            }
-
-            if (data.user && data.user.user_type == "employee") {
-              this.$router.push(`/employees/profile`);
-
-              return;
             }
 
             // this.$axios.post(`activity`, {

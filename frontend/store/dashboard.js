@@ -130,7 +130,7 @@ export const actions = {
   },
 
   setDates({ commit }, { date_from, date_to, branch_id, system_user_id }) {
-    console.log(date_from);
+    //console.log(date_from);
     // Action to set 'date_from' and 'date_to'
     commit("date_from", date_from);
     commit("date_to", date_to);
