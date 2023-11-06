@@ -95,7 +95,9 @@ class OffByDayController extends Controller
                     "employee_id" => $missingEmployee->system_user_id,
                     "shift_id" => $schedule->shift_id,
                     "shift_type_id" => $schedule->shift_type_id,
-                    "testing" => "renderOffByDayScript"
+                    "testing" => "renderOffByDayScript",
+                    "created_at" => date('Y-m-d H:i:s'),
+                    "updated_at" => date('Y-m-d H:i:s')
                 ];
             }
         }
