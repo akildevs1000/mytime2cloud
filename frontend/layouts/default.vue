@@ -122,7 +122,7 @@
     <!-- style="
     margin-left: -49px;
 " -->
-    {{ $store.state.login_token }}
+
     <v-app-bar
       :color="changeColor"
       dark
@@ -281,7 +281,7 @@
           </v-list-item-group>
         </v-list>
       </v-menu> -->
-      {{ this.$store.state.email }}
+
       <v-menu
         nudge-bottom="50"
         transition="scale-transition"
@@ -957,7 +957,6 @@ export default {
     // },
     changeLoginType() {
       try {
-        console.log("detault page token", this.getLoginType);
         if (this.getLoginType == "branch") {
           // this.$store.commit("loginType", "employee");
           // this.setMenus();
