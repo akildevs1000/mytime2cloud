@@ -442,7 +442,6 @@ export default {
         this.$auth
           .loginWith("local", { data: credentials })
           .then(({ data }) => {
-            console.log(this.$store.state.email);
             let token = data.token;
 
             token = token; //this.$crypto.encrypt1(token);

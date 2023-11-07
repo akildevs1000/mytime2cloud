@@ -16,7 +16,6 @@ export default {
   },
   created() {
     //this.test();
-    console.log("-------------");
   },
   methods: {
     verifyToken() {
@@ -86,8 +85,6 @@ export default {
       this.$auth
         .loginWith("local", { data: credentials })
         .then(({ data }) => {
-          console.log(this.$store.state.email);
-
           this.$router.push(`/dashboard2`);
 
           return false;
