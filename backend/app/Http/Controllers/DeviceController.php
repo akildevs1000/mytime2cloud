@@ -470,7 +470,7 @@ class DeviceController extends Controller
                         ->where("name", "!=", "Mobile");
                 }]);
 
-
+                $counter = 1;
                 if ($company) {
                     $offlineDevicesCount = count($company->devices);
 
@@ -481,9 +481,9 @@ class DeviceController extends Controller
                     $devicesLocation = json_encode($location_array);
                     $devicesLocations = '';
                     foreach ($location_array as $key => $location) {
-                        $devicesLocations .= $location;
+                        $devicesLocations .= ($counter++) . ':' . $location;
                         if ($key < count($location_array) - 1) {
-                            $devicesLocations .= ', ';
+                            $devicesLocations .= ",\n";
                         }
                     }
 
@@ -511,7 +511,7 @@ class DeviceController extends Controller
             $message .= "*Hello, {$manager->name}*\n\n";
             $message .= "*Company: , {$company->name}*\n\n";
             $message .= "Total *({$offlineDevicesCount})* of your devices are currently offline. Please take a look and address the issue as needed to avoid any errors in report.\n\n";
-            $message .= "Devices location(s): *{$devicesLocations}*.\n\n";
+            $message .= "*Devices location(s):* \n{$devicesLocations}  \n\n";
             $message .= "If you have any questions or need assistance, feel free to reach out.\n\n";
             $message .= "Best regards\n";
             $message .= "*MyTime2Cloud*";
