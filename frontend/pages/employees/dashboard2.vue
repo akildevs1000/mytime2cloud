@@ -92,8 +92,7 @@ export default {
     //   this.$router.push(`/dashboard/employee`);
     // }
     //this.verifyToken();
-
-    this.getBranches();
+    //////////////////this.getBranches();
     //this.$root.$on("openalert", this.openalert);
   },
   watch: {

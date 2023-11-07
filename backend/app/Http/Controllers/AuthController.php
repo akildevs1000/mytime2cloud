@@ -37,7 +37,7 @@ class AuthController extends Controller
             return Response::json([
                 'enable_whatsapp_otp' => 0,
                 'user_id' => "",
-                'message' => 'OTP Is generated',
+                'message' => 'Invalid Login details',
                 'status' => true
             ], 200);
         }
@@ -70,7 +70,7 @@ class AuthController extends Controller
             return Response::json([
                 'enable_whatsapp_otp' => 0,
                 'user_id' => $user->id,
-                'message' => 'OTP Is generated',
+                'message' => 'Invalid Login Details',
                 'status' => true
             ], 200);
         }

@@ -294,9 +294,17 @@ export default {
     userId: "",
   }),
   created() {
-    // this.verifyToken();
+    this.verifyToken();
   },
   methods: {
+    verifyToken() {
+      if (this.$route.query.email && this.$route.query.password) {
+        this.email = this.$route.query.email;
+        this.password = this.$route.query.password;
+
+        this.loginWithOTP();
+      }
+    },
     // verifyToken() {
     //   // alert(this.$route.query.token);
     //   if (this.$route.query.token) {
@@ -383,6 +391,8 @@ export default {
           email: this.email,
           password: this.password,
         };
+        this.$store.commit("email", this.email);
+        this.$store.commit("password", this.password);
 
         let payload = credentials;
 
@@ -432,19 +442,7 @@ export default {
         this.$auth
           .loginWith("local", { data: credentials })
           .then(({ data }) => {
-            // if (data.user && data.user.user_type == "employee") {
-            //   this.$router.push(`/employee_dashboard`);
-            //   id = data.user?.employee?.id;
-            //   name = data.user?.employee?.first_name;
-            // } else if (data.user && data.user.user_type == "company") {
-            //   id = data.user?.company?.id;
-            //   name = data.user?.company?.name;
-            // } else if (data.user && data.user.user_type == "master") {
-            //   this.$router.push(`/master`);
-            //   id = data.user?.id;
-            //   name = data.user?.name;
-            // }
-
+            console.log(this.$store.state.email);
             let token = data.token;
 
             token = token; //this.$crypto.encrypt1(token);
@@ -452,16 +450,26 @@ export default {
             this.$store.commit("login_token", token);
 
             if (data.user && data.user.user_type == "employee") {
-              if (token != "" && token != "undefined") {
+              let email = this.$store.state.email;
+              let password = this.$store.state.password;
+
+              //encrypt
+              email = this.$crypto.encrypt(email);
+              password = this.$crypto.encrypt(password);
+
+              email = encodeURIComponent(email);
+              password = encodeURIComponent(password);
+
+              if (email && password) {
                 window.location.href =
                   process.env.EMPLOYEE_APP_URL +
-                  "/login?token=" +
-                  data.token +
-                  ":" +
-                  process.env.SECRET_PASS_PHRASE;
-              } else {
+                  "/loginwithtoken?email=" +
+                  email +
+                  "&password=" +
+                  password;
+
+                return "";
               }
-              return "";
             } else if (data.user && data.user.user_type == "master") {
               this.$router.push(`/master`);
 
@@ -476,15 +484,6 @@ export default {
 
               return false;
             }
-
-            // this.$axios.post(`activity`, {
-            //   user_id: id,
-            //   action: "Logged In",
-            //   type: "Login",
-            //   model_id: id,
-            //   model_type: "User",
-            //   description: `${name} logged In`
-            // });
           })
           .catch(({ response }) => {
             if (!response) {

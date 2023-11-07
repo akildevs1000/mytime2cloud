@@ -13,12 +13,20 @@ export const state = () => ({
   devices: [],
   employees: [],
   login_token: "",
+  email: "",
+  password: "",
 });
 
 // contains your mutations
 export const mutations = {
   login_token(state, value) {
     state.login_token = value;
+  },
+  email(state, value) {
+    state.email = value;
+  },
+  password(state, value) {
+    state.password = value;
   },
   first_login(state, value) {
     state.first_login = value;

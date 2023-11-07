@@ -281,6 +281,7 @@
           </v-list-item-group>
         </v-list>
       </v-menu> -->
+      {{ this.$store.state.email }}
       <v-menu
         nudge-bottom="50"
         transition="scale-transition"
@@ -931,27 +932,63 @@ export default {
         perms.includes(menu)
       );
     },
-    changeLoginType() {
-      //console.log("detault page token", this.$store.state.login_token);
-      if (this.getLoginType == "branch") {
-        // this.$store.commit("loginType", "employee");
-        // this.setMenus();
-        let token = this.$store.state.login_token;
+    // changeLoginType_old() {
+    //   //console.log("detault page token", this.$store.state.login_token);
+    //   if (this.getLoginType == "branch") {
+    //     // this.$store.commit("loginType", "employee");
+    //     // this.setMenus();
+    //     let token = this.$store.state.login_token;
 
-        if (token) {
-          window.location.href =
-            process.env.EMPLOYEE_APP_URL +
-            "/login?token=" +
-            token +
-            ":" +
-            process.env.SECRET_PASS_PHRASE;
-          return "";
+    //     if (token) {
+    //       window.location.href =
+    //         process.env.EMPLOYEE_APP_URL +
+    //         "/login?token=" +
+    //         token +
+    //         ":" +
+    //         process.env.SECRET_PASS_PHRASE;
+    //       return "";
+    //     }
+    //     // this.$router.push("/employees/profile");
+    //   } else {
+    //     this.$store.commit("loginType", "branch");
+    //     this.setMenus();
+    //     this.$router.push("/dashboard2");
+    //   }
+    // },
+    changeLoginType() {
+      try {
+        console.log("detault page token", this.getLoginType);
+        if (this.getLoginType == "branch") {
+          // this.$store.commit("loginType", "employee");
+          // this.setMenus();
+          let email = this.$store.state.email;
+          let password = this.$store.state.password;
+
+          email = this.$crypto.encrypt(email);
+          password = this.$crypto.encrypt(password);
+
+          email = encodeURIComponent(email);
+          password = encodeURIComponent(password);
+
+          if (email && password) {
+            window.location.href =
+              process.env.EMPLOYEE_APP_URL +
+              "/loginwithtoken?email=" +
+              email +
+              "&password=" +
+              password;
+
+            return "";
+          } else {
+          }
+          // this.$router.push("/employees/profile");
+        } else {
+          this.$store.commit("loginType", "branch");
+          this.setMenus();
+          this.$router.push("/dashboard2");
         }
-        // this.$router.push("/employees/profile");
-      } else {
-        this.$store.commit("loginType", "branch");
-        this.setMenus();
-        this.$router.push("/dashboard2");
+      } catch (e) {
+        console.log(e);
       }
     },
     navigateToLeavePage() {
