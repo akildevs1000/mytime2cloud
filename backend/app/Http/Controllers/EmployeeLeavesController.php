@@ -7,6 +7,7 @@ use App\Http\Requests\EmployeeLeaves\UpdateRequest;
 use App\Models\Employee;
 use App\Models\EmployeeLeaves;
 use App\Models\LeaveType;
+use App\Models\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -158,30 +159,7 @@ class EmployeeLeavesController extends Controller
         }
     }
 
-    public function approveLeave(Request $request, $leaveId)
-    {
 
-        $model = EmployeeLeaves::find($leaveId);
-        if ($model) {
-            $model->status = 1;
-            $model->approve_reject_notes = $request->approve_reject_notes;
-            $record = $model->save();
-
-            //-3,date range, employee id
-            //schedule_employees shift_id=2
-
-            // $record = ScheduleEmployee::updateOrCreate(['employee_id' => $request->system_user_id, 'company_id' => $request->company_id, 'shift_id' => -3, 'shift_type_id' => $request->shift_type_id]);
-
-            if ($record) {
-
-                return $this->response('Employee Leave Approved Successfully.', $record, true);
-            } else {
-                return $this->response('Employee Leave not approved.', null, false);
-            }
-        } else {
-            return $this->response('Employee Leave data is not available.', null, false);
-        }
-    }
     public function newNotifications(Request $request)
     {
 
@@ -229,19 +207,42 @@ class EmployeeLeavesController extends Controller
         $data['status'] = true;
         return $data;
     }
+
+    public function approveLeave(Request $request, $leaveId)
+    {
+        return $this->processLeaveStatus($request, $leaveId, 1, "approved");
+    }
+
     public function rejectLeave(Request $request, $leaveId)
     {
+        return $this->processLeaveStatus($request, $leaveId, 2, "rejected");
+    }
+
+    public function processLeaveStatus($request, $leaveId, $status_id, $status_text)
+    {
         $model = EmployeeLeaves::find($leaveId);
+
         if ($model) {
-            $model->status = 2;
+            $model->status = $status_id;
             $model->approve_reject_notes = $request->approve_reject_notes;
             $record = $model->save();
 
             if ($record) {
 
-                return $this->response('Employee Leave Rejected Successfully.', $record, true);
+                $employee = Employee::where(["company_id" => $model->company_id, "employee_id" => $model->employee_id])->first();
+
+                Notification::create([
+                    "data" => "Leave application has been $status_text",
+                    "action" => "Leave Status",
+                    "model" => "EmployeeLeaves",
+                    "user_id" => $employee->user_id ?? 0,
+                    "company_id" => $model->company_id,
+                    "redirect_url" => "leaves"
+                ]);
+
+                return $this->response("Employee Leave $status_text Successfully.", $record, true);
             } else {
-                return $this->response('Employee Leave not Rejected.', null, false);
+                return $this->response("Employee Leave not $status_text.", null, false);
             }
         } else {
             return $this->response('Employee Leave data is not available.', null, false);

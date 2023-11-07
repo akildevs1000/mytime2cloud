@@ -1,12 +1,9 @@
-Queries
--------
+## Queries
 
-SELECT * FROM attendance_logs where date("LogTime") = '2023-09-28' LIMIT 100
+SELECT \* FROM attendance_logs where date("LogTime") = '2023-09-28' LIMIT 100
 
-
-SELECT * FROM attendance_logs where date("LogTime") 
+SELECT \* FROM attendance_logs where date("LogTime")
 BETWEEN '2023-10-01' and '2023-10-05' and "UserID" = '53' and company_id = '8' ORDER BY "LogTime" desc LIMIT 100
-
 
 // run this command to seed the data => php artisan db:seed --class=StatusSeeder
 
@@ -74,3 +71,24 @@ php artisan task:attendance_seeder --company_id=8 --employee_id=5656 --day_count
 php artisan serve --host=192.168.2.216
 
 php artisan schedule:work
+
+
+
+------------------------------------------
+Snippet to add action to notitfication
+------------------------------------------
+
+use App\Models\Notification;
+
+Notification::create([
+"data" => "New visitor has been registered",
+"action" => "Registration",
+"model" => "Visitor",
+"user_id" => $host->employee->user_id ?? 0,
+"company_id" => $request->company_id,
+"redirect_url" => "visitor_requests"
+]);
+
+------------------------------------------
+END Snippet to add action to notitfication 
+------------------------------------------
