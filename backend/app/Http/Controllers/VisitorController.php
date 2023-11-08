@@ -34,15 +34,27 @@ class VisitorController extends Controller
     {
         $model = Visitor::query();
 
-        $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id'];
+        $model->where("company_id", $request->input("company_id"));
+        $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in'];
 
         $model = $this->process_ilike_filter($model, $request, $fields);
+        $model->when($request->filled('first_name'), function ($q) use ($request) {
+            $q->where(function ($q) use ($request) {
+                $q->Where('first_name', 'ILIKE', "$request->first_name%");
+                $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
+            });
+        });
 
-        $model->where("company_id", $request->input("company_id"));
 
-        $model->when($request->filled("host_company_id"), fn ($q) => $q->where("host_company_id", $request->host_company_id));
+
+        //$model->when($request->filled("host_company_id"), fn ($q) => $q->where("host_company_id", $request->host_company_id));
         $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
         $model->when($request->filled("to_date"), fn ($q) => $q->where("visit_to", '<=', $request->to_date));
+        //$model->when($request->filled("purpose_id"), fn ($q) => $q->where("purpose_id", '<=', $request->purpose_id));
+
+        $fields1 = ['host_company_id', 'purpose_id'];
+        $model = $this->process_column_filter($model, $request, $fields1);
+
 
         $model->when($request->filled('sortBy'), function ($q) use ($request) {
             $sortDesc = $request->input('sortDesc');

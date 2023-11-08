@@ -666,7 +666,7 @@
           <template v-slot:header="{ props: { headers } }">
             <tr v-if="isFilter">
               <td v-for="header in headers" :key="header.text">
-                <v-container>
+                <v-container style="padding-left: 0px !important">
                   <v-text-field
                     clearable
                     @click:clear="

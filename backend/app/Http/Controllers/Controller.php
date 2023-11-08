@@ -138,6 +138,15 @@ class Controller extends BaseController
         }
         return $model;
     }
+    public function process_column_filter($model, $request, $fields)
+    {
+        foreach ($fields as $field) {
+            if ($request->filled($field)) {
+                $model->where($field,   $request->input($field));
+            }
+        }
+        return $model;
+    }
 
     public function custom_with($model, $relation, $company_id)
     {
