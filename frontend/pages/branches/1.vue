@@ -327,7 +327,7 @@
 </template>
 
 <script>
-import DateRangePicker from "../components/Snippets/Filters/DateRangePicker.vue";
+import DateRangePicker from "../../components/Snippets/Filters/DateRangePicker.vue";
 
 export default {
   components: {
