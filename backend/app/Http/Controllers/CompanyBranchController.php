@@ -99,18 +99,24 @@ class CompanyBranchController extends Controller
         }
     }
 
-    public function index(CompanyBranch $CompanyBranch, Request $request)
+    public function index(Request $request)
     {
-        // return $CompanyBranch->filter($request)->paginate($request->per_page ?? 100);
-        $model = $CompanyBranch->with("user.employee")->withCount(["employees", "devices", "departments"]);
+        $model = CompanyBranch::query();
+
+        $model->where('company_id', $request->company_id);
+
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
             return $q->where("id", $request->branch_id);
         });
 
-        $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+        $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
             return $q->where("id", $request->filter_branch_id);
         });
+
+        $model->with("user.employee")->withCount(["employees", "devices", "departments"]);
+
         return $model->orderBy("id", "desc")->paginate($request->per_page ?? 100);
+
     }
 
     public function destroy($id)
