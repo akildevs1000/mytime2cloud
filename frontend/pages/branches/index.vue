@@ -631,8 +631,8 @@ export default {
     };
 
     this.getDataFromApi();
-    this.getManagers(options);
-    this.getDepartments(options);
+    //this.getManagers(options);
+    //this.getDepartments(options);
   },
   mounted() {
     //this.getDataFromApi();
