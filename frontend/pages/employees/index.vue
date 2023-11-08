@@ -693,7 +693,7 @@
                     :hide-details="true"
                     v-if="
                       header.filterSpecial &&
-                      header.value == 'department.name.id'
+                      header.value == 'department_name_id'
                     "
                     outlined
                     dense
@@ -862,7 +862,7 @@
               {{ item.user.branch_login && "(Manager)" }}
             </div>
           </template>
-          <template v-slot:item.department.name.id="{ item }">
+          <template v-slot:item.department_name_id="{ item }">
             <strong>{{ caps(item.department.name) }}</strong>
             <div>{{ caps(item.sub_department.name) }}</div>
           </template>
@@ -1112,7 +1112,7 @@ export default {
         align: "left",
         sortable: true,
         key: "department_name_id",
-        value: "department.name.id", //template name should be match for sorting sub table should be the same
+        value: "department_name_id", //template name should be match for sorting sub table should be the same
         width: "200px",
         filterable: true,
         filterSpecial: true,
@@ -1201,6 +1201,10 @@ export default {
     }
 
     this.getDataFromApi();
+
+    if (this.$auth.user.branch_id) {
+      this.getDepartments(this.$auth.user.branch_id);
+    } else this.getDepartments(null);
   },
   mounted() {
     //this.getDataFromApi();
@@ -1293,7 +1297,7 @@ export default {
 
       if (this.$auth.user.branch_id) {
         this.getDepartments(this.$auth.user.branch_id);
-      }
+      } else this.getDepartments(null);
     },
     filterDepartmentsByBranch(filterBranchId) {
       this.getDepartments(filterBranchId);
