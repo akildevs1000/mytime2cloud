@@ -292,7 +292,7 @@ class Employee extends Model
                 },
             ])
             ->with([
-                "reportTo", "schedule_all", "branch", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
+                "reportTo", "schedule_all", "branch", "department", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
                 "emirate", "qualification", "bank", "leave_group",  "Visa", "reporting_manager",
             ])
             ->with(["schedule" => function ($q) {
@@ -384,7 +384,7 @@ class Employee extends Model
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');
                 if (strpos($request->sortBy, '.')) {
-                    if ($request->sortBy == 'department.name.id') {
+                    if ($request->sortBy == 'department.name.id' || $request->sortBy == 'department_name_id') {
                         $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
                     } else
                     if ($request->sortBy == 'user.email') {
@@ -403,6 +403,8 @@ class Employee extends Model
                     if ($request->sortBy == 'payroll.net_salary') {
                         $q->orderBy(Payroll::select("net_salary")->whereColumn("payrolls.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
                     }
+                } else if ($request->sortBy == 'department_name_id') {
+                    $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
                 } else {
                     $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
                     }

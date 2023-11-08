@@ -135,14 +135,14 @@
 
             <v-col cols="12" sm="12" md="12" lg="12">
               <TimePickerCommon
-                label="Time In"
+                label="Entry Time  "
                 :default_value="payload.time_in"
                 @getTime="(value) => (payload.time_in = value)"
               />
             </v-col>
             <v-col cols="12" sm="12" md="12" lg="12">
               <TimePickerCommon
-                label="Time Out"
+                label="Exit Time  "
                 :default_value="payload.time_out"
                 @getTime="(value) => (payload.time_out = value)"
               />
