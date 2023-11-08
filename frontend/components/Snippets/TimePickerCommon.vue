@@ -17,7 +17,7 @@
       :close-on-content-click="false"
       transition="scale-transition"
       offset-y
-      max-width="15%"
+      max-width="150px"
     >
       <template v-slot:activator="{ on, attrs }">
         <label v-if="label != ''" for=""> {{ label }}</label>

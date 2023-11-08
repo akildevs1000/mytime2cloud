@@ -383,6 +383,9 @@ export default {
     };
   },
   created() {
+    this.$router.push(`/login`);
+
+    return false;
     let { permissions } = this.$auth.user;
 
     this.menus.forEach((ele) => {

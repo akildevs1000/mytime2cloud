@@ -43,8 +43,11 @@ class Register extends FormRequest
         $validations['id_copy'] = 'required';
         $validations['host_company_id'] = 'required';
         $validations['company_id'] = 'required';
-        $validations['logo'] = 'required';
+        //   $validations['logo'] = 'required';
         $validations['date'] = 'required|date';
+
+        $validations["time_in"] = "required";
+        $validations["time_out"] = "required";
 
         return $validations;
     }

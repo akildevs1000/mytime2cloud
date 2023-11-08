@@ -660,13 +660,14 @@
                   </v-col>
                   <v-col class="px-5 pt-3">
                     <div>
-                      <b>V.ID#</b> {{ item.system_user_id ? item.system_user_id : "---" }}
+                      <b>V.ID#</b>
+                      {{ item.system_user_id ? item.system_user_id : "---" }}
                     </div>
 
                     <strong>
-                      {{ item && `${item.first_name} ${item.last_name}`  }}
+                      {{ item && `${item.first_name} ${item.last_name}` }}
                     </strong>
-                    
+
                     <div>
                       {{ item.email ? item.email : "---" }}
                     </div>
@@ -675,7 +676,7 @@
               </template>
 
               <template v-slot:item.host="{ item }">
-                {{ item.host.employee.first_name }}
+                {{ item.host && item.host.employee.first_name }}
               </template>
 
               <template v-slot:item.timezone="{ item }">

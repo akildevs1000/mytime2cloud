@@ -431,7 +431,7 @@
                         height: 60px;
                       "
                       :src="
-                        item.employee.profile_picture
+                        item.employee
                           ? item.employee.profile_picture
                           : '/no-profile-image.jpg'
                       "
@@ -441,7 +441,7 @@
                   <v-col style="padding: 10px">
                     <strong>
                       {{
-                        item.employee.first_name
+                        item.employee
                           ? item.employee.first_name +
                             " " +
                             item.employee.last_name +
@@ -451,11 +451,7 @@
                       }}
                     </strong>
                     <div>
-                      {{
-                        item.employee.user.email
-                          ? item.employee.user.email
-                          : "---"
-                      }}
+                      {{ item.employee ? item.employee.user.email : "---" }}
                     </div>
                   </v-col>
                 </v-row>

@@ -143,6 +143,7 @@
         <img title="My Time Cloud " :src="logo_src" style="width: 150px" />
       </span>
       <v-spacer></v-spacer>
+      <!-- {{ viewing_page_name }} -->
       <span style="100%">
         <template v-if="getLoginType == 'company' || getLoginType == 'branch'">
           <v-row align="center" justify="space-around" class="">
@@ -677,6 +678,7 @@ export default {
         label: "Logout",
       },
       branchesList: [],
+      viewing_page_name: "",
     };
   },
   created() {
@@ -698,6 +700,29 @@ export default {
     this.logo_src = require("@/static/logo22.png");
 
     this.getBranches();
+
+    //get current page name
+    // try {
+    //   this.viewing_page_name = this.$route.name ? this.$route.name : "";
+
+    //   this.viewing_page_name = console.log(
+    //     "filter_menu   ",
+    //     this.viewing_page_name
+    //   );
+    //   let filter_menu = this.company_menus.filter(
+    //     (e) => e.to == "/" + this.viewing_page_name
+    //   );
+    //   console.log("filter_menu ", filter_menu[0]);
+    //   if (filter_menu[0].module != "dashboard") {
+    //     filter_menu = this.company_menus.filter(
+    //       (e) => e.click == filter_menu[0].module
+    //     );
+    //   }
+    //   console.log("filter_menu 2 ", filter_menu[0]);
+    //   this.getTopMenuItems(filter_menu[0]);
+    // } catch (e) {
+    //   console.log(e);
+    // }
   },
 
   mounted() {
@@ -763,7 +788,9 @@ export default {
       }
 
       if (logosrc == "") {
-        logosrc = this.$auth.user && this.$auth.user.company.logo;
+        logosrc = this.$auth.user
+          ? this.$auth.user.company.logo
+          : "/no-profile-image.jpg";
       }
 
       return logosrc;

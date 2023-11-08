@@ -41,8 +41,20 @@ class VisitorController extends Controller
         $model->where("company_id", $request->input("company_id"));
 
         $model->when($request->filled("host_company_id"), fn ($q) => $q->where("host_company_id", $request->host_company_id));
+        $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
+        $model->when($request->filled("to_date"), fn ($q) => $q->where("visit_to", '<=', $request->to_date));
 
-        $model->orderByDesc("id");
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            $sortDesc = $request->input('sortDesc');
+            if (strpos($request->sortBy, '.')) {
+            } else {
+                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                }
+            }
+        });
+
+        if (!$request->sortBy)
+            $model->orderBy("visit_from", "DESC");
 
         return $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
     }

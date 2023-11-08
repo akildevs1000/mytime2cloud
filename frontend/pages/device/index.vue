@@ -92,7 +92,7 @@
             outlined
             dense
             label="Branch Name *"
-            :items="branchesList"
+            :items="branches"
             item-value="id"
             item-text="branch_name"
           ></v-autocomplete>
@@ -1005,7 +1005,6 @@ export default {
       }));
     },
     getBranches() {
-      console.log("this.$auth.user.company_id", this.$auth.user.company_id);
       this.$axios
         .get(`branch`, { params: { company_id: this.$auth.user.company_id } })
         .then(({ data }) => {

@@ -62,6 +62,11 @@ class Update extends FormRequest
         $validations['reason'] = 'required|string|max:255';
         $validations["company_id"] = "required";
 
+
+
+        $validations["time_in"] = "required";
+        $validations["time_out"] = "required";
+
         return $validations;
     }
 }

@@ -83,11 +83,14 @@ export default {
   //   },
   // },
   mounted() {
+    this.$router.push(`/login`);
     // if (this.$auth.user.user_type == "employee") {
     //   this.$router.push(`/dashboard/employee`);
     // }
   },
   created() {
+    this.$router.push(`/login`);
+
     // if (this.$auth.user.user_type == "employee") {
     //   this.$router.push(`/dashboard/employee`);
     // }

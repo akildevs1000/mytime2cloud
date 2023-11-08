@@ -132,6 +132,22 @@
                 </v-date-picker>
               </v-menu>
             </v-col>
+
+            <v-col cols="12" sm="12" md="12" lg="12">
+              <TimePickerCommon
+                label="Time In"
+                :default_value="payload.time_in"
+                @getTime="(value) => (payload.time_in = value)"
+              />
+            </v-col>
+            <v-col cols="12" sm="12" md="12" lg="12">
+              <TimePickerCommon
+                label="Time Out"
+                :default_value="payload.time_out"
+                @getTime="(value) => (payload.time_out = value)"
+              />
+            </v-col>
+
             <v-col cols="12" sm="6" md="4" lg="6">
               <v-select
                 v-model="payload.purpose_id"
@@ -266,14 +282,17 @@
 </template>
 
 <script>
+import TimePickerCommon from "../../../components/Snippets/TimePickerCommon.vue";
 let date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
   .toISOString()
   .substring(0, 10);
 export default {
+  components: { TimePickerCommon },
   layout: "login",
   auth: false,
 
   data: () => ({
+    time_in_menu: "",
     responseStatus: "",
     responseDialog: false,
     visit_from_menu: false,

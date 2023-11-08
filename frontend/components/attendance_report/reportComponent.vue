@@ -110,6 +110,31 @@
         </div>
 
         <v-spacer></v-spacer>
+        <span style="padding-left: 15px"
+          ><img
+            title="Print"
+            style="cursor: pointer"
+            @click="process_file(report_type)"
+            src="/icons/icon_print.png"
+            class="iconsize"
+        /></span>
+        <span style="padding-left: 15px"
+          ><img
+            title="Download Pdf"
+            style="cursor: pointer"
+            @click="process_file(report_type + '_download_pdf')"
+            src="/icons/icon_pdf.png"
+            class="iconsize"
+        /></span>
+        <span style="padding-left: 15px"
+          ><img
+            title="Download Excel"
+            style="cursor: pointer"
+            @click="process_file(report_type + '_download_csv')"
+            src="/icons/icon_excel.png"
+            class="iconsize"
+        /></span>
+
         <v-menu bottom right>
           <template v-slot:activator="{ on, attrs }">
             <v-btn dark-2 icon v-bind="attrs" v-on="on">

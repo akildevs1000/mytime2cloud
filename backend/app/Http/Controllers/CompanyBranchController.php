@@ -101,6 +101,8 @@ class CompanyBranchController extends Controller
 
     public function index(Request $request)
     {
+
+
         $model = CompanyBranch::query();
 
         $model->where('company_id', $request->company_id);
@@ -116,7 +118,6 @@ class CompanyBranchController extends Controller
         $model->with("user.employee")->withCount(["employees", "devices", "departments"]);
 
         return $model->orderBy("id", "desc")->paginate($request->per_page ?? 100);
-
     }
 
     public function destroy($id)
