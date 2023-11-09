@@ -216,8 +216,8 @@ class AuthController extends Controller
             };
 
             $user->load("employee");
-
-            return Role::where("id", $user->role_id)->value("role_type");
+            $user->role_type = Role::where("id", $user->role_id)->value("role_type");
+            return "employee";
         } else {
             return $user->role_id > 0 ? "user" : "master";
         }
