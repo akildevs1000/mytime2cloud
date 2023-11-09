@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`dashboard_access`)">
+  <div v-if="can(`visitor_access`)">
     <div v-if="!loading">
       <v-dialog
         persistent
@@ -93,8 +93,9 @@
           </div>
         </v-col>
       </v-row>
-
-      <VisitorList />
+      Visitor Dashoard
+      <!-- 
+      <VisitorList /> -->
     </div>
     <Preloader v-else />
   </div>

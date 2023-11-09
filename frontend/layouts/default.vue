@@ -860,7 +860,6 @@ export default {
       return this.$auth.user.branch_name;
     },
     getTopMenuItems(i) {
-      console.log(i.module);
       if (i.module == "dashboard") {
         this.setTopMenuItems(i.click, i.to);
       }
@@ -1584,6 +1583,10 @@ button {
 }
 .slidegroup1 .v-slide-group {
   height: 34px !important;
+}
+
+.icon-blue {
+  color: #755fc9 !important;
 }
 </style>
 

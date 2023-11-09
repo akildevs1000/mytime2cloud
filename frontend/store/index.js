@@ -40,7 +40,6 @@ export const mutations = {
       email: "",
       password: "",
     });
-    console.log("state", state);
   },
   login_token(state, value) {
     state.login_token = value;
@@ -73,7 +72,6 @@ export const mutations = {
     state.employee_id = value;
   },
   main_report_type(state, value) {
-    // console.log(value);
     state.main_report_type = value;
   },
   shift_type_id(state, value) {
