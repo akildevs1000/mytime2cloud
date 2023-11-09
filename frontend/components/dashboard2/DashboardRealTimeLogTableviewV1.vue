@@ -53,13 +53,14 @@
       dense
       :headers="headers_table"
       :items="logs.data"
+      model-value="data.id"
       :loading="tableloading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [5, 10, 50, 100, 500, 1000],
+        itemsPerPageOptions: [10, 20, 50, 500, 1000],
       }"
       class="elevation-0"
-      :server-items-length="logs.total"
+      :server-items-length="totalRowsCount"
     >
       <template v-slot:item.sno="{ item, index }">
         {{
@@ -159,6 +160,7 @@ export default {
   props: ["system_user_id", "branch_id"],
   data() {
     return {
+      totalRowsCount: 0,
       perPage: 10,
       cumulativeIndex: 1,
       currentPage: 1,
@@ -253,6 +255,11 @@ export default {
         //   value: "log",
         // },
       ],
+      pagination: {
+        current: 1,
+        total: 0,
+        per_page: 10,
+      },
     };
   },
   watch: {
@@ -293,7 +300,7 @@ export default {
   },
   methods: {
     viewLogs() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/devicelogs");
     },
     viewLog(system_user_id) {
       this.dialogEmployeeAttendance = true;
@@ -313,25 +320,43 @@ export default {
       this.tableloading = true;
       this.loading = true;
 
-      if (this.$store.state.dashboard.recent_logs) {
-        this.loading = false;
-        this.tableloading = false;
-        this.logs = this.$store.state.dashboard.recent_logs;
-        return;
-      }
+      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
+      let sortedBy = sortBy ? sortBy[0] : "";
+      let sortedDesc = sortDesc ? sortDesc[0] : "";
+      let options = {
+        params: {
+          page: page,
+          sortBy: sortedBy,
+          sortDesc: sortedDesc,
+          per_page: itemsPerPage, //this.pagination.per_page,
+          company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id > 0 ? this.branch_id : null,
+        },
+      };
+      if (page == 1) {
+        if (this.$store.state.dashboard.recent_logs) {
+          this.loading = false;
+          this.tableloading = false;
+          this.logs = this.$store.state.dashboard.recent_logs;
+          return;
+        }
+      }
       this.$axios
-        .get(`device/getLastRecordsHistory/${this.$auth.user.company_id}/10`, {
-          params: {
-            per_page: 10,
-            branch_id: this.branch_id > 0 ? this.branch_id : null,
-          },
-        })
+        .get(
+          `device/getLastRecordsHistory/${this.$auth.user.company_id}/10`,
+          options
+        )
         .then(({ data }) => {
           this.logs = data;
           this.$store.commit("dashboard/recent_logs", data);
           this.loading = false;
           this.tableloading = false;
+
+          this.pagination.current = data.current_page;
+          this.pagination.total = data.last_page;
+
+          this.totalRowsCount = data.total;
         });
     },
     socketConnection() {

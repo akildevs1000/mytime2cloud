@@ -108,7 +108,7 @@ export default {
 
   data() {
     return {
-      loading: true,
+      loading: false,
       dialogGeneralreport: false,
       iframeDisplay: false,
       iframeUrl: "",
@@ -116,7 +116,7 @@ export default {
     };
   },
   created() {
-    this.initialize();
+    //this.initialize();
   },
   mounted() {},
   computed: {
@@ -177,6 +177,7 @@ export default {
       return this.$pagePermission.can(per, this);
     },
     initialize() {
+      this.loading = true;
       let options = {
         company_id: this.$auth.user.company_id,
       };

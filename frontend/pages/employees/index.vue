@@ -721,7 +721,7 @@
                     :hide-details="true"
                     v-if="
                       header.filterSpecial &&
-                      header.value == 'department.branch.id'
+                      header.value == 'branch.branch_name'
                     "
                     outlined
                     dense
@@ -851,13 +851,7 @@
           </template>
 
           <template v-slot:item.branch.branch_name="{ item }">
-            {{
-              caps(
-                item.department &&
-                  item.department.branch &&
-                  item.department.branch.branch_name
-              )
-            }}
+            {{ caps(item.branch && item.branch.branch_name) }}
             <div class="secondary-value">
               {{ item.user.branch_login && "(Manager)" }}
             </div>
@@ -1283,6 +1277,13 @@ export default {
   },
   watch: {
     options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true,
+    },
+
+    editDialog: {
       handler() {
         this.getDataFromApi();
       },
