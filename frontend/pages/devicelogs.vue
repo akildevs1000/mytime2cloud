@@ -531,7 +531,14 @@ export default {
     },
     handleDatesFilter(dates) {
       if (dates.length > 1) {
+        this.payload.from_date = dates[0];
+        this.payload.to_date = dates[1];
+        this.payload.from_date_txt = dates[0];
+        this.payload.to_date_txt = dates[1];
         this.getDataFromApi(this.endpoint, "dates", dates);
+
+        // this.payloadOptions.params["from_date"] = filter_value[0];
+        // this.payloadOptions.params["to_date"] = filter_value[1];
       }
     },
     getDepartments() {
@@ -616,7 +623,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     getRecords(filter_column = "", filter_value = "") {
       this.filters = {};
       this.isFilter = false;
@@ -647,8 +654,12 @@ export default {
           ...this.filters,
         },
       };
-      if (filter_column != "")
+      if (filter_column != "") {
+        console.log("filter_column", filter_column);
+
         this.payloadOptions.params[filter_column] = filter_value;
+      }
+
       this.loading = true;
       this.$axios.get(url, this.payloadOptions).then(({ data }) => {
         // if (filter_column != "" && data.data.length == 0) {
