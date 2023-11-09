@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\AssignedDepartmentEmployee;
 use App\Models\CompanyBranch;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -192,59 +193,31 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        // return User::where("id", ">", 0)->update(["employee_role_id" => 0]);
-
-        // $data = User::withOut("assigned_permissions")->where("employee_role_id", ">", 0)->get(["id", "employee_role_id", "role_id"]);
-
-        // foreach ($data as $key => $value) {
-        //     User::where("id", $value->id)->update(["role_id" => $value->employee_role_id]);
-        // }
-
-        // return $data;
-
         $user = $request->user();
         $user->load("company");
         $user->user_type = $this->getUserType($user);
-        // $assigned_branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id', 'branch_name')->first();
-
-        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo")->get();
-        if (isset($branchesArray[0])) {
-            $assigned_branch_id = $branchesArray[0]['id'];
-
-            $user->user_type = "branch";
-            $user->branch_name = $branchesArray[0]['branch_name'];
-            $user->branch_logo =  $branchesArray[0]['logo'];
-        }
-        $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
-
         $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
         return ['user' => $user];
     }
 
     public function getUserType($user)
     {
-
         if ($user->company_id > 0) {
 
-            if ($user->user_type === "company") {
-                return $user->user_type;
-            }
+            if ($user->user_type === "company")  return $user->user_type;
 
-            $assginedDepartments = $this->getAssignedDepartments($user);
+            $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo as branch_logo")->first();
 
-            if (count($assginedDepartments) == 0) {
-                $user->assignedDepartments = [];
-                return "employee";
-            }
-
-            $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name')->get();
-            if (isset($branchesArray[0])) {
+            if ($branchesArray) {
+                $user->branch_name = $branchesArray->branch_name;
+                $user->branch_logo = $branchesArray->logo;
+                $user->branch_id = $user->id;
                 return "branch";
-            }
-            return "employee";
-            // $user->assignedDepartments = $this->getAssignedDepartments($user);
-            // //return "branch";
-            // return "manager";
+            };
+
+            $user->load("employee");
+
+            return Role::where("id", $user->role_id)->value("role_type");
         } else {
             return $user->role_id > 0 ? "user" : "master";
         }

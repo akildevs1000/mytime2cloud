@@ -344,7 +344,7 @@ export default {
     this.boilerplate = true;
     let params = this.$route.params.id.split("-");
     this.payload.company_id = params[0];
-    this.payload.host_company_id = params[1];
+    this.payload.host_company_id = params[1] || 0;
     await this.getPurposes();
   },
 

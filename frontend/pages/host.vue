@@ -216,6 +216,7 @@
               </v-col>
 
               <v-col cols="6" v-if="disabled">
+                <div class="px-5 popup_background">Host Link</div>
                 <div>
                   <v-avatar class="ma-1" v-if="qrCodeDataURL" size="150" tile>
                     <img :src="qrCodeDataURL" alt="Avatar" />
@@ -224,6 +225,25 @@
                 <span>
                   <a :href="`${fullLink}`" target="_blank">
                     {{ fullLink }}
+                  </a>
+                </span>
+              </v-col>
+
+              <v-col cols="6" v-if="disabled">
+                <div class="px-5 popup_background">Open Link</div>
+                <div>
+                  <v-avatar
+                    class="ma-1"
+                    v-if="qrCompanyCodeDataURL"
+                    size="150"
+                    tile
+                  >
+                    <img :src="qrCompanyCodeDataURL" alt="Avatar" />
+                  </v-avatar>
+                </div>
+                <span>
+                  <a :href="`${fullCompanyLink}`" target="_blank">
+                    {{ fullCompanyLink }}
                   </a>
                 </span>
               </v-col>
@@ -512,9 +532,11 @@ export default {
 
   data: () => ({
     originalURL: `https://mytime2cloud.com/register/visitor/`,
+    fullCompanyLink: ``,
     encryptedID: "",
     fullLink: "",
     qrCodeDataURL: "",
+    qrCompanyCodeDataURL: "",
     disabled: false,
     openTimePicker: false,
     closeTimePicker: false,
@@ -870,7 +892,9 @@ export default {
       this.previewImage = item.logo;
       this.fullLink =
         this.originalURL + this.$auth.user.company_id + "-" + item.id;
+      this.fullCompanyLink = this.originalURL + this.$auth.user.company_id;
       this.generateQRCode(this.fullLink);
+      this.generateCompanyQRCode(this.fullCompanyLink);
     },
     deleteItem(item) {
       confirm(
@@ -943,6 +967,14 @@ export default {
     async generateQRCode(fullLink) {
       try {
         this.qrCodeDataURL = await this.$qrcode.generate(fullLink);
+      } catch (error) {
+        console.error("Error generating QR code:", error);
+      }
+    },
+
+    async generateCompanyQRCode(fullLink) {
+      try {
+        this.qrCompanyCodeDataURL = await this.$qrcode.generate(fullLink);
       } catch (error) {
         console.error("Error generating QR code:", error);
       }

@@ -41,8 +41,10 @@ class Register extends FormRequest
         $validations['id_type'] = 'required';
         $validations['id_number'] = 'required|string|max:255';
         $validations['id_copy'] = 'required';
-        $validations['host_company_id'] = 'required';
+        $validations['host_company_id'] = 'nullable';
         $validations['company_id'] = 'required';
+        $validations['status_id'] = 'required';
+
         //   $validations['logo'] = 'required';
         $validations['date'] = 'required|date';
 
