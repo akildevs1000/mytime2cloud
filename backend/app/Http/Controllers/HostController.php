@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\HostCompany\Store;
 use App\Http\Requests\HostCompany\Update;
+use App\Models\Employee;
 use App\Models\HostCompany;
 use Illuminate\Http\Request;
 
@@ -25,6 +26,24 @@ class HostController extends Controller
 
         return $model->get();
     }
+    // public function host_employees_list(Request $request)
+
+
+    // {
+
+    //     $model = HostCompany::query();
+    //     $model->with("employee");
+    //     return   $model->where("company_id", $request->input("company_id"))->pluck("employee.id");
+
+    //     $model = Employee::query();
+
+
+
+    //     $model->where("company_id", $request->input("company_id"));
+    //     $model->whereIn("id",);
+
+    //     return $model->get();
+    // }
 
     public function show($id)
     {

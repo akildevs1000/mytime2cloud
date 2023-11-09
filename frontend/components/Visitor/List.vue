@@ -11,7 +11,13 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-            <h4>Visitor :</h4>
+            <span class="bold"> Visitor </span>
+
+            <span style="float: right">
+              <span :style="'color:' + getRelatedColor(item)">{{
+                item.status
+              }}</span></span
+            >
             <v-row class="100%" style="margin: auto; light-height: 36px">
               <v-col cols="4" style="padding: 0px">
                 <v-img
@@ -94,7 +100,7 @@
               </v-col>
             </v-row>
             <v-divider class="mt-3"></v-divider>
-            <h4>Host :</h4>
+            <h4 style="background: #ddd" class="mb-3">Host :</h4>
 
             <v-row>
               <v-col col="4">
@@ -107,7 +113,11 @@
                     height: auto;
                     border: 1px solid #ddd;
                   "
-                  :src="item.logo ? item.logo : '/no-profile-image.jpg'"
+                  :src="
+                    item.host
+                      ? item.host.employee.profile_picture
+                      : '/no-profile-image.jpg'
+                  "
                 >
                 </v-img>
               </v-col>
@@ -116,22 +126,26 @@
                 <v-row>
                   <v-col col="3">Employee Name </v-col>
                   <v-col col="9"
-                    >: {{ item.host?.fist_name }}
-                    {{ item.host?.last_name }}</v-col
+                    >: {{ item.host?.employee.first_name }}
+                    {{ item.host?.employee.last_name }}</v-col
                   >
                 </v-row>
                 <v-row>
                   <v-col col="3">Contact Number</v-col>
-                  <v-col col="9">: {{ item.host?.phone_number }}</v-col>
+                  <v-col col="9"
+                    >: {{ item.host?.employee.phone_number }}</v-col
+                  >
                 </v-row>
                 <v-row>
                   <v-col col="3"> Email Id </v-col>
-                  <v-col col="9"> {{ item.host?.user?.email || "---" }} </v-col>
+                  <v-col col="9">
+                    {{ item.host?.employee.user?.email || "---" }}
+                  </v-col>
                 </v-row>
                 <v-row>
                   <v-col col="3"> Branch </v-col>
                   <v-col col="9">
-                    : {{ item.host?.branch?.branch_name || "---" }}
+                    : {{ item.host?.employee.branch?.branch_name || "---" }}
                   </v-col>
                 </v-row>
                 <v-row>
@@ -222,7 +236,27 @@
                   dense
                   autocomplete="off"
                 ></v-text-field>
-
+                <v-select
+                  clearable
+                  :hide-details="true"
+                  @change="applyFilters('status', $event)"
+                  item-value="id"
+                  item-text="name"
+                  v-model="filters[header.value]"
+                  outlined
+                  dense
+                  v-else-if="
+                    header.filterable &&
+                    header.filterSpecial &&
+                    header.value == 'status_id'
+                  "
+                  :items="[
+                    { id: '', name: 'All' },
+                    { id: '1', name: 'Pending' },
+                    { id: '2', name: 'Approved' },
+                    { id: '3', name: 'Rejected' },
+                  ]"
+                ></v-select>
                 <v-select
                   clearable
                   :hide-details="true"
@@ -239,6 +273,25 @@
                   "
                   :items="[{ id: '', name: 'All Purposes' }, ...purposeList]"
                 ></v-select>
+                <v-autocomplete
+                  clearable
+                  :hide-details="true"
+                  @change="applyFilters('status', $event)"
+                  item-value="host_id"
+                  item-text="full_name"
+                  v-model="filters[header.value]"
+                  outlined
+                  dense
+                  v-else-if="
+                    header.filterable &&
+                    header.filterSpecial &&
+                    header.value == 'host_company_id'
+                  "
+                  :items="[
+                    { host_id: '', full_name: 'All Hosts' },
+                    ...hostList,
+                  ]"
+                ></v-autocomplete>
 
                 <div
                   v-else-if="
@@ -314,8 +367,9 @@
 
           <span class="secondary-value"> {{ item.id_number }}</span>
         </template>
-        <template v-slot:item.host="{ item }">
-          {{ item.host?.first_name || "---" }}{{ item.host?.first_name }}
+        <template v-slot:item.host_company_id="{ item }">
+          {{ item.host?.employee.first_name || "---" }}
+          {{ item.host?.employee.last_name }}
         </template>
         <template v-slot:item.status_id="{ item }">
           <span :style="'color:' + getRelatedColor(item)">{{
@@ -332,7 +386,7 @@
             <v-list width="120" dense>
               <v-list-item @click="viewInfo(item)">
                 <v-list-item-title style="cursor: pointer">
-                  <v-icon color="green" small> mdi-check </v-icon>
+                  <v-icon color="green" small> mdi-eye </v-icon>
                   View
                 </v-list-item-title>
               </v-list-item>
@@ -387,6 +441,7 @@
 <script>
 export default {
   data: () => ({
+    hostList: [],
     item: { purpose: {} },
     viewDialog: false,
     formAction: "Create",
@@ -489,7 +544,7 @@ export default {
         text: "Host",
         align: "left",
         sortable: true,
-        value: "host",
+        value: "host_company_id",
         filterable: true,
         filterSpecial: true,
       },
@@ -529,8 +584,11 @@ export default {
 
     this.from_date = today.toISOString().slice(0, 10);
     this.to_date = today.toISOString().slice(0, 10);
-    this.getPurposeList();
     this.getDataFromApi();
+    setTimeout(() => {
+      this.getPurposeList();
+      this.getHostsList();
+    }, 1000);
   },
   methods: {
     viewInfo(item) {
@@ -562,6 +620,29 @@ export default {
       };
       this.$axios.get(`purpose_list`, options).then(({ data }) => {
         this.purposeList = data;
+      });
+    },
+    getHostsList() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+      this.$axios.get(`host_list`, options).then(({ data }) => {
+        this.hostList = [];
+
+        // Loop through the data and extract employee_id and full_name
+        for (let i = 0; i < data.length; i++) {
+          let item = data[i];
+          let employee = item.employee;
+          if (employee) {
+            // Add the extracted information to the array
+            this.hostList.push({
+              host_id: item.id,
+              full_name: employee.full_name,
+            });
+          }
+        }
       });
     },
     // filterAttr(data) {
