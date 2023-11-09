@@ -19,6 +19,29 @@ export const state = () => ({
 
 // contains your mutations
 export const mutations = {
+  RESET_STATE(state) {
+    // Object.keys(state).forEach((key) => {
+    //   state[key] = null;
+    // });
+    state = () => ({
+      first_login: 1,
+      color: "primary",
+      employee_id: "",
+      main_report_type: "",
+      loginType: "manager",
+      shift_type_id: "",
+      shift_id: "",
+      shift_name: "",
+      branch_id: "",
+
+      devices: [],
+      employees: [],
+      login_token: "",
+      email: "",
+      password: "",
+    });
+    console.log("state", state);
+  },
   login_token(state, value) {
     state.login_token = value;
   },
@@ -61,5 +84,11 @@ export const mutations = {
   },
   shift_name(state, value) {
     state.shift_name = value;
+  },
+};
+
+export const actions = {
+  resetState({ commit }) {
+    commit("RESET_STATE");
   },
 };

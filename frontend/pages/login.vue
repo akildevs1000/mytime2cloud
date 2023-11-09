@@ -294,7 +294,10 @@ export default {
     userId: "",
   }),
   created() {
-    //this.$store.commit("dashboard/resetState", null);
+    // this.$store.commit("dashboard/resetState", null);
+    this.$store.dispatch("dashboard/resetState");
+    this.$store.dispatch("resetState");
+
     this.verifyToken();
   },
   methods: {

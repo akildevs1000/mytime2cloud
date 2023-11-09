@@ -50,6 +50,7 @@
     <ComonPreloader icon="face-scan" v-if="loading" />
 
     <v-data-table
+      style="overflow-y: scroll"
       dense
       :headers="headers_table"
       :items="logs.data"
@@ -57,7 +58,7 @@
       :loading="tableloading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [10, 20, 50, 500, 1000],
+        itemsPerPageOptions: [5, 10],
       }"
       class="elevation-0"
       :server-items-length="totalRowsCount"
@@ -334,7 +335,7 @@ export default {
           branch_id: this.branch_id > 0 ? this.branch_id : null,
         },
       };
-      console.log("page", page, this.$store.state.dashboard.recent_logs);
+
       if (page == 1) {
         if (this.$store.state.dashboard.recent_logs) {
           this.loading = false;
@@ -386,7 +387,7 @@ export default {
           this.$auth.user &&
           data.device.company_id == this.$auth.user.company_id
         ) {
-          this.logs.unshift(data);
+          this.logs.data.unshift(data);
         }
       });
     },
@@ -429,6 +430,9 @@ export default {
 };
 </script>
 <style scoped>
+.theme--light.v-data-table .v-data-footer {
+  float: right !important;
+}
 .center-both {
   height: 31vh;
   /* Adjust the height as needed */
