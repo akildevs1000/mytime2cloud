@@ -38,10 +38,9 @@ class Visitor extends Model
     public function getStatusAttribute()
     {
         return match ($this->status_id) {
-            1 => 'Pending',
-            2 => 'Approved',
-            3 => 'Rejected',
-            default => 'Pending' // Handle any other values if needed
+            "1" => 'Pending',
+            "2" => 'Approved',
+            "3" => 'Rejected',
         };
     }
 
@@ -77,7 +76,7 @@ class Visitor extends Model
     public function host()
     {
         return $this->belongsTo(HostCompany::class, 'host_company_id')
-            ->with("employee:id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
+            ->with("employee:id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture,phone_number,branch_id");
     }
 
 

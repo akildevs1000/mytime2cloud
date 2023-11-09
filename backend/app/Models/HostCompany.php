@@ -28,6 +28,6 @@ class HostCompany extends Model
      */
     public function employee()
     {
-        return $this->belongsTo(Employee::class)->withOut(["schedule", "department", "designation", "department", "sub_department", 'branch']);
+        return $this->belongsTo(Employee::class)->withOut(["schedule", "department", "designation", "department", "sub_department"]);
     }
 }
