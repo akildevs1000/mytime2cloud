@@ -29,6 +29,9 @@ class RoleController extends Controller
             if ($request->company_id) {
                 $data['company_id'] = $request->company_id;
             }
+
+            $data["role_type"] =  str_replace(' ', '_', strtolower($data["name"]));
+
             $record = Role::create($data);
 
             if ($record) {

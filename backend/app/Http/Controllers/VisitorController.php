@@ -45,11 +45,11 @@ class VisitorController extends Controller
             });
         });
 
-
-
         //$model->when($request->filled("host_company_id"), fn ($q) => $q->where("host_company_id", $request->host_company_id));
         $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
         $model->when($request->filled("to_date"), fn ($q) => $q->where("visit_to", '<=', $request->to_date));
+        $model->when($request->filled("status_id"), fn ($q) => $q->where("status_id",  $request->status_id));
+
         //$model->when($request->filled("purpose_id"), fn ($q) => $q->where("purpose_id", '<=', $request->purpose_id));
 
         $fields1 = ['host_company_id', 'purpose_id'];
