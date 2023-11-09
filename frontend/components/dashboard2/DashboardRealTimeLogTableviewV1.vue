@@ -334,11 +334,17 @@ export default {
           branch_id: this.branch_id > 0 ? this.branch_id : null,
         },
       };
+      console.log("page", page, this.$store.state.dashboard.recent_logs);
       if (page == 1) {
         if (this.$store.state.dashboard.recent_logs) {
           this.loading = false;
           this.tableloading = false;
           this.logs = this.$store.state.dashboard.recent_logs;
+
+          this.pagination.current = this.logs.current_page;
+          this.pagination.total = this.logs.last_page;
+
+          this.totalRowsCount = this.logs.total;
           return;
         }
       }

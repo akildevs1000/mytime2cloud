@@ -18,6 +18,24 @@ export const state = () => ({
 });
 
 export const mutations = {
+  RESET_STATE(state) {
+    state = {
+      dashboardData: null,
+      date_from: null, // Add 'date_from' property
+      date_to: null, // Add 'date_to' property
+      recent_logs: null, // Add 'date_to' property
+      previous_week_attendance_count: null, // Add 'date_to' property
+      attendance_count: null, // Add 'date_to' property
+      off_devices_count: null, // Add 'date_to' property
+      leaves_request_count: null, // Add 'date_to' property
+      announcements: null, // Add 'date_to' property
+      every_hour_count: null,
+      web_logins: null,
+      attendance_count_by_department: null,
+      branch_id: null,
+      system_user_id: null,
+    };
+  },
   setDashboardData(state, data) {
     state.dashboardData = data;
   },
@@ -77,6 +95,9 @@ export const mutations = {
 };
 
 export const actions = {
+  resetState({ commit }) {
+    commit("RESET_STATE", null);
+  },
   async states_for_7_days({ commit, state }) {
     if (
       state.dashboardData &&
