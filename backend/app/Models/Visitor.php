@@ -41,6 +41,7 @@ class Visitor extends Model
             "1" => 'Pending',
             "2" => 'Approved',
             "3" => 'Rejected',
+            default => 'Pending' // Handle any other values if needed
         };
     }
 
