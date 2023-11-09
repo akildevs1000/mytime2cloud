@@ -140,7 +140,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     initialize() {
       let options = {
         company_id: this.$auth.user.company_id,
