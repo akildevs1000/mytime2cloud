@@ -18,7 +18,7 @@
                 item.status
               }}</span></span
             >
-            <v-row class="100%" style="margin: auto; light-height: 36px">
+            <v-row class="100%" style="margin: auto; line-height: 36px">
               <v-col cols="4" style="padding: 0px">
                 <v-img
                   style="
