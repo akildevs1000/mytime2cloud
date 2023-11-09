@@ -336,6 +336,8 @@ export default {
         },
       };
 
+      this.currentPage = page;
+      this.perPage = itemsPerPage;
       if (page == 1) {
         if (this.$store.state.dashboard.recent_logs) {
           this.loading = false;
