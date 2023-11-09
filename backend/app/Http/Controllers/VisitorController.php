@@ -112,7 +112,6 @@ class VisitorController extends Controller
     {
         $data = $request->validated();
 
-
         $data['logo'] = $this->processImage("media/visitor/logo");
         $data['date'] = date("Y-m-d");
 
@@ -148,18 +147,22 @@ class VisitorController extends Controller
             $message .= "*MyTime2Cloud*";
             $company = Company::where("id", $request->company_id)->first();
 
-            $host = HostCompany::where("id", $data['host_company_id'])->with("employee:id,user_id,employee_id")->first();
 
-            Notification::create([
-                "data" => "New visitor has been registered",
-                "action" => "Registration",
-                "model" => "Visitor",
-                "user_id" => $host->employee->user_id ?? 0,
-                "company_id" => $request->company_id,
-                "redirect_url" => "visitor_requests"
-            ]);
+            if ($data['host_company_id'] ?? false) {
+                
+                $host = HostCompany::where("id", $data['host_company_id'])->with("employee:id,user_id,employee_id")->first();
 
-            (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number ?? 971554501483);
+                (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number ?? 971554501483);
+
+                Notification::create([
+                    "data" => "New visitor has been registered",
+                    "action" => "Registration",
+                    "model" => "Visitor",
+                    "user_id" => $host->employee->user_id ?? 0,
+                    "company_id" => $request->company_id,
+                    "redirect_url" => "visitor_requests"
+                ]);
+            }
 
             $data['url'] = "https://backend.mytime2cloud.com/media/visitor/logo/" . $data['logo'];
 
