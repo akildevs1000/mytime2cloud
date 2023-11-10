@@ -30,7 +30,7 @@
                 <h3 class="card-title text-capitalize">{{ i.title }}</h3>
                 <h2
                   class=""
-                  style="cursor: pointer"
+                  style="cursor: pointer; font-size: 70px; text-align: center"
                   @click="filterStatus(i.title)"
                 >
                   {{ i.value }}
@@ -65,16 +65,16 @@
           cols="12"
           md="3"
         >
-          <div class="card p-2" :class="i.color" style="height: 130px">
+          <div class="card p-2" :class="i.color" style="height: 150px">
             <div class="card-statistic-3">
-              <div class="card-icon card-icon-large" style="margin: -20px 10px">
+              <div class="card-icon card-icon-large" style="">
                 <i :class="i.icon"></i>
               </div>
               <div class="card-content">
                 <h3 class="card-title text-capitalize">{{ i.title }}</h3>
                 <h2
                   class=""
-                  style="cursor: pointer"
+                  style="cursor: pointer; font-size: 70px; text-align: center"
                   @click="filterStatus(i.title)"
                 >
                   {{ i.value }}
@@ -105,7 +105,7 @@
         </v-col>
       </v-row>
 
-      <VisitorList :filterValue="filterTitle" />
+      <VisitorList :key="counter" :filterValue="filterTitle" />
     </div>
     <Preloader v-else />
   </div>
@@ -119,6 +119,7 @@ export default {
 
   data() {
     return {
+      counter: 1,
       loading: false,
       dialogGeneralreport: false,
       iframeDisplay: false,
@@ -157,6 +158,7 @@ export default {
   methods: {
     filterStatus(status) {
       this.filterTitle = status;
+      //this.counter++;
     },
 
     openDialog(announcement) {

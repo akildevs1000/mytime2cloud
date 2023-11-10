@@ -22,6 +22,18 @@ class VisitorDashboard extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    public function timeTOSeconds($str_time)
+    {
+        // $str_time = "2:50";
+
+        // sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
+
+        // return  $time_seconds = isset($seconds) ? $hours * 3600 + $minutes * 60 + $seconds : $hours * 60 + $minutes;
+
+
+        return  $seconds = strtotime($str_time) - strtotime('TODAY');
+    }
     public function __invoke(Request $request)
     {
         $date = date("Y-m-d");
@@ -62,6 +74,22 @@ class VisitorDashboard extends Controller
         $Visitors->clone()->where('status_id', ">=", 6)->count();
 
 
+        $overStayCount = 0;
+        $pendingCheckOut = $Visitors->clone()->where('status_id',   6)->get(); //pull checked in 
+        foreach ($pendingCheckOut as $pending) {
+
+
+            $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
+            if ($pending->checked_out_datetime) {
+                // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
+            } else {
+                $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
+                if ($visitorCheckoutTime > $actucalCheckOutTime) {
+                    $overStayCount++;
+                }
+            }
+        }
+
         return [
             "visitorCounts" => [
                 [
@@ -91,7 +119,7 @@ class VisitorDashboard extends Controller
 
                 [
                     "title" => "Over Stayed",
-                    "value" => 0,
+                    "value" => $overStayCount,
                     "icon" => "	fas fa-clock",
                     "color" => "l-bg-red-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",

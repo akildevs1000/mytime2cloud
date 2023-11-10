@@ -65,6 +65,15 @@
                   >
                   {{ item.phone_number || "---" }}
                 </div>
+                <div>
+                  <v-icon size="20" color="green" title="Entry In Time"
+                    >mdi-bank-transfer-in</v-icon
+                  >
+                  {{ item.checked_in_datetime || "---" }}
+                </div>
+                <div v-if="item.over_stay" style="color: red">
+                  Expected Out Time: {{ item.time_out }}
+                </div>
               </v-col>
               <v-col cols="4" style="padding-left: 5px; padding-top: 0px">
                 <div>&nbsp;</div>
@@ -106,6 +115,17 @@
                     >mdi-email</v-icon
                   >
                   {{ item.email || "---" }}
+                </div>
+
+                <div>
+                  <v-icon size="20" color="red" title="Exit Out Time"
+                    >mdi-bank-transfer-out</v-icon
+                  >
+                  {{ item.checked_out_datetime || "---" }}
+
+                  <div v-if="item.over_stay" style="color: red">
+                    Over stay: {{ item.over_stay }}
+                  </div>
                 </div>
               </v-col>
             </v-row>
@@ -377,9 +397,12 @@
           {{ item.host?.employee.last_name }}
         </template>
         <template v-slot:item.status_id="{ item }">
-          <span :style="'color:' + getRelatedColor(item)">{{
-            item.status
-          }}</span>
+          <span :style="'color:' + getRelatedColor(item)"
+            >{{ item.status }}
+            <div v-if="item.over_stay" style="color: red">
+              Over stay: {{ item.over_stay }}
+            </div>
+          </span>
         </template>
         <template v-slot:item.options="{ item }">
           <v-menu bottom left>
@@ -706,12 +729,17 @@ export default {
       console.log("filterValue", filterValue);
       this.loading = true;
 
-      if (this.filterValue == "Total Visitor") {
+      // if (this.filterValue == "Total Visitor") {
+      //   this.filters["status_id"] = null;
+      // } else if (this.filterValue == "Approved") {
+      //   this.filters["status_id"] = 2;
+      // } else if (this.filterValue == "Rejected") {
+      //   this.filters["status_id"] = 3;
+      // } else if (this.filterValue == "Over Stayed") {
+      //   this.filters["status_id"] = null;
+      // }
+      if (this.filterValue != "") {
         this.filters["status_id"] = null;
-      } else if (this.filterValue == "Approved") {
-        this.filters["status_id"] = 2;
-      } else if (this.filterValue == "Rejected") {
-        this.filters["status_id"] = 3;
       }
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;

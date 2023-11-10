@@ -13,6 +13,7 @@ use App\Models\Visitor;
 use App\Models\Zone;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class VisitorController extends Controller
@@ -38,7 +39,16 @@ class VisitorController extends Controller
 
         return $model->get();
     }
+    public function timeTOSeconds($str_time)
+    {
+        // $str_time = "2:50";
 
+        // sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
+
+        // return  $time_seconds = isset($seconds) ? $hours * 3600 + $minutes * 60 + $seconds : $hours * 60 + $minutes;
+
+        return  $seconds = strtotime($str_time) - strtotime('TODAY');
+    }
     public function index(Request $request)
     {
         $model = Visitor::query();
@@ -81,15 +91,21 @@ class VisitorController extends Controller
         $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
             if ($request->statsFilterValue == 'Expected')
                 $q->WhereIn('status_id',  [2, 4, 5]);
+
+            else if ($request->statsFilterValue == 'Checked In')
+                $q->Where('status_id', 6);
+
+            else  if ($request->statsFilterValue == 'Checked Out')
+                $q->Where('status_id', 7);
+
+            else  if ($request->statsFilterValue == 'Pending')
+                $q->Where('status_id', 1);
+            else  if ($request->statsFilterValue == 'Approved')
+                $q->WhereIn('status_id',  [2, 4, 5, 6, 7]);
+            else  if ($request->statsFilterValue == 'Rejected')
+                $q->Where('status_id', 3);
         });
-        $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
-            if ($request->statsFilterValue == 'Checked In')
-                $q->Where('status_id',  [6]);
-        });
-        $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
-            if ($request->statsFilterValue == 'Checked Out')
-                $q->Where('status_id',  [7]);
-        });
+
 
 
         $model->when($request->filled('sortBy'), function ($q) use ($request) {
@@ -101,10 +117,46 @@ class VisitorController extends Controller
             }
         });
 
+
+
+
         if (!$request->sortBy)
             $model->orderBy("visit_from", "DESC");
 
-        return $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
+        $results = $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
+
+        $overstayedVisitors = [];
+        if ($request->statsFilterValue == 'Over Stayed') {
+
+            $data = $results->getCollection();;
+
+
+            foreach ($data  as $pending) {
+
+
+                $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
+                if ($pending->checked_out_datetime) {
+                    // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
+                } else {
+                    $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
+
+                    $pending["actucalCheckOutTime"] = $actucalCheckOutTime;
+                    $pending["visitorCheckoutTime"] = $visitorCheckoutTime;
+                    $pending["over_stay"] = gmdate("H:i", $visitorCheckoutTime - $actucalCheckOutTime);
+                    $pending["over_stay"] = explode(":", $pending["over_stay"])[0] . 'h:' . explode(":", $pending["over_stay"])[1] . 'm';
+                    if ($visitorCheckoutTime > $actucalCheckOutTime) {
+
+                        $overstayedVisitors[] = $pending;
+                    }
+                }
+            }
+
+            $overstayedVisitors = new Collection($overstayedVisitors);
+            return $data = $results->setCollection($overstayedVisitors);;
+        } else {
+
+            return $results;
+        }
     }
 
     /**
