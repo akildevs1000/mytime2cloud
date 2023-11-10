@@ -54,9 +54,9 @@ class VisitorController extends Controller
         $model = Visitor::query();
 
         $model->where("company_id", $request->input("company_id"));
-        $model->when($request->filled('branch_id'), function ($q) use ($request) {
-            $q->Where('branch_id',   $request->branch_id);
-        });
+        // $model->when($request->filled('branch_id'), function ($q) use ($request) {
+        //     $q->Where('branch_id',   $request->branch_id);
+        // });
 
         $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in'];
 
