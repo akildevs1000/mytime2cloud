@@ -68,20 +68,20 @@ class VisitorController extends Controller
             });
         });
 
-        // $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '<=', $request->from_date));
-        // $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '>=', $request->to_date));
+        $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
+        $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->to_date));
 
-        $startDate = Carbon::parse($request->from_date);
-        $endDate = Carbon::parse($request->to_date);
+        // $startDate = Carbon::parse($request->from_date);
+        // $endDate = Carbon::parse($request->to_date);
 
-        $model = $model->where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('visit_from', [$startDate, $endDate])
-                ->orWhereBetween('visit_to', [$startDate, $endDate])
-                ->orWhere(function ($query) use ($startDate, $endDate) {
-                    $query->where('visit_from', '<', $startDate)
-                        ->where('visit_to', '>', $endDate);
-                });
-        });
+        // $model = $model->where(function ($query) use ($startDate, $endDate) {
+        //     $query->whereBetween('visit_from', [$startDate, $endDate])
+        //         ->orWhereBetween('visit_to', [$startDate, $endDate])
+        //         ->orWhere(function ($query) use ($startDate, $endDate) {
+        //             $query->where('visit_from', '<', $startDate)
+        //                 ->where('visit_to', '>', $endDate);
+        //         });
+        // });
 
         $fields1 = ['host_company_id', 'purpose_id', 'status_id'];
         $model = $this->process_column_filter($model, $request, $fields1);
