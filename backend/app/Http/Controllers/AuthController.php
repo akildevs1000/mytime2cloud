@@ -196,11 +196,11 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-        $user->load("company");
+        $user->load(["company","role:id,name,role_type"]);
         $user->user_type = $this->getUserType($user);
         $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
-
         unset($user->assigned_permissions);
+
         return ['user' => $user];
     }
 
@@ -239,7 +239,6 @@ class AuthController extends Controller
 
                 $q->withOut(["user", "schedule", "department", "designation", "sub_department", "branch"]);
             }]);
-            // $user->role_type = Role::where("id", $user->role_id)->value("role_type");
             return "employee";
         } else {
             return $user->role_id > 0 ? "user" : "master";
