@@ -112,7 +112,7 @@
                             dark
                             color="white--text"
                             rounded
-                            v-model="email"
+                            v-model="credentials.email"
                             :rules="emailRules"
                             :hide-details="false"
                             id="form2Example11"
@@ -143,7 +143,7 @@
                               show_password ? 'mdi-eye' : 'mdi-eye-off'
                             "
                             :type="show_password ? 'text' : 'password'"
-                            v-model="password"
+                            v-model="credentials.password"
                             class="input-group--focused text-white"
                             @click:append="show_password = !show_password"
                           ></v-text-field>
@@ -195,66 +195,6 @@
                 </div>
               </div>
             </div>
-
-            <!-- <div class="card rounded-3 text-black">
-              <div class="row g-0">
-                <div class="col-lg-6">
-                  <div class="card-body p-md-5 mx-md-4">
-                    <div class="text-center">
-                      <img width="35%" :src="logo" alt="logo" />
-                    </div>
-
-                    <v-form ref="form" method="post" v-model="valid" lazy-validation>
-                      <label for="">Email</label>
-                      <div class="form-outline mb-4">
-                        <v-text-field v-model="email" :rules="emailRules" :hide-details="false" id="form2Example11"
-                          placeholder="master@erp.com" required dense outlined type="email"></v-text-field>
-                      </div>
-
-                      <label for="">Password</label>
-
-                      <div class="form-outline mb-4">
-
-
-                        <v-text-field dense outlined :rules="passwordRules" :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'
-                          " :type="show_password ? 'text' : 'password'" v-model="password" class="input-group--focused"
-                          @click:append="show_password = !show_password"></v-text-field>
-                      </div>
-
-
-                      <div class="text-center pt-1 mb-5 pb-1">
-                        <span v-if="msg" class="error--text">
-                          {{ msg }}
-                        </span>
-                        <v-btn :loading="loading" @click="login"
-                          class="btn btn-primary btn-block text-white fa-lg primary mt-1 mb-3">
-                          Log in
-                        </v-btn>
-                      </div>
-
-                      <div class="d-flex align-items-center justify-content-center pb-4">
-
-                      </div>
-                    </v-form>
-                    <div class="text-right">
-                      <nuxt-link class="text-muted text-right" to="/reset-password">Forgot password?</nuxt-link>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-lg-6 d-flex align-items-center primary">
-                  <div class="text-white px-3 py-4 p-md-5 mx-md-4">
-                    <h6>IDEA-HRMS THE RIGHT SOLUTION FOR YOU</h6>
-                    <p class="small mb-0">
-                      Make it simple, easy and accessible anywhere, anytime.
-                      Save time, stay compliant and reduce labor costs by
-                      streamlining how you collect hours worked and time-off
-                      accruals.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </div> -->
           </div>
         </div>
       </div>
@@ -264,21 +204,15 @@
 
 <script>
 export default {
-  // components: { VueRecaptcha },
-
   layout: "login",
   data: () => ({
-    // sitekey: "6Lf1wYwhAAAAAOMJYvI73SgjCSrS_OSS2kDJbVvs", // i am not robot
-    // reCaptcha: null,
-    // showGRC: false,
     maskMobileNumber: "",
     whatsappFormValid: true,
     logo: "/ideaHRMS-final-blue.svg",
     valid: true,
     loading: false,
     snackbar: false,
-    email: "demo@gmail.com",
-    password: "",
+
     show_password: false,
     msg: "",
     requiredRules: [(v) => !!v || "Required"],
@@ -292,6 +226,10 @@ export default {
     dialogWhatsapp: false,
     otp: "",
     userId: "",
+    credentials: {
+      email: "guard@gmail.com",
+      password: "secret",
+    },
   }),
   created() {
     // this.$store.commit("dashboard/resetState", null);
@@ -309,38 +247,6 @@ export default {
         this.loginWithOTP();
       }
     },
-    // verifyToken() {
-    //   // alert(this.$route.query.token);
-    //   if (this.$route.query.token) {
-    //     let token = this.$route.query.token;
-
-    //     console.log("verify token  Login Desktop ", token);
-
-    //     token = token; //this.$crypto.decrypt(token);
-    //     this.$store.commit("login_token", token);
-    //     console.log("token Desktop", token);
-    //     if (token != "" && token != "undefined") {
-    //       let options = {
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //           Authorization: "Bearer " + token,
-    //         },
-    //       };
-    //       this.$axios
-    //         .get(`me`, null, options)
-    //         .then(({ data }) => {
-    //           if (!data.user) {
-    //             alert("Invalid Login Details. Please try again");
-    //           } else {
-    //             this.$router.push(`/dashboard2`);
-    //           }
-    //         })
-    //         .catch((err) => console.log(err));
-    //     } else {
-    //       this.$router.push(`/login`);
-    //     }
-    //   }
-    // },
     hideMobileNumber(inputString) {
       // Check if the input is a valid string
       if (typeof inputString !== "string" || inputString.length < 4) {
@@ -389,104 +295,42 @@ export default {
     loginWithOTP() {
       this.loading = true;
 
-      //if (this.$refs.form.validate())
-      {
-        let credentials = {
-          email: this.email,
-          password: this.password,
-        };
-        this.$store.commit("email", this.email);
-        this.$store.commit("password", this.password);
-
-        let payload = credentials;
-
-        //geenrate OTP
-        this.$axios
-          .post("loginwith_otp", payload)
-          .then(({ data }) => {
-            if (!data.status) {
-              //alert("OTP Verification: " + data.message);
-              alert("Invalid Login Deails");
-            } else if (data.user_id) {
-              if (data.enable_whatsapp_otp == 1) {
-                this.dialogWhatsapp = true;
-                this.userId = data.user_id;
-                if (data.mobile_number) {
-                  this.maskMobileNumber = this.hideMobileNumber(
-                    data.mobile_number
-                  );
-                }
-
-                this.loading = false;
-              } else {
-                this.login();
+      this.$axios
+        .post("loginwith_otp", this.credentials)
+        .then(({ data }) => {
+          if (!data.status) {
+            //alert("OTP Verification: " + data.message);
+            alert("Invalid Login Deails");
+          } else if (data.user_id) {
+            if (data.enable_whatsapp_otp == 1) {
+              this.dialogWhatsapp = true;
+              this.userId = data.user_id;
+              if (data.mobile_number) {
+                this.maskMobileNumber = this.hideMobileNumber(
+                  data.mobile_number
+                );
               }
+
+              this.loading = false;
             } else {
-              alert("Invalid Login Deails");
+              this.login();
             }
-          })
-          .catch((err) => console.log(err));
-      }
+          } else {
+            alert("Invalid Login Deails");
+          }
+        })
+        .catch((err) => console.log(err));
 
       this.loading = false;
     },
     login() {
-      // this.showGRC = this.reCaptcha ? false : true;
-
-      // if (this.$refs.form.validate() && this.reCaptcha) {
       if (this.$refs.form.validate()) {
         this.msg = "";
         this.loading = true;
-        // const token = await this.$recaptcha.getResponse();
-        let credentials = {
-          email: this.email,
-          password: this.password,
-        };
-
         this.$auth
-          .loginWith("local", { data: credentials })
+          .loginWith("local", { data: this.credentials })
           .then(({ data }) => {
-            let token = data.token;
-
-            token = token; //this.$crypto.encrypt1(token);
-
-            this.$store.commit("login_token", token);
-
-            if (data.user && data.user.user_type == "employee") {
-              let email = this.$store.state.email;
-              let password = this.$store.state.password;
-
-              //encrypt
-              email = this.$crypto.encrypt(email);
-              password = this.$crypto.encrypt(password);
-
-              email = encodeURIComponent(email);
-              password = encodeURIComponent(password);
-
-              if (email && password) {
-                window.location.href =
-                  process.env.EMPLOYEE_APP_URL +
-                  "/loginwithtoken?email=" +
-                  email +
-                  "&password=" +
-                  password;
-
-                return "";
-              }
-            } else if (data.user && data.user.user_type == "master") {
-              this.$router.push(`/master`);
-
-              return;
-              id = data.user?.id;
-              name = data.user?.name;
-            } else if (
-              (data.user && data.user.user_type == "company") ||
-              data.user.user_type == "branch"
-            ) {
-              this.$router.push(`/dashboard2`);
-
-              return false;
-            }
+            setTimeout(() => (this.loading = false), 2000);
           })
           .catch(({ response }) => {
             if (!response) {

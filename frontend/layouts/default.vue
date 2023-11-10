@@ -1,21 +1,5 @@
 <template>
   <v-app>
-    <!--  
-  
-  <v-navigation-drawer
-      expand-on-hover
-      rail
-      v-model="drawer"
-      dark
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
-      :color="sideBarcolor"
-      :style="miniVariant ? 'width: 60px' : ''"
-      @transitionend="collapseSubItems"
-      :class="!miniVariant ? 'leftMenuWidth' : ''"
-    >-->
     <v-navigation-drawer
       expand-on-hover
       rail
@@ -118,11 +102,6 @@
         </div>
       </v-list>
     </v-navigation-drawer>
-
-    <!-- style="
-    margin-left: -49px;
-" -->
-
     <v-app-bar
       :color="changeColor"
       dark
@@ -132,18 +111,10 @@
       :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''"
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <!-- <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
-      </v-btn> -->
-      <!-- <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>mdi-application</v-icon>
-      </v-btn> -->
-      <!-- <span class="text-overflow">{{ title }}</span> -->
       <span class="text-overflow">
         <img title="My Time Cloud " :src="logo_src" style="width: 150px" />
       </span>
       <v-spacer></v-spacer>
-      <!-- {{ viewing_page_name }} -->
       <span style="100%">
         <template v-if="getLoginType == 'company' || getLoginType == 'branch'">
           <v-row align="center" justify="space-around" class="">
@@ -165,124 +136,9 @@
             </v-col>
           </v-row>
         </template>
-
-        <template v-if="getLoginType == 'employee'">
-          <v-row>
-            <v-col
-              v-for="(items, index) in employee_top_menu"
-              :key="index + '1'"
-            >
-              <v-btn
-                small
-                text
-                class="btn-text-size"
-                :elevation="0"
-                :color="
-                  menuProperties[items.menu] &&
-                  menuProperties[items.menu].selected
-                "
-                fill
-                @click="setTopMenuItems(items.menu, items.to)"
-              >
-                <span>{{ items.title }}</span>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </template>
       </span>
 
       <v-spacer></v-spacer>
-      <!-- Hi
-      {{
-        getLoginType == "manager"
-          ? "Department Manager"
-          : getLoginType == "branch"
-          ? getBranchName()
-          : ""
-      }} -->
-      <!-- {{ $auth.user }}   -->
-      <!-- <v-autocomplete
-        v-if="
-          this.$auth &&
-          this.$auth.user.user_type == 'company' &&
-          this.$route.name == 'dashboard2'
-        "
-        class="pb-0"
-        v-model="branch_id"
-        :items="branchesList"
-        dense
-        placeholder="Select Branch"
-        outlined
-        item-value="id"
-        item-text="branch_name"
-        label="Branch"
-        color="black"
-      >
-      </v-autocomplete> -->
-      <!-- <v-menu
-        v-if="
-          this.$auth &&
-          this.$auth.user.user_type == 'company' &&
-          this.$route.name == 'dashboard2'
-        "
-        nudge-bottom="50"
-        transition="scale-transition"
-        origin="center center"
-        bottom
-        left
-        min-width="200"
-        nudge-left="20"
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <label
-            style="min-width: 150px"
-            class="px-2 text-overflow"
-            v-bind="attrs"
-            v-on="on"
-          >
-            {{ selectedBranchName != "All Branches" ? "Branch: " : "" }}
-            {{ selectedBranchName }}
-          </label>
-        </template>
-
-        <v-list light nav dense>
-          <v-list-item-group color="primary">
-            <v-list-item
-              @click="filterBranch(branch)"
-              v-for="branch in branchesList"
-            >
-              <v-list-item-content class="text-left">
-                <v-list-item-title class="black--text">
-                  <img
-                    v-if="branch.logo"
-                    :src="branch.logo"
-                    style="vertical-align: middle; max-width: 25px"
-                  />
-
-                  <img
-                    v-else
-                    src="/no-image.PNG"
-                    style="vertical-align: middle; max-width: 25px"
-                  />
-
-                  <span style="">{{ branch.branch_name }}</span>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item v-if="selectedBranchName != 'All Branches'">
-              <v-list-item-content
-                class="text-center"
-                @click="filterBranch(null)"
-              >
-                <v-list-item-title class="black--text">
-                  <span style="">All Branches</span>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-item-group>
-        </v-list>
-      </v-menu> -->
-
       <v-menu
         nudge-bottom="50"
         transition="scale-transition"
@@ -293,12 +149,7 @@
         nudge-left="20"
       >
         <template v-slot:activator="{ on, attrs }">
-          <label class="px-2 text-overflow" v-bind="attrs" v-on="on">
-            <!-- {{ getUser }} -->
-          </label>
-
           <v-btn icon color="red" v-bind="attrs" v-on="on">
-            <!-- {{ getUser }} -->
             <v-avatar size="35" style="border: 1px solid #6946dd">
               <v-img :src="getLogo"></v-img>
             </v-avatar>
@@ -320,23 +171,6 @@
                 >
               </v-list-item-content>
             </v-list-item>
-
-            <!-- <v-list-item
-              v-if="getLoginType == 'manager' || getLoginType == 'branch'"
-              @click="setLoginType"
-            >
-              <v-list-item-icon>
-                <v-icon>mdi-account-multiple-outline</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title class="black--text">
-                  Login Into
-                  {{
-                    caps(getLoginType == "manager" ? "employee" : "manager")
-                  }}</v-list-item-title
-                >
-              </v-list-item-content>
-            </v-list-item> -->
             <v-list-item
               v-if="$auth.user.user_type == 'branch'"
               @click="changeLoginType"
@@ -423,17 +257,7 @@
         <nuxt />
       </v-container>
     </v-main>
-    <!-- <v-btn
-      height="50"
-      width="20"
-      dark
-      :color="changeColor"
-      class="fixed-setting"
-      @click.stop="rightDrawer = !rightDrawer"
-    >
-      <v-icon class="spin" dark size="25">mdi-cog</v-icon>
-    </v-btn> -->
-    <!-- setting -->
+
     <v-navigation-drawer
       v-model="rightDrawer"
       :clipped="true"
@@ -567,6 +391,8 @@
 import company_menus from "../menus/company.json";
 import employee_menus from "../menus/employee.json";
 import branch_menus from "../menus/branch.json";
+import guard_menus from "../menus/guard.json";
+import host_menus from "../menus/host.json";
 
 import company_top_menu from "../menus/company_modules_top.json";
 import employee_top_menu from "../menus/employee_modules_top.json";
@@ -641,6 +467,8 @@ export default {
       company_menus,
       employee_menus,
       branch_menus,
+      guard_menus,
+      host_menus,
       company_top_menu,
       employee_top_menu,
       pendingLeavesCount: 0,
@@ -700,59 +528,10 @@ export default {
     this.logo_src = require("@/static/logo22.png");
 
     this.getBranches();
-
-    //get current page name
-    // try {
-    //   this.viewing_page_name = this.$route.name ? this.$route.name : "";
-
-    //   this.viewing_page_name = console.log(
-    //     "filter_menu   ",
-    //     this.viewing_page_name
-    //   );
-    //   let filter_menu = this.company_menus.filter(
-    //     (e) => e.to == "/" + this.viewing_page_name
-    //   );
-    //   console.log("filter_menu ", filter_menu[0]);
-    //   if (filter_menu[0].module != "dashboard") {
-    //     filter_menu = this.company_menus.filter(
-    //       (e) => e.click == filter_menu[0].module
-    //     );
-    //   }
-    //   console.log("filter_menu 2 ", filter_menu[0]);
-    //   this.getTopMenuItems(filter_menu[0]);
-    // } catch (e) {
-    //   console.log(e);
-    // }
   },
 
-  mounted() {
-    window.addEventListener("resize", () => {
-      if (window.innerWidth <= 500) {
-        //this.miniVariant = true;
-        // const elementsArray = document.getElementsByClassName("main_bg");
-        // elementsArray[0].style.paddingRight = 0;
-      }
-    });
-    // this.verifyLeaveNotificationsApi();
-    // setInterval(() => {
-    //   if (this.socketConnectionStatus != 1) {
-    //     //socket connection is closed
-    //     this.verifyLeaveNotificationsSocket();
-    //   }
-    // }, 1000 * 60);
-  },
-  watch: {
-    // socketConnectionStatus(val) {
-    //   console.log('watch ', val);
-    // },
-    // selectedBranchName(val) {
-    //   if (val == "All Branches") {
-    //     this.getBranches();
-    //   } else {
-    //     this.branchesList.push();
-    //   }
-    // },
-  },
+  mounted() {},
+  watch: {},
   computed: {
     changeColor() {
       return "#ecf0f4"; //this.$store.state.color;
@@ -909,78 +688,21 @@ export default {
         this.items = this.company_menus.filter(
           (item) => item.module === this.topMenu_Selected
         );
-
-        // if (this.getLoginType === "company") {
-        //   let branch_single_menu = [
-        //     {
-        //       icon: "mdi-filmstrip-box-multiple",
-        //       title: "Branches",
-        //       to: "/branches",
-        //       menu: "branch_access",
-        //       module: "settings",
-        //     },
-        //   ];
-        //   this.items.splice(0, 0, ...branch_single_menu);
-
-        //   let profile_single_menu = [
-        //     {
-        //       icon: "mdi-domain",
-        //       title: "Profile",
-        //       to: "/companies",
-        //       menu: "setting_access",
-        //       class: "submenutitle",
-        //       module: "settings",
-        //     },
-        //   ];
-        //   this.items.splice(2, 0, ...profile_single_menu);
-        // }
-
-        return;
-      }
-      if (this.getLoginType === "employee") {
-        // this.items = this.company_menus;
-        this.items = this.employee_menus.filter(
-          (item) => item.module === this.topMenu_Selected
-        );
-
         return;
       }
 
-      let { permissions: perms } = this.$auth.user;
+      let roleType = this.$auth.user.role.role_type.toLowerCase();
 
-      let menus = {
-        manager: this.company_menus,
-        employee: this.employee_menus,
-        brnach: this.branch_menus,
-      };
-
-      this.items = menus[this.getLoginType].filter(({ menu }) =>
-        perms.includes(menu)
-      );
+      if (/guard/.test(roleType)) {
+        this.items = this.guard_menus;
+        return;
+      }
+      if (/host/.test(roleType)) {
+        this.items = this.host_menus;
+        return;
+      }
     },
-    // changeLoginType_old() {
-    //   //console.log("detault page token", this.$store.state.login_token);
-    //   if (this.getLoginType == "branch") {
-    //     // this.$store.commit("loginType", "employee");
-    //     // this.setMenus();
-    //     let token = this.$store.state.login_token;
 
-    //     if (token) {
-    //       window.location.href =
-    //         process.env.EMPLOYEE_APP_URL +
-    //         "/login?token=" +
-    //         token +
-    //         ":" +
-    //         process.env.SECRET_PASS_PHRASE;
-    //       return "";
-    //     }
-    //     // this.$router.push("/employees/profile");
-    //   } else {
-    //     this.$store.commit("loginType", "branch");
-    //     this.setMenus();
-    //     this.$router.push("/dashboard2");
-    //   }
-    // },
     changeLoginType() {
       try {
         if (this.getLoginType == "branch") {
@@ -1018,41 +740,6 @@ export default {
     },
     navigateToLeavePage() {
       this.$router.push("/leaves");
-    },
-    verifyLeaveNotificationsSocket() {
-      // 0	CONNECTING	Socket has been created.The connection is not yet open.
-      // 1	OPEN	The connection is open and ready to communicate.
-      // 2	CLOSING	The connection is in the process of closing.
-      // 3	CLOSED
-      // let company_id = this.$auth.user.company_id;
-      // if (!process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT) return false;
-      // this.socket = new WebSocket(
-      //   process.env.ADMIN_LEAVE_NOTIFICATION_SOCKET_ENDPOINT
-      // );
-      // this.socket.onopen = function () {
-      //   this.socketConnectionStatus = this.socket.readyState;
-      //   const data = {
-      //     company_id: company_id,
-      //   };
-      //   this.socket.send(JSON.stringify(data)); // this works
-      // };
-      // this.socket.onclose = function () {
-      //   this.socketConnectionStatus = 0;
-      // };
-      // this.socket.onmessage = ({ data }) => {
-      //   data = JSON.parse(data);
-      //   if (data.status && data.new_leaves_data[0]) {
-      //     let element = data.new_leaves_data[0];
-      //     //data.new_leaves_data.data.forEach(element => {
-      //     this.snackNotification = true;
-      //     this.snackNotificationText =
-      //       "New Leave Notification - From : " +
-      //       element.first_name +
-      //       " " +
-      //       element.last_name;
-      //   }
-      //   this.pendingLeavesCount = data.total_pending_count;
-      //};
     },
     verifyLeaveNotificationsApi() {
       if (!this.$auth.user.company_id) return false;
@@ -1228,9 +915,6 @@ header i {
 .whitebackground--text {
   background-color: #ecf0f4;
 }
-</style>
-
-<style>
 /* New Theme  popup_background*/
 .v-application .popup_background {
   background-color: #ecf0f4 !important;
