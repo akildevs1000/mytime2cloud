@@ -68,11 +68,14 @@ class VisitorController extends Controller
             });
         });
 
-        // $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '<=', $request->from_date));
-        // $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '>=', $request->to_date));
 
-        $startDate = Carbon::parse($request->from_date);
-        $endDate = Carbon::parse($request->to_date);
+        $startDate = date('Y-m-d', strtotime($request->from_date . ' +0 day'));
+        $endDate = date('Y-m-d', strtotime($request->to_date . ' +0 day'));
+
+
+        // $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '<=', $startDate));
+        // $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '>=', $endDate));
+
 
         $model = $model->where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('visit_from', [$startDate, $endDate])
