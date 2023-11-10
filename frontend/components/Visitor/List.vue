@@ -65,12 +65,14 @@
                   >
                   {{ item.phone_number || "---" }}
                 </div>
-                <div>
+                <divider></divider>
+                <div class="bold">
                   <v-icon size="20" color="green" title="Entry In Time"
                     >mdi-bank-transfer-in</v-icon
                   >
                   {{ item.checked_in_datetime || "---" }}
                 </div>
+
                 <div v-if="item.over_stay" style="color: red">
                   Expected Out Time: {{ item.time_out }}
                 </div>
@@ -78,7 +80,7 @@
               <v-col cols="4" style="padding-left: 5px; padding-top: 0px">
                 <div>&nbsp;</div>
                 <div>
-                  <v-icon title="Company" size="20" class="icon-blue"
+                  <v-icon title="Company" size="30" class="icon-blue"
                     >mdi-domain</v-icon
                   >
                   {{ item.visitor_company_name || "---" }}
@@ -116,9 +118,9 @@
                   >
                   {{ item.email || "---" }}
                 </div>
-
-                <div>
-                  <v-icon size="20" color="red" title="Exit Out Time"
+                <divider></divider>
+                <div class="bold">
+                  <v-icon size="30" color="red" title="Exit Out Time"
                     >mdi-bank-transfer-out</v-icon
                   >
                   {{ item.checked_out_datetime || "---" }}
