@@ -11,6 +11,7 @@ use App\Models\HostCompany;
 use App\Models\Notification;
 use App\Models\Visitor;
 use App\Models\Zone;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -21,11 +22,19 @@ class VisitorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function getVisitorStatusList()
+    {
+        return (new  Visitor)->getVisitorStatusIds();
+    }
     public function visitors_with_type(Request $request)
     {
         $model = Visitor::query();
 
         $model->where("company_id", $request->input("company_id"));
+
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->Where('branch_id',   $request->branch_id);
+        });
 
         return $model->get();
     }
@@ -35,6 +44,10 @@ class VisitorController extends Controller
         $model = Visitor::query();
 
         $model->where("company_id", $request->input("company_id"));
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->Where('branch_id',   $request->branch_id);
+        });
+
         $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in'];
 
         $model = $this->process_ilike_filter($model, $request, $fields);
@@ -45,15 +58,38 @@ class VisitorController extends Controller
             });
         });
 
-        //$model->when($request->filled("host_company_id"), fn ($q) => $q->where("host_company_id", $request->host_company_id));
-        $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
-        $model->when($request->filled("to_date"), fn ($q) => $q->where("visit_to", '<=', $request->to_date));
-        //$model->when($request->filled("status_id"), fn ($q) => $q->where("status_id",  $request->status_id));
+        // $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '<=', $request->from_date));
+        // $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '>=', $request->to_date));
 
-        //$model->when($request->filled("purpose_id"), fn ($q) => $q->where("purpose_id", '<=', $request->purpose_id));
+        $startDate = Carbon::parse($request->from_date);
+        $endDate = Carbon::parse($request->to_date);
+
+        $model = $model->where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('visit_from', [$startDate, $endDate])
+                ->orWhereBetween('visit_to', [$startDate, $endDate])
+                ->orWhere(function ($query) use ($startDate, $endDate) {
+                    $query->where('visit_from', '<', $startDate)
+                        ->where('visit_to', '>', $endDate);
+                });
+        });
 
         $fields1 = ['host_company_id', 'purpose_id', 'status_id'];
         $model = $this->process_column_filter($model, $request, $fields1);
+
+
+
+        $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
+            if ($request->statsFilterValue == 'Expected')
+                $q->WhereIn('status_id',  [2, 4, 5]);
+        });
+        $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
+            if ($request->statsFilterValue == 'Checked In')
+                $q->Where('status_id',  [6]);
+        });
+        $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
+            if ($request->statsFilterValue == 'Checked Out')
+                $q->Where('status_id',  [7]);
+        });
 
 
         $model->when($request->filled('sortBy'), function ($q) use ($request) {

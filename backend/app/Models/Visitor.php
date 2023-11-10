@@ -17,6 +17,8 @@ class Visitor extends Model
         "created_at" => "datetime:d-M-Y",
     ];
 
+
+
     public function getLogoAttribute($value)
     {
         if (!$value) {
@@ -37,12 +39,7 @@ class Visitor extends Model
 
     public function getStatusAttribute()
     {
-        return match ($this->status_id) {
-            "1" => 'Pending',
-            "2" => 'Approved',
-            "3" => 'Rejected',
-            default => 'Pending' // Handle any other values if needed
-        };
+        return $this->getVisitorStatusIds($this->status_id);
     }
 
     public function getFromDateDisplayAttribute()
@@ -60,6 +57,45 @@ class Visitor extends Model
         return $this->belongsTo(Zone::class)->withDefault([
             "name" => "---",
         ]);
+    }
+
+    public function getVisitorStatusIds($id = '')
+    {
+        // $status = [
+        //     1 => "pending",
+        //     2 => "approved ",
+        //     3 => "rejected ",
+        //     4 => "gurd_approved ",
+        //     5 => "updated_device",
+        //     6 => "checked_in",
+        //     7 => "checked_out "
+        // ];
+
+        $status = [
+            ["id" => "1", "name" => "Pending"],
+            ["id" => "2", "name" => "Approved"],
+            ["id" => "3", "name" => "Rejected"],
+            ["id" => "4", "name" => "Gurd Approved"],
+            ["id" => "5", "name" => "Updated Device"],
+            ["id" => "6", "name" => "Checked In"],
+            ["id" => "7", "name" => "Checked Out"]
+
+        ];
+
+        if ($id) {
+            $statusName = '';
+            foreach ($status as $s) {
+                if ($s["id"] === $id) {
+                    $statusName = $s["name"];
+                    break;
+                }
+            }
+
+
+            return  $statusName;
+        } else {
+            return $status;
+        }
     }
 
     public function purpose()

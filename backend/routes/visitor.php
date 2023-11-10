@@ -19,3 +19,4 @@ Route::get('visitors_with_type', [VisitorController::class, "visitors_with_type"
 Route::get('/get_visitors_with_timezonename', [VisitorMappingController::class, 'get_visitors_with_timezonename']);
 Route::post('/visitor_timezone_mapping', [VisitorMappingController::class, "store"]);
 Route::post('/visitor_test', [VisitorController::class, "store_test"]);
+Route::get('/visitor_status_list', [VisitorController::class, "getVisitorStatusList"]);

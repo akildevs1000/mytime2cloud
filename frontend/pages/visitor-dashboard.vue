@@ -17,10 +17,9 @@
       <v-row>
         <v-col
           v-for="(i, index) in items.visitorCounts"
-          :key="index"
+          :key="'v' + index"
           cols="12"
-          md="4"
-          style="max-width: 20%"
+          md="3"
         >
           <div class="card p-2" :class="i.color" style="height: 150px">
             <div class="card-statistic-3">
@@ -29,8 +28,14 @@
               </div>
               <div class="card-content">
                 <h3 class="card-title text-capitalize">{{ i.title }}</h3>
-                <h2 class="">{{ i.value }}</h2>
-                <p class="mb-0 text-sm">
+                <h2
+                  class=""
+                  style="cursor: pointer"
+                  @click="filterStatus(i.title)"
+                >
+                  {{ i.value }}
+                </h2>
+                <!-- <p class="mb-0 text-sm">
                   <span
                     style="cursor: pointer"
                     class="handcursor font-11"
@@ -49,7 +54,7 @@
                     <span class="mr-2"> </span>
                     <span class="text-nowrap regular-font"></span>
                   </span>
-                </p>
+                </p> -->
               </div>
             </div>
           </div>
@@ -67,8 +72,14 @@
               </div>
               <div class="card-content">
                 <h3 class="card-title text-capitalize">{{ i.title }}</h3>
-                <h2 class="">{{ i.value }}</h2>
-                <p class="mb-0 text-sm">
+                <h2
+                  class=""
+                  style="cursor: pointer"
+                  @click="filterStatus(i.title)"
+                >
+                  {{ i.value }}
+                </h2>
+                <!-- <p class="mb-0 text-sm">
                   <span
                     style="cursor: pointer"
                     class="handcursor font-11"
@@ -87,15 +98,14 @@
                     <span class="mr-2"> </span>
                     <span class="text-nowrap regular-font"></span>
                   </span>
-                </p>
+                </p> -->
               </div>
             </div>
           </div>
         </v-col>
       </v-row>
-      Visitor Dashoard
-      <!-- 
-      <VisitorList /> -->
+
+      <VisitorList :filterValue="filterTitle" />
     </div>
     <Preloader v-else />
   </div>
@@ -114,10 +124,11 @@ export default {
       iframeDisplay: false,
       iframeUrl: "",
       items: [],
+      filterTitle: "",
     };
   },
   created() {
-    //this.initialize();
+    this.initialize();
   },
   mounted() {},
   computed: {
@@ -144,6 +155,10 @@ export default {
     },
   },
   methods: {
+    filterStatus(status) {
+      this.filterTitle = status;
+    },
+
     openDialog(announcement) {
       this.dialogData = announcement;
       this.dialog = true;
@@ -184,7 +199,7 @@ export default {
       };
       this.$axios.get(`visitor-count`, { params: options }).then(({ data }) => {
         this.items = data;
-        console.log(data);
+
         this.loading = false;
 
         // if (this.items.length > 0) {

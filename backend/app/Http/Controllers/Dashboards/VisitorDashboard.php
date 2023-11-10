@@ -25,27 +25,56 @@ class VisitorDashboard extends Controller
     public function __invoke(Request $request)
     {
         $date = date("Y-m-d");
-        
+
         $id = $request->company_id ?? 0;
 
         $Visitors = Visitor::query();
 
         $Visitors->whereCompanyId($id);
+        $Visitors->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->Where('branch_id',   $request->branch_id);
+        });
 
-        $visitorCounts = $Visitors->withCount([
-            'status as total_approved' => fn ($q) =>  $q->where('code', 'A'),
-            'status as total_pending' => fn ($q) => $q->where('code', 'P'),
-            'status as total_canceled' => fn ($q) => $q->where('code', 'C'),
-            'status as total_rejected' => fn ($q) => $q->where('code', 'R'),
-        ])->get();
+        $Visitors->where("visit_from", "<=", date('Y-m-d'));
+        $Visitors->where("visit_to", ">=", date('Y-m-d'));
 
+
+
+        // $visitorCounts = $Visitors->withCount([
+        //     'status as total_approved' => fn ($q) =>  $q->where('code', 'A'),
+        //     'status as total_pending' => fn ($q) => $q->where('code', 'P'),
+        //     'status as total_canceled' => fn ($q) => $q->where('code', 'C'),
+        //     'status as total_rejected' => fn ($q) => $q->where('code', 'R'),
+        // ])->get();
+
+
+
+        $host  = HostCompany::whereCompanyId($id)
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+                $q->Where('branch_id',   $request->branch_id);
+            });
+
+        $host_count = $host->count();
+
+
+        $opened_office = $host->where("open_time", "<=", date('H:i'))->where("close_time", ">=", date('H:i'))->count();
+        $closed_office =  $host_count - $opened_office;
+        $Visitors->clone()->where('status_id', ">=", 6)->count();
 
 
         return [
             "visitorCounts" => [
                 [
+                    "title" => "Expected",
+                    "value" => $Visitors->clone()->where('status_id',   2)->count(),
+                    "icon" => "fas fa-calendar-times",
+                    "color" => "l-bg-orange-dark",
+                    "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . $date . "&department_id=-1&report_type=Daily",
+                    "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . $date . "&department_id=-1&report_type=Daily",
+                ],
+                [
                     "title" => "Checked In",
-                    "value" => rand(10, 1000),
+                    "value" => $Visitors->clone()->where('status_id', ">=", 6)->count(),
                     "icon" => "fas fa-calendar-check",
                     "color" => "l-bg-green-dark",
                     "link"  => env("BASE_URL") . "/api/daily?company_id=$id&status=SA&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -53,42 +82,28 @@ class VisitorDashboard extends Controller
                 ],
                 [
                     "title" => "Checked Out",
-                    "value" => rand(10, 1000),
+                    "value" => $Visitors->clone()->where('status_id',   7)->count(),
                     "icon" => "fas fa-calendar-times",
                     "color" => "l-bg-purple-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=P&daily_date=" . $date . "&department_id=-1&report_type=Daily",
                     "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?page=1&per_page=1000&company_id=$id&status=P&daily_date=" . $date . "&department_id=-1&report_type=Daily",
                 ],
-                [
-                    "title" => "Expected",
-                    "value" => rand(10, 1000),
-                    "icon" => "fas fa-calendar-times",
-                    "color" => "l-bg-orange-dark",
-                    "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . $date . "&department_id=-1&report_type=Daily",
-                    "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . $date . "&department_id=-1&report_type=Daily",
-                ],
+
                 [
                     "title" => "Over Stayed",
-                    "value" => rand(10, 1000),
+                    "value" => 0,
                     "icon" => "	fas fa-clock",
                     "color" => "l-bg-red-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
                     "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
                 ],
-                [
-                    "title" => "Total Visitor",
-                    "value" => Visitor::whereCompanyId($id)->count(),
-                    "icon" => "	fas fa-users",
-                    "color" => "l-bg-cyan-dark",
-                    "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
-                    "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
-                ],
+
             ],
 
             "hostCounts" => [
                 [
                     "title" => "Total Company",
-                    "value" => HostCompany::whereCompanyId($id)->count(),
+                    "value" => $host_count,
                     "icon" => "fas fa-building",
                     "color" => "l-bg-green-dark",
                     "link"  => env("BASE_URL") . "/api/daily?company_id=$id&status=SA&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -96,7 +111,7 @@ class VisitorDashboard extends Controller
                 ],
                 [
                     "title" => "Opened Office",
-                    "value" => rand(10, 1000),
+                    "value" => $opened_office,
                     "icon" => "fas fa-door-open",
                     "color" => "l-bg-purple-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=P&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -104,7 +119,7 @@ class VisitorDashboard extends Controller
                 ],
                 [
                     "title" => "Closed Office",
-                    "value" => rand(10, 1000),
+                    "value" => $closed_office,
                     "icon" => "fas fa-door-closed",
                     "color" => "l-bg-orange-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -112,7 +127,7 @@ class VisitorDashboard extends Controller
                 ],
                 [
                     "title" => "Weekend",
-                    "value" => rand(10, 1000),
+                    "value" => 0,
                     "icon" => "	fas fa-calendar",
                     "color" => "l-bg-red-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -120,7 +135,7 @@ class VisitorDashboard extends Controller
                 ],
                 [
                     "title" => "Vacant",
-                    "value" => rand(10, 1000),
+                    "value" => 0,
                     "icon" => "	fas fa-users",
                     "color" => "l-bg-cyan-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -130,29 +145,32 @@ class VisitorDashboard extends Controller
 
             "statusCounts" => [
                 [
+                    "title" => "Total Visitor",
+                    "value" => $Visitors->clone()->count(),
+                    "icon" => "	fas fa-users",
+                    "color" => "l-bg-cyan-dark",
+                    "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
+                    "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
+                ],
+                [
                     "title" => "Approved",
-                    "value" => $visitorCounts->sum('total_approved'),
+                    "value" => $Visitors->clone()->whereIn('status_id', [2, 4, 5, 6, 7])->count(),
                     "icon" => "fas fa-calendar-check",
                     "color" => "l-bg-green-dark",
                 ],
                 [
                     "title" => "Pending",
-                    "value" => $visitorCounts->sum('total_pending'),
+                    "value" => $Visitors->clone()->where('status_id',   1)->count(),
                     "icon" => "fas fa-clock",
                     "color" => "l-bg-orange-dark",
                 ],
                 [
                     "title" => "Rejected",
-                    "value" => $visitorCounts->sum('total_rejected'),
+                    "value" => $Visitors->clone()->where('status_id', 3)->count(),
                     "icon" => "	fas fa-clock",
-                    "color" => "l-bg-purple-dark",
-                ],
-                [
-                    "title" => "Cancelled",
-                    "value" => $visitorCounts->sum('total_canceled'),
-                    "icon" => "fas fa-calendar-times",
                     "color" => "l-bg-red-dark",
                 ],
+
             ]
         ];
     }

@@ -260,12 +260,7 @@
                     header.filterSpecial &&
                     header.value == 'status_id'
                   "
-                  :items="[
-                    { id: '', name: 'All' },
-                    { id: '1', name: 'Pending' },
-                    { id: '2', name: 'Approved' },
-                    { id: '3', name: 'Rejected' },
-                  ]"
+                  :items="[{ id: '', name: 'All' }, ...visitor_status_list]"
                 ></v-select>
                 <v-select
                   clearable
@@ -450,7 +445,9 @@
 
 <script>
 export default {
+  props: ["filterValue"],
   data: () => ({
+    visitor_status_list: [],
     hostList: [],
     item: { purpose: {} },
     viewDialog: false,
@@ -542,14 +539,7 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-      {
-        text: "ID",
-        align: "left",
-        sortable: true,
-        value: "id",
-        filterable: true,
-        filterSpecial: false,
-      },
+
       {
         text: "Host",
         align: "left",
@@ -588,6 +578,13 @@ export default {
       },
       deep: true,
     },
+
+    filterValue: {
+      handler(val) {
+        this.getDataFromApi(val);
+      },
+      deep: true,
+    },
   },
   created() {
     const today = new Date();
@@ -598,6 +595,8 @@ export default {
     setTimeout(() => {
       this.getPurposeList();
       this.getHostsList();
+
+      this.getVisitorStatusList();
     }, 1000);
   },
   methods: {
@@ -655,6 +654,16 @@ export default {
         }
       });
     },
+    getVisitorStatusList() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+      this.$axios.get(`visitor_status_list`, options).then(({ data }) => {
+        this.visitor_status_list = data;
+      });
+    },
     // filterAttr(data) {
     //   this.from_date = data.from;
     //   this.to_date = data.to;
@@ -693,8 +702,18 @@ export default {
       };
       return colors[item.status_id || "UNKNOWN"];
     },
-    getDataFromApi() {
+    getDataFromApi(filterValue = null) {
+      console.log("filterValue", filterValue);
       this.loading = true;
+
+      if (this.filterValue == "Total Visitor") {
+        this.filters["status_id"] = null;
+      } else if (this.filterValue == "Approved") {
+        this.filters["status_id"] = 2;
+      } else if (this.filterValue == "Rejected") {
+        this.filters["status_id"] = 3;
+      }
+
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
@@ -710,6 +729,7 @@ export default {
           from_date: this.from_date,
           to_date: this.to_date,
           ...this.filters,
+          statsFilterValue: filterValue,
         },
       };
       this.$axios.get(this.endpoint, options).then(({ data }) => {
