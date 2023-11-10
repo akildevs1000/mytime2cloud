@@ -1,0 +1,10 @@
+[
+  {
+    "icon": "mdi-home",
+    "title": "Dashboard",
+    "to": "/guard/visitor-dashboard",
+    "menu": "dashboard_access",
+    "module": "dashboard",
+    "click": "dashboard"
+  }
+]

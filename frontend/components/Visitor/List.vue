@@ -413,25 +413,25 @@
                 <v-icon>mdi-dots-vertical</v-icon>
               </v-btn>
             </template>
-            <v-list width="120" dense>
+            <v-list width="150" dense>
               <v-list-item @click="viewInfo(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="green" small> mdi-eye </v-icon>
                   View
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="updateStatus(item.id, 2)">
+              <v-list-item @click="uploadUserToDeviceDialog = true">
                 <v-list-item-title style="cursor: pointer">
-                  <v-icon color="green" small> mdi-check </v-icon>
-                  Approve
+                  <v-icon color="purple" small> mdi-cellphone-text </v-icon>
+                  Upload Visitor
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="updateStatus(item.id, 3)">
+              <!-- <v-list-item @click="updateStatus(item.id, 3)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="red" small> mdi-cancel</v-icon>
                   Reject
                 </v-list-item-title>
-              </v-list-item>
+              </v-list-item> -->
             </v-list>
           </v-menu>
         </template>
@@ -439,6 +439,93 @@
     </v-card>
 
     <div class="text-center">
+      <v-dialog v-model="uploadUserToDeviceDialog" max-width="500px">
+        <v-card>
+          <v-card-title class="headline">Upload Visitor</v-card-title>
+          <v-card-text class="mt-2">
+            <v-form ref="form" v-model="valid">
+              <v-text-field
+                v-model="payload.visitor_id"
+                label="Visitor ID"
+                required
+                outlined
+                dense
+              ></v-text-field>
+
+              <v-select
+                v-model="payload.zone_id"
+                :items="zoneList"
+                label="Zone 1"
+                item-text="name"
+                item-value="id"
+                outlined
+                dense
+                required
+              ></v-select>
+
+              <v-row>
+                <v-col>
+                  <v-menu
+                    ref="fromTimePicker"
+                    v-model="fromTimePicker"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="payload.fromTime"
+                        label="From Time"
+                        outlined
+                        dense
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-time-picker
+                      v-if="fromTimePicker"
+                      v-model="payload.fromTime"
+                    ></v-time-picker>
+                  </v-menu>
+                </v-col>
+                <v-col>
+                  <v-menu
+                    ref="toTimePicker"
+                    v-model="toTimePicker"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="payload.toTime"
+                        label="To Time"
+                        outlined
+                        dense
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-time-picker
+                      v-if="toTimePicker"
+                      v-model="payload.toTime"
+                    ></v-time-picker>
+                  </v-menu>
+                </v-col>
+              </v-row>
+            </v-form>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn dark color="grey"  @click="cancel">Cancel</v-btn>
+            <v-btn dark color="purple"  @click="save" :disabled="!valid"
+              >Save</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-dialog v-model="dialog" width="500">
         <v-card>
           <v-toolbar flat dense>
@@ -473,6 +560,22 @@ export default {
   props: ["filterValue"],
   data: () => ({
     visitor_status_list: [],
+    uploadUserToDeviceDialog: false,
+    valid: false,
+    fromTimePicker: false,
+    toTimePicker: false,
+
+    payload: {
+      visitor_id: null,
+      zone_id: 1,
+      fromTime: null,
+      toTime: null,
+    },
+    zoneList: [
+      { id: 1, name: "Zone 1" },
+      { id: 2, name: "Zone 2" },
+      // Add more zones as needed
+    ],
     hostList: [],
     item: { purpose: {} },
     viewDialog: false,
@@ -625,6 +728,14 @@ export default {
     }, 1000);
   },
   methods: {
+    cancel() {
+      this.uploadUserToDeviceDialog = false;
+    },
+    save() {
+      // if (this.$refs.form.validate()) {
+      //   this.uploadUserToDeviceDialog = false;
+      // }
+    },
     viewInfo(item) {
       this.viewDialog = true;
       this.item = item;
@@ -760,6 +871,8 @@ export default {
           to_date: this.to_date,
           ...this.filters,
           statsFilterValue: filterValue,
+
+          status_id: 2,
         },
       };
       this.$axios.get(this.endpoint, options).then(({ data }) => {

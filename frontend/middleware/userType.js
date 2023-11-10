@@ -1,27 +1,25 @@
-const data = ({ $auth, redirect }) => {
-  const { user_type } = $auth.user;
+const data = async ({ $auth, redirect }) => {
+  const { user_type, role } = $auth.user;
 
-  switch (user_type) {
-    case "master":
-      redirect("/master");
-      break;
 
-    case "branch":
-      redirect("/dashboard2");
-      break;
-    case "employee":
-      redirect("/employees/dashboard2");
-      break;
-    case "manager":
-      redirect("/dashboard2");
-      break;
-    case "company":
-      redirect("/dashboard2");
-      break;
-    default:
-      redirect("/login");
-      break;
+  let roleType = role.role_type.toLowerCase();
+
+  if (/guard/.test(roleType)) {
+    redirect("/guard/visitor-dashboard");
+    return;
   }
+  if (/host/.test(roleType)) {
+    redirect("/host/visitor-dashboard");
+    return;
+
+  }
+
+  if (user_type == "master") {
+    redirect("/master");
+    return;
+  }
+
+  redirect("/dashboard2");
 };
 
 export default data;
