@@ -18,7 +18,7 @@
                 item.status
               }}</span></span
             >
-            <v-row class="100%" style="margin: auto; light-height: 36px">
+            <v-row class="100%" style="margin: auto; line-height: 36px">
               <v-col cols="4" style="padding: 0px">
                 <v-img
                   style="
@@ -39,7 +39,7 @@
                 >
 
                 <div>
-                  <v-icon size="20" class="icon-blue"
+                  <v-icon size="20" class="icon-blue" title="Date"
                     >mdi-calendar-range</v-icon
                   >
                   {{ item.from_date_display }}
@@ -48,24 +48,30 @@
                   >
                 </div>
                 <div>
-                  <v-icon size="20" class="icon-blue">mdi-clock-outline</v-icon>
+                  <v-icon size="20" class="icon-blue" title="Time"
+                    >mdi-clock-outline</v-icon
+                  >
                   {{ item.time_in }} - {{ item.time_out }}
                 </div>
                 <div>
-                  <v-icon size="20" class="icon-blue"
+                  <v-icon title="Purpose" size="20" class="icon-blue"
                     >mdi-briefcase-account-outline</v-icon
                   >
                   {{ item.purpose.name || "---" }}
                 </div>
                 <div>
-                  <v-icon size="20" class="icon-blue">mdi-cellphone</v-icon>
+                  <v-icon size="20" class="icon-blue" title="Contact Number"
+                    >mdi-cellphone</v-icon
+                  >
                   {{ item.phone_number || "---" }}
                 </div>
               </v-col>
               <v-col cols="4" style="padding-left: 5px; padding-top: 0px">
                 <div>&nbsp;</div>
                 <div>
-                  <v-icon size="20" class="icon-blue">mdi-domain</v-icon>
+                  <v-icon title="Company" size="20" class="icon-blue"
+                    >mdi-domain</v-icon
+                  >
                   {{ item.visitor_company_name || "---" }}
                 </div>
                 <span cols="8">
@@ -85,7 +91,9 @@
                 </span>
 
                 <div>
-                  <v-icon size="20" class="icon-blue">mdi-identifier</v-icon>
+                  <v-icon size="20" class="icon-blue" title="ID"
+                    >mdi-identifier</v-icon
+                  >
 
                   <span v-if="item.id_type == 1">Emirates ID</span>
                   <span v-else-if="item.id_type == 2">National ID</span>
@@ -94,7 +102,9 @@
                 </div>
 
                 <div>
-                  <v-icon size="20" class="icon-blue">mdi-email</v-icon>
+                  <v-icon size="20" class="icon-blue" title="Email"
+                    >mdi-email</v-icon
+                  >
                   {{ item.email || "---" }}
                 </div>
               </v-col>
