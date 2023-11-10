@@ -15,6 +15,8 @@ class Visitor extends Model
 
     protected $casts = [
         "created_at" => "datetime:d-M-Y",
+
+
     ];
 
 
@@ -97,7 +99,10 @@ class Visitor extends Model
             return $status;
         }
     }
-
+    public function attendances()
+    {
+        return $this->hasMany(VisitorAttendance::class);
+    }
     public function purpose()
     {
         return $this->belongsTo(Purpose::class);

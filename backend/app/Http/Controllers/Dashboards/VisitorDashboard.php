@@ -25,11 +25,6 @@ class VisitorDashboard extends Controller
 
     public function timeTOSeconds($str_time)
     {
-        // $str_time = "2:50";
-
-        // sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
-
-        // return  $time_seconds = isset($seconds) ? $hours * 3600 + $minutes * 60 + $seconds : $hours * 60 + $minutes;
 
 
         return  $seconds = strtotime($str_time) - strtotime('TODAY');
@@ -41,7 +36,7 @@ class VisitorDashboard extends Controller
         $id = $request->company_id ?? 0;
 
         $Visitors = Visitor::query();
-
+        //  $Visitors->with(["attendances"]);
         $Visitors->whereCompanyId($id);
         $Visitors->when($request->filled('branch_id'), function ($q) use ($request) {
             $q->Where('branch_id',   $request->branch_id);
@@ -49,6 +44,7 @@ class VisitorDashboard extends Controller
 
         $Visitors->where("visit_from", "<=", date('Y-m-d'));
         $Visitors->where("visit_to", ">=", date('Y-m-d'));
+
 
 
 
