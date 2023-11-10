@@ -171,26 +171,10 @@ class AuthController extends Controller
         unset($user->employee);
         unset($user->assigned_permissions);
 
-
-
-        $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo")->get();
-        if (isset($branchesArray[0])) {
-            $assigned_branch_id = $branchesArray[0]['id'];
-
-            $user->user_type = "branch";
-            $user->branch_name = $branchesArray[0]['branch_name'];
-            $user->branch_logo =   $branchesArray[0]['logo'];
-        }
-        $user->branch_id = CompanyBranch::where('user_id', $user->id)->pluck('id')->first();
-
-
-
-        $arr = [
+        return [
             'token' => $user->createToken('myApp')->plainTextToken,
             'user' => $user,
         ];
-
-        return $arr;
     }
 
     public function me(Request $request)
@@ -243,11 +227,6 @@ class AuthController extends Controller
         } else {
             return $user->role_id > 0 ? "user" : "master";
         }
-    }
-
-    public function getAssignedDepartments($user)
-    {
-        return (new AssignedDepartmentEmployee)->assginedDepartment($user->employee->id ?? 0)->pluck("id");
     }
 
     public function logout(Request $request)
