@@ -117,7 +117,9 @@ class VisitorController extends Controller
             }
         });
 
-
+        if ($request->statsFilterValue == 'Over Stayed') {
+            $model->whereIn("status_id", [6, 7]);
+        }
 
 
         if (!$request->sortBy)
