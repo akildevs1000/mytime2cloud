@@ -169,6 +169,8 @@ class AuthController extends Controller
 
         unset($user->company);
         unset($user->employee);
+        unset($user->assigned_permissions);
+
 
 
         $branchesArray = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo")->get();
@@ -194,9 +196,11 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-        $user->load("company");
+        $user->load(["company","role:id,name,role_type"]);
         $user->user_type = $this->getUserType($user);
         $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
+        unset($user->assigned_permissions);
+
         return ['user' => $user];
     }
 
@@ -215,10 +219,27 @@ class AuthController extends Controller
                 return "branch";
             };
 
-            $user->load("employee");
-            $user->role_type = Role::where("id", $user->role_id)->value("role_type");
+            $user->load(["employee" => function ($q) {
+                // :id,employee_id,system_user_id,user_id"
+
+                $q->select(
+                    "id",
+                    "first_name",
+                    "last_name",
+                    "profile_picture",
+                    "employee_id",
+                    "system_user_id",
+                    "joining_date",
+                    "user_id",
+                    "overtime",
+                    "display_name",
+                    "display_name",
+                    "branch_id"
+                );
+
+                $q->withOut(["user", "schedule", "department", "designation", "sub_department", "branch"]);
+            }]);
             return "employee";
-            
         } else {
             return $user->role_id > 0 ? "user" : "master";
         }

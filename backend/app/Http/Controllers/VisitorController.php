@@ -150,7 +150,7 @@ class VisitorController extends Controller
 
         $data['logo'] = $this->processImage("media/visitor/logo");
         $data['date'] = date("Y-m-d");
-
+        $data['visitor_filled_datetime'] = date("Y-m-d H:i:s");
 
         try {
 
@@ -225,7 +225,10 @@ class VisitorController extends Controller
         // return (new WhatsappController)->sendWhatsappNotification($company, $message, '971554501483');
 
         try {
-            $visitor = Visitor::whereId($id)->update(["status_id" => $request->status_id]);
+            $visitor = Visitor::whereId($id)->update([
+                "status_id" => $request->status_id,
+                "host_changed_status_datetime" => date("Y-m-d H:i:s")
+            ]);
             if (!$visitor) {
                 return $this->response('Visitor cannot update.', null, false);
             }

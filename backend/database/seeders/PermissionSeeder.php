@@ -307,6 +307,26 @@ class PermissionSeeder extends Seeder
             ['module' => 'web_logs', 'title' => 'Web Logs edit', 'name' => 'web_logs_edit'],
             ['module' => 'web_logs', 'title' => 'Web Logs delete', 'name' => 'web_logs_delete'],
 
+            ['module' => 'visitor', 'title' => 'Visitor access', 'name' => 'visitor_access'],
+            ['module' => 'visitor', 'title' => 'Visitor view', 'name' => 'visitor_view'],
+            ['module' => 'visitor', 'title' => 'Visitor create', 'name' => 'visitor_create'],
+            ['module' => 'visitor', 'title' => 'Visitor edit', 'name' => 'visitor_edit'],
+            ['module' => 'visitor', 'title' => 'Visitor delete', 'name' => 'visitor_delete'],
+
+            ['module' => 'host', 'title' => 'Host access', 'name' => 'host_access'],
+            ['module' => 'host', 'title' => 'Host view', 'name' => 'host_view'],
+            ['module' => 'host', 'title' => 'Host create', 'name' => 'host_create'],
+            ['module' => 'host', 'title' => 'Host edit', 'name' => 'host_edit'],
+            ['module' => 'host', 'title' => 'Host delete', 'name' => 'host_delete'],
+
+
+            ['module' => 'Access Control', 'title' => 'Access Control access', 'name' => 'access_control_access'],
+            ['module' => 'Payslip', 'title' => 'Payslip Access', 'name' => 'payslip_access'],
+            ['module' => 'attendance_report', 'title' => 'Attendance Access', 'name' => 'attendance_access'],
+
+            ['module' => 'visitor', 'title' => 'Visitor Requests Access', 'name' => 'visitor_requests_access'],
+            ['module' => 'attendance_report', 'title' => 'Change Requests Access', 'name' => 'change_requests_access'],
+            ['module' => 'location', 'title' => 'Gps History Access', 'name' => 'gps_history_access'],
 
         ];
 
