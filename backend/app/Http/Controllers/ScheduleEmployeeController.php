@@ -79,21 +79,21 @@ class ScheduleEmployeeController extends Controller
 
         foreach ($data["employee_ids"] as $item) {
 
-
-            foreach ($data["schedules"] as $shift) {
-                $value = [
-                    "shift_id" => $shift["shift_id"] ?? 0,
-                    "isOverTime" => $shift["is_over_time"],
-                    "employee_id" => $item,
-                    "shift_type_id" => $shift["shift_type_id"],
-                    "from_date" => $shift["from_date"],
-                    "to_date" => $shift["to_date"],
-                    "company_id" => $data["company_id"],
-                    "branch_id" => $data["branch_id"],
-                ];
-                $arr[] = $value;
+            if ($item) {
+                foreach ($data["schedules"] as $shift) {
+                    $value = [
+                        "shift_id" => $shift["shift_id"] ?? 0,
+                        "isOverTime" => $shift["is_over_time"],
+                        "employee_id" => $item,
+                        "shift_type_id" => $shift["shift_type_id"],
+                        "from_date" => $shift["from_date"],
+                        "to_date" => $shift["to_date"],
+                        "company_id" => $data["company_id"],
+                        "branch_id" => $data["branch_id"],
+                    ];
+                    $arr[] = $value;
+                }
             }
-
 
 
             // if (!$found) {

@@ -70,7 +70,7 @@ class VisitorController extends Controller
 
         $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
         $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->to_date));
-        
+
 
         // $startDate = Carbon::parse($request->from_date);
         // $endDate = Carbon::parse($request->to_date);

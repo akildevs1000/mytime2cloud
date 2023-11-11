@@ -65,8 +65,8 @@
                   >
                   {{ item.phone_number || "---" }}
                 </div>
-                <divider></divider>
-                <div class="bold">
+
+                <div class="bold" style="border-top: 1px solid #ddd">
                   <v-icon size="20" color="green" title="Entry In Time"
                     >mdi-bank-transfer-in</v-icon
                   >
@@ -118,8 +118,8 @@
                   >
                   {{ item.email || "---" }}
                 </div>
-                <divider></divider>
-                <div class="bold">
+
+                <div class="bold" style="border-top: 1px solid #ddd">
                   <v-icon size="30" color="red" title="Exit Out Time"
                     >mdi-bank-transfer-out</v-icon
                   >

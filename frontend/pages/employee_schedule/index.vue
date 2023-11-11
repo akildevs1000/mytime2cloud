@@ -385,12 +385,56 @@
             >mdi mdi-filter</v-icon
           >
         </v-btn>
+
+        <v-btn
+          v-if="employeesSelected.length > 0"
+          dense
+          class="ma-2 px-0 primary"
+          fill
+          dark
+          small
+          @click="openScheduleDialog"
+        >
+          Apply Schedules
+        </v-btn>
+        <v-col cols="3">
+          <v-select
+            cols="1"
+            :hide-details="true"
+            @change="applyBranchFilter()"
+            item-value="id"
+            item-text="branch_name"
+            v-model="filterBranchId"
+            outlined
+            dense
+            clearable
+            :items="[{ branch_name: `All Branches`, id: `` }, ...branchesList]"
+          ></v-select
+        ></v-col>
+        <v-col cols="6"> </v-col>
+
         <!-- </template>
             <span>Filter</span>
           </v-tooltip> -->
 
         <v-spacer></v-spacer>
-
+        <v-select
+          style="width: 50px"
+          cols="1"
+          :hide-details="true"
+          @change="filterEmployees()"
+          item-value="id"
+          item-text="name"
+          v-model="filterScheduledEmp"
+          outlined
+          dense
+          clearable
+          :items="[
+            { name: `All`, id: `` },
+            { name: `Scheduled`, id: `1` },
+            { name: `Un-Scheduled`, id: `0` },
+          ]"
+        ></v-select>
         <!-- <v-tooltip top color="primary" v-if="can(`employee_schedule_create`)">
             <template v-slot:activator="{ on, attrs }"> -->
         <!-- <v-btn
@@ -423,10 +467,11 @@
         </template>
       </v-snackbar>
       <v-data-table
+        show-select
         dense
         :headers="headers_table"
         :items="employees"
-        model-value="data.id"
+        v-model="employeesSelected"
         :loading="loading"
         :options.sync="options"
         :footer-props="{
@@ -759,6 +804,9 @@
 <script>
 export default {
   data: () => ({
+    filterBranchId: "",
+    employeesSelected: [],
+    filterScheduledEmp: "",
     shifts_branch_wise: [],
     cumulativeIndex: 1,
     perPage: 10,
@@ -961,6 +1009,7 @@ export default {
     deleteIds: [],
     schedules_temp_list: [],
     empId: "",
+    branch_id: "",
   }),
 
   computed: {},
@@ -1026,6 +1075,20 @@ export default {
   },
 
   methods: {
+    applyBranchFilter() {
+      this.branch_id = this.filterBranchId;
+      this.filters["branch_id"] = this.branch_id;
+
+      this.shifts_branch_wise = this.shifts.filter(
+        (e) => e.branch_id == this.branch_id
+      );
+      this.employeesSelected = [];
+      this.getDataFromApi();
+    },
+    filterEmployees() {
+      this.filters["schedules_count"] = this.filterScheduledEmp;
+      this.getDataFromApi();
+    },
     updateIndex(page) {
       this.currentPage = page;
       this.cumulativeIndex = (page - 1) * this.perPage;
@@ -1035,7 +1098,7 @@ export default {
         params: {
           company_id: this.$auth.user.company_id,
 
-          branch_id: this.$auth.user.branch_id,
+          // branch_id: this.$auth.user.branch_id,
         },
       };
 
@@ -1074,9 +1137,19 @@ export default {
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
+    openScheduleDialog() {
+      if (this.branch_id == 0) {
+        alert("Select the Branch");
 
+        return false;
+      }
+      this.schedules_temp_list = [];
+      this.addRow(1);
+      this.isEdit = true;
+      this.editDialog = true;
+    },
     ScheduleItem(item, type) {
-      this.empId = item.system_user_id;
+      //this.empId = item.system_user_id;
       let id = item.system_user_id;
       let options = {
         company_id: this.$auth.user.company_id,
@@ -1086,7 +1159,9 @@ export default {
         (e) => e.branch_id == item.branch_id
       );
 
-      this.empId = item.system_user_id;
+      //this.empId = item.system_user_id;
+      this.employeesSelected = [];
+      this.employeesSelected.push(item.system_user_id);
 
       this.$axios
         .get(`get_shifts_by_employee/${id}`, { params: options })
@@ -1138,7 +1213,8 @@ export default {
       });
 
       let payload = {
-        employee_ids: [this.empId],
+        //employee_ids: [this.empId],
+        employee_ids: this.employeesSelected.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company_id,
         branch_id:
@@ -1227,7 +1303,7 @@ export default {
         .then(({ data }) => {
           this.shifts_for_filter = data.data;
           this.shifts_for_filter.unshift({ id: "", name: "All" });
-          this.addRow(data[0].id);
+          if (data[0]) this.addRow(data[0].id);
         })
         .catch((err) => console.log(err));
 
