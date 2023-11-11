@@ -227,8 +227,8 @@ export default {
     otp: "",
     userId: "",
     credentials: {
-      email: "guard@gmail.com",
-      password: "secret",
+      email: "demo@gmail.com",
+      password: "demo",
     },
   }),
   created() {
