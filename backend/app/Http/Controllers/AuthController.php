@@ -180,7 +180,7 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-        $user->load(["company","role:id,name,role_type"]);
+        $user->load(["company", "role:id,name,role_type"]);
         $user->user_type = $this->getUserType($user);
         $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
         unset($user->assigned_permissions);
@@ -221,7 +221,7 @@ class AuthController extends Controller
                     "branch_id"
                 );
 
-                $q->withOut(["user", "schedule", "department", "designation", "sub_department", "branch"]);
+                $q->withOut(["user", "department", "designation", "sub_department", "branch"]);
             }]);
             return "employee";
         } else {
