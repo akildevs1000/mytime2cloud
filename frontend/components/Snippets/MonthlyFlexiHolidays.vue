@@ -33,7 +33,7 @@ export default {
         { id: 7, name: `7 days` },
         { id: 8, name: `8 days` },
         { id: 9, name: `9 days` },
-        { id: 10, name: `10 das` },
+        { id: 10, name: `10 days` },
       ],
     };
   },
