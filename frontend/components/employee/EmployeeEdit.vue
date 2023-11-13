@@ -401,6 +401,8 @@ export default {
         },
       });
       this.branchesList = data;
+
+      this.filterDepartmentsByBranch(this.employee.branch_id);
     } catch (error) {
       // Handle the error
       console.error("Error fetching branch list", error);
