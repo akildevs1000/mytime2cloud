@@ -1136,6 +1136,9 @@ export default {
 
         return false;
       }
+      this.shifts_branch_wise = this.shifts.filter(
+        (e) => e.branch_id == this.branch_id
+      );
       this.schedules_temp_list = [];
       this.addRow(1);
       this.isEdit = true;
