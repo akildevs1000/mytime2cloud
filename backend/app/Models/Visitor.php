@@ -74,14 +74,11 @@ class Visitor extends Model
         // ];
 
         $status = [
+            ["id" => "",  "name" => "All"],
             ["id" => "1", "name" => "Pending"],
             ["id" => "2", "name" => "Approved"],
             ["id" => "3", "name" => "Rejected"],
-            ["id" => "4", "name" => "Gurd Approved"],
-            ["id" => "5", "name" => "Updated Device"],
-            ["id" => "6", "name" => "Checked In"],
-            ["id" => "7", "name" => "Checked Out"]
-
+            ["id" => "4", "name" => "Uploaded to Device"],
         ];
 
         if ($id) {
@@ -133,5 +130,55 @@ class Visitor extends Model
     public function getFullNameAttribute()
     {
         return $this->first_name . " " . $this->last_name;
+    }
+
+
+    public function filters($request)
+    {
+        $model = self::query();
+
+        $model->where("company_id", $request->input("company_id"));
+
+        $model->when($request->filled('status_id'), fn ($q) => $q->Where('status_id',   $request->input("status_id")));
+
+        $model->when($request->filled('branch_id'), fn ($q) => $q->Where('branch_id',   $request->input("branch_id")));
+
+        $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->input("from_date")));
+
+        $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->input("to_date")));
+
+        $model->when($request->filled('host_company_id'), fn ($q) => $q->Where('host_company_id',   $request->input("host_company_id")));
+
+        $model->when($request->filled('purpose_id'), fn ($q) => $q->Where('purpose_id',   $request->input("purpose_id")));
+
+        $ilikeFields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'time_in'];
+
+
+        foreach ($ilikeFields as $field) {
+            $model->when($request->filled($field), function ($q) use ($field, $request) {
+                $q->when($request->filled('purpose_id'), fn ($q) => $q->where($field, 'ILIKE', $request->input($field) . '%'));
+            });
+        }
+
+        $first_name = $request->first_name;
+
+        $model->when($request->filled('first_name'), function ($q) use ($first_name) {
+            $q->where(function ($q) use ($first_name) {
+                $q->Where('first_name', 'ILIKE', "$first_name%");
+                $q->orWhere('last_name', 'ILIKE', "$first_name%");
+            });
+        });
+
+        $model->with(["host" => fn ($q) => $q->withOut(["user", "employee"])]);
+
+        $model->orderBy("visit_from", "DESC");
+
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            if (!strpos($request->sortBy, '.')) {
+                $q->orderBy($request->sortBy . "", $request->input('sortDesc') == 'true' ? 'desc' : 'asc');
+            }
+        });
+
+        return $model;
     }
 }
