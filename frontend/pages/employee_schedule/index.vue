@@ -1220,10 +1220,10 @@ export default {
           : this.employeesSelected.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company_id,
-        branch_id:
-          (this.schedules_temp_list[0] &&
-            this.schedules_temp_list[0].branch_id) ||
-          0,
+        replace_schedules: this.empId ? true : false,
+        branch_id: this.empId
+          ? this.schedules_temp_list[0] && this.schedules_temp_list[0].branch_id
+          : this.filterBranchId,
       };
 
       this.process(this.$axios.post(`schedule_employees`, payload));
