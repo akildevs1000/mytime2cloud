@@ -439,7 +439,7 @@
       </div>
       <v-dialog persistent v-model="dialog" max-width="500px">
         <v-card>
-          <v-card-title dense class="primary white--text background">
+          <v-card-title dense class="popup_background">
             Import Employee
             <v-spacer></v-spacer>
             <v-icon @click="dialog = false" outlined dark color="white">
@@ -449,6 +449,18 @@
           <v-card-text>
             <v-container>
               <v-row>
+                <v-col>
+                  <v-select
+                    :hide-details="true"
+                    clearable
+                    item-value="id"
+                    item-text="branch_name"
+                    v-model="import_branch_id"
+                    outlined
+                    dense
+                    :items="branchesList"
+                  ></v-select>
+                </v-col>
                 <v-col cols="12">
                   <v-file-input
                     accept="text/csv"
@@ -1159,6 +1171,7 @@ export default {
     branchesList: [],
     branch_id: null,
     isCompany: true,
+    import_branch_id: "",
   }),
 
   async created() {
@@ -1422,38 +1435,44 @@ export default {
       document.body.removeChild(element);
     },
     importEmployee() {
-      let payload = new FormData();
-      payload.append("employees", this.files);
-      payload.append("company_id", this.$auth?.user?.company?.id);
-      let options = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
-      this.btnLoader = true;
-      this.$axios
-        .post("/employee/import", payload, options)
-        .then(({ data }) => {
-          this.btnLoader = false;
-          if (!data.status) {
-            this.errors = data.errors;
-            payload.delete("employees");
-          } else {
-            this.errors = [];
-            this.snackbar = true;
-            this.response = "Employees imported successfully";
-            this.getDataFromApi();
-            this.close();
-          }
-        })
-        .catch((e) => {
-          if (e.toString().includes("Error: Network Error")) {
-            this.errors = [
-              "File is modified.Please cancel the current file and try again",
-            ];
+      if (this.import_branch_id > 0) {
+        let payload = new FormData();
+        payload.append("employees", this.files);
+        payload.append("company_id", this.$auth?.user?.company?.id);
+        payload.append("branch_id", this.import_branch_id);
+        let options = {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        };
+        this.btnLoader = true;
+        this.$axios
+          .post("/employee/import", payload, options)
+          .then(({ data }) => {
             this.btnLoader = false;
-          }
-        });
+            if (!data.status) {
+              this.errors = data.errors;
+              payload.delete("employees");
+            } else {
+              this.errors = [];
+              this.snackbar = true;
+              this.response = "Employees imported successfully";
+              alert(this.response);
+              this.getDataFromApi();
+              this.close();
+            }
+          })
+          .catch((e) => {
+            if (e.toString().includes("Error: Network Error")) {
+              this.errors = [
+                "File is modified.Please cancel the current file and try again",
+              ];
+              this.btnLoader = false;
+            }
+          });
+      } else {
+        alert("Select Branch");
+      }
     },
     can(per) {
       return this.$pagePermission.can(per, this);

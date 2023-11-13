@@ -677,6 +677,7 @@ class EmployeeController extends Controller
         $rowCount = file($file);
 
         $this->company_id = $request->company_id ?? 0;
+        $branch_id = $request->branch_id ?? 0;
 
         $company = Company::withCount('employees')->find($this->company_id);
         $totalEmployee = $company->employees_count ?? 0;
@@ -726,6 +727,7 @@ class EmployeeController extends Controller
                     'company_id' => $this->company_id,
                     'system_user_id' => trim($data['employee_device_id']),
                     'department_id' => trim($data['department_code']),
+                    'branch_id' => trim($branch_id),
                 ];
 
                 $record = null;
@@ -799,12 +801,13 @@ class EmployeeController extends Controller
     {
 
         $filename = $file->getClientOriginalName();
-        if ($filename != "employees.csv") {
-            return [
-                "status" => false,
-                "errors" => ["wrong file " . $filename . " (valid file is employees.csv)"],
-            ];
-        }
+        // if ($filename != "employees.csv") {
+        //     return [
+        //         "status" => false,
+        //         "errors" => ["wrong file " . $filename . " (valid file is employees.csv)"],
+        //     ];
+        // }
+        $filename = "employees.csv";
         $file->move("upload", $filename);
         return public_path("upload/" . $filename);
     }
