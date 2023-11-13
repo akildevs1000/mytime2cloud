@@ -39,7 +39,7 @@ class VisitorDashboard extends Controller
         //  $Visitors->with(["attendances"]);
         $Visitors->whereCompanyId($id);
         $Visitors->when($request->filled('branch_id'), function ($q) use ($request) {
-            $q->Where('branch_id',   $request->branch_id);
+            $q->where('branch_id',   $request->branch_id);
         });
 
         $Visitors->where("visit_from", "<=", date('Y-m-d'));

@@ -58,7 +58,7 @@
           </div>
         </v-col>
       </v-row>
-      <VisitorList />
+      <VisitorList @changeBranch="changeBranch" />
     </div>
     <Preloader v-else />
   </div>
@@ -77,6 +77,7 @@ export default {
       iframeDisplay: false,
       iframeUrl: "",
       items: [],
+      branch_id: null,
     };
   },
   created() {
@@ -140,14 +141,18 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-
+    changeBranch(branch_id) {
+      console.log("branch_id", branch_id);
+      this.branch_id = branch_id;
+      this.initialize();
+    },
     initialize() {
       let options = {
         company_id: this.$auth.user.company_id,
       };
       this.$axios.get(`count`, { params: options }).then(({ data }) => {
         this.items = data;
-        console.log(data);
+
         this.loading = false;
 
         // if (this.items.length > 0) {

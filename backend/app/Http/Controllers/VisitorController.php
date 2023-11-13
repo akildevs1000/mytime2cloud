@@ -56,9 +56,9 @@ class VisitorController extends Controller
         $model = Visitor::query();
 
         $model->where("company_id", $request->input("company_id"));
-        // $model->when($request->filled('branch_id'), function ($q) use ($request) {
-        //     $q->Where('branch_id',   $request->branch_id);
-        // });
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->Where('branch_id',   $request->branch_id);
+        });
 
         $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in', 'time_out'];
 
@@ -149,7 +149,7 @@ class VisitorController extends Controller
         if (!$request->sortBy)
             $model->orderBy("visit_from", "DESC");
 
-        $results = $model->with(["attendances", "zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
+        $results = $model->with(["branch", "attendances", "zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
 
         return $results;
 

@@ -300,6 +300,21 @@
                   "
                   :items="[{ id: '', name: 'All Purposes' }, ...purposeList]"
                 ></v-select>
+                <v-select
+                  v-if="header.filterSpecial && header.value == 'branch_id'"
+                  :hide-details="true"
+                  clearable
+                  @change="applyFilters('status', $event)"
+                  item-value="id"
+                  item-text="branch_name"
+                  v-model="filters[header.value]"
+                  outlined
+                  dense
+                  :items="[
+                    { branch_name: `All Branches`, id: `` },
+                    ...branchesList,
+                  ]"
+                ></v-select>
                 <v-autocomplete
                   clearable
                   :hide-details="true"
@@ -366,7 +381,9 @@
         <template v-slot:item.first_name="{ item }">
           {{ item.full_name }}
         </template>
-
+        <template v-slot:item.branch_id="{ item }">
+          {{ item.branch && item.branch.branch_name }}
+        </template>
         <template v-slot:item.purpose_id="{ item }">
           {{ item.purpose.name }}
         </template>
@@ -692,6 +709,8 @@ export default {
         filterable: false,
       },
     ],
+    branchesList: [],
+    branch_id: null,
     pagination: {
       current: 1,
       total: 0,
@@ -723,27 +742,53 @@ export default {
     setTimeout(() => {
       this.getPurposeList();
       this.getHostsList();
-
+      this.getbranchesList();
       this.getVisitorStatusList();
     }, 1000);
+
+    if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          value: "branch_id",
+          filterable: true,
+          filterName: "branch_id",
+          filterSpecial: true,
+        },
+      ];
+      this.headers_table.splice(2, 0, ...branch_header);
+    }
   },
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          // branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     verifyOverstay(item) {
       if (item.attendances && item.attendances[0]) {
         if (item.status_id >= 6) {
-          console.log(item.attendances[0]);
           let inTime = item.attendances[0].in;
           let outTime = item.attendances[0].out;
           let overTimeInSeconds = 0;
           if (outTime == "" || outTime == null) {
             outTime = this.getCurrentTime();
           }
-          console.log("inTime", inTime);
-          console.log("outTime", outTime);
+
           if (inTime && outTime) {
             overTimeInSeconds =
               this.getTimeInSeconds(outTime) - this.getTimeInSeconds(inTime);
-            console.log("overTimeInSeconds", overTimeInSeconds);
+
             if (overTimeInSeconds > 0) {
               return (
                 "Over Stay : " + this.formatSecondsToTime(overTimeInSeconds)
@@ -809,6 +854,7 @@ export default {
     },
     applyFilters() {
       this.getDataFromApi();
+      this.$emit("changeBranch", this.filters["branch_id"]);
     },
     toggleFilter() {
       this.isFilter = !this.isFilter;
@@ -895,7 +941,6 @@ export default {
       return colors[item.status_id || "UNKNOWN"];
     },
     getDataFromApi(filterValue = null) {
-      console.log("filterValue", filterValue);
       this.loading = true;
 
       // if (this.filterValue == "Total Visitor") {

@@ -105,7 +105,7 @@
         </v-col>
       </v-row>
 
-      <VisitorList :key="counter" :filterValue="filterTitle" />
+      <VisitorList @changeBranch="changeBranch1" :filterValue="filterTitle" />
     </div>
     <Preloader v-else />
   </div>
@@ -126,6 +126,7 @@ export default {
       iframeUrl: "",
       items: [],
       filterTitle: "",
+      branch_id: null,
     };
   },
   created() {
@@ -156,6 +157,12 @@ export default {
     },
   },
   methods: {
+    changeBranch1(branch_id) {
+      console.log("branch_id", branch_id);
+      this.branch_id = branch_id;
+
+      // this.initialize();
+    },
     filterStatus(status) {
       this.filterTitle = status;
       //this.counter++;
@@ -198,7 +205,9 @@ export default {
       this.loading = true;
       let options = {
         company_id: this.$auth.user.company_id,
+        branch_id: this.branch_id > 0 ? this.branch_id : null,
       };
+
       this.$axios.get(`visitor-count`, { params: options }).then(({ data }) => {
         this.items = data;
 
