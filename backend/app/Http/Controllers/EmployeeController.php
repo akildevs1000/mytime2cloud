@@ -704,12 +704,12 @@ class EmployeeController extends Controller
         try {
             foreach ($data as $data) {
                 $validator = $this->validateImportData($data);
-                // if (!$this->checkIfDepartmentExist($data['department_code'])) {
-                //     return [
-                //         "status" => false,
-                //         "errors" => ["Department code ({$data['department_code']}) does not exist"],
-                //     ];
-                // }
+                if (!$this->checkIfDepartmentExist($data['department_code'])) {
+                    return [
+                        "status" => false,
+                        "errors" => ["Department code ({$data['department_code']}) does not exist"],
+                    ];
+                }
 
                 if ($validator->fails()) {
                     return [
@@ -726,7 +726,7 @@ class EmployeeController extends Controller
                     'employee_id' => trim($data['employee_id']),
                     'company_id' => $this->company_id,
                     'system_user_id' => trim($data['employee_device_id']),
-                    // 'department_id' => trim($data['department_code']),
+                    'department_id' => trim($data['department_code']),
                     'branch_id' => trim($branch_id),
                 ];
 
@@ -779,7 +779,7 @@ class EmployeeController extends Controller
             'system_user_id' => ['required', $this->uniqueRecord("employees", $employeeDevice)],
             'display_name' => ['required', 'min:3', 'max:10'],
             'email' => 'nullable|min:3|max:191|unique:users',
-            // 'department_code' => ['required'],
+            'department_code' => ['required'],
             'first_name' => ['required'],
             'last_name' => ['required'],
         ];
@@ -820,8 +820,8 @@ class EmployeeController extends Controller
             "display_name",
             "first_name",
             "last_name",
-            "email"
-            // "department_code",
+            "email",
+            "department_code",
         ];
         $header = null;
         $data = [];
