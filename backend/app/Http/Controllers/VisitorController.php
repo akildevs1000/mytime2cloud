@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Visitor\Register;
 use App\Http\Requests\Visitor\Store;
 use App\Http\Requests\Visitor\Update;
+use App\Http\Requests\Visitor\UploadVisitor;
 use App\Jobs\ProcessSDKCommand;
 use App\Models\Company;
 use App\Models\HostCompany;
@@ -266,21 +267,21 @@ class VisitorController extends Controller
 
             if ($data['host_company_id'] ?? false) {
 
-                $host = HostCompany::where("id", $data['host_company_id'])->with("employee:id,user_id,employee_id")->first();
-
-                (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number ?? 971554501483);
+                if (env("APP_ENV") !== "local") {
+                    (new WhatsappController)->sendWhatsappNotification($company, $message, $request->number);
+                }
 
                 Notification::create([
                     "data" => "New visitor has been registered",
                     "action" => "Registration",
                     "model" => "Visitor",
-                    "user_id" => $host->employee->user_id ?? 0,
+                    "user_id" => $request->user_id,
                     "company_id" => $request->company_id,
                     "redirect_url" => "visitor_requests"
                 ]);
             }
 
-            $data['url'] = "https://backend.mytime2cloud.com/media/visitor/logo/" . $data['logo'];
+            $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
 
 
             return $this->response('Form has been submitted successfully.', $data, true);
@@ -288,6 +289,39 @@ class VisitorController extends Controller
 
             return $th;
             // return $this->response('Server Error.', null, true);
+        }
+    }
+
+    public function uploadVisitorToDevice(UploadVisitor $request)
+    {
+        try {
+
+            $ifExist = Visitor::where("id", $request->id)->where("system_user_id", ">", 0)->first();
+
+            if ($ifExist) {
+                return $this->response('Visiter got Device Id already.', $ifExist, false);
+            }
+
+            $visitor = Visitor::where("id", $request->id)->update([
+                "system_user_id" => $request->system_user_id,
+                "zone_id" => $request->zone_id,
+                "status_id" => 4,
+                "guard_changed_status_datetime" => date("Y-m-d H:i:s")
+
+            ]);
+            if (!$visitor) {
+                return $this->response('Visitor cannot upload.', null, false);
+            }
+
+            // $data = $request->all();
+            // $preparedJson = $this->prepareJsonForSDK($data);
+            // return $this->SDKCommand( "http://139.59.69.241:5000/Person/AddRange", $preparedJson);
+            // // env('SDK_URL');
+            // $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
+
+            return $this->response('Visitor uploaded to device.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
         }
     }
 
