@@ -1045,7 +1045,7 @@ export default {
     },
   },
   created() {
-    if (this.$auth.user.branch_id == null) {
+    if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
       let branch_header = [
         {
           text: "Branch",
