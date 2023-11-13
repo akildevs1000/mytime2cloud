@@ -442,7 +442,7 @@
           <v-card-title dense class="popup_background">
             Import Employee
             <v-spacer></v-spacer>
-            <v-icon @click="dialog = false" outlined dark color="white">
+            <v-icon @click="dialog = false" outlined dark>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
