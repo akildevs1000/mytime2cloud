@@ -19,7 +19,7 @@
               <div class="card-body p-md-5 mx-md-4">
                 <v-row class="pb-5">
                   <v-col md="12" cols="12" class="text-center">
-                    <h2>EzTime</h2>
+                    <h2>MyTime2Cloud</h2>
                   </v-col>
                 </v-row>
 
@@ -97,7 +97,7 @@
                       style="color: #fff; padding: 3rem !important"
                     >
                       <h2 class="pb-7" style="font-size: 2em">
-                        Welcome To EzTime
+                        Welcome To MyTime2Cloud
                       </h2>
 
                       <v-form
