@@ -354,8 +354,7 @@
         <v-toolbar-title class="black--text"
           ><span> Schedule List</span></v-toolbar-title
         >
-        <!-- <v-tooltip top dark>
-            <template v-slot:activator="{ on, attrs }"> -->
+
         <v-btn
           dense
           class="ma-0 px-0"
@@ -368,11 +367,7 @@
             >mdi mdi-reload</v-icon
           >
         </v-btn>
-        <!-- </template>
-            <span>Reload</span>
-          </v-tooltip> -->
-        <!-- <v-tooltip top color="primary">
-            <template v-slot:activator="{ on, attrs }"> -->
+
         <v-btn
           dense
           class="ma-0 px-0"
@@ -399,6 +394,7 @@
         </v-btn>
         <v-col cols="3">
           <v-select
+            style="width: 250px"
             cols="1"
             :hide-details="true"
             @change="applyBranchFilter()"
@@ -413,13 +409,9 @@
         ></v-col>
         <v-col cols="6"> </v-col>
 
-        <!-- </template>
-            <span>Filter</span>
-          </v-tooltip> -->
-
         <v-spacer></v-spacer>
         <v-select
-          style="width: 50px"
+          style="width: 150px"
           cols="1"
           :hide-details="true"
           @change="filterEmployees()"
