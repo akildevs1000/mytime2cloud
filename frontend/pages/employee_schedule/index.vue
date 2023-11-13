@@ -389,7 +389,7 @@
         <v-btn
           v-if="employeesSelected.length > 0"
           dense
-          class="ma-2 px-0 primary"
+          class="ma-2 px-1 primary"
           fill
           dark
           small
@@ -1138,6 +1138,7 @@ export default {
       }
     },
     openScheduleDialog() {
+      this.empId = null;
       if (this.branch_id == 0) {
         alert("Select the Branch");
 
@@ -1159,9 +1160,9 @@ export default {
         (e) => e.branch_id == item.branch_id
       );
 
-      //this.empId = item.system_user_id;
-      this.employeesSelected = [];
-      this.employeesSelected.push(item.system_user_id);
+      this.empId = item.system_user_id;
+      // this.employeesSelected = [];
+      // this.employeesSelected.push(item.system_user_id);
 
       this.$axios
         .get(`get_shifts_by_employee/${id}`, { params: options })
@@ -1214,7 +1215,9 @@ export default {
 
       let payload = {
         //employee_ids: [this.empId],
-        employee_ids: this.employeesSelected.map((e) => e.system_user_id),
+        employee_ids: this.empId
+          ? [this.empId]
+          : this.employeesSelected.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company_id,
         branch_id:
