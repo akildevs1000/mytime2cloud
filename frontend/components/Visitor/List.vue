@@ -70,7 +70,7 @@
                   <v-icon size="20" color="green" title="Entry In Time"
                     >mdi-bank-transfer-in</v-icon
                   >
-                  {{ item.checked_in_datetime || "---" }}
+                  {{ (item.attendances && item.attendances[0].in) || "---" }}
                 </div>
 
                 <div v-if="item.over_stay" style="color: red">
@@ -123,10 +123,10 @@
                   <v-icon size="30" color="red" title="Exit Out Time"
                     >mdi-bank-transfer-out</v-icon
                   >
-                  {{ item.checked_out_datetime || "---" }}
+                  {{ (item.attendances && item.attendances[0].out) || "---" }}
 
-                  <div v-if="item.over_stay" style="color: red">
-                    Over stay: {{ item.over_stay }}
+                  <div style="color: red">
+                    {{ verifyOverstay(item) }}
                   </div>
                 </div>
               </v-col>
@@ -401,8 +401,8 @@
         <template v-slot:item.status_id="{ item }">
           <span :style="'color:' + getRelatedColor(item)"
             >{{ item.status }}
-            <div v-if="item.over_stay" style="color: red">
-              Over stay: {{ item.over_stay }}
+            <div style="color: red">
+              {{ verifyOverstay(item) }}
             </div>
           </span>
         </template>
@@ -519,8 +519,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn dark color="grey"  @click="cancel">Cancel</v-btn>
-            <v-btn dark color="purple"  @click="save" :disabled="!valid"
+            <v-btn dark color="grey" @click="cancel">Cancel</v-btn>
+            <v-btn dark color="purple" @click="save" :disabled="!valid"
               >Save</v-btn
             >
           </v-card-actions>
@@ -728,6 +728,62 @@ export default {
     }, 1000);
   },
   methods: {
+    verifyOverstay(item) {
+      if (item.attendances && item.attendances[0]) {
+        if (item.status_id >= 6) {
+          console.log(item.attendances[0]);
+          let inTime = item.attendances[0].in;
+          let outTime = item.attendances[0].out;
+          let overTimeInSeconds = 0;
+          if (outTime == "" || outTime == null) {
+            outTime = this.getCurrentTime();
+          }
+          console.log("inTime", inTime);
+          console.log("outTime", outTime);
+          if (inTime && outTime) {
+            overTimeInSeconds =
+              this.getTimeInSeconds(outTime) - this.getTimeInSeconds(inTime);
+            console.log("overTimeInSeconds", overTimeInSeconds);
+            if (overTimeInSeconds > 0) {
+              return (
+                "Over Stay : " + this.formatSecondsToTime(overTimeInSeconds)
+              );
+            }
+          }
+        }
+      }
+      return "";
+    },
+    formatSecondsToTime(totalSeconds) {
+      let hours = Math.floor(totalSeconds / 3600);
+      let minutes = Math.floor((totalSeconds % 3600) / 60);
+      let seconds = totalSeconds % 60;
+
+      return hours + "h:" + minutes + "m";
+    },
+    getTimeInSeconds(time) {
+      let timeArray = time.split(":");
+      let hours = parseInt(timeArray[0], 10);
+      let minutes = parseInt(timeArray[1], 10);
+      let seconds = parseInt(timeArray[2], 10);
+
+      // Convert hours, minutes, and seconds to total seconds
+      let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+      return totalSeconds;
+    },
+    getCurrentTime() {
+      let currentTime = new Date();
+
+      let hours = currentTime.getHours();
+      let minutes = currentTime.getMinutes();
+      let seconds = currentTime.getSeconds();
+
+      // Format the time as a string
+      let formattedTime = hours + ":" + minutes + ":" + seconds;
+
+      return formattedTime;
+    },
     cancel() {
       this.uploadUserToDeviceDialog = false;
     },
@@ -872,7 +928,7 @@ export default {
           ...this.filters,
           statsFilterValue: filterValue,
 
-          status_id: 2,
+          //status_id: 2,
         },
       };
       this.$axios.get(this.endpoint, options).then(({ data }) => {

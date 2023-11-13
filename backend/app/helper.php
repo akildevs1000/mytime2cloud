@@ -137,10 +137,12 @@ function defaultDepartments($id = 1)
         [
             "name" => "Accounts",
             "company_id" => $id,
+            "branch_id" => $id,
         ],
         [
             "name" => "Admin",
             "company_id" => $id,
+            "branch_id" => 1,
         ],
         [
             "name" => "It Dep",
@@ -149,6 +151,7 @@ function defaultDepartments($id = 1)
         [
             "name" => "Sales",
             "company_id" => $id,
+            "branch_id" => 1,
         ]
     ];
 }
