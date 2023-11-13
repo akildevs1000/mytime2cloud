@@ -52,16 +52,26 @@ class VisitorController extends Controller
 
         return  $seconds = strtotime($str_time) - strtotime('TODAY');
     }
+
     public function index(Request $request)
+    {
+        $model = (new Visitor)->filters($request);
+
+        $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"]);
+
+        return $model->paginate($request->input("per_page", 100));
+    }
+
+    public function index_old(Request $request)
     {
         $model = Visitor::query();
 
         $model->where("company_id", $request->input("company_id"));
-        $model->when($request->filled('branch_id'), function ($q) use ($request) {
-            $q->Where('branch_id',   $request->branch_id);
-        });
+        // $model->when($request->filled('branch_id'), function ($q) use ($request) {
+        //     $q->Where('branch_id',   $request->branch_id);
+        // });
 
-        $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in', 'time_out'];
+        $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in'];
 
         $model = $this->process_ilike_filter($model, $request, $fields);
         $model->when($request->filled('first_name'), function ($q) use ($request) {
@@ -71,22 +81,22 @@ class VisitorController extends Controller
             });
         });
 
-        // $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
-        // $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->to_date));
+        $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
+        $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->to_date));
 
 
-        $startDate = Carbon::parse($request->from_date);
-        $endDate = Carbon::parse($request->to_date);
+        // $startDate = Carbon::parse($request->from_date);
+        // $endDate = Carbon::parse($request->to_date);
 
 
-        $model = $model->where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('visit_from', [$startDate, $endDate])
-                ->orWhereBetween('visit_to', [$startDate, $endDate])
-                ->orWhere(function ($query) use ($startDate, $endDate) {
-                    $query->where('visit_from', '<', $startDate)
-                        ->where('visit_to', '>', $endDate);
-                });
-        });
+        // $model = $model->where(function ($query) use ($startDate, $endDate) {
+        //     $query->whereBetween('visit_from', [$startDate, $endDate])
+        //         ->orWhereBetween('visit_to', [$startDate, $endDate])
+        //         ->orWhere(function ($query) use ($startDate, $endDate) {
+        //             $query->where('visit_from', '<', $startDate)
+        //                 ->where('visit_to', '>', $endDate);
+        //         });
+        // });
 
         $fields1 = ['host_company_id', 'purpose_id', 'status_id'];
         $model = $this->process_column_filter($model, $request, $fields1);
@@ -124,68 +134,46 @@ class VisitorController extends Controller
 
         if ($request->statsFilterValue == 'Over Stayed') {
             $model->whereIn("status_id", [6, 7]);
-            $model->whereHas('attendances', fn (Builder $query) =>
-            $query->when($request->filled("from_date"), fn ($q) => $q->whereDate("date", '>=', $request->from_date))
-                ->when($request->filled("to_date"), fn ($q) => $q->whereDate("date", '<=', $request->to_date))
-                ->Where(function ($query) use ($startDate, $endDate) {
-                    $query->where('out', ">", DB::raw('visitors.time_out'))
-                        ->orwhere('out', null);
-                }));
         }
-
-        // $model->when($request->filled('Over Stayed'), function ($q) use ($request, $startDate, $endDate) {
-        //     $q->whereIn("status_id", [6, 7]);
-        //     $q->whereHas('attendances', fn (Builder $query) =>
-
-        //     $q->when($request->filled("from_date"), fn ($q) => $q->whereDate("date", '>=', $request->from_date))
-        //         ->when($request->filled("to_date"), fn ($q) => $q->whereDate("date", '<=', $request->to_date))
-
-        //         ->orWhere(function ($query) use ($startDate, $endDate) {
-        //             $query->where('out', ">", "visitors.time_out")
-        //                 ->orwhere('out', null);
-        //         }));
-        // });
 
 
         if (!$request->sortBy)
             $model->orderBy("visit_from", "DESC");
 
-        $results = $model->with(["branch", "attendances", "zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
+        $results = $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
 
-        return $results;
+        $overstayedVisitors = [];
+        if ($request->statsFilterValue == 'Over Stayed') {
 
-        // $overstayedVisitors = [];
-        // if ($request->statsFilterValue == 'Over Stayed') {
-
-        //     $data = $results->getCollection();;
+            $data = $results->getCollection();;
 
 
-        //     foreach ($data  as $pending) {
+            foreach ($data  as $pending) {
 
 
-        //         $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
-        //         if ($pending->checked_out_datetime) {
-        //             // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
-        //         } else {
-        //             $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
+                $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
+                if ($pending->checked_out_datetime) {
+                    // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
+                } else {
+                    $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
 
-        //             $pending["actucalCheckOutTime"] = $actucalCheckOutTime;
-        //             $pending["visitorCheckoutTime"] = $visitorCheckoutTime;
-        //             $pending["over_stay"] = gmdate("H:i", $visitorCheckoutTime - $actucalCheckOutTime);
-        //             $pending["over_stay"] = explode(":", $pending["over_stay"])[0] . 'h:' . explode(":", $pending["over_stay"])[1] . 'm';
-        //             if ($visitorCheckoutTime > $actucalCheckOutTime) {
+                    $pending["actucalCheckOutTime"] = $actucalCheckOutTime;
+                    $pending["visitorCheckoutTime"] = $visitorCheckoutTime;
+                    $pending["over_stay"] = gmdate("H:i", $visitorCheckoutTime - $actucalCheckOutTime);
+                    $pending["over_stay"] = explode(":", $pending["over_stay"])[0] . 'h:' . explode(":", $pending["over_stay"])[1] . 'm';
+                    if ($visitorCheckoutTime > $actucalCheckOutTime) {
 
-        //                 $overstayedVisitors[] = $pending;
-        //             }
-        //         }
-        //     }
+                        $overstayedVisitors[] = $pending;
+                    }
+                }
+            }
 
-        //     $overstayedVisitors = new Collection($overstayedVisitors);
-        //     return $data = $results->setCollection($overstayedVisitors);;
-        // } else {
+            $overstayedVisitors = new Collection($overstayedVisitors);
+            return $data = $results->setCollection($overstayedVisitors);;
+        } else {
 
-        //     return $results;
-        // }
+            return $results;
+        }
     }
 
     /**
