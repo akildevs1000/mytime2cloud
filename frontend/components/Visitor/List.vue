@@ -268,6 +268,7 @@
                   dense
                   autocomplete="off"
                 ></v-text-field>
+
                 <v-select
                   clearable
                   :hide-details="true"
@@ -282,7 +283,7 @@
                     header.filterSpecial &&
                     header.value == 'status_id'
                   "
-                  :items="[{ id: '', name: 'All' }, ...visitor_status_list]"
+                  :items="visitor_status_list"
                 ></v-select>
                 <v-select
                   clearable
@@ -365,6 +366,8 @@
         </template>
         <template v-slot:item.first_name="{ item }">
           {{ item.full_name }}
+         <b> {{ item.system_user_id }}</b>
+
         </template>
 
         <template v-slot:item.purpose_id="{ item }">
@@ -399,12 +402,12 @@
           {{ item.host?.employee.last_name }}
         </template>
         <template v-slot:item.status_id="{ item }">
-          <span :style="'color:' + getRelatedColor(item)"
-            >{{ item.status }}
-            <div v-if="item.over_stay" style="color: red">
-              Over stay: {{ item.over_stay }}
-            </div>
-          </span>
+          <v-chip class="ma-2 white--text" :color="getRelatedColor(item)">
+            {{ item.status }}
+          </v-chip>
+          <div v-if="item.over_stay" style="color: red">
+            Over stay: {{ item.over_stay }}
+          </div>
         </template>
         <template v-slot:item.options="{ item }">
           <v-menu bottom left>
@@ -420,13 +423,13 @@
                   View
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="uploadUserToDeviceDialog = true">
+              <v-list-item @click="uploadVisitor(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="purple" small> mdi-cellphone-text </v-icon>
                   Upload Visitor
                 </v-list-item-title>
               </v-list-item>
-              <!-- <v-list-item @click="updateStatus(item.id, 3)">
+              <!-- <v-list-item @click="submit(item.id, 3)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="red" small> mdi-cancel</v-icon>
                   Reject
@@ -442,14 +445,16 @@
       <v-dialog v-model="uploadUserToDeviceDialog" max-width="500px">
         <v-card>
           <v-card-title class="headline">Upload Visitor</v-card-title>
+
           <v-card-text class="mt-2">
             <v-form ref="form" v-model="valid">
               <v-text-field
-                v-model="payload.visitor_id"
+                v-model="payload.system_user_id"
                 label="Visitor ID"
                 required
                 outlined
                 dense
+                type="number"
               ></v-text-field>
 
               <v-select
@@ -462,65 +467,15 @@
                 dense
                 required
               ></v-select>
-
-              <v-row>
-                <v-col>
-                  <v-menu
-                    ref="fromTimePicker"
-                    v-model="fromTimePicker"
-                    :close-on-content-click="false"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-text-field
-                        v-model="payload.fromTime"
-                        label="From Time"
-                        outlined
-                        dense
-                        readonly
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-time-picker
-                      v-if="fromTimePicker"
-                      v-model="payload.fromTime"
-                    ></v-time-picker>
-                  </v-menu>
-                </v-col>
-                <v-col>
-                  <v-menu
-                    ref="toTimePicker"
-                    v-model="toTimePicker"
-                    :close-on-content-click="false"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-text-field
-                        v-model="payload.toTime"
-                        label="To Time"
-                        outlined
-                        dense
-                        readonly
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-time-picker
-                      v-if="toTimePicker"
-                      v-model="payload.toTime"
-                    ></v-time-picker>
-                  </v-menu>
-                </v-col>
-              </v-row>
             </v-form>
+            <v-alert v-if="message" class="purple" dense dark>
+              {{ message }}
+            </v-alert>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn dark color="grey"  @click="cancel">Cancel</v-btn>
-            <v-btn dark color="purple"  @click="save" :disabled="!valid"
+            <v-btn dark color="grey" @click="cancel">Cancel</v-btn>
+            <v-btn dark color="purple" @click="submit" :disabled="!valid"
               >Save</v-btn
             >
           </v-card-actions>
@@ -562,20 +517,12 @@ export default {
     visitor_status_list: [],
     uploadUserToDeviceDialog: false,
     valid: false,
-    fromTimePicker: false,
-    toTimePicker: false,
 
     payload: {
-      visitor_id: null,
+      system_user_id: null,
       zone_id: 1,
-      fromTime: null,
-      toTime: null,
     },
-    zoneList: [
-      { id: 1, name: "Zone 1" },
-      { id: 2, name: "Zone 2" },
-      // Add more zones as needed
-    ],
+    zoneList: [],
     hostList: [],
     item: { purpose: {} },
     viewDialog: false,
@@ -596,7 +543,7 @@ export default {
     status_id: 0,
     response_image: "/sucess.png",
     dialog: false,
-    message: "",
+    message: null,
     branchesList: [],
     changeRequestDialog: false,
     Model: "Visitor Request",
@@ -721,6 +668,7 @@ export default {
     this.to_date = today.toISOString().slice(0, 10);
     this.getDataFromApi();
     setTimeout(() => {
+      this.getZoneList();
       this.getPurposeList();
       this.getHostsList();
 
@@ -728,13 +676,75 @@ export default {
     }, 1000);
   },
   methods: {
-    cancel() {
-      this.uploadUserToDeviceDialog = false;
+    addHour(givenTime) {
+      // Parse the given time
+      let parts = givenTime.split(":");
+      let hours = parseInt(parts[0], 10);
+      let minutes = parseInt(parts[1], 10);
+
+      // Create a Date object with the given time
+      let currentDate = new Date();
+      currentDate.setHours(hours);
+      currentDate.setMinutes(minutes);
+
+      currentDate.setHours(currentDate.getHours() - 1);
+      this.payload.time_in =
+        ("0" + currentDate.getHours()).slice(-2) +
+        ":" +
+        ("0" + currentDate.getMinutes()).slice(-2);
     },
-    save() {
-      // if (this.$refs.form.validate()) {
-      //   this.uploadUserToDeviceDialog = false;
-      // }
+    substractHour(givenTime) {
+      // Parse the given time
+      let parts = givenTime.split(":");
+      let hours = parseInt(parts[0], 10);
+      let minutes = parseInt(parts[1], 10);
+
+      // Create a Date object with the given time
+      let currentDate = new Date();
+      currentDate.setHours(hours);
+      currentDate.setMinutes(minutes);
+
+      currentDate.setHours(currentDate.getHours() + 1);
+      this.payload.time_out =
+        ("0" + currentDate.getHours()).slice(-2) +
+        ":" +
+        ("0" + currentDate.getMinutes()).slice(-2);
+    },
+    uploadVisitor(item) {
+      this.uploadUserToDeviceDialog = true;
+      this.message = null;
+
+      this.payload = {
+        system_user_id: null,
+        zone_id: 1,
+      };
+
+      this.payload = {
+        id: item.id,
+        first_name: item.first_name,
+        last_name: item.last_name,
+        logo: item.logo,
+        time_in: item.time_in,
+        time_out: item.time_out,
+
+        ...this.payload,
+      };
+
+      // this.addHour(this.payload.time_in);
+      // this.substractHour(this.payload.time_out);
+    },
+    getZoneList() {
+      this.$axios
+        .get(`zone_list`, {
+          params: { company_id: this.$auth.user.company_id },
+        })
+        .then(({ data }) => {
+          this.zoneList = data;
+        });
+    },
+    cancel() {
+      this.editableItem = null;
+      this.uploadUserToDeviceDialog = false;
     },
     viewInfo(item) {
       this.viewDialog = true;
@@ -791,13 +801,8 @@ export default {
       });
     },
     getVisitorStatusList() {
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-      this.$axios.get(`visitor_status_list`, options).then(({ data }) => {
-        this.visitor_status_list = data;
+      this.$axios.get(`visitor_status_list`).then(({ data }) => {
+        this.visitor_status_list = data.filter((e) => e.id != 1);
       });
     },
     // filterAttr(data) {
@@ -805,36 +810,30 @@ export default {
     //   this.to_date = data.to;
     //   this.getDataFromApi();
     // },
-    updateStatus(id, status_id) {
-      this.status_id = status_id;
-      this.$axios
-        .post(`visitor-status-update/${id}`, {
-          status_id: status_id,
-        })
-        .then(({ data }) => {
-          if (!data.status) {
-            this.message = data.message;
-            this.response_image = "/fail.png";
-            setTimeout(() => (this.dialog = false), 3000);
-            return;
-          }
-          this.message = "Your clocking has been recorded successfully";
-          if (status_id == 1) {
-            this.response_image = "/success.png";
-          } else {
-            this.response_image = "/fail.png";
-          }
-          this.dialog = true;
+    submit() {
+      this.$axios.post(`upload-visitor/`, this.payload).then(({ data }) => {
+        if (!data.status) {
           this.message = data.message;
-          this.getDataFromApi();
-        });
+          this.response_image = "/fail.png";
+          setTimeout(() => (this.uploadUserToDeviceDialog = false), 3000);
+          return;
+        }
+        this.message = data.message;
+        this.response_image = "/success.png";
+
+        this.uploadUserToDeviceDialog = true;
+        this.message = data.message;
+        this.getDataFromApi();
+        setTimeout(() => (this.uploadUserToDeviceDialog = false), 3000);
+      });
     },
     getRelatedColor(item) {
       let colors = {
         1: "purple",
-        3: "red",
         2: "green",
-        UNKNOWN: "purple",
+        3: "red",
+        4: "purple",
+        UNKNOWN: "grey",
       };
       return colors[item.status_id || "UNKNOWN"];
     },
@@ -871,12 +870,10 @@ export default {
           to_date: this.to_date,
           ...this.filters,
           statsFilterValue: filterValue,
-
-          status_id: 2,
         },
       };
       this.$axios.get(this.endpoint, options).then(({ data }) => {
-        this.data = data.data;
+        this.data = data.data.filter((e) => e.status_id != 1);
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;

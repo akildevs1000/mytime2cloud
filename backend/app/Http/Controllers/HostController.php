@@ -58,7 +58,7 @@ class HostController extends Controller
 
         $model = $this->process_ilike_filter($model, $request, $fields);
 
-        $model->with("employee:id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
+        $model->with("employee:id,branch_id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
 
         $model->when($request->filled("employee_id"), fn ($q) => $q->where(" employee_id", $request->employee_id));
 
