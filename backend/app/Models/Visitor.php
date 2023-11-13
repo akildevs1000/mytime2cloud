@@ -104,7 +104,10 @@ class Visitor extends Model
     {
         return $this->belongsTo(Purpose::class);
     }
-
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
     public function timezone()
     {
         return $this->belongsTo(Timezone::class, 'timezone_id', 'timezone_id')->withDefault([

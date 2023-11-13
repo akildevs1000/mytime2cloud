@@ -39,7 +39,7 @@ class VisitorDashboard extends Controller
         //  $Visitors->with(["attendances"]);
         $Visitors->whereCompanyId($id);
         $Visitors->when($request->filled('branch_id'), function ($q) use ($request) {
-            $q->Where('branch_id',   $request->branch_id);
+            $q->where('branch_id',   $request->branch_id);
         });
 
         $Visitors->where("visit_from", "<=", date('Y-m-d'));
@@ -67,24 +67,29 @@ class VisitorDashboard extends Controller
 
         $opened_office = $host->where("open_time", "<=", date('H:i'))->where("close_time", ">=", date('H:i'))->count();
         $closed_office =  $host_count - $opened_office;
-        $Visitors->clone()->where('status_id', ">=", 6)->count();
+        // $Visitors->clone()->where('status_id', ">=", 6)->count();
+
+        $overStayCount = $Visitors->clone()->where('status_id', "=", 6)
+
+            ->where('time_out', '<', date("H:i"))
+            ->count();
 
 
-        $overStayCount = 0;
-        $pendingCheckOut = $Visitors->clone()->where('status_id',   6)->get(); //pull checked in 
-        foreach ($pendingCheckOut as $pending) {
+        // $overStayCount = 0;
+        // $pendingCheckOut = $Visitors->clone()->where('status_id',   6)->get(); //pull checked in 
+        // foreach ($pendingCheckOut as $pending) {
 
 
-            $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
-            if ($pending->checked_out_datetime) {
-                // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
-            } else {
-                $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
-                if ($visitorCheckoutTime > $actucalCheckOutTime) {
-                    $overStayCount++;
-                }
-            }
-        }
+        //     $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
+        //     if ($pending->checked_out_datetime) {
+        //         // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
+        //     } else {
+        //         $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
+        //         if ($visitorCheckoutTime > $actucalCheckOutTime) {
+        //             $overStayCount++;
+        //         }
+        //     }
+        // }
 
         return [
             "visitorCounts" => [

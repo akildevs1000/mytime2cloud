@@ -1,8 +1,9 @@
 const data = async ({ $auth, redirect }) => {
   const { user_type, role } = $auth.user;
-
-
-  let roleType = role.role_type.toLowerCase();
+  let roleType = "";
+  if (role && role.role_type) {
+    roleType = role.role_type.toLowerCase();
+  }
 
   if (/guard/.test(roleType)) {
     redirect("/guard/visitor-dashboard");
@@ -11,7 +12,6 @@ const data = async ({ $auth, redirect }) => {
   if (/host/.test(roleType)) {
     redirect("/host/visitor-dashboard");
     return;
-
   }
 
   if (user_type == "master") {
