@@ -102,16 +102,17 @@ class ScheduleEmployeeController extends Controller
         }
 
         try {
-
-            $model = ScheduleEmployee::query();
-            $model->where("company_id", $data["company_id"]);
-            $model->where("branch_id", $data["branch_id"]);
-            $model->whereIn("employee_id", array_column($arr, "employee_id"));
-            // $model->whereIn("shift_type_id", array_column($arr, "shift_type_id"));
-            // $model->whereIn("shift_id", array_column($arr, "shift_id"));
-            // $model->where("from_date", array_column($arr, "from_date"));
-            // $model->where("to_date", array_column($arr, "to_date"));
-            $model->delete();
+            if ($request->replace_schedules) {
+                $model = ScheduleEmployee::query();
+                $model->where("company_id", $data["company_id"]);
+                $model->where("branch_id", $data["branch_id"]);
+                $model->whereIn("employee_id", array_column($arr, "employee_id"));
+                // $model->whereIn("shift_type_id", array_column($arr, "shift_type_id"));
+                // $model->whereIn("shift_id", array_column($arr, "shift_id"));
+                // $model->where("from_date", array_column($arr, "from_date"));
+                // $model->where("to_date", array_column($arr, "to_date"));
+                $model->delete();
+            }
             $result = $model->insert($arr);
 
             if ($result) {
