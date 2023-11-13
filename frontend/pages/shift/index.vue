@@ -487,7 +487,6 @@ export default {
       return this.$pagePermission.can(per, this);
     },
 
-    
     getRecords(filter_column = "", filter_value = "") {
       this.getDataFromApi(this.endpoint, filter_column, filter_value);
     },

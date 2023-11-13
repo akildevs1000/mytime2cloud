@@ -25,6 +25,8 @@ class MonthlyFlexibleHolidaysController extends Controller
 
     public function renderMonthlyFlexibleHolidaysScipt($company_id, $date, $user_id = 0)
     {
+
+        return '';
         $model = Employee::query();
 
         $model->withOut(["department", "designation", "sub_department"]);
@@ -67,7 +69,7 @@ class MonthlyFlexibleHolidaysController extends Controller
                     "employee_id" => $missingEmployee->system_user_id,
                     "shift_id" => $schedule->shift_id,
                     "shift_type_id" => $schedule->shift_type_id,
-                    "testing" => "renderMonthlyFlexibleHolidaysScipt",
+                    "updated_func" => "renderMonthlyFlexibleHolidaysScipt",
                     "created_at" => date('Y-m-d H:i:s'),
                     "updated_at" => date('Y-m-d H:i:s')
                 ];

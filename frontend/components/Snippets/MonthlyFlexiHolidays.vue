@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span>{{ label }}</span>
+    <span>{{ label }} </span>
     <v-select
       class="mt-1"
       @change="setMonthlyHolidays"
@@ -16,25 +16,29 @@
 </template>
 <script>
 export default {
-  props: ["label"],
+  props: ["label", "default_value"],
   auth: false,
   layout: "login",
   data() {
     return {
-      weekend: 1,
+      weekend: 0,
       items: [
-        { id: 1, name: `Not Applicable` },
-        { id: 2, name: `1 Day` },
-        { id: 3, name: `2 Day` },
-        { id: 4, name: `3 day` },
-        { id: 5, name: `4 day` },
-        { id: 6, name: `5 day` },
-        { id: 7, name: `6 day` },
-        { id: 8, name: `7 day` },
-        { id: 9, name: `8 day` },
-        { id: 10, name: `9 day` },
+        { id: 0, name: `Not Applicable` },
+        { id: 1, name: `1 Day` },
+        { id: 2, name: `2 Days` },
+        { id: 3, name: `3 days` },
+        { id: 4, name: `4 days` },
+        { id: 5, name: `5 days` },
+        { id: 6, name: `6 days` },
+        { id: 7, name: `7 days` },
+        { id: 8, name: `8 days` },
+        { id: 9, name: `9 days` },
+        { id: 10, name: `10 das` },
       ],
     };
+  },
+  created() {
+    this.weekend = parseInt(this.default_value);
   },
   methods: {
     setMonthlyHolidays() {

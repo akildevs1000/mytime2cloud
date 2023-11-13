@@ -86,7 +86,7 @@ class FlexibleOffController extends Controller
                     "employee_id" => $missingEmployee->system_user_id,
                     "shift_id" => $missingEmployee->schedule->shift_id,
                     "shift_type_id" => $missingEmployee->schedule->shift_type_id,
-                    "testing" => "renderFlexibleOffScript",
+                    "updated_func" => "renderFlexibleOffScript",
                     "created_at" => date('Y-m-d H:i:s'),
                     "updated_at" => date('Y-m-d H:i:s')
                 ];
