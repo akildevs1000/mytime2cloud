@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::table('visitor_attendances', function (Blueprint $table) {
             $table->dropColumn("visitor_id");
-            $table->integer("visitor_id")->nullable();
         });
     }
 

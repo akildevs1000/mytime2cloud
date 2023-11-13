@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::table('visitor_attendances', function (Blueprint $table) {
             $table->time("in")->nullable();
             $table->time("out")->nullable();
+            $table->integer("visitor_id")->nullable();
         });
     }
 
