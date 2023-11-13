@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Visitor\Register;
 use App\Http\Requests\Visitor\Store;
 use App\Http\Requests\Visitor\Update;
+use App\Http\Requests\Visitor\UploadVisitor;
 use App\Jobs\ProcessSDKCommand;
 use App\Models\Company;
 use App\Models\HostCompany;
@@ -51,16 +52,26 @@ class VisitorController extends Controller
 
         return  $seconds = strtotime($str_time) - strtotime('TODAY');
     }
+
     public function index(Request $request)
+    {
+        $model = (new Visitor)->filters($request);
+
+        $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"]);
+
+        return $model->paginate($request->input("per_page", 100));
+    }
+
+    public function index_old(Request $request)
     {
         $model = Visitor::query();
 
         $model->where("company_id", $request->input("company_id"));
-        $model->when($request->filled('branch_id'), function ($q) use ($request) {
-            $q->Where('branch_id',   $request->branch_id);
-        });
+        // $model->when($request->filled('branch_id'), function ($q) use ($request) {
+        //     $q->Where('branch_id',   $request->branch_id);
+        // });
 
-        $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in', 'time_out'];
+        $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in'];
 
         $model = $this->process_ilike_filter($model, $request, $fields);
         $model->when($request->filled('first_name'), function ($q) use ($request) {
@@ -70,22 +81,22 @@ class VisitorController extends Controller
             });
         });
 
-        // $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
-        // $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->to_date));
+        $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
+        $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->to_date));
 
 
-        $startDate = Carbon::parse($request->from_date);
-        $endDate = Carbon::parse($request->to_date);
+        // $startDate = Carbon::parse($request->from_date);
+        // $endDate = Carbon::parse($request->to_date);
 
 
-        $model = $model->where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('visit_from', [$startDate, $endDate])
-                ->orWhereBetween('visit_to', [$startDate, $endDate])
-                ->orWhere(function ($query) use ($startDate, $endDate) {
-                    $query->where('visit_from', '<', $startDate)
-                        ->where('visit_to', '>', $endDate);
-                });
-        });
+        // $model = $model->where(function ($query) use ($startDate, $endDate) {
+        //     $query->whereBetween('visit_from', [$startDate, $endDate])
+        //         ->orWhereBetween('visit_to', [$startDate, $endDate])
+        //         ->orWhere(function ($query) use ($startDate, $endDate) {
+        //             $query->where('visit_from', '<', $startDate)
+        //                 ->where('visit_to', '>', $endDate);
+        //         });
+        // });
 
         $fields1 = ['host_company_id', 'purpose_id', 'status_id'];
         $model = $this->process_column_filter($model, $request, $fields1);
@@ -123,68 +134,46 @@ class VisitorController extends Controller
 
         if ($request->statsFilterValue == 'Over Stayed') {
             $model->whereIn("status_id", [6, 7]);
-            $model->whereHas('attendances', fn (Builder $query) =>
-            $query->when($request->filled("from_date"), fn ($q) => $q->whereDate("date", '>=', $request->from_date))
-                ->when($request->filled("to_date"), fn ($q) => $q->whereDate("date", '<=', $request->to_date))
-                ->Where(function ($query) use ($startDate, $endDate) {
-                    $query->where('out', ">", DB::raw('visitors.time_out'))
-                        ->orwhere('out', null);
-                }));
         }
-
-        // $model->when($request->filled('Over Stayed'), function ($q) use ($request, $startDate, $endDate) {
-        //     $q->whereIn("status_id", [6, 7]);
-        //     $q->whereHas('attendances', fn (Builder $query) =>
-
-        //     $q->when($request->filled("from_date"), fn ($q) => $q->whereDate("date", '>=', $request->from_date))
-        //         ->when($request->filled("to_date"), fn ($q) => $q->whereDate("date", '<=', $request->to_date))
-
-        //         ->orWhere(function ($query) use ($startDate, $endDate) {
-        //             $query->where('out', ">", "visitors.time_out")
-        //                 ->orwhere('out', null);
-        //         }));
-        // });
 
 
         if (!$request->sortBy)
             $model->orderBy("visit_from", "DESC");
 
-        $results = $model->with(["branch", "attendances", "zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
+        $results = $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
 
-        return $results;
+        $overstayedVisitors = [];
+        if ($request->statsFilterValue == 'Over Stayed') {
 
-        // $overstayedVisitors = [];
-        // if ($request->statsFilterValue == 'Over Stayed') {
-
-        //     $data = $results->getCollection();;
+            $data = $results->getCollection();;
 
 
-        //     foreach ($data  as $pending) {
+            foreach ($data  as $pending) {
 
 
-        //         $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
-        //         if ($pending->checked_out_datetime) {
-        //             // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
-        //         } else {
-        //             $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
+                $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
+                if ($pending->checked_out_datetime) {
+                    // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
+                } else {
+                    $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
 
-        //             $pending["actucalCheckOutTime"] = $actucalCheckOutTime;
-        //             $pending["visitorCheckoutTime"] = $visitorCheckoutTime;
-        //             $pending["over_stay"] = gmdate("H:i", $visitorCheckoutTime - $actucalCheckOutTime);
-        //             $pending["over_stay"] = explode(":", $pending["over_stay"])[0] . 'h:' . explode(":", $pending["over_stay"])[1] . 'm';
-        //             if ($visitorCheckoutTime > $actucalCheckOutTime) {
+                    $pending["actucalCheckOutTime"] = $actucalCheckOutTime;
+                    $pending["visitorCheckoutTime"] = $visitorCheckoutTime;
+                    $pending["over_stay"] = gmdate("H:i", $visitorCheckoutTime - $actucalCheckOutTime);
+                    $pending["over_stay"] = explode(":", $pending["over_stay"])[0] . 'h:' . explode(":", $pending["over_stay"])[1] . 'm';
+                    if ($visitorCheckoutTime > $actucalCheckOutTime) {
 
-        //                 $overstayedVisitors[] = $pending;
-        //             }
-        //         }
-        //     }
+                        $overstayedVisitors[] = $pending;
+                    }
+                }
+            }
 
-        //     $overstayedVisitors = new Collection($overstayedVisitors);
-        //     return $data = $results->setCollection($overstayedVisitors);;
-        // } else {
+            $overstayedVisitors = new Collection($overstayedVisitors);
+            return $data = $results->setCollection($overstayedVisitors);;
+        } else {
 
-        //     return $results;
-        // }
+            return $results;
+        }
     }
 
     /**
@@ -266,21 +255,21 @@ class VisitorController extends Controller
 
             if ($data['host_company_id'] ?? false) {
 
-                $host = HostCompany::where("id", $data['host_company_id'])->with("employee:id,user_id,employee_id")->first();
-
-                (new WhatsappController)->sendWhatsappNotification($company, $message, $host->number ?? 971554501483);
+                if (env("APP_ENV") !== "local") {
+                    (new WhatsappController)->sendWhatsappNotification($company, $message, $request->number);
+                }
 
                 Notification::create([
                     "data" => "New visitor has been registered",
                     "action" => "Registration",
                     "model" => "Visitor",
-                    "user_id" => $host->employee->user_id ?? 0,
+                    "user_id" => $request->user_id,
                     "company_id" => $request->company_id,
                     "redirect_url" => "visitor_requests"
                 ]);
             }
 
-            $data['url'] = "https://backend.mytime2cloud.com/media/visitor/logo/" . $data['logo'];
+            $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
 
 
             return $this->response('Form has been submitted successfully.', $data, true);
@@ -288,6 +277,39 @@ class VisitorController extends Controller
 
             return $th;
             // return $this->response('Server Error.', null, true);
+        }
+    }
+
+    public function uploadVisitorToDevice(UploadVisitor $request)
+    {
+        try {
+
+            $ifExist = Visitor::where("id", $request->id)->where("system_user_id", ">", 0)->first();
+
+            if ($ifExist) {
+                return $this->response('Visiter got Device Id already.', $ifExist, false);
+            }
+
+            $visitor = Visitor::where("id", $request->id)->update([
+                "system_user_id" => $request->system_user_id,
+                "zone_id" => $request->zone_id,
+                "status_id" => 4,
+                "guard_changed_status_datetime" => date("Y-m-d H:i:s")
+
+            ]);
+            if (!$visitor) {
+                return $this->response('Visitor cannot upload.', null, false);
+            }
+
+            // $data = $request->all();
+            // $preparedJson = $this->prepareJsonForSDK($data);
+            // return $this->SDKCommand( "http://139.59.69.241:5000/Person/AddRange", $preparedJson);
+            // // env('SDK_URL');
+            // $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
+
+            return $this->response('Visitor uploaded to device.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
         }
     }
 
