@@ -275,16 +275,16 @@ class Controller extends BaseController
         return $filename;
     }
 
-    public function recordActivity($user_id, $action, $type, $company_id)
+    public function recordActivity($user_id, $action, $type, $company_id, $user_type)
     {
         return Activity::create([
             "user_id" => $user_id,
             "action" => $action,
             "type" => $type,
             "model_id" => $user_id,
-            "model_type" => "User",
+            "model_type" =>  $user_type,
             "company_id" => $company_id,
-            "description" => "User with {$user_id} Id has been logged In.",
+            "description" =>  $user_type . " with {$user_id} Id has been logged In.",
         ]);
     }
 

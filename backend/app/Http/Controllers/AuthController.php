@@ -163,7 +163,7 @@ class AuthController extends Controller
         $this->throwErrorIfFail($request, $user);
 
         // @params User Id, action,type,companyId.
-        $this->recordActivity($user->id, "Login", "Authentication", $user->company_id);
+        $this->recordActivity($user->id, "Login", "Authentication", $user->company_id, $user->user_type);
 
         $user->user_type = $this->getUserType($user);
 

@@ -34,7 +34,12 @@ class ActivityController extends Controller
         });
         $model->when($request->filled("action"), fn ($q) => $q->where("action", $request->action));
         $model->when($request->filled("type"), fn ($q) => $q->where("type", $request->type));
-        $model->with(['user' => fn ($q) => $q->with('employee')]);
+
+
+        $model->when($request->filled("from_date"), fn ($q) => $q->where("created_at", ">=", $request->from_date));
+        $model->when($request->filled("to_date"), fn ($q) => $q->where("created_at", "<=", $request->to_date));
+        $model->when($request->filled("user_type"), fn ($q) => $q->where("model_type",  $request->user_type));
+        $model->with(["company", 'user' => fn ($q) => $q->with('employee')]);
         return $model;
     }
 
