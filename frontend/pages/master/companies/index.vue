@@ -20,16 +20,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col md="3">
-          <v-select
-            @change="getDataFromApi(endpoint)"
-            outlined
-            v-model="per_page"
-            :items="[50, 100, 500, 1000]"
-            dense
-            placeholder="Per Page Records"
-          ></v-select>
-        </v-col>
+        <v-col md="3"> </v-col>
 
         <v-col offset-md="6">
           <v-text-field
@@ -79,12 +70,23 @@
               <div>
                 {{ item.location }}
               </div>
+              <div class="bold">Emps: {{ item.employees_count }}</div>
             </v-card-text>
           </v-card>
         </v-col>
       </v-row>
 
       <v-row>
+        <v-col md="3">
+          <v-select
+            @change="getDataFromApi(endpoint)"
+            outlined
+            v-model="per_page"
+            :items="[50, 100, 500, 1000]"
+            dense
+            placeholder="Per Page Records"
+          ></v-select>
+        </v-col>
         <v-col>
           <div color="pt-2" class="text-center">
             <v-btn
@@ -107,7 +109,18 @@
             </v-btn>
           </div>
         </v-col>
+        <v-col offset-md="6">
+          <v-text-field
+            outlined
+            @input="searchIt"
+            v-model="search"
+            dense
+            placeholder="Search..."
+          ></v-text-field>
+        </v-col>
       </v-row>
+
+      <v-row> </v-row>
     </div>
     <Preloader v-else />
   </div>
@@ -147,7 +160,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     goDetails(id) {
       this.$router.push(`/master/companies/details/${id}`);
       // this.$router.push(`/master/companies/${item.id}`);

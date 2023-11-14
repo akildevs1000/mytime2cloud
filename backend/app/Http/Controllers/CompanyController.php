@@ -28,6 +28,7 @@ use App\Http\Requests\Company\CompanyUpdateRequest;
 use App\Http\Requests\Company\GeographicUpdateRequest;
 use App\Mail\NotifyIfLogsDoesNotGenerate;
 use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Theme;
 use App\Models\VisitorLog;
 use Illuminate\Support\Facades\Mail;
@@ -61,7 +62,15 @@ class CompanyController extends Controller
 
     public function index(Company $model, Request $request)
     {
-        return $model->with(['user', 'contact', 'modules', 'trade_license'])->paginate($request->per_page);
+        return $model->with(['user', 'contact', 'modules', 'trade_license'])->withCount('employees')->paginate($request->per_page);
+    }
+
+    public function getMasterDashboardCounts()
+    {
+        $companiesCount = Company::query()->count();
+        $empCount = Employee::query()->count();
+
+        return ["companies" => $companiesCount, "employees" => $empCount];
     }
     public function show($id): JsonResponse
     {

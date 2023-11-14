@@ -33,7 +33,7 @@
     </v-row>
     <v-row>
       <v-col cols="12">
-        <DataTable :title="title" :headers="headers" :endpoint="endpoint" />
+        <!-- <DataTable :title="title" :headers="headers" :endpoint="endpoint" /> -->
       </v-col>
     </v-row>
   </div>
@@ -67,6 +67,7 @@ export default {
       data: [],
       title: `Lattest Companies`,
       endpoint: "company",
+      total_items: [],
     };
   },
   created() {
@@ -76,7 +77,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     getColor(calories) {
       if (calories > 400) return "red";
@@ -84,28 +84,33 @@ export default {
       else return "green";
     },
     async initialize() {
-      this.total_items = [
-        {
-          title: "TOTAL COMPANIES",
-          value: "254",
-          icon: "mdi-apps",
-        },
-        {
-          title: "TOTAL EMPLOYEES",
-          value: "267",
-          icon: "mdi-account",
-        },
-        {
-          title: "TOTAL UNPAID",
-          value: "4000",
-          icon: "mdi-bank",
-        },
-        {
-          title: "TOTAL PAID",
-          value: "8000",
-          icon: "mdi-bank",
-        },
-      ];
+      this.$axios.get(`master_dashboard`).then(({ data }) => {
+        this.data = data;
+
+        let { companies, employees } = data;
+        this.total_items = [
+          {
+            title: "TOTAL COMPANIES",
+            value: companies,
+            icon: "mdi-apps",
+          },
+          {
+            title: "TOTAL EMPLOYEES",
+            value: employees,
+            icon: "mdi-account",
+          },
+          {
+            title: "TOTAL UNPAID",
+            value: "0",
+            icon: "mdi-bank",
+          },
+          {
+            title: "TOTAL PAID",
+            value: "0",
+            icon: "mdi-bank",
+          },
+        ];
+      });
     },
   },
 };

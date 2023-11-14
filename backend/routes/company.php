@@ -8,6 +8,7 @@ use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\AutoShiftController;
 use App\Http\Controllers\BankInfoController;
 use App\Http\Controllers\CommissionController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CountController;
 use App\Http\Controllers\DeductionController;
 use App\Http\Controllers\DepartmentController;
@@ -56,6 +57,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/get-company-id-by-device', [DeviceController::class, 'get_company_id_by_device']);
+
+
+Route::get('/master_dashboard', [CompanyController::class, 'getMasterDashboardCounts']);
 
 // employee reporter
 Route::post('/employee_to_reporter/{id}', [EmployeeController::class, 'employeeToReporter']);

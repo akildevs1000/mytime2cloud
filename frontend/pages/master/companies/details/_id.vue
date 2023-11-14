@@ -31,6 +31,14 @@
             <v-list-item>
               <v-list-item-content>
                 <v-row class="mt-2">
+                  <v-col cols="3" class="bold">
+                    <v-list-item-title class="text-h7 mb-1">
+                      Registered Employees
+                    </v-list-item-title>
+                  </v-col>
+                  <v-col cols="8 " class="bold">
+                    {{ company_payload.employees_count }}
+                  </v-col>
                   <v-col cols="3">
                     <v-list-item-title class="text-h7 mb-1">
                       Member From
@@ -196,7 +204,7 @@
             </v-col>
 
             <v-col cols="6">
-              <div class="text-right">
+              <!-- <div class="text-right">
                 <v-btn
                   v-if="can(`master`)"
                   small
@@ -205,7 +213,7 @@
                   @click="createBranch"
                   >+ Add Branch
                 </v-btn>
-              </div>
+              </div> -->
             </v-col>
           </v-row>
 
@@ -388,7 +396,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     createBranch() {
       let { branches, max_branches } = this.company_payload;
       if (branches.length >= max_branches) {
