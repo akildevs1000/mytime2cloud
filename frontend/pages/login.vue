@@ -5,7 +5,7 @@
         <v-card-title
           dense
           class="white--text"
-          style="background-color: #6946dd"
+          style="background-color: #6946dd; color: #fff !important"
         >
           Whatsapp Verification
           <v-spacer></v-spacer>
@@ -31,9 +31,10 @@
                   We sent a verification code to your mobile number. Enter the
                   Code from the mobile in the filed below
                 </p>
-                <h4>
+                <h2 style="font-size: 30px">
                   {{ maskMobileNumber }}
-                </h4>
+                </h2>
+                <br />
                 <!-- <v-form ref="form" method="post" v-model="whatsappFormValid" lazy-validation> -->
                 <label
                   for=""
@@ -254,7 +255,7 @@ export default {
       }
 
       // Use a regular expression to match all but the last 3 digits
-      var regex = /^(.*)(\d{3})$/;
+      var regex = /^(.*)(\d{5})$/;
       var matches = inputString.match(regex);
 
       if (matches) {

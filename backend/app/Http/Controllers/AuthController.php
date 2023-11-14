@@ -45,6 +45,8 @@ class AuthController extends Controller
         $user->user_type = $this->getUserType($user);
 
 
+        // return [$user->enable_whatsapp_otp, $user->company->enable_whatsapp_otp];
+
         if ($user->enable_whatsapp_otp == 1 && $user->company->enable_whatsapp_otp == 1) {
             $mobile_number = $user->user_type == 'employee' ? $user->employee->whatsapp_number : $user->company->contact->whatsapp;
 
@@ -91,10 +93,14 @@ class AuthController extends Controller
 
                 $msg .= "\n";
                 $msg .= "--------------- \n";
-                $msg .= "Your OTP  \n";
+                $msg .= "Your Login OTP  \n";
                 $msg .= "--------------- \n";
                 $msg .= "\n";
-                $msg .= "$random_number \n";
+                $msg .= "$random_number \n\n\n";
+                $msg .= "Best regards \n";
+                $msg .= "MyTime2Cloud \n";
+
+
 
                 $data = [
                     'to'           =>   $mobile_number,

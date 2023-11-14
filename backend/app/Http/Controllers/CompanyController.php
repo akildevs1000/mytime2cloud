@@ -334,13 +334,15 @@ class CompanyController extends Controller
     {
 
         $user = User::find(Company::find($id)->user_id);
-
+        $company = Company::find($id);
         $arr = [
 
             "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
         ];
 
 
+
+        $record = $company->update($arr);
         $record = $user->update($arr);
 
 
