@@ -383,18 +383,25 @@ class CompanyController extends Controller
             "first_login" => 0,
             "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
         ];
-
-        if (Hash::check($request->current_password, $user->password)) {
+        if ($request->current_password != '') {
+            if (Hash::check($request->current_password, $user->password)) {
+                $record = $user->update($arr);
+                if (!$record) {
+                    return $this->response('User cannot update.', null, false);
+                }
+                return $this->response('User successfully updated.', $record, true);
+            } else {
+                return [
+                    "status" => false,
+                    "errors" => ['current_password' => 'Current password does not match'],
+                ];
+            }
+        } else {
             $record = $user->update($arr);
             if (!$record) {
                 return $this->response('User cannot update.', null, false);
             }
             return $this->response('User successfully updated.', $record, true);
-        } else {
-            return [
-                "status" => false,
-                "errors" => ['current_password' => 'Current password does not match'],
-            ];
         }
     }
 
