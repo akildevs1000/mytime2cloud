@@ -383,7 +383,7 @@ class CompanyController extends Controller
             "first_login" => 0,
             "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
         ];
-        return $arr;
+
         if (Hash::check($request->current_password, $user->password)) {
             $record = $user->update($arr);
             if (!$record) {
