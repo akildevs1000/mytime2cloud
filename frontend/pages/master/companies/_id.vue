@@ -51,29 +51,35 @@
                 <v-card flat>
                   <v-card-text>
                     <div class="row">
-                      <div class="col-sm-4">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Company Code</label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             readonly
                             v-model="company_payload.company_code"
                             class="form-control"
                             type=""
-                          />
+                          >
+                          </v-text-field>
                         </div>
                       </div>
 
-                      <div class="col-sm-4">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Company Name</label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             readonly
                             v-model="company_payload.name"
                             class="form-control"
                             type=""
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.name"
                             class="text-danger mt-2"
@@ -82,16 +88,19 @@
                         </div>
                       </div>
 
-                      <div class="col-sm-4">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Company Email</label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             readonly
                             v-model="user_payload.email"
                             class="form-control"
                             type=""
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.email"
                             class="text-danger mt-2"
@@ -102,15 +111,18 @@
                     </div>
 
                     <div class="row">
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Mol ID</label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_payload.mol_id"
                             class="form-control"
                             type="text"
-                          />
+                          >
+                          </v-text-field>
 
                           <span
                             v-if="errors && errors.mol_id"
@@ -120,15 +132,18 @@
                         </div>
                       </div>
 
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">P.O Box</label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_payload.p_o_box_no"
                             class="form-control"
                             type="text"
-                          />
+                          >
+                          </v-text-field>
 
                           <span
                             v-if="errors && errors.p_o_box_no"
@@ -138,15 +153,18 @@
                         </div>
                       </div>
 
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Member From</label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_payload.member_from"
                             class="form-control"
                             type="date"
-                          />
+                          >
+                          </v-text-field>
 
                           <span
                             v-if="errors && errors.member_from"
@@ -156,15 +174,18 @@
                         </div>
                       </div>
 
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Expiry Date </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_payload.expiry"
                             type="date"
                             class="form-control"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.expiry"
                             class="text-danger mt-2"
@@ -173,17 +194,20 @@
                         </div>
                       </div>
 
-                      <div class="col-sm-4">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"
                             >Max Branches
                             <span class="text-danger">*</span></label
                           >
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_payload.max_branches"
                             type="number"
                             class="form-control"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.max_branches"
                             class="text-danger mt-2"
@@ -192,17 +216,20 @@
                         </div>
                       </div>
 
-                      <div class="col-sm-4">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"
                             >Max Employees
                             <span class="text-danger">*</span></label
                           >
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_payload.max_employee"
                             type="number"
                             class="form-control"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.max_employee"
                             class="text-danger mt-2"
@@ -211,17 +238,20 @@
                         </div>
                       </div>
 
-                      <div class="col-sm-4">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"
                             >Max Devices
                             <span class="text-danger">*</span></label
                           >
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_payload.max_devices"
                             type="number"
                             class="form-control"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.max_devices"
                             class="text-danger mt-2"
@@ -230,8 +260,8 @@
                         </div>
                       </div>
 
-                      <div class="col-sm-3">
-                        <div class="form-group">
+                      <div class="col-sm-12">
+                        <div class="form-group col-sm-3">
                           <v-card class="ml-1 mr-1">
                             <div class="pa-5">
                               <v-img
@@ -259,14 +289,17 @@
                             </v-btn>
                           </v-card>
 
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             required
                             type="file"
                             @change="attachment"
                             style="display: none"
                             accept="image/*"
                             ref="attachment_input"
-                          />
+                          >
+                          </v-text-field>
 
                           <span
                             v-if="errors && errors.logo"
@@ -301,15 +334,18 @@
                   <v-card-text>
                     <div class="row">
                       <!-- {{ company_trade_license }} -->
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"> License </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_trade_license.license_no"
                             class="form-control"
                             type="text"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.license_no"
                             class="text-danger mt-2"
@@ -317,11 +353,13 @@
                           >
                         </div>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"> License Type </label>
                           <span class="text-danger">*</span>
-                          <select
+                          <v-select
+                            dense
+                            outlined
                             v-model="company_trade_license.license_type"
                             class="form-select"
                           >
@@ -335,7 +373,7 @@
                             <option value="professional_license">
                               Professional license
                             </option>
-                          </select>
+                          </v-select>
                           <span
                             v-if="errors && errors.license_type"
                             class="text-danger mt-2"
@@ -343,15 +381,18 @@
                           >
                         </div>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Emirate </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_trade_license.emirate"
                             class="form-control"
                             type="text"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.emirate"
                             class="text-danger mt-2"
@@ -359,15 +400,18 @@
                           >
                         </div>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Manager </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_trade_license.manager"
                             class="form-control"
                             type="text"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.manager"
                             class="text-danger mt-2"
@@ -375,15 +419,18 @@
                           >
                         </div>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Issue Date </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_trade_license.issue_date"
                             class="form-control"
                             type="date"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.issue_date"
                             class="text-danger mt-2"
@@ -391,15 +438,18 @@
                           >
                         </div>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Expiry Date </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_trade_license.expiry_date"
                             class="form-control"
                             type="date"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.expiry_date"
                             class="text-danger mt-2"
@@ -407,15 +457,18 @@
                           >
                         </div>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label">Makani No </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="company_trade_license.makeem_no"
                             class="form-control"
                             type="text"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.makeem_no"
                             class="text-danger mt-2"
@@ -447,17 +500,20 @@
                 <v-card flat>
                   <v-card-text>
                     <div class="row">
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"
                             >Contact Person Name
                           </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="contact_payload.name"
                             class="form-control"
                             type="text"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.name"
                             class="text-danger mt-2"
@@ -465,17 +521,20 @@
                           >
                         </div>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"
                             >Contact Person Number
                           </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="contact_payload.number"
                             class="form-control"
                             type="number"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.number"
                             class="text-danger mt-2"
@@ -483,17 +542,20 @@
                           >
                         </div>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"
                             >Contact Person Position
                           </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="contact_payload.position"
                             class="form-control"
                             type="text"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.position"
                             class="text-danger mt-2"
@@ -501,18 +563,20 @@
                           >
                         </div>
                       </div>
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"
-                            >Contact Person Whatsapp (with Country Code ex:
-                            919999988888)
+                            >Contact Person Whatsapp (Ex: 971XXX)
                           </label>
                           <span class="text-danger">*</span>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="contact_payload.whatsapp"
                             class="form-control"
                             type="number"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.whatsapp"
                             class="text-danger mt-2"
@@ -544,16 +608,19 @@
                 <v-card flat>
                   <v-card-text>
                     <div class="row">
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"
                             >Lat <span class="text-danger">*</span></label
                           >
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="geographic_payload.lat"
                             type="number"
                             class="form-control"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.lat"
                             class="text-danger mt-2"
@@ -562,16 +629,19 @@
                         </div>
                       </div>
 
-                      <div class="col-sm-6">
+                      <div class="col-sm-3">
                         <div class="form-group">
                           <label class="col-form-label"
                             >Lon <span class="text-danger">*</span></label
                           >
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="geographic_payload.lon"
                             type="number"
                             class="form-control"
-                          />
+                          >
+                          </v-text-field>
                           <span
                             v-if="errors && errors.lon"
                             class="text-danger mt-2"
@@ -583,12 +653,13 @@
                       <div class="col-sm-12">
                         <div class="form-group">
                           <label class="col-form-label">Location </label>
-                          <textarea
+                          <v-textarea
+                            outlined
                             v-model="geographic_payload.location"
                             cols="30"
                             rows="3"
                             class="form-control"
-                          ></textarea>
+                          ></v-textarea>
                           <span
                             v-if="errors && errors.location"
                             class="text-danger mt-2"
@@ -623,7 +694,9 @@
                       <div class="col-sm-6">
                         <div class="form-group">
                           <label class="col-form-label">Password</label>
-                          <input
+                           <v-text-field
+                    dense
+                    outlined
                             v-model="user_payload.password"
                             class="form-control"
                             type="password"
@@ -640,7 +713,9 @@
                           <label class="col-form-label"
                             >Confirm Password
                           </label>
-                          <input
+                           <v-text-field
+                    dense
+                    outlined
                             v-model="user_payload.password_confirmation"
                             class="form-control"
                             type="password"
@@ -656,7 +731,7 @@
                     <div class="row">
                       <div class="col-sm-12">
                         <div class="row">
-                          <v-col md="6" sm="12" cols="12" dense>
+                          <v-col md="3" sm="12" cols="12" dense>
                             <label class="col-form-label"
                               >Password
                               <span class="text-danger">*</span></label
@@ -681,7 +756,7 @@
                             ></v-text-field>
                           </v-col>
 
-                          <v-col md="6" sm="12" cols="12" dense>
+                          <v-col md="3" sm="12" cols="12" dense>
                             <label class="col-form-label"
                               >Confirm Password
                               <span class="text-danger">*</span></label
@@ -736,7 +811,7 @@
                 <v-card flat>
                   <v-card-text>
                     <div class="row">
-                      <v-col cols="3">
+                      <v-col cols="12">
                         <label class="col-form-label">
                           Whatsapp Login OTP for all users
                         </label>
@@ -758,7 +833,9 @@
                           <label class="col-form-label"
                             >Whatsapp Instance ID
                           </label>
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="whatsapp_instance_id"
                             class="form-control"
                           />
@@ -776,7 +853,9 @@
                             >Whatsapp Token
                             <span class="text-danger">*</span></label
                           >
-                          <input
+                          <v-text-field
+                            dense
+                            outlined
                             v-model="whatsapp_access_token"
                             class="form-control"
                           />
