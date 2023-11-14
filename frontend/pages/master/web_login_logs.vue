@@ -80,22 +80,10 @@
         </template>
         <template v-slot:item.employee.pic="{ item, index }">
           <v-row no-gutters>
-            <v-col
-              style="
-                padding: 5px;
-                padding-left: 0px;
-                width: 30px;
-                max-width: 30px;
-              "
-            >
+            <v-col style="padding-left: 0px; width: 50px">
               <v-img
                 v-if="item.model_type == 'employee'"
-                style="
-                  border-radius: 50%;
-                  height: auto;
-                  width: 30px;
-                  max-width: 30px;
-                "
+                style="border-radius: 50%; height: auto; width: 100%"
                 :src="
                   item.user.employee
                     ? item.user.employee.profile_picture
@@ -107,8 +95,8 @@
                 v-else-if="item.model_type == 'company'"
                 style="
                   height: auto;
-                  max-height: 150px;
-                  width: 200px;
+
+                  width: 100%;
                   margin: 0 auto;
                 "
                 :src="item.company ? item.company.logo : '/no-image.PNG'"
@@ -118,8 +106,8 @@
                 v-else
                 style="
                   height: auto;
-                  max-height: 150px;
-                  width: 200px;
+
+                  width: 100%;
                   margin: 0 auto;
                 "
                 src="/no-image.PNG"
