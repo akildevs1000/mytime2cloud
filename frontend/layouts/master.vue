@@ -197,8 +197,8 @@ export default {
           permission: this.can("company_access"),
         },
         {
-          icon: "mdi-domain",
-          title: "Logins",
+          icon: "mdi-login-variant",
+          title: "Logs",
           to: "/master/web_login_logs",
           permission: this.can("master"),
         },

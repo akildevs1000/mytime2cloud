@@ -111,7 +111,7 @@
                   width: 200px;
                   margin: 0 auto;
                 "
-                :src="item.logo ? item.logo : '/no-image.PNG'"
+                :src="item.company ? item.company.logo : '/no-image.PNG'"
               >
               </v-img>
               <v-img
