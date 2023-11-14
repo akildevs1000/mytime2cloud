@@ -500,4 +500,10 @@ class Employee extends Model
 
         return $employees->get(["system_user_id"]);
     }
+
+    public function scopeExcludeRelations($query)
+    {
+        return $query->withOut(["schedule","department","designation","sub_department","user","branch"]);
+
+    }
 }

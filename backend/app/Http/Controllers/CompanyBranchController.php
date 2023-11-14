@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\DB;
 
 class CompanyBranchController extends Controller
 {
+    public function dropdownList()
+    {
+        $model = CompanyBranch::query();
+        $model->where('company_id', request('company_id'));
+        $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
+        return $model->get(["id", "branch_name as name"]);
+    }
     public function seedDefaultData()
     {
         $arr = [];

@@ -11,6 +11,15 @@ use Illuminate\Http\Request;
 
 class DesignationController extends Controller
 {
+    public function dropdownList()
+    {
+        $model = Designation::query();
+        $model->where('company_id', request('company_id'));
+        $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
+        $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
+        return $model->get(["id", "name"]);
+    }
+
     public function index(Designation $model, Request $request)
     {
 
@@ -19,7 +28,7 @@ class DesignationController extends Controller
                 $q->where('name', 'ILIKE', "$request->designation_name%");
             })
             ->when($request->filled('department_name'), function ($q) use ($request) {
-                $q->whereHas('department', fn(Builder $query) => $query->where('name', 'ILIKE', "$request->department_name%"));
+                $q->whereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->department_name%"));
             })
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');
@@ -28,12 +37,9 @@ class DesignationController extends Controller
                         $q->orderBy(Department::select("name")->whereColumn("departments.id", "designations.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
                     }
                 } else {
-                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc');{
-
+                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
                     }
-
                 }
-
             })
             ->paginate($request->per_page);
     }

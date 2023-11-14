@@ -16,14 +16,4 @@ class Role extends Model
         'created_at' => 'datetime:d-m-y',
         'updated_at' => 'datetime:d-m-y',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        // Order by name ASC
-        static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('id', 'desc');
-        });
-    }
 }

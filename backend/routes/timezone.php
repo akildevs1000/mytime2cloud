@@ -10,3 +10,4 @@ Route::post('storeTimezoneDefaultJson', [TimezoneController::class, 'storeTimezo
 Route::get('GetTimezoneDefaultJson', [TimezoneController::class, 'GetTimezoneDefaultJson']);
 Route::get('timezone/search/{key}', [TimezoneController::class, 'search']);
 Route::get('timezone_list', [TimezoneController::class, 'timezonesList']);
+Route::get('timezone-list', [TimezoneController::class, 'dropdownList']);

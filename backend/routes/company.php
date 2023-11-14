@@ -87,6 +87,7 @@ Route::post('users/delete/selected', [UserController::class, 'deleteSelected']);
 
 // Department
 Route::apiResource('departments', DepartmentController::class);
+Route::get('department-list', [DepartmentController::class, 'dropdownList']);
 Route::get('departments/search/{key}', [DepartmentController::class, 'search']);
 Route::post('departments/delete/selected', [DepartmentController::class, 'deleteSelected']);
 
@@ -106,6 +107,8 @@ Route::apiResource('designation', DesignationController::class);
 Route::get('designations-by-department', [DesignationController::class, 'designations_by_department']);
 Route::get('designation/search/{key}', [DesignationController::class, 'search']);
 Route::post('designation/delete/selected', [DesignationController::class, 'deleteSelected']);
+Route::get('designation-list', [DesignationController::class, 'dropdownList']);
+
 
 // Role
 Route::apiResource('role', RoleController::class);
@@ -157,6 +160,7 @@ Route::apiResource('no-shift-employees', DutyOrganizerController::class);
 Route::apiResource('employee', EmployeeController::class);
 
 Route::get('employeesList', [EmployeeController::class, 'employeesList']);
+Route::get('employee-list', [EmployeeController::class, 'dropdownList']);
 Route::get('employeesByDepartment', [EmployeeController::class, 'employeesByDepartment']);
 Route::get('employeesByDepartmentForAnnoucements', [EmployeeController::class, "employeesByDepartmentForAnnoucements"]);
 Route::get('employeesBySubDepartment', [EmployeeController::class, 'employeesBySubDepartment']);
@@ -292,3 +296,6 @@ Route::apiResource('leave_count', LeaveCountController::class);
 
 Route::apiResource('leave_groups', LeaveGroupsController::class);
 Route::get('leave_groups/{id}', [LeaveGroupsController::class, 'show']);
+Route::get('leave-group-list', [LeaveGroupsController::class, 'dropdownList']);
+
+
