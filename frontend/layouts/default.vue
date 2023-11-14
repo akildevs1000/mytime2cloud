@@ -1222,8 +1222,13 @@ button {
 }
 </style>
 <style>
-.error--text {
+.v-application .error--text {
+  color: red;
+}
+.error--text,
+.text-danger {
   font-size: 13px;
+  color: red !important;
 }
 .v-messages {
   min-height: 0px !important;

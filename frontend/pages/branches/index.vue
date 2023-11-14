@@ -1007,7 +1007,11 @@ export default {
           //this.loading = false;
 
           if (!data.status) {
-            this.errors = data.errors;
+            if (data.errors) this.errors = data.errors;
+            this.color = "red";
+
+            this.snackbar = true;
+            this.response = data.message;
           } else {
             this.errors = [];
             this.snackbar = true;
@@ -1045,7 +1049,11 @@ export default {
           //this.loading = false;
 
           if (!data.status) {
-            this.errors = data.errors;
+            if (data.errors) this.errors = data.errors;
+            this.color = "red";
+
+            this.snackbar = true;
+            this.response = data.message;
           } else {
             this.errors = [];
             this.snackbar = true;

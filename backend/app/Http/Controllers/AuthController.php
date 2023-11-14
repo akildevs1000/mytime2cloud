@@ -80,7 +80,7 @@ class AuthController extends Controller
     {
         try {
             $random_number = mt_rand(100000, 999999);
-            $user = User::with('company')->find($user->id);
+            $user = User::with(["company"])->find($user->id);
             $user->otp_whatsapp = $random_number;
 
             if ($user->save()) {

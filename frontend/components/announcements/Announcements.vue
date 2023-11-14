@@ -557,10 +557,18 @@
                     v-html="selectedItem.description"
                   ></div>
                   <v-divider class="pa-5"></v-divider>
-                  <div class="text-green bold" style="color: green">
+                  <div
+                    v-if="selectedItem"
+                    class="text-green bold"
+                    style="color: green"
+                  >
                     Start Date: {{ selectedItem && selectedItem.start_date }}
                   </div>
-                  <div class="text-red bold" style="color: red">
+                  <div
+                    v-if="selectedItem"
+                    class="text-red bold"
+                    style="color: red"
+                  >
                     End Date: {{ selectedItem && selectedItem.end_date }}
                   </div>
                 </v-card-text>
