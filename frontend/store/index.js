@@ -201,6 +201,7 @@ export const actions = {
   },
 
   async employees({ commit, state }, options) {
+
     try {
       if (state.employees) return state.employees;
       const { data } = await this.$axios.get(options.endpoint, options)
