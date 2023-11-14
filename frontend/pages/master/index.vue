@@ -18,12 +18,12 @@
                     {{ i.title }}
                   </div>
                   <v-list-item-title class="text-h5 mb-1">
-                    {{ i.value }}
+                    <span style="font-size: 50px">{{ i.value }}</span>
                   </v-list-item-title>
                 </v-list-item-content>
 
                 <v-list-item-avatar size="60" color="primary">
-                  <v-icon dark>{{ i.icon }}</v-icon>
+                  <v-icon size="50" dark>{{ i.icon }}</v-icon>
                 </v-list-item-avatar>
               </v-list-item>
             </v-card>
@@ -97,7 +97,7 @@ export default {
           {
             title: "TOTAL EMPLOYEES",
             value: employees,
-            icon: "mdi-account",
+            icon: "mdi-account-tie",
           },
           {
             title: "TOTAL UNPAID",

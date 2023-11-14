@@ -810,8 +810,6 @@ export default {
           return "color:#FF5722";
         } else if (category.name == "Priority") {
           return "color:#4CAF50";
-        } else if (category.name == "Informational") {
-          return "color:#607D8B";
         } else if (category.name == "Low Priority") {
           return "color:#000000";
         }
@@ -874,7 +872,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     onScroll() {
       this.scrollInvoked++;
     },

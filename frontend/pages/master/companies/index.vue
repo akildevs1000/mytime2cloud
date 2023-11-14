@@ -46,7 +46,9 @@
               >
 
               <v-icon
+                title="Delete Company and Employyes data?"
                 v-if="can(`master`)"
+                :disabled="item.employees_count"
                 @click="deleteItem(item)"
                 color="red"
                 small
@@ -55,9 +57,14 @@
             </v-card-title>
 
             <v-card-text class="text-center" @click="goDetails(item.id)">
-              <div>
+              <div style="height: 200px">
                 <v-img
-                  style="height: 125px; width: 50%; margin: 0 auto"
+                  style="
+                    height: auto;
+                    max-height: 150px;
+                    width: 200px;
+                    margin: 0 auto;
+                  "
                   :src="item.logo ? item.logo : '/no-image.PNG'"
                 >
                 </v-img>
@@ -70,7 +77,7 @@
               <div>
                 {{ item.location }}
               </div>
-              <div class="bold">Emps: {{ item.employees_count }}</div>
+              <div class="bold">Employees: {{ item.employees_count }}</div>
             </v-card-text>
           </v-card>
         </v-col>

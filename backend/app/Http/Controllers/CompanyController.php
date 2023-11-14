@@ -27,8 +27,11 @@ use App\Notifications\CompanyCreationNotification;
 use App\Http\Requests\Company\CompanyUpdateRequest;
 use App\Http\Requests\Company\GeographicUpdateRequest;
 use App\Mail\NotifyIfLogsDoesNotGenerate;
+use App\Models\AnnouncementsCategories;
 use App\Models\Department;
+use App\Models\Designation;
 use App\Models\Employee;
+use App\Models\MailContent;
 use App\Models\Theme;
 use App\Models\VisitorLog;
 use Illuminate\Support\Facades\Mail;
@@ -204,6 +207,9 @@ class CompanyController extends Controller
         $theme = Theme::create($cardData);
         $role = Role::insert(defaultRoles($id));
         $department = Department::insert(defaultDepartments($id));
+        $designations = Designation::insert(defaultDesignations($id));
+        $AnnouncementsCategories = AnnouncementsCategories::insert(defaultAnnouncementCategories($id));
+        $MailContent = MailContent::insert(defaultMailContent($id));
 
         if ($theme && $role && $department) {
             return true;
@@ -216,11 +222,15 @@ class CompanyController extends Controller
     {
         $record = Company::find($id);
         $user = User::find($record->user_id);
+        $users = User::where('company_id', $id);
+        $employees = Employee::where('company_id', $id);
         $contact = CompanyContact::where('company_id', $id);
         $assignModule = AssignModule::where('company_id', $id);
         if ($contact->delete()) {
             $record->delete();
             $user->delete();
+            $users->delete();
+            $employees->delete();
             $assignModule->delete();
             return Response::noContent(204);
         } else {

@@ -4,7 +4,6 @@
       <v-row class="mt-10 mb-10">
         <v-col cols="10">
           <h3>Company</h3>
-          <div>Dashboard / Company / Details</div>
         </v-col>
       </v-row>
 
@@ -12,8 +11,11 @@
         <v-row>
           <v-col cols="6" style="border-right: 1px dashed #808080">
             <v-list-item>
-              <v-list-item-avatar tile size="120">
-                <v-img :src="company_payload.logo || '/no-image.PNG'"></v-img>
+              <v-list-item-avatar tile style="width: 200px; height: auto">
+                <v-img
+                  style="width: 100%"
+                  :src="company_payload.logo || '/no-image.PNG'"
+                ></v-img>
               </v-list-item-avatar>
               <v-list-item-content>
                 <div class="text-overline mb-1">
@@ -200,7 +202,6 @@
           <v-row class="mt-5 mb-5">
             <v-col cols="6">
               <h3>Branch</h3>
-              <div>Dashboard / Company / Branch</div>
             </v-col>
 
             <v-col cols="6">
