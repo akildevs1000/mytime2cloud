@@ -505,7 +505,6 @@ export default {
         icon: "mdi-logout",
         label: "Logout",
       },
-      branchesList: [],
       viewing_page_name: "",
     };
   },
@@ -526,8 +525,6 @@ export default {
 
     this.setTopMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");
-
-    this.getBranches();
   },
 
   mounted() {},
@@ -622,18 +619,6 @@ export default {
         }
       } else {
       }
-    },
-    getBranches() {
-      this.$axios
-        .get(`branches_list`, {
-          params: {
-            per_page: 1000,
-            company_id: this.$auth.user.company_id,
-          },
-        })
-        .then(({ data }) => {
-          this.branchesList = data;
-        });
     },
     getBranchName() {
       return this.$auth.user.branch_name;

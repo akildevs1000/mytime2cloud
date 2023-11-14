@@ -261,14 +261,14 @@
                   >
 
                   <v-select
-                    @change="filterDepartmentsByBranch($event)"
+                    @change="filterDepartmentsByBranch(employee.branch_id)"
                     v-model="employee.branch_id"
-                    :items="branchesList"
+                    :items="branches_list"
                     dense
                     placeholder="Select Branch"
                     outlined
                     item-value="id"
-                    item-text="branch_name"
+                    item-text="name"
                     :error="errors.branch_id"
                     :error-messages="
                       errors && errors.branch_id ? errors.branch_id[0] : ''
@@ -404,7 +404,7 @@
                 :is="getComponent(tab)"
                 :employeeId="employeeId"
                 @close-popup="editDialog = false"
-                @eventFromchild="getDataFromApi"
+                @eventFromchild="getDataFromApi()"
               />
             </v-tab-item>
           </v-tabs-items>
@@ -455,11 +455,11 @@
                     :hide-details="true"
                     clearable
                     item-value="id"
-                    item-text="branch_name"
+                    item-text="name"
                     v-model="import_branch_id"
                     outlined
                     dense
-                    :items="branchesList"
+                    :items="branches_list"
                   ></v-select>
                 </v-col>
                 <v-col cols="12">
@@ -509,30 +509,6 @@
           <v-toolbar-title>
             <span style="color: black"> {{ Model }}s </span></v-toolbar-title
           >
-          <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon
-                      color="white"
-                      class="ml-2"
-                      @click="clearFilters"
-                      dark
-                      >mdi mdi-reload</v-icon
-                    >
-                  </v-btn>
-                </template>
-                <span>Reload</span>
-              </v-tooltip> -->
-          <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
           <v-btn
             dense
             class="ma-0 px-0"
@@ -545,16 +521,7 @@
               >mdi mdi-filter</v-icon
             >
           </v-btn>
-          <!-- </template>
-                <span>Filter</span>
-              </v-tooltip> -->
-
           <v-spacer></v-spacer>
-          <!-- <v-btn rounded color="grey" dark flat> Rounded Button </v-btn>
-              <v-btn color="blue-grey">Import </v-btn>
-              <v-btn text>Import </v-btn>
-              <v-btn text>Export </v-btn>
-              <v-btn text> New </v-btn> -->
           <v-col cols="12" md="2">
             <v-text-field
               @input="serachAll($event)"
@@ -597,76 +564,12 @@
             size="x-large"
             >mdi-account-plus mdi-flip-h</v-icon
           >
-
-          <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="dialog = true"
-                  >
-                    <v-icon
-                      right
-                      dark
-                      size="x-large"
-                      style="transform: rotate(180deg)"
-                      >mdi-download-circle</v-icon
-                    >
-                  </v-btn>
-                </template>
-                <span>Import</span>
-              </v-tooltip> 
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="export_submit"
-                  >
-                    <v-icon right size="x-large" dark
-                      >mdi-download-circle</v-icon
-                    >
-                  </v-btn>
-                </template>
-                <span>Download</span>
-              </v-tooltip>
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    x-small
-                    class="ma-0 px-0"
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="employeeDialog = true"
-                  >
-                    <v-icon
-                      right
-                      size="x-large"
-                      dark
-                      v-if="can('employee_create')"
-                      >mdi-plus-circle</v-icon
-                    >
-                  </v-btn>
-                </template>
-                <span>Add New Employee</span>
-              </v-tooltip>-->
         </v-toolbar>
         <v-data-table
           dense
           v-model="selectedItems"
           :headers="headers_table"
-          :items="data"
+          :items="data.data"
           model-value="data.id"
           :loading="loadinglinear"
           :options.sync="options"
@@ -674,7 +577,7 @@
             itemsPerPageOptions: [100, 500, 1000],
           }"
           class="elevation-1"
-          :server-items-length="totalRowsCount"
+          :server-items-length="data.total"
         >
           <template v-slot:header="{ props: { headers } }">
             <tr v-if="isFilter">
@@ -684,13 +587,13 @@
                     clearable
                     @click:clear="
                       filters[header.value] = '';
-                      applyFilters();
+                      getDataFromApi();
                     "
                     :hide-details="true"
                     v-if="header.filterable && !header.filterSpecial"
                     v-model="filters[header.value]"
                     :id="header.value"
-                    @input="applyFilters(header.key, $event)"
+                    @input="getDataFromApi()"
                     outlined
                     dense
                     autocomplete="off"
@@ -700,7 +603,7 @@
                     clearable
                     @click:clear="
                       filters[header.value] = '';
-                      applyFilters();
+                      getDataFromApi();
                     "
                     :id="header.key"
                     :hide-details="true"
@@ -721,14 +624,13 @@
                     placeholder="Department"
                     solo
                     flat
-                    @change="applyFilters(header.key, id)"
+                    @change="getDataFromApi()"
                   ></v-select>
-
                   <v-select
                     clearable
                     @click:clear="
                       filters[header.value] = '';
-                      applyFilters();
+                      getDataFromApi();
                     "
                     :id="header.key"
                     :hide-details="true"
@@ -740,47 +642,22 @@
                     dense
                     small
                     v-model="filters[header.key]"
-                    item-text="branch_name"
+                    item-text="name"
                     item-value="id"
                     :items="[
-                      { branch_name: `All Branches`, id: `` },
-                      ...branchesList,
+                      { name: `All Branches`, id: `` },
+                      ...branches_list,
                     ]"
                     placeholder="All Branches"
                     solo
                     flat
-                    @change="applyFilters(header.key, id)"
-                  ></v-select>
-
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      applyFilters();
-                    "
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial &&
-                      header.value == 'schedule.shift_name'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="id"
-                    :items="[{ name: `All Shifts`, id: `` }, ...shifts]"
-                    placeholder="Shift"
-                    solo
-                    flat
-                    @change="applyFilters(header.key, id)"
+                    @change="applyFilters(filters[header.key])"
                   ></v-select>
                   <v-select
                     clearable
                     @click:clear="
                       filters[header.value] = '';
-                      applyFilters();
+                      getDataFromApi();
                     "
                     :id="header.key"
                     :hide-details="true"
@@ -791,13 +668,11 @@
                     dense
                     small
                     v-model="filters[header.key]"
-                    item-text="timezone_name"
-                    item-value="timezone_id"
+                    item-text="name"
+                    item-value="id"
                     :items="[
                       {
                         name: `All Timezones`,
-                        timezone_name: `All Timezones`,
-                        timezone_id: '',
                         id: ``,
                       },
                       ...timezones,
@@ -805,7 +680,7 @@
                     placeholder="Timezone"
                     solo
                     flat
-                    @change="applyFilters(header.key, id)"
+                    @change="getDataFromApi()"
                   ></v-select>
                 </v-container>
               </td>
@@ -879,23 +754,6 @@
           <template v-slot:item.user.email="{ item }" style="width: 200px">
             {{ item.user.email }}
           </template>
-          <!-- <template v-slot:item.schedule.shift_name="{ item }">
-                {{
-                  (item.schedule &&
-                    item.schedule.shift &&
-                    getCurrentShift(item.schedule)) ||
-                  "---"
-                }}
-                <div
-                  v-if="
-                    item.schedule &&
-                    item.schedule.shift &&
-                    item.schedule.shift.working_hours
-                  "
-                >
-                  Working Hours: {{ item.schedule.shift.working_hours }}
-                </div>
-              </template> -->
           <template v-slot:item.timezone.name="{ item }">
             {{ item.timezone ? item.timezone.timezone_name : "" }}
           </template>
@@ -984,6 +842,7 @@ export default {
   },
 
   data: () => ({
+    refresh: true,
     id: "",
     employee_id: "",
     system_user_id: "",
@@ -991,7 +850,6 @@ export default {
     timezones: [],
     joiningDate: null,
     joiningDateMenuOpen: false,
-    totalRowsCount: 0,
     showFilters: false,
     filters: {},
     isFilter: false,
@@ -1036,14 +894,9 @@ export default {
     selectedItem: 1,
     on: "",
     files: "",
-    search: "",
     loading: false,
     //total: 0,
-    next_page_url: "",
-    prev_page_url: "",
-    current_page: 1,
     per_page: 1000,
-    ListName: "",
     color: "background",
     response: "",
     snackbar: false,
@@ -1064,16 +917,9 @@ export default {
     contactItem: {},
     emirateItems: {},
     setting: {},
-
-    pagination: {
-      current: 1,
-      total: 0,
-      per_page: 10,
-    },
     options: {},
     Model: "Employee",
     endpoint: "employee",
-    search: "",
     snackbar: false,
     ids: [],
     loading: false,
@@ -1143,15 +989,6 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-      // {
-      //   text: "Shift",
-      //   align: "left",
-      //   sortable: false,
-      //   key: "shceduleshift_id", //sorting without . _
-      //   value: "schedule.shift_name",
-      //   filterable: true,
-      //   filterSpecial: true,
-      // },
       {
         text: "Timezone",
         align: "left",
@@ -1169,7 +1006,7 @@ export default {
         value: "options",
       },
     ],
-    branchesList: [],
+    branches_list: [],
     branch_id: null,
     isCompany: true,
     import_branch_id: "",
@@ -1183,6 +1020,7 @@ export default {
       this.branch_id = this.$auth.user.branch_id;
       this.employee.branch_id = this.$auth.user.branch_id;
       this.isCompany = false;
+      await this.getDepartments(this.branch_id);
       return;
     }
     this.headers_table.splice(2, 0, {
@@ -1195,24 +1033,7 @@ export default {
       filterSpecial: true,
     });
 
-    try {
-      const { data } = await this.$axios.get(`branches_list`, {
-        params: {
-          per_page: 100,
-          company_id: this.$auth.user.company_id,
-        },
-      });
-      this.branchesList = data;
-    } catch (error) {
-      // Handle the error
-      console.error("Error fetching branch list", error);
-    }
-
-    this.getDataFromApi();
-
-    if (this.$auth.user.branch_id) {
-      this.getDepartments(this.$auth.user.branch_id);
-    } else this.getDepartments(null);
+    this.branches_list = await this.$store.dispatch("branches_list");
   },
   mounted() {
     //this.getDataFromApi();
@@ -1296,58 +1117,45 @@ export default {
       },
       deep: true,
     },
-
-    editDialog: {
-      handler() {
-        this.getDataFromApi();
-      },
-      deep: true,
-    },
   },
   methods: {
-    openNewPage() {
+    async openNewPage() {
       this.employee = {};
       this.departments = [];
       this.employeeDialog = true;
 
       if (this.$auth.user.branch_id) {
-        this.getDepartments(this.$auth.user.branch_id);
-      } else this.getDepartments(null);
+        await this.getDepartments(this.$auth.user.branch_id);
+      } else {
+        await this.getDepartments(null);
+      }
     },
-    filterDepartmentsByBranch(filterBranchId) {
-      this.getDepartments(filterBranchId);
-      this.getShifts(filterBranchId);
-      this.getTimezone(filterBranchId);
+    async filterDepartmentsByBranch(filterBranchId) {
+      await this.getDepartments(filterBranchId);
+      await this.getTimezone(filterBranchId);
     },
-    getbranchesList() {
-      this.payloadOptions = {
+    async getDepartments(filterBranchId) {
+      let options = {
+        endpoint: "department-list",
+        isFilter: this.isFilter,
         params: {
           company_id: this.$auth.user.company_id,
+          branch_id: filterBranchId,
         },
       };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-        if (this.$auth.user.branch_id) {
-          this.branch_id = this.$auth.user.branch_id;
-        } else {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-          this.branch_id = "";
-        }
-      });
+      this.departments = await this.$store.dispatch("department_list", options);
     },
-    getCurrentShift(item) {
-      // Define an array of day names
-      const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const dayName = daysOfWeek[new Date().getDay()];
-      const { shift_name } =
-        item && item.roster.json.find((e) => e.day == dayName);
 
-      return shift_name || "---";
+    async getTimezone(filterBranchId) {
+      let options = {
+        endpoint: "timezone-list",
+        isFilter: this.isFilter,
+        params: {
+          company_id: this.$auth.user.company_id,
+          branch_id: filterBranchId,
+        },
+      };
+      this.timezones = await this.$store.dispatch("timezone_list", options);
     },
     closeViewDialog() {
       this.viewDialog = false;
@@ -1361,16 +1169,6 @@ export default {
       }
     },
 
-    datatable_cancel() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_open() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_close() {
-      this.loading = false;
-      //this.datatable_search_textbox = '';
-    },
     closePopup() {
       //croppingimagestep5
       this.$refs.attachment_input.value = null;
@@ -1478,141 +1276,72 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    onPageChange() {
-      this.getDataFromApi();
-    },
-    applyFilters() {
-      this.getDataFromApi();
-    },
-    toggleFilter() {
+    async toggleFilter() {
       // this.filters = {};
       this.isFilter = !this.isFilter;
     },
-    clearFilters() {
-      this.filters = {};
-
-      this.isFilter = false;
-      this.getDataFromApi();
-    },
     serachAll(e) {
-      if (e.length == 0) {
+      if ((e && e.length == 0) || e == null) {
         this.getDataFromApi();
+        return;
       } else if (e.length <= 3) {
         return false;
       }
 
-      let url = `${this.endpoint}/search/${e}`;
-      //this.loading = true;
       this.loadinglinear = true;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
-      let sortedBy = sortBy ? sortBy[0] : "";
-      let sortedDesc = sortDesc ? sortDesc[0] : "";
-      let options = {
-        params: {
-          sortBy: sortedBy,
-          sortDesc: sortedDesc,
-          per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id,
-          // department_id: this.department_filter_id,
-        },
-      };
-
-      this.$axios.get(`${url}?page = ${page}`, options).then(({ data }) => {
-        if (data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = "error";
-          this.snackText = "No Results Found";
-          this.loading = false;
-          return false;
-        }
-
-        this.data = data.data;
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
-
-        this.data.length == 0
-          ? (this.displayErrormsg = true)
-          : (this.displayErrormsg = false);
-
-        this.loadinglinear = false;
-      });
+      this.$axios
+        .get(`${this.endpoint}/search/${e}`, {
+          params: {
+            page,
+            sortBy: sortBy ? sortBy[0] : "",
+            sortDesc: sortDesc ? sortDesc[0] : "",
+            per_page: itemsPerPage,
+            company_id: this.$auth.user.company_id,
+          },
+        })
+        .then(({ data }) => {
+          console.log(`then`, data);
+          this.data = data;
+          this.loadinglinear = false;
+        })
+        .catch(({ err }) => {
+          console.log(`err`);
+          this.loadinglinear = false;
+        });
     },
-    getDataFromApi(url = this.endpoint) {
+    async applyFilters(id) {
+      await this.getDataFromApi();
+      await this.getDepartments(id);
+      await this.getTimezone(id);
+    },
+    async getDataFromApi() {
       //this.loading = true;
       this.loadinglinear = true;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
-      let sortedBy = sortBy ? sortBy[0] : "";
-      let sortedDesc = sortDesc ? sortDesc[0] : "";
       let options = {
+        endpoint: this.endpoint,
+        isFilter: this.isFilter,
         params: {
           page: page,
-          sortBy: sortedBy,
-          sortDesc: sortedDesc,
-          per_page: itemsPerPage, //this.pagination.per_page,
+          sortBy: sortBy ? sortBy[0] : "",
+          sortDesc: sortDesc ? sortDesc[0] : "",
+          per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
           department_id: this.department_filter_id,
-          // //department_ids: this.$auth.user.assignedDepartments,
           ...this.filters,
         },
       };
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        this.data = data.data;
-        //this.server_datatable_totalItems = data.total;
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
+      this.data = await this.$store.dispatch("employees", options);
 
-        this.totalRowsCount = data.total;
-
-        this.data.length == 0
-          ? (this.displayErrormsg = true)
-          : (this.displayErrormsg = false);
-
-        this.loadinglinear = false;
-      });
+      this.loadinglinear = false;
     },
 
-    getDepartments(filterBranchId) {
-      let options = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company_id,
-          //department_ids: this.$auth.user.assignedDepartments,
-          filter_branch_id: filterBranchId,
-        },
-      };
-      this.$axios.get(`departments`, options).then(({ data }) => {
-        this.departments = data.data;
-        // this.departments.unshift({ name: "All Departments", id: "" });
-      });
-    },
-    getShifts(filterBranchId) {
-      let options = {
-        per_page: 1000,
-        company_id: this.$auth.user.company_id,
-        filter_branch_id: filterBranchId,
-      };
-      this.$axios.get("shift", { params: options }).then(({ data }) => {
-        this.shifts = data.data;
-        //this.shifts.unshift({ name: "All Shifts", id: "" });
-      });
-    },
-    getTimezone(filterBranchId) {
-      let options = {
-        per_page: 1000,
-        company_id: this.$auth.user.company_id,
-        filter_branch_id: filterBranchId,
-      };
-      this.$axios.get("timezone", { params: options }).then(({ data }) => {
-        this.timezones = data.data;
-        // this.timezones.unshift({ name: "All Timezones", id: "" });
-        //this.timezones.unshift({ timezone_name: "24HOURS", id: "1", timezone_id: '1' });
-      });
-    },
     editItem(item) {
       this.employeeId = item.id;
       this.editDialog = true;
@@ -1671,6 +1400,7 @@ export default {
               });
               this.snackbar = data.status;
               this.response = data.message;
+              this.getDataFromApi();
               this.close();
             }
           })

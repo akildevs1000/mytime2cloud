@@ -12,6 +12,15 @@ use Illuminate\Support\Facades\DB;
 
 class LeaveGroupsController extends Controller
 {
+    public function dropdownList()
+    {
+        $model = LeaveGroups::query();
+        $model->where('company_id', request('company_id'));
+        $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
+        $model->select("id", "group_name as name");
+        $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
+        return $model->get(["id","name"]);
+    }
     public function getDefaultModelSettings($request, $id = '')
     {
         $model = LeaveGroups::query();

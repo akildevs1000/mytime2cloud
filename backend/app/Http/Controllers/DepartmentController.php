@@ -11,6 +11,15 @@ use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
+    public function dropdownList()
+    {
+        $model = Department::query();
+        $model->where('company_id', request('company_id'));
+        $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
+        $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
+        return $model->get(["id","name"]);
+    }
+
     public function index(Department $department, Request $request)
     {
 
