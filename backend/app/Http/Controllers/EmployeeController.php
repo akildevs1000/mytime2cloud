@@ -109,6 +109,12 @@ class EmployeeController extends Controller
             $employee->profile_picture = asset('media/employee/profile_picture' . $employee->profile_picture);
 
             DB::commit();
+
+            //set default attendance data for new Employees(1 month) 
+
+            (new AttendanceController)->seedDefaultData($data["company_id"], [$data["system_user_id"]], $data["branch_id"]);
+
+
             return $this->response('Employee successfully created.', null, true);
         } catch (\Throwable $th) {
             DB::rollBack();

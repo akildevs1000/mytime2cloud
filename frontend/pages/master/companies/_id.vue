@@ -409,7 +409,7 @@
                       </div>
                       <div class="col-sm-6">
                         <div class="form-group">
-                          <label class="col-form-label">Makeem No </label>
+                          <label class="col-form-label">Makani No </label>
                           <span class="text-danger">*</span>
                           <input
                             v-model="company_trade_license.makeem_no"
@@ -895,7 +895,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     getDataFromApi() {
       this.id = this.$route.params.id;
       this.$axios.get(`company/${this.id}`).then(({ data }) => {

@@ -246,7 +246,8 @@
                             </tr>
                             <tr>
                               <td>
-                                <strong>Whatsapp Number </strong> :
+                                <strong>Whatsapp Number ( ex: 971XXXX)</strong>
+                                :
                                 {{
                                   employeeObject.whatsapp_number
                                     ? employeeObject.whatsapp_number

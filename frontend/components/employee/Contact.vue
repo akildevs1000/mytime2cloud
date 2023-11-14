@@ -24,9 +24,7 @@
         </v-col>
 
         <v-col md="4" sm="12" cols="12" dense>
-          <label class="col-form-label"
-            >Whatsapp Number (with Country Code ex: 919999988888)</label
-          >
+          <label class="col-form-label">Whatsapp Number ( ex: 971XXXX)</label>
           <v-text-field
             dense
             outlined

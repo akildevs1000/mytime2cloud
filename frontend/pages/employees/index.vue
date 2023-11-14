@@ -238,7 +238,8 @@
                 </v-col>
                 <v-col md="6" cols="6" sm="6" dense>
                   <label class="col-form-label"
-                    >Whatsapp Number<span class="text-danger">*</span></label
+                    >Whatsapp <span class="text-danger">*</span> ( ex:
+                    971XXXX)</label
                   >
                   <v-text-field
                     dense

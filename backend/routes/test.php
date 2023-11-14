@@ -534,7 +534,10 @@ Route::get('/test/whatsapp', function () {
     curl_close($curl);
     echo $response;
 });
+Route::get('/test3', function () {
 
+    //return (new AttendanceController)->seedDefaultData(8, [1001], 2);
+});
 Route::get('/test_attachment', function () {
     $test = new RenderController();
     return  $test->renderOffCron(8);
