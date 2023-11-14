@@ -95,7 +95,7 @@
 
               <v-col cols="6">
                 <v-list-item-title class="text-h7 mb-1">
-                  Whatsapp Number (with Country Code ex: 919999988888)
+                  Whatsapp Number ( ex: 971XXXX)
                 </v-list-item-title>
               </v-col>
               <v-col cols="6">
@@ -208,7 +208,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     getSalaryDetails() {
       this.$axios.get(`salary/${this.$route.params.id}`).then(({ data }) => {
         this.payload = data.record;

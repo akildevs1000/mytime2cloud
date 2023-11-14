@@ -433,7 +433,7 @@
                       </v-col>
 
                       <v-col cols="6">
-                        <label class="col-form-label"> Makeem No </label>
+                        <label class="col-form-label"> Makani No </label>
                         <span class="text-danger">*</span>
                         <v-text-field
                           dense
@@ -854,7 +854,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     update_setting() {
       this.$axios

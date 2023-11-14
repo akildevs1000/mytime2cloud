@@ -27,7 +27,11 @@ use App\Notifications\CompanyCreationNotification;
 use App\Http\Requests\Company\CompanyUpdateRequest;
 use App\Http\Requests\Company\GeographicUpdateRequest;
 use App\Mail\NotifyIfLogsDoesNotGenerate;
+use App\Models\AnnouncementsCategories;
 use App\Models\Department;
+use App\Models\Designation;
+use App\Models\Employee;
+use App\Models\MailContent;
 use App\Models\Theme;
 use App\Models\VisitorLog;
 use Illuminate\Support\Facades\Mail;
@@ -56,12 +60,20 @@ class CompanyController extends Controller
 
     public function CompanyList(Company $Company)
     {
-        return $Company->select('id', 'name')->get();
+        return $Company->select('id', 'name')->orderBy("name", "asc")->get();
     }
 
     public function index(Company $model, Request $request)
     {
-        return $model->with(['user', 'contact', 'modules', 'trade_license'])->paginate($request->per_page);
+        return $model->with(['user', 'contact', 'modules', 'trade_license'])->withCount('employees')->paginate($request->per_page);
+    }
+
+    public function getMasterDashboardCounts()
+    {
+        $companiesCount = Company::query()->count();
+        $empCount = Employee::query()->count();
+
+        return ["companies" => $companiesCount, "employees" => $empCount];
     }
     public function show($id): JsonResponse
     {
@@ -195,6 +207,9 @@ class CompanyController extends Controller
         $theme = Theme::create($cardData);
         $role = Role::insert(defaultRoles($id));
         $department = Department::insert(defaultDepartments($id));
+        $designations = Designation::insert(defaultDesignations($id));
+        $AnnouncementsCategories = AnnouncementsCategories::insert(defaultAnnouncementCategories($id));
+        $MailContent = MailContent::insert(defaultMailContent($id));
 
         if ($theme && $role && $department) {
             return true;
@@ -207,11 +222,15 @@ class CompanyController extends Controller
     {
         $record = Company::find($id);
         $user = User::find($record->user_id);
+        $users = User::where('company_id', $id);
+        $employees = Employee::where('company_id', $id);
         $contact = CompanyContact::where('company_id', $id);
         $assignModule = AssignModule::where('company_id', $id);
         if ($contact->delete()) {
             $record->delete();
             $user->delete();
+            $users->delete();
+            $employees->delete();
             $assignModule->delete();
             return Response::noContent(204);
         } else {
@@ -364,18 +383,25 @@ class CompanyController extends Controller
             "first_login" => 0,
             "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
         ];
-        return $arr;
-        if (Hash::check($request->current_password, $user->password)) {
+        if ($request->current_password != '') {
+            if (Hash::check($request->current_password, $user->password)) {
+                $record = $user->update($arr);
+                if (!$record) {
+                    return $this->response('User cannot update.', null, false);
+                }
+                return $this->response('User successfully updated.', $record, true);
+            } else {
+                return [
+                    "status" => false,
+                    "errors" => ['current_password' => 'Current password does not match'],
+                ];
+            }
+        } else {
             $record = $user->update($arr);
             if (!$record) {
                 return $this->response('User cannot update.', null, false);
             }
             return $this->response('User successfully updated.', $record, true);
-        } else {
-            return [
-                "status" => false,
-                "errors" => ['current_password' => 'Current password does not match'],
-            ];
         }
     }
 

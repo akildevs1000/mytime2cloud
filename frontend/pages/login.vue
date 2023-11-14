@@ -170,7 +170,7 @@
                           <span
                             v-if="msg"
                             class="error--text"
-                            style="color: #ff9e86"
+                            style="color: #ff9f87"
                           >
                             {{ msg }}
                           </span>

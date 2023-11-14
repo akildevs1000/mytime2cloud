@@ -347,6 +347,7 @@ export default {
     branchesList: [],
   }),
   created() {
+    this.previewImage = null;
     this.getDepartments();
     this.getbranchesList();
   },

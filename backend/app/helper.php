@@ -137,7 +137,7 @@ function defaultDepartments($id = 1)
         [
             "name" => "Accounts",
             "company_id" => $id,
-            "branch_id" => $id,
+            "branch_id" => 1,
         ],
         [
             "name" => "Admin",
@@ -153,5 +153,81 @@ function defaultDepartments($id = 1)
             "company_id" => $id,
             "branch_id" => 1,
         ]
+    ];
+}
+function defaultDesignations($id = 1)
+{
+
+    return [
+        [
+            "name" => "Supervisior",
+            "company_id" => $id,
+            "branch_id" => 1,
+        ],
+        [
+            "name" => "Technician",
+            "company_id" => $id,
+            "branch_id" => 1,
+        ],
+        [
+            "name" => "It Dep",
+            "company_id" => $id,
+        ],
+        [
+            "name" => "General Sales",
+            "company_id" => $id,
+            "branch_id" => 1,
+        ]
+    ];
+}
+function defaultAnnouncementCategories($id = 1)
+{
+
+    return [
+        [
+            "name" => "Urgent",
+            "company_id" => $id,
+            "branch_id" => 1,
+        ],
+        [
+            "name" => "Informational",
+            "company_id" => $id,
+            "branch_id" => 1,
+        ],
+        [
+            "name" => "Meeting",
+            "company_id" => $id,
+            "branch_id" => 1,
+        ],
+        [
+            "name" => "Priority",
+            "company_id" => $id,
+            "branch_id" => 1,
+        ],
+        [
+            "name" => "Low Priority",
+            "company_id" => $id,
+            "branch_id" => 1,
+        ],
+
+    ];
+}
+function defaultMailContent($id = 1)
+{
+
+    return [
+        [
+            "name" => "email",
+            "company_id" => $id,
+            "branch_id" => 1,
+            "content" =>  "<p>Hi,</p><p>This is Automated Generated Mail for Daily reports. </p><p>Your email id is subscribed for Automated email reports.</p><p></p><p>Thanks ,</p><p></p>"
+        ],
+        [
+            "name" => "whatsapp",
+            "company_id" => $id,
+            "branch_id" => 1,
+            "content" =>  "Automatic generated whatsapp Notifications. 
+            Thanks"
+        ],
     ];
 }

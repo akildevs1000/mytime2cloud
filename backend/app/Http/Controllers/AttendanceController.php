@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
 {
-    public function seedDefaultData($company_id)
+    public function seedDefaultData($company_id, $UserIds = [], $branch_id = '')
     {
-        $params = ["company_id" => $company_id, "date" => date("Y-m-d")];
+        $params = ["company_id" => $company_id, "date" => date("Y-m-d"), "branch_id" => $branch_id, "UserIds" => $UserIds];
 
         $employees = Employee::query();
 
@@ -34,6 +34,9 @@ class AttendanceController extends Controller
             $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id");
             $q->orderBy("to_date", "asc");
         }]);
+        $employees->when($branch_id != '', function ($q) use ($params) {
+            $q->where("branch_id", $params["branch_id"]);
+        });
 
         $employees->when(count($params["UserIds"] ?? []) > 0, function ($q) use ($params) {
             $q->where("company_id", $params["company_id"]);
@@ -79,12 +82,14 @@ class AttendanceController extends Controller
         $insertedCount = 0;
 
         $attendance = Attendance::query();
-        $attendance->where("company_id", $company_id);
-        $attendance->whereMonth("date", date("m"));
-        $attendance->delete();
+        // $attendance->where("company_id", $company_id);
+        // $attendance->whereIn("employee_id", $employees);
+        // $attendance->whereMonth("date", date("m"));
+        // $attendance->delete();
 
         foreach ($chunks as $chunk) {
             $attendance->insert($chunk);
+            //$attendance->updateOrCreate($chunk);
             $insertedCount += count($chunk);
         }
 

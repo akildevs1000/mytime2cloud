@@ -238,7 +238,8 @@
                 </v-col>
                 <v-col md="6" cols="6" sm="6" dense>
                   <label class="col-form-label"
-                    >Whatsapp Number<span class="text-danger">*</span></label
+                    >Whatsapp <span class="text-danger">*</span> ( ex:
+                    971XXXX)</label
                   >
                   <v-text-field
                     dense
@@ -1494,7 +1495,11 @@ export default {
           //this.loading = false;
 
           if (!data.status) {
-            this.errors = data.errors;
+            if (data.errors) this.errors = data.errors;
+            else {
+              this.snackbar = true;
+              this.response = data.message;
+            }
           } else {
             this.errors = [];
             this.snackbar = true;

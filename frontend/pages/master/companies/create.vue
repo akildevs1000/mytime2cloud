@@ -27,69 +27,79 @@
         <v-stepper-items>
           <v-stepper-content step="1">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label">Company Name</label>
-                  <span class="text-danger">*</span>
-                  <input
+                  <span class="error--text">*</span>
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="company_payload.name"
                     class="form-control"
                     type=""
-                  />
-                  <span v-if="errors && errors.name" class="text-danger mt-2">{{
+                  >
+                  </v-text-field>
+                  <span v-if="errors && errors.name" class="error--text mt-2">{{
                     errors.name[0]
                   }}</span>
                 </div>
               </div>
 
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label">Company Email</label>
-                  <span class="text-danger">*</span>
-                  <input
+                  <span class="error--text">*</span>
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="company_payload.email"
                     class="form-control"
                     type="email"
-                  />
+                  >
+                  </v-text-field>
                   <span
                     v-if="errors && errors.email"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.email[0] }}</span
                   >
                 </div>
               </div>
-            </div>
 
-            <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label">Member From </label>
-                  <span class="text-danger">*</span>
-                  <input
+                  <span class="error--text">*</span>
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="company_payload.member_from"
                     class="form-control"
                     type="date"
-                  />
+                  >
+                  </v-text-field>
                   <span
                     v-if="errors && errors.member_from"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.member_from[0] }}</span
                   >
                 </div>
               </div>
 
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label">Expiry Date </label>
-                  <span class="text-danger">*</span>
-                  <input
+                  <span class="error--text">*</span>
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="company_payload.expiry"
                     type="date"
                     class="form-control"
-                  />
+                  >
+                  </v-text-field>
                   <span
                     v-if="errors && errors.expiry"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.expiry[0] }}</span
                   >
                 </div>
@@ -101,61 +111,70 @@
 
                   <span
                     v-if="errors && errors.no_branch"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.no_branch[0] }}</span
                   >
                 </div>
               </div> -->
 
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label"
-                    >Max Branches <span class="text-danger">*</span></label
+                    >Max Branches <span class="error--text">*</span></label
                   >
-                  <input
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="company_payload.max_branches"
                     type="number"
                     class="form-control"
-                  />
+                  >
+                  </v-text-field>
                   <span
                     v-if="errors && errors.max_branches"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.max_branches[0] }}</span
                   >
                 </div>
               </div>
 
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label"
-                    >Max Employees <span class="text-danger">*</span></label
+                    >Max Employees <span class="error--text">*</span></label
                   >
-                  <input
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="company_payload.max_employee"
                     type="number"
                     class="form-control"
-                  />
+                  >
+                  </v-text-field>
                   <span
                     v-if="errors && errors.max_employee"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.max_employee[0] }}</span
                   >
                 </div>
               </div>
 
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label"
-                    >Max Devices <span class="text-danger">*</span></label
+                    >Max Devices <span class="error--text">*</span></label
                   >
-                  <input
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="company_payload.max_devices"
                     type="number"
                     class="form-control"
-                  />
+                  >
+                  </v-text-field>
                   <span
                     v-if="errors && errors.max_devices"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.max_devices[0] }}</span
                   >
                 </div>
@@ -189,18 +208,21 @@
                         </v-btn>
                       </v-card>
 
-                      <input
+                      <v-text-field
+                        dense
+                        outlined
                         required
                         type="file"
                         @change="attachment"
                         style="display: none"
                         accept="image/*"
                         ref="attachment_input"
-                      />
+                      >
+                      </v-text-field>
 
                       <span
                         v-if="errors && errors.logo"
-                        class="text-danger mt-2"
+                        class="error--text mt-2"
                         >{{ errors.logo[0] }}</span
                       >
                     </div>
@@ -228,67 +250,78 @@
 
           <v-stepper-content step="2">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label">Contact Person Name </label>
-                  <span class="text-danger">*</span>
-                  <input
+                  <span class="error--text">*</span>
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="contact_payload.name"
                     class="form-control"
                     type="text"
-                  />
-                  <span v-if="errors && errors.name" class="text-danger mt-2">{{
+                  >
+                  </v-text-field>
+                  <span v-if="errors && errors.name" class="error--text mt-2">{{
                     errors.name[0]
                   }}</span>
                 </div>
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label">Contact Person Number </label>
-                  <span class="text-danger">*</span>
-                  <input
+                  <span class="error--text">*</span>
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="contact_payload.number"
                     class="form-control"
                     type="number"
-                  />
+                  >
+                  </v-text-field>
                   <span
                     v-if="errors && errors.number"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.number[0] }}</span
                   >
                 </div>
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label">Contact Person Position </label>
-                  <span class="text-danger">*</span>
-                  <input
+                  <span class="error--text">*</span>
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="contact_payload.position"
                     class="form-control"
                     type="text"
-                  />
+                  >
+                  </v-text-field>
                   <span
                     v-if="errors && errors.position"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.position[0] }}</span
                   >
                 </div>
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label"
-                    >Contact Person Whatsapp (with Country Code ex:
-                    919999988888)</label
+                    >Contact Person Whatsapp ( ex: 971XXX)</label
                   >
-                  <span class="text-danger">*</span>
-                  <input
+                  <span class="error--text">*</span>
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="contact_payload.whatsapp"
                     class="form-control"
                     type="number"
-                  />
+                  >
+                  </v-text-field>
                   <span
                     v-if="errors && errors.whatsapp"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.whatsapp[0] }}</span
                   >
                 </div>
@@ -315,33 +348,39 @@
 
           <v-stepper-content step="3">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label"
-                    >Lat <span class="text-danger">*</span></label
+                    >Lat <span class="error--text">*</span></label
                   >
-                  <input
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="geographic_payload.lat"
                     type="number"
                     class="form-control"
-                  />
-                  <span v-if="errors && errors.lat" class="text-danger mt-2">{{
+                  >
+                  </v-text-field>
+                  <span v-if="errors && errors.lat" class="error--text mt-2">{{
                     errors.lat[0]
                   }}</span>
                 </div>
               </div>
 
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group">
                   <label class="col-form-label"
-                    >Lon <span class="text-danger">*</span></label
+                    >Lon <span class="error--text">*</span></label
                   >
-                  <input
+                  <v-text-field
+                    dense
+                    outlined
                     v-model="geographic_payload.lon"
                     type="number"
                     class="form-control"
-                  />
-                  <span v-if="errors && errors.lon" class="text-danger mt-2">{{
+                  >
+                  </v-text-field>
+                  <span v-if="errors && errors.lon" class="error--text mt-2">{{
                     errors.lon[0]
                   }}</span>
                 </div>
@@ -349,15 +388,16 @@
               <div class="col-sm-12">
                 <div class="form-group">
                   <label class="col-form-label">Location </label>
-                  <textarea
+                  <v-textarea
+                    outlined
                     v-model="geographic_payload.location"
                     cols="30"
                     rows="3"
                     class="form-control"
-                  ></textarea>
+                  ></v-textarea>
                   <span
                     v-if="errors && errors.location"
-                    class="text-danger mt-2"
+                    class="error--text mt-2"
                     >{{ errors.location[0] }}</span
                   >
                 </div>
@@ -441,7 +481,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     onpick_attachment() {
       this.$refs.attachment_input.click();
     },

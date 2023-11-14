@@ -80,7 +80,7 @@ class AuthController extends Controller
     {
         try {
             $random_number = mt_rand(100000, 999999);
-            $user = User::with('company')->find($user->id);
+            $user = User::with(["company"])->find($user->id);
             $user->otp_whatsapp = $random_number;
 
             if ($user->save()) {
@@ -163,7 +163,7 @@ class AuthController extends Controller
         $this->throwErrorIfFail($request, $user);
 
         // @params User Id, action,type,companyId.
-        $this->recordActivity($user->id, "Login", "Authentication", $user->company_id);
+        $this->recordActivity($user->id, "Login", "Authentication", $user->company_id, $user->user_type);
 
         $user->user_type = $this->getUserType($user);
 

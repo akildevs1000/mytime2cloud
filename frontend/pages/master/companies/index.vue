@@ -20,16 +20,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col md="3">
-          <v-select
-            @change="getDataFromApi(endpoint)"
-            outlined
-            v-model="per_page"
-            :items="[50, 100, 500, 1000]"
-            dense
-            placeholder="Per Page Records"
-          ></v-select>
-        </v-col>
+        <v-col md="3"> </v-col>
 
         <v-col offset-md="6">
           <v-text-field
@@ -55,7 +46,9 @@
               >
 
               <v-icon
+                title="Delete Company and Employyes data?"
                 v-if="can(`master`)"
+                :disabled="item.employees_count"
                 @click="deleteItem(item)"
                 color="red"
                 small
@@ -64,9 +57,14 @@
             </v-card-title>
 
             <v-card-text class="text-center" @click="goDetails(item.id)">
-              <div>
+              <div style="height: 200px">
                 <v-img
-                  style="height: 125px; width: 50%; margin: 0 auto"
+                  style="
+                    height: auto;
+                    max-height: 150px;
+                    width: 200px;
+                    margin: 0 auto;
+                  "
                   :src="item.logo ? item.logo : '/no-image.PNG'"
                 >
                 </v-img>
@@ -79,12 +77,23 @@
               <div>
                 {{ item.location }}
               </div>
+              <div class="bold">Employees: {{ item.employees_count }}</div>
             </v-card-text>
           </v-card>
         </v-col>
       </v-row>
 
       <v-row>
+        <v-col md="3">
+          <v-select
+            @change="getDataFromApi(endpoint)"
+            outlined
+            v-model="per_page"
+            :items="[50, 100, 500, 1000]"
+            dense
+            placeholder="Per Page Records"
+          ></v-select>
+        </v-col>
         <v-col>
           <div color="pt-2" class="text-center">
             <v-btn
@@ -107,7 +116,18 @@
             </v-btn>
           </div>
         </v-col>
+        <v-col offset-md="6">
+          <v-text-field
+            outlined
+            @input="searchIt"
+            v-model="search"
+            dense
+            placeholder="Search..."
+          ></v-text-field>
+        </v-col>
       </v-row>
+
+      <v-row> </v-row>
     </div>
     <Preloader v-else />
   </div>
@@ -147,7 +167,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     goDetails(id) {
       this.$router.push(`/master/companies/details/${id}`);
       // this.$router.push(`/master/companies/${item.id}`);
