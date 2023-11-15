@@ -178,7 +178,7 @@
               </v-list-item-content>
             </v-list-item>
             <v-list-item
-              v-if="$auth.user.user_type == 'branch'"
+              v-if="$auth.user.user_type != 'company'"
               @click="changeLoginType"
             >
               <v-list-item-icon>
@@ -186,11 +186,11 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title class="black--text">
-                  Login Into
-                  {{
+                  Login Into employee
+                  <!-- {{
                     caps(getLoginType == "branch" ? "employee" : "branch")
-                  }}</v-list-item-title
-                >
+                  }} -->
+                </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -714,7 +714,8 @@ export default {
 
     changeLoginType() {
       try {
-        if (this.getLoginType == "branch") {
+        // if (this.getLoginType == "branch")
+        {
           // this.$store.commit("loginType", "employee");
           // this.setMenus();
           let email = this.$store.state.email;
@@ -738,11 +739,12 @@ export default {
           } else {
           }
           // this.$router.push("/employees/profile");
-        } else {
-          this.$store.commit("loginType", "branch");
-          this.setMenus();
-          this.$router.push("/dashboard2");
         }
+        // else {
+        //   this.$store.commit("loginType", "branch");
+        //   this.setMenus();
+        //   this.$router.push("/dashboard2");
+        // }
       } catch (e) {
         console.log(e);
       }
