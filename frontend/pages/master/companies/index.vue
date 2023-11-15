@@ -48,7 +48,6 @@
               <v-icon
                 title="Delete Company and Employyes data?"
                 v-if="can(`master`)"
-                :disabled="item.employees_count"
                 @click="deleteItem(item)"
                 color="red"
                 small
