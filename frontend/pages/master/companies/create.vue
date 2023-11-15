@@ -603,12 +603,20 @@ export default {
 
           if (!data.status) {
             this.errors = data.errors;
+            this.snackbar = true;
+
+            for (let key in data.errors) {
+              this.response = data.errors[key][0];
+            }
           } else {
             this.snackbar = true;
             this.response = data.message;
 
-            alert(data.message);
-            this.$router.push("/master/companies");
+            //alert(data.message);
+
+            setTimeout(() => {
+              this.$router.push("/master/companies");
+            }, 1000);
           }
         })
         .catch((e) => console.log(e));
