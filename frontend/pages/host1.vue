@@ -688,14 +688,7 @@ export default {
     closeViewDialog() {
       this.viewDialog = false;
     },
-    caps(str) {
-      if (str == "" || str == null) {
-        return "---";
-      } else {
-        let res = str.toString();
-        return res.replace(/\b\w/g, (c) => c.toUpperCase());
-      }
-    },
+    
     closePopup() {
       //croppingimagestep5
       this.$refs.attachment_input.value = null;
