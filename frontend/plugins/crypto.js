@@ -8,14 +8,18 @@ const secretKey = crypto.createHash("sha256").update(secretPassphrase).digest();
 
 // Encrypt function
 function encrypt(id) {
+  if (id == "") return "";
+
   const cipher = crypto.createCipheriv("aes-256-cbc", secretKey, iv);
   let encrypted = cipher.update(id.toString(), "utf-8", "base64");
   encrypted += cipher.final("base64");
-  return `${iv.toString("hex")}:${encrypted}`;
+  let fs = encrypted.replace("/", "replacer");
+  return `${iv.toString("hex")}:${fs}`;
 }
 
 // Decrypt function
 function decrypt(encryptedText) {
+  if (encryptedText == "") return "";
   const [ivHex, encrypted] = encryptedText.split(":");
   const decipher = crypto.createDecipheriv(
     "aes-256-cbc",

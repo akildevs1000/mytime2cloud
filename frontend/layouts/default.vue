@@ -515,7 +515,7 @@ export default {
     };
   },
   created() {
-    this.verifyToken();
+    //this.verifyToken();
 
     this.$store.commit("loginType", this.$auth.user.user_type);
     this.getCompanyDetails();
@@ -587,46 +587,46 @@ export default {
     },
   },
   methods: {
-    verifyToken() {
-      let token = this.$route.query.token;
+    // verifyToken() {
+    //   let token = this.$route.query.token;
 
-      if (token == "") {
-        token = this.$store.state.login_token;
-      }
-      // alert(this.$route.query.token);
-      if (this.$route.query.token) {
-        token = this.$route.query.token;
-        token = token.replace(":" + process.env.SECRET_PASS_PHRASE, "");
-        token = token; //this.$crypto.decrypt1(token);
+    //   if (token == "") {
+    //     token = this.$store.state.login_token;
+    //   }
+    //   // alert(this.$route.query.token);
+    //   if (this.$route.query.token) {
+    //     token = this.$route.query.token;
+    //     token = token.replace(":" + process.env.SECRET_PASS_PHRASE, "");
+    //     token = token; //this.$crypto.decrypt1(token);
 
-        if (token != "" && token != "undefined") {
-          this.$store.commit("login_token", token);
+    //     if (token != "" && token != "undefined") {
+    //       this.$store.commit("login_token", token);
 
-          let options = {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + token,
-            },
-          };
-          this.$axios
-            .get(`me`, null, options)
-            .then(({ data }) => {
-              if (!data.user) {
-                alert("Invalid Login Details. Please try again");
-                this.$router.push(`/login`);
+    //       let options = {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Authorization: "Bearer " + token,
+    //         },
+    //       };
+    //       this.$axios
+    //         .get(`me`, null, options)
+    //         .then(({ data }) => {
+    //           if (!data.user) {
+    //             alert("Invalid Login Details. Please try again");
+    //             this.$router.push(`/login`);
 
-                return false;
-              } else {
-                this.$router.push(`/dashboard2`);
-              }
-            })
-            .catch((err) => console.log(err));
-        } else {
-          this.$router.push(`/login`);
-        }
-      } else {
-      }
-    },
+    //             return false;
+    //           } else {
+    //             this.$router.push(`/dashboard2`);
+    //           }
+    //         })
+    //         .catch((err) => console.log(err));
+    //     } else {
+    //       this.$router.push(`/login`);
+    //     }
+    //   } else {
+    //   }
+    // },
     getBranchName() {
       return this.$auth.user.branch_name;
     },

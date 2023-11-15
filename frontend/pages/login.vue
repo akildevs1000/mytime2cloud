@@ -295,6 +295,8 @@ export default {
 
     loginWithOTP() {
       this.loading = true;
+      this.$store.commit("email", this.credentials.email);
+      this.$store.commit("password", this.credentials.password);
 
       this.$axios
         .post("loginwith_otp", this.credentials)
@@ -326,6 +328,9 @@ export default {
     },
     login() {
       if (this.$refs.form.validate()) {
+        this.$store.commit("email", this.credentials.email);
+        this.$store.commit("password", this.credentials.password);
+
         this.msg = "";
         this.loading = true;
         this.$auth

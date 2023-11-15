@@ -470,16 +470,16 @@
                           : "---"
                       }}
                     </strong>
-                    <div>
+                    <!-- <div>
                       {{ item.employee ? item.employee.user.email : "---" }}
-                    </div>
+                    </div> -->
                   </v-col>
                 </v-row>
               </template>
 
-              <template v-slot:item.email="{ item }">
+              <!-- <template v-slot:item.email="{ item }">
                 {{ item?.employee?.user?.email }}
-              </template>
+              </template> -->
 
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
