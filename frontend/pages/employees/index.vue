@@ -728,8 +728,11 @@
                 >
                 <div class="secondary-value">
                   {{ item.designation ? caps(item.designation.name) : "---" }}
+
                   {{
-                    item.user.role && "(Role:" + caps(item.user.role.name + ")")
+                    item.user.role && item.user.role.name != "---"
+                      ? "(Role:" + caps(item.user.role.name) + ")"
+                      : ""
                   }}
 
                   <!-- {{
