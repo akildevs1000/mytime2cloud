@@ -407,6 +407,14 @@
           </div>
         </div>  
       </div> -->
+
+      <v-row v-if="response">
+        <v-col>
+          <div style="color: red; font-size: 14px" class="pl-1">
+            {{ response }}
+          </div>
+        </v-col>
+      </v-row>
       <v-row>
         <v-col cols="12">
           <div class="text-right">
@@ -1263,7 +1271,11 @@ export default {
           .then(({ data }) => {
             this.loading = false;
             if (!data.status) {
-              this.errors = data.errors;
+              this.errors = [];
+              if (data.errors) this.errors = data.errors;
+
+              this.snackbar = true;
+              this.response = data.message;
             } else if (data.status == "device_api_error") {
               this.errors = [];
               this.snackbar = true;

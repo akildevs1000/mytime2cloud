@@ -1,5 +1,10 @@
 <template>
   <div v-if="can('master')">
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+        {{ response }}
+      </v-snackbar>
+    </div>
     <div v-if="!preloader">
       <v-row class="mt-5 mb-10">
         <v-col cols="10">
@@ -442,6 +447,8 @@ export default {
   },
 
   data: () => ({
+    snackbar: false,
+    response: "",
     preloader: false,
     loading: false,
     upload: {
@@ -597,6 +604,10 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
+            this.snackbar = true;
+            this.response = data.message;
+
+            alert(data.message);
             this.$router.push("/master/companies");
           }
         })

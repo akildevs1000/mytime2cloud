@@ -147,6 +147,7 @@ function defaultDepartments($id = 1)
         [
             "name" => "It Dep",
             "company_id" => $id,
+            "branch_id" => 1,
         ],
         [
             "name" => "Sales",
@@ -172,6 +173,7 @@ function defaultDesignations($id = 1)
         [
             "name" => "It Dep",
             "company_id" => $id,
+            "branch_id" => 1,
         ],
         [
             "name" => "General Sales",

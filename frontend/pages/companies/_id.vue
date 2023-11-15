@@ -55,7 +55,7 @@
                 <v-card flat>
                   <v-card-text>
                     <v-row>
-                      <v-col cols="4" md="4" sm="4">
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">Company Code</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -67,7 +67,7 @@
                         ></v-text-field>
                       </v-col>
 
-                      <v-col cols="4" md="4" sm="4">
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">Company Name</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -84,7 +84,7 @@
                         >
                       </v-col>
 
-                      <v-col cols="4" md="4" sm="4">
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">Company Email</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -101,7 +101,7 @@
                         >
                       </v-col>
 
-                      <v-col cols="6" md="6" sm="6">
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">Mol ID</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -117,7 +117,7 @@
                         >
                       </v-col>
 
-                      <v-col cols="6" md="6" sm="6">
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">P.O Box</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -133,7 +133,7 @@
                         >
                       </v-col>
 
-                      <v-col cols="6" md="6" sm="6">
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">Member From</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -150,7 +150,7 @@
                         >
                       </v-col>
 
-                      <v-col cols="6" md="6" sm="6">
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">Expiry Date</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -166,8 +166,9 @@
                           >{{ errors.expiry[0] }}</span
                         >
                       </v-col>
-
-                      <v-col cols="4" md="4" sm="4">
+                    </v-row>
+                    <v-row>
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">Max Branches</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -184,7 +185,7 @@
                         >
                       </v-col>
 
-                      <v-col cols="4" md="4" sm="4">
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">Max Employees</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -201,7 +202,7 @@
                         >
                       </v-col>
 
-                      <v-col cols="4" md="4" sm="4">
+                      <v-col cols="3" md="3" sm="3">
                         <label class="col-form-label">Max Devices</label>
                         <span class="text-danger">*</span>
                         <v-text-field
@@ -218,12 +219,12 @@
                         >
                       </v-col>
 
-                      <v-col cols="3" md="3" sm="3">
+                      <v-col cols="12" md="12" sm="12">
                         <label class="col-form-label"
                           >Company Profile Picture</label
                         >
                         <span class="text-danger">*</span>
-                        <v-card class="ml-1 mr-1">
+                        <v-card class="ml-1 mr-1" style="width: 500px">
                           <div class="pa-5">
                             <v-img
                               @click="onpick_attachment"

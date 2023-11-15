@@ -96,6 +96,19 @@ class DeviceController extends Controller
     public function store(StoreRequest $request)
     {
         try {
+
+            $maxDevices = Company::find($request->company_id)->max_devices;
+            $totalAvailable = Device::where("company_id", $request->company_id)->count();
+
+
+
+            if ($maxDevices - $totalAvailable <= 0) {
+                return $this->response('Device limit reached. Max Devices :' . $maxDevices, null, false);
+            }
+
+
+
+
             $model = Device::query();
             $model->where("company_id", $request->company_id);
             $model->where("device_id", $request->device_id);
@@ -106,6 +119,10 @@ class DeviceController extends Controller
             }
 
             $data = $request->validated();
+
+
+
+
             $data["ip"] = "0.0.0.0";
             $data["port"] = "0000";
             $record = $model->create($data);

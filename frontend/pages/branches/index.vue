@@ -1007,6 +1007,7 @@ export default {
           //this.loading = false;
 
           if (!data.status) {
+            this.errors = [];
             if (data.errors) this.errors = data.errors;
             this.color = "red";
 
@@ -1049,6 +1050,7 @@ export default {
           //this.loading = false;
 
           if (!data.status) {
+            this.errors = [];
             if (data.errors) this.errors = data.errors;
             this.color = "red";
 

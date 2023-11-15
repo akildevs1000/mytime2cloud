@@ -710,7 +710,7 @@ class EmployeeController extends Controller
         $remainingEmployee = max(0, (int) $maxEmployee - (int) $totalEmployee);
 
         if (!(count($rowCount) - 1 <= $remainingEmployee)) {
-            return ["status" => false, "errors" => ["Employee limit exceed. Maximum limit is " . $maxEmployee]];
+            return ["status" => false, "errors" => ["Employee limit reached. Maximum limit is " . $maxEmployee]];
         }
 
         $data = $this->saveFile($file);

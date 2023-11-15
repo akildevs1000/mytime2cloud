@@ -1256,7 +1256,7 @@ export default {
               this.errors = [];
               this.snackbar = true;
               this.response = "Employees imported successfully";
-              alert(this.response);
+
               this.getDataFromApi();
               this.close();
             }
@@ -1495,6 +1495,7 @@ export default {
           //this.loading = false;
 
           if (!data.status) {
+            this.errors = [];
             if (data.errors) this.errors = data.errors;
             else {
               this.snackbar = true;
