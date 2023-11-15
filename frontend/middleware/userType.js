@@ -26,10 +26,12 @@ const data = async ({ $auth, redirect }) => {
       return "";
     } catch (e) {
       redirect("login");
+      return "";
     }
   }
 
   redirect("/dashboard2");
+  return "";
 };
 
 export default data;
