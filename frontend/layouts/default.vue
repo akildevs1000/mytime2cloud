@@ -116,7 +116,13 @@
       </span>
       <v-spacer></v-spacer>
       <span style="100%">
-        <template v-if="getLoginType == 'company' || getLoginType == 'branch'">
+        <template
+          v-if="
+            getLoginType == 'company' ||
+            getLoginType == 'branch' ||
+            getLoginType == 'employee'
+          "
+        >
           <v-row align="center" justify="space-around" class="">
             <v-col v-for="(items, index) in company_top_menu" :key="index">
               <v-btn
@@ -515,10 +521,11 @@ export default {
     this.getCompanyDetails();
     this.setMenus();
 
-    if (
-      this.$auth.user.user_type == "company" ||
-      this.$auth.user.user_type == "branch"
-    ) {
+    // if (
+    //   this.$auth.user.user_type == "company" ||
+    //   this.$auth.user.user_type == "branch"
+    // )
+    {
       this.deviceList();
       this.getEmployeeList();
     }
@@ -668,7 +675,24 @@ export default {
         });
     },
     setMenus() {
-      if (this.getLoginType === "company" || this.getLoginType === "branch") {
+      console.log(
+        "this.$auth.user.role",
+        this.$auth.user.role,
+        this.getLoginType
+      );
+      if (this.$auth.user.role.role_type == 0) {
+        {
+          alert("Invalid User Type");
+          this.logout();
+        }
+
+        return "";
+      }
+      if (
+        this.getLoginType === "company" ||
+        this.getLoginType === "branch" ||
+        this.getLoginType === "employee"
+      ) {
         // this.items = this.company_menus;
         this.items = this.company_menus.filter(
           (item) => item.module === this.topMenu_Selected

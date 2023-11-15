@@ -331,6 +331,13 @@ export default {
         this.$auth
           .loginWith("local", { data: this.credentials })
           .then(({ data }) => {
+            console.log("data", data, this.$auth.user.role_id);
+
+            if (this.$auth.user.role_id == 0) {
+              window.location.href = process.env.EMPLOYEE_APP_URL;
+              return "";
+            }
+
             setTimeout(() => (this.loading = false), 2000);
           })
           .catch(({ response }) => {

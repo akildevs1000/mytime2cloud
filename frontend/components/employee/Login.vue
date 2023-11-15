@@ -6,73 +6,131 @@
       </v-snackbar>
     </div>
     <v-card>
-      <v-progress-linear :active="loading" color="primary" indeterminate></v-progress-linear>
+      <v-progress-linear
+        :active="loading"
+        color="primary"
+        indeterminate
+      ></v-progress-linear>
       <v-card-text>
         <v-dialog persistent v-model="dialogCropping" width="400">
           <v-card style="padding-top: 20px">
             <v-card-text>
               <!-- <img :src="imageUrl" alt="Preview Image" /> -->
               <!-- Cropping image step1 -->
-              <VueCropper v-show="selectedFile" ref="cropper" :src="selectedFile" alt="Source Image" :aspectRatio="1"
-                :autoCropArea="0.9" :viewMode="3"></VueCropper>
+              <VueCropper
+                v-show="selectedFile"
+                ref="cropper"
+                :src="selectedFile"
+                alt="Source Image"
+                :aspectRatio="1"
+                :autoCropArea="0.9"
+                :viewMode="3"
+              ></VueCropper>
 
               <!-- <div class="cropper-preview"></div> -->
             </v-card-text>
 
             <v-card-actions>
               <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
-                <v-btn class="danger btn btn-danger text-left" text @click="closePopup()"
-                  style="float: left">Cancel</v-btn>
+                <v-btn
+                  class="danger btn btn-danger text-left"
+                  text
+                  @click="closePopup()"
+                  style="float: left"
+                  >Cancel</v-btn
+                >
               </div>
               <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
-                <v-btn class="primary btn btn-danger text-right"
-                  @click="saveCroppedImageStep2(), (dialog = false)">Crop</v-btn>
+                <v-btn
+                  class="primary btn btn-danger text-right"
+                  @click="saveCroppedImageStep2(), (dialog = false)"
+                  >Crop</v-btn
+                >
               </div>
             </v-card-actions>
           </v-card>
         </v-dialog>
         <v-row>
-
           <v-col md="6" sm="6" cols="6" dense>
-            <label class="col-form-label">Employee Roll <span class="text-danger">*</span></label>
-            <v-autocomplete :items="roles" item-text="name" item-value="id" placeholder="Select"
-              v-model="employee.employee_role_id" :hide-details="!errors.employee_role_id"
-              :error="errors.employee_role_id" :error-messages="errors && errors.employee_role_id
-                ? errors.employee_role_id[0]
-                : ''
-                " dense outlined></v-autocomplete>
+            <label class="col-form-label">Employee Roll </label>
+            <v-autocomplete
+              :items="[{ name: 'No Admin App Access', id: 0 }, ...roles]"
+              item-text="name"
+              item-value="id"
+              placeholder="Select"
+              v-model="employee.employee_role_id"
+              :hide-details="!errors.employee_role_id"
+              :error="errors.employee_role_id"
+              :error-messages="
+                errors && errors.employee_role_id
+                  ? errors.employee_role_id[0]
+                  : ''
+              "
+              dense
+              outlined
+            ></v-autocomplete>
           </v-col>
         </v-row>
         <v-row>
           <v-col md="6" sm="6" cols="6" dense>
-            <label class="col-form-label">Email<span class="text-danger">*</span></label>
-            <v-text-field dense outlined :hide-details="!errors.email" type="text" v-model="employee.email"
-              :error="errors.email" :error-messages="errors && errors.email ? errors.email[0] : ''"></v-text-field>
+            <label class="col-form-label"
+              >Email<span class="text-danger">*</span></label
+            >
+            <v-text-field
+              dense
+              outlined
+              :hide-details="!errors.email"
+              type="text"
+              v-model="employee.email"
+              :error="errors.email"
+              :error-messages="errors && errors.email ? errors.email[0] : ''"
+            ></v-text-field>
           </v-col>
         </v-row>
         <v-row>
           <v-col md="6" sm="6" cols="6" dense>
             <label class="col-form-label">Password</label>
-            <v-text-field dense outlined :hide-details="!errors.password" type="text" v-model="employee.password"
-              :error="errors.password" :error-messages="errors && errors.password ? errors.password[0] : ''
-                "></v-text-field>
+            <v-text-field
+              dense
+              outlined
+              :hide-details="!errors.password"
+              type="text"
+              v-model="employee.password"
+              :error="errors.password"
+              :error-messages="
+                errors && errors.password ? errors.password[0] : ''
+              "
+            ></v-text-field>
           </v-col>
         </v-row>
         <v-row>
           <v-col md="6" sm="6" cols="4" dense>
             <label class="col-form-label">Confirm Password</label>
-            <v-text-field dense outlined :hide-details="!errors.password_confirmation" type="text"
-              v-model="employee.password_confirmation" :error="errors.password_confirmation" :error-messages="errors && errors.password_confirmation
-                ? errors.password_confirmation[0]
-                : ''
-                "></v-text-field>
+            <v-text-field
+              dense
+              outlined
+              :hide-details="!errors.password_confirmation"
+              type="text"
+              v-model="employee.password_confirmation"
+              :error="errors.password_confirmation"
+              :error-messages="
+                errors && errors.password_confirmation
+                  ? errors.password_confirmation[0]
+                  : ''
+              "
+            ></v-text-field>
           </v-col>
         </v-row>
 
-
         <v-row>
           <v-col cols="12" class="text-right">
-            <v-btn v-if="can('employee_create')" small :loading="loading" color="primary" @click="submit">
+            <v-btn
+              v-if="can('employee_create')"
+              small
+              :loading="loading"
+              color="primary"
+              @click="submit"
+            >
               Submit
             </v-btn>
           </v-col>
@@ -199,7 +257,6 @@ export default {
 
       this.$axios.get(`role`, this.payloadOptions).then(({ data }) => {
         this.roles = data.data;
-
       });
     },
     close() {

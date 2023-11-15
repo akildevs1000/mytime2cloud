@@ -342,7 +342,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     getDataFromApi(url = this.endpoint) {
       this.loading = true;

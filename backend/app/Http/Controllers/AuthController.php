@@ -205,7 +205,7 @@ class AuthController extends Controller
             if ($branchesArray) {
                 $user->branch_name = $branchesArray->branch_name;
                 $user->branch_logo = $branchesArray->logo;
-                $user->branch_id = $user->id;
+                $user->branch_id = $branchesArray->id; //$user->id;
                 return "branch";
             };
 

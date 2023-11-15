@@ -80,7 +80,9 @@
                       >
                     </v-col>
                     <v-col md="6" cols="12" sm="12" dense>
-                      <label v-if="formTitle == 'Update'">Role Managers </label>
+                      <label v-if="formTitle == 'Update'"
+                        >Manager( Role=manager)</label
+                      >
 
                       <v-autocomplete
                         v-if="formTitle == 'Update'"
