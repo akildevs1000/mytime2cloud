@@ -13,8 +13,8 @@ function encrypt(id) {
   const cipher = crypto.createCipheriv("aes-256-cbc", secretKey, iv);
   let encrypted = cipher.update(id.toString(), "utf-8", "base64");
   encrypted += cipher.final("base64");
-  let fs = encrypted.replace("/", "replacer");
-  return `${iv.toString("hex")}:${fs}`;
+  let fs = encrypted.replaceAll("/", "replacer");
+  return `${iv.toString("hex")}:${encrypted}`;
 }
 
 // Decrypt function
