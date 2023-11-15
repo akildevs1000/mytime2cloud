@@ -20,7 +20,7 @@ const data = async ({ $auth, redirect }) => {
     return;
   }
 
-  if ($auth.user.role_id == 0) {
+  if ($auth.user.role_id == 0 && user_type == "employee") {
     try {
       window.location.href = process.env.EMPLOYEE_APP_URL;
       return "";

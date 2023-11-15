@@ -52,9 +52,11 @@
         </v-dialog>
         <v-row>
           <v-col md="6" sm="6" cols="6" dense>
-            <label class="col-form-label">Employee Roll </label>
+            <label class="col-form-label"
+              >Employee Roll(Admin App Access)
+            </label>
             <v-autocomplete
-              :items="[{ name: 'No Admin App Access', id: 0 }, ...roles]"
+              :items="[{ name: 'No Access', id: 0 }, ...roles]"
               item-text="name"
               item-value="id"
               placeholder="Select"

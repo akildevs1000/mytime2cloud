@@ -331,9 +331,10 @@ export default {
         this.$auth
           .loginWith("local", { data: this.credentials })
           .then(({ data }) => {
-            console.log("data", data, this.$auth.user.role_id);
-
-            if (this.$auth.user.role_id == 0) {
+            if (
+              this.$auth.user.role_id == 0 &&
+              this.$auth.user.user_type == "employee"
+            ) {
               window.location.href = process.env.EMPLOYEE_APP_URL;
               return "";
             }

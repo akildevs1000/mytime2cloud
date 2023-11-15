@@ -728,6 +728,9 @@
                 >
                 <div class="secondary-value">
                   {{ item.designation ? caps(item.designation.name) : "---" }}
+                  {{
+                    item.user.role && "(Role:" + caps(item.user.role.name + ")")
+                  }}
 
                   <!-- {{
                     item.user.branch_login &&
@@ -741,7 +744,7 @@
           <template v-slot:item.branch.branch_name="{ item }">
             {{ caps(item.branch && item.branch.branch_name) }}
             <div class="secondary-value">
-              {{ item.user.branch_login && "(Manager)" }}
+              {{ item.user.branch_login && "(Branch Owner)" }}
             </div>
           </template>
           <template v-slot:item.department_name_id="{ item }">

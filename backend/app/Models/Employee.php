@@ -287,12 +287,13 @@ class Employee extends Model
             },
         ])
             ->with([
+
                 "user" => function ($q) {
-                    return $q->with("branchLogin");
+                    return $q->with(["branchLogin", "role"]);
                 },
             ])
             ->with([
-                "reportTo", "schedule_all", "branch", "department", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
+                "reportTo",   "schedule_all", "branch", "department", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
                 "emirate", "qualification", "bank", "leave_group",  "Visa", "reporting_manager",
             ])
             ->with(["schedule" => function ($q) {
@@ -503,7 +504,6 @@ class Employee extends Model
 
     public function scopeExcludeRelations($query)
     {
-        return $query->withOut(["schedule","department","designation","sub_department","user","branch"]);
-
+        return $query->withOut(["schedule", "department", "designation", "sub_department", "user", "branch"]);
     }
 }
