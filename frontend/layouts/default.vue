@@ -120,7 +120,9 @@
           v-if="
             getLoginType == 'company' ||
             getLoginType == 'branch' ||
-            getLoginType == 'employee'
+            (getLoginType == 'employee' &&
+              $auth.user.role.role_type.toLowerCase() != 'guard' &&
+              $auth.user.role.role_type.toLowerCase() != 'host')
           "
         >
           <v-row align="center" justify="space-around" class="">
@@ -688,27 +690,27 @@ export default {
 
         return "";
       }
-      if (
-        this.getLoginType === "company" ||
-        this.getLoginType === "branch" ||
-        this.getLoginType === "employee"
-      ) {
+      let roleType = this.$auth.user.role.role_type.toLowerCase();
+      console.log("roleType", roleType);
+      if (this.getLoginType === "company" || this.getLoginType === "branch") {
         // this.items = this.company_menus;
         this.items = this.company_menus.filter(
           (item) => item.module === this.topMenu_Selected
         );
         return;
-      }
-
-      let roleType = this.$auth.user.role.role_type.toLowerCase();
-
-      if (/guard/.test(roleType)) {
-        this.items = this.guard_menus;
-        return;
-      }
-      if (/host/.test(roleType)) {
-        this.items = this.host_menus;
-        return;
+      } else if (this.getLoginType === "employee") {
+        if (/guard/.test(roleType)) {
+          this.items = this.guard_menus;
+          return;
+        } else if (/host/.test(roleType)) {
+          this.items = this.host_menus;
+          return;
+        } else {
+          this.items = this.company_menus.filter(
+            (item) => item.module === this.topMenu_Selected
+          );
+          return;
+        }
       }
     },
 

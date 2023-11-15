@@ -320,13 +320,13 @@ class PermissionSeeder extends Seeder
             ['module' => 'host', 'title' => 'Host delete', 'name' => 'host_delete'],
 
 
-            ['module' => 'Access Control', 'title' => 'Access Control access', 'name' => 'access_control_access'],
-            ['module' => 'Payslip', 'title' => 'Payslip Access', 'name' => 'payslip_access'],
-            ['module' => 'attendance_report', 'title' => 'Attendance Access', 'name' => 'attendance_access'],
+            //['module' => 'access_control', 'title' => 'Access Control access', 'name' => 'access_control_access'],
+            //['module' => 'payslip', 'title' => 'Payslip Access', 'name' => 'payslip_access'],
+            // ['module' => 'attendance_report', 'title' => 'Attendance Access', 'name' => 'attendance_access'],
 
-            ['module' => 'visitor', 'title' => 'Visitor Requests Access', 'name' => 'visitor_requests_access'],
-            ['module' => 'attendance_report', 'title' => 'Change Requests Access', 'name' => 'change_requests_access'],
-            ['module' => 'location', 'title' => 'Gps History Access', 'name' => 'gps_history_access'],
+            //['module' => 'visitor_requests', 'title' => 'Visitor Requests Access', 'name' => 'visitor_requests_access'],
+            // ['module' => 'change_attendance_report', 'title' => 'Change Requests Access', 'name' => 'change_requests_access'],
+            // ['module' => 'location', 'title' => 'Gps History Access', 'name' => 'gps_history_access'],
 
         ];
 
