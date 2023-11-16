@@ -129,12 +129,12 @@ export const actions = {
     commit("RESET_STATE");
   },
 
-  branches_list({ commit, state }) {
+  async branches_list({ commit, state }) {
 
     if (state.branches_list) return state.branches_list;
 
     try {
-      const { data } = this.$axios.get(`branch-list`, {
+      const { data } = await this.$axios.get(`branch-list`, {
         params: {
           order_by: "name",
           company_id: this.$auth.user.company_id,

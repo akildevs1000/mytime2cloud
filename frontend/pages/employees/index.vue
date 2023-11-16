@@ -1118,8 +1118,8 @@ export default {
   },
   watch: {
     options: {
-      handler() {
-        this.getDataFromApi();
+      async handler() {
+        await this.getDataFromApi();
       },
       deep: true,
     },
