@@ -94,6 +94,7 @@ class Kernel extends ConsoleKernel
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$monthYear-default-attendance-seeder-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+            //whatsapp reports 
             $array = ['All', "P", "A", "M", "ME"];
             foreach ($array as $status) {
 
