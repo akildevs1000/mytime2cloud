@@ -1040,6 +1040,8 @@ export default {
     });
 
     this.branches_list = await this.$store.dispatch("branches_list");
+
+    await this.getDataFromApi();
   },
   mounted() {
     //this.getDataFromApi();
