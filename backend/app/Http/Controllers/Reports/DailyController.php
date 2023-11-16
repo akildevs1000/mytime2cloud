@@ -60,7 +60,7 @@ class DailyController extends Controller
         return $this->processPDF($request)->download();
     }
 
-    public function custom_request_general($id, $status, $shift_type_id)
+    public function custom_request_general_old($id, $status, $shift_type_id)
     {
 
         $apiUrl = env('BASE_URL') . '/api/daily_generate_pdf';
@@ -79,8 +79,30 @@ class DailyController extends Controller
             return $response->body();
         } else {
             return $response;
-            return $this->getMeta("Daily Report Generate", "Cannot genereate for Company id: $id");
+            //return $this->getMeta("Daily Report Generate", "Cannot genereate for Company id: $id");
         }
+    }
+    public function custom_request_general($id, $status, $shift_type_id)
+    {
+        $apiUrl = env('BASE_URL') . '/api/daily_generate_pdf';
+        $queryParams = [
+            'report_template' => "Template1",
+            'shift_type_id' => $shift_type_id,
+            'report_type' => 'Daily',
+            'company_id' => $id,
+            'status' => $status,
+            'daily_date' => date("Y-m-d", strtotime("yesterday")),
+        ];
+
+        $response = Http::timeout(300)->withoutVerifying()->get($apiUrl, $queryParams);
+
+        if ($response->successful()) {
+            return $response->body();
+        } else {
+            return $response;
+            //return $this->getMeta("Daily Report Generate", "Cannot genereate for Company id: $id");
+        }
+        //$this->daily_generate_pdf( $queryParams);
     }
 
     public function daily_generate_pdf(Request $request)
@@ -565,17 +587,17 @@ class DailyController extends Controller
     public function process_reports()
     {
         return $company_ids =  Company::pluck('id');
-        $arr = [];
-        foreach ($company_ids as $company_id) {
-            $arr[] = [
-                $this->processData($company_id, "daily_summary_report", "SA"),
-                $this->processData($company_id, "daily_present_report", "P"),
-                $this->processData($company_id, "daily_absent_report", "A"),
-                $this->processData($company_id, "daily_missing_report", "M"),
-                $this->processData($company_id, "daily_manual_entry_report", "ME"),
-            ];
-        }
-        return $arr;
+        // $arr = [];
+        // foreach ($company_ids as $company_id) {
+        //     $arr[] = [
+        //         $this->processData($company_id, "daily_summary_report", "SA"),
+        //         $this->processData($company_id, "daily_present_report", "P"),
+        //         $this->processData($company_id, "daily_absent_report", "A"),
+        //         $this->processData($company_id, "daily_missing_report", "M"),
+        //         $this->processData($company_id, "daily_manual_entry_report", "ME"),
+        //     ];
+        // }
+        // return $arr;
     }
 
     public function processData($company_id, $file_name, $status)

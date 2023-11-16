@@ -13,14 +13,46 @@
                         @else
                         <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                         @endif
-                        {{-- <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
-                            <tr style="text-align: left; border :none;">
-                                <td style="text-align: right; border :none;font-size:10px">
-                                    <b>
+                    </div>
+                    <div class="col-7" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
+                        <table style="padding:0px;margin:0px">
+                            <tr style="text-align: left; border :none; padding:100px 0px;">
+                                <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
+                                    <b style="padding:0px;margin:0px">
                                         {{ $company->name }}
-                        <>{{ $company->name ?? 'Akkil Security & Alarm System LLC' }}
-                            </b>
-                            <br>
+                                    </b>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;padding:10px 0px">
+                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px;">
+                                    <span style="margin-left: 3px">P.O.Box
+                                        {{ $company->p_o_box_no == 'null' ? '---' : $company->p_o_box_no }}</span>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;padding:10px 0px">
+                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
+                                    <span style="margin-left: 3px">{{ $company->location }}</span>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;padding:10px 0px">
+                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
+                                    <span style="margin-left: 3px">{{ $company->contact->number ?? '' }}</span>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;padding:10px 0px">
+                                <td style="text-align: left; border :none;font-size:10px;padding:7px 0px">
+                                    <span style="margin-left: 3px">{{ '' }}</span>
+                                    <br>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+
             </td>
         </tr>
         <tr style="text-align: left; border :none;">
