@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-card elevation="0" class="mt-2">
     <v-toolbar class="mb-2 white--text" color="white" dense flat>
       <v-toolbar-title>
         <span style="color: black"> {{ Model }}s </span></v-toolbar-title
@@ -15,14 +15,14 @@
         <v-icon @click="toggleFilter" class="mx-1 ml-2">mdi-filter</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <SearchEntity
+      <!-- <SearchEntity
         :endpoint="endpoint"
         @search="(e) => (data = e)"
         @default="(e) => getDataFromApi()"
       />
       <ImportEntity @success="(e) => getDataFromApi()" />
       <ExportEntity :data="data.data" />
-      <CreateEntity @success="(e) => getDataFromApi()" />
+      <CreateEntity @success="(e) => getDataFromApi()" /> -->
     </v-toolbar>
     <v-data-table
       dense
@@ -245,7 +245,7 @@
         </v-menu>
       </template>
     </v-data-table>
-  </div>
+  </v-card>
 </template>
 
 <script>
@@ -272,6 +272,9 @@ export default {
     endpoint: "employee",
     loading: false,
     data: [],
+    departments: [],
+    branches_list: [],
+    timezones: [],
     options: {},
     isFilter: false,
     filters: {},
@@ -330,7 +333,7 @@ export default {
         text: "Timezone",
         align: "left",
         sortable: true,
-        key: "timezone",
+        key: "timezone_id",
         value: "timezone.name",
         filterable: true,
         filterSpecial: true,
@@ -346,17 +349,21 @@ export default {
   }),
 
   async created() {
-    if (this.$auth.user.branch_id == null) {
-      this.headers_table.splice(2, 0, {
-        text: "Branch",
-        align: "left",
-        sortable: true,
-        key: "branch_id",
-        value: "branch.branch_name",
-        filterable: true,
-        filterSpecial: true,
-      });
+    if (this.$auth.user.branch_id) {
+      this.isCompany = false;
+      return;
     }
+    this.headers.splice(2, 0, {
+      text: "Branch",
+      align: "left",
+      sortable: true,
+      key: "branch_id",
+      value: "branch.branch_name",
+      filterable: true,
+      filterSpecial: true,
+    });
+
+    this.branches_list = await this.$store.dispatch("branches_list");
   },
 
   watch: {
@@ -377,7 +384,10 @@ export default {
           this.isCompany = false;
           await this.applyFilters(this.$auth.user.branch_id);
           return;
+
+          // this.branch_id = this.$auth.user.branch_id;
           // this.employee.branch_id = this.$auth.user.branch_id;
+          // await this.getDepartments(this.branch_id);
         }
 
         this.branches_list = await this.$store.dispatch("branches_list");
@@ -391,6 +401,39 @@ export default {
     },
     can(per) {
       return this.$pagePermission.can(per, this);
+    },
+
+    caps(str) {
+      if (str == "" || str == null) {
+        return "---";
+      } else {
+        let res = str.toString();
+        return res.replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+    },
+
+    async getDepartments(filterBranchId) {
+      let options = {
+        endpoint: "department-list",
+        isFilter: this.isFilter,
+        params: {
+          company_id: this.$auth.user.company_id,
+          branch_id: filterBranchId,
+        },
+      };
+      this.departments = await this.$store.dispatch("department_list", options);
+    },
+
+    async getTimezone(filterBranchId) {
+      let options = {
+        endpoint: "timezone-list",
+        isFilter: this.isFilter,
+        params: {
+          company_id: this.$auth.user.company_id,
+          branch_id: filterBranchId,
+        },
+      };
+      this.timezones = await this.$store.dispatch("timezone_list", options);
     },
 
     async getDataFromApi() {
