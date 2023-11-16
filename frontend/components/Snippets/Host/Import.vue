@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-snackbar v-model="snackbar" small top="top" :color="color">
-        {{ response }}
-      </v-snackbar>
+      {{ response }}
+    </v-snackbar>
     <v-dialog persistent v-model="dialog" max-width="500px">
       <template v-slot:activator="{ on, attrs }">
         <v-icon
@@ -101,6 +101,9 @@ export default {
     text: null,
     color: "background",
   }),
+  async created() {
+    this.branches_list = await this.$store.dispatch("branches_list");
+  },
   methods: {
     importEmployee() {
       if (this.import_branch_id > 0) {
