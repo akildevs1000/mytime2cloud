@@ -268,7 +268,7 @@ export default {
     import_branch_id: "",
   }),
 
-  async created() {
+  created() {
     this.loading = false;
     this.boilerplate = true;
 
@@ -276,7 +276,7 @@ export default {
       this.branch_id = this.$auth.user.branch_id;
       this.employee.branch_id = this.$auth.user.branch_id;
       this.isCompany = false;
-      await this.getDepartments(this.branch_id);
+      this.getDepartments(this.branch_id);
       return;
     }
     this.headers_table.splice(2, 0, {
@@ -289,7 +289,7 @@ export default {
       filterSpecial: true,
     });
 
-    this.branches_list = await this.$store.dispatch("branches_list");
+    this.branches_list = this.$store.dispatch("branches_list");
   },
 
   watch: {
@@ -304,22 +304,22 @@ export default {
     editItem(item) {
       this.employeeId = item.id;
     },
-    async openNewPage() {
+    openNewPage() {
       this.employee = {};
       this.departments = [];
       this.employeeDialog = true;
 
       if (this.$auth.user.branch_id) {
-        await this.getDepartments(this.$auth.user.branch_id);
+        this.getDepartments(this.$auth.user.branch_id);
       } else {
-        await this.getDepartments(null);
+        this.getDepartments(null);
       }
     },
     async filterDepartmentsByBranch(filterBranchId) {
-      await this.getDepartments(filterBranchId);
-      await this.getTimezone(filterBranchId);
+      this.getDepartments(filterBranchId);
+      this.getTimezone(filterBranchId);
     },
-    async getDepartments(filterBranchId) {
+    getDepartments(filterBranchId) {
       let options = {
         endpoint: "department-list",
         isFilter: this.isFilter,
@@ -328,10 +328,10 @@ export default {
           branch_id: filterBranchId,
         },
       };
-      this.departments = await this.$store.dispatch("department_list", options);
+      this.departments = this.$store.dispatch("department_list", options);
     },
 
-    async getTimezone(filterBranchId) {
+    getTimezone(filterBranchId) {
       let options = {
         endpoint: "timezone-list",
         isFilter: this.isFilter,
@@ -340,7 +340,7 @@ export default {
           branch_id: filterBranchId,
         },
       };
-      this.timezones = await this.$store.dispatch("timezone_list", options);
+      this.timezones = this.$store.dispatch("timezone_list", options);
     },
     caps(str) {
       if (str == "" || str == null) {
@@ -361,8 +361,8 @@ export default {
     },
     async applyFilters(id) {
       await this.getDataFromApi();
-      await this.getDepartments(id);
-      await this.getTimezone(id);
+      this.getDepartments(id);
+      this.getTimezone(id);
     },
     async getDataFromApi() {
       //this.loading = true;
