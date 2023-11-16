@@ -80,20 +80,26 @@
       </v-col>
 
       <v-col lg="3" md="3" sm="12" xs="12">
-        <v-card class="py-2 mb-2">
+        <v-card class="py-2 mb-2" v-if="branchesList.length > 1">
+          <!-- <v-row>
+            <v-col md="12" class="text-center"> 2222 </v-col>
+          </v-row> -->
           <v-row class="mt-2">
             <v-col cols="1">
               <label> </label>
             </v-col>
             <v-col cols="3">
-              <label>Branches : </label>
+              <!-- <label>Branches : </label> -->
             </v-col>
-            <v-col cols="7" class="pa-0 ma-0">
+
+            <v-col cols="4" class="pa-0 ma-0">
               <v-autocomplete
+                class="no-border no-underline"
+                style="width: 150px"
                 @change="overlay = !overlay"
                 v-model="branch_id"
                 dense
-                outlined
+                text
                 :items="[
                   { branch_name: 'All Branches', id: '' },
                   ...branchesList,
@@ -102,7 +108,7 @@
                 item-value="id"
               ></v-autocomplete>
             </v-col>
-            <v-col cols="1">
+            <v-col cols="4">
               <label> </label>
             </v-col>
           </v-row>
