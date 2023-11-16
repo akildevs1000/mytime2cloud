@@ -51,7 +51,7 @@
                     <div class="row">
 
                         <!-- Template1 Report -->
-                        <div class="col-4">
+                        <div class="col-5">
 
                             @if (env('APP_ENV') !== 'local')
                             <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
@@ -59,7 +59,7 @@
                             <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                             @endif
                         </div>
-                        <div class="col-8" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
+                        <div class="col-7" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
                             <table style="padding:0px;margin:0px">
                                 <tr style="text-align: left; border :none; padding:100px 0px;">
                                     <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
