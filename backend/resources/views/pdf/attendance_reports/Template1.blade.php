@@ -54,9 +54,9 @@
                         <div class="col-4">
 
                             @if (env('APP_ENV') !== 'local')
-                            <img src="{{ $company->logo }}" width="100px" style="margin: 0px 0px 0px 0px">
+                            <img src="{{ $company->logo }}" width="100px" style="margin: 0px 0px 0px 0px;padding-right:10px">
                             @else
-                            <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" width="100px" style="margin: 0px 0px 0px 0px">
+                            <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" width="100" style="margin: 0px 0px 0px 0px">
                             @endif
                         </div>
                         <div class="col-8" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">

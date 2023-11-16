@@ -113,7 +113,7 @@ die();
                     <div style=" ">
                         <!-- Template2 Report -->
                         @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" width="100">
+                        <img src="{{ $company->logo }}" width="100px" style="margin: 0px 0px 0px 0px;padding-right:10px">
                         @else
                         <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" width="100">
                         @endif
