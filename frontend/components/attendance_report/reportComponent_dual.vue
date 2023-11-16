@@ -991,7 +991,6 @@ export default {
     // },
 
     payload1(value) {
-      console.log("watch payload Dual", value);
       this.payload = value;
       // this.payload.status = value.status;
       // this.payload.daily_date = value.daily_date;
@@ -1230,7 +1229,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     applyFilters(name, value) {
       if (value && value.length < 2) return false;

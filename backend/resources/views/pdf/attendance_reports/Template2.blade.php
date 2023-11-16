@@ -98,7 +98,7 @@ die();
                     </td>
                     <td style="text-align: right;border :none;">
                         <b>Powered by</b>: <span style="color:blue">
-                            <a href="https://ideahrms.com/" target="_blank">ideahrms.com</a>
+                            <a href="{{env('APP_URL')}}" target="_blank">{{env('APP_NAME')}}</a>
                         </span>
                     </td>
                     <td style="text-align: right;border :none">
@@ -110,11 +110,12 @@ die();
         <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
             <tr>
                 <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
-                    <div style=";">
+                    <div style=" ">
+                        <!-- Template2 Report -->
                         @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" width="100">
+                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                         @else
-                        <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" height="70px" width="200">
+                        <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                         @endif
                         {{-- <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="70px" width="200"> --}}
                     </div>
@@ -125,7 +126,10 @@ die();
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                        {{ $info->report_type }} {{ $company->report_type }} Report
+                                        <!-- {{ $info->report_type }} {{ $company->report_type }} Report -->
+
+                                        {{ $company->report_type }} Report
+                                        ({{$main_shift_name}})
                                     </span>
                                     <hr style="width: 230px">
                                 </td>

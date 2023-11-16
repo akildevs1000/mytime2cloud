@@ -283,15 +283,22 @@ class MonthlyController extends Controller
 
         $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
 
-        $arr = ['data' => $data, 'company' => $company, 'info' => $info];
+        $main_shift_name = 'Single Shift';
+        if ($request->main_shift_type == 2)
+            $main_shift_name = 'Multi Shift';
+        else   if ($request->main_shift_type == 5)
+            $main_shift_name = 'Double Shift';
 
 
+        $arr = ['data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
 
-        if ($request->report_template == 'Template2')
-            return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
-        if ($request->report_template == 'Template1') {
-            return Pdf::loadView('pdf.' . $fileName, $arr);
-        }
+
+        return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+        // if ($request->report_template == 'Template2')
+        //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+        // if ($request->report_template == 'Template1') {
+        //      return Pdf::loadView('pdf.' . $fileName, $arr);
+        // }
     }
 
     public function getHTML($data, $company)

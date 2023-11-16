@@ -221,7 +221,6 @@ export default {
         let json = JSON.parse(data);
 
         if (json.Status == 200 && json.Data.UserCode > 0) {
-          console.log("employee_report_page");
           this.getDetails(json.Data);
         }
       };

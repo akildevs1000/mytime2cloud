@@ -655,8 +655,6 @@ export default {
         },
       };
       if (filter_column != "") {
-        console.log("filter_column", filter_column);
-
         this.payloadOptions.params[filter_column] = filter_value;
       }
 

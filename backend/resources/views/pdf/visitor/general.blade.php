@@ -5,152 +5,149 @@
 <body>
 
     @php
-        $dataByDates = $data->toArray();
-        $dataChunks = array_chunk($dataByDates, 25);
+    $dataByDates = $data->toArray();
+    $dataChunks = array_chunk($dataByDates, 25);
     @endphp
 
     @foreach ($dataChunks as $key => $dates)
-        <div id="footer">
-            <div class="pageCounters">
-                <p></p>
-                @if (count($dataByDates) > 1)
-                    @foreach (range(1, count($dataByDates)) as $_)
-                        <span></span>
-                    @endforeach
-                @else
-                    <span></span>
-                @endif
-            </div>
-            <div id="pageNumberss">
-                <div class="page-numbers" style="font-size: 9px"></div>
-            </div>
+    <div id="footer">
+        <div class="pageCounters">
+            <p></p>
+            @if (count($dataByDates) > 1)
+            @foreach (range(1, count($dataByDates)) as $_)
+            <span></span>
+            @endforeach
+            @else
+            <span></span>
+            @endif
         </div>
+        <div id="pageNumberss">
+            <div class="page-numbers" style="font-size: 9px"></div>
+        </div>
+    </div>
 
 
-        <table class="main-table">
-            <tr style="border:none;">
-                <td style="width:22%;background:reds;text-align:center;border:none;">
-                    <div style="margin-top:40px;">
-                        <img style="width:100%;"
-                            src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0">
+    <table class="main-table">
+        <tr style="border:none;">
+            <td style="width:22%;background:reds;text-align:center;border:none;">
+                <div style="margin-top:40px;">
+                    <img style="width:100%;" src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0">
 
-                        {{-- @if (env('APP_ENV') !== 'local')
+                    {{-- @if (env('APP_ENV') !== 'local')
                         <img src="{{ $company->logo }}">
                     @else
-                        <img style="width:100%;"
-                            src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0">
+                    <img style="width:100%;" src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0">
                     @endif --}}
-                    </div>
-                </td>
-                <td style="width:;border:none;">
-                    <div>
-                        <table style="text-align: left; border :none;  ">
-                            <tr style="text-align: left; border :none;">
-                                <td style="text-align: center; border :none">
-                                    <span class="title-font">
-                                        Visitor {{ $info['frequency'] }} Report
-                                    </span>
-                                    <hr style="width: 230px">
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;">
-                                <td style="text-align: center; border :none">
-                                    <span style="font-size: 11px">
-                                        {{ $info['company']['name'] }}
-                                    </span>
-                                    <hr style="width: 230px">
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </td>
-                <td style="width:22%;background:reds;border:none;">
-                    <table class="summary-table"
-                        style="border-top: 1px #c5c2c2 solid;border-bottom: 1px #c5c2c2 solid;margin-top:20px">
-
-                        <tr class="summary-header" style="background-color:#eeeeee">
-                            <th style="text-align: center; border :none; padding:5px">From Date</th>
-                            <th style="text-align: center; border :none; padding:5px">To Date</th>
-                        </tr>
-                        <tr style="border: none">
-
-                            <td style="text-align: center; border:none;font-size:11px">
-                                {{ $info['from_date'] }}
-                            </td>
-                            <td style="text-align: center; border:none;font-size:11px">
-                                {{ $info['to_date'] }}
+                </div>
+            </td>
+            <td style="border:none;">
+                <div>
+                    <table style="text-align: left; border :none;  ">
+                        <tr style="text-align: left; border :none;">
+                            <td style="text-align: center; border :none">
+                                <span class="title-font">
+                                    Visitor {{ $info['frequency'] }} Report
+                                </span>
+                                <hr style="width: 230px">
                             </td>
                         </tr>
-                        <tr class="summary-header" style="background-color:#eeeeee">
-                            <th style="text-align: center; border :none">Total Record</th>
-                            <th style="text-align: center; border :none">Status</th>
-                        </tr>
-                        <tr style="border: none">
-                            <td style="text-align: center; border:none;font-size:11px">
-                                <b> {{ count($data) }}</b>
-                            </td>
-                            <td style="text-align: center; border:none;font-size:11px">
-                                <b>{{ $info['status'] }}</b>
+                        <tr style="text-align: left; border :none;">
+                            <td style="text-align: center; border :none">
+                                <span style="font-size: 11px">
+                                    {{ $info['company']['name'] }}
+                                </span>
+                                <hr style="width: 230px">
                             </td>
                         </tr>
                     </table>
+                </div>
+            </td>
+            <td style="width:22%;background:reds;border:none;">
+                <table class="summary-table" style="border-top: 1px #c5c2c2 solid;border-bottom: 1px #c5c2c2 solid;margin-top:20px">
 
-                </td>
+                    <tr class="summary-header" style="background-color:#eeeeee">
+                        <th style="text-align: center; border :none; padding:5px">From Date</th>
+                        <th style="text-align: center; border :none; padding:5px">To Date</th>
+                    </tr>
+                    <tr style="border: none">
+
+                        <td style="text-align: center; border:none;font-size:11px">
+                            {{ $info['from_date'] }}
+                        </td>
+                        <td style="text-align: center; border:none;font-size:11px">
+                            {{ $info['to_date'] }}
+                        </td>
+                    </tr>
+                    <tr class="summary-header" style="background-color:#eeeeee">
+                        <th style="text-align: center; border :none">Total Record</th>
+                        <th style="text-align: center; border :none">Status</th>
+                    </tr>
+                    <tr style="border: none">
+                        <td style="text-align: center; border:none;font-size:11px">
+                            <b> {{ count($data) }}</b>
+                        </td>
+                        <td style="text-align: center; border:none;font-size:11px">
+                            <b>{{ $info['status'] }}</b>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+    <table class="main-table">
+        <tr style="font-weight:bold;margin-top:20px;background:; width:100%;">
+            <td style="text-align:left;"> # </td>
+            <td style="text-align:center;"> Date </td>
+            <td style="text-align:center;"> Visitor ID </td>
+            <td style="text-align:center;"> Name </td>
+            <td style="text-align:center;"> In </td>
+            <td style="text-align:center;"> Out </td>
+            <td style="text-align:center;"> Total Hours </td>
+            <td style="text-align:center;"> Status </td>
+            <td style="text-align:center;"> Device In </td>
+            <td style="text-align:center;"> Device Out </td>
+            <td style="text-align:center;"> Reason </td>
+        </tr>
+        <tbody>
+
+            @foreach (range(0, $info['per_page'] - 1) as $index)
+            @php
+            $record = isset($dates[$index]) ? $dates[$index] : false;
+            @endphp
+        <tbody>
+
+
+            <tr style="text-align:  center">
+                <td>{{ ++$index }}</td>
+
+                @if ($record)
+                <td style="text-align: center;">{{ $record['date'] }}</td>
+                <td style="text-align: center;">{{ $record['visitor_id'] }}</td>
+                <td style="text-align:  center;">{{ date('D', strtotime($record['date'])) }}</td>
+                <td style="text-align:center;"> {{ $record['in'] }} </td>
+                <td style="text-align:center;"> {{ $record['out'] }} </td>
+                <td style="text-align:center;"> {{ $record['total_hrs'] }} </td>
+                <td style="text-align:center;"> {{ $record['status'] }} </td>
+                <td style="text-align:center;"> {{ $record['device_in']['short_name'] }} </td>
+                <td style="text-align:center;"> {{ $record['device_out']['short_name'] }} </td>
+                <td style="text-align:center;">Reason</td>
+                @else
+                <td style="text-align:center;"></td>
+                <td style="text-align:center;"></td>
+                <td style="text-align:center;"></td>
+                <td style="text-align:center;"></td>
+                <td style="text-align:center;"></td>
+                <td style="text-align:center;"></td>
+                <td style="text-align:center;"></td>
+                <td style="text-align:center;"></td>
+                <td style="text-align:center;"></td>
+                <td style="text-align:center;"></td>
+                @endif
             </tr>
-        </table>
-
-        <table class="main-table">
-            <tr style="font-weight:bold;margin-top:20px;background:; width:100%;">
-                <td style="text-align:left;"> # </td>
-                <td style="text-align:center;"> Date </td>
-                <td style="text-align:center;"> Visitor ID </td>
-                <td style="text-align:center;"> Name </td>
-                <td style="text-align:center;"> In </td>
-                <td style="text-align:center;"> Out </td>
-                <td style="text-align:center;"> Total Hours </td>
-                <td style="text-align:center;"> Status </td>
-                <td style="text-align:center;"> Device In </td>
-                <td style="text-align:center;"> Device Out </td>
-                <td style="text-align:center;"> Reason </td>
-            </tr>
-            <tbody>
-
-                @foreach (range(0, $info['per_page'] - 1) as $index)
-                    @php
-                        $record = isset($dates[$index]) ? $dates[$index] : false;
-                    @endphp
-            <tbody>
-
-
-                <tr style="text-align:  center">
-                    <td>{{ ++$index }}</td>
-
-                    @if ($record)
-                        <td style="text-align: center;">{{ $record['date'] }}</td>
-                        <td style="text-align: center;">{{ $record['visitor_id'] }}</td>
-                        <td style="text-align:  center;">{{ date('D', strtotime($record['date'])) }}</td>
-                        <td style="text-align:center;"> {{ $record['in'] }} </td>
-                        <td style="text-align:center;"> {{ $record['out'] }} </td>
-                        <td style="text-align:center;"> {{ $record['total_hrs'] }} </td>
-                        <td style="text-align:center;"> {{ $record['status'] }} </td>
-                        <td style="text-align:center;"> {{ $record['device_in']['short_name'] }} </td>
-                        <td style="text-align:center;"> {{ $record['device_out']['short_name'] }} </td>
-                        <td style="text-align:center;">Reason</td>
-                    @else
-                        <td style="text-align:center;"></td>
-                        <td style="text-align:center;"></td>
-                        <td style="text-align:center;"></td>
-                        <td style="text-align:center;"></td>
-                        <td style="text-align:center;"></td>
-                        <td style="text-align:center;"></td>
-                        <td style="text-align:center;"></td>
-                        <td style="text-align:center;"></td>
-                        <td style="text-align:center;"></td>
-                        <td style="text-align:center;"></td>
-                    @endif
-                </tr>
-            </tbody>
-    @endforeach
+        </tbody>
+        @endforeach
     </table>
     <footer id="page-bottom-line" style="padding-top: 100px!important">
         <hr style="width: 100%;">
@@ -213,8 +210,12 @@
         counter-increment: counter(page, decimal)
     }
 
-    @page {
+    /* @page {
         margin: -10px 30px 25px 30px;
+    } */
+
+    @page {
+        margin: 5px 30px 25px 30px;
     }
 
     table {

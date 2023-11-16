@@ -505,7 +505,7 @@ export default {
             reporting_manager_id: data.reporting_manager_id,
             branch_id: data.branch_id,
           };
-          console.log("Employee ", this.employee);
+
           if (this.employee.department_id)
             this.filterDepartmentsByBranch(this.employee.branch_id);
 
@@ -515,8 +515,6 @@ export default {
           this.previewImage = data.profile_picture;
         })
         .catch((err) => console.log(err));
-
-      console.log("Employee ", this.employee);
     },
     saveCroppedImageStep2() {
       this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();

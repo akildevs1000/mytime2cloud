@@ -72,11 +72,11 @@ class FiloShiftController extends Controller
             $shift = $schedule["shift"] ?? false;
 
             if (!$schedule) {
-                $message .= "$key : No schedule is mapped with user.";
+                $message .= ".  No schedule is mapped with user : System User Id: $key   and Date : " . $params["date"] . " combination";
                 continue;
             }
             if (!$firstLog["schedule"]["shift_type_id"]) {
-                $message .= "$key : No shift configured on  date:" . $params["date"];
+                $message .= "$key : None f=of the  Master shift configured on  date:" . $params["date"];
                 continue;
             }
 

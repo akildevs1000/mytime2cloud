@@ -443,14 +443,12 @@ export default {
       this.search = "";
     },
     system_user_id(val) {
-      console.log("----------", val);
       setTimeout(() => {
         this.payload.employee_id = val;
         this.CustomComponentKey = this.CustomComponentKey + 1;
       }, 1000 * 3);
     },
     key1(val) {
-      console.log("----------", val);
       setTimeout(() => {
         this.payload.employee_id = val;
         this.CustomComponentKey = this.CustomComponentKey + 1;
@@ -603,7 +601,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     setStatusLabel(status) {
       const statuses = {
