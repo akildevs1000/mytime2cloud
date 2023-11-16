@@ -256,7 +256,7 @@ class VisitorController extends Controller
             if ($data['host_company_id'] ?? false) {
 
                 if (env("APP_ENV") !== "local") {
-                    (new WhatsappController)->sendWhatsappNotification($company, $message, $request->number ?? 971554501483);
+                    // (new WhatsappController)->sendWhatsappNotification($company, $message, $request->number ?? 971554501483);
                 }
 
                 Notification::create([
