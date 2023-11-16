@@ -101,14 +101,6 @@
             >
           </v-btn>
           <v-spacer></v-spacer>
-          <v-col cols="12" md="2">
-            <SearchEntity
-              :endpoint="endpoint"
-              @search="(e) => (data = e)"
-              @default="(e) => getDataFromApi()"
-            />
-          </v-col>
-
           <ImportEntity @success="(e) => getDataFromApi()" />
           <ExportEntity :data="data.data" />
           <CreateEntity @success="(e) => getDataFromApi()" />
