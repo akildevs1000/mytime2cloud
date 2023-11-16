@@ -349,11 +349,15 @@ class Employee extends Model
                 $q->whereHas('schedule.shift', fn (Builder $query) => $query->whereNotNull('name'));
                 $q->whereHas('schedule.shift', fn (Builder $query) => $query->where('name', '<>', '---'));
             })
-            ->when($request->filled('timezone_name'), function ($q) use ($request) {
-                $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezone_name%"));
-            })
-            ->when($request->filled('timezone'), function ($q) use ($request) {
-                $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_id', $request->timezone));
+            // ->when($request->filled('timezone_name'), function ($q) use ($request) {
+            //     $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_name', 'ILIKE', "$request->timezone_name%"));
+            // })
+            // ->when($request->filled('timezone'), function ($q) use ($request) {
+            //     $q->whereHas('timezone', fn (Builder $query) => $query->where('timezone_id', $request->timezone));
+            // })
+
+            ->when($request->filled('timezone_id'), function ($q) use ($request) {
+                $q->whereHas('timezone', fn (Builder $query) => $query->where('id', $request->timezone_id));
             })
 
             ->when($request->filled('payroll_basic_salary'), function ($q) use ($request) {
