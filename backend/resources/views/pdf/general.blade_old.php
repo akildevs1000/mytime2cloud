@@ -106,7 +106,6 @@
                                     <span class="title-font">
                                         <!-- {{ $info->report_type }} {{ $company->report_type }} Report -->
                                         {{ $company->report_type }} Report
-                                        ({{$main_shift_name}})
                                     </span>
                                     <hr style="width: 230px">
                                 </td>

@@ -606,7 +606,7 @@ class DailyController extends Controller
 
         $company = Company::whereId($company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
-        $pdf =  Pdf::loadView('pdf.mimo', compact("company", "info", "data"))->output();
+        $pdf =  Pdf::loadView('pdf.attendance_reports.mimo', compact("company", "info", "data"))->output();
 
         Storage::disk('local')->put("pdf/" . $company_id . '/' . $file_name . '.pdf', $pdf);
 

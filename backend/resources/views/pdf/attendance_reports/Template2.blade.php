@@ -110,11 +110,12 @@ die();
         <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
             <tr>
                 <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
-                    <div style=";">
+                    <div style=" ">
+                        <!-- Template2 Report -->
                         @if (env('APP_ENV') !== 'local')
                         <img src="{{ $company->logo }}" width="100">
                         @else
-                        <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" height="70px" width="200">
+                        <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" width="100">
                         @endif
                         {{-- <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="70px" width="200"> --}}
                     </div>
@@ -125,7 +126,10 @@ die();
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                        {{ $info->report_type }} {{ $company->report_type }} Report
+                                        <!-- {{ $info->report_type }} {{ $company->report_type }} Report -->
+
+                                        {{ $company->report_type }} Report
+                                        ({{$main_shift_name}})
                                     </span>
                                     <hr style="width: 230px">
                                 </td>

@@ -9,114 +9,111 @@
                 <div class="row">
                     <div class="col-5">
                         @if (env('APP_ENV') !== 'local')
-                            <img src="{{ $company->logo }}" height="120px" width="180px"
-                                style="margin: 0px 0px 0px -27px">
+                        <img src="{{ $company->logo }}" width="100px" style="margin: 0px 0px 0px -27px">
                         @else
-                            <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0"
-                                height="120px" width="180px">
+                        <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" width="100px">
 
-                            {{-- <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="120px" width="180px"
-                                style="margin: 0px 0px 0px -27px"> --}}
+                        {{-- <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="120px" width="180px"
+                        style="margin: 0px 0px 0px -27px"> --}}
                         @endif
                         {{-- <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: right; border :none;font-size:10px">
                                     <b>
                                         {{ $company->name }}
-                                        <>{{ $company->name ?? 'Akkil Security & Alarm System LLC' }}
-                                    </b>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;">
-                                <td style="text-align: right; border :none;font-size:10px">
-                                    <span style="margin-right: 3px">P.O.Box {{ $company->p_o_box_no }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;">
-                                <td style="text-align: right; border :none;font-s ize:10px">
-                                    <span style="margin-right: 3px">{{ $company->location }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;">
-                                <td style="text-align: right; border :none;font-size:10px">
-                                    <span style="margin-right: 3px">{{ $company->contact->number ?? '' }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                        </table> --}}
-                    </div>
-                   
-                </div>
-            </td>
-            <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
-                <div>
-                    <table style="text-align: left; border :none;  ">
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span class="title-font">
-                                    Daily Attendance {{ $info->report_type }} Report
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span style="font-size: 11px">
-                                    {{ date('d M Y', strtotime($info->daily_date)) }}<br>
-                                    {{-- <small>Department : {{ $info->department_name }}</small> --}}
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-            <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
-                <table class="summary-table"
-                    style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
-                    <tr style="border: none">
-                        <th style="text-align: center; border :none;padding:10px;font-size: 12px " colspan="3">
-                            <hr style="width: 200px">
-                            Total Number of Employees : {{ count($data) }}
-                        </th>
-                    </tr>
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                        <th style="text-align: center; border :none; padding:5px">Present</th>
-                        <th style="text-align: center; border :none">Absent</th>
-                        <th style="text-align: center; border :none">Leave</th>
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:green">
-                            {{ $info->total_present }}
-                        </td>
-                        <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
-                        <td style="text-align: center; border :none;color:red">{{ $info->total_leave ?? 0 }}</td>
-                    </tr>
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee ">
-                        <th style="text-align: center; border :none; padding:5px">Late</th>
-                        <th style="text-align: center; border :none">Early</th>
-                        <th style="text-align: center; border :none">Missing</th>
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:red">
-                            {{ $info->total_late ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:green">{{ $info->total_early ?? 0 }}</td>
-                        <td style="text-align: center; border :none;color:orange">{{ $info->total_missing ?? 0 }}</td>
-                    </tr>
-                    <tr style="border: none">
-                        <th style="text-align: center; border :none" colspan="3">
-                            <hr style="width: 200px">
-                        </th>
-                    </tr>
-                </table>
-                <br>
-            </td>
+                        <>{{ $company->name ?? 'Akkil Security & Alarm System LLC' }}
+                            </b>
+                            <br>
             </td>
         </tr>
+        <tr style="text-align: left; border :none;">
+            <td style="text-align: right; border :none;font-size:10px">
+                <span style="margin-right: 3px">P.O.Box {{ $company->p_o_box_no }}</span>
+                <br>
+            </td>
+        </tr>
+        <tr style="text-align: left; border :none;">
+            <td style="text-align: right; border :none;font-s ize:10px">
+                <span style="margin-right: 3px">{{ $company->location }}</span>
+                <br>
+            </td>
+        </tr>
+        <tr style="text-align: left; border :none;">
+            <td style="text-align: right; border :none;font-size:10px">
+                <span style="margin-right: 3px">{{ $company->contact->number ?? '' }}</span>
+                <br>
+            </td>
+        </tr>
+    </table> --}}
+    </div>
+
+    </div>
+    </td>
+    <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
+        <div>
+            <table style="text-align: left; border :none;  ">
+                <tr style="text-align: left; border :none;">
+                    <td style="text-align: center; border :none">
+                        <span class="title-font">
+                            Daily Attendance {{ $info->report_type }} Report
+                        </span>
+                        <hr style="width: 230px">
+                    </td>
+                </tr>
+                <tr style="text-align: left; border :none;">
+                    <td style="text-align: center; border :none">
+                        <span style="font-size: 11px">
+                            {{ date('d M Y', strtotime($info->daily_date)) }}<br>
+                            {{-- <small>Department : {{ $info->department_name }}</small> --}}
+                        </span>
+                        <hr style="width: 230px">
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </td>
+    <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
+        <table class="summary-table" style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
+            <tr style="border: none">
+                <th style="text-align: center; border :none;padding:10px;font-size: 12px " colspan="3">
+                    <hr style="width: 200px">
+                    Total Number of Employees : {{ count($data) }}
+                </th>
+            </tr>
+            <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                <th style="text-align: center; border :none; padding:5px">Present</th>
+                <th style="text-align: center; border :none">Absent</th>
+                <th style="text-align: center; border :none">Leave</th>
+            </tr>
+            <tr style="border: none">
+                <td style="text-align: center; border :none; padding:5px;color:green">
+                    {{ $info->total_present }}
+                </td>
+                <td style="text-align: center; border :none;color:red">{{ $info->total_absent ?? 0 }}</td>
+                <td style="text-align: center; border :none;color:red">{{ $info->total_leave ?? 0 }}</td>
+            </tr>
+            <tr class="summary-header" style="border: none;background-color:#eeeeee ">
+                <th style="text-align: center; border :none; padding:5px">Late</th>
+                <th style="text-align: center; border :none">Early</th>
+                <th style="text-align: center; border :none">Missing</th>
+            </tr>
+            <tr style="border: none">
+                <td style="text-align: center; border :none; padding:5px;color:red">
+                    {{ $info->total_late ?? 0 }}
+                </td>
+                <td style="text-align: center; border :none;color:green">{{ $info->total_early ?? 0 }}</td>
+                <td style="text-align: center; border :none;color:orange">{{ $info->total_missing ?? 0 }}</td>
+            </tr>
+            <tr style="border: none">
+                <th style="text-align: center; border :none" colspan="3">
+                    <hr style="width: 200px">
+                </th>
+            </tr>
+        </table>
+        <br>
+    </td>
+    </td>
+    </tr>
     </table>
     <hr style="margin:0px;padding:0">
 
@@ -125,94 +122,86 @@
             {{-- <p class="page"> </p> --}}
             <p></p>
             @php
-                $p = count($data) / 50;
-                if ($p <= 1) {
-                    echo '<span></span>';
-                } else {
-                    for ($a = 1; $a <= $p; $a++) {
-                        echo '<span></span>';
-                    }
-                }
-            @endphp
+            $p = count($data) / 50;
+            if ($p <= 1) { echo '<span></span>' ; } else { for ($a=1; $a <=$p; $a++) { echo '<span></span>' ; } } @endphp </div>
+                <div id="pageNumbers" style="margin:10px!important">
+                    <div class="page-number" style="font-size: 9px;margin-top:-30px!important"></div>
+                </div>
         </div>
-        <div id="pageNumbers" style="margin:10px!important">
-            <div class="page-number" style="font-size: 9px;margin-top:-30px!important"></div>
-        </div>
-    </div>
 
-    <footer id="page-bottom-line" style="padding-top: 100px!important">
-        <hr style="width: 100%;">
-        <table class="footer-main-table">
-            <tr style="border :none">
-                <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
-                <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
-                <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
-                </td>
-                <td style="text-align: right;border :none;">
-                    <b>Powered by</b>: <span style="color:blue">
-                        <a href="https://ideahrms.com/" target="_blank">ideahrms.com</a>
-                    </span>
-                </td>
-                <td style="text-align: right;border :none">
-                    Printed on : {{ date('d-M-Y ') }}
-                </td>
-            </tr>
-        </table>
-    </footer>
-    @php
+        <footer id="page-bottom-line" style="padding-top: 100px!important">
+            <hr style="width: 100%;">
+            <table class="footer-main-table">
+                <tr style="border :none">
+                    <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
+                    <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
+                    <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
+                    </td>
+                    <td style="text-align: right;border :none;">
+                        <b>Powered by</b>: <span style="color:blue">
+                            <a href="https://ideahrms.com/" target="_blank">ideahrms.com</a>
+                        </span>
+                    </td>
+                    <td style="text-align: right;border :none">
+                        Printed on : {{ date('d-M-Y ') }}
+                    </td>
+                </tr>
+            </table>
+        </footer>
+        @php
         $statusColor = '';
         $i = 0;
-    @endphp
-    <table class="main-table">
-        <tr style="text-align: left;font-weight:bold">
-            <td style="text-align:  left;width:3px"> # </td>
-            <td style="text-align:  left;width:10px"> Name </td>
-            <td style="text-align:  center;width:50px"> EID </td>
-            <td style="text-align:  center;width:80px"> Roaster </td>
+        @endphp
+        <table class="main-table">
+            <tr style="text-align: left;font-weight:bold">
+                <td style="text-align:  left;width:3px"> # </td>
+                <td style="text-align:  left;width:10px"> Name </td>
+                <td style="text-align:  center;width:50px"> EID </td>
+                <td style="text-align:  center;width:80px"> Roaster </td>
 
-            <td style="text-align:  center;width:20px"> In1 </td>
-            <td style="text-align:  center;width:20px"> Out1 </td>
+                <td style="text-align:  center;width:20px"> In1 </td>
+                <td style="text-align:  center;width:20px"> Out1 </td>
 
-            <td style="text-align:  center;width:20px"> In2 </td>
-            <td style="text-align:  center;width:20px"> Out2 </td>
+                <td style="text-align:  center;width:20px"> In2 </td>
+                <td style="text-align:  center;width:20px"> Out2 </td>
 
-            <td style="text-align:  center;width:20px"> In3 </td>
-            <td style="text-align:  center;width:20px"> Out3 </td>
+                <td style="text-align:  center;width:20px"> In3 </td>
+                <td style="text-align:  center;width:20px"> Out3 </td>
 
-            <td style="text-align:  center;width:20px"> In4 </td>
-            <td style="text-align:  center;width:20px"> Out4 </td>
+                <td style="text-align:  center;width:20px"> In4 </td>
+                <td style="text-align:  center;width:20px"> Out4 </td>
 
-            <td style="text-align:  center;width:20px"> In5 </td>
-            <td style="text-align:  center;width:20px"> Out5 </td>
+                <td style="text-align:  center;width:20px"> In5 </td>
+                <td style="text-align:  center;width:20px"> Out5 </td>
 
-            <td style="text-align:  center;width:20px"> In6 </td>
-            <td style="text-align:  center;width:20px"> Out6 </td>
+                <td style="text-align:  center;width:20px"> In6 </td>
+                <td style="text-align:  center;width:20px"> Out6 </td>
 
-            <td style="text-align:  center;width:20px"> In7 </td>
-            <td style="text-align:  center;width:20px"> Out7 </td>
+                <td style="text-align:  center;width:20px"> In7 </td>
+                <td style="text-align:  center;width:20px"> Out7 </td>
 
-            <td style="text-align:  center;width:40px"> Total Hours </td>
-            <td style="text-align:  center;width:40px"> OT </td>
-            <td style="text-align:  center;width:40px"> Status </td>
-        </tr>
+                <td style="text-align:  center;width:40px"> Total Hours </td>
+                <td style="text-align:  center;width:40px"> OT </td>
+                <td style="text-align:  center;width:40px"> Status </td>
+            </tr>
 
-        @foreach ($data as $data)
+            @foreach ($data as $data)
             @php
-                if ($data->status == 'P') {
-                    $statusColor = 'green';
-                } elseif ($data->status == 'A') {
-                    $statusColor = 'red';
-                } elseif ($data->status == 'M') {
-                    $statusColor = 'orange';
-                } elseif ($data->status == '---') {
-                    $statusColor = '#f34100ed';
-                }
-                // ld($arr);
-                // die;
-                
-                // $time1 = strtotime($data->in);
-                // $time2 = strtotime($data->AttendanceLogs[1]->time);
-                // $difference = round(abs($time2 - $time1) / 3600, 2);
+            if ($data->status == 'P') {
+            $statusColor = 'green';
+            } elseif ($data->status == 'A') {
+            $statusColor = 'red';
+            } elseif ($data->status == 'M') {
+            $statusColor = 'orange';
+            } elseif ($data->status == '---') {
+            $statusColor = '#f34100ed';
+            }
+            // ld($arr);
+            // die;
+
+            // $time1 = strtotime($data->in);
+            // $time2 = strtotime($data->AttendanceLogs[1]->time);
+            // $difference = round(abs($time2 - $time1) / 3600, 2);
             @endphp
             <tbody>
                 <tr style="text-align:  center;">
@@ -243,13 +232,13 @@
                     <td style="text-align:  center; color:{{ $statusColor }}"> {{ $data->status ?? '---' }} </td>
                 </tr>
             </tbody>
-        @endforeach
+            @endforeach
 
-        @php
-            
-        @endphp
+            @php
 
-    </table>
+            @endphp
+
+        </table>
 
 
 </body>
