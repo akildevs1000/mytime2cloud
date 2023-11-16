@@ -9,12 +9,9 @@
                 <div class="row">
                     <div class="col-5">
                         @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" width="100px" style="margin: 0px 0px 0px -27px">
+                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                         @else
-                        <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" width="100px">
-
-                        {{-- <img src="{{ getcwd() . '/upload/1665500012.jpeg' }}" height="120px" width="180px"
-                        style="margin: 0px 0px 0px -27px"> --}}
+                        <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                         @endif
                         {{-- <table style="text-align: right; border :none; width:180px; margin-top:5px;baczkground-color:blue">
                             <tr style="text-align: left; border :none;">
@@ -139,7 +136,7 @@
                     </td>
                     <td style="text-align: right;border :none;">
                         <b>Powered by</b>: <span style="color:blue">
-                            <a href="https://ideahrms.com/" target="_blank">ideahrms.com</a>
+                            <a href="{{env('APP_URL')}}" target="_blank">{{env('APP_NAME')}}</a>
                         </span>
                     </td>
                     <td style="text-align: right;border :none">
