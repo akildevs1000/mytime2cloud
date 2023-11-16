@@ -203,7 +203,7 @@ export const actions = {
   async employees({ commit, state }, options) {
 
     try {
-      // if (state.employees) return state.employees;
+      if (state.employees && options.isFilter == false) return state.employees;
       const { data } = await this.$axios.get(options.endpoint, options)
       commit("employees", data);
       return data;
