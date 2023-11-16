@@ -1016,6 +1016,7 @@ export default {
             this.snackbar = true;
             this.response = data.message;
           } else {
+            this.color = "background";
             this.errors = [];
             this.snackbar = true;
             this.response = "Branch inserted successfully";

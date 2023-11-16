@@ -79,8 +79,15 @@
           }}
         </template>
         <template v-slot:item.employee.pic="{ item, index }">
-          <v-row no-gutters>
-            <v-col style="padding-left: 0px; width: 50px">
+          <v-row no-gutters style="vertical-align: middle">
+            <v-col
+              style="
+                padding-left: 0px;
+                width: 50px;
+                max-width: 50px;
+                vertical-align: middle;
+              "
+            >
               <v-img
                 v-if="item.model_type == 'employee'"
                 style="border-radius: 50%; height: auto; width: 100%"
@@ -298,7 +305,8 @@ export default {
 
     this.from_date = today.toISOString().slice(0, 10);
     this.to_date = today.toISOString().slice(0, 10);
-
+    this.filters["from_date"] = this.from_date;
+    this.filters["to_date"] = this.to_date;
     if (this.$auth.user.branch_id) {
       this.branch_id = this.$auth.user.branch_id;
       this.isCompany = false;

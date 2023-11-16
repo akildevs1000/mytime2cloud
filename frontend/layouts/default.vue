@@ -677,11 +677,6 @@ export default {
         });
     },
     setMenus() {
-      console.log(
-        "this.$auth.user.role",
-        this.$auth.user.role,
-        this.getLoginType
-      );
       if (this.$auth.user.role.role_type == 0) {
         {
           alert("Invalid User Type");
@@ -691,7 +686,7 @@ export default {
         return "";
       }
       let roleType = this.$auth.user.role.role_type.toLowerCase();
-      console.log("roleType", roleType);
+
       if (this.getLoginType === "company" || this.getLoginType === "branch") {
         // this.items = this.company_menus;
         this.items = this.company_menus.filter(

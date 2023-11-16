@@ -235,6 +235,8 @@ class AttendanceLog extends Model
 
     public function getLogsForRender($params)
     {
+
+
         return self::where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
             ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day")))
             ->whereIn("UserID", $params["UserIds"])

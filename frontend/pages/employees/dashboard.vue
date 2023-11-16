@@ -38,7 +38,6 @@ export default {
   },
 
   created() {
-    console.log("verification2");
     //this.$router.push("/employees/profile");
   },
 };

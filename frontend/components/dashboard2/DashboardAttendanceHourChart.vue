@@ -124,11 +124,12 @@ export default {
 
             counter++;
           });
-
-          new ApexCharts(
-            document.querySelector("#" + this.name),
-            this.chartOptions
-          ).render();
+          try {
+            new ApexCharts(
+              document.querySelector("#" + this.name),
+              this.chartOptions
+            ).render();
+          } catch (e) {}
         });
     },
   },
