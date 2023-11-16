@@ -1,88 +1,25 @@
 <template>
   <div v-if="can('employee_access')">
-    <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" small top="top" :color="color">
-        {{ response }}
-      </v-snackbar>
-      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-        {{ snackText }}
-
-        <template v-slot:action="{ attrs }">
-          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-        </template>
-      </v-snackbar>
-    </div>
-    <v-dialog persistent v-model="editDialog" width="1250" :key="employeeId">
+    <v-dialog v-model="viewDialog" width="80%" :key="employeeId">
       <v-card>
-        <v-tabs
-          v-model="tab"
-          class="popup_background"
-          centered
-          icons-and-text
-          color="violet"
-        >
-          <v-tabs-slider></v-tabs-slider>
-
-          <v-tab
-            v-for="(item, index) in tabMenu"
-            :key="index"
-            :href="item.value"
-          >
-            {{ item.text }}
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-tab>
-          <v-icon
-            @click="editDialog = false"
-            style="margin-right: 4px"
-            text-right
-            outlined
-            dark
-            color="black"
-          >
+        <v-card-title dense>
+          Employee Information
+          <v-spacer></v-spacer>
+          <v-icon @click="viewDialog = false" outlined dark color="black">
             mdi mdi-close-circle
           </v-icon>
-        </v-tabs>
-
+        </v-card-title>
         <v-card-text>
-          <v-tabs-items v-model="tab">
-            <v-tab-item
-              v-for="(tb, index) in tabMenu"
-              :key="index"
-              :value="`${index}`"
-            >
-              <component
-                :is="getComponent(tab)"
-                :employeeId="employeeId"
-                @close-popup="editDialog = false"
-                @eventFromchild="getDataFromApi()"
-              />
-            </v-tab-item>
-          </v-tabs-items>
+          <EmployeeProfileView
+            :table_id="employeeId"
+            :employee_id="employee_id"
+            :system_user_id="system_user_id"
+          />
         </v-card-text>
       </v-card>
     </v-dialog>
-    <div v-if="!loading">
-      <div class="text-center">
-        <v-dialog v-model="viewDialog" width="80%" :key="employeeId">
-          <v-card>
-            <v-card-title dense>
-              Employee Information
-              <v-spacer></v-spacer>
-              <v-icon @click="viewDialog = false" outlined dark color="black">
-                mdi mdi-close-circle
-              </v-icon>
-            </v-card-title>
-            <v-card-text>
-              <EmployeeProfileView
-                :table_id="employeeId"
-                :employee_id="employee_id"
-                :system_user_id="system_user_id"
-              />
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-      </div>
 
+    <div v-if="!loading">
       <v-card elevation="0" class="mt-2">
         <v-toolbar class="mb-2 white--text" color="white" dense flat>
           <v-toolbar-title>
@@ -96,21 +33,24 @@
             text
             title="Filter"
           >
-            <v-icon @click="toggleFilter" class="mx-1 ml-2"
+            <v-icon @click="isFilter = !isFilter" class="mx-1 ml-2"
               >mdi mdi-filter</v-icon
             >
           </v-btn>
           <v-spacer></v-spacer>
+          <SearchEntity
+            :endpoint="endpoint"
+            @search="(e) => (data = e)"
+            @default="(e) => getDataFromApi()"
+          />
           <ImportEntity @success="(e) => getDataFromApi()" />
           <ExportEntity :data="data.data" />
           <CreateEntity @success="(e) => getDataFromApi()" />
         </v-toolbar>
         <v-data-table
           dense
-          v-model="selectedItems"
           :headers="headers_table"
           :items="data.data"
-          model-value="data.id"
           :loading="loadinglinear"
           :options.sync="options"
           :footer-props="{
@@ -119,228 +59,6 @@
           class="elevation-1"
           :server-items-length="data.total"
         >
-          <template v-slot:header="{ props: { headers } }">
-            <tr v-if="isFilter">
-              <td v-for="header in headers" :key="header.text">
-                <v-container style="padding-left: 0px !important">
-                  <v-text-field
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      getDataFromApi();
-                    "
-                    :hide-details="true"
-                    v-if="header.filterable && !header.filterSpecial"
-                    v-model="filters[header.value]"
-                    :id="header.value"
-                    @input="getDataFromApi()"
-                    outlined
-                    dense
-                    autocomplete="off"
-                  ></v-text-field>
-
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      getDataFromApi();
-                    "
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial &&
-                      header.value == 'department_name_id'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="id"
-                    :items="[
-                      { name: `All Departments`, id: `` },
-                      ...departments,
-                    ]"
-                    placeholder="Department"
-                    solo
-                    flat
-                    @change="getDataFromApi()"
-                  ></v-select>
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      getDataFromApi();
-                    "
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial &&
-                      header.value == 'branch.branch_name'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="id"
-                    :items="[
-                      { name: `All Branches`, id: `` },
-                      ...branches_list,
-                    ]"
-                    placeholder="All Branches"
-                    solo
-                    flat
-                    @change="applyFilters(filters[header.key])"
-                  ></v-select>
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      getDataFromApi();
-                    "
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial && header.value == 'timezone.name'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="id"
-                    :items="[
-                      {
-                        name: `All Timezones`,
-                        id: ``,
-                      },
-                      ...timezones,
-                    ]"
-                    placeholder="Timezone"
-                    solo
-                    flat
-                    @change="getDataFromApi()"
-                  ></v-select>
-                </v-container>
-              </td>
-            </tr>
-          </template>
-          <template v-slot:item.employee_id="{ item }">
-            <strong>{{ item.employee_id }} </strong><br /><span
-              style="font-size: 12px"
-              >{{ item.system_user_id }}</span
-            >
-          </template>
-
-          <template
-            v-slot:item.first_name="{ item, index }"
-            style="width: 300px"
-          >
-            <v-row no-gutters>
-              <v-col
-                style="
-                  padding: 5px;
-                  padding-left: 0px;
-                  width: 50px;
-                  max-width: 50px;
-                "
-              >
-                <v-img
-                  style="
-                    border-radius: 50%;
-                    height: auto;
-                    width: 50px;
-                    max-width: 50px;
-                  "
-                  :src="
-                    item.profile_picture
-                      ? item.profile_picture
-                      : '/no-profile-image.jpg'
-                  "
-                >
-                </v-img>
-              </v-col>
-              <v-col style="padding: 10px">
-                <strong>
-                  {{ item.first_name ? item.first_name : "---" }}
-                  {{ item.last_name ? item.last_name : "---" }}</strong
-                >
-                <div class="secondary-value">
-                  {{ item.designation ? caps(item.designation.name) : "---" }}
-
-                  {{
-                    item.user.role && item.user.role.name != "---"
-                      ? "(Role:" + caps(item.user.role.name) + ")"
-                      : ""
-                  }}
-
-                  <!-- {{
-                    item.user.branch_login &&
-                    "(" + item.user.branch_login.branch_name + ")"
-                  }} -->
-                </div>
-              </v-col>
-            </v-row>
-          </template>
-
-          <template v-slot:item.branch.branch_name="{ item }">
-            {{ caps(item.branch && item.branch.branch_name) }}
-            <div class="secondary-value">
-              {{ item.user.branch_login && "(Branch Owner)" }}
-            </div>
-          </template>
-          <template v-slot:item.department_name_id="{ item }">
-            <strong>{{ caps(item.department.name) }}</strong>
-            <div>{{ caps(item.sub_department.name) }}</div>
-          </template>
-          <template v-slot:item.phone_number="{ item }">
-            {{ item.phone_number }}
-          </template>
-          <template v-slot:item.user.email="{ item }" style="width: 200px">
-            {{ item.user.email }}
-          </template>
-          <template v-slot:item.timezone.name="{ item }">
-            {{ item.timezone ? item.timezone.timezone_name : "" }}
-          </template>
-          <template v-slot:item.options="{ item }">
-            <v-menu bottom left>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
-              </template>
-              <v-list width="120" dense>
-                <v-list-item
-                  v-if="can('employee_profile_view')"
-                  @click="viewItem(item)"
-                >
-                  <v-list-item-title style="cursor: pointer">
-                    <v-icon color="secondary" small> mdi-eye </v-icon>
-                    View
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  v-if="can('employee_edit')"
-                  @click="editItem(item)"
-                >
-                  <v-list-item-title style="cursor: pointer">
-                    <v-icon color="secondary" small> mdi-pencil </v-icon>
-                    Edit
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  v-if="can('employee_delete')"
-                  @click="deleteItem(item)"
-                >
-                  <v-list-item-title style="cursor: pointer">
-                    <v-icon color="error" small> mdi-delete </v-icon>
-                    Delete
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </template>
         </v-data-table>
       </v-card>
     </div>
@@ -351,47 +69,24 @@
 </template>
 
 <script>
-import CreateEntity from "../../components/Snippets/Host/Create.vue";
-import ExportEntity from "../../components/Snippets/Host/Export.vue";
-import ImportEntity from "../../components/Snippets/Host/Import.vue";
+import CreateEntity from "../../components/Snippets/Employee/Create.vue";
+import EditEntity from "../../components/Snippets/Employee/Edit.vue";
+import ExportEntity from "../../components/Snippets/Employee/Export.vue";
+import ImportEntity from "../../components/Snippets/Employee/Import.vue";
 
 import SearchEntity from "../../components/Snippets/Common/Search.vue";
-
-import EmployeeEdit from "../../components/employee/EmployeeEdit.vue";
-import Contact from "../../components/employee/Contact.vue";
-import Passport from "../../components/employee/Passport.vue";
-import Emirates from "../../components/employee/Emirates.vue";
-import Visa from "../../components/employee/Visa.vue";
-import Bank from "../../components/employee/Bank.vue";
-import Document from "../../components/employee/Document.vue";
-import Qualification from "../../components/employee/Qualification.vue";
-import Setting from "../../components/employee/Setting.vue";
-import Payroll from "../../components/employee/Payroll.vue";
-import Login from "../../components/employee/Login.vue";
 
 import EmployeeProfileView from "../../components/EmployeesLogin/EmployeeLanding.vue";
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
-const compList = [
-  EmployeeEdit,
-  Contact,
-  Passport,
-  Emirates,
-  Visa,
-  Bank,
-  Document,
-  Qualification,
-  Setting,
-  Payroll,
-  Login,
-];
 
 export default {
   components: {
     VueCropper,
     EmployeeProfileView,
     CreateEntity,
+    EditEntity,
     ExportEntity,
     ImportEntity,
     SearchEntity,
@@ -415,9 +110,6 @@ export default {
     snack: false,
     snackColor: "",
     snackText: "",
-    selectedItems: [],
-    datatable_search_textbox: "",
-    datatable_searchById: "",
     loadinglinear: true,
     displayErrormsg: false,
     image: "",
@@ -426,16 +118,11 @@ export default {
     cropper: "",
     autoCrop: false,
     dialogCropping: false,
-    compList,
-    comp: "EmployeeEdit",
-    tabMenu: [],
-    tab: "0",
     employeeId: 0,
     employee_id: 0,
     employeeObject: {},
     attrs: [],
     dialog: false,
-    editDialog: false,
     viewDialog: false,
     selectedFile: "",
     employeeDialog: false,
@@ -480,7 +167,20 @@ export default {
     ids: [],
     loading: false,
     //total: 0,
-    headers: [],
+    headers: [
+      { text: "E.ID" },
+      { text: "Profile" },
+      { text: "Name" },
+      { text: "Email" },
+      { text: "Timezone" },
+      { text: "Dept" },
+      { text: "Sub Dept" },
+      { text: "Desgnation" },
+      { text: "Role" },
+      { text: "Mobile" },
+      { text: "Shift" },
+      { text: "Actions" },
+    ],
     titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
     editedIndex: -1,
     editedItem: { name: "" },
@@ -591,81 +291,7 @@ export default {
 
     this.branches_list = await this.$store.dispatch("branches_list");
   },
-  mounted() {
-    //this.getDataFromApi();
-    this.tabMenu = [
-      {
-        text: "Profile",
-        icon: "mdi-account-box",
-        value: "#0",
-      },
-      {
-        text: "Contact",
-        icon: "mdi-phone",
-        value: "#1",
-      },
-      {
-        text: "Passport",
-        icon: "mdi-file-powerpoint-outline",
-        value: "#2",
-      },
-      {
-        text: "Emirates",
-        icon: "mdi-city-variant",
-        value: "#3",
-      },
-      {
-        text: "Visa",
-        icon: "mdi-file-document-multiple",
-        value: "#4",
-      },
-      {
-        text: "Bank",
-        icon: "mdi-bank",
-        value: "#5",
-      },
-      {
-        text: "Documents",
-        icon: "mdi-file",
-        value: "#6",
-      },
-      {
-        text: "Qualification",
-        icon: "mdi-account-box",
-        value: "#7",
-      },
-      {
-        text: "Setting",
-        icon: "mdi-phone",
-        value: "#8",
-      },
-      {
-        text: "Payroll",
-        icon: "mdi-briefcase",
-        value: "#9",
-      },
-      {
-        text: "Login",
-        icon: "mdi-lock",
-        value: "#10",
-      },
-    ];
-    this.headers = [
-      // { text: "#" },
-      { text: "E.ID" },
-      { text: "Profile" },
-      { text: "Name" },
-      { text: "Email" },
-      { text: "Timezone" },
-      { text: "Dept" },
-      { text: "Sub Dept" },
-      { text: "Desgnation" },
-      { text: "Role" },
-      { text: "Mobile" },
-      { text: "Shift" },
-      { text: "Actions" },
-    ];
-  },
+
   watch: {
     options: {
       handler() {
@@ -675,8 +301,8 @@ export default {
     },
   },
   methods: {
-    handleSearch(e) {
-      return e.data.length > 0 ? (this.data = e) : getDataFromApi();
+    editItem(item) {
+      this.employeeId = item.id;
     },
     async openNewPage() {
       this.employee = {};
@@ -716,9 +342,6 @@ export default {
       };
       this.timezones = await this.$store.dispatch("timezone_list", options);
     },
-    closeViewDialog() {
-      this.viewDialog = false;
-    },
     caps(str) {
       if (str == "" || str == null) {
         return "---";
@@ -726,10 +349,6 @@ export default {
         let res = str.toString();
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
-    },
-
-    getComponent() {
-      return this.compList[this.tab];
     },
     close() {
       this.dialog = false;
@@ -740,11 +359,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    async toggleFilter() {
-      // this.filters = {};
-      this.isFilter = !this.isFilter;
-    },
-
     async applyFilters(id) {
       await this.getDataFromApi();
       await this.getDepartments(id);
@@ -775,10 +389,6 @@ export default {
       this.loadinglinear = false;
     },
 
-    editItem(item) {
-      this.employeeId = item.id;
-      this.editDialog = true;
-    },
     viewItem(item) {
       this.employeeId = item.id;
 

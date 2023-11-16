@@ -1,14 +1,16 @@
 <template>
-  <v-text-field
-    @input="serachAll($event)"
-    style="height: 30px; margin-top: 5px"
-    clearable
-    :hide-details="true"
-    outlined
-    dense
-    autocomplete="off"
-    label="Search"
-  ></v-text-field>
+  <div style="width:150px;">
+    <v-text-field
+      @input="serachAll($event)"
+      style="height: 30px; margin-top: 5px"
+      clearable
+      :hide-details="true"
+      outlined
+      dense
+      autocomplete="off"
+      label="Search"
+    ></v-text-field>
+  </div>
 </template>
 
 <script>
