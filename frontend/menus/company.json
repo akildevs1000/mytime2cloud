@@ -3,7 +3,7 @@
     "icon": "mdi-view-dashboard",
     "title": "Dashboard",
     "to": "/dashboard2",
-    "click": "dashboard",
+    "submenu": "dashboard",
     "menu": "branch_access",
     "module": "dashboard"
   },
@@ -12,15 +12,15 @@
     "title": "Employees",
     "to": "/employees",
     "menu": "employee_access",
-    "click": "employees",
+    "submenu": "employees",
     "module": "dashboard"
   },
   {
     "icon": "mdi-clock-time-five-outline",
     "title": "Attendance",
-    "to": "/dashboard/1",
+    "to": "/shift",
     "menu": "employee_schedule_access",
-    "click": "attendance",
+    "submenu": "attendance",
     "module": "dashboard"
   },
   {
@@ -28,7 +28,7 @@
     "title": "Payroll",
     "to": "/payroll/salary",
     "menu": "payroll_access",
-    "click": "payroll",
+    "submenu": "payroll",
     "module": "dashboard"
   },
   {
@@ -36,7 +36,7 @@
     "title": "Access Control",
     "to": "/timezone",
     "menu": "timezone",
-    "click": "access_control",
+    "submenu": "access_control",
     "module": "dashboard"
   },
 
@@ -45,7 +45,7 @@
     "title": "Visitors",
     "to": "/visitor-dashboard",
     "menu": "true",
-    "click": "visitors",
+    "submenu": "visitors",
     "module": "dashboard"
   },
   {
@@ -53,7 +53,7 @@
     "title": "Reports",
     "to": "/visitor-dashboard",
     "menu": "true",
-    "click": "visitors",
+    "submenu": "visitors",
     "module": "dashboard"
   },
 

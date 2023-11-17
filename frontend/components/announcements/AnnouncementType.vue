@@ -83,56 +83,36 @@
             <v-toolbar-title
               ><span> {{ Model }}</span></v-toolbar-title
             >
-
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Reload"
-            >
-              <v-icon class="ml-2" @click="getDataFromApi()" dark
-                >mdi-reload</v-icon
-              >
-            </v-btn>
-
-            <!-- <div style="width: 250px">
-              <v-select
-                @change="getDataFromApi()"
-                class="pt-10 px-2"
-                v-model="branch_id"
-                :items="[
-                  { id: ``, branch_name: `Select All` },
-                  ...branchesList,
-                ]"
+            <span>
+              <v-btn
                 dense
-                placeholder="Select Branch"
-                outlined
-                item-value="id"
-                item-text="branch_name"
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
               >
-              </v-select>
-            </div> -->
+                <v-icon class="ml-2" @click="getDataFromApi()" dark
+                  >mdi-reload</v-icon
+                >
+              </v-btn>
+            </span>
             <v-spacer></v-spacer>
-            <!-- <v-tooltip v-if="can(`leave_type_create`)" top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              v-if="can(`announcement_category_create`)"
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Add Announcement Category"
-            >
-              <v-icon class="ml-2" @click="newDialog()" dark
-                >mdi mdi-plus-circle</v-icon
+            <span>
+              <v-btn
+                v-if="can(`announcement_category_create`)"
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Add Announcement Category"
               >
-            </v-btn>
-            <!-- </template>
-                <span>Add LeaveType</span>
-              </v-tooltip> -->
+                <v-icon class="ml-2" @click="newDialog()" dark
+                  >mdi mdi-plus-circle</v-icon
+                >
+              </v-btn>
+            </span>
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -332,7 +312,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       if (url == "") url = this.endpoint;

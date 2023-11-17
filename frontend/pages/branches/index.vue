@@ -268,81 +268,37 @@
               <v-toolbar-title>
                 <span> {{ Model }}es </span></v-toolbar-title
               >
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Reload"
-              >
-                <v-icon class="ml-2" @click="clearFilters" dark
-                  >mdi mdi-reload</v-icon
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Reload"
                 >
-              </v-btn>
-              <!-- </template>
-                <span>Reload</span>
-              </v-tooltip> -->
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Filter"
-              >
-                <v-icon @click="toggleFilter" class="mx-1 ml-2"
-                  >mdi mdi-filter</v-icon
+                  <v-icon class="ml-2" @click="clearFilters" dark
+                    >mdi mdi-reload</v-icon
+                  >
+                </v-btn>
+              </span>
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Filter"
                 >
-              </v-btn>
-              <!-- </template>
-                <span>Filter</span>
-              </v-tooltip> -->
+                  <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                    >mdi mdi-filter</v-icon
+                  >
+                </v-btn>
+              </span>
 
               <v-spacer></v-spacer>
 
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="dialog = true"
-                  >
-                    <v-icon color="white" right dark size="x-large"
-                      >mdi-cloud-upload</v-icon
-                    >
-                  </v-btn>
-                </template>
-                <span>Import</span>
-              </v-tooltip>
-              <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dense
-                    x-small
-                    :ripple="false"
-                    text
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="export_submit"
-                  >
-                    <v-icon color="white" right size="x-large" dark
-                      >mdi-cloud-download</v-icon
-                    >
-                  </v-btn>
-                </template>
-                <span>Download</span>
-              </v-tooltip> -->
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
               <v-btn
                 v-if="$store.state.loginType == 'company'"
                 dense
@@ -357,9 +313,6 @@
                   >mdi-plus-circle</v-icon
                 >
               </v-btn>
-              <!-- </template>
-                <span>Add New Employee</span>
-              </v-tooltip> -->
             </v-toolbar>
             <v-data-table
               dense

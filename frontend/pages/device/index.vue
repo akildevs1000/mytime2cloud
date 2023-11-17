@@ -227,187 +227,6 @@
         </v-col>
       </v-row>
 
-      <!-- <div class="row pa-3">
-        <div class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label">Device Name </label>
-            <span class="text-danger">*</span>
-            <input v-model="payload.name" class="form-control" type="text" />
-            <span v-if="errors && errors.name" class="text-danger mt-2">{{
-              errors.name[0]
-            }}</span>
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label">Device Short Name </label>
-            <span class="text-danger">*</span>
-            <input
-              v-model="payload.short_name"
-              class="form-control"
-              type="text"
-            />
-            <span v-if="errors && errors.short_name" class="text-danger mt-2">{{
-              errors.short_name[0]
-            }}</span>
-          </div>
-        </div>
-        <div v-if="isCompany" class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label">Branch</label>
-            <span class="text-danger">*</span>
-            <select
-              v-model="payload.branch_id"
-              class="form-select form-control"
-              aria-label="Branch"
-            >
-              <option value="">Select Branch</option>
-              <option
-                v-for="(branch, idx) in branches"
-                :key="idx"
-                :value="branch.id"
-              >
-                {{ branch.branch_name }}
-              </option>
-            </select>
-            <span v-if="errors && errors.branch_id" class="text-danger mt-2">{{
-              errors.branch_id[0]
-            }}</span>
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label">Device Location </label>
-            <span class="text-danger">*</span>
-            <input v-model="payload.location" class="form-control" />
-            <span v-if="errors && errors.location" class="text-danger mt-2">{{
-              errors.location[0]
-            }}</span>
-          </div>
-        </div>
-
-        <div class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label">Time Zone</label>
-            <span class="text-danger">*</span>
-            <select
-              v-model="payload.utc_time_zone"
-              class="form-select form-control"
-              aria-label="Branch"
-            >
-              <option value="">Select Branch</option>
-              <option
-                v-for="(timezone, idx, index) in timeZones"
-                :key="index"
-                :value="idx"
-              >
-                {{ timezone.offset }}- {{ idx }}
-              </option>
-            </select>
-            <span
-              v-if="errors && errors.utc_time_zone"
-              class="text-danger mt-2"
-              >{{ errors.utc_time_zone[0] }}</span
-            >
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label"> Model Number</label>
-            <span class="text-danger">*</span>
-            <input
-              v-model="payload.model_number"
-              class="form-control"
-              type="text"
-            />
-            <span
-              v-if="errors && errors.model_number"
-              class="text-danger mt-2"
-              >{{ errors.model_number[0] }}</span
-            >
-          </div>
-        </div>
-
-        <div class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label"> Device Serial Number</label>
-            <span class="text-danger">*</span>
-            <input
-              v-model="payload.device_id"
-              class="form-control"
-              type="text"
-            />
-            <span v-if="errors && errors.device_id" class="text-danger mt-2">{{
-              errors.device_id[0]
-            }}</span>
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label"> Device Function</label>
-            <span class="text-danger">*</span>
-            <select
-              v-model="payload.function"
-              class="form-select pt-1 pb-1"
-              aria-label="Default select"
-            >
-              <option value="">Select Device Function</option>
-              <option value="auto">Auto</option>
-              <option value="In">In</option>
-              <option value="Out">Out</option>
-            </select>
-            <span v-if="errors && errors.function" class="text-danger mt-2">{{
-              errors.function[0]
-            }}</span>
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label">Device Type </label>
-            <span class="text-danger">*</span>
-            <select
-              v-model="payload.device_type"
-              class="form-select pt-1 pb-1"
-              aria-label="Default select"
-            >
-              <option value="">Select Device Type</option>
-              <option value="all">All(Attendance and Access)</option>
-              <option value="Attendance">Attendance</option>
-              <option value="Access Control">Access Control</option>
-            </select>
-            <span
-              v-if="errors && errors.device_type"
-              class="text-danger mt-2"
-              >{{ errors.device_type[0] }}</span
-            >
-          </div>
-        </div>
-
-          <div class="col-sm-12">
-          <div class="form-group">
-            <label class="col-form-label">Device Status </label>
-            <span class="text-danger">*</span>
-            <select
-              v-model="payload.status_id"
-              class="form-select"
-              aria-label="Default select"
-            >
-              <option value="">Select Device Status</option>
-              <option
-                v-for="(device_status, idx) in device_statusses"
-                :key="idx"
-                :value="device_status.id"
-              >
-                {{ device_status.name }}
-              </option>
-            </select>
-            <span v-if="errors && errors.status_id" class="text-danger mt-2">{{
-              errors.status_id[0]
-            }}</span>
-          </div>
-        </div>  
-      </div> -->
-
       <v-row v-if="response">
         <v-col>
           <div style="color: red; font-size: 14px" class="pl-1">
@@ -435,21 +254,21 @@
       <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title><span> Devices List</span></v-toolbar-title>
 
-        <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          dense
-          class="ma-0 px-0"
-          x-small
-          :ripple="false"
-          text
-          title="Reload"
-        >
-          <v-icon class="ml-2" @click="getDataFromApi()" dark
-            >mdi mdi-reload</v-icon
+        <span>
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Reload"
           >
-        </v-btn>
-        <div v-if="isCompany" style="width: 250px">
+            <v-icon class="ml-2" @click="getDataFromApi()" dark
+              >mdi mdi-reload</v-icon
+            >
+          </v-btn>
+        </span>
+        <span v-if="isCompany" style="width: 250px">
           <v-select
             @change="getDataFromApi()"
             class="pt-10 px-2"
@@ -462,7 +281,7 @@
             item-text="branch_name"
           >
           </v-select>
-        </div>
+        </span>
         <!-- </template>
           <span>Reload</span>
         </v-tooltip> -->
@@ -484,30 +303,29 @@
 
         <v-spacer></v-spacer>
 
-        <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          x-small
-          :ripple="false"
-          text
-          title="Sync Devices"
-          @click="updateDevicesHealth"
-        >
-          <v-icon dark white>mdi-cached</v-icon>
-        </v-btn>
-        <!-- </template>
-          <span>Sync Devices</span>
-        </v-tooltip> -->
-        <v-btn
-          v-if="can(`device_create`)"
-          x-small
-          :ripple="false"
-          text
-          title="Add Device"
-          @click="addItem()"
-        >
-          <v-icon dark white>mdi-plus-circle</v-icon>
-        </v-btn>
+        <span>
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            title="Sync Devices"
+            @click="updateDevicesHealth"
+          >
+            <v-icon dark white>mdi-cached</v-icon>
+          </v-btn>
+        </span>
+        <span>
+          <v-btn
+            v-if="can(`device_create`)"
+            x-small
+            :ripple="false"
+            text
+            title="Add Device"
+            @click="addItem()"
+          >
+            <v-icon dark white>mdi-plus-circle</v-icon>
+          </v-btn>
+        </span>
       </v-toolbar>
 
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">

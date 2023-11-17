@@ -117,73 +117,60 @@
       <v-card class="mb-5 mt-2" elevation="0">
         <v-toolbar class="rounded-md" dense flat>
           <v-toolbar-title><span> Automation List</span></v-toolbar-title>
-          <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn
-            dense
-            class="ma-0 px-0"
-            x-small
-            :ripple="false"
-            text
-            title="Reload"
-          >
-            <v-icon class="ml-2" @click="getDataFromApi()" dark
-              >mdi mdi-reload</v-icon
+          <span>
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Reload"
             >
-          </v-btn>
-          <!-- </template>
-              <span>Reload</span>
-            </v-tooltip> -->
-
-          <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            title="Filter"
-            @click="toggleFilter()"
-          >
-            <v-icon dark>mdi-filter</v-icon>
-          </v-btn>
-          <!-- </template>
-              <span>Filter</span>
-            </v-tooltip> -->
+              <v-icon class="ml-2" @click="getDataFromApi()" dark
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+          </span>
+          <span>
+            <v-btn
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+              @click="toggleFilter()"
+            >
+              <v-icon dark>mdi-filter</v-icon>
+            </v-btn>
+          </span>
 
           <v-spacer></v-spacer>
 
-          <!-- <v-tooltip top color="primary">
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn x-small :ripple="false" text v-bind="attrs" v-on="on" @click="dialog = true">
-                        <v-icon dark white>mdi mdi-whatsapp</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Whatsapp Test</span>
-                  </v-tooltip> -->
-          <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn
-            v-if="can(`automation_contnet_access`)"
-            x-small
-            :ripple="false"
-            title="EMail Content"
-            @click="gotoPage('/automation_mail_content')"
-            color="violet"
-            class="primary mr-5"
-          >
-            Email Content
-          </v-btn>
-          <v-btn
-            v-if="can('automation_create')"
-            x-small
-            :ripple="false"
-            title="Add Notification"
-            @click="openNewPage()"
-            color="violet"
-            class="primary"
-          >
-            Add+
-          </v-btn>
+          <span>
+            <v-btn
+              v-if="can(`automation_contnet_access`)"
+              x-small
+              :ripple="false"
+              title="EMail Content"
+              @click="gotoPage('/automation_mail_content')"
+              color="violet"
+              class="primary mr-5"
+            >
+              Email Content
+            </v-btn>
+          </span>
+          <span>
+            <v-btn
+              v-if="can('automation_create')"
+              x-small
+              :ripple="false"
+              title="Add Notification"
+              @click="openNewPage()"
+              color="violet"
+              class="primary"
+            >
+              Add+
+            </v-btn>
+          </span>
         </v-toolbar>
 
         <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -721,7 +708,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     viewItem(item) {
       //++this.newDialogKey;
 
