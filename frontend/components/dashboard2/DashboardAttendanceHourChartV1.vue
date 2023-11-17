@@ -115,11 +115,12 @@ export default {
         this.chartOptions.xaxis.categories[counter] = item.hour;
         counter++;
       });
-
-      new ApexCharts(
-        document.querySelector("#" + this.name),
-        this.chartOptions
-      ).render();
+      try {
+        new ApexCharts(
+          document.querySelector("#" + this.name),
+          this.chartOptions
+        ).render();
+      } catch (error) {}
     },
   },
 };

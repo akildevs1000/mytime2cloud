@@ -69,10 +69,12 @@ export default {
         this.data = data;
         this.chartOptions.labels = await data.map((e) => e.title);
         this.chartOptions.series = await data.map((e) => e.value);
-        new ApexCharts(
-          document.querySelector("#element"),
-          this.chartOptions
-        ).render();
+        try {
+          new ApexCharts(
+            document.querySelector("#element"),
+            this.chartOptions
+          ).render();
+        } catch (error) {}
       });
 
     this.loading = false;

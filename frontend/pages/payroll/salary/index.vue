@@ -160,15 +160,10 @@
       width="600px"
     >
       <v-card>
-        <v-card-title dense class="primary white--text background">
+        <v-card-title dense class="primary popup_background">
           Generate Payslips
           <v-spacer></v-spacer>
-          <v-icon
-            @click="generatePayslipDialog = false"
-            outlined
-            dark
-            color="white"
-          >
+          <v-icon @click="generatePayslipDialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -251,84 +246,71 @@
               <v-toolbar-title style="color: black"
                 ><span> Payslips</span></v-toolbar-title
               >
-
-              <!-- <v-icon @click="clearFilters()" class="mx-1 white--text">mdi-reload</v-icon>
-                <v-icon @click="dialogVisible = true" class="mx-1 white--text">mdi-filter-multiple</v-icon>
-                <v-icon @click="toggleFilter" class="mx-1 white--text">mdi-filter</v-icon>
- -->
-
-              <!-- <v-tooltip bottom color="black">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Reload"
-              >
-                <v-icon class="ml-2" @click="clearFilters" dark
-                  >mdi mdi-reload</v-icon
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Reload"
                 >
-              </v-btn>
-              <!-- </template>
-                <span>Reload</span>
-              </v-tooltip> -->
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                v-if="can(`payroll_payslip_generate_access`)"
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Filter By Department"
-              >
-                <v-icon class="ml-2" @click="dialogVisible = true" dark
-                  >mdi-filter-multiple
-                </v-icon>
-              </v-btn>
-              <!-- </template>
-                <span> Filter By Department </span>
-              </v-tooltip> -->
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Download All Payslips"
-              >
-                <v-icon class="ml-2" @click="toggleFilter" dark
-                  >mdi-filter
-                </v-icon>
-              </v-btn>
-              <!-- </template>
-                <span> Filter </span>
-              </v-tooltip> -->
+                  <v-icon class="ml-2" @click="clearFilters" dark
+                    >mdi mdi-reload</v-icon
+                  >
+                </v-btn>
+              </span>
+              <span>
+                <v-btn
+                  v-show="can(`payroll_payslip_generate_access`)"
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Filter By Department"
+                >
+                  <v-icon class="ml-2" @click="dialogVisible = true" dark
+                    >mdi-filter-multiple
+                  </v-icon>
+                </v-btn>
+              </span>
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Download All Payslips"
+                >
+                  <v-icon class="ml-2" @click="toggleFilter" dark
+                    >mdi-filter
+                  </v-icon>
+                </v-btn>
+              </span>
+              <span>
+                <v-btn
+                  v-btn
+                  v-show="
+                    selectedItems.length &&
+                    can(`payroll_payslip_generate_access`)
+                  "
+                  @click="generateNewpayslipsSelected"
+                  small
+                  class="primary toolbar-button-design1"
+                  color="primary"
+                  title="Payslips For selected"
+                >
+                  Payslips For selected
+                </v-btn>
+              </span>
 
-              <v-btn
-                v-btn
-                v-if="
-                  selectedItems.length && can(`payroll_payslip_generate_access`)
-                "
-                @click="generateNewpayslipsSelected"
-                small
-                class="primary toolbar-button-design1"
-                color="primary"
-                title="Payslips For selected"
-              >
-                Payslips For selected
-              </v-btn>
+              <v-spacer></v-spacer>
 
               <v-col cols="4" class="text-right">
-                <!-- <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }"> -->
                 <v-btn
-                  v-if="can(`payroll_payslip_generate_access`)"
+                  v-show="can(`payroll_payslip_generate_access`)"
                   dense
                   class="ma-0 px-0"
                   x-small
@@ -336,81 +318,130 @@
                   text
                   title="Generate Payslips by Department"
                 >
-                  <v-icon @click="openPayslipDialog" class="mx-1 white--text"
+                  <v-icon @click="openPayslipDialog" class="mx-1"
                     >mdi-briefcase-outline</v-icon
                   >
                 </v-btn>
-                <!-- </template>
-                  <span>Generate Payslips by Department</span>
-                </v-tooltip> -->
 
-                <!-- <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn download dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs"
-                      :href="payslipsDownloadAllURL" v-on="on">
-                      All Payslips
-                      <v-icon @click="showFilters = !showFilters" class="mx-1 white--text">mdi mdi-download</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Generate Payslips by Department</span>
-                </v-tooltip> -->
-                <!-- <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }"> -->
                 <v-btn
                   dense
                   class="ma-0 px-0"
                   x-small
                   :ripple="false"
                   text
-                  v-if="downloadAllDisplayStatus"
+                  v-show="downloadAllDisplayStatus"
                   download
                   :href="payslipsDownloadAllURL"
                   small
                   title="Download All Payslips"
                 >
-                  <v-icon
-                    @click="showFilters = !showFilters"
-                    class="mx-1 white--text"
+                  <v-icon @click="showFilters = !showFilters" class="mx-1"
                     >mdi mdi-download</v-icon
                   >
                 </v-btn>
-                <!-- </template>
-                  <span>Download All Payslips</span>
-                </v-tooltip> -->
               </v-col>
             </v-toolbar>
-
-            <!-- <v-data-table
-              v-model="data"
-              show-select
-              item-key="id"
-              :headers="headers_table"
-              :items="data"
-            >
-              <template v-slot:item.imgUrl="{ item }">
-                <v-img
-                  style="
-                    border-radius: 50%;
-                    height: 50px;
-                    width: 50px !important;
+            <!-- <v-toolbar class="mb-2" dense flat>
+              <v-toolbar-title style="color: black"
+                ><span> Payslips</span></v-toolbar-title
+              >
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Reload"
+                >
+                  <v-icon class="ml-2" @click="clearFilters" dark
+                    >mdi mdi-reload</v-icon
+                  >
+                </v-btn>
+              </span>
+              <span>
+                <v-btn
+                  v-if="can(`payroll_payslip_generate_access`)"
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Filter By Department"
+                >
+                  <v-icon class="ml-2" @click="dialogVisible = true" dark
+                    >mdi-filter-multiple
+                  </v-icon>
+                </v-btn>
+              </span>
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Download All Payslips"
+                >
+                  <v-icon class="ml-2" @click="toggleFilter" dark
+                    >mdi-filter
+                  </v-icon>
+                </v-btn>
+              </span>
+              <span>
+                <v-btn
+                  v-btn
+                  v-if="
+                    selectedItems.length &&
+                    can(`payroll_payslip_generate_access`)
                   "
-                  :src="item.profile_picture || '/no-profile-image.jpg'"
-                ></v-img>
-              </template>
-            </v-data-table>
-            <v-row>
-              <v-col lg="12" class="float-right">
-                <div class="float-right">
-                  <v-pagination
-                    v-model="pagination.current"
-                    :length="pagination.total"
-                    @input="onPageChange"
-                    :total-visible="5"
-                  ></v-pagination>
-                </div>
+                  @click="generateNewpayslipsSelected"
+                  small
+                  class="primary toolbar-button-design1"
+                  color="primary"
+                  title="Payslips For selected"
+                >
+                  Payslips For selected
+                </v-btn>
+              </span>
+
+              <v-col cols="4" class="text-right">
+                <span>
+                  <v-btn
+                    v-if="can(`payroll_payslip_generate_access`)"
+                    dense
+                    class="ma-0 px-0"
+                    x-small
+                    :ripple="false"
+                    text
+                    title="Generate Payslips by Department"
+                  >
+                    <v-icon @click="openPayslipDialog"
+                      >mdi-briefcase-outline</v-icon
+                    >
+                  </v-btn>
+                </span>
+
+                <span>
+                  <v-btn
+                    dense
+                    class="ma-0 px-0"
+                    x-small
+                    :ripple="false"
+                    text
+                    v-if="downloadAllDisplayStatus"
+                    download
+                    :href="payslipsDownloadAllURL"
+                    small
+                    title="Download All Payslips"
+                  >
+                    <v-icon @click="showFilters = !showFilters"
+                      >mdi mdi-download</v-icon
+                    >
+                  </v-btn>
+                </span>
               </v-col>
-            </v-row>
- -->
+            </v-toolbar> -->
 
             <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
               {{ snackText }}
@@ -665,7 +696,7 @@
       </v-row>
       <div></div>
     </div>
-    <NoAccess v-else />
+    <!-- <NoAccess v-else /> -->
   </div>
   <NoAccess v-else />
 </template>
@@ -1021,7 +1052,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     res(id) {
       this.$axios.get(`employee/${id}`).then(({ data }) => {
         this.work = { ...data };

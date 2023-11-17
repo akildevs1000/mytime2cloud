@@ -17,44 +17,44 @@ export default {
           {
             name: "Today Summary",
             type: "column",
-            data: []
+            data: [],
             // background: "black"
           },
           {
             name: "Today Presents",
             type: "column",
-            data: []
+            data: [],
           },
           {
             name: "Today Absent",
             type: "column",
-            data: []
+            data: [],
           },
           {
             name: "Today Missing",
             type: "column",
-            data: []
-          }
+            data: [],
+          },
         ],
         chart: {
           height: 350,
           // width: 0,
           type: "line",
-          stacked: false
+          stacked: false,
         },
         dataLabels: {
-          enabled: false
+          enabled: false,
         },
         stroke: {
-          width: [1, 1, 1]
+          width: [1, 1, 1],
         },
         title: {
           text: "MONTHLY ATTENDANCE REPORT",
           align: "left",
-          offsetX: 110
+          offsetX: 110,
         },
         xaxis: {
-          categories: []
+          categories: [],
         },
         // yaxis: [
         //   {
@@ -81,24 +81,26 @@ export default {
             enabled: true,
             position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
             offsetY: 30,
-            offsetX: 60
-          }
+            offsetX: 60,
+          },
         },
         legend: {
           horizontalAlign: "left",
-          offsetX: 40
-        }
-      }
+          offsetX: 40,
+        },
+      },
     };
   },
   mounted() {
     this.getDaysInCurrentMonth;
 
-    var chart = new ApexCharts(
-      document.querySelector("#comboChart"),
-      this.options
-    );
-    chart.render();
+    try {
+      var chart = new ApexCharts(
+        document.querySelector("#comboChart"),
+        this.options
+      );
+      chart.render();
+    } catch (error) {}
   },
   computed: {
     getDaysInCurrentMonth() {
@@ -118,8 +120,8 @@ export default {
         this.options.series[2].data.push(Math.floor(Math.random() * 20));
         this.options.series[3].data.push(Math.floor(Math.random() * 20));
       }
-    }
+    },
   },
-  methods: {}
+  methods: {},
 };
 </script>

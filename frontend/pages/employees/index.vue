@@ -509,20 +509,23 @@
           <v-toolbar-title>
             <span style="color: black"> {{ Model }}s </span></v-toolbar-title
           >
-          <v-btn
-            dense
-            class="ma-0 px-0"
-            x-small
-            :ripple="false"
-            text
-            title="Filter"
-          >
-            <v-icon @click="toggleFilter" class="mx-1 ml-2"
-              >mdi mdi-filter</v-icon
+          <span
+            ><v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
             >
-          </v-btn>
+              <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                >mdi mdi-filter</v-icon
+              >
+            </v-btn>
+          </span>
           <v-spacer></v-spacer>
-          <v-col cols="12" md="2">
+
+          <span>
             <v-text-field
               @input="serachAll($event)"
               style="height: 30px; margin-top: 5px"
@@ -533,37 +536,42 @@
               autocomplete="off"
               placeholder="Employee Details"
             ></v-text-field>
-          </v-col>
+          </span>
 
-          <v-icon
-            title="Import File"
-            @click="dialog = true"
-            right
-            dark
-            color="black"
-            size="x-large"
-            >mdi-file-import</v-icon
-          >
-          <v-icon
-            title="Download"
-            @click="export_submit"
-            right
-            dark
-            color="black"
-            size="x-large"
-            >mdi-arrow-down-bold-circle</v-icon
-          >
-
-          <v-icon
-            v-if="can('employee_create')"
-            title="Add Employee"
-            @click="openNewPage()"
-            right
-            dark
-            color="black"
-            size="x-large"
-            >mdi-account-plus mdi-flip-h</v-icon
-          >
+          <span>
+            <v-icon
+              title="Import File"
+              @click="dialog = true"
+              right
+              dark
+              color="black"
+              size="x-large"
+              >mdi-file-import</v-icon
+            >
+          </span>
+          <span>
+            <v-icon
+              title="Download"
+              @click="export_submit"
+              right
+              dark
+              color="black"
+              size="x-large"
+              >mdi-arrow-down-bold-circle</v-icon
+            >
+          </span>
+          <span>
+            <v-icon
+              v-if="can('employee_create')"
+              title="Add Employee"
+              @click="openNewPage()"
+              right
+              dark
+              color="black"
+              size="x-large"
+              >mdi-account-plus mdi-flip-h</v-icon
+            >
+          </span>
         </v-toolbar>
         <v-data-table
           dense
@@ -1197,7 +1205,7 @@ export default {
       setTimeout(() => {}, 300);
     },
     json_to_csv(json) {
-      let data = json.map((e) => ({
+      let data = json.data.map((e) => ({
         first_name: e.first_name,
         last_name: e.last_name,
         branch_name: e.department.branch && e.department.branch.branch_name,

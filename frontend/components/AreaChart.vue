@@ -8,43 +8,41 @@
 
 <script>
 export default {
- 
-
   data() {
     return {
       options: {
         series: [
           {
             name: "Desktops",
-            data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+            data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
           },
           {
             name: "Desktops",
-            data: [7, 56, 68, 6, 23, 4, 34, 123, 12]
-          }
+            data: [7, 56, 68, 6, 23, 4, 34, 123, 12],
+          },
         ],
         chart: {
           height: 350,
           type: "area",
           zoom: {
-            enabled: false
-          }
+            enabled: false,
+          },
         },
         dataLabels: {
-          enabled: false
+          enabled: false,
         },
         stroke: {
-          curve: "straight"
+          curve: "straight",
         },
         title: {
           text: "DAILY ATTENDANCE REPORT",
-          align: "left"
+          align: "left",
         },
         grid: {
           row: {
             colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-            opacity: 0.5
-          }
+            opacity: 0.5,
+          },
         },
         xaxis: {
           categories: [
@@ -56,18 +54,20 @@ export default {
             "Jun",
             "Jul",
             "Aug",
-            "Sep"
-          ]
-        }
-      }
+            "Sep",
+          ],
+        },
+      },
     };
   },
   mounted() {
-    var chart = new ApexCharts(
-      document.querySelector("#areaChart"),
-      this.options
-    );
-    chart.render();
-  }
+    try {
+      var chart = new ApexCharts(
+        document.querySelector("#areaChart"),
+        this.options
+      );
+      chart.render();
+    } catch (error) {}
+  },
 };
 </script>

@@ -1,7 +1,9 @@
 <template>
   <v-card class="mb-5 rounded-md" elevation="1">
     <v-toolbar class="rounded-md" color="background" dense flat dark>
-      <v-toolbar-title><span> {{ Model }} </span></v-toolbar-title>
+      <v-toolbar-title
+        ><span> {{ Model }} </span></v-toolbar-title
+      >
       <!-- <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -23,7 +25,16 @@
       <v-spacer></v-spacer>
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn to="/device" dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+          <v-btn
+            to="/device"
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+          >
             <v-icon color="white" class="ml-2" dark>mdi mdi-eye-outline</v-icon>
           </v-btn>
         </template>
@@ -101,11 +112,12 @@ export default {
           this.dataLength = await data.total;
           this.chartOptions.labels = await data.labels;
           this.chartOptions.series = await data.series;
-
-          await new ApexCharts(
-            document.querySelector("#DeviceStatusPieId"),
-            this.chartOptions
-          ).render();
+          try {
+            await new ApexCharts(
+              document.querySelector("#DeviceStatusPieId"),
+              this.chartOptions
+            ).render();
+          } catch (error) {}
         });
     },
   },

@@ -189,10 +189,12 @@ export default {
         counter++;
       });
       this.loading = false;
-      new ApexCharts(
-        document.querySelector("#" + this.name),
-        this.chartOptions
-      ).render();
+      try {
+        new ApexCharts(
+          document.querySelector("#" + this.name),
+          this.chartOptions
+        ).render();
+      } catch (error) {}
     },
   },
 };
