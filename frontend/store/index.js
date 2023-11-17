@@ -12,6 +12,7 @@ export const state = () => ({
 
   devices: [],
   employees: null,
+  shifts: null,
   department_list: null,
   timezone_list: null,
   branches_list: null,
@@ -43,6 +44,7 @@ export const mutations = {
       branch_id: "",
       devices: [],
       employees: null,
+      shifts: null,
       department_list: null,
       timezone_list: null,
       branches_list: null,
@@ -73,6 +75,9 @@ export const mutations = {
   },
   employees(state, value) {
     state.employees = value;
+  },
+  shifts(state, value) {
+    state.shifts = value;
   },
   department_list(state, value) {
     state.department_list = value;
