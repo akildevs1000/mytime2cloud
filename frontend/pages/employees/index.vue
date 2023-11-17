@@ -519,7 +519,7 @@
               title="Filter"
             >
               <v-icon @click="toggleFilter" class="mx-1 ml-2"
-                >mdi mdi-filter</v-icon
+                >mdi-filter</v-icon
               >
             </v-btn>
           </span>
@@ -1008,7 +1008,7 @@ export default {
         text: "Timezone",
         align: "left",
         sortable: true,
-        key: "timezone",
+        key: "timezone_id",
         value: "timezone.name",
         filterable: true,
         filterSpecial: true,
