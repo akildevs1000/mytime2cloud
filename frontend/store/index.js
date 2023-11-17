@@ -205,6 +205,20 @@ export const actions = {
     }
   },
 
+  async employees({ commit, state }, options) {
+
+    try {
+      if (state.employees && options.refresh == false) {
+        return state.employees;
+      };
+      const { data } = await this.$axios.get(options.endpoint, options);
+      commit("employees", data);
+      return data;
+    } catch (error) {
+      return error;
+    }
+  },
+
   async department_list({ commit, state }, options) {
     try {
       if (state.department_list && options.isFilter == false) return state.department_list;
@@ -238,56 +252,6 @@ export const actions = {
     }
   },
 
-  async employees({ commit, state }, options) {
 
-    let { sortBy, sortDesc, page, itemsPerPage, refresh, endpoint, filters } = options;
-
-    try {
-      if (state.employees && refresh == false) return state.employees;
-
-      const { data } = await this.$axios.get(endpoint, {
-        endpoint,
-        params: {
-          page,
-          sortBy: sortBy ? sortBy[0] : "",
-          sortDesc: sortDesc ? sortDesc[0] : "",
-          per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id,
-          filters,
-        },
-      });
-      commit("employees", data);
-      return data;
-    } catch (error) {
-      return error;
-    }
-  },
-
-
-  async shifts({ commit, state }, options) {
-
-    let { sortBy, sortDesc, page, itemsPerPage, refresh, endpoint, filters } = options;
-
-    try {
-      if (state.shifts && refresh == false) return state.shifts;
-
-      const { data } = await this.$axios.get(endpoint, {
-        endpoint,
-        refresh,
-        params: {
-          page,
-          sortBy: sortBy ? sortBy[0] : "",
-          sortDesc: sortDesc ? sortDesc[0] : "",
-          per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id,
-          filters,
-        },
-      });
-      commit("shifts", data);
-      return data;
-    } catch (error) {
-      return error;
-    }
-  },
 
 };
