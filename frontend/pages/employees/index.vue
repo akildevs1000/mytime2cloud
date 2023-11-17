@@ -1049,6 +1049,8 @@ export default {
     });
 
     this.branches_list = await this.$store.dispatch("branches_list");
+
+    await this.getDataFromApi();
   },
   mounted() {
     //this.getDataFromApi();
@@ -1127,8 +1129,8 @@ export default {
   },
   watch: {
     options: {
-      handler() {
-        this.getDataFromApi();
+      async handler() {
+        await this.getDataFromApi();
       },
       deep: true,
     },

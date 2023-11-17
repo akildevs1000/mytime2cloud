@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import EmployeeEdit from "./EmployeeEdit.vue";
+import Update from "./Update.vue";
 import Contact from "./Contact.vue";
 import Passport from "./Passport.vue";
 import Emirates from "./Emirates.vue";
@@ -65,7 +65,7 @@ import Payroll from "./Payroll.vue";
 import Login from "./Login.vue";
 
 const compList = [
-  EmployeeEdit,
+  Update,
   Contact,
   Passport,
   Emirates,
