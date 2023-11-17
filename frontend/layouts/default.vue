@@ -523,14 +523,16 @@ export default {
     this.getCompanyDetails();
     this.setMenus();
 
-    // if (
-    //   this.$auth.user.user_type == "company" ||
-    //   this.$auth.user.user_type == "branch"
-    // )
-    {
-      this.deviceList();
-      this.getEmployeeList();
-    }
+    setTimeout(() => {
+      // if (
+      //   this.$auth.user.user_type == "company" ||
+      //   this.$auth.user.user_type == "branch"
+      // )
+      {
+        this.deviceList();
+        this.getEmployeeList();
+      }
+    }, 5000);
 
     this.setSubLeftMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");
