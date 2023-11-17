@@ -956,9 +956,9 @@ export default {
     this.lastTenYears();
     this.getbranchesList();
   },
-  mounted() {
-    this.getDataFromApi();
-  },
+  // mounted() {
+  //   this.getDataFromApi();
+  // },
 
   methods: {
     getbranchesList() {
@@ -1038,9 +1038,9 @@ export default {
     toggleSelectAll() {
       this.selectedItems = this.allSelected ? this.data.map((e) => e.id) : [];
     },
-    onPageChange() {
-      this.getDataFromApi();
-    },
+    // onPageChange() {
+    //   this.getDataFromApi();
+    // },
     caps(str) {
       if (str == "" || str == null) {
         return "";

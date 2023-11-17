@@ -355,44 +355,48 @@
         <v-toolbar-title class="black--text"
           ><span> Schedule List</span></v-toolbar-title
         >
-
-        <v-btn
-          dense
-          class="ma-0 px-0"
-          x-small
-          :ripple="false"
-          text
-          title="Reload"
-        >
-          <v-icon class="ml-2" @click="clearFilters" dark
-            >mdi mdi-reload</v-icon
+        <span>
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Reload"
           >
-        </v-btn>
-
-        <v-btn
-          dense
-          class="ma-0 px-0"
-          x-small
-          :ripple="false"
-          text
-          title="Filter"
-        >
-          <v-icon class="ml-2" @click="toggleFilter" dark
-            >mdi mdi-filter</v-icon
+            <v-icon class="ml-2" @click="clearFilters" dark
+              >mdi mdi-reload</v-icon
+            >
+          </v-btn>
+        </span>
+        <span>
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Filter"
           >
-        </v-btn>
+            <v-icon class="ml-2" @click="toggleFilter" dark
+              >mdi mdi-filter</v-icon
+            >
+          </v-btn>
+        </span>
+        <span>
+          <v-btn
+            v-if="employeesSelected.length > 0"
+            dense
+            class="ma-2 px-1 primary"
+            fill
+            dark
+            small
+            @click="openScheduleDialog"
+          >
+            Apply Schedules
+          </v-btn>
+        </span>
 
-        <v-btn
-          v-if="employeesSelected.length > 0"
-          dense
-          class="ma-2 px-1 primary"
-          fill
-          dark
-          small
-          @click="openScheduleDialog"
-        >
-          Apply Schedules
-        </v-btn>
         <v-col cols="3">
           <v-select
             style="width: 250px"
@@ -408,6 +412,7 @@
             :items="[{ branch_name: `All Branches`, id: `` }, ...branchesList]"
           ></v-select
         ></v-col>
+
         <v-col cols="6"> </v-col>
 
         <v-spacer></v-spacer>
@@ -428,6 +433,7 @@
             { name: `Un-Scheduled`, id: `0` },
           ]"
         ></v-select>
+
         <!-- <v-tooltip top color="primary" v-if="can(`employee_schedule_create`)">
             <template v-slot:activator="{ on, attrs }"> -->
         <!-- <v-btn

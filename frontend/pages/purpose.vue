@@ -78,32 +78,23 @@
                 flat
               >
                 <span> Purpose List</span>
-                <!-- <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }"> -->
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Reload"
-                >
-                  <v-icon class="ml-2" @click="getDataFromApi()" dark
-                    >mdi mdi-reload</v-icon
+                <span>
+                  <v-btn
+                    dense
+                    class="ma-0 px-0"
+                    x-small
+                    :ripple="false"
+                    text
+                    title="Reload"
                   >
-                </v-btn>
-                <!-- </template>
-                  <span>Reload</span>
-                </v-tooltip> -->
+                    <v-icon class="ml-2" @click="getDataFromApi()" dark
+                      >mdi mdi-reload</v-icon
+                    >
+                  </v-btn>
+                </span>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                  <!-- <v-col>
-                    <v-btn v-if="can(`role_deleted`)" small color="error  " class="mr-2 mb-2"
-                      @click="delteteSelectedRecords">Delete Selected Records</v-btn>
-                  </v-col> -->
                   <v-col>
-                    <!-- <v-tooltip top color="primary">
-                      <template v-slot:activator="{ on, attrs }"> -->
                     <v-btn
                       dense
                       class="ma-0 px-0"
@@ -116,9 +107,6 @@
                         >mdi mdi-plus-circle</v-icon
                       >
                     </v-btn>
-                    <!-- </template>
-                      <span>Add New Purpose</span>
-                    </v-tooltip> -->
                   </v-col>
                 </v-toolbar-items>
               </v-toolbar>
@@ -225,7 +213,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     getDataFromApi(url = this.endpoint) {
       this.loading = true;

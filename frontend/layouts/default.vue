@@ -536,7 +536,21 @@ export default {
     this.logo_src = require("@/static/logo22.png");
   },
 
-  mounted() {},
+  mounted() {
+    console.log("page_name", this.$route.name);
+    let menu_name = "payroll";
+    let bgColor = "violet";
+    if (this.menuProperties.hasOwnProperty(menu_name)) {
+      for (const key in this.menuProperties) {
+        this.menuProperties[key].elevation = 0;
+        this.menuProperties[key].selected = "";
+      }
+
+      this.menuProperties[menu_name].elevation = 0;
+      this.menuProperties[menu_name].selected = bgColor;
+    }
+    //click
+  },
   watch: {},
   computed: {
     changeColor() {

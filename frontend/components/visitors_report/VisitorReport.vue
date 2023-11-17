@@ -596,50 +596,43 @@
               <span> Visitor Report </span>
             </v-toolbar-title>
 
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              title="Reload"
-              @click="clearFilters()"
-            >
-              <v-icon dark @click="clearFilters()">mdi-reload</v-icon>
-            </v-btn>
-            <!-- </template>
-              <span>Reload</span>
-            </v-tooltip> -->
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              title="Filter"
-              @click="attendancFilters = true"
-            >
-              <v-icon dark @click="attendancFilters = true">mdi-filter</v-icon>
-            </v-btn>
-            <!-- </template>
-              <span>Filter</span>
-            </v-tooltip> -->
+            <span>
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
+                @click="clearFilters()"
+              >
+                <v-icon dark @click="clearFilters()">mdi-reload</v-icon>
+              </v-btn>
+            </span>
+            <span>
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
+                @click="attendancFilters = true"
+              >
+                <v-icon dark @click="attendancFilters = true"
+                  >mdi-filter</v-icon
+                >
+              </v-btn>
+            </span>
 
             <v-spacer></v-spacer>
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              title="Render"
-              @click="renderVisitorDialog = true"
-            >
-              <v-icon dark>mdi-cached</v-icon>
-            </v-btn>
-            <!-- </template>
-              <span>Render Fake Data</span>
-            </v-tooltip> -->
+            <span>
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="Render"
+                @click="renderVisitorDialog = true"
+              >
+                <v-icon dark>mdi-cached</v-icon>
+              </v-btn>
+            </span>
           </v-toolbar>
 
           <v-data-table

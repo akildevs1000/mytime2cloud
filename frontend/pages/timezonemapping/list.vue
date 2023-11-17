@@ -15,39 +15,31 @@
               ><span> {{ Model }} </span></v-toolbar-title
             >
 
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Reload"
-            >
-              <v-icon class="ml-2" @click="getDataFromApi()" dark
-                >mdi mdi-reload</v-icon
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
               >
-            </v-btn>
-            <!-- </template>
-              <span>Reload</span>
-            </v-tooltip> -->
-
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              title="Filter"
-              @click="attendancFilters = true"
-            >
-              <v-icon dark @click="toggleFilter">mdi-filter</v-icon>
-            </v-btn>
-            <!-- </template>
-              <span>Filter</span>
-            </v-tooltip> -->
-
+                <v-icon class="ml-2" @click="getDataFromApi()" dark
+                  >mdi mdi-reload</v-icon
+                >
+              </v-btn>
+            </span>
+            <span>
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
+                @click="attendancFilters = true"
+              >
+                <v-icon dark @click="toggleFilter">mdi-filter</v-icon>
+              </v-btn>
+            </span>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-col class="toolbaritems-button-design">
@@ -519,7 +511,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     // goToViewPage() {
     //   this.$router.push("/timezonemapping/view");
     // },
