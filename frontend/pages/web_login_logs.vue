@@ -3,18 +3,18 @@
     <v-card class="mb-5 mt-2 rounded-md" elevation="0">
       <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title><span> Web user Logins</span></v-toolbar-title>
-
-        <v-btn
-          dense
-          class="ma-0 px-0"
-          x-small
-          :ripple="false"
-          text
-          title="Reload"
-        >
-          <v-icon class="ml-2" @click="getRecords()" dark>mdi-reload</v-icon>
-        </v-btn>
-
+        <span>
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Reload"
+          >
+            <v-icon class="ml-2" @click="getRecords()" dark>mdi-reload</v-icon>
+          </v-btn>
+        </span>
         <div v-if="isCompany" style="width: 250px">
           <v-select
             @change="getRecords()"

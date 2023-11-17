@@ -263,20 +263,20 @@
     <v-card class="mt-2">
       <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title><span> Timezones List</span></v-toolbar-title>
-        <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          dense
-          class="ma-0 px-0"
-          x-small
-          :ripple="false"
-          text
-          title="Reload"
-        >
-          <v-icon class="ml-2" @click="getDataFromApi()" dark
-            >mdi mdi-reload</v-icon
+        <span>
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Reload"
           >
-        </v-btn>
+            <v-icon class="ml-2" @click="getDataFromApi()" dark
+              >mdi mdi-reload</v-icon
+            >
+          </v-btn>
+        </span>
         <div v-if="isCompany" style="width: 250px">
           <v-select
             @change="getDataFromApi()"
@@ -291,33 +291,32 @@
           >
           </v-select>
         </div>
-        <!-- </template>
-          <span>Reload</span>
-        </v-tooltip> -->
 
         <v-spacer></v-spacer>
 
-        <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          x-small
-          :ripple="false"
-          text
-          title="Sync To Devices"
-          @click="openDeviceDialog"
-        >
-          <v-icon dark fill color="violet"> mdi-sync-circle</v-icon>
-        </v-btn>
-        <v-btn
-          v-if="can(`timezone_create`)"
-          x-small
-          :ripple="false"
-          text
-          title="Add Timezone"
-          @click="addItem"
-        >
-          <v-icon dark white>mdi-plus-circle</v-icon>
-        </v-btn>
+        <span>
+          <v-btn
+            x-small
+            :ripple="false"
+            text
+            title="Sync To Devices"
+            @click="openDeviceDialog"
+          >
+            <v-icon dark fill color="violet"> mdi-sync-circle</v-icon>
+          </v-btn>
+        </span>
+        <span>
+          <v-btn
+            v-if="can(`timezone_create`)"
+            x-small
+            :ripple="false"
+            text
+            title="Add Timezone"
+            @click="addItem"
+          >
+            <v-icon dark white>mdi-plus-circle</v-icon>
+          </v-btn>
+        </span>
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -855,7 +854,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     getDataFromApi_DatatablFilter(filter_column, e) {
       this.getDataFromApi(`${this.endpoint}/search/${e}`, filter_column, e);

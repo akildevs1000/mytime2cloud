@@ -5,20 +5,20 @@
         <v-toolbar-title
           ><span> {{ Module }}</span></v-toolbar-title
         >
-        <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          dense
-          class="ma-0 px-0"
-          x-small
-          :ripple="false"
-          text
-          title="Reload"
-        >
-          <v-icon class="ml-2" @click="getDataFromApi()" dark
-            >mdi mdi-reload</v-icon
+        <span>
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Reload"
           >
-        </v-btn>
+            <v-icon class="ml-2" @click="getDataFromApi()" dark
+              >mdi mdi-reload</v-icon
+            >
+          </v-btn>
+        </span>
         <div v-if="isCompany" style="width: 250px">
           <v-select
             @change="getDataFromApi()"

@@ -13,61 +13,54 @@
               <v-toolbar-title
                 ><span>{{ Model }}s </span></v-toolbar-title
               >
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Reload"
-              >
-                <v-icon class="ml-2" @click="clearFilters" dark
-                  >mdi mdi-reload</v-icon
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Reload"
                 >
-              </v-btn>
-              <!-- </template>
-                <span>Reload</span>
-              </v-tooltip> -->
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Filter"
-              >
-                <v-icon @click="toggleFilter" class="mx-1 ml-2"
-                  >mdi mdi-filter</v-icon
+                  <v-icon class="ml-2" @click="clearFilters" dark
+                    >mdi mdi-reload</v-icon
+                  >
+                </v-btn>
+              </span>
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Filter"
                 >
-              </v-btn>
-              <!-- </template>
-                <span>Filter</span>
-              </v-tooltip> -->
-
+                  <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                    >mdi mdi-filter</v-icon
+                  >
+                </v-btn>
+              </span>
               <v-spacer></v-spacer>
-
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                dense
-                x-small
-                class="ma-0 px-0"
-                :ripple="false"
-                text
-                title="Add Zone"
-                @click="addItem"
-              >
-                <v-icon right size="x-large" dark v-if="can('employee_create')"
-                  >mdi-plus-circle</v-icon
+              <span>
+                <v-btn
+                  dense
+                  x-small
+                  class="ma-0 px-0"
+                  :ripple="false"
+                  text
+                  title="Add Zone"
+                  @click="addItem"
                 >
-              </v-btn>
-              <!-- </template>
-                <span>Add Zone</span>
-              </v-tooltip> -->
+                  <v-icon
+                    right
+                    size="x-large"
+                    dark
+                    v-if="can('employee_create')"
+                    >mdi-plus-circle</v-icon
+                  >
+                </v-btn>
+              </span>
             </v-toolbar>
             <v-data-table
               dense

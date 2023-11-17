@@ -132,64 +132,48 @@
             <v-toolbar-title
               ><span> {{ Model }} </span></v-toolbar-title
             >
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Reload"
-            >
-              <v-icon class="ml-2" @click="getDataFromApi()" dark
-                >mdi mdi-reload</v-icon
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
               >
-            </v-btn>
-            <!-- </template>
-              <span>Reload</span>
-            </v-tooltip> -->
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Select Year"
-            >
-              <v-icon class="ml-2" @click="dialogFilter = true" dark
-                >mdi mdi-filter</v-icon
+                <v-icon class="ml-2" @click="getDataFromApi()" dark
+                  >mdi mdi-reload</v-icon
+                >
+              </v-btn>
+            </span>
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Select Year"
               >
-              <!-- {{ filterYear }} -->
-            </v-btn>
-            <!-- </template>
-              <span>Select Year</span>
-            </v-tooltip> -->
+                <v-icon class="ml-2" @click="dialogFilter = true" dark
+                  >mdi mdi-filter</v-icon
+                >
+                <!-- {{ filterYear }} -->
+              </v-btn>
+            </span>
 
             <v-spacer></v-spacer>
-            <!-- <v-tooltip top color="primary" v-if="can(`holiday_create`)">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              title="Add Holiday"
-              @click="addItem()"
-            >
-              <v-icon dark>mdi-plus-circle</v-icon>
-            </v-btn>
-            <!-- </template>
-              <span>Add Holiday</span>
-            </v-tooltip> -->
-            <!-- <v-toolbar-items>
-              <v-col class="toolbaritems-button-design1">
-                <v-btn v-if="can(`holiday_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
-                  Model }}
-                  +</v-btn>
-              </v-col>
-            </v-toolbar-items> -->
+            <span>
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="Add Holiday"
+                @click="addItem()"
+              >
+                <v-icon dark>mdi-plus-circle</v-icon>
+              </v-btn>
+            </span>
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">

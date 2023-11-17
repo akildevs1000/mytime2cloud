@@ -137,7 +137,7 @@
                   menuProperties[items.menu].selected
                 "
                 fill
-                @click="setTopMenuItems(items.menu, items.to)"
+                @click="setSubLeftMenuItems(items.menu, items.to)"
               >
                 <span>{{ items.title }}</span>
               </v-btn>
@@ -523,20 +523,53 @@ export default {
     this.getCompanyDetails();
     this.setMenus();
 
-    // if (
-    //   this.$auth.user.user_type == "company" ||
-    //   this.$auth.user.user_type == "branch"
-    // )
-    {
-      this.deviceList();
-      this.getEmployeeList();
-    }
+    setTimeout(() => {
+      // if (
+      //   this.$auth.user.user_type == "company" ||
+      //   this.$auth.user.user_type == "branch"
+      // )
+      {
+        this.deviceList();
+        this.getEmployeeList();
+      }
+    }, 5000);
 
-    this.setTopMenuItems("dashboard", "/dashboard2", false);
+    this.setSubLeftMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");
   },
 
-  mounted() {},
+  mounted() {
+    let menu_name = this.$route.name;
+    let bgColor = "violet";
+    let loadSelectedMenu = "";
+
+    menu_name = menu_name.replaceAll("-", "/");
+
+    if (this.getLoginType === "company" || this.getLoginType === "branch") {
+      loadSelectedMenu = this.company_menus.filter(
+        (item) => item.to === "/" + menu_name && item.submenu == null
+      );
+
+      if (loadSelectedMenu[0]) {
+        menu_name = loadSelectedMenu[0].module;
+
+        if (this.menuProperties.hasOwnProperty(menu_name)) {
+          for (const key in this.menuProperties) {
+            this.menuProperties[key].elevation = 0;
+            this.menuProperties[key].selected = "";
+          }
+
+          this.menuProperties[menu_name].elevation = 0;
+          this.menuProperties[menu_name].selected = bgColor;
+        }
+        //Color is changed and Now display sub menu - click - load left sub menu items
+
+        this.items = this.company_menus.filter(
+          (item) => item.module === loadSelectedMenu[0].module
+        );
+      }
+    }
+  },
   watch: {},
   computed: {
     changeColor() {
@@ -634,13 +667,13 @@ export default {
     },
     getTopMenuItems(i) {
       if (i.module == "dashboard") {
-        this.setTopMenuItems(i.click, i.to);
+        this.setSubLeftMenuItems(i.submenu, i.to);
       }
     },
     goToSettings() {
-      this.setTopMenuItems("settings", "/branches");
+      this.setSubLeftMenuItems("settings", "/branches");
     },
-    setTopMenuItems(menu_name, page, redirect = true) {
+    setSubLeftMenuItems(menu_name, page, redirect = true) {
       this.topMenu_Selected = menu_name;
 
       let bgColor = "violet";
