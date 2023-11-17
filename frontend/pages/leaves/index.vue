@@ -317,50 +317,37 @@
           <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title><span> Leaves List</span></v-toolbar-title>
 
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Reload"
-            >
-              <v-icon class="ml-2" @click="clearFilters()" dark
-                >mdi mdi-reload</v-icon
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
               >
-            </v-btn>
-            <!-- </template>
-              <span>Reload</span>
-            </v-tooltip> -->
+                <v-icon class="ml-2" @click="clearFilters()" dark
+                  >mdi mdi-reload</v-icon
+                >
+              </v-btn>
+            </span>
 
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Filter"
-            >
-              <v-icon class="ml-2" @click="toggleFilter" dark
-                >mdi mdi-filter</v-icon
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
               >
-            </v-btn>
-            <!-- </template>
-              <span>Filter</span>
-            </v-tooltip> -->
+                <v-icon class="ml-2" @click="toggleFilter" dark
+                  >mdi mdi-filter</v-icon
+                >
+              </v-btn>
+            </span>
 
             <v-spacer></v-spacer>
-            <!-- <v-toolbar-items>
-              <v-col class="toolbaritems-button-design1">
-                <v-btn v-if="can(`leave_application_create`)" small color="primary" @click="dialog = true" class="mb-2">{{
-                  Model }}
-                  +</v-btn>
-              </v-col>
-            </v-toolbar-items> -->
           </v-toolbar>
 
           <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -1272,7 +1259,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     onScroll() {
       this.scrollInvoked++;
     },

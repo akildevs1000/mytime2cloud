@@ -577,7 +577,7 @@
           dense
           v-model="selectedItems"
           :headers="headers_table"
-          :items="data.data"
+          :items="data"
           model-value="data.id"
           :loading="loadinglinear"
           :options.sync="options"
@@ -585,7 +585,7 @@
             itemsPerPageOptions: [100, 500, 1000],
           }"
           class="elevation-1"
-          :server-items-length="data.total"
+          :server-items-length="totalRowsCount"
         >
           <template v-slot:header="{ props: { headers } }">
             <tr v-if="isFilter">
@@ -856,6 +856,7 @@ export default {
   },
 
   data: () => ({
+    totalRowsCount: 0,
     refresh: true,
     id: "",
     employee_id: "",
@@ -1205,7 +1206,7 @@ export default {
       setTimeout(() => {}, 300);
     },
     json_to_csv(json) {
-      let data = json.data.map((e) => ({
+      let data = json.map((e) => ({
         first_name: e.first_name,
         last_name: e.last_name,
         branch_name: e.department.branch && e.department.branch.branch_name,
@@ -1317,8 +1318,8 @@ export default {
           },
         })
         .then(({ data }) => {
-          console.log(`then`, data);
-          this.data = data;
+          this.data = data.data;
+          this.totalRowsCount = data.total;
           this.loadinglinear = false;
         })
         .catch(({ err }) => {
@@ -1351,8 +1352,9 @@ export default {
         },
       };
 
-      this.data = await this.$store.dispatch("employees", options);
-
+      let data = await this.$store.dispatch("employees", options);
+      this.data = data.data;
+      this.totalRowsCount = data.total;
       this.loadinglinear = false;
     },
 

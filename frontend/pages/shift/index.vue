@@ -135,41 +135,31 @@
         <v-toolbar-title style="color: black"
           ><span> {{ Model }} List</span></v-toolbar-title
         >
-        <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn dense x-small :ripple="false" text title="Reload">
-          <v-icon dark white @click="getDataFromApi()">mdi mdi-reload</v-icon>
-        </v-btn>
-        <!-- </template>
-          <span>Reload</span>
-        </v-tooltip> -->
-        <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn x-small :ripple="false" text title="Filter">
-          <v-icon dark white @click="toggleFilter">mdi-filter</v-icon>
-        </v-btn>
-        <!-- </template>
-          <span>Filter</span>
-        </v-tooltip> -->
-        <!-- <a style="padding-left: 10px" title="Reload Page/Reset Form" @click="getDataFromApi"><v-icon class="mx-1">mdi
-            mdi-reload</v-icon></a> -->
+        <span>
+          <v-btn dense x-small :ripple="false" text title="Reload">
+            <v-icon dark white @click="getDataFromApi()">mdi mdi-reload</v-icon>
+          </v-btn>
+        </span>
+        <span>
+          <v-btn x-small :ripple="false" text title="Filter">
+            <v-icon dark white @click="toggleFilter">mdi-filter</v-icon>
+          </v-btn>
+        </span>
+
         <v-spacer></v-spacer>
 
-        <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
-        <v-btn
-          v-if="can(`shift_create`)"
-          dense
-          x-small
-          :ripple="false"
-          text
-          title="Add   Shift Details"
-        >
-          <v-icon dark @click="goToCreate">mdi mdi-plus-circle</v-icon>
-        </v-btn>
-        <!-- </template>
-          <span>Add New Shift Details</span>
-        </v-tooltip> -->
+        <span>
+          <v-btn
+            v-if="can(`shift_create`)"
+            dense
+            x-small
+            :ripple="false"
+            text
+            title="Add   Shift Details"
+          >
+            <v-icon dark @click="goToCreate">mdi mdi-plus-circle</v-icon>
+          </v-btn>
+        </span>
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
