@@ -529,10 +529,14 @@ export default {
       //   this.$auth.user.user_type == "branch"
       // )
       {
-        this.deviceList();
+        
         this.getEmployeeList();
       }
     }, 5000);
+
+    setTimeout(() => {
+      this.deviceList();
+    }, 10000);
 
     this.setSubLeftMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");
