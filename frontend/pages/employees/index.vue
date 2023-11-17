@@ -1356,26 +1356,11 @@ export default {
       await this.getTimezone(id);
     },
     async getDataFromApi() {
-      //this.loading = true;
       this.loadinglinear = true;
-
-      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
-
-      let options = {
-        endpoint: this.endpoint,
-        refresh: this.refresh,
-        params: {
-          page: page,
-          sortBy: sortBy ? sortBy[0] : "",
-          sortDesc: sortDesc ? sortDesc[0] : "",
-          per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id,
-          department_id: this.department_filter_id,
-          ...this.filters,
-        },
-      };
-
-      let data = await this.$store.dispatch("employees", options);
+      this.options.endpoint = this.endpoint;
+      this.options.refresh = this.refresh;
+      this.options.filters = this.filters;
+      let data = await this.$store.dispatch("employees", this.options);
       this.data = data.data;
       this.totalRowsCount = data.total;
       this.loadinglinear = false;
