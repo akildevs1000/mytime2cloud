@@ -1099,6 +1099,11 @@ export default {
     });
 
     this.branches_list = await this.$store.dispatch("branches_list");
+
+    if (!this.data) {
+      this.refresh = true;
+      await this.getDataFromApi();
+    }
   },
   mounted() {
     //this.getDataFromApi();
