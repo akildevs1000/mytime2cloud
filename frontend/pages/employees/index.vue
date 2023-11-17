@@ -373,14 +373,11 @@
         >
           <v-tabs-slider></v-tabs-slider>
 
-          <v-tab
-            v-for="(item, index) in tabMenu"
-            :key="index"
-            :href="item.value"
-          >
+          <v-tab v-for="(item, index) in tabMenu" :key="index">
             {{ item.text }}
             <v-icon>{{ item.icon }}</v-icon>
           </v-tab>
+
           <v-icon
             @click="editDialog = false"
             style="margin-right: 4px"
@@ -395,16 +392,13 @@
 
         <v-card-text>
           <v-tabs-items v-model="tab">
-            <v-tab-item
-              v-for="(tb, index) in tabMenu"
-              :key="index"
-              :value="`${index}`"
-            >
+            <v-tab-item v-for="(item, index) in tabMenu" :key="index">
               <component
-                :is="getComponent(tab)"
+                :is="getComponent(item.value)"
                 :employeeId="employeeId"
                 @close-popup="editDialog = false"
-                @eventFromchild="getDataFromApi()"
+                @eventFromChild="handleEventFromChild"
+                v-if="tab == item.value"
               />
             </v-tab-item>
           </v-tabs-items>
@@ -519,7 +513,7 @@
               title="Filter"
             >
               <v-icon @click="toggleFilter" class="mx-1 ml-2"
-                >mdi mdi-filter</v-icon
+                >mdi-filter</v-icon
               >
             </v-btn>
           </span>
@@ -835,24 +829,23 @@ import EmployeeProfileView from "../../components/EmployeesLogin/EmployeeLanding
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
-const compList = [
-  EmployeeEdit,
-  Contact,
-  Passport,
-  Emirates,
-  Visa,
-  Bank,
-  Document,
-  Qualification,
-  Setting,
-  Payroll,
-  Login,
-];
 
 export default {
   components: {
     VueCropper,
     EmployeeProfileView,
+
+    EmployeeEdit,
+    Contact,
+    Passport,
+    Emirates,
+    Visa,
+    Bank,
+    Document,
+    Qualification,
+    Setting,
+    Payroll,
+    Login,
   },
 
   data: () => ({
@@ -885,10 +878,65 @@ export default {
     cropper: "",
     autoCrop: false,
     dialogCropping: false,
-    compList,
     comp: "EmployeeEdit",
-    tabMenu: [],
-    tab: "0",
+    tabMenu: [
+      {
+        text: "Profile",
+        icon: "mdi-account-box",
+        value: 0,
+      },
+      {
+        text: "Contact",
+        icon: "mdi-phone",
+        value: 1,
+      },
+      {
+        text: "Passport",
+        icon: "mdi-file-powerpoint-outline",
+        value: 2,
+      },
+      {
+        text: "Emirates",
+        icon: "mdi-city-variant",
+        value: 3,
+      },
+      {
+        text: "Visa",
+        icon: "mdi-file-document-multiple",
+        value: 4,
+      },
+      {
+        text: "Bank",
+        icon: "mdi-bank",
+        value: 5,
+      },
+      {
+        text: "Document",
+        icon: "mdi-file",
+        value: 6,
+      },
+      {
+        text: "Qualification",
+        icon: "mdi-account-box",
+        value: 7,
+      },
+      {
+        text: "Setting",
+        icon: "mdi-phone",
+        value: 8,
+      },
+      {
+        text: "Payroll",
+        icon: "mdi-briefcase",
+        value: 9,
+      },
+      {
+        text: "Login",
+        icon: "mdi-lock",
+        value: 10,
+      },
+    ],
+    tab: 0,
     employeeId: 0,
     employee_id: 0,
     employeeObject: {},
@@ -1008,7 +1056,7 @@ export default {
         text: "Timezone",
         align: "left",
         sortable: true,
-        key: "timezone",
+        key: "timezone_id",
         value: "timezone.name",
         filterable: true,
         filterSpecial: true,
@@ -1025,6 +1073,8 @@ export default {
     branch_id: null,
     isCompany: true,
     import_branch_id: "",
+
+    refresh: false,
   }),
 
   async created() {
@@ -1050,67 +1100,13 @@ export default {
 
     this.branches_list = await this.$store.dispatch("branches_list");
 
-    await this.getDataFromApi();
+    if (!this.data) {
+      this.refresh = true;
+      await this.getDataFromApi();
+    }
   },
   mounted() {
     //this.getDataFromApi();
-    this.tabMenu = [
-      {
-        text: "Profile",
-        icon: "mdi-account-box",
-        value: "#0",
-      },
-      {
-        text: "Contact",
-        icon: "mdi-phone",
-        value: "#1",
-      },
-      {
-        text: "Passport",
-        icon: "mdi-file-powerpoint-outline",
-        value: "#2",
-      },
-      {
-        text: "Emirates",
-        icon: "mdi-city-variant",
-        value: "#3",
-      },
-      {
-        text: "Visa",
-        icon: "mdi-file-document-multiple",
-        value: "#4",
-      },
-      {
-        text: "Bank",
-        icon: "mdi-bank",
-        value: "#5",
-      },
-      {
-        text: "Documents",
-        icon: "mdi-file",
-        value: "#6",
-      },
-      {
-        text: "Qualification",
-        icon: "mdi-account-box",
-        value: "#7",
-      },
-      {
-        text: "Setting",
-        icon: "mdi-phone",
-        value: "#8",
-      },
-      {
-        text: "Payroll",
-        icon: "mdi-briefcase",
-        value: "#9",
-      },
-      {
-        text: "Login",
-        icon: "mdi-lock",
-        value: "#10",
-      },
-    ];
     this.headers = [
       // { text: "#" },
       { text: "E.ID" },
@@ -1136,6 +1132,27 @@ export default {
     },
   },
   methods: {
+    getComponent(value) {
+      const componentsList = {
+        0: "EmployeeEdit",
+        1: "Contact",
+        2: "Passport",
+        3: "Emirates",
+        4: "Visa",
+        5: "Bank",
+        6: "Document",
+        7: "Qualification",
+        8: "Setting",
+        9: "Payroll",
+        10: "Login",
+      };
+      console.log(componentsList[value]);
+      return componentsList[value] || "div"; // default to a div if no component found
+    },
+    async handleEventFromChild() {
+      this.refresh = true;
+      await this.getDataFromApi();
+    },
     async openNewPage() {
       this.employee = {};
       this.departments = [];
@@ -1199,9 +1216,7 @@ export default {
 
       this.dialogCropping = false;
     },
-    getComponent() {
-      return this.compList[this.tab];
-    },
+
     close() {
       this.dialog = false;
       this.errors = [];
@@ -1264,7 +1279,7 @@ export default {
         this.btnLoader = true;
         this.$axios
           .post("/employee/import", payload, options)
-          .then(({ data }) => {
+          .then(async ({ data }) => {
             this.btnLoader = false;
             if (!data.status) {
               this.errors = data.errors;
@@ -1273,8 +1288,8 @@ export default {
               this.errors = [];
               this.snackbar = true;
               this.response = "Employees imported successfully";
-
-              this.getDataFromApi();
+              this.refresh = true;
+              await this.getDataFromApi();
               this.close();
             }
           })
@@ -1296,10 +1311,15 @@ export default {
     async toggleFilter() {
       // this.filters = {};
       this.isFilter = !this.isFilter;
+
+      if (this.isFilter) {
+        this.refresh = true;
+      }
     },
-    serachAll(e) {
+    async serachAll(e) {
       if ((e && e.length == 0) || e == null) {
-        this.getDataFromApi();
+        this.refresh = true;
+        await this.getDataFromApi();
         return;
       } else if (e.length <= 3) {
         return false;
@@ -1330,6 +1350,7 @@ export default {
         });
     },
     async applyFilters(id) {
+      this.refresh = true;
       await this.getDataFromApi();
       await this.getDepartments(id);
       await this.getTimezone(id);
@@ -1342,7 +1363,7 @@ export default {
 
       let options = {
         endpoint: this.endpoint,
-        isFilter: this.isFilter,
+        refresh: this.refresh,
         params: {
           page: page,
           sortBy: sortBy ? sortBy[0] : "",
@@ -1379,11 +1400,12 @@ export default {
       ) &&
         this.$axios
           .delete(`${this.endpoint}/${item.id}`)
-          .then(({ data }) => {
+          .then(async ({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {
-              this.getDataFromApi();
+              this.refresh = true;
+              await this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
             }
@@ -1405,7 +1427,7 @@ export default {
       if (this.editedIndex > -1) {
         this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, payload)
-          .then(({ data }) => {
+          .then(async ({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {
@@ -1418,7 +1440,8 @@ export default {
               });
               this.snackbar = data.status;
               this.response = data.message;
-              this.getDataFromApi();
+              this.refresh = true;
+              await this.getDataFromApi();
               this.close();
             }
           })
@@ -1426,11 +1449,12 @@ export default {
       } else {
         this.$axios
           .post(this.endpoint, payload)
-          .then(({ data }) => {
+          .then(async ({ data }) => {
             if (!data.status) {
               this.errors = data.errors;
             } else {
-              this.getDataFromApi();
+              this.refresh = true;
+              await this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
               this.close();
@@ -1509,7 +1533,7 @@ export default {
     saveToAPI(employee) {
       this.$axios
         .post("/employee-store", employee)
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           //this.loading = false;
 
           if (!data.status) {
@@ -1523,7 +1547,8 @@ export default {
             this.errors = [];
             this.snackbar = true;
             this.response = "Employees inserted successfully";
-            this.getDataFromApi();
+            this.refresh = true;
+            await this.getDataFromApi();
             this.employeeDialog = false;
           }
         })

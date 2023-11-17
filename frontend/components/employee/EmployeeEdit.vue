@@ -74,7 +74,6 @@
                   :hide-details="!errors.display_name"
                   type="text"
                   v-model="employee.display_name"
-                  :error="errors.display_name"
                   :error-messages="
                     errors && errors.display_name ? errors.display_name[0] : ''
                   "
@@ -151,6 +150,12 @@
                 <v-select
                   @change="filterDepartmentsByBranch($event)"
                   v-model="employee.branch_id"
+                  :hide-details="!errors.branch_id"
+                  :error-messages="
+                    errors && errors.branch_id
+                      ? errors.branch_id[0]
+                      : ''
+                  "
                   :items="branchesList"
                   dense
                   placeholder="Branch"
@@ -170,7 +175,6 @@
                   placeholder="Select"
                   v-model="employee.department_id"
                   :hide-details="!errors.department_id"
-                  :error="errors.department_id"
                   :error-messages="
                     errors && errors.department_id
                       ? errors.department_id[0]
@@ -350,13 +354,11 @@ export default {
     departments: [],
     sub_departments: [],
     designations: [],
-    roles: [],
     leave_groups: [],
     data: [],
     errors: [],
     departments: [],
     department_id: "",
-    payloadOptions: {},
     filterBranchId: null,
     branchesList: [],
     isCompany: true,
@@ -364,27 +366,6 @@ export default {
 
   async created() {
     this.getInfo(this.employeeId);
-
-    this.payloadOptions = {
-      params: {
-        per_page: 1000,
-        company_id: this.$auth.user.company_id,
-        //department_ids: this.$auth.user.assignedDepartments,
-      },
-    };
-    // this.getDepartments();
-    // this.getSubDepartments();
-    this.getDesignations();
-    this.getRoles();
-    this.getLeaveGroups();
-    this.getLeaveManagers();
-
-    try {
-      let employee_id = this.$route.params.id;
-      if (employee_id) {
-        this.editItemId(employee_id);
-      }
-    } catch (error) {}
 
     if (this.$auth.user.branch_id) {
       this.branch_id = this.$auth.user.branch_id;
@@ -423,69 +404,6 @@ export default {
     },
   },
   methods: {
-    filterDepartmentsByBranch(filterBranchId) {
-      this.getDepartments(filterBranchId);
-      //this.getSubDepartments(filterBranchId);
-    },
-    getDepartments(filterBranchId) {
-      this.filterBranchId = filterBranchId;
-      this.payloadOptions = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company_id,
-          //department_ids: this.$auth.user.assignedDepartments,
-          filter_branch_id: filterBranchId,
-        },
-      };
-      this.$axios.get(`departments`, this.payloadOptions).then(({ data }) => {
-        this.departments = data.data;
-      });
-    },
-    filterSubDepartmentsByDepartment(filterDepartmentId) {
-      this.employee.sub_department_id = "0";
-      this.payloadOptions = {
-        params: {
-          per_page: 1000,
-          company_id: this.$auth.user.company_id,
-          department_ids: [filterDepartmentId],
-        },
-      };
-      this.$axios
-        .get(`sub-departments`, this.payloadOptions)
-        .then(({ data }) => {
-          this.sub_departments = data.data;
-        });
-    },
-    getDesignations() {
-      this.$axios.get(`designation`, this.payloadOptions).then(({ data }) => {
-        this.designations = data.data;
-      });
-    },
-    getRoles() {
-      this.payloadOptions.params.role_type = "employee";
-
-      this.$axios.get(`role`, this.payloadOptions).then(({ data }) => {
-        this.roles = data.data;
-      });
-    },
-    getLeaveGroups() {
-      this.payloadOptions.params.company_id = this.$auth.user.company_id;
-
-      this.$axios.get(`leave_groups`, this.payloadOptions).then(({ data }) => {
-        this.leave_groups = data.data;
-      });
-    },
-    getLeaveManagers() {
-      this.payloadOptions.params.company_id = this.$auth.user.company_id;
-
-      this.$axios.get(`employeesList`, this.payloadOptions).then(({ data }) => {
-        this.leave_managers = data.data;
-      });
-    },
-    // getEmployeeName(item) {
-
-    //   return item.first_name ? item.first_name + ' ' + item.last_name : '---';
-    // },
     getInfo(id) {
       this.$axios
         .get(`employee-single/${id}`)
@@ -513,8 +431,56 @@ export default {
             this.filterSubDepartmentsByDepartment(this.employee.department_id);
           // this.employee.id = data.id;
           this.previewImage = data.profile_picture;
+          this.getDesignations();
         })
         .catch((err) => console.log(err));
+    },
+    getDesignations() {
+      this.$axios
+        .get(`designation`, {
+          params: {
+            per_page: 1000,
+            company_id: this.$auth.user.company_id,
+            //department_ids: this.$auth.user.assignedDepartments,
+          },
+        })
+        .then(({ data }) => {
+          this.designations = data.data;
+        })
+        .catch((err) => console.log(err));
+    },
+    filterDepartmentsByBranch(filterBranchId) {
+      this.getDepartments(filterBranchId);
+    },
+    getDepartments(filterBranchId) {
+      this.filterBranchId = filterBranchId;
+
+      this.$axios
+        .get(`departments`, {
+          params: {
+            per_page: 1000,
+            company_id: this.$auth.user.company_id,
+            //department_ids: this.$auth.user.assignedDepartments,
+            filter_branch_id: filterBranchId,
+          },
+        })
+        .then(({ data }) => {
+          this.departments = data.data;
+        });
+    },
+    filterSubDepartmentsByDepartment(filterDepartmentId) {
+      this.employee.sub_department_id = "0";
+      this.$axios
+        .get(`sub-departments`, {
+          params: {
+            per_page: 1000,
+            company_id: this.$auth.user.company_id,
+            department_ids: [filterDepartmentId],
+          },
+        })
+        .then(({ data }) => {
+          this.sub_departments = data.data;
+        });
     },
     saveCroppedImageStep2() {
       this.cropedImage = this.$refs.cropper.getCroppedCanvas().toDataURL();
