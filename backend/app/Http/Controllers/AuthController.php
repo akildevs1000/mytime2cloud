@@ -226,7 +226,7 @@ class AuthController extends Controller
                     "display_name",
                     "branch_id",
                     "leave_group_id",
-                    "report_manager_id",
+                    "reporting_manager_id",
                 );
 
                 $q->withOut(["user", "department", "designation", "sub_department", "branch"]);
