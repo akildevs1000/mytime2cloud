@@ -263,7 +263,7 @@
                   <v-select
                     @change="filterDepartmentsByBranch(employee.branch_id)"
                     v-model="employee.branch_id"
-                    :items="branches_list"
+                    :items="branchList"
                     dense
                     placeholder="Select Branch"
                     outlined
@@ -453,7 +453,7 @@
                     v-model="import_branch_id"
                     outlined
                     dense
-                    :items="branches_list"
+                    :items="branchList"
                   ></v-select>
                 </v-col>
                 <v-col cols="12">
@@ -648,7 +648,7 @@
                     item-value="id"
                     :items="[
                       { name: `All Branches`, id: `` },
-                      ...branches_list,
+                      ...branchList,
                     ]"
                     placeholder="All Branches"
                     solo
@@ -1069,7 +1069,7 @@ export default {
         value: "options",
       },
     ],
-    branches_list: [],
+    branchList: [],
     branch_id: null,
     isCompany: true,
     import_branch_id: "",
@@ -1097,8 +1097,6 @@ export default {
       filterable: true,
       filterSpecial: true,
     });
-
-    this.branches_list = await this.$store.dispatch("branches_list");
 
     if (!this.data) {
       this.refresh = true;
@@ -1146,7 +1144,6 @@ export default {
         9: "Payroll",
         10: "Login",
       };
-      console.log(componentsList[value]);
       return componentsList[value] || "div"; // default to a div if no component found
     },
     async handleEventFromChild() {
@@ -1314,6 +1311,10 @@ export default {
 
       if (this.isFilter) {
         this.refresh = true;
+        this.branchList = await this.$store.dispatch("fetchDropDowns", {
+          key: "branchList",
+          endpoint: "branch-list",
+        });
       }
     },
     async serachAll(e) {
@@ -1356,26 +1357,16 @@ export default {
       await this.getTimezone(id);
     },
     async getDataFromApi() {
-      //this.loading = true;
       this.loadinglinear = true;
 
-      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
-
-      let options = {
-        endpoint: this.endpoint,
+      const data = await this.$store.dispatch("fetchData", {
+        key: "employees",
+        options: this.options,
         refresh: this.refresh,
-        params: {
-          page: page,
-          sortBy: sortBy ? sortBy[0] : "",
-          sortDesc: sortDesc ? sortDesc[0] : "",
-          per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id,
-          department_id: this.department_filter_id,
-          ...this.filters,
-        },
-      };
+        endpoint: this.endpoint,
+        filters: this.filters,
+      });
 
-      let data = await this.$store.dispatch("employees", options);
       this.data = data.data;
       this.totalRowsCount = data.total;
       this.loadinglinear = false;

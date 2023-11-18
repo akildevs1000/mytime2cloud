@@ -80,7 +80,7 @@
       </v-col>
 
       <v-col lg="3" md="3" sm="12" xs="12">
-        <v-card class="py-2 mb-2" v-if="branchesList.length > 1">
+        <v-card class="py-2 mb-2" v-if="branchList.length">
           <!-- <v-row>
             <v-col md="12" class="text-center"> 2222 </v-col>
           </v-row> -->
@@ -100,11 +100,8 @@
                 v-model="branch_id"
                 dense
                 text
-                :items="[
-                  { branch_name: 'All Branches', id: '' },
-                  ...branchesList,
-                ]"
-                item-text="branch_name"
+                :items="[{ name: 'All Branches', id: '' }, ...branchList]"
+                item-text="name"
                 item-value="id"
               ></v-autocomplete>
             </v-col>
@@ -143,7 +140,7 @@
             <v-list-item-group color="primary">
               <v-list-item
                 @click="filterBranch(branch)"
-                v-for="branch in branchesList"
+                v-for="branch in branchList"
               >
                 <v-list-item-content class="text-left">
                   <v-list-item-title class="black--text">
@@ -226,7 +223,7 @@ export default {
   },
   data() {
     return {
-      branchesList: [],
+      branchList:[],
       selectedBranchName: "All Branches",
       seelctedBranchId: "",
       branch_id: "",
@@ -243,12 +240,26 @@ export default {
     //   this.$router.push(`/dashboard/employee`);
     // }
   },
-  created() {
-    // if (this.$auth.user.user_type == "employee") {
-    //   this.$router.push(`/dashboard/employee`);
-    // }
-    this.getBranches();
-    //this.$root.$on("openalert", this.openalert);
+  async created() {
+    try {
+      await this.$store.dispatch("fetchData", {
+        key: "devices",
+        endpoint: "device_list",
+        refresh: true,
+      });
+      await this.$store.dispatch("fetchData", {
+        key: "employees",
+        endpoint: "employee",
+        refresh: true,
+      });
+      this.branchList = await this.$store.dispatch("fetchDropDowns", {
+        key: "branchList",
+        endpoint: "branch-list",
+        refresh: true,
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   },
   watch: {
     overlay(val) {
@@ -277,18 +288,6 @@ export default {
       //   this.seelctedBranchId = "";
       //   this.branch_id = "";
       // }
-    },
-    getBranches() {
-      this.$axios
-        .get(`branches_list`, {
-          params: {
-            per_page: 1000,
-            company_id: this.$auth.user.company_id,
-          },
-        })
-        .then(({ data }) => {
-          this.branchesList = data;
-        });
     },
   },
 };

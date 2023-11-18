@@ -518,26 +518,9 @@ export default {
     };
   },
   created() {
-    //this.verifyToken();
-
     this.$store.commit("loginType", this.$auth.user.user_type);
     this.getCompanyDetails();
     this.setMenus();
-
-    setTimeout(() => {
-      // if (
-      //   this.$auth.user.user_type == "company" ||
-      //   this.$auth.user.user_type == "branch"
-      // )
-      {
-        this.getEmployeeList();
-      }
-    }, 5000);
-
-    setTimeout(() => {
-      this.deviceList();
-    }, 10000);
-
     this.setSubLeftMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");
   },
@@ -627,46 +610,6 @@ export default {
     },
   },
   methods: {
-    // verifyToken() {
-    //   let token = this.$route.query.token;
-
-    //   if (token == "") {
-    //     token = this.$store.state.login_token;
-    //   }
-    //   // alert(this.$route.query.token);
-    //   if (this.$route.query.token) {
-    //     token = this.$route.query.token;
-    //     token = token.replace(":" + process.env.SECRET_PASS_PHRASE, "");
-    //     token = token; //this.$crypto.decrypt1(token);
-
-    //     if (token != "" && token != "undefined") {
-    //       this.$store.commit("login_token", token);
-
-    //       let options = {
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //           Authorization: "Bearer " + token,
-    //         },
-    //       };
-    //       this.$axios
-    //         .get(`me`, null, options)
-    //         .then(({ data }) => {
-    //           if (!data.user) {
-    //             alert("Invalid Login Details. Please try again");
-    //             this.$router.push(`/login`);
-
-    //             return false;
-    //           } else {
-    //             this.$router.push(`/dashboard2`);
-    //           }
-    //         })
-    //         .catch((err) => console.log(err));
-    //     } else {
-    //       this.$router.push(`/login`);
-    //     }
-    //   } else {
-    //   }
-    // },
     getBranchName() {
       return this.$auth.user.branch_name;
     },
@@ -696,24 +639,7 @@ export default {
       }
       if (redirect) this.$router.push(page);
     },
-    deviceList() {
-      this.$axios
-        .get(`device_list`, {
-          params: { company_id: this.$auth.user.company_id },
-        })
-        .then(({ data }) => {
-          this.$store.commit("devices", data);
-        });
-    },
-    getEmployeeList() {
-      this.$axios
-        .get(`employee`, {
-          params: { per_page: 1000, company_id: this.$auth.user.company_id },
-        })
-        .then(async ({ data }) => {
-          this.$store.commit("employees", data.data);
-        });
-    },
+
     setMenus() {
       if (this.$auth.user.role.role_type == 0) {
         {
@@ -786,30 +712,6 @@ export default {
     },
     navigateToLeavePage() {
       this.$router.push("/leaves");
-    },
-    verifyLeaveNotificationsApi() {
-      if (!this.$auth.user.company_id) return false;
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id || 0,
-        },
-      };
-
-      this.$axios.get(`employee_leaves_new`, options).then(({ data }) => {
-        if (data.status) {
-          data.new_leaves_data.data.forEach((element) => {
-            this.snackNotification = true;
-
-            this.snackNotificationText =
-              "New Leave Notification : From : " +
-              element.employee.first_name +
-              " " +
-              element.employee.last_name;
-          });
-
-          this.pendingLeavesCount = data.total_pending_count;
-        }
-      });
     },
 
     filterBranch(branch) {
