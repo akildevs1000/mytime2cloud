@@ -12,6 +12,9 @@ export const state = () => ({
 
   devices: [],
   employees: null,
+  employeeList: null,
+  deviceList: null,
+
   shifts: null,
   department_list: null,
   timezone_list: null,
@@ -44,6 +47,8 @@ export const mutations = {
       branch_id: "",
       devices: [],
       employees: null,
+      employeeList: null,
+      deviceList: null,
       shifts: null,
       department_list: null,
       timezone_list: null,
@@ -75,6 +80,12 @@ export const mutations = {
   },
   employees(state, value) {
     state.employees = value;
+  },
+  employeeList(state, value) {
+    state.employeeList = value;
+  },
+  deviceList(state, value) {
+    state.deviceList = value;
   },
   shifts(state, value) {
     state.shifts = value;
@@ -160,6 +171,8 @@ export const actions = {
       }
 
       const { data } = await this.$axios.get(endpoint, configs);
+      console.log(`Fetching ${key}:`, data);
+
       commit(key, data);
       return data;
     } catch (error) {

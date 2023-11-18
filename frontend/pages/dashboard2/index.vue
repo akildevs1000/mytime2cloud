@@ -223,7 +223,7 @@ export default {
   },
   data() {
     return {
-      branchList:[],
+      branchList: [],
       selectedBranchName: "All Branches",
       seelctedBranchId: "",
       branch_id: "",
@@ -242,14 +242,14 @@ export default {
   },
   async created() {
     try {
-      await this.$store.dispatch("fetchData", {
-        key: "devices",
-        endpoint: "device_list",
+      await this.$store.dispatch("fetchDropDowns", {
+        key: "deviceList",
+        endpoint: "device-list",
         refresh: true,
       });
-      await this.$store.dispatch("fetchData", {
-        key: "employees",
-        endpoint: "employee",
+      await this.$store.dispatch("fetchDropDowns", {
+        key: "employeeList",
+        endpoint: "employee-list",
         refresh: true,
       });
       this.branchList = await this.$store.dispatch("fetchDropDowns", {

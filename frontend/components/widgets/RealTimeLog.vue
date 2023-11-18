@@ -98,7 +98,7 @@ export default {
   },
   computed: {
     employees() {
-      return this.$store.state.employees.data.map((e) => ({
+      return this.$store.state.employeeList.map((e) => ({
         system_user_id: e.system_user_id,
         first_name: e.first_name,
         last_name: e.last_name,
