@@ -167,7 +167,7 @@ export default {
   }),
   computed: {
     employees() {
-      let employees = this.$store.state.employees.map((e) => ({
+      let employees = this.$store.state.employees.data.map((e) => ({
         system_user_id: e.system_user_id,
         first_name: e.first_name,
         last_name: e.last_name,
