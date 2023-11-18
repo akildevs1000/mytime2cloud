@@ -147,6 +147,7 @@
       </span>
 
       <v-spacer></v-spacer>
+
       <v-menu
         nudge-bottom="50"
         transition="scale-transition"
@@ -159,7 +160,7 @@
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon color="red" v-bind="attrs" v-on="on">
             <v-avatar size="35" style="border: 1px solid #6946dd">
-              <v-img :src="getLogo"></v-img>
+              <v-img class="company_logo" :src="getLogo"></v-img>
             </v-avatar>
           </v-btn>
         </template>
@@ -529,7 +530,6 @@ export default {
       //   this.$auth.user.user_type == "branch"
       // )
       {
-        
         this.getEmployeeList();
       }
     }, 5000);
@@ -599,20 +599,21 @@ export default {
     },
 
     getLogo() {
-      let logosrc = "";
-      if (this.$auth.user && this.$auth.user.user_type == "master") {
+      let logosrc = "/no-image.PNG";
+
+      if (
+        this.$auth.user &&
+        this.$auth.user.user_type == "company" &&
+        this.$auth.user.company.logo
+      ) {
+        logosrc = this.$auth.user.company.logo || "/no-image.PNG1111111";
+      } else if (this.$auth.user && this.$auth.user.user_type == "master") {
         logosrc = "/no-image.PNG";
       } else if (this.$auth.user && this.$auth.user.user_type == "employee") {
         logosrc =
           this.$auth.user.employee.profile_picture || "/no-profile-image.jpg";
       } else if (this.$auth.user && this.$auth.user.user_type == "branch") {
         logosrc = this.$auth.user.branch_logo || "/no-profile-image.jpg";
-      }
-
-      if (logosrc == "") {
-        logosrc = this.$auth.user
-          ? this.$auth.user.company.logo
-          : "/no-profile-image.jpg";
       }
 
       return logosrc;
@@ -1321,6 +1322,10 @@ button {
 
 .icon-blue {
   color: #755fc9 !important;
+}
+
+.company_logo .v-image__image--cover {
+  background-size: contain;
 }
 </style>
 
