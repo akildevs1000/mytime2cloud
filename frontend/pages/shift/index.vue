@@ -27,9 +27,9 @@
                 dense
                 small
                 v-model="payload.branch_id"
-                item-text="branch_name"
+                item-text="name"
                 item-value="id"
-                :items="branchesList"
+                :items="branchList"
                 placeholder="Branch"
                 solo
                 flat
@@ -213,11 +213,11 @@
                   dense
                   small
                   v-model="filters[header.key]"
-                  item-text="branch_name"
+                  item-text="name"
                   item-value="id"
                   :items="[
-                    { branch_name: `All Branches`, id: `` },
-                    ...branchesList,
+                    { name: `All Branches`, id: `` },
+                    ...branchList,
                   ]"
                   placeholder="All Branches"
                   solo
@@ -289,7 +289,7 @@ export default {
 
   data: () => ({
     showDialog: false,
-    branchesList: [],
+    branchList: [],
     isFilter: false,
     filters: {},
     shifts: [],
@@ -364,20 +364,6 @@ export default {
       this.headers.splice(1, 0, ...branch_header);
     }
 
-    try {
-      const { data } = await this.$axios.get(`branches_list`, {
-        params: {
-          per_page: 100,
-          company_id: this.$auth.user.company_id,
-        },
-      });
-      this.branchesList = data;
-    } catch (error) {
-      // Handle the error
-      console.error("Error fetching branch list", error);
-    }
-
-    // this.getShifts();
     this.getComponent();
   },
 
@@ -410,21 +396,21 @@ export default {
           break;
       }
     },
-
-    getShifts() {
-      let options = {
-        per_page: 1000,
-        company_id: this.$auth.user.company_id,
-        branch_id: this.branch_id,
-      };
-      this.$axios.get("shift", { params: options }).then(({ data }) => {
-        this.shifts = data.data;
-        //this.shifts.unshift({ name: "All Shifts", id: "" });
-      });
-    },
-    toggleFilter() {
+    async toggleFilter() {
       // this.filters = {};
       this.isFilter = !this.isFilter;
+
+      if (this.isFilter) {
+        try {
+          this.branchList = await this.$store.dispatch("fetchDropDowns", {
+            key: "branchList",
+            endpoint: "branch-list",
+            refresh: true,
+          });
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
     },
     goToCreate() {
       this.isNew = true;
