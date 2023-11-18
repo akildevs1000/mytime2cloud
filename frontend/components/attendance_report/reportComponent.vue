@@ -651,6 +651,7 @@
                   @close-popup="generateLogsDialog = false"
                   :endpoint="render_endpoint"
                   :system_user_id="system_user_id"
+                  :shift_type_id="shift_type_id"
                   @update-data-table="getDataFromApi()"
                 />
               </v-row>
