@@ -80,7 +80,7 @@
       </v-col>
 
       <v-col lg="3" md="3" sm="12" xs="12">
-        <v-card class="py-2 mb-2" v-if="branchesList.length > 1">
+        <v-card class="py-2 mb-2" v-if="branchList.length">
           <!-- <v-row>
             <v-col md="12" class="text-center"> 2222 </v-col>
           </v-row> -->
@@ -100,7 +100,7 @@
                 v-model="branch_id"
                 dense
                 text
-                :items="[{ name: 'All Branches', id: '' }, ...branchesList]"
+                :items="[{ name: 'All Branches', id: '' }, ...branchList]"
                 item-text="name"
                 item-value="id"
               ></v-autocomplete>
@@ -140,7 +140,7 @@
             <v-list-item-group color="primary">
               <v-list-item
                 @click="filterBranch(branch)"
-                v-for="branch in branchesList"
+                v-for="branch in branchList"
               >
                 <v-list-item-content class="text-left">
                   <v-list-item-title class="black--text">
@@ -223,7 +223,7 @@ export default {
   },
   data() {
     return {
-      branchesList: [],
+      branchList:[],
       selectedBranchName: "All Branches",
       seelctedBranchId: "",
       branch_id: "",
@@ -252,8 +252,8 @@ export default {
         endpoint: "employee",
         refresh: true,
       });
-      this.branchesList = await this.$store.dispatch("fetchDropDowns", {
-        key: "branches_list",
+      this.branchList = await this.$store.dispatch("fetchDropDowns", {
+        key: "branchList",
         endpoint: "branch-list",
         refresh: true,
       });

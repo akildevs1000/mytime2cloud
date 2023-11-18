@@ -15,7 +15,7 @@ export const state = () => ({
   shifts: null,
   department_list: null,
   timezone_list: null,
-  branches_list: null,
+  branchList: null,
   roles: null,
   designation_list: null,
   leave_groups: null,
@@ -47,7 +47,7 @@ export const mutations = {
       shifts: null,
       department_list: null,
       timezone_list: null,
-      branches_list: null,
+      branchList: null,
       roles: null,
       designation_list: null,
       leave_groups: null,
@@ -124,8 +124,8 @@ export const mutations = {
     state.shift_name = value;
   },
 
-  branches_list(state, value) {
-    state.branches_list = value;
+  branchList(state, value) {
+    state.branchList = value;
   },
 };
 
@@ -134,23 +134,55 @@ export const actions = {
     commit("RESET_STATE");
   },
 
-  async branches_list({ commit, state }) {
-
-    if (state.branches_list) return state.branches_list;
+  async fetchData({ commit, state }, { key, refresh, endpoint, options, filters }) {
 
     try {
-      const { data } = await this.$axios.get(`branch-list`, {
+      // if (state[key] && !options.refresh) {
+      //   return state[key];
+      // }
+
+      let configs = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      if (options) {
+        const { page, sortBy, sortDesc, itemsPerPage } = options;
+        configs.params.page = page;
+        configs.params.per_page = itemsPerPage;
+        configs.params.sortBy = sortBy ? sortBy[0] : "";
+        configs.params.sortDesc = sortDesc ? sortDesc[0] : "";
+      }
+
+      if (filters) {
+        configs.params = { ...configs.params, ...filters };
+      }
+
+      const { data } = await this.$axios.get(endpoint, configs);
+      commit(key, data);
+      return data;
+    } catch (error) {
+      console.error(`Error fetching ${key}:`, error);
+      throw new Error(`Failed to fetch ${key}: ${error.message}`);
+    }
+  },
+
+  async fetchDropDowns({ commit }, { key, endpoint }) {
+
+    try {
+
+      const { data } = await this.$axios.get(endpoint, {
         params: {
           order_by: "name",
           company_id: this.$auth.user.company_id,
         },
       });
-      commit("branches_list", data);
-
+      commit(key, data);
       return data;
     } catch (error) {
-      // Handle the error
-      console.error("Error fetching branch list", error);
+      console.error(`Error fetching ${key}:`, error);
+      throw new Error(`Failed to fetch ${key}: ${error.message}`);
     }
   },
 
@@ -205,20 +237,6 @@ export const actions = {
     }
   },
 
-  async employees({ commit, state }, options) {
-
-    try {
-      // if (state.employees && options.refresh == false) {
-      //   return state.employees;
-      // };
-      const { data } = await this.$axios.get(options.endpoint, options);
-      commit("employees", data);
-      return data;
-    } catch (error) {
-      return error;
-    }
-  },
-
   async department_list({ commit, state }, options) {
     try {
       if (state.department_list && options.isFilter == false) return state.department_list;
@@ -251,7 +269,5 @@ export const actions = {
       return error;
     }
   },
-
-
 
 };
