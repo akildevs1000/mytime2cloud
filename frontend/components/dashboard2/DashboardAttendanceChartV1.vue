@@ -144,52 +144,54 @@ export default {
       );
     },
     renderChart(data) {
-      this.chartOptions.chart.height = this.height;
-      this.chartOptions.series = this.series;
-
-      let counter = 0;
-
-      this.chartOptions.series = [
-        {
-          name: "Present",
-          data: [],
-        },
-        {
-          name: "Absent",
-          data: [],
-        },
-        {
-          name: "Missing",
-          data: [],
-        },
-        {
-          name: "WeekOff",
-          data: [],
-        },
-      ];
-
-      this.chartOptions.xaxis = {
-        categories: [],
-      };
-      data.forEach((item) => {
-        this.chartOptions.series[0]["data"][counter] = parseInt(
-          item.presentCount
-        );
-        this.chartOptions.series[1]["data"][counter] = parseInt(
-          item.absentCount
-        );
-        this.chartOptions.series[2]["data"][counter] = parseInt(
-          item.missingCount
-        );
-        this.chartOptions.series[3]["data"][counter] = parseInt(item.offCount);
-        this.chartOptions.xaxis.categories[counter] = this.$dateFormat.format2(
-          item.date
-        );
-
-        counter++;
-      });
-      this.loading = false;
       try {
+        this.chartOptions.chart.height = this.height;
+        this.chartOptions.series = this.series;
+
+        let counter = 0;
+
+        this.chartOptions.series = [
+          {
+            name: "Present",
+            data: [],
+          },
+          {
+            name: "Absent",
+            data: [],
+          },
+          {
+            name: "Missing",
+            data: [],
+          },
+          {
+            name: "WeekOff",
+            data: [],
+          },
+        ];
+
+        this.chartOptions.xaxis = {
+          categories: [],
+        };
+        data.forEach((item) => {
+          this.chartOptions.series[0]["data"][counter] = parseInt(
+            item.presentCount
+          );
+          this.chartOptions.series[1]["data"][counter] = parseInt(
+            item.absentCount
+          );
+          this.chartOptions.series[2]["data"][counter] = parseInt(
+            item.missingCount
+          );
+          this.chartOptions.series[3]["data"][counter] = parseInt(
+            item.offCount
+          );
+          this.chartOptions.xaxis.categories[counter] =
+            this.$dateFormat.format2(item.date);
+
+          counter++;
+        });
+        this.loading = false;
+
         new ApexCharts(
           document.querySelector("#" + this.name),
           this.chartOptions

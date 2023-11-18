@@ -12,6 +12,7 @@
         </template>
       </v-snackbar>
     </div>
+
     <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
       <v-toolbar class="backgrounds" dense flat>
         <v-toolbar-title> </v-toolbar-title>
@@ -991,6 +992,7 @@ export default {
       },
     ],
     max_date: null,
+    originalTableHeaders: [],
   }),
 
   computed: {
@@ -1065,6 +1067,7 @@ export default {
         this.payload.from_date = this.payload.daily_date;
         this.payload.to_date = this.payload.daily_date;
       }
+      this.originalTableHeaders = this.headers;
 
       this.getDataFromApi();
     },
@@ -1396,6 +1399,17 @@ export default {
           cache: true,
         },
       };
+
+      // console.log(this.employee_id);
+      // if (this.employee_id) {
+      //   console.log("headers", this.headers);
+
+      //   this.headers = this.originalTableHeaders.filter(
+      //     (item) => item.value != "employee_name"
+      //   );
+      // } else {
+      //   this.headers = this.originalTableHeaders;
+      // }
       if (filter_column != "") options.params[filter_column] = filter_value;
 
       this.$axios

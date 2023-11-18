@@ -656,7 +656,7 @@ class EmployeeController extends Controller
         $arr["email"] = $request->email;
         $arr["company_id"] = $request->company_id;
         $arr["employee_role_id"] = $request->employee_role_id;
-        $arr["role_id"] = $request->employee_role_id;
+        $arr["role_id"] = $request->employee_role_id ?? 0;
 
         if ($request->password != '') {
             $arr['password'] = Hash::make($request->password ?? "secret");
@@ -713,22 +713,28 @@ class EmployeeController extends Controller
             return ["status" => false, "errors" => ["Employee limit reached. Maximum limit is " . $maxEmployee]];
         }
 
-        $data = $this->saveFile($file);
+        $dataCSV = $this->saveFile($file);
 
-        if (is_array($data) && !$data["status"]) {
-            return ["status" => false, "errors" => $data["errors"]];
+        if (is_array($dataCSV) && !$dataCSV["status"]) {
+            return ["status" => false, "errors" => $dataCSV["errors"]];
         }
 
-        $data = $this->csvParser($data);
+        $dataCSV = $this->csvParser($dataCSV);
 
-        if (array_key_exists("status", $data)) {
-            return ["status" => false, "errors" => $data["errors"]];
+        if (array_key_exists("status", $dataCSV)) {
+            return ["status" => false, "errors" => $dataCSV["errors"]];
         }
         $success = false;
 
         DB::beginTransaction();
         try {
-            foreach ($data as $data) {
+            foreach ($dataCSV as $data1) {
+                $data = [];
+                foreach ($data1 as $key => $value) {
+                    $data[$key] = trim($value);
+                }
+
+
                 $validator = $this->validateImportData($data);
                 if (!$this->checkIfDepartmentExist($data['department_code'])) {
                     return [
@@ -787,7 +793,8 @@ class EmployeeController extends Controller
     }
     public function validateImportData($data)
     {
-        $data["system_user_id"] = $data["employee_device_id"];
+        if (isset($data["employee_device_id"]))
+            $data["system_user_id"] = $data["employee_device_id"];
 
         $employee = [
             "employee_id" => $data["employee_id"],

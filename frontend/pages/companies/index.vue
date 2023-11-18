@@ -221,10 +221,9 @@
                             <v-img
                               @click="onpick_attachment"
                               style="
-                                width: 150px;
-                                height: 150px;
+                                max-width: 90%;
                                 margin: 0 auto;
-                                border-radius: 50%;
+                                border-radius: 10%;
                               "
                               :src="
                                 previewImage ||

@@ -13,7 +13,6 @@
       </v-snackbar>
     </div>
     <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
-      {{ payload1 }}
       <v-toolbar class="backgrounds" dense flat>
         <v-toolbar-title> </v-toolbar-title>
 
