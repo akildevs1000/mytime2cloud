@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 
 // Device
 Route::apiResource('device', DeviceController::class);
+Route::get('device-list', [DeviceController::class, 'dropdownList']);
+
 Route::get('device/search/{key}', [DeviceController::class, 'search']);
 Route::get('device-by-user/{id}', [DeviceController::class, 'getDeviceByUserId']);
 Route::post('device/details', [DeviceController::class, 'getDeviceCompany']);
