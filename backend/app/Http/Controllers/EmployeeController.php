@@ -656,7 +656,7 @@ class EmployeeController extends Controller
         $arr["email"] = $request->email;
         $arr["company_id"] = $request->company_id;
         $arr["employee_role_id"] = $request->employee_role_id;
-        $arr["role_id"] = $request->employee_role_id;
+        $arr["role_id"] = $request->employee_role_id ?? 0;
 
         if ($request->password != '') {
             $arr['password'] = Hash::make($request->password ?? "secret");

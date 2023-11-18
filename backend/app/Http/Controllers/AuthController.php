@@ -224,7 +224,8 @@ class AuthController extends Controller
                     "overtime",
                     "display_name",
                     "display_name",
-                    "branch_id"
+                    "branch_id",
+                    "leave_group_id",
                 );
 
                 $q->withOut(["user", "department", "designation", "sub_department", "branch"]);
