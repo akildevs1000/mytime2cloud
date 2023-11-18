@@ -885,9 +885,12 @@ class RenderController extends Controller
             $model->where("date", $date);
             $model->whereIn("status", ["P", "A", "M", "O", "L", "H", "V"]);
 
-            $model->when($user_id, function ($q) use ($user_id) {
-                return $q->where("employee_id", $user_id);
-            });
+            // $model->when($user_id, function ($q) use ($user_id) {
+            //     return $q->where("employee_id", $user_id);
+            // });
+
+            $model->where("employee_id", $user_id);
+
 
             $model->delete();
 
