@@ -152,7 +152,6 @@ export default {
     }
 
     this.time3 = [this.from_date, this.to_date];
-    console.log(this.time3);
   },
   created() {
     if (this.defaultFilterType) {
@@ -231,7 +230,7 @@ export default {
 
         return;
       }
-      console.log(this.from_date, this.to_date);
+
       if (this.from_date && this.to_date) {
         let data = {
           from: this.from_date,
