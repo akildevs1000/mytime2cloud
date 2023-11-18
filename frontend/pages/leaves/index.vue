@@ -1306,7 +1306,7 @@ export default {
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
-      console.log(this.filters);
+
       if (this.filters) {
         page = 1;
       }

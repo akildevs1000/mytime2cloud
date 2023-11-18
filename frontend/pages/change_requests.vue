@@ -353,8 +353,6 @@ export default {
   async created() {
     this.loading = true;
 
-    console.log(this.$auth.user.branch_id);
-
     if (this.$auth.user.branch_id) {
       this.branch_id = this.$auth.user.branch_id;
       this.isCompany = false;

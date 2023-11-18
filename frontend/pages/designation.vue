@@ -84,38 +84,31 @@
             <v-toolbar-title
               ><span> {{ Model }}s List</span></v-toolbar-title
             >
-            <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Reload"
-            >
-              <v-icon class="ml-2" @click="clearFilters()" dark
-                >mdi mdi-reload</v-icon
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
               >
-            </v-btn>
-            <!-- </template>
-              <span>Reload</span>
-            </v-tooltip> -->
-            <!-- 
-            <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              title="Filter"
-              @click="toggleFilter()"
-            >
-              <v-icon dark white>mdi-filter</v-icon>
-            </v-btn>
-            <!-- </template>
-              <span>Filter</span>
-            </v-tooltip> -->
+                <v-icon class="ml-2" @click="clearFilters()" dark
+                  >mdi mdi-reload</v-icon
+                >
+              </v-btn>
+            </span>
+            <span>
+              <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
+                @click="toggleFilter()"
+              >
+                <v-icon dark white>mdi-filter</v-icon>
+              </v-btn>
+            </span>
             <v-spacer></v-spacer>
             <v-toolbar-items v-if="can(`designation_create`)">
               <v-btn text @click="newItem" small>
@@ -352,7 +345,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     applyFilters() {
       this.getDataFromApi();
       this.from_menu_filter = false;

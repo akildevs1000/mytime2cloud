@@ -260,195 +260,188 @@
       </v-dialog>
 
       <div v-if="can(`branch_view`)">
-        <v-container>
-          <!-- <Back class="primary white--text" /> -->
-
-          <v-card elevation="0" class="mt-2">
-            <v-toolbar class="mb-2" dense flat>
-              <v-toolbar-title>
-                <span> {{ Model }}es </span></v-toolbar-title
-              >
-              <span>
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Reload"
-                >
-                  <v-icon class="ml-2" @click="clearFilters" dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </span>
-              <span>
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Filter"
-                >
-                  <v-icon @click="toggleFilter" class="mx-1 ml-2"
-                    >mdi mdi-filter</v-icon
-                  >
-                </v-btn>
-              </span>
-
-              <v-spacer></v-spacer>
-
+        <v-card elevation="0" class="mt-2">
+          <v-toolbar class="mb-2" dense flat>
+            <v-toolbar-title>
+              <span> {{ Model }}es </span></v-toolbar-title
+            >
+            <span>
               <v-btn
-                v-if="$store.state.loginType == 'company'"
                 dense
-                x-small
                 class="ma-0 px-0"
+                x-small
                 :ripple="false"
                 text
-                title="Add Branch"
-                @click="OpenDialog('Create')"
+                title="Reload"
               >
-                <v-icon right size="x-large" dark v-if="can('employee_create')"
-                  >mdi-plus-circle</v-icon
+                <v-icon class="ml-2" @click="clearFilters" dark
+                  >mdi mdi-reload</v-icon
                 >
               </v-btn>
-            </v-toolbar>
-            <v-data-table
-              dense
-              v-model="selectedItems"
-              :headers="headers_table"
-              :items="data"
-              model-value="data.id"
-              :loading="loadinglinear"
-              :options.sync="options"
-              :footer-props="{
-                itemsPerPageOptions: [100, 500, 1000],
-              }"
-              class="elevation-1"
-              :server-items-length="totalRowsCount"
-            >
-              <template
-                v-slot:item.branch="{ item, index }"
-                style="width: 300px"
+            </span>
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
               >
-                <v-row no-gutters>
-                  <v-col
+                <v-icon @click="toggleFilter" class="mx-1 ml-2"
+                  >mdi mdi-filter</v-icon
+                >
+              </v-btn>
+            </span>
+
+            <v-spacer></v-spacer>
+
+            <v-btn
+              v-if="$store.state.loginType == 'company'"
+              dense
+              x-small
+              class="ma-0 px-0"
+              :ripple="false"
+              text
+              title="Add Branch"
+              @click="OpenDialog('Create')"
+            >
+              <v-icon right size="x-large" dark v-if="can('employee_create')"
+                >mdi-plus-circle</v-icon
+              >
+            </v-btn>
+          </v-toolbar>
+          <v-data-table
+            dense
+            v-model="selectedItems"
+            :headers="headers_table"
+            :items="data"
+            model-value="data.id"
+            :loading="loadinglinear"
+            :options.sync="options"
+            :footer-props="{
+              itemsPerPageOptions: [100, 500, 1000],
+            }"
+            class="elevation-1"
+            :server-items-length="totalRowsCount"
+          >
+            <template v-slot:item.branch="{ item, index }" style="width: 300px">
+              <v-row no-gutters>
+                <v-col
+                  style="
+                    padding: 5px;
+                    padding-left: 0px;
+                    width: 50px;
+                    max-width: 50px;
+                  "
+                >
+                  <v-img
                     style="
-                      padding: 5px;
-                      padding-left: 0px;
+                      border-radius: 50%;
+                      height: auto;
                       width: 50px;
                       max-width: 50px;
                     "
+                    :src="item.logo ? item.logo : '/no-image.PNG'"
                   >
-                    <v-img
-                      style="
-                        border-radius: 50%;
-                        height: auto;
-                        width: 50px;
-                        max-width: 50px;
-                      "
-                      :src="item.logo ? item.logo : '/no-image.PNG'"
-                    >
-                    </v-img>
-                  </v-col>
-                  <v-col style="padding: 10px">
-                    <strong> {{ item.branch_name }}</strong>
-                    <div>
-                      {{ item.branch_code }}
-                    </div>
-                  </v-col>
-                </v-row>
-              </template>
-              <template v-slot:item.location_address="{ item }">
-                {{ item.location || "---" }}
-                <br />
-                {{ item.address || "---" }}
-              </template>
+                  </v-img>
+                </v-col>
+                <v-col style="padding: 10px">
+                  <strong> {{ item.branch_name }}</strong>
+                  <div>
+                    {{ item.branch_code }}
+                  </div>
+                </v-col>
+              </v-row>
+            </template>
+            <template v-slot:item.location_address="{ item }">
+              {{ item.location || "---" }}
+              <br />
+              {{ item.address || "---" }}
+            </template>
 
-              <template v-slot:item.manager_mobile="{ item }">
-                <v-row no-gutters>
-                  <v-col
+            <template v-slot:item.manager_mobile="{ item }">
+              <v-row no-gutters>
+                <v-col
+                  style="
+                    padding: 5px;
+                    padding-left: 0px;
+                    width: 40px;
+                    max-width: 40px;
+                  "
+                >
+                  <v-img
                     style="
-                      padding: 5px;
-                      padding-left: 0px;
+                      border-radius: 50%;
+                      height: auto;
                       width: 40px;
                       max-width: 40px;
                     "
+                    :src="
+                      item.user && item.user.employee
+                        ? item.user.employee.profile_picture
+                        : '/no-profile-image.jpg'
+                    "
                   >
-                    <v-img
-                      style="
-                        border-radius: 50%;
-                        height: auto;
-                        width: 40px;
-                        max-width: 40px;
-                      "
-                      :src="
-                        item.user && item.user.employee
-                          ? item.user.employee.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
-                    >
-                    </v-img>
-                  </v-col>
-                  <v-col style="padding: 10px">
-                    {{
-                      (item.user &&
-                        item.user.employee &&
-                        item.user.employee.first_name +
-                          " " +
-                          item.user.employee.last_name) ||
-                      "---"
-                    }}
-                    <br />
+                  </v-img>
+                </v-col>
+                <v-col style="padding: 10px">
+                  {{
+                    (item.user &&
+                      item.user.employee &&
+                      item.user.employee.first_name +
+                        " " +
+                        item.user.employee.last_name) ||
+                    "---"
+                  }}
+                  <br />
 
-                    {{ (item.phone_number && item.phone_number) || "---" }}
-                  </v-col>
-                </v-row>
-                <br />
-              </template>
+                  {{ (item.phone_number && item.phone_number) || "---" }}
+                </v-col>
+              </v-row>
+              <br />
+            </template>
 
-              <template v-slot:item.options="{ item }">
-                <v-menu bottom left v-if="$auth.user.user_type == 'company'">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                      <v-icon>mdi-dots-vertical</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list width="120" dense>
-                    <v-list-item
-                      v-if="can('branch_view')"
-                      @click="viewItem(item)"
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-eye </v-icon>
-                        View
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      v-if="can('branch_edit')"
-                      @click="editItem(item)"
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-pencil </v-icon>
-                        Edit
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      v-if="can('branch_delete')"
-                      @click="deleteItem(item)"
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="error" small> mdi-delete </v-icon>
-                        Delete
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </template>
-            </v-data-table>
-          </v-card>
-        </v-container>
+            <template v-slot:item.options="{ item }">
+              <v-menu bottom left v-if="$auth.user.user_type == 'company'">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list width="120" dense>
+                  <v-list-item
+                    v-if="can('branch_view')"
+                    @click="viewItem(item)"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-eye </v-icon>
+                      View
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    v-if="can('branch_edit')"
+                    @click="editItem(item)"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-pencil </v-icon>
+                      Edit
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    v-if="can('branch_delete')"
+                    @click="deleteItem(item)"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="error" small> mdi-delete </v-icon>
+                      Delete
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+          </v-data-table>
+        </v-card>
       </div>
     </div>
     <Preloader v-else />
@@ -458,7 +451,6 @@
 </template>
 
 <script>
-import Back from "../../components/Snippets/Back.vue";
 import headers_table from "../../menus/branch.json";
 
 import "cropperjs/dist/cropper.css";
@@ -467,7 +459,6 @@ import VueCropper from "vue-cropperjs";
 export default {
   components: {
     VueCropper,
-    Back,
   },
 
   data: () => ({
