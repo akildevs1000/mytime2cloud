@@ -44,7 +44,8 @@
             @php
             $empTotWrkHrs = getTotalHours($employee->toArray(), 'total_hrs');
             $empTotOtHrs = getTotalHours($employee->toArray(), 'ot');
-            $empName = $employee[key(reset($employee))][0]->employee->display_name ?? '';
+            //$empName = $employee[key(reset($employee))][0]->employee->first_name ?? '';
+            $empName = $employee[key(reset($employee))][0]->employee->first_name? $employee[key(reset($employee))][0]->employee->first_name.' '. $employee[key(reset($employee))][0]->employee->last_name : '';
             @endphp
             <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
                 <td style="border: nonse" colspan="6">
@@ -207,13 +208,13 @@
         <tr style="text-align: left;font-weight:bold;margin-top:20px;  width:100%;">
             <td colspan="1" style="text-align: left;"> # </td>
             <td colspan="1" style="text-align: center;"> Date </td>
-            <td colspan="3" style="text-align: center;"> Employee </td>
+            <!-- <td colspan="3" style="text-align: center;"> Employee </td> -->
             <td colspan="2" style="text-align: center;"> Shift </td>
             <td colspan="2" style="text-align: center;"> In Time </td>
             <td colspan="2" style="text-align: center;"> Out Time </td>
-            <td colspan="1" style="text-align: center;"> Late In </td>
-            <td colspan="1" style="text-align: center;"> Early Out </td>
-            <td colspan="1" style="text-align: center;"> Total Hours </td>
+            <td colspan="2" style="text-align: center;"> Late In </td>
+            <td colspan="2" style="text-align: center;"> Early Out </td>
+            <td colspan="2" style="text-align: center;"> Total Hours </td>
             <td colspan="1" style="text-align: center;"> OT </td>
             <td colspan="1" style="text-align: center;"> Status </td>
         </tr>
@@ -255,7 +256,7 @@
                 <td colspan="1" style="text-align:  center;">{{ $employee->date ?? '---' }}
                     <div class="secondary-value" style="font-size:6px">{{ $employee->day ?? '---' }}</div>
                 </td>
-                <td colspan="3">
+                <!-- <td colspan="3">
 
                     <div style="width:20px;float:left; margin-right:5px">
                         <img style="
@@ -274,45 +275,45 @@
                     </div>
 
 
-                </td>
+                </td> -->
 
 
                 <td colspan="2" style="text-align:  center;">
-                    <div style="float:left">
+                    <div>
                         {{ $employee->schedule->shift->on_duty_time   }} - {{ $employee->schedule->shift->off_duty_time   }}
                         <div class="secondary-value" style="font-size:6px">
                             {{ $employee->schedule->shift->name   }}
                         </div>
                     </div>
                 </td>
-                <td colspan="2">
-                    <div style="float:left">
+                <td colspan="2" style="text-align:  center;">
+                    <div>
                         {{ $employee->in ?? '---' }}
                         <div class="secondary-value" style="font-size:6px">
                             {{ $employee->device_in->name  ?? '---' }}
                         </div>
                     </div>
                 </td>
-                <td colspan="2">
-                    <div style="float:left">
+                <td colspan="2" style="text-align:  center;">
+                    <div>
                         {{ $employee->out ?? '---' }}
                         <div class="secondary-value" style="font-size:6px">
                             {{ $employee->device_out->name  ?? '---' }}
                         </div>
                     </div>
                 </td>
-                <td colspan="1">
-                    <div style="float:left">
+                <td colspan="2" style="text-align:  center;">
+                    <div>
                         {{ $employee->late_coming  ?? '---' }}
                     </div>
                 </td>
-                <td colspan="1">
-                    <div style="float:left">
+                <td colspan="2" style="text-align:  center;">
+                    <div>
                         {{ $employee->early_going  ?? '---' }}
                     </div>
                 </td>
 
-                <td colspan="1" style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
+                <td colspan="2" style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
                 <td colspan="1" style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
                 <td colspan="1" style="text-align:  center; color:{{ $statusColor }}">
                     {{ $employee->status ?? '---' }}
