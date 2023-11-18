@@ -100,11 +100,8 @@
                 v-model="branch_id"
                 dense
                 text
-                :items="[
-                  { branch_name: 'All Branches', id: '' },
-                  ...branchesList,
-                ]"
-                item-text="branch_name"
+                :items="[{ name: 'All Branches', id: '' }, ...branchesList]"
+                item-text="name"
                 item-value="id"
               ></v-autocomplete>
             </v-col>
@@ -243,12 +240,26 @@ export default {
     //   this.$router.push(`/dashboard/employee`);
     // }
   },
-  created() {
-    // if (this.$auth.user.user_type == "employee") {
-    //   this.$router.push(`/dashboard/employee`);
-    // }
-    this.getBranches();
-    //this.$root.$on("openalert", this.openalert);
+  async created() {
+    try {
+      await this.$store.dispatch("fetchData", {
+        key: "devices",
+        endpoint: "device_list",
+        refresh: true,
+      });
+      await this.$store.dispatch("fetchData", {
+        key: "employees",
+        endpoint: "employee",
+        refresh: true,
+      });
+      this.branchesList = await this.$store.dispatch("fetchDropDowns", {
+        key: "branches_list",
+        endpoint: "branch-list",
+        refresh: true,
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   },
   watch: {
     overlay(val) {
@@ -277,18 +288,6 @@ export default {
       //   this.seelctedBranchId = "";
       //   this.branch_id = "";
       // }
-    },
-    getBranches() {
-      this.$axios
-        .get(`branches_list`, {
-          params: {
-            per_page: 1000,
-            company_id: this.$auth.user.company_id,
-          },
-        })
-        .then(({ data }) => {
-          this.branchesList = data;
-        });
     },
   },
 };
