@@ -480,7 +480,8 @@ class ScheduleEmployeeController extends Controller
             ->when(count($request->department_ids ?? []) > 0, function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids);
             })
-            ->get(["first_name", "system_user_id", "employee_id", "display_name"]);
+            ->orderBy("first_name", "ASC")
+            ->get(["first_name", "last_name", "system_user_id", "employee_id", "display_name"]);
     }
 
     public function getShiftsByEmployee(Request $request, $id)

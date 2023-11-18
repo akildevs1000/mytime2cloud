@@ -185,7 +185,7 @@ class Employee extends Model
 
     public function getNameWithUserIDAttribute()
     {
-        return $this->display_name . " - " . $this->employee_id;
+        return $this->first_name . ' ' . $this->last_name . " - " . $this->employee_id;
     }
 
     // use Illuminate\Database\Eloquent\Builder;
