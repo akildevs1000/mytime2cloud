@@ -909,6 +909,7 @@ export default {
     daily_menu: false,
     dailyDate: false,
     editItems: {
+      shift_type_id: 0,
       attendance_logs_id: "",
       UserID: "",
       device_id: "",
@@ -1000,22 +1001,17 @@ export default {
       return this.editedIndex === -1 ? "New" : "Edit";
     },
 
-    employees() {
-      return this.$store.state.employeeList.map((e) => ({
-        system_user_id: e.system_user_id,
-        first_name: e.first_name,
-        last_name: e.last_name,
-        user_id: e.user_id,
-        display_name: e.display_name,
-        name_with_id: `${e.first_name} ${e.last_name}`,
-        // name_with_id: `${e.first_name} ${e.last_name} - ${
-        //   e.schedule.shift && e.schedule.shift.name
-        //     ? e.schedule.shift.name
-        //     : "---"
-        // }`,
-        shift_type_id: e.schedule_all[0] && e.schedule_all[0].shift_type_id,
-      }));
-    },
+    // employees() {
+    //   return this.$store.state.employeeList.map((e) => ({
+    //     system_user_id: e.system_user_id,
+    //     first_name: e.first_name,
+    //     last_name: e.last_name,
+    //     user_id: e.user_id,
+    //     display_name: e.display_name,
+    //     name_with_id: `${e.first_name} ${e.last_name}`,
+    //     shift_type_id: e.latest_schedule && e.schedule_all.shift_type_id,
+    //   }));
+    // },
   },
 
   watch: {
@@ -1247,14 +1243,15 @@ export default {
       //console.log(this.editItems);
       //console.log(this.employees);
 
-      let emp = this.employees.find(
-        (e) => e.system_user_id == this.editItems.UserID
-      );
+      // let emp = this.employees.find(
+      //   (e) => e.system_user_id == this.editItems.UserID
+      // );
 
       //let { user_id, date, time } = this.log_payload;
 
       //console.log(emp);
-      let shift_type_id = emp.shift_type_id;
+      // let shift_type_id = this.editItems.shift_type_id;
+
       let log_payload = {
         UserID: this.editItems.UserID,
         LogTime: this.editItems.date + " " + this.editItems.time,
@@ -1277,7 +1274,10 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.render_report(this.editItems.date, shift_type_id);
+            this.render_report(
+              this.editItems.date,
+              this.editItems.shift_type_id
+            );
             this.$emit("close-popup");
             this.snackbar = true;
             this.response = data.message;
