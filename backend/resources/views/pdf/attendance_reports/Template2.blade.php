@@ -109,17 +109,50 @@ die();
         </footer>
         <table style="margin-top: -20px !important;backgroundd-color:blue;padding-bottom:0px ">
             <tr>
-                <td style="text-align: left;width: 300px; border :none; padding:15px;   backgrozund-color: red">
-                    <div style=" ">
-                        <!-- Template2 Report -->
-                        @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                        @else
-                        <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                        @endif
-                        {{-- <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="70px" width="200"> --}}
+                <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
+
+
+
+
+                    <div class="col-12" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
+                        <table style="padding:0px;margin:0px">
+                            <tr style="text-align: left; border :none; padding:100px 0px;">
+                                <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
+                                    <b style="padding:0px;margin:0px">
+                                        {{ $company->name }}
+                                    </b>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;padding:10px 0px">
+                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px;">
+                                    <span style="margin-left: 3px">P.O.Box
+                                        {{ $company->p_o_box_no == 'null' ? '---' : $company->p_o_box_no }}</span>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;padding:10px 0px">
+                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
+                                    <span style="margin-left: 3px">{{ $company->location }}</span>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;padding:10px 0px">
+                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
+                                    <span style="margin-left: 3px">{{ $company->contact->number ?? '' }}</span>
+                                    <br>
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;padding:10px 0px">
+                                <td style="text-align: left; border :none;font-size:10px;padding:7px 0px">
+                                    <span style="margin-left: 3px">{{ '' }}</span>
+                                    <br>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </td>
+
                 <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
                     <div>
                         <table style="text-align: left; border :none;  ">
@@ -146,42 +179,18 @@ die();
                         </table>
                     </div>
                 </td>
-                <td style="text-align: right;width: 300px; border :none; backgrounsd-color: red">
-
-
-                    <table class="summary-table" style="border:none; padding:0px 50px; margin-left:35px;margin-top:20px;margin-bottom:0px">
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: right; border :none;font-size:10px">
-                                <b>
-                                    {{ $company->name }}
-                                </b>
-                                <br>
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: right; border :none;font-size:10px">
-                                <span style="margin-right: 3px">
-                                    {{ $company->p_o_box_no == 'null' ? '---' : $company->p_o_box_no }} </span>
-                                <br>
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: right; border :none;font-size:10px">
-                                <span style="margin-right: 3px"> {{ $company->location }} </span>
-                                <br>
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: right; border :none;font-size:10px">
-                                <span style="margin-right: 3px"> Tel: {{ $company->contact->number ?? '' }} </span>
-                                <br>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <br>
+                <td style="text-align: right;vertical-align:top;width: 300px; border :none; padding:15px;   backgrozund-color: red">
+                    <div style=" ">
+                        <!-- Template2 Report -->
+                        @if (env('APP_ENV') !== 'local')
+                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @else
+                        <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @endif
+                        {{-- <img src="{{ getcwd() . '/upload/app-logo.jpeg' }}" height="70px" width="200"> --}}
+                    </div>
                 </td>
-                </td>
+
             </tr>
         </table>
         @foreach ($data as $empID => $employee)

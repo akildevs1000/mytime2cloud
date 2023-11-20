@@ -293,12 +293,12 @@ class MonthlyController extends Controller
         $arr = ['data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
 
 
-        return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
-        // if ($request->report_template == 'Template2')
-        //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
-        // if ($request->report_template == 'Template1') {
-        //      return Pdf::loadView('pdf.' . $fileName, $arr);
-        // }
+        //return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+        if ($request->report_template == 'Template2')
+            return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+        if ($request->report_template == 'Template1') {
+            return Pdf::loadView('pdf.attendance_reports.' . $request->report_template . '-' . $fileName, $arr);
+        }
     }
 
     public function getHTML($data, $company)
