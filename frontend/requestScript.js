@@ -4,13 +4,13 @@ const axios = require('axios');
 const fs = require("fs");
 
 // Define the URL you want to hit
-const url = 'https://backend.ideahrms.com/api/reset_date_time';
+const url = 'https://backend.ideahrms.com/api/test';
 
 // Function to make the HTTP request
 const makeHttpRequest = () => {
     axios
         .get(url)
-        .then(({data}) => {
+        .then(({ data }) => {
             // Handle the response if needed
             console.log('Request successful:', data);
 
@@ -22,8 +22,7 @@ const makeHttpRequest = () => {
         });
 };
 
-// Set an interval to make the request every 2 seconds (2000 milliseconds)
-const interval = 10000;
+const interval = 2000;
 setInterval(makeHttpRequest, interval);
 
 // Log a message to indicate that the script is running

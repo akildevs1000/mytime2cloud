@@ -1163,6 +1163,8 @@ export default {
       } else {
         await this.getDepartments(null);
       }
+
+      await this.handleChangeEvent();
     },
     async filterDepartmentsByBranch(filterBranchId) {
       await this.getDepartments(filterBranchId);
