@@ -12,7 +12,7 @@
           placeholder="Employee Device Id"
           v-model="log_payload.user_id"
           :items="employees"
-          :item-text="`name_with_id`"
+          :item-text="`name`"
           item-value="system_user_id"
           dense
           outlined
@@ -127,7 +127,7 @@
 
 <script>
 export default {
-  props: ["endpoint", "system_user_id"],
+  props: ["endpoint", "system_user_id", "shift_type_id"],
   data: () => ({
     Model: "Manual Log",
 
@@ -162,54 +162,28 @@ export default {
     total: 0,
     options: {},
     errors: [],
+    employees: [],
     response: "",
     snackbar: false,
   }),
-  computed: {
-    employees() {
-      let employees = this.$store.state.employeeList.map((e) => ({
-        system_user_id: e.system_user_id,
-        first_name: e.first_name,
-        last_name: e.last_name,
-        display_name: e.display_name,
-        name_with_id: `${e.first_name} ${e.last_name}`,
-        // name_with_id: `${e.first_name} ${e.last_name} - ${
-        //   e.schedule.shift && e.schedule.shift.name
-        //     ? e.schedule.shift.name
-        //     : "---"
-        // }`,
-        shift_type_id: e.schedule_all[0] && e.schedule_all[0].shift_type_id,
-      }));
+  async created() {
+    try {
+      this.log_payload.user_id = this.system_user_id;
 
-      if (this.system_user_id) {
-        this.log_payload.user_id = this.system_user_id;
-        return employees.filter(
-          (e) => (e.system_user_id = this.system_user_id)
-        );
-      } else {
-        return employees;
-      }
-    },
-  },
-  created() {
-    this.loading = true;
-    let options = {
-      params: {
-        per_page: this.options.itemsPerPage,
-        company_id: this.$auth.user.company_id,
-      },
-    };
+      this.employees = await this.$store.dispatch("fetchDropDowns", {
+        key: "employeeList",
+        endpoint: "employee-list",
+        refresh: true,
+      });
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   },
   methods: {
     store_schedule() {
-      let emp = this.employees.find(
-        (e) => e.system_user_id == this.log_payload.user_id
-      );
-
       let { user_id, date, time } = this.log_payload;
 
-      console.log(emp);
-      let shift_type_id = emp.shift_type_id;
       let log_payload = {
         UserID: user_id,
         LogTime: date + " " + time,
@@ -232,7 +206,7 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.render_report(date, shift_type_id);
+            this.render_report(date, this.shift_type_id);
             this.$emit("close-popup");
             this.snackbar = true;
             this.response = data.message;

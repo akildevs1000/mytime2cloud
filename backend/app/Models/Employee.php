@@ -45,6 +45,12 @@ class Employee extends Model
         return $this->hasMany(ScheduleEmployee::class, "employee_id", "system_user_id");
     }
 
+    public function latestSchedule()
+    {
+        return $this->hasOne(ScheduleEmployee::class, 'employee_id', 'system_user_id')->latest();
+    }
+
+
     public function announcements()
     {
         return $this->belongsToMany(Announcement::class)->withTimestamps();
