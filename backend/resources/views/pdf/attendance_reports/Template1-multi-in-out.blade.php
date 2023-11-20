@@ -24,7 +24,7 @@
                     </td>
                     <td style="text-align: right;border :none;">
                         <b>Powered by</b>: <span style="color:blue">
-                            <a href="https://ideahrms.com/" target="_blank">ideahrms.com</a>
+                            <a href="{{env('APP_URL')}}" target="_blank">{{env('APP_NAME')}}</a>
                         </span>
                     </td>
                     <td style="text-align: right;border :none">
@@ -53,16 +53,8 @@
                 <td style="border: nonse" colspan="6">
                     <div class="row">
 
-                        <!-- Template1 Report -->
-                        <div class="col-5">
 
-                            @if (env('APP_ENV') !== 'local')
-                            <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                            @else
-                            <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                            @endif
-                        </div>
-                        <div class="col-7" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
+                        <div class="col-12" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
                             <table style="padding:0px;margin:0px">
                                 <tr style="text-align: left; border :none; padding:100px 0px;">
                                     <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
@@ -101,7 +93,15 @@
                         </div>
                     </div>
                 </td>
-                <td style="border: nonse" colspan="5">
+                <td style="border: nonse" colspan="8">
+                    <div class="col-12" style="text-align:center">
+
+                        @if (env('APP_ENV') !== 'local')
+                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @else
+                        <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @endif
+                    </div>
                     <div>
                         <table style="text-align: left; border :none;  ">
                             <tr style="text-align: left; border :none;">
@@ -126,7 +126,7 @@
                         </table>
                     </div>
                 </td>
-                <td style="border :none" colspan="3"></td>
+
                 <td style="border: nosne;text-align:right" colspan="8">
                     <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
@@ -512,8 +512,11 @@
     }
 
 
-    @page {
+    /* @page {
         margin: -10px 30px 25px 50px;
+    } */
+    @page {
+        margin: 5px 30px 25px 50px;
     }
 
     table {
