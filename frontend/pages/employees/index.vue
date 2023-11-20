@@ -535,7 +535,7 @@
           <span>
             <v-icon
               title="Import File"
-              @click="dialog = true"
+              @click="() => ((dialog = true), handleChangeEvent())"
               right
               dark
               color="black"
@@ -646,10 +646,7 @@
                     v-model="filters[header.key]"
                     item-text="name"
                     item-value="id"
-                    :items="[
-                      { name: `All Branches`, id: `` },
-                      ...branchList,
-                    ]"
+                    :items="[{ name: `All Branches`, id: `` }, ...branchList]"
                     placeholder="All Branches"
                     solo
                     flat
@@ -1130,6 +1127,12 @@ export default {
     },
   },
   methods: {
+    async handleChangeEvent() {
+      this.branchList = await this.$store.dispatch("fetchDropDowns", {
+        key: "branchList",
+        endpoint: "branch-list",
+      });
+    },
     getComponent(value) {
       const componentsList = {
         0: "EmployeeEdit",
@@ -1311,10 +1314,7 @@ export default {
 
       if (this.isFilter) {
         this.refresh = true;
-        this.branchList = await this.$store.dispatch("fetchDropDowns", {
-          key: "branchList",
-          endpoint: "branch-list",
-        });
+        this.handleChangeEvent();
       }
     },
     async serachAll(e) {
