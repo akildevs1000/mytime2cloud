@@ -800,6 +800,8 @@ class EmployeeController extends Controller
     public function defaultAttendanceForMissing(Request $request)
     {
 
+
+
         $company_id = $request->company_id;
         $system_user_id = $request->system_user_id;
         $date = $request->date;
