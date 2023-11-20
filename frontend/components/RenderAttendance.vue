@@ -19,7 +19,7 @@
                   placeholder="Employee Device Id"
                   v-model="editItems.UserIDs"
                   :items="employees"
-                  :item-text="`name_with_id`"
+                  :item-text="`name`"
                   item-value="system_user_id"
                   dense
                   outlined
@@ -50,7 +50,7 @@
                   </template>
                   <template v-slot:selection="{ item, index }">
                     <span v-if="index === 0 && editItems.UserIDs.length == 1"
-                      >{{ item.first_name }} {{ item.last_name }}</span
+                      >{{ item.name }}</span
                     >
                     <span
                       v-else-if="
@@ -175,6 +175,7 @@ export default {
       dates: [],
       time: null,
     },
+    employees: [],
   }),
   computed: {
     isIndeterminateEmployee() {
@@ -182,31 +183,6 @@ export default {
         this.editItems.UserIDs.length > 0 &&
         this.editItems.UserIDs.length < this.employees.length
       );
-    },
-    employees() {
-      // return this.$store.state.employeeList.map((e) => ({
-      //   system_user_id: e.system_user_id,
-      //   first_name: e.first_name,
-      //   last_name: e.last_name,
-      //   display_name: e.display_name,
-      //   name_with_id: `${e.first_name} - ${e.system_user_id}`,
-      // }));
-      let employees = this.$store.state.employeeList.map((e) => ({
-        system_user_id: e.system_user_id,
-        first_name: e.first_name,
-        last_name: e.last_name,
-        display_name: e.display_name,
-        name_with_id: `${e.first_name} - ${e.system_user_id}`,
-      }));
-
-      if (this.system_user_id) {
-        // this.editItems.UserIDs=this.system_user_id;
-        return employees.filter(
-          (e) => (e.system_user_id = this.system_user_id)
-        );
-      } else {
-        return employees;
-      }
     },
   },
   watch: {
@@ -218,7 +194,25 @@ export default {
       }
     },
   },
-  created() {},
+  async created() {
+    try {
+      this.employees = await this.$store.dispatch("fetchDropDowns", {
+        key: "employeeList",
+        endpoint: "employee-list",
+        refresh: true,
+      });
+
+      if (this.system_user_id) {
+        const filteredEmployees = this.employees.filter(
+          (e) => e.system_user_id == this.system_user_id
+        );
+
+        this.employees = filteredEmployees;
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  },
   methods: {
     toggleEmployeeSelection() {
       this.selectAllEmployee = !this.selectAllEmployee;

@@ -16,6 +16,7 @@
           item-value="system_user_id"
           dense
           outlined
+          @change="handleChangeEvent(log_payload.user_id)"
         >
         </v-autocomplete>
         <span v-if="errors && errors.user_id" class="text-danger mt-2">{{
@@ -119,7 +120,7 @@
         </span>
       </v-col>
       <v-col col="2" class="text-end">
-        <v-btn small color="primary" @click="store_schedule"> Submit </v-btn>
+        <v-btn small color="primary" @click="submit"> Submit </v-btn>
       </v-col>
     </v-row>
   </div>
@@ -145,6 +146,8 @@ export default {
       date: null,
       time: null,
       shift_type_id: null,
+      branch_id: 0,
+      log_type: "auto",
     },
     headers: [
       {
@@ -175,22 +178,52 @@ export default {
         endpoint: "employee-list",
         refresh: true,
       });
-
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   },
   methods: {
-    store_schedule() {
-      let { user_id, date, time } = this.log_payload;
+    async getLastLog(UserID) {
+      this.$axios
+        .get(`attendance_logs`, {
+          params: {
+            company_id: this.$auth.user.company_id,
+            UserID,
+          },
+        })
+        .then(({ data }) => {
+          if (
+            data?.data?.length &&
+            ["in", "auto"].includes(data.data[0].log_type)
+          ) {
+            this.log_payload.log_type = "out";
+          } else {
+            this.log_payload.log_type = "in";
+          }
+        });
+    },
+    async handleChangeEvent(id) {
+      const employee = this.employees.find((e) => id === e.system_user_id);
+
+      if (employee) {
+        this.log_payload.branch_id = employee.branch_id || 0;
+      }
+
+      await this.getLastLog(id);
+    },
+    submit() {
+
+      let { user_id, date, time, branch_id } = this.log_payload;
 
       let log_payload = {
+        branch_id,
         UserID: user_id,
         LogTime: date + " " + time,
         DeviceID: "Manual",
         company_id: this.$auth.user.company_id,
-        log_type: "auto",
+        log_type: this.log_payload.log_type,
       };
+
       this.loading = true;
 
       if (!user_id || !date || !time) {
