@@ -259,8 +259,8 @@ class MonthlyController extends Controller
         $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
         $company['report_type'] = $this->getStatusText($request->status);
-        $company['start'] = $request->from_date ?? date('Y-10-01');
-        $company['end'] = $request->to_date ?? date('Y-10-31');
+        $company['start'] = $request->from_date ?? ''; //date('Y-10-01');
+        $company['end'] = $request->to_date ??  ''; //date('Y-10-31');
         $collection = $model->clone()->get();
 
         $info = (object) [

@@ -33,15 +33,23 @@ class RenderController extends Controller
 
         $shift_type_id = $request->shift_type_id;
 
-        if ($shift_type_id == 5) {
-            return (new SplitShiftController)->renderData($request);
-        } else if ($shift_type_id == 2) {
-            return (new MultiShiftController)->renderData($request);
-        }
+
         return array_merge(
             (new FiloShiftController)->renderData($request),
-            (new SingleShiftController)->renderData($request)
+            (new SingleShiftController)->renderData($request),
+            (new SplitShiftController)->renderData($request),
+            (new MultiShiftController)->renderData($request)
         );
+
+        // if ($shift_type_id == 5) {
+        //     return (new SplitShiftController)->renderData($request);
+        // } else if ($shift_type_id == 2) {
+        //     return (new MultiShiftController)->renderData($request);
+        // }
+        // return array_merge(
+        //     (new FiloShiftController)->renderData($request),
+        //     (new SingleShiftController)->renderData($request)
+        // );
     }
 
     public function renderMultiInOut(Request $request)
