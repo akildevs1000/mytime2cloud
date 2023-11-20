@@ -203,15 +203,14 @@ export default {
         });
     },
     async handleChangeEvent(id) {
-      const employee = this.employees.find((e) => id === e.system_user_id);
+      const employee = this.employees.find((e) => id == e.system_user_id);
 
       if (employee) {
         this.log_payload.branch_id = employee.branch_id || 0;
       }
-
-      await this.getLastLog(id);
     },
-    submit() {
+    async submit() {
+      await this.getLastLog(this.log_payload.user_id);
       let { user_id, date, time, branch_id } = this.log_payload;
 
       let log_payload = {
