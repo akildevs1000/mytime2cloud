@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Mail\DbBackupMail;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 // use Illuminate\Support\Facades\Log as Logger;
@@ -45,5 +47,22 @@ class DbBackup extends Command
         ];
 
         Mail::to(env("ADMIN_MAIL_RECEIVERS"))->queue(new DbBackupMail($data));
+
+
+        $this->sqlBackup();
+    }
+
+    public function sqlBackup()
+    {
+        // $filename = "backup-" . Carbon::now()->format('Y-m-d') . ".sql";
+        // // Create backup folder and set permission if not exist.
+        // $storageAt = storage_path() . "/app/backup/";
+        // if (!File::exists($storageAt)) {
+        //     File::makeDirectory($storageAt, 0755, true, true);
+        // }
+        // $command = "" . env('DB_DUMP_PATH', 'mysqldump') . " --user=" . env('DB_USERNAME') . " --password=" . env('DB_PASSWORD') . " --host=" . env('DB_HOST') . " " . env('DB_DATABASE') . "  | gzip > " . $storageAt . $filename;
+        // $returnVar = NULL;
+        // $output = NULL;
+        // exec($command, $output, $returnVar);
     }
 }
