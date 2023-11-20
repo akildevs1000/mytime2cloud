@@ -426,28 +426,25 @@ export default {
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
           ...this.payload,
-          cache: true,
         },
       };
 
       if (filter_column != "") options.params[filter_column] = filter_value;
 
-      this.$axios
-        .get(url + "?cache=true", options, { cache: true })
-        .then(({ data }) => {
-          if (filter_column != "" && data.data.length == 0) {
-            this.snack = true;
-            this.snackColor = "error";
-            this.snackText = "No Results Found";
-            this.loading = false;
-            return false;
-          }
-
-          this.data = data.data;
-          this.total = data.total;
+      this.$axios.get(url + " ", options, {}).then(({ data }) => {
+        if (filter_column != "" && data.data.length == 0) {
+          this.snack = true;
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
-          this.totalRowsCount = data.total;
-        });
+          return false;
+        }
+
+        this.data = data.data;
+        this.total = data.total;
+        this.loading = false;
+        this.totalRowsCount = data.total;
+      });
     },
 
     pdfDownload() {

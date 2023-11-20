@@ -24,6 +24,7 @@ use App\Models\ScheduleEmployee;
 use App\Models\Timezone;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -41,7 +42,7 @@ class EmployeeController extends Controller
         $model->where('company_id', request('company_id'));
         $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
         $model->excludeRelations();
-        $model->select("id","first_name as name","system_user_id","employee_id");
+        $model->select("id", "first_name as name", "system_user_id", "employee_id");
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
         $model->with("schedule_all:employee_id,shift_type_id");
         $model->with("latestSchedule:employee_id,shift_type_id");
@@ -780,6 +781,8 @@ class EmployeeController extends Controller
                 }
 
                 $success = Employee::create($employee) ? true : false;
+
+                (new AttendanceController)->seedDefaultData($data["company_id"], [$employee['system_user_id']], $branch_id);
             }
 
             if ($success) {
@@ -793,6 +796,69 @@ class EmployeeController extends Controller
             DB::rollback();
             throw $th;
         }
+    }
+    public function defaultAttendanceForMissing(Request $request)
+    {
+
+        $company_id = $request->company_id;
+        $system_user_id = $request->system_user_id;
+        $date = $request->date;
+        $daysInMonth = Carbon::now()->month(date('m', strtotime($date)))->daysInMonth;
+        $employees = Employee::query();
+
+        // $employees->whereHas('attendances', fn (Builder $query) => $query->where('date', ">=", date("Y-m-") . "1")->where('date', "<=", date("Y-m-") .  $daysInMonth));
+        $employees->where("company_id", $company_id);
+        $employees = $employees->where("system_user_id", $system_user_id)->get();
+
+
+
+
+
+        $data = [];
+
+        foreach ($employees as $employee) {
+
+            //  $attendaceExistDates = array_column(json_decode($employee->attendances, true), 'edit_date'); 
+
+
+            foreach (range(1, $daysInMonth) as $day) {
+
+
+                $date = date("Y-m-", strtotime($date)) . sprintf("%02d",  $day);
+                $attendance = Attendance::where("company_id", $company_id);
+                $count = $attendance->where("employee_id", $system_user_id)->where("date", $date)->count();
+
+
+                if ($count == 0) {
+
+
+                    $data[] = [
+                        "date" =>  $date,
+                        "employee_id" => $system_user_id,
+                        "shift_id" => $employee->schedule->shift_id ?? 1,
+                        "shift_type_id" => $employee->schedule->shift_type_id ?? 1,
+                        "status" => "A",
+                        "in" => "---",
+                        "out" => "---",
+                        "total_hrs" => "---",
+                        "ot" => "---",
+                        "late_coming" => "---",
+                        "early_going" => "---",
+                        "device_id_in" => "---",
+                        "device_id_out" => "---",
+                        "company_id" => $company_id,
+                        "created_at" => date('Y-m-d H:i:s'),
+                        "updated_at" => date('Y-m-d H:i:s'),
+                    ];
+                }
+            }
+        }
+
+
+        $attendance = Attendance::query();
+        $attendance->insert($data);
+
+        return "Successfully Inserted " . count($data);
     }
     public function validateImportData($data)
     {

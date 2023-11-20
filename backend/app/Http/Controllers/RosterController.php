@@ -202,7 +202,7 @@ class RosterController extends Controller
                 "to_date" => $schedule['to_date'],
                 "company_id" => $request->company_id,
                 "branch_id" => $request->branch_id,
-                "created_at" => now(),
+                "created_at" => date('Y-m-d H:i:s'),
                 "updated_at" => now(),
             ];
         }

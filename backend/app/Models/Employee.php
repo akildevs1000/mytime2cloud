@@ -215,7 +215,7 @@ class Employee extends Model
 
     public function attendances()
     {
-        return $this->hasMany(Attendance::class, "employee_id", "employee_id");
+        return $this->hasMany(Attendance::class, "employee_id", "system_user_id");
     }
 
     public function attendance_logs()

@@ -39,9 +39,9 @@ class DbBackup extends Command
         echo "\n";
 
         $data = [
-            'file' => collect(glob(storage_path("app/ideahrms/*.zip")))->last(),
+            'file' => collect(glob(storage_path("app/mytime2cloud/*.zip")))->last(),
             'date' => date('Y-M-d'),
-            'body' => 'ideahrms Database Backup',
+            'body' => 'mytime2cloud Database Backup',
         ];
 
         Mail::to(env("ADMIN_MAIL_RECEIVERS"))->queue(new DbBackupMail($data));

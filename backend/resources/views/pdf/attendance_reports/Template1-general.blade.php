@@ -11,6 +11,7 @@
             @php
             $p = count($data);
             if ($p <= 1) { echo '<span></span>' ; } else { for ($a=1; $a <=$p; $a++) { echo '<span></span>' ; } } @endphp </div>
+
                 <div id="pageNumbers">
                     <div class="page-number" style="font-size: 9px"></div>
                 </div>
@@ -34,6 +35,8 @@
                 </tr>
             </table>
         </footer>
+
+
         @php
         $statusColor = '';
         $i = 0;
@@ -52,6 +55,161 @@
             @endphp
             @if ($info->shift_type_id == 2)
 
+
+            @else
+
+
+            <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
+                <td style="border: nonse" colspan="6">
+                    <div class="row">
+
+                        <!-- Template1 Report -->
+
+                        <div class="col-12" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
+                            <table style="padding:0px;margin:0px">
+                                <tr style="text-align: left; border :none; padding:100px 0px;">
+                                    <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
+                                        <b style="padding:0px;margin:0px">
+                                            {{ $company->name }}
+                                        </b>
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr style="text-align: left; border :none;padding:10px 0px">
+                                    <td style="text-align: left; border :none;font-size:10px;padding:5px 0px;">
+                                        <span style="margin-left: 3px">P.O.Box
+                                            {{ $company->p_o_box_no == 'null' ? '---' : $company->p_o_box_no }}</span>
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr style="text-align: left; border :none;padding:10px 0px">
+                                    <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
+                                        <span style="margin-left: 3px">{{ $company->location }}</span>
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr style="text-align: left; border :none;padding:10px 0px">
+                                    <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
+                                        <span style="margin-left: 3px">{{ $company->contact->number ?? '' }}</span>
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr style="text-align: left; border :none;padding:10px 0px">
+                                    <td style="text-align: left; border :none;font-size:10px;padding:7px 0px">
+                                        <span style="margin-left: 3px">{{ '' }}</span>
+                                        <br>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </td>
+                <td style="border: nonse" colspan="6">
+                    <div class="col-12" style="text-align:center">
+
+                        @if (env('APP_ENV') !== 'local')
+                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @else
+                        <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @endif
+                    </div>
+                    <div>
+
+                        <table style="text-align: left; border :none;  ">
+
+                            <tr style="text-align: left; border :none;">
+                                <td style="text-align: center; border :none">
+                                    <span class="title-font">
+                                        <!-- {{ $info->report_type }} {{ $company->report_type }} Report -->
+                                        {{ $company->report_type }} Report
+                                        <!-- ({{$main_shift_name}}) -->
+                                    </span>
+                                    <hr style="width: 230px">
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;">
+                                <td style="text-align: center; border :none">
+                                    <span style="font-size: 11px">
+                                        {{ date('d-M-Y', strtotime($company->start)) }} -
+                                        {{ date('d-M-Y', strtotime($company->end)) }}
+                                    </span>
+                                    <hr style="width: 230px">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+
+                <td style="border: nosne;text-align:right" colspan="4">
+                    <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
+                        <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                            <th style="text-align: center; border :none; padding:5px">EID</th>
+                            <th style="text-align: center; border :none">Name</th>
+                            <th style="text-align: center; border :none">Department</th>
+                            <th style="text-align: center; border :none">Report Type</th>
+                        </tr>
+                        <tr style="border: none">
+                            <td style="text-align: center; border :none; padding:5px;font-size:11px">
+                                {{ $empID ?? '---' }}
+                            </td>
+                            <td style="text-align: center; border:none;font-size:11px">
+                                {{ $empName ?? '---' }}
+                            </td>
+                            <td style="text-align: center; border:none;font-size:11px">
+                                {{ $singleEmployee->department->name ?? '---' }}
+                            </td>
+                            <td style="text-align: center; border:none;font-size:11px">
+                                General
+                            </td>
+                        </tr>
+
+                        <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                            <th style="text-align: center; border :none; padding:5px">Present</th>
+                            <th style="text-align: center; border :none">Absent</th>
+                            <th style="text-align: center; border :none">Week Off</th>
+                            <th style="text-align: center; border :none">Leaves </th>
+                        </tr>
+                        <tr style="border: none">
+                            <td style="text-align: center; border :none; padding:5px;color:green">
+                                {{ getStatus($employee->toArray())['P'] }}
+                            </td>
+                            <td style="text-align: center; border :none;color:red">
+                                {{ getStatus($employee->toArray())['A'] ?? 0 }}
+                            </td>
+
+                            <td style="text-align: center; border :none;color:gray">
+                                {{ getStatus($employee->toArray())['O'] ?? 0 }}
+                            </td>
+                            <td style="text-align: center; border :none;color:blue">
+                                {{ getStatus($employee->toArray())['L'] ?? 0 }}
+                            </td>
+                        </tr>
+                        <tr class="summary-header" style="border: none;background-color:#eeeeee ">
+                            <th style="text-align: center; border :none">Holidays</th>
+                            <th style="text-align: center; border :none">Missing</th>
+
+                            <th style="text-align: center; border :none; padding:5px">Work Hours</th>
+                            <th style="text-align: center; border :none">OT Hours</th>
+
+                            {{-- <th style="text-align: center; border :none">Department</th> --}}
+                        </tr>
+                        <tr style="border: none">
+                            <td style="text-align: center; border :none;color:pink">
+                                {{ getStatus($employee->toArray())['H'] ?? 0 }}
+                            </td>
+                            <td style="text-align: center; border :none;color:orange">
+                                {{ getStatus($employee->toArray())['M'] ?? 0 }}
+                            </td>
+                            <td style="text-align: center; border :none; padding:5px;color:black">
+                                {{ $empTotWrkHrs ?? 0 }}
+                            </td>
+                            <td style="text-align: center; border :none;color:black">
+                                {{ $empTotOtHrs ?? 0 }}
+                            </td>
+
+                            {{-- <td style="text-align: center; border :none;color:black">{{ $info->department->name ?? 0 }}
+                </td> --}}
+            </tr>
             <tr style="border: none">
                 <th style="text-align: center; border :none" colspan="4">
                     <hr>
@@ -61,187 +219,12 @@
         <br>
         </td>
         </tr>
-        @else
-
-
-        <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
-            <td style="border: nonse" colspan="6">
-                <div class="row">
-
-                    <!-- Template1 Report -->
-
-                    <div class="col-12" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
-                        <table style="padding:0px;margin:0px">
-                            <tr style="text-align: left; border :none; padding:100px 0px;">
-                                <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
-                                    <b style="padding:0px;margin:0px">
-                                        {{ $company->name }}
-                                    </b>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px;">
-                                    <span style="margin-left: 3px">P.O.Box
-                                        {{ $company->p_o_box_no == 'null' ? '---' : $company->p_o_box_no }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
-                                    <span style="margin-left: 3px">{{ $company->location }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
-                                    <span style="margin-left: 3px">{{ $company->contact->number ?? '' }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:7px 0px">
-                                    <span style="margin-left: 3px">{{ '' }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </td>
-            <td style="border: nonse" colspan="6">
-                <div class="col-12" style="text-align:center">
-
-                    @if (env('APP_ENV') !== 'local')
-                    <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                    @else
-                    <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                    @endif
-                </div>
-                <div>
-
-                    <table style="text-align: left; border :none;  ">
-
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span class="title-font">
-                                    <!-- {{ $info->report_type }} {{ $company->report_type }} Report -->
-                                    {{ $company->report_type }} Report
-                                    <!-- ({{$main_shift_name}}) -->
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span style="font-size: 11px">
-                                    {{ date('d-M-Y', strtotime($company->start)) }} -
-                                    {{ date('d-M-Y', strtotime($company->end)) }}
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-
-            <td style="border: nosne;text-align:right" colspan="4">
-                <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                        <th style="text-align: center; border :none; padding:5px">EID</th>
-                        <th style="text-align: center; border :none">Name</th>
-                        <th style="text-align: center; border :none">Department</th>
-                        <th style="text-align: center; border :none">Report Type</th>
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;font-size:11px">
-                            {{ $empID ?? '---' }}
-                        </td>
-                        <td style="text-align: center; border:none;font-size:11px">
-                            {{ $empName ?? '---' }}
-                        </td>
-                        <td style="text-align: center; border:none;font-size:11px">
-                            {{ $singleEmployee->department->name ?? '---' }}
-                        </td>
-                        <td style="text-align: center; border:none;font-size:11px">
-                            General
-                        </td>
-                    </tr>
-
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                        <th style="text-align: center; border :none; padding:5px">Present</th>
-                        <th style="text-align: center; border :none">Absent</th>
-                        <th style="text-align: center; border :none">Week Off</th>
-                        <th style="text-align: center; border :none">Leaves </th>
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:green">
-                            {{ getStatus($employee->toArray())['P'] }}
-                        </td>
-                        <td style="text-align: center; border :none;color:red">
-                            {{ getStatus($employee->toArray())['A'] ?? 0 }}
-                        </td>
-
-                        <td style="text-align: center; border :none;color:gray">
-                            {{ getStatus($employee->toArray())['O'] ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:blue">
-                            {{ getStatus($employee->toArray())['L'] ?? 0 }}
-                        </td>
-                    </tr>
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee ">
-                        <th style="text-align: center; border :none">Holidays</th>
-                        <th style="text-align: center; border :none">Missing</th>
-
-                        <th style="text-align: center; border :none; padding:5px">Work Hours</th>
-                        <th style="text-align: center; border :none">OT Hours</th>
-
-                        {{-- <th style="text-align: center; border :none">Department</th> --}}
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none;color:pink">
-                            {{ getStatus($employee->toArray())['H'] ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:orange">
-                            {{ getStatus($employee->toArray())['M'] ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none; padding:5px;color:black">
-                            {{ $empTotWrkHrs ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:black">
-                            {{ $empTotOtHrs ?? 0 }}
-                        </td>
-
-                        {{-- <td style="text-align: center; border :none;color:black">{{ $info->department->name ?? 0 }}
-            </td> --}}
-        </tr>
-        <tr style="border: none">
-            <th style="text-align: center; border :none" colspan="4">
-                <hr>
-            </th>
-        </tr>
-        </table>
-        <br>
-        </td>
-        </tr>
 
 
         @endif
 
 
-        {{-- <tr style="margin-top:20px;">
-                <td colspan="2"> <b>EID</b> : {{ $empID ?? '' }}</td>
-        <td colspan="3"> <b>Name</b> : {{ substr($empName, 0, 10) ?? '' }}</td>
-        <td colspan="3"><b>Department</b> : {{ $info->department->name ?? '' }}</td>
-        <td colspan="3"> <b>Working Hours</b> : {{ $empTotWrkHrs ?? '' }}</td>
-        <td colspan="2"> <b>OT Hours</b> : {{ $empTotOtHrs ?? '' }}</td>
-        <td colspan="2" style="color:green"> Present : {{ getStatus($employee->toArray())['P'] }}</td>
-        <td colspan="2" style="color:red"> Absent : {{ getStatus($employee->toArray())['A'] }}</td>
-        </tr> --}}
 
-        {{-- <tr>
-                <td colspan="17"></td>
-            </tr> --}}
         @if ($info->shift_type_id == 2)
 
         <tr class="my-break">

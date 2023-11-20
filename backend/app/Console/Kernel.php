@@ -275,11 +275,11 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/$monthYear-render-missing-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         if (env("APP_ENV") == "production") {
-            // $schedule
-            //     ->command('task:db_backup')
-            //     ->dailyAt('6:00')
-            //     ->appendOutputTo(storage_path("logs/db_backup.log"))
-            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            $schedule
+                ->command('task:db_backup')
+                ->dailyAt('6:00')
+                ->appendOutputTo(storage_path("logs/db_backup.log"))
+                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command('restart_sdk')
