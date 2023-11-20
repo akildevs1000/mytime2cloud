@@ -210,7 +210,7 @@ class AttendanceLogController extends Controller
     public function GenerateManualLog(Request $request)
     {
         try {
-            AttendanceLog::create($request->only(['UserID', 'LogTime', 'DeviceID', 'company_id']));
+            AttendanceLog::create($request->only(['UserID', 'LogTime', 'DeviceID', 'company_id','log_type']));
 
             return [
                 'status' => true,
