@@ -314,7 +314,8 @@ export default {
         return "---";
       } else {
         let res = str.toString();
-        return res.replace(/\b\w/g, (c) => c.toUpperCase());
+        res.replace(/\b\w/g, (c) => c.toUpperCase());
+        return str.includes(`Mobile`) ? "Mobile" : str;
       }
     },
     getRecords() {
