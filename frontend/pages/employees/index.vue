@@ -4,7 +4,7 @@
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
       </v-snackbar>
-      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+      <v-snackbar v-model="snack" :color="snackColor">
         {{ snackText }}
 
         <template v-slot:action="{ attrs }">

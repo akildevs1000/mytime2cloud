@@ -1308,6 +1308,11 @@ export default {
       this.$axios
         .get("render_logs", payload)
         .then(({ data }) => {
+          let message = "";
+          data.forEach((element) => {
+            message = message + " \n \n " + element;
+          });
+          this.response = message;
           this.loading = false;
           this.$emit("update-data-table");
         })

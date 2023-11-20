@@ -210,12 +210,8 @@ export default {
       }
     },
     async submit() {
-
       await this.getLastLog(this.log_payload.user_id);
-
       let { user_id, date, time, branch_id } = this.log_payload;
-
-
 
       let log_payload = {
         branch_id,
@@ -269,6 +265,14 @@ export default {
         .get("render_logs", payload)
         .then(({ data }) => {
           this.loading = false;
+
+          let message = "";
+          data.forEach((element) => {
+            message = message + " \n \n " + element;
+          });
+          this.response = message;
+          this.loading = false;
+
           this.$emit("update-data-table");
         })
         .catch((e) => console.log(e));

@@ -782,7 +782,9 @@ class EmployeeController extends Controller
 
                 $success = Employee::create($employee) ? true : false;
 
-                (new AttendanceController)->seedDefaultData($data["company_id"], [$employee['system_user_id']], $branch_id);
+
+
+                (new AttendanceController)->seedDefaultData($employee["company_id"], [$employee['system_user_id']], $branch_id);
             }
 
             if ($success) {
@@ -810,9 +812,10 @@ class EmployeeController extends Controller
 
         // $employees->whereHas('attendances', fn (Builder $query) => $query->where('date', ">=", date("Y-m-") . "1")->where('date', "<=", date("Y-m-") .  $daysInMonth));
         $employees->where("company_id", $company_id);
-        $employees = $employees->where("system_user_id", $system_user_id)->get();
+        if ($system_user_id)
+            $employees = $employees->where("system_user_id", $system_user_id);
 
-
+        $employees = $employees->get();
 
 
 
@@ -828,15 +831,15 @@ class EmployeeController extends Controller
 
                 $date = date("Y-m-", strtotime($date)) . sprintf("%02d",  $day);
                 $attendance = Attendance::where("company_id", $company_id);
-                $count = $attendance->where("employee_id", $system_user_id)->where("date", $date)->count();
+                $count = $attendance->where("employee_id", $employee->system_user_id)->where("date", $date)->count();
 
 
-                if ($count == 0) {
+                if ($count == 0 && $employee->system_user_id != '') {
 
 
                     $data[] = [
                         "date" =>  $date,
-                        "employee_id" => $system_user_id,
+                        "employee_id" => $employee->system_user_id,
                         "shift_id" => $employee->schedule->shift_id ?? 1,
                         "shift_type_id" => $employee->schedule->shift_type_id ?? 1,
                         "status" => "A",
