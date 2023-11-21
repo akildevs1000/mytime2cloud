@@ -29,7 +29,7 @@
               class="mt-2"
               outlined
               dense
-              v-model="payload.employee_id"
+              v-model="payload.UserID"
               x-small
               :items="[
                 { system_user_id: ``, name_with_user_id: `Select All` },
@@ -46,7 +46,7 @@
               class="mt-2"
               outlined
               dense
-              v-model="payload.device_id"
+              v-model="payload.DeviceID"
               x-small
               :items="[{ device_id: ``, name: `Select All` }, ...devices]"
               item-value="device_id"
@@ -234,10 +234,10 @@ export default {
       from_date: null,
       to_date: null,
       daily_date: null,
-      employee_id: "",
+      UserID: "",
       department_ids: [],
       status: "-1",
-      device_id: "",
+      DeviceID: "",
       branch_id: "",
       include_device_types: ["all", "Access Control"],
     },
@@ -503,7 +503,7 @@ export default {
       qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
       qs += `&status=${this.payload.status & this.payload.status || "-1"}`;
-      qs += `&employee_id=${this.payload.employee_id}`;
+      qs += `&employee_id=${this.payload.UserID}`;
       qs += `&report_type=${this.report_type}`;
       qs += `&from_date=${this.payload.from_date}&to_date=${this.payload.to_date}`;
 
