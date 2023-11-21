@@ -239,6 +239,11 @@ export default {
 
     this.verifyToken();
   },
+  mounted() {
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 1000 * 60 * 15); //15 minutes
+  },
   methods: {
     verifyToken() {
       if (this.$route.query.email && this.$route.query.password) {

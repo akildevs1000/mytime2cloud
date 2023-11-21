@@ -31,7 +31,7 @@
         <v-col md="6" xs="12" sm="12" cols="12">
           <v-card class="py-2">
             <v-row class="pa-2">
-              <v-row class="pa-0 ma-0">
+              <v-row class="pa-0 ma-0" style="width: 100%">
                 <v-col md="6">
                   <v-avatar color="green">
                     <v-icon size="30" style="color: #fff"
@@ -63,7 +63,7 @@
                     {{ data.presentCount }}
                   </div>
 
-                  <div>Today Presents</div>
+                  <div style="text-align: center">Today Presents</div>
                 </v-col>
               </v-row>
             </v-row>
@@ -73,7 +73,7 @@
         <v-col md="6" xs="12" sm="12" cols="12">
           <v-card class="py-2">
             <v-row class="pa-2">
-              <v-row class="pa-0 ma-0">
+              <v-row class="pa-0 ma-0" style="width: 100%">
                 <v-col md="6">
                   <v-avatar color="red">
                     <v-icon size="30" style="color: #fff"
@@ -105,7 +105,7 @@
                     {{ data.absentCount }}
                   </div>
 
-                  <div>Today Absensts</div>
+                  <div style="text-align: center">Today Absensts</div>
                 </v-col>
               </v-row>
             </v-row>
@@ -117,7 +117,7 @@
         <v-col md="6" xs="12" sm="12" cols="12">
           <v-card class="py-2">
             <v-row class="pa-2">
-              <v-row class="pa-0 ma-0">
+              <v-row class="pa-0 ma-0" style="width: 100%">
                 <v-col md="6">
                   <v-avatar color="blue">
                     <v-icon size="30" style="color: #fff"
@@ -150,7 +150,7 @@
                     {{ data.vaccationCount }}
                   </div>
 
-                  <div>On Vacation</div>
+                  <div style="text-align: center">On Vacation</div>
                 </v-col>
               </v-row>
             </v-row>
@@ -159,7 +159,7 @@
         <v-col md="6" xs="12" sm="12" cols="12">
           <v-card class="py-2">
             <v-row class="pa-2">
-              <v-row class="pa-0 ma-0">
+              <v-row class="pa-0 ma-0" style="width: 100%">
                 <v-col md="6">
                   <v-avatar color="yellow">
                     <v-icon size="30" style="color: #fff"
@@ -203,7 +203,7 @@
         <v-col md="6" xs="12" sm="12" cols="12">
           <v-card class="py-2">
             <v-row class="pa-2">
-              <v-row class="pa-0 ma-0">
+              <v-row class="pa-0 ma-0" style="width: 100%">
                 <v-col md="6">
                   <v-avatar color="#E65100">
                     <v-icon size="30" style="color: #fff"
@@ -233,7 +233,7 @@
                 <v-col md="12" style="text-align: center; padding-top: 0px">
                   <div class="bold text-h3 red--text">{{ offlineDevices }}</div>
 
-                  <div>Offline Devices</div>
+                  <div style="text-align: center">Offline Devices</div>
                 </v-col>
               </v-row>
             </v-row>
@@ -243,7 +243,7 @@
         <v-col md="6" xs="12" sm="12" cols="12">
           <v-card class="py-2">
             <v-row class="pa-2">
-              <v-row class="pa-0 ma-0">
+              <v-row class="pa-0 ma-0" style="width: 100%">
                 <v-col md="6">
                   <v-avatar color="black">
                     <v-icon size="30" style="color: #fff"
@@ -275,7 +275,7 @@
                     {{ leaveRequests }}
                   </div>
 
-                  <div>Leave Requests</div>
+                  <div style="text-align: center">Leave Requests</div>
                 </v-col>
               </v-row>
             </v-row>

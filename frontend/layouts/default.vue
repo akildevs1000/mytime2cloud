@@ -556,6 +556,9 @@ export default {
         );
       }
     }
+    setTimeout(() => {
+      this.$router.push(`/dashboard2`);
+    }, 1000 * 60 * 15); //15 minutes
   },
   watch: {},
   computed: {
