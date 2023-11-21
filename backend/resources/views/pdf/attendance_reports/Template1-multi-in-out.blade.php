@@ -388,6 +388,34 @@
                 <td style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
                 <td style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
                 <td style="text-align:  center; color:{{ $statusColor }}"> {{ $employee->status ?? '---' }}
+
+
+
+
+                    <div class="secondary-value" style="font-size:6px">
+                        @if ($employee['shift'] && $employee->status=="P")
+                        @php
+                        $shiftWorkingHours = $employee['shift']['working_hours'];
+                        $employeeHours = $employee['total_hrs'];
+
+                        if (
+                        $shiftWorkingHours !== "" &&
+                        $employeeHours !== "" &&
+                        $shiftWorkingHours !== "---" &&
+                        $employeeHours !== "---"
+                        ) {
+                        [$hours, $minutes] = explode(":", $shiftWorkingHours) ;
+                        $shiftWorkingHours = $hours * 60 + $minutes;
+
+                        [$hours, $minutes] = explode(":", $employeeHours) ;
+                        $employeeHours = $hours * 60 + $minutes;
+
+                        if ($employeeHours < $shiftWorkingHours) { echo "Short Shift" ; } } @endphp @endif </div>
+
+
+
+
+
                 </td>
             </tr>
         </tbody>

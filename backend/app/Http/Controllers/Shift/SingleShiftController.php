@@ -88,7 +88,7 @@ class SingleShiftController extends Controller
                 "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
                 "status" => "M",
             ];
-           
+
 
             if ($shift && $item["shift_type_id"] == 6) {
                 $item["late_coming"] =  $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);

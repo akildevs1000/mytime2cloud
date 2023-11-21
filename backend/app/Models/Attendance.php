@@ -154,16 +154,27 @@ class Attendance extends Model
             $q->where('employee_id', $request->employee_id);
         });
 
-        $model->when($request->filled('shift_type_id') && $request->shift_type_id == 2, function ($q) {
-            $q->where('shift_type_id', 2);
+        $model->when($request->filled('shift_type_id') && $request->shift_type_id == 2, function ($q) use ($request) {
+            $q->where(function ($query) {
+                $query->where('shift_type_id',   2)
+                    ->orWhere('shift_type_id', '---');
+            });
         });
 
         $model->when($request->filled('shift_type_id') && $request->shift_type_id == 5, function ($q) {
-            $q->where('shift_type_id', 5);
+            //$q->where('shift_type_id', 5);
+            $q->where(function ($query) {
+                $query->where('shift_type_id',   5)
+                    ->orWhere('shift_type_id', '---');
+            });
         });
 
         $model->when($request->filled('shift_type_id') && in_array($request->shift_type_id, [1, 3, 4, 6]), function ($q) {
-            $q->whereIn('shift_type_id', [1, 3, 4, 6]);
+            //$q->whereIn('shift_type_id', [1, 3, 4, 6]);
+            $q->where(function ($query) {
+                $query->whereIn('shift_type_id', [1, 3, 4, 6])
+                    ->orWhere('shift_type_id', '---');
+            });
         });
 
         $department_ids = $request->department_ids;
@@ -247,7 +258,7 @@ class Attendance extends Model
 
             $q->orderBy($request->sortBy, $sortDesc == 'true' ? 'desc' : 'asc');
         });
-        
+
         $model->when(!$request->filled('sortBy'), function ($q) use ($request) {
             $q->orderBy('date', 'asc');
         });

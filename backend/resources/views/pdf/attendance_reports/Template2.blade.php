@@ -444,6 +444,26 @@ die();
 
                 @endphp
                 <td style="text-align:  center; color:{{ $statusColor }}"> {{ $date[0]->status ?? '---' }}
+
+                    <div class="secondary-value" style="font-size:6px">
+                        @if ($date[0]['shift'] && $date[0]->status=="P")
+                        @php
+                        $shiftWorkingHours =$date[0]['shift']['working_hours'];
+                        $employeeHours =$date[0]['total_hrs'];
+
+                        if (
+                        $shiftWorkingHours !== "" &&
+                        $employeeHours !== "" &&
+                        $shiftWorkingHours !== "---" &&
+                        $employeeHours !== "---"
+                        ) {
+                        [$hours, $minutes] = explode(":", $shiftWorkingHours) ;
+                        $shiftWorkingHours = $hours * 60 + $minutes;
+
+                        [$hours, $minutes] = explode(":", $employeeHours) ;
+                        $employeeHours = $hours * 60 + $minutes;
+
+                        if ($employeeHours < $shiftWorkingHours) { echo "Short Shift" ; } } @endphp @endif </div>
                 </td>
                 @endforeach
             </tr>
