@@ -76,7 +76,7 @@ class MultiShiftController extends Controller
 
             $data = $logs[$row->system_user_id] ?? [];
             if (!count($data)) {
-                $message .= "{$row->system_user_id} : has No Logs to render";
+                $message .= "{$row->system_user_id}   has No Logs to render";
                 continue;
             }
             if (!$params["shift"]["id"]) {
@@ -165,8 +165,7 @@ class MultiShiftController extends Controller
             if (!$custom_render) {
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
-            $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . " " . $message;
-           
+            $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
         } catch (\Throwable $e) {
             $message = $this->getMeta("Multi Shift", $e->getMessage());
         }

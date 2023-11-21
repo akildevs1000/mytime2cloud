@@ -175,7 +175,7 @@ class SplitShiftController extends Controller
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
 
-            $message = "[" . $date . " " . date("H:i:s") .  "] Dual Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . " " . $message;
+            $message = "[" . $date . " " . date("H:i:s") .  "] Dual Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
         } catch (\Throwable $e) {
             $message = $this->getMeta("Dual Shift", $e->getMessage());
         }

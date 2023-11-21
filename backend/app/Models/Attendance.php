@@ -261,7 +261,12 @@ class Attendance extends Model
         });
 
         $model->when(!$request->filled('sortBy'), function ($q) use ($request) {
-            $q->orderBy('date', 'asc');
+
+            if ($request->from_date == $request->to_date) {
+                $q->orderBy(Employee::select("first_name")->whereColumn("employees.company_id", "attendances.company_id")->whereColumn("employees.system_user_id", "attendances.employee_id"),   'asc');
+            } else {
+                $q->orderBy('date', 'asc');
+            }
         });
 
         $model->whereDoesntHave('device_in', fn ($q) => $q->where('device_type', 'Access Control'));

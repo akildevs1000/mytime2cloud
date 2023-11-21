@@ -72,7 +72,7 @@ class FiloShiftController extends Controller
             $shift = $schedule["shift"] ?? false;
 
             if (!$schedule) {
-                $message .= ".  No schedule is mapped with user : System User Id: $key   and Date : " . $params["date"] . " combination";
+                $message .= ".  No schedule is mapped with combination  System User Id: $key   and Date : " . $params["date"] . " ";
                 continue;
             }
             if (!$firstLog["schedule"]["shift_type_id"]) {
@@ -147,7 +147,7 @@ class FiloShiftController extends Controller
             if (!$custom_render) {
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
-            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds) . " " . $message;
+            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift.  Affected Ids: " . json_encode($UserIds) . " " . $message;
         } catch (\Throwable $e) {
             $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
         }
